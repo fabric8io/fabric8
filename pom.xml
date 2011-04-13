@@ -1,0 +1,410 @@
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource</groupId>
+        <artifactId>fusesource-pom</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-project</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>${project.artifactId}</name>
+
+    <url>http://fabric.fusesource.org/</url>
+
+    <organization>
+        <name>FuseSource</name>
+        <url>http://fusesource.com</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Common Development and Distribution License (CDDL)</name>
+            <url>http://www.opensource.org/licenses/cddl1</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <prerequisites>
+        <maven>2.0.9</maven>
+    </prerequisites>
+
+    <properties>
+        <forge-project-id>fabric</forge-project-id>
+
+        <!-- OSGi bundles properties -->
+        <fabric.osgi.import.fabric.version>version="[$(version;==;${fabric.osgi.version}),$(version;=+;${fabric.osgi.version}))"
+        </fabric.osgi.import.fabric.version>
+        <fabric.osgi.import.strict.version>version="[$(version;===;${fabric.osgi.version}),$(version;==+;${fabric.osgi.version}))"
+        </fabric.osgi.import.strict.version>
+        <fabric.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fabric.osgi.import.default.version>
+        <fabric.osgi.import.defaults>
+            org.springframework.*;version="[2.5,4)",
+            org.apache.commons.logging.*;version="[1.1,2)",
+            org.apache.camel.*;version="[2.5,3)",
+        </fabric.osgi.import.defaults>
+        <fabric.osgi.import.before.defaults/>
+        <fabric.osgi.import.additional/>
+        <fabric.osgi.import.pkg>
+            org.fusesource.fabric.*;${fabric.osgi.import.fabric.version},
+            ${fabric.osgi.import.before.defaults},
+            ${fabric.osgi.import.defaults},
+            ${fabric.osgi.import.additional},
+            *
+        </fabric.osgi.import.pkg>
+        <fabric.osgi.activator/>
+        <fabric.osgi.failok>false</fabric.osgi.failok>
+        <fabric.osgi.private.pkg>!*</fabric.osgi.private.pkg>
+        <fabric.osgi.export>org.fusesource.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
+        <fabric.osgi.split.pkg>-split-package:=first</fabric.osgi.split.pkg>
+        <fabric.osgi.import>${fabric.osgi.import.pkg}</fabric.osgi.import>
+        <fabric.osgi.dynamic/>
+        <fabric.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fabric.osgi.symbolic.name>
+        <fabric.osgi.exclude.dependencies>false</fabric.osgi.exclude.dependencies>
+        <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
+        <fabric.osgi.services.export></fabric.osgi.services.export>
+
+
+        <karaf-version>2.2.1-SNAPSHOT</karaf-version>
+        <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
+        <logback-version>0.9.26</logback-version>
+        <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
+        <osgi-version>4.2.0</osgi-version>
+        <slf4j-version>1.5.10</slf4j-version>
+        <surefire-version>2.5</surefire-version>
+
+        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.target>1.5</maven.compiler.target>
+    </properties>
+
+
+    <distributionManagement>
+        <repository>
+            <id>fusesource-nexus-staging</id>
+            <name>Fusesource Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/service/local/staging/deploy/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>fusesource-nexus-snapshots</id>
+            <name>Fusesource Nexus Snapshots</name>
+            <!--
+                  <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
+            -->
+            <url>http://repo.fusesource.com/nexus/content/repositories/subscriber-snapshot</url>
+        </snapshotRepository>
+        <site>
+            <id>website.fusesource.org</id>
+            <name>website</name>
+            <url>dav:http://fusesource.com/forge/dav/fabric/maven/${project.version}</url>
+        </site>
+    </distributionManagement>
+    <dependencies>
+
+        <!-- test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.7</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <modules>
+        <module>fabric-zookeeper</module>
+        <module>fabric-configadmin</module>
+        <module>fabric-agent</module>
+    </modules>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>${maven-bundle-plugin-version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <excludeDependencies>${fabric.osgi.exclude.dependencies}</excludeDependencies>
+                        <instructions>
+                            <Bundle-Name>${project.artifactId}</Bundle-Name>
+                            <Bundle-SymbolicName>${fabric.osgi.symbolic.name}</Bundle-SymbolicName>
+                            <Bundle-Activator>${fabric.osgi.activator}</Bundle-Activator>
+                            <Export-Package>${fabric.osgi.export}</Export-Package>
+                            <Import-Package>${fabric.osgi.import}</Import-Package>
+                            <DynamicImport-Package>${fabric.osgi.dynamic}</DynamicImport-Package>
+                            <Private-Package>${fabric.osgi.private.pkg}</Private-Package>
+                            <Implementation-Title>FuseSource FON</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Include-Resource>${fabric.osgi.resource}</Include-Resource>
+                            <_versionpolicy>${fabric.osgi.import.default.version}</_versionpolicy>
+                            <_failok>${fabric.osgi.failok}</_failok>
+                            <Export-Service>${fabric.osgi.services.export}</Export-Service>
+                        </instructions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-version}</version>
+                <configuration>
+                    <forkMode>once</forkMode>
+                    <!-- these settings are mandatory to avoid SureFire giving a bogus system property to the web container -->
+                    <useSystemClassLoader>false</useSystemClassLoader>
+                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                    <includes>
+                        <include>**/*Test.*</include>
+                    </includes>
+                    <excludes>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>cleanVersions</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>cleanVersions</goal>
+                        </goals>
+                        <configuration>
+                            <versions>
+                                <fabric.osgi.version>${project.version}</fabric.osgi.version>
+                            </versions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>repo1.maven</id>
+            <name>Maven Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.m2-snapshot</id>
+            <name>FuseSource Community Snapshot Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.nexus.m2-snapshot</id>
+            <name>FuseSource Community Snapshot Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Development Snapshot Repository</name>
+            <url>https://repository.apache.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>fusesource.nexus.m2-snapshot</id>
+            <name>FuseSource Community Snapshot Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Development Snapshot Repository</name>
+            <url>https://repository.apache.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+
+    </pluginRepositories>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- OSGi -->
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi-version}</version>
+            </dependency>
+            <!-- LogBack -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-version}</version>
+            </dependency>
+            <!-- LinkedIn ZooKeeper -->
+            <dependency>
+                <groupId>org.linkedin</groupId>
+                <artifactId>org.linkedin.zookeeper-impl</artifactId>
+                <version>${linkedin-zookeeper-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.jdmk</groupId>
+                        <artifactId>jmxtools</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- Log4j -->
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.16</version>
+            </dependency>
+            <!-- Slf4j -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
+            <!-- Commons Logging -->
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging-api</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <!-- Karaf version -->
+            <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.console</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.features</groupId>
+                <artifactId>org.apache.karaf.features.core</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.admin</groupId>
+                <artifactId>org.apache.karaf.admin.core</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.admin</groupId>
+                <artifactId>org.apache.karaf.admin.management</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <!-- Others -->
+            <dependency>
+                <groupId>org.ops4j.pax.url</groupId>
+                <artifactId>pax-url-mvn</artifactId>
+                <version>1.2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.utils</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework</artifactId>
+                <version>3.0.9</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
