@@ -8,15 +8,16 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.data.BundleInfo;
-import org.fusesource.fabric.api.data.BundleInfoComparator;
 import org.fusesource.fabric.api.data.ServiceInfo;
-import org.fusesource.fabric.api.data.ServiceInfoComparator;
 import org.fusesource.fabric.service.JmxTemplate.BundleStateCallback;
 import org.fusesource.fabric.service.JmxTemplate.ServiceStateCallback;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -121,6 +122,44 @@ public class AgentImpl implements Agent {
         } catch (Exception e) {
             logger.error("Error while retrieving services", e);
             return new ServiceInfo[0];
+        }
+    }
+
+    public Profile[] getProfiles() {
+        try {
+            String version = zooKeeper.getStringData("/fabric/configs/agents/" + id);
+            String node = "/fabric/configs/versions/" + version + "/agents/" + id;
+            String str = zooKeeper.getStringData(node);
+            if (str == null) {
+                return new Profile[0];
+            }
+            List<Profile> profiles = new ArrayList<Profile>();
+            for (String p : str.split(" ")) {
+                profiles.add(new ProfileImpl(p, version, zooKeeper));
+            }
+            return profiles.toArray(new Profile[profiles.size()]);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setProfiles(Profile[] profiles) {
+        try {
+            String version = zooKeeper.getStringData("/fabric/configs/agents/" + id);
+            String node = "/fabric/configs/versions/" + version + "/agents/" + id;
+            String str = "";
+            for (Profile parent : profiles) {
+                if (!version.equals(parent.getVersion())) {
+                    throw new IllegalArgumentException("Bad profile: " + parent);
+                }
+                if (!str.isEmpty()) {
+                    str += " ";
+                }
+                str += parent.getId();
+            }
+            zooKeeper.setData( node, str );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

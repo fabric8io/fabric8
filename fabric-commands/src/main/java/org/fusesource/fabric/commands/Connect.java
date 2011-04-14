@@ -13,14 +13,10 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.api.AgentService;
 
 @Command(name = "connect", scope = "fabric")
-public class Connect extends OsgiCommandSupport {
-
-    private AgentService agentService;
+public class Connect extends FabricCommand {
 
     @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: karaf)", required = false, multiValued = false)
     private String username = "karaf";
@@ -56,11 +52,4 @@ public class Connect extends OsgiCommandSupport {
         return null;
     }
 
-    public AgentService getAgentService() {
-        return agentService;
-    }
-
-    public void setAgentService(AgentService agentService) {
-        this.agentService = agentService;
-    }
 }

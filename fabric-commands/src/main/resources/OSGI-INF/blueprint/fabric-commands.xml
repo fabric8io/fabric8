@@ -29,6 +29,12 @@
 
     <service ref="zooKeeperClusterService" auto-export="interfaces" />
 
+    <bean id="profileService" class="org.fusesource.fabric.service.ProfileServiceImpl">
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+    <service ref="profileService" auto-export="interfaces" />
+
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="fabric/zk-cluster">
             <action class="org.fusesource.fabric.commands.ZkCluster">
@@ -38,16 +44,31 @@
         <command name="fabric/create-agent">
             <action class="org.fusesource.fabric.commands.CreateAgent">
                 <property name="agentService" ref="agentService"/>
+                <property name="profileService" ref="profileService"/>
             </action>
         </command>
         <command name="fabric/list-agents">
             <action class="org.fusesource.fabric.commands.ListAgents">
                 <property name="agentService" ref="agentService"/>
+                <property name="profileService" ref="profileService"/>
             </action>
         </command>
         <command name="fabric/connect">
             <action class="org.fusesource.fabric.commands.Connect">
                 <property name="agentService" ref="agentService"/>
+                <property name="profileService" ref="profileService"/>
+            </action>
+        </command>
+        <command name="fabric/create-profile">
+            <action class="org.fusesource.fabric.commands.CreateProfile">
+                <property name="agentService" ref="agentService"/>
+                <property name="profileService" ref="profileService"/>
+            </action>
+        </command>
+        <command name="fabric/list-profiles">
+            <action class="org.fusesource.fabric.commands.ListProfiles">
+                <property name="agentService" ref="agentService"/>
+                <property name="profileService" ref="profileService"/>
             </action>
         </command>
     </command-bundle>
