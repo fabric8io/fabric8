@@ -1,0 +1,5 @@
+---
+link: http://${project_id}.fusesource.org/blog/
+author: "${project_name} Team"
+title: "The ${project_name} Blog"
+description: "${project_slogan}"

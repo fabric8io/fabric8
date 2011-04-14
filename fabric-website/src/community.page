@@ -1,0 +1,67 @@
+---
+title: Community
+in_menu: true
+sort_info: 50
+--- name:overview
+
+# Lets Talk
+The ${project_name} community is here to help you
+
+--- name:content pipeline:jade
+
+.left
+  :markdown
+    # [Blog](blog/index.html)
+.right
+  :markdown
+    Keep up to date on the latest and greatest releases by following the [Fabric Blog](blog/index.html)
+
+.left
+  :markdown
+    # Mailing List
+.right
+  :&markdown
+    We really want you to get involved in the #{project_name} and we love [contributions](contributing.html). One of the easiest ways to get involved is to join the community discussions.
+
+    The main mailing list is hosted at the [fabric google group](http://groups.google.com/group/fusefabric).
+
+     * [http://groups.google.com/group/fusefabric](http://groups.google.com/group/fusefabric)
+
+    Please join us! 
+
+    Be aware that to reduce spam your first post will be moderated through; so please be patient. (Unfortunately we get a lot of spam)
+
+.left
+  :markdown
+    # Commits List
+.right
+  :markdown
+    The [fabric-commits google group](http://groups.google.com/group/fusefabric-commits) is notified of all changes to the source code or changes to [issues](support.html) so you can use this list to watch development and support occur.
+
+    * [http://groups.google.com/group/fusefabric-commits](http://groups.google.com/group/fusefabric-commits)
+
+.left
+  :markdown
+    # Twitter
+
+.right
+  :markdown
+    You can watch us on twitter by following [@fusefabric](http://twitter.com/fusefabric) or alternatively searching for [fusefabric](http://search.twitter.com/search?q=fusefabric) or the [#fusefabric](http://search.twitter.com/search?q=%23fusefabric) tag.
+
+    If you find something you like or don't like in Fuse Fabric please do tweet it (with fusefabric or #fusefabric in the text) or lets chat about it on the [mailing list](http://groups.google.com/group/fusefabric)
+
+.left
+  :markdown
+    # IRC
+.right
+  :markdown
+    You can also catch us on IRC to chat via **#fusefabric** on **irc.freenode.net**. If you don't have an IRC client then try the [web based IRC client](http://webchat.freenode.net/?channels=#fusefabric) or the [freenode java applet](http://java.freenode.net/index.php?channel=fusefabric) or this
+
+.left
+  :markdown
+    # Support
+.right
+  :&markdown
+    If you have a problem you can [get help](support.html) or try surfing our [Issue Tracker](#{project_issue_url})
+
+

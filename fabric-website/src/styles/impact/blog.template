@@ -1,0 +1,11 @@
+---
+template: main.template
+---
+<div class="post"> 
+  <h2>{title:}</h2>
+  <div class="details">Posted by {author:} on {created_at:} </div>
+  <webgen:block name='content'/>
+  <% if context.node.node_info[:page].blocks.has_key?('full_story') %>
+    <webgen:block name='full_story' />
+  <% end %>
+</div>

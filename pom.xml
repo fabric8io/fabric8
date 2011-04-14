@@ -80,13 +80,19 @@
         <fabric.osgi.services.export></fabric.osgi.services.export>
 
 
+        <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
         <karaf-version>2.2.1-SNAPSHOT</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
         <logback-version>0.9.26</logback-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <osgi-version>4.2.0</osgi-version>
+        <scala-version>2.8.1</scala-version>
+        <scala-plugin-version>2.15.0</scala-plugin-version>
+        <scalate-version>1.4.1</scalate-version>
+        <servlet-api-version>2.5</servlet-api-version>
         <slf4j-version>1.5.10</slf4j-version>
         <surefire-version>2.5</surefire-version>
+        <war-plugin-version>2.1.1</war-plugin-version>
 
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
@@ -159,6 +165,41 @@
                         </instructions>
                     </configuration>
                 </plugin>
+
+              <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${scala-plugin-version}</version>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>compile</goal>
+                      <goal>testCompile</goal>
+                    </goals>
+                  </execution>
+                </executions>
+                <configuration>
+                  <!-- lets disable vscaladoc -->
+                  <scaladocClassName>scala.tools.nsc.ScalaDoc</scaladocClassName>
+                  <!--
+                              <scalaJars>
+                                <scalaJar>
+                                  <groupId>org.scala-lang</groupId>
+                                  <artifactId>scala-compiler</artifactId>
+                                  <version>${scala-version}</version>
+                                </scalaJar>
+                              </scalaJars>
+                  -->
+                  <jvmArgs>
+                    <jvmArg>-Xmx1024m</jvmArg>
+                  </jvmArgs>
+                  <args>
+                    <!-- arg>-unchecked</arg -->
+                    <arg>-deprecation</arg>
+                  </args>
+                  <scalaVersion>${scala-version}</scalaVersion>
+                </configuration>
+              </plugin>
             </plugins>
         </pluginManagement>
 
