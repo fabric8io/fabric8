@@ -70,6 +70,14 @@
   <build>
     <sourceDirectory>${basedir}/ext</sourceDirectory>
 
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-webdav-jackrabbit</artifactId>
+        <version>${wagon-webdav-plugin-version}</version>
+      </extension>
+    </extensions>
+
     <plugins>
       <plugin>
         <inherited>true</inherited>

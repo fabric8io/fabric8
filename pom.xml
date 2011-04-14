@@ -92,6 +92,7 @@
         <servlet-api-version>2.5</servlet-api-version>
         <slf4j-version>1.5.10</slf4j-version>
         <surefire-version>2.5</surefire-version>
+        <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
 
         <maven.compiler.source>1.5</maven.compiler.source>
