@@ -98,10 +98,40 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>
+        <version>${scala-plugin-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- lets disable vscaladoc -->
+          <scaladocClassName>scala.tools.nsc.ScalaDoc</scaladocClassName>
+          <!--
+                      <scalaJars>
+                        <scalaJar>
+                          <groupId>org.scala-lang</groupId>
+                          <artifactId>scala-compiler</artifactId>
+                          <version>${scala-version}</version>
+                        </scalaJar>
+                      </scalaJars>
+          -->
+          <jvmArgs>
+            <jvmArg>-Xmx1024m</jvmArg>
+          </jvmArgs>
+          <args>
+            <!-- arg>-unchecked</arg -->
+            <arg>-deprecation</arg>
+          </args>
+          <scalaVersion>${scala-version}</scalaVersion>
+        </configuration>
       </plugin>
 
       <plugin>

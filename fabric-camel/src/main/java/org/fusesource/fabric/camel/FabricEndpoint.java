@@ -1,0 +1,133 @@
+/*
+ * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
+package org.fusesource.fabric.camel;
+
+import org.apache.camel.Consumer;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
+import org.apache.camel.Producer;
+import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.impl.DefaultProducer;
+import org.apache.camel.impl.ProducerCache;
+import org.apache.camel.processor.loadbalancer.LoadBalancer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.linkedin.zookeeper.tracker.TrackedNode;
+import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Creates an endpoint which uses FABRIC to map a logical name to physical endpoint names
+ */
+public class FabricEndpoint extends DefaultEndpoint {
+    private static final transient Log LOG = LogFactory.getLog(FabricEndpoint.class);
+
+    private final FabricComponent component;
+    private final String fabricPath;
+    private final String fabricName;
+    private final ZooKeeperTreeTracker treeTracker;
+    private LoadBalancerFactory loadBalancerFactory;
+
+    public FabricEndpoint(String uri, FabricComponent component, String fabricPath, String fabricName, ZooKeeperTreeTracker<EndpointLocator> treeTracker) {
+        super(uri, component);
+        this.component = component;
+        this.fabricPath = fabricPath;
+        this.fabricName = fabricName;
+        this.treeTracker = treeTracker;
+    }
+
+
+    public Producer createProducer() throws Exception {
+        final FabricEndpoint endpoint = this;
+        return new DefaultProducer(endpoint) {
+            public void process(Exchange exchange) throws Exception {
+                // lets dynamically try and find the endpoint as you send
+                Map<String, TrackedNode<EndpointLocator>> tree = treeTracker.getTree();
+                LOG.debug("Looking up ZooKeeper entry: " + fabricPath);
+                TrackedNode<EndpointLocator> locatorNode = tree.get(fabricPath);
+                if (locatorNode == null || locatorNode.getData() == null) {
+                    throw new NoEndpointAvailableException(endpoint);
+                } else {
+                    EndpointLocator locator = locatorNode.getData();
+                    locator.process(exchange, endpoint);
+                }
+            }
+        };
+    }
+
+    public Consumer createConsumer(Processor processor) throws Exception {
+        throw new UnsupportedOperationException("You cannot consume from a FABRIC endpoint using just its fabric name directly, you must use fabric:name:someActualUri instead");
+    }
+
+    public boolean isSingleton() {
+        return true;
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+
+        treeTracker.destroy();
+    }
+
+    public Processor getProcessor(String uri) {
+        final Endpoint endpoint = getCamelContext().getEndpoint(uri);
+        return new Processor() {
+
+            public void process(Exchange exchange) throws Exception {
+                ProducerCache producerCache = component.getProducerCache();
+                Producer producer = producerCache.acquireProducer(endpoint);
+                try {
+                    producer.process(exchange);
+                } finally {
+                    producerCache.releaseProducer(endpoint, producer);
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "Producer for " + endpoint;
+            }
+        };
+    }
+
+    // Properties
+    //-------------------------------------------------------------------------
+
+
+    public FabricComponent getComponent() {
+        return component;
+    }
+
+    public String getFabricPath() {
+        return fabricPath;
+    }
+
+    public String getFabricName() {
+        return fabricName;
+    }
+
+    public LoadBalancerFactory getLoadBalancerFactory() {
+        if (loadBalancerFactory == null) {
+            loadBalancerFactory = component.getLoadBalancerFactory();
+        }
+        return loadBalancerFactory;
+    }
+
+    public void setLoadBalancerFactory(LoadBalancerFactory loadBalancerFactory) {
+        this.loadBalancerFactory = loadBalancerFactory;
+    }
+
+    public LoadBalancer createLoadBalancer(List<String> uris) {
+        return getLoadBalancerFactory().createLoadBalancer();
+    }
+}

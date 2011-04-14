@@ -80,6 +80,7 @@
         <fabric.osgi.services.export></fabric.osgi.services.export>
 
 
+        <camel-version>2.6.0-fuse-01-09</camel-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
         <karaf-version>2.2.1-SNAPSHOT</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
@@ -97,6 +98,7 @@
 
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
+      <spring-version>3.0.4.RELEASE</spring-version>
     </properties>
 
 
@@ -110,7 +112,7 @@
             <id>fusesource-nexus-snapshots</id>
             <name>Fusesource Nexus Snapshots</name>
             <!--
-                  <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
+            <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
             -->
             <url>http://repo.fusesource.com/nexus/content/repositories/subscriber-snapshot</url>
         </snapshotRepository>
@@ -126,19 +128,19 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.7</version>
+            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <modules>
         <module>fabric-zookeeper</module>
+        <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
         <module>fabric-agent</module>
         <module>fabric-commands</module>
         <module>fabric-camel</module>
         <module>fabric-distro</module>
-        <module>fabric-website</module>
     </modules>
 
     <build>
@@ -170,41 +172,6 @@
                         </instructions>
                     </configuration>
                 </plugin>
-
-              <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>${scala-plugin-version}</version>
-                <executions>
-                  <execution>
-                    <goals>
-                      <goal>compile</goal>
-                      <goal>testCompile</goal>
-                    </goals>
-                  </execution>
-                </executions>
-                <configuration>
-                  <!-- lets disable vscaladoc -->
-                  <scaladocClassName>scala.tools.nsc.ScalaDoc</scaladocClassName>
-                  <!--
-                              <scalaJars>
-                                <scalaJar>
-                                  <groupId>org.scala-lang</groupId>
-                                  <artifactId>scala-compiler</artifactId>
-                                  <version>${scala-version}</version>
-                                </scalaJar>
-                              </scalaJars>
-                  -->
-                  <jvmArgs>
-                    <jvmArg>-Xmx1024m</jvmArg>
-                  </jvmArgs>
-                  <args>
-                    <!-- arg>-unchecked</arg -->
-                    <arg>-deprecation</arg>
-                  </args>
-                  <scalaVersion>${scala-version}</scalaVersion>
-                </configuration>
-              </plugin>
             </plugins>
         </pluginManagement>
 
@@ -409,7 +376,17 @@
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j-version}</version>
             </dependency>
             <!-- Commons Logging -->
@@ -457,5 +434,15 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+      <profile>
+        <id>distro</id>
+
+        <modules>
+          <module>fabric-website</module>
+        </modules>
+      </profile>
+    </profiles>
 
 </project>

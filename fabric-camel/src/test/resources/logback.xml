@@ -1,0 +1,41 @@
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+  -->
+
+<configuration scan="true" debug="false">
+  <!-- TODO in production mode disable the scan -->
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <File>target/application.log</File>
+    <Append>true</Append>
+
+    <encoder>
+      <pattern>%-4relative [%thread] %-5level %logger{40} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+<!--
+  uncomment any of these lines to enable debug logging
+
+  <logger name="org.fusesource.fabric" level="DEBUG" />
+-->
+
+
+  <root level="info">
+    <appender-ref ref="FILE" />
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</configuration>
