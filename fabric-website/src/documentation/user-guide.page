@@ -4,14 +4,14 @@ in_menu: true
 sort_info: 10
 --- name:overview
 # Fabric User Guide
-Scala Template Engine: like HAML or JSP without the crap but with added Scala coolness
+Fabric: the clustering solution for Apache Karaf and ServiceMix
 
 --- name:content
 
 * Table of contents
 {:toc}
 
-Fabric is a template engine based on the Scala language.
+Fabric is a the clustering solution for Apache Karaf and ServiceMix.
 
 ## Features
 
