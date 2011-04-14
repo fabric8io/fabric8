@@ -144,8 +144,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 try {
                     doUpdate(props);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
+                    LOGGER.error("Unable to update agent", e);
                 }
             }
         });
