@@ -134,6 +134,7 @@
         <module>fabric-zookeeper</module>
         <module>fabric-configadmin</module>
         <module>fabric-agent</module>
+        <module>fabric-website</module>
     </modules>
 
     <build>
