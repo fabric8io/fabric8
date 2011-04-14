@@ -8,31 +8,30 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.api.AgentService;
+import org.fusesource.fabric.api.Profile;
 
 @Command(name = "create-agents", scope = "fabric")
-public class CreateAgent extends OsgiCommandSupport {
+public class CreateAgent extends FabricCommand {
 
-    private AgentService agentService;
+    @Option(name = "--version")
+    private String version = "base";
+
+    @Option(name = "--profile", multiValued = true, required = false)
+    private List<String> profiles;
+
+    @Option(name = "--parent", multiValued = false, required = true)
+    private String parent;
 
     @Argument(index = 0)
     private String name;
 
-    @Argument(index = 1, required = true)
-    private String parent;
-
-
-    public AgentService getAgentService() {
-        return agentService;
-    }
-
-    public void setAgentService(AgentService agentService) {
-        this.agentService = agentService;
-    }
 
     @Override
     protected Object doExecute() throws Exception {
@@ -40,7 +39,14 @@ public class CreateAgent extends OsgiCommandSupport {
         if (agent == null) {
             throw new Exception("Unknown agent: " + parent);
         }
-        agentService.createChild(agent, name);
+        List<String> names = this.profiles;
+        if (names == null || names.isEmpty()) {
+            names = Collections.singletonList("default");
+        }
+        Profile[] profiles = getProfiles(version, names);
+        Agent child = agentService.createChild(agent, name);
+        child.setProfiles(profiles);
         return null;
     }
+
 }

@@ -8,32 +8,34 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.io.PrintStream;
 import java.util.Map;
 
 import org.apache.felix.gogo.commands.Command;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.api.AgentService;
 
 @Command(name = "list-agents", scope = "fabric")
-public class ListAgents extends OsgiCommandSupport {
-
-    private AgentService agentService;
-
-    public AgentService getAgentService() {
-        return agentService;
-    }
-
-    public void setAgentService(AgentService agentService) {
-        this.agentService = agentService;
-    }
+public class ListAgents extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
         Map<String, Agent> agents = agentService.getAgents();
-        for (Agent agent : agents.values()) {
-            System.out.println(agent.getId() + ": alive=" + agent.isAlive() + (agent.getParent() != null ? ", parent=" + agent.getParent().getId() : ""));
-        }
+        printAgents(agents, System.out);
         return null;
     }
+
+    protected void printAgents(Map<String, Agent> agents, PrintStream out) {
+        out.println(String.format("%-30s %-10s %s", "[id]", "[alive]", "[profiles]"));
+        for (Agent agent : agents.values()) {
+            if (agent.isRoot()) {
+                out.println(String.format("%-30s %-10s %s", agent.getId(), agent.isAlive(), toString(agent.getProfiles())));
+                for (Agent child : agents.values()) {
+                    if (child.getParent() == agent) {
+                        out.println(String.format("%-30s %-10s %s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles())));
+                    }
+                }
+            }
+        }
+    }
+
 }
