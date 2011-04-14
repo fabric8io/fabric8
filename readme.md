@@ -34,46 +34,7 @@ by the agent and the features are installed / uninstalled as needed.
 
 ## Getting started
 
-Checkout Fabric:
-    git clone git://github.com/fusesource/fabric.git
-    cd fabric
-
-Build Fabric:
-    mvn install
-
-To create a ZooKeeper server, run the following commands in Karaf (2.2.x) console:
-    features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
-    features:install fabric-commands
-    fabric:zk-cluster root
-
-You can now use the ZooKeeper commands and see that the karaf instance has been automatically
-registered as an agent:
-    karaf@root> fabric:list-agents
-    root: alive=true
-    karaf@root>
-
-Let's create a new child agent:
-    karaf@root> fabric:create-agent test root
-    ...
-Check that the agent has been created (it can take a few seconds):
-    karaf@root> fabric:list-agents
-    test: alive=true, parent=root
-    root: alive=true
-
-Now, let's create a profile webserver, inheriting the default profile:
-    karaf@root> zk:create /fabric/configs/versions/base/profiles/webserver default
-And associate the karaf war feature to it:
-    karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.1-SNAPSHOT/xml/features
-    karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/feature.war war
-
-Last, let's associate the test agent we've created with the webserver profile:
-    karaf@root> zk:set /fabric/configs/versions/base/agents/test webserver
-
-Check that the feature has been deployed:
-    karaf@root> fabric:connect test
-    ...
-    karaf@test> osgi:list
-    ...
+Go to the [website](http://fabric.fusesource.org/documentation/getting-started.html) for a quick start guide.
 
 ## Project Links
 

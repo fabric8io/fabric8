@@ -1,0 +1,78 @@
+---
+title: Fabric Getting Started
+in_menu: true
+sort_info: 10
+--- name:overview
+# Fabric Getting Started
+Getting Started guide for Fabric
+
+--- name:content pipeline:jade
+
+.left
+  :markdown
+    # Checkout Fabric
+.right
+  :&markdown
+    Run the following commands:  
+       `git clone git://github.com/fusesource/fabric.git`  
+       `cd fabric`  
+
+.left
+  :markdown
+    # Build Fabric
+.right
+  :&markdown
+    Use the standard maven command to build Fabric:  
+      `mvn install`
+
+.left
+  :markdown
+    # Create a ZooKeeper server
+.right
+  :&markdown
+    To create a ZooKeeper server, run the following commands in Karaf (2.2.x) console:  
+    `features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features`  
+    `features:install fabric-commands`  
+    `fabric:zk-cluster root`  
+    You can now use the ZooKeeper commands and see that the karaf instance has been automatically registered as an agent:  
+    `karaf@root> fabric:list-agents`  
+    `root: alive=true`  
+    `karaf@root>`  
+
+.left
+  :markdown
+    # Create a new agent
+.right
+  :&markdown
+    `karaf@root> fabric:create-agent test root`  
+    `...`  
+    Check that the agent has been created (it can take a few seconds):  
+    `karaf@root> fabric:list-agents`  
+    `test: alive=true, parent=root`  
+    `root: alive=true`  
+
+.left
+  :markdown
+    # Create a new profile
+.right
+  :&markdown
+    Now, let's create a profile webserver, inheriting the default profile:  
+    `karaf@root> zk:create /fabric/configs/versions/base/profiles/webserver default`  
+    And associate the karaf war feature to it:  
+    `karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.1-SNAPSHOT/xml/features`  
+    `karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/feature.war war`
+
+.left
+  :markdown
+    # Apply the profile
+.right
+  :&markdown
+    Last, let's associate the test agent we've created with the webserver profile:  
+    `karaf@root> zk:set /fabric/configs/versions/base/agents/test webserver`  
+    Check that the feature has been deployed:  
+    `karaf@root> fabric:connect test`  
+    `...`  
+    `karaf@test> osgi:list`  
+    `...`  
+
+
