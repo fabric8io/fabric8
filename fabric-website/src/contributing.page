@@ -1,0 +1,39 @@
+---
+title: Contributing
+in_menu: false
+--- name:overview
+
+# How to contribute to ${project_name}
+We love contributions!
+
+--- name:content pipeline:ssp,markdown
+
+We really want you to get involved in the ${project_name} project, to [join the community](community.html) and help make it a better price of software - please do dive in and help!
+
+Try surf the [documentation](documentation/index.html) and website in general - if somethings confusing or not clear, [let us know](community.html) or raise a [support request](support.html).  
+
+[Download](download.html) the code and try it out and see what you think. Browse the [source code](source.html). Got an itch to scratch, want to tune some operation or add some feature?
+
+Want to do some hacking on the ${project_name} code? Try surfing the our <a href="${project_issue_url}">Issue Tracker</a> for open issues or features that need to be implemented, take ownership of an issue and try fix it.
+
+## Improving the documentation
+
+Documentation is massively important to help users make the most of ${project_name} and its probably the area that needs the most help!
+
+So if you are interested in helping the documentation effort; whether its just to fix a page here or there, correct a link or even write a tutorial or improve what documentation is already there please do dive in and help\!
+
+All of the documentation is stored in a GIT repo, see [How the Site works](site.html)
+
+## If you find a bug or problem
+
+Please raise a new issue in our <a href="${project_issue_url}">Issue Tracker</a>. If you can create a JUnit test case then your issue is more likely to be resolved quicker. Then we can add your issue to our [source control system](source.html) and then we'll know when its really fixed and we can ensure that the problem stays fixed in future releases.
+
+## Working on the code and creating patches
+
+We gladly accept patches if you can find ways to improve, tune or fix ${project_name} in some way.
+
+${include("_creating_patches.ssp.md")}
+
+## Becoming a committer
+
+Once you have made some good contributions you may be invited to become a committer by the project team. We'll chat to you offline about it.

@@ -1,0 +1,86 @@
+-#
+-# Copyright (C) 2009-2010 the original author or authors.
+-# See the notice.md file distributed with this work for additional
+-# information regarding copyright ownership.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+- response.setContentType("text/html") 
+-@ var title : String = ""
+-@ var body: String = null
+-@ var overview: String = null
+-@ var spot: String = null
+-@ var blog: String = null
+-@ var head: String = null
+- val include_console = engine.isDevelopmentMode && engine.resourceLoader.exists("/org/fusesource/scalate/console/console_head.scaml")
+!!! Basic
+html(lang="en")
+  head
+    meta(content="text/html; charset=utf-8" http-equiv="Content-Type")
+    meta(content="fuse fabric clustering and cloud for Fuse" name="description")
+    meta(content="fuse,fabric,cluster,cloud,provision,configure" name="keywords")
+    meta(content="Fabric" name="author")
+    link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/pygmentize.css")})
+    link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/site.css")})
+
+    - if (head!=null)
+      !~~ head
+
+    -#
+      - if (include_console)
+        - include("/org/fusesource/scalate/console/console_head.scaml")
+        link(href={uri("/styles/scalate/console.css")} rel="stylesheet" type="text/css")
+    
+    title= title
+  body
+    div#navigation
+      div.wrapper
+        - include("/_navigation.ssp.md")
+        
+    - if (overview!=null)
+      div#overview
+        div.wrapper
+          -if ( project_logo!=null )  
+            div.logo
+              img(src="#{uri(project_logo)}" alt="#{project_name} logo")
+          div.message
+            !~~ overview
+            
+    - if (spot!=null)
+      div#spot
+        div.wrapper
+          !~~ spot
+          
+    - if (body!=null)
+      div#content
+        div.wrapper
+          !~~ body
+          
+    - if (blog!=null)
+      div#blog
+        div.wrapper
+          !~~ blog
+          
+    -#
+      - if (include_console)
+        = include("/org/fusesource/scalate/console/console.scaml")
+
+    :javascript
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script> 
+      <script type="text/javascript"> 
+      try {
+      var pageTracker = _gat._getTracker("UA-1347593-12");
+      pageTracker._trackPageview();
+      } catch(err) {}

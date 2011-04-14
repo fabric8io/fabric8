@@ -2,25 +2,25 @@
 
 ## Description
 
-Fabric is a set of components for providing a clustering solution for [Apache Karaf].
-
-[Apache Karaf]: http://karaf.apache.org/
+Fuse Fabric is a distributed configuration, management and provisioning system for using
+[Apache Karaf](http://karaf.apache.org/), [Apache ServiceMix](http://servicemix.apache.org/)
+and [Fuse](http://fusesource.com/) in a public or private cloud.
 
 ## Synopsis
 
 Apache Karaf provides an OSGi runtime, but it lacks some clustering support.
-Fabric aims to provide the needed infrastructure to manage the configuration
+Fuse Fabric aims to provide the needed infrastructure to manage the configuration
 and provisioning of multiple Karaf nodes.
 
 ## Architecture
 
-Fabric rely on [Apache ZooKeeper], which is highly reliable distributed coordination service,
+Fuse Fabric uses on [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
 to store the cluster configuration and node registration.
 
 Fabric defines a notion of profile that can be applied to Karaf nodes.  A profile consist
 of a list of configurations that will be provided to ConfigAdmin.  Multiple profiles can
 be associated to a given node, allowing a given node to serve multiple purposes.
-Profiles can also have inheritence so that parts of configuration can be shared across multiple
+Profiles can also have inheritance so that parts of configuration can be shared across multiple
 profiles.  The overall list of configurations is computed using an overlay mechanism which allow
 a profile to override values from its parents, which provides power and flexibility.
 Those profiles are stored in ZooKeeper, hence automatically and immediately propagated to all
@@ -78,7 +78,8 @@ Check that the feature has been deployed:
 ## Project Links
 
 * [Project Home](http://fabric.fusesource.org/)
-* [Release Downloads](http://fabric.fusesource.org/downloads/index.html)
+* [Documentation](http://fabric.fusesource.org/documentation/)
+* [Downloads](http://fabric.fusesource.org/download.html)
 * [GitHub](http://github.com/fusesource/fabric/tree/master)
-* [Issue Tracker](http://fusesource.com/issues/browse/FABRIC)
-* [Mailing Lists](http://fusesource.com/forge/projects/FABRIC/mailing-lists)
+* [Support](http://fabric.fusesource.org/support.html)
+* [Community](http://fabric.fusesource.org/community.html)
