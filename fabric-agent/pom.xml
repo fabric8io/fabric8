@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>fabric-agent</artifactId>
-    <name>${project.artifactId}</name>
+    <name>FuseSource Fabric :: Agent</name>
+    <description>Fabric provisioning agent</description>
     <packaging>bundle</packaging>
 
     <properties>

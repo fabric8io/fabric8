@@ -14,7 +14,7 @@ import java.util.Map;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
 
-@Command(name = "list-agents", scope = "fabric")
+@Command(name = "list-agents", scope = "fabric", description = "List existing agents")
 public class ListAgents extends FabricCommand {
 
     @Override

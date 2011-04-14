@@ -16,18 +16,18 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 
-@Command(name = "zk-quorum", scope = "fabric")
+@Command(name = "zk-quorum", scope = "fabric", description = "Create a ZooKeeper cluster", detailedDescription = "classpath:zk-cluster.txt")
 public class ZkCluster extends OsgiCommandSupport {
 
     private ZooKeeperClusterService service;
 
-    @Option(name = "--add")
+    @Option(name = "--add", description = "Add agents to the cluster")
     private boolean add;
 
-    @Option(name = "--remove")
+    @Option(name = "--remove", description = "Remove agents from the cluster")
     private boolean remove;
 
-    @Argument(required = false, multiValued = true)
+    @Argument(required = false, multiValued = true, description = "List of agents")
     private List<String> agents;
 
     public ZooKeeperClusterService getService() {

@@ -15,7 +15,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 
-@Command(name = "list-profiles", scope = "fabric")
+@Command(name = "list-profiles", scope = "fabric", description = "List existing profiles")
 public class ListProfiles extends FabricCommand {
 
     @Option(name = "--version")

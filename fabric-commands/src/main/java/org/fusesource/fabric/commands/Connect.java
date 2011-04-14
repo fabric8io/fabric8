@@ -15,7 +15,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
 
-@Command(name = "connect", scope = "fabric")
+@Command(name = "connect", scope = "fabric", description = "Connect to an existing agent")
 public class Connect extends FabricCommand {
 
     @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: karaf)", required = false, multiValued = false)

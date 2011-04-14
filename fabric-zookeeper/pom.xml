@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>fabric-zookeeper</artifactId>
-    <name>${project.artifactId}</name>
+    <name>FuseSource Fabric :: ZooKeeper</name>
+    <description>Fabric ZooKeeper service</description>
     <packaging>bundle</packaging>
 
     <properties>

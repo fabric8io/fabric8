@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>fabric-configadmin</artifactId>
-    <name>${project.artifactId}</name>
+    <name>FuseSource Fabric :: ConfigAdmin</name>
+    <description>Fabric ZooKeeper / ConfigAdmin bridge</description>
     <packaging>bundle</packaging>
 
     <properties>

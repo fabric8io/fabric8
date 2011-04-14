@@ -19,7 +19,8 @@
     </parent>
 
     <artifactId>fabric-commands</artifactId>
-    <name>${project.artifactId}</name>
+    <name>FuseSource Fabric :: Commands</name>
+    <description>Fabric Karaf commands</description>
     <packaging>bundle</packaging>
 
     <properties>

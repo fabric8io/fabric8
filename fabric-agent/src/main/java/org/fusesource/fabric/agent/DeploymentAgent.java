@@ -275,11 +275,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         downloadBundles(allFeatures);
         List<Resource> bundles = getObrResolver().resolve(allFeatures);
 
-        System.out.println();
-        System.out.println("Configuration changed.  New bundles list:");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Configuration changed.  New bundles list:\n");
         for (Resource bundle : bundles) {
-            System.out.println("  " + bundle.getURI());
+            sb.append("  ").append(bundle.getURI()).append("\n");
         }
+        LOGGER.info(sb.toString());
 
         List<Resource> toInstall = new ArrayList<Resource>();
         List<Bundle> toDelete = new ArrayList<Bundle>();

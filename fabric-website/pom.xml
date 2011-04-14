@@ -10,7 +10,7 @@
   <artifactId>fabric-website</artifactId>
   <packaging>war</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric :: Web Site</name>
   <description>Fuse Fabric Website and Documentation</description>
 
   <properties>

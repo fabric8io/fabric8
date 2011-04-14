@@ -1,0 +1,16 @@
+This command can be used to manage the ZooKeeper cluster for Fabric.
+There are four different usages:
+
+* fabric:zk-cluster
+Without any arguments, the list of agents composing the current cluster will be displayed.
+
+* fabric:zk-cluster [list of agents]
+This mode will create a new cluster composed of the given agents and will switch all agents to this new cluster.
+
+* fabric:zk-cluster --add [list of agents]
+This mode will create a new cluster composed of the existing agents and the agents specified on the command line. All agents will be switched to this new cluster.
+
+* fabric:zk-cluster --remove [list of agents]
+This mode will create a new cluster composed of the existing agents excluding the agents specified on the command line. All agents will be switched to this new cluster.
+
+Note that given ZooKeeper is the key component of Fabric, changing the ZooKeeper cluster is a critical operation.  All data will be preserved and copied to the new cluster before swichting.

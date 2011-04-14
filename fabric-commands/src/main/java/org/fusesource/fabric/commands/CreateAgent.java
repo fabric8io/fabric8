@@ -17,7 +17,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.Profile;
 
-@Command(name = "create-agents", scope = "fabric")
+@Command(name = "create-agents", scope = "fabric", description = "Create a new agent")
 public class CreateAgent extends FabricCommand {
 
     @Option(name = "--version")
