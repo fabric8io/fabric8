@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+-->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
   <!-- Since this is a test case lets run a local ZK server -->
   <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">

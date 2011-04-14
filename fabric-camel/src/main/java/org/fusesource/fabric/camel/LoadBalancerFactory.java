@@ -14,5 +14,7 @@ import org.apache.camel.processor.loadbalancer.LoadBalancer;
  * Creates a LoadBalancer object
  */
 public interface LoadBalancerFactory {
+
     LoadBalancer createLoadBalancer();
+
 }

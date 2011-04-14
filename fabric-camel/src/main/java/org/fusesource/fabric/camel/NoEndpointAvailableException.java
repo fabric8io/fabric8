@@ -12,7 +12,7 @@ package org.fusesource.fabric.camel;
  * Thrown when no physical endpoint could be found in the ZooKeeper registry for the global FABRIC name
  */
 public class NoEndpointAvailableException extends Exception {
-    private final FabricEndpoint endpoint;
+    private final transient FabricEndpoint endpoint;
 
     public NoEndpointAvailableException(FabricEndpoint endpoint) {
         super("No endpoint available for FABRIC name: " + endpoint.getFabricPath());
