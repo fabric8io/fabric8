@@ -83,14 +83,14 @@
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
         <karaf-version>2.2.1-SNAPSHOT</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
-        <logback-version>0.9.26</logback-version>
+        <logback-version>0.9.28</logback-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <osgi-version>4.2.0</osgi-version>
         <scala-version>2.8.1</scala-version>
         <scala-plugin-version>2.15.0</scala-plugin-version>
         <scalate-version>1.4.1</scalate-version>
         <servlet-api-version>2.5</servlet-api-version>
-        <slf4j-version>1.5.10</slf4j-version>
+        <slf4j-version>1.6.1</slf4j-version>
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
@@ -136,6 +136,7 @@
         <module>fabric-configadmin</module>
         <module>fabric-agent</module>
         <module>fabric-commands</module>
+        <module>fabric-camel</module>
         <module>fabric-distro</module>
         <module>fabric-website</module>
     </modules>
