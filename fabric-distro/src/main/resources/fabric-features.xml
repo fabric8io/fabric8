@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<features name="fabric-${project.version}">
+
+    <feature name="karaf" version="${karaf-version}" resolver="(obr)">
+        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.8</bundle>
+
+        <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/1.3.2</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/1.3.2</bundle>
+
+        <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/1.6.1</bundle>
+        <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/1.6.1</bundle>
+
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.commands/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.log/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
+
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint/0.3</bundle>
+        <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
+        <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
+
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx/0.3</bundle>
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/0.3</bundle>
+        <bundle dependency="true">mvn:org.apache.karaf/org.apache.karaf.management/${karaf-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
+        <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
+
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.sshd/sshd-core/0.5.0</bundle>
+        <bundle dependency="true">mvn:org.apache.mina/mina-core/2.0.1</bundle>
+
+        <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.command/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.config/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.modules/${karaf-version}</bundle>
+
+        <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.command/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.core/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
+
+        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.management/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.core/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
+
+        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.management/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.core/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.command/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle>
+
+        <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/3.1.10</bundle>
+        <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.spring/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.kar/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.features/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.wrap/${karaf-version}</bundle>
+    </feature>
+
+
+
+    <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.fusesource.fabric/fabric-zookeeper/${project.version}</bundle>
+    </feature>
+
+
+    <feature name="fabric-zookeeper-server-default" version="${project.version}" resolver="(obr)">
+        <config name="org.fusesource.fabric.zookeeper">
+            #
+            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # http://fusesource.com
+            #
+            # The software in this package is published under the terms of the CDDL license
+            # a copy of which has been included with this distribution in the license.txt file.
+            #
+            zookeeper.url=localhost:2181
+        </config>
+        <config name="org.fusesource.fabric.zookeeper.server-default">
+            #
+            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # http://fusesource.com
+            #
+            # The software in this package is published under the terms of the CDDL license
+            # a copy of which has been included with this distribution in the license.txt file.
+            #
+
+            # The number of milliseconds of each tick
+            tickTime=2000
+            # The number of ticks that the initial
+            # synchronization phase can take
+            initLimit=10
+            # The number of ticks that can pass between
+            # sending a request and getting an acknowledgement
+            syncLimit=5
+            # the directory where the snapshot is stored.
+            dataDir=${karaf.data}/zookeeper
+            # the port at which the clients will connect
+            clientPort=2181
+        </config>
+        <feature version="${project.version}">fabric-zookeeper</feature>
+    </feature>
+
+    <feature name="fabric-configadmin" version="${project.version}" resolver="(obr)">
+        <feature>fabric-zookeeper</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-configadmin/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-agent" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <feature version="${project.version}">fabric-configadmin</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-agent/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-commands" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
+    </feature>
+
+</features>

@@ -18,34 +18,22 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-agent</artifactId>
+    <artifactId>fabric-commands</artifactId>
     <name>${project.artifactId}</name>
     <packaging>bundle</packaging>
 
     <properties>
+        <fabric.osgi.export>
+            org.fusesource.fabric.api*;version=${project.version}
+        </fabric.osgi.export>
         <fabric.osgi.import>
-            !org.apache.felix.shell,
-            !org.kxml2.io,
-            !org.xmlpull.v1,
-            !org.osgi.service.obr,
-            org.osgi.service.event*;resolution:=optional,
-            org.osgi.service.obr*;resolution:=optional,
+            !org.fusesource.fabric.api*,
             *
         </fabric.osgi.import>
-        <fabric.osgi.export>
-        </fabric.osgi.export>
         <fabric.osgi.private.pkg>
-            org.fusesource.fabric.agent,
-            org.fusesource.fabric.agent.mvn,
-            org.fusesource.fabric.agent.download,
-            org.fusesource.fabric.agent.utils,
-            org.apache.felix.bundlerepository*,
-            org.apache.karaf.features*,
-            org.apache.felix.utils.*,
+            org.fusesource.fabric.commands,
+            org.fusesource.fabric.service,
         </fabric.osgi.private.pkg>
-        <fabric.osgi.activator>
-            org.fusesource.fabric.agent.Activator
-        </fabric.osgi.activator>
     </properties>
 
     <dependencies>
@@ -55,43 +43,33 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-mvn</artifactId>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.enterprise</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.utils</artifactId>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.karaf.features</groupId>
-            <artifactId>org.apache.karaf.features.core</artifactId>
+            <groupId>org.apache.karaf.admin</groupId>
+            <artifactId>org.apache.karaf.admin.management</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.framework</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.zookeeper-impl</artifactId>
         </dependency>
-
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

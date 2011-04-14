@@ -128,6 +128,8 @@
         <module>fabric-zookeeper</module>
         <module>fabric-configadmin</module>
         <module>fabric-agent</module>
+        <module>fabric-commands</module>
+        <module>fabric-distro</module>
     </modules>
 
     <build>
@@ -324,6 +326,11 @@
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.enterprise</artifactId>
                 <version>${osgi-version}</version>
             </dependency>
             <!-- LogBack -->
