@@ -1,0 +1,22 @@
+//
+// Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+//
+//     http://fusesource.com
+//
+// The software in this package is published under the terms of the
+// CDDL license a copy of which has been included with this distribution
+// in the license.txt file.
+//
+
+package org.fusesource.fabric.groups.internal;
+
+option java_multiple_files = true;
+
+//
+// This record is use by the ZkCluster to do
+// generic cluster membership discovery/registration.
+//
+message GroupData {
+   required string id = 1;
+   optional bytes data = 2;
+}

@@ -96,6 +96,9 @@
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
+        <scalatest-version>1.2</scalatest-version>
+        <hawtbuf-version>1.4</hawtbuf-version>
+
 
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
@@ -132,10 +135,24 @@
             <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest</artifactId>
+            <version>${scalatest-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j-version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <modules>
         <module>fabric-zookeeper</module>
+        <module>fabric-scala</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
         <module>fabric-agent</module>
@@ -143,6 +160,7 @@
         <module>fabric-camel</module>
         <module>fabric-activemq</module>
         <module>fabric-distro</module>
+        <module>fabric-groups</module>
     </modules>
 
     <build>
@@ -305,6 +323,18 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>scala-tools.org-releases</id>
+            <url>http://scala-tools.org/repo-releases</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>scala-tools.org-snapshots</id>
+            <url>http://scala-tools.org/repo-snapshots</url>
+            <snapshots><enabled>true</enabled></snapshots>
+            <releases><enabled>false</enabled></releases>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -404,11 +434,6 @@
                 <version>1.2.16</version>
             </dependency>
             <!-- Slf4j -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j-version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
