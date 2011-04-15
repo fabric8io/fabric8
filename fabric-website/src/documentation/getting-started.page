@@ -34,9 +34,9 @@ Getting Started guide for Fabric
   :&markdown
     To create a ZooKeeper server, run the following commands in Karaf (2.2.x) console:  
   pre
-    | features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
-    | features:install fabric-commands
-    | fabric:zk-cluster root
+    | karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
+    | karaf@root> features:install fabric-commands
+    | karaf@root> fabric:zk-cluster root
   :&markdown
     You can now use the fabric command and see that the karaf instance has been automatically registered as an agent:  
   pre
@@ -67,7 +67,7 @@ Getting Started guide for Fabric
     | karaf@root> fabric:list-agents
     | [id]                           [alive]    [profiles]
     | root                           true       default, zk-server-0000-1
-    |   test                         true       webserver 
+    | &nbsp;&nbsp;test                         true       webserver
 
 .left
   :markdown

@@ -13,6 +13,22 @@ Fabric: the clustering solution for Apache Karaf and ServiceMix
 
 Fabric is a the clustering solution for Apache Karaf and ServiceMix.
 
-## Features
+## Architecture
+
+Fuse Fabric uses on [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
+to store the cluster configuration and node registration.
+
+Fabric defines a notion of profile that can be applied to Karaf nodes.  A profile consist
+of a list of configurations that will be provided to ConfigAdmin.  Multiple profiles can
+be associated to a given node, allowing a given node to serve multiple purposes.
+Profiles can also have inheritance so that parts of configuration can be shared across multiple
+profiles.  The overall list of configurations is computed using an overlay mechanism which allow
+a profile to override values from its parents, which provides power and flexibility.
+Those profiles are stored in ZooKeeper, hence automatically and immediately propagated to all
+nodes which can refresh the configurations as needed.
+
+Fabric defines a provisioning agent relying on Karaf features through ConfigurationAdmin.
+The list of features to be installed on a given node is retrieved from a known configuration
+by the agent and the features are installed / uninstalled as needed.
 
 
