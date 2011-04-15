@@ -11,24 +11,93 @@ Fabric: the clustering solution for Apache Karaf and ServiceMix
 * Table of contents
 {:toc}
 
-Fabric is a the clustering solution for Apache Karaf and ServiceMix.
+Fuse Fabric: keeps you DRY from those stormy clouds!
 
 ## Architecture
 
-Fuse Fabric uses on [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
-to store the cluster configuration and node registration.
+### Registry
 
-Fabric defines a notion of profile that can be applied to Karaf nodes.  A profile consist
-of a list of configurations that will be provided to ConfigAdmin.  Multiple profiles can
+Fuse Fabric uses [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
+as its registry to store the cluster configuration and node registration.  
+
+ZooKeeper is designed with consistency and high availability across data centres in mind while also protecting against network splits by using a quorum of ZooKeeper servers. e.g. you may run 3 or 5 ZooKeeper servers and so long as you have quorum running (2 or 3 servers respectively) you are reliable and are not in a network split.
+
+Conceptually Fabric has 2 registries: 
+
+* **Configuration Registry** which is the logical configuration of your fabric and typically contains no physical machine information; its your logical configuration. 
+* **Runtime Registry** which contains details of how many machines are actually running, their physical location details and what services they are implementing.
+
+### Profiles
+
+Fabric defines a notion of *profile* that can be applied to nodes of the Fabric.  A profile consists
+of a list of configurations that will be provided to ConfigAdmin along with bundles and features to be provisioned.  Multiple profiles can
 be associated to a given node, allowing a given node to serve multiple purposes.
+
+If you want a Fabric where each node is running exactly the same set of features with exactly the same configuration then you only need one profile. However in most real world use cases you often want either to provision features differently across nodes or at least have different configurations. 
+
+For example you may wish to run different kinds of things on different nodes; you may run some message brokers, some web applications, some ESBs and some transformation engines and proxies. Each of these can be profiles that you can manage as a single logical entity irrespective of how many instances you wish to run. Or you may want to run the same features everywhere but you may wish to provide location specific configurations, you may use different locations of message broker or cache services in different data centres or geographical regions.
+
 Profiles can also have inheritance so that parts of configuration can be shared across multiple
-profiles.  The overall list of configurations is computed using an overlay mechanism which allow
-a profile to override values from its parents, which provides power and flexibility.
+profiles; similar to the use of trees in LDAP repositories.  The overall list of configurations is computed using an overlay mechanism which allow
+a profile to override values from its parents, which provides power and flexibility while keeping your configuration nice and DRY.
 Those profiles are stored in ZooKeeper, hence automatically and immediately propagated to all
 nodes which can refresh the configurations as needed.
 
 Fabric defines a provisioning agent relying on Karaf features through ConfigurationAdmin.
 The list of features to be installed on a given node is retrieved from a known configuration
 by the agent and the features are installed / uninstalled as needed.
+
+
+## How provisioning and configuration works
+
+Each node in the cluster has a logical name and on startup the provisioning agent registers an ephemeral node in ZooKeeper. It then looks in the configuration using its logical name for its profile of  what configuration to use and what services to provision. If there is no configuration or the logical name it uses the default profile.
+
+Each node watches the relevant parts of the ZooKeeper tree for changes; so that as soon as any profile is updated the dependent nodes refresh and re-apply any provisioning or configuration changes.
+
+### Changing the configuration
+
+You can then use the Fabric command line shell to interact with the configuration so that you can dynamically control configuration and provisioning.
+
+Through the use of profiles you can then control all or a group of nodes in each operation. For example you can set global configuration properties or properties which only affect a group of nodes (e.g. message brokers only or web servers only or all ESBs within some data centre).
+
+## How discovery works
+
+Each node registers itself into the ZooKeeper runtime registry details of its machine, host name and connection details (e.g. JMX URL) so its easy to discover and introspect the Fabric and to delve into any node to introspect or control it in more detail.
+
+In addition Fabric supports a number of additional discovery mechanisms which are framework specific.
+
+### ActiveMQ Fabric
+
+When using ActiveMQ you have to configure your ActiveMQ clients with the locations of the ActiveMQ brokers up front which is not terribly cloud friendly (e.g. working on a number of new EC2 boxes spun up on Amazon). 
+
+However the **ActiveMQ Fabric** lets you avoid this by reusing the Fabric discovery mechanism. ActiveMQ brokers register themselves into the Runtime Registry. Then ActiveMQ clients use the Runtime Registry to discover brokers; plus watch for brokers failing and new brokers starting so there is a real time discovery and load balancing mechanism.
+
+### Camel Fabric
+
+When using [ActiveMQ](http://camel.apache.org/activemq.html) or [JMS](http://camel.apache.org/jms.html) endpoints in Camel you are already _fabric ready_ since message brokers provide true location independence (as well as time independence too, the consumer of a message does not even have to be running at the time you send a message).
+
+However if you are using socket or HTTP endpoints this is not the case; each client wishing to invoke your service needs to know all the available network addresses of each implementation (e.g. a list of protocols, host name & ports).
+
+This is where the **Camel Fabric** comes in; it provides a way to reuse Fabric's discovery mechanism to expose physical socket & HTTP endpoints into the runtime registry using a logical name so that clients can use the existing Camel [Load Balancer](http://camel.apache.org/load-balancer.html).
+
+Currently Camel Fabric works using the **fabric** Camel component.
+
+#### Exposing a Camel endpoint into the fabric
+
+{pygmentize:: java}
+from("fabric:myName:http://localhost:8181/foo").to("bean:foo")
+{pygmentize}
+
+Here we just prefix any socket or HTTP based endpoint with **fabric::myName** where the myName is the logical name of the service you wish to use. This prefix is then used to expose your endpoint URI into the Runtime Registry
+
+#### Invoking a Camel fabric endpoint
+
+{pygmentize:: java}
+from("seda:foo").to("fabric:myName")
+{pygmentize}
+
+In the above route we send to the endpoint **fabric:myName** which at runtime will use the myName entry in the Camel Fabric to discover the currently available physical endpoints in the fabric for this name; then load balance across them.
+
+
 
 
