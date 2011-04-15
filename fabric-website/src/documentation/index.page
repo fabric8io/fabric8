@@ -33,7 +33,7 @@ All the information you need to be become an expert with Fuse Fabric
 
 .left
   :markdown
-    # [Commands](commands/commands.html)
+    # [Command Shell](commands/commands.html)
 .right
   :markdown
     The Karaf command line shells available in Fabric.
