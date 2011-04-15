@@ -56,7 +56,7 @@ Each node watches the relevant parts of the ZooKeeper tree for changes; so that 
 
 ### Changing the configuration
 
-You can then use the Fabric command line shell to interact with the configuration so that you can dynamically control configuration and provisioning.
+You can then use the [Fabric command line shel](commands/commands.html) to interact with the configuration so that you can dynamically control configuration and provisioning.
 
 Through the use of profiles you can then control all or a group of nodes in each operation. For example you can set global configuration properties or properties which only affect a group of nodes (e.g. message brokers only or web servers only or all ESBs within some data centre).
 
@@ -85,7 +85,7 @@ Currently Camel Fabric works using the **fabric** Camel component.
 #### Exposing a Camel endpoint into the fabric
 
 {pygmentize:: java}
-from("fabric:myName:http://localhost:8181/foo").to("bean:foo")
+from("fabric:myName:jetty:http://0.0.0.0:8181").to("bean:foo")
 {pygmentize}
 
 Here we just prefix any socket or HTTP based endpoint with **fabric::myName** where the myName is the logical name of the service you wish to use. This prefix is then used to expose your endpoint URI into the Runtime Registry
