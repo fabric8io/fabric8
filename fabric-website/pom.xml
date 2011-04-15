@@ -134,6 +134,45 @@
         </configuration>
       </plugin>
 
+        <plugin>
+            <groupId>org.apache.karaf.tooling</groupId>
+            <artifactId>cmdhelp-maven-plugin</artifactId>
+            <version>${karaf-version}</version>
+            <executions>
+                <execution>
+                    <id>generate-commands</id>
+                    <phase>generate-resources</phase>
+                    <goals>
+                        <goal>cmdhelp</goal>
+                    </goals>
+                    <configuration>
+                        <format>conf</format>
+                        <targetFolder>src/documentation/commands/</targetFolder>
+                        <classLoader>plugin</classLoader>
+                    </configuration>
+                </execution>
+            </executions>
+            <dependencies>
+                <!-- Commands for help generation -->
+                <dependency>
+                    <groupId>org.fusesource.fabric</groupId>
+                    <artifactId>fabric-zookeeper</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.fusesource.fabric</groupId>
+                    <artifactId>fabric-commands</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.apache.karaf.shell</groupId>
+                            <artifactId>org.apache.karaf.shell.obr</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </plugin>
+
       <plugin>
         <groupId>org.fusesource.scalate</groupId>
         <artifactId>maven-scalate-plugin</artifactId>

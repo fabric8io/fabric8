@@ -336,6 +336,32 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Fabric -->
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-zookeeper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-configadmin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-agent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-commands</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-zookeeper-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>

@@ -98,6 +98,10 @@ from("seda:foo").to("fabric:myName")
 
 In the above route we send to the endpoint **fabric:myName** which at runtime will use the myName entry in the Camel Fabric to discover the currently available physical endpoints in the fabric for this name; then load balance across them.
 
+## Commands
+
+Fabric commands are described in the [commands](commands/commands.html) section.
+
 
 
 

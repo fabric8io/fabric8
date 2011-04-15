@@ -32,22 +32,18 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-commands</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-agent</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-configadmin</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
