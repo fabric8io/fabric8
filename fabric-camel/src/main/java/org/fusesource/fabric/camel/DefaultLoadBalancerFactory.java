@@ -8,7 +8,6 @@
  */
 package org.fusesource.fabric.camel;
 
-import org.apache.camel.processor.loadbalancer.FailOverLoadBalancer;
 import org.apache.camel.processor.loadbalancer.LoadBalancer;
 import org.apache.camel.processor.loadbalancer.RandomLoadBalancer;
 

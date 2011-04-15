@@ -45,7 +45,7 @@ public class FabricEndpoint extends DefaultEndpoint {
         this.treeTracker = treeTracker;
     }
 
-
+    @SuppressWarnings("unchecked")
     public Producer createProducer() throws Exception {
         final FabricEndpoint endpoint = this;
         return new DefaultProducer(endpoint) {

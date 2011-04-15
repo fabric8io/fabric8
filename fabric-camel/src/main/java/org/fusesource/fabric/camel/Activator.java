@@ -14,10 +14,6 @@ import org.osgi.framework.BundleContext;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * <p>
- * </p>
- *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class Activator implements BundleActivator {
 

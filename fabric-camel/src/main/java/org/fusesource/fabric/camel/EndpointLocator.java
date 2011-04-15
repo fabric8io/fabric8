@@ -9,7 +9,6 @@
 package org.fusesource.fabric.camel;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.impl.ServiceSupport;
 import org.apache.camel.processor.loadbalancer.LoadBalancer;
 import org.apache.camel.util.ServiceHelper;
