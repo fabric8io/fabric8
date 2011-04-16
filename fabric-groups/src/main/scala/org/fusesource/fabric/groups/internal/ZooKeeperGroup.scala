@@ -55,7 +55,7 @@ object ZooKeeperGroup {
  */
 class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List[ACL]) extends Group {
 
-  val tree = new ZooKeeperTreeTracker[Array[Byte]](zk, new ZKByteArrayDataReader, root)
+  val tree = new ZooKeeperTreeTracker[Array[Byte]](zk, new ZKByteArrayDataReader, root, 1)
   val joins = HashMap[String, (String,Int)]()
 
   @volatile
