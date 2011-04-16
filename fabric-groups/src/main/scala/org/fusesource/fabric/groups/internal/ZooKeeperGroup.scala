@@ -35,7 +35,11 @@ object ZooKeeperGroup {
   def members(zk: IZKClient, path: String):Array[Array[Byte]] = {
     zk.getAllChildren(path).sortWith((a,b)=> a < b).flatMap { node =>
       val rc:Option[Array[Byte]] = try {
-        Option(zk.getData(path+"/"+node))
+        if( node.matches("""0\d+""") ) {
+          Option(zk.getData(path+"/"+node))
+        } else {
+          None
+        }
       } catch {
         case e:Throwable =>
           e.printStackTrace
@@ -138,7 +142,10 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
   }
 
   private def fire_cluster_change: Unit = {
-    val t = tree.getTree.toList.filterNot( _._1 == root)
+    val t = tree.getTree.toList.filterNot { x =>
+      // don't include the root node, or nodes that don't match our naming convention.
+      (x._1 == root) || !x._1.stripPrefix(root).matches("""/0\d+""")
+    }
     members = t.sortWith((a,b)=> a._1 < b._1 ).map(_._2).map { x=>
       x.getData
     }.toArray
