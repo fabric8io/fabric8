@@ -12,15 +12,20 @@ package org.fusesource.fabric.groups
 import scala.reflect.BeanProperty
 import org.linkedin.zookeeper.client.IZKClient
 import org.fusesource.fusemq.cluster.ZooKeeperGroup
+import org.apache.zookeeper.data.ACL
+import org.apache.zookeeper.ZooDefs.Ids
+
 /**
  * <p>
  * </p>
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-object GroupFactory {
-  def create(zk: IZKClient, path: String):Group = new ZooKeeperGroup(zk, path)
-  def members(zk: IZKClient, path: String):Array[Member] = ZooKeeperGroup.members(zk, path)
+object ZooKeeperGroupFactory {
+
+  def create(zk: IZKClient, path: String):Group = create(zk, path, Ids.OPEN_ACL_UNSAFE)
+  def create(zk: IZKClient, path: String, acl:java.util.List[ACL]):Group = new ZooKeeperGroup(zk, path, acl)
+  def members(zk: IZKClient, path: String):Array[Array[Byte]] = ZooKeeperGroup.members(zk, path)
 }
 
 /**
@@ -54,7 +59,7 @@ trait Group {
   /**
    * Lists all the members currently in the group.
    */
-  def members():Array[Member]
+  def members():Array[Array[Byte]]
 
   /**
    * Registers a change listener which will be called
@@ -91,19 +96,6 @@ trait ChangeListener {
   /**
    * Processing this change even is not allowed to block for very long.
    */
-  def changed(members:Array[Member]):Unit
+  def changed(members:Array[Array[Byte]]):Unit
 }
 
-/**
- * <p>
- *   Represents a member in the cluster group.
- * </p>
- *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
- */
-case class Member(
-   @BeanProperty
-   id:String,
-   @BeanProperty
-   data:Array[Byte]
-)

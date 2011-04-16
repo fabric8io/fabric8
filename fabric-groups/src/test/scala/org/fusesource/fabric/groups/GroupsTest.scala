@@ -17,7 +17,7 @@ import org.linkedin.util.clock.Timespan
 import java.net.InetSocketAddress
 import scala.collection.immutable.List
 import java.io.File
-import org.fusesource.fabric.groups.GroupFactory
+import org.fusesource.fabric.groups.ZooKeeperGroupFactory
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite}
@@ -80,34 +80,34 @@ class GroupsTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
 
   test("cluster events") {
 
-    val cluster1 = GroupFactory.create(create_zk_client, "/example")
-    val cluster2 = GroupFactory.create(create_zk_client, "/example")
+    val cluster1 = ZooKeeperGroupFactory.create(create_zk_client, "/example")
+    val cluster2 = ZooKeeperGroupFactory.create(create_zk_client, "/example")
     import TimeUnit._
 
-    cluster1.join("1", null)
+    cluster1.join("1", "1".getBytes)
     within(2, SECONDS) {
-      expect(List("1"))(cluster1.members.map(_.id).toList)
+      expect(List("1"))(cluster1.members.map(new String(_)).toList)
     }
 
-    cluster2.join("2", null)
+    cluster2.join("2", "2".getBytes)
     within(2, SECONDS) {
-      expect(List("1", "2"))(cluster1.members.map(_.id).toList)
+      expect(List("1", "2"))(cluster1.members.map(new String(_)).toList)
     }
 
     // Check the we can get the member list without creating a Group object
-    expect(List("1", "2"))(GroupFactory.members(create_zk_client, "/example").map(_.id).toList)
+    expect(List("1", "2"))(ZooKeeperGroupFactory.members(create_zk_client, "/example").map(new String(_)).toList)
 
     // Check updating member data...
-    expect(null)(cluster1.members.apply(1).data)
+    expect("2")(new String(cluster1.members.apply(1)))
     cluster2.join("2", "Hello!".getBytes())
     within(2, SECONDS) {
-      expect("Hello!")(new String(cluster1.members.apply(1).data))
+      expect("Hello!")(new String(cluster1.members.apply(1)))
     }
 
     // Check leaving the cluster
     cluster1.leave("1")
     within(2, SECONDS) {
-      expect(List("2"))(cluster1.members.map(_.id).toList)
+      expect(List("Hello!"))(cluster1.members.map(new String(_)).toList)
     }
 
   }
