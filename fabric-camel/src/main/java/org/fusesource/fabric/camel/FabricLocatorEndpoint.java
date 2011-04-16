@@ -19,47 +19,36 @@ import org.apache.camel.impl.ProducerCache;
 import org.apache.camel.processor.loadbalancer.LoadBalancer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.linkedin.zookeeper.tracker.TrackedNode;
-import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
+import org.fusesource.fabric.groups.ChangeListener;
+import org.fusesource.fabric.groups.Group;
 
-import java.util.List;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Creates an endpoint which uses FABRIC to map a logical name to physical endpoint names
  */
-public class FabricEndpoint extends DefaultEndpoint {
-    private static final transient Log LOG = LogFactory.getLog(FabricEndpoint.class);
+public class FabricLocatorEndpoint extends DefaultEndpoint {
+    private static final transient Log LOG = LogFactory.getLog(FabricLocatorEndpoint.class);
 
     private final FabricComponent component;
-    private final String fabricPath;
-    private final String fabricName;
-    private final ZooKeeperTreeTracker treeTracker;
-    private LoadBalancerFactory loadBalancerFactory;
+    private final Group group;
 
-    public FabricEndpoint(String uri, FabricComponent component, String fabricPath, String fabricName, ZooKeeperTreeTracker<EndpointLocator> treeTracker) {
+    private LoadBalancerFactory loadBalancerFactory;
+    private LoadBalancer loadBalancer;
+
+
+    public FabricLocatorEndpoint(String uri, FabricComponent component, Group group) {
         super(uri, component);
         this.component = component;
-        this.fabricPath = fabricPath;
-        this.fabricName = fabricName;
-        this.treeTracker = treeTracker;
+        this.group = group;
     }
 
     @SuppressWarnings("unchecked")
     public Producer createProducer() throws Exception {
-        final FabricEndpoint endpoint = this;
+        final FabricLocatorEndpoint endpoint = this;
         return new DefaultProducer(endpoint) {
             public void process(Exchange exchange) throws Exception {
-                // lets dynamically try and find the endpoint as you send
-                Map<String, TrackedNode<EndpointLocator>> tree = treeTracker.getTree();
-                LOG.debug("Looking up ZooKeeper entry: " + fabricPath);
-                TrackedNode<EndpointLocator> locatorNode = tree.get(fabricPath);
-                if (locatorNode == null || locatorNode.getData() == null) {
-                    throw new NoEndpointAvailableException(endpoint);
-                } else {
-                    EndpointLocator locator = locatorNode.getData();
-                    locator.process(exchange, endpoint);
-                }
+                loadBalancer.process(exchange);
             }
         };
     }
@@ -73,10 +62,27 @@ public class FabricEndpoint extends DefaultEndpoint {
     }
 
     @Override
+    public void start() throws Exception {
+        super.start();
+        if (loadBalancer == null) {
+            loadBalancer = createLoadBalancer();
+        }
+        group.add(new ChangeListener(){
+            public void changed(byte[][] members) {
+                for (byte[] uri : members) {
+                    try {
+                        loadBalancer.addProcessor(getProcessor(new String(uri, "UTF-8")));
+                    } catch (UnsupportedEncodingException ignore) {
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
     public void stop() throws Exception {
         super.stop();
-
-        treeTracker.destroy();
+        group.close();
     }
 
     public Processor getProcessor(String uri) {
@@ -108,14 +114,6 @@ public class FabricEndpoint extends DefaultEndpoint {
         return component;
     }
 
-    public String getFabricPath() {
-        return fabricPath;
-    }
-
-    public String getFabricName() {
-        return fabricName;
-    }
-
     public LoadBalancerFactory getLoadBalancerFactory() {
         if (loadBalancerFactory == null) {
             loadBalancerFactory = component.getLoadBalancerFactory();
@@ -127,7 +125,7 @@ public class FabricEndpoint extends DefaultEndpoint {
         this.loadBalancerFactory = loadBalancerFactory;
     }
 
-    public LoadBalancer createLoadBalancer(List<String> uris) {
+    public LoadBalancer createLoadBalancer() {
         return getLoadBalancerFactory().createLoadBalancer();
     }
 }

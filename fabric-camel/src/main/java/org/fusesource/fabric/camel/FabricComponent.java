@@ -19,16 +19,12 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.fusesource.fabric.zookeeper.ZKClientFactoryBean;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.tracker.NodeEvent;
-import org.linkedin.zookeeper.tracker.NodeEventType;
-import org.linkedin.zookeeper.tracker.NodeEventsListener;
-import org.linkedin.zookeeper.tracker.ZKDataReader;
-import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +41,6 @@ public class FabricComponent extends DefaultComponent {
     private LoadBalancerFactory loadBalancerFactory = new DefaultLoadBalancerFactory();
     private ProducerCache producerCache;
     private int cacheSize = 1000;
-    protected ZKDataReader<EndpointLocator> reader = new EndpointLocatorReader();
 
 
     public IZKClient getZkClient() {
@@ -134,34 +129,16 @@ public class FabricComponent extends DefaultComponent {
         if (idx > 0) {
             // we are registering a regular endpoint
             String name = remaining.substring(0, idx);
-            String path = getFabricPath(name);
-
+            String fabricPath = getFabricPath(name);
             String childUri = remaining.substring(idx + 1);
-            Endpoint childEndpoint = getCamelContext().getEndpoint(childUri);
-            registerEndpoint(path, childUri, childEndpoint);
-            return childEndpoint;
+
+            Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath, accessControlList);
+            return new FabricPublisherEndpoint(uri, this, group, childUri);
+
         } else {
             String fabricPath = getFabricPath(remaining);
-            ZooKeeperTreeTracker<EndpointLocator> treeTracker = createTreeTracker(fabricPath);
-            treeTracker.registerListener(new NodeEventsListener<EndpointLocator>() {
-                public void onEvents(Collection<NodeEvent<EndpointLocator>> nodeEvents) {
-                    for (NodeEvent<EndpointLocator> event : nodeEvents) {
-                        NodeEventType eventType = event.getEventType();
-                        if (eventType == NodeEventType.DELETED) {
-                            // lets close the locator
-                            try {
-                                event.getData().stop();
-                            } catch (Exception e) {
-                                LOG.error("Failed to stop EndpointLocator: " + e, e);
-                            }
-                        }
-                    }
-
-                }
-            });
-            treeTracker.track();
-
-            return new FabricEndpoint(uri, this, fabricPath, remaining, treeTracker);
+            Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath, accessControlList);
+            return new FabricLocatorEndpoint(uri, this, group);
         }
     }
 
@@ -171,22 +148,6 @@ public class FabricComponent extends DefaultComponent {
             path = zkRoot + "/" + name;
         }
         return path;
-    }
-
-    protected void registerEndpoint(String path, String uri, Endpoint endpoint) throws Exception {
-        checkZkConnected();
-        LOG.debug("Registering ZooKeeper entry at " + path + " for endpoint: " + uri);
-        Stat stats = zkClient.exists(path);
-        if (stats == null) {
-            zkClient.createWithParents(path, "", accessControlList, CreateMode.PERSISTENT);
-        }
-        zkClient.create(path + "/e", uri, accessControlList, CreateMode.EPHEMERAL_SEQUENTIAL);
-    }
-
-    public ZooKeeperTreeTracker<EndpointLocator> createTreeTracker(String path) {
-        IZKClient client = getZkClient();
-        ObjectHelper.notNull(client, "zkClient");
-        return new ZooKeeperTreeTracker<EndpointLocator>(client, reader, path);
     }
 
 }
