@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Lets get to the basedir of the module.
+#
+cd `dirname $0 2> /dev/null`
+cd ../../../..
+BASEDIR=`pwd`
+echo ${BASEDIR}
+
+PID_FILE="${BASEDIR}/target/sleep.pid"
+mkdir -p "${BASEDIR}/target"
+
+case $1 in                        
+  start)
+    nohup sleep 5 > /dev/null 2> /dev/null &
+    if [[ $? -eq 0 ]] ; then
+      echo $! > "${PID_FILE}"
+    fi
+  ;;
+  
+  stop)
+    if [[ -f ${PID_FILE} ]] ; then
+      pid=`cat "${PID_FILE}"`
+      echo killing ${pid} 
+      kill -9 ${pid} 
+      
+      # check to see if it's gone...
+      ps -p ${pid} > /dev/null
+      if [[ $? -ne 0 ]] ; then
+        rm "${PID_FILE}"
+      else
+        echo Could not kill ${pid} 
+      fi
+      
+    fi
+  ;;
+  
+  *)             
+  echo "$0: Unrecognized action: $1" >&2; exit 2;
+esac

@@ -1,0 +1,7 @@
+{
+  "id":"example",
+  "enabled":true,
+  "start":["${basedir}/src/test/resources/example-scripts/sleep-service", "start"],
+  "stop":["${basedir}/src/test/resources/example-scripts/sleep-service", "stop"],
+  "pid_file":"${basedir}/target/sleep.pid"
+}
