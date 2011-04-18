@@ -165,6 +165,7 @@
         <module>fabric-activemq</module>
         <module>fabric-distro</module>
         <module>fabric-groups</module>
+        <module>fabric-monitor</module>
         <module>fabric-launcher</module>
     </modules>
 
