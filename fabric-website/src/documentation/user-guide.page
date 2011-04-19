@@ -4,14 +4,11 @@ in_menu: true
 sort_info: 10
 --- name:overview
 # Fabric User Guide
-Fabric: the clustering solution for Apache Karaf and ServiceMix
+Fuse Fabric: keeps you DRY from those stormy clouds!
 
 --- name:content
 
-* Table of contents
 {:toc}
-
-Fuse Fabric: keeps you DRY from those stormy clouds!
 
 ## Architecture
 
@@ -48,7 +45,7 @@ The list of features to be installed on a given node is retrieved from a known c
 by the agent and the features are installed / uninstalled as needed.
 
 
-## How provisioning and configuration works
+## Provisioning and Configuration
 
 Each node in the cluster has a logical name and on startup the provisioning agent registers an ephemeral node in ZooKeeper. It then looks in the configuration using its logical name for its profile of  what configuration to use and what services to provision. If there is no configuration or the logical name it uses the default profile.
 
@@ -56,15 +53,19 @@ Each node watches the relevant parts of the ZooKeeper tree for changes; so that 
 
 ### Changing the configuration
 
-You can then use the Fabric command line shell to interact with the configuration so that you can dynamically control configuration and provisioning.
+You can then use the [Fabric command line shel](commands/commands.html) to interact with the configuration so that you can dynamically control configuration and provisioning.
 
 Through the use of profiles you can then control all or a group of nodes in each operation. For example you can set global configuration properties or properties which only affect a group of nodes (e.g. message brokers only or web servers only or all ESBs within some data centre).
 
-## How discovery works
+### How discovery works
 
-Each node registers itself into the ZooKeeper runtime registry details of its machine, host name and connection details (e.g. JMX URL) so its easy to discover and introspect the Fabric and to delve into any node to introspect or control it in more detail.
+Each agent registers itself into the ZooKeeper runtime registry details of its machine, host name and connection details (e.g. JMX URL) so its easy to discover and introspect the Fabric and to delve into any node to introspect or control it in more detail.
 
-In addition Fabric supports a number of additional discovery mechanisms which are framework specific.
+In addition Fabric supports a number of additional discovery mechanisms which are framework specific in the Fabric Extensions.
+
+## Fabric Extensions
+
+In addition to the core Provisioning, Configuration and Management Fabric described above, Fabric also provides a number of technology specific extensions:
 
 ### ActiveMQ Fabric
 
@@ -85,7 +86,7 @@ Currently Camel Fabric works using the **fabric** Camel component.
 #### Exposing a Camel endpoint into the fabric
 
 {pygmentize:: java}
-from("fabric:myName:http://localhost:8181/foo").to("bean:foo")
+from("fabric:myName:jetty:http://0.0.0.0:8181").to("bean:foo")
 {pygmentize}
 
 Here we just prefix any socket or HTTP based endpoint with **fabric::myName** where the myName is the logical name of the service you wish to use. This prefix is then used to expose your endpoint URI into the Runtime Registry
@@ -98,9 +99,33 @@ from("seda:foo").to("fabric:myName")
 
 In the above route we send to the endpoint **fabric:myName** which at runtime will use the myName entry in the Camel Fabric to discover the currently available physical endpoints in the fabric for this name; then load balance across them.
 
-## Commands
+### CXF Fabric
 
-Fabric commands are described in the [commands](commands/commands.html) section.
+Like the Camel Fabric above, the **CXF Fabric** makes it easy to expose physical web services into the Runtime Registry so that clients can just bind to the logical name of the service and at runtime locate and load balance across the running implementations.
+
+### OSGi Fabric
+
+The OSGi registry by default contains local services. However since Fabric has a Configuration Registry defining profiles along with a Runtime Registry for discovery, its easy to configure Fabric to expose remote OSGi services into the Runtime Registry for different profiles so that you can get invisible remoting of services with dynamic discovery, load balancing and fail over.
+
+### Process Fabric
+
+While OSGi is cool and all; not everything is available as OSGi bundles. You often want to run other things inside your Fabric other than bundles. For example databases, non Java code or even just different packaging of Java code such as a [Tomcat](http://tomcat.apache.org/) distribution for your web applications.
+
+The *Process Fabric** extends the fabric of Karaf nodes to support any other kind of process on your machine. Think of it as like a distributed version of [monit](http://mmonit.com/monit/) or init.d.
+
+
+### ServiceMix Fabric
+
+The *ServiceMix Fabric* extends the NMR in ServiceMix which is currently a local registry of endpoints to be a fully distributed registry of endpoints with discovery, load balancing and fail over.
+
+Using the Configuration Registry you can define the policies for which services you wish to expose and load balance. The ServiceMix Fabric then registers the necessary services into the Runtime Registry and then auto-exposes remote endpoints into the NMR - turning the NMR into a true distributed NMR.
+
+
+## Using Fabric
+
+The primary interface currently for working with Fabric is via the [command line shells in Karaf](commands/commands.html). 
+
+We are working on a web console which will be released shortly along with plugins to the [Fuse IDE](http://fusesource.com/ide/) if you want to interact with Fabric from inside [Eclipse](http://eclipse.org/).
 
 
 

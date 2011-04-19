@@ -96,6 +96,13 @@
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
+        <scalatest-version>1.2</scalatest-version>
+        <hawtbuf-version>1.4</hawtbuf-version>
+        <hawtdispatch-version>1.2</hawtdispatch-version>
+        <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
+        <sigar-version>1.6.4</sigar-version>
+        <jackson-version>1.7.0</jackson-version>
+
 
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
@@ -132,17 +139,35 @@
             <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest</artifactId>
+            <version>${scalatest-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j-version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <modules>
         <module>fabric-zookeeper</module>
+        <module>fabric-scala</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
         <module>fabric-agent</module>
         <module>fabric-commands</module>
         <module>fabric-camel</module>
         <module>fabric-dosgi</module>
+        <module>fabric-activemq</module>
         <module>fabric-distro</module>
+        <module>fabric-groups</module>
+        <module>fabric-monitor</module>
+        <module>fabric-launcher</module>
     </modules>
 
     <build>
@@ -305,6 +330,18 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>scala-tools.org-releases</id>
+            <url>http://scala-tools.org/repo-releases</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>scala-tools.org-snapshots</id>
+            <url>http://scala-tools.org/repo-snapshots</url>
+            <snapshots><enabled>true</enabled></snapshots>
+            <releases><enabled>false</enabled></releases>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -411,11 +448,6 @@
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${slf4j-version}</version>
             </dependency>
@@ -470,14 +502,72 @@
         </dependencies>
     </dependencyManagement>
 
-    <profiles>
-      <profile>
-        <id>distro</id>
+  <profiles>
+    <profile>
+      <id>distro</id>
 
-        <modules>
-          <module>fabric-website</module>
-        </modules>
-      </profile>
-    </profiles>
+      <modules>
+        <module>fabric-website</module>
+      </modules>
+    </profile>
+      
+    <!-- 
+        Do a license check by running       : mvn -P license license:check  
+        UPdate the license check by running : mvn -P license license:format  
+      -->
+    <profile>
+      <id>license</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila.maven-license-plugin</groupId>
+            <artifactId>maven-license-plugin</artifactId>
+            <version>1.6.0</version>
+            <configuration>
+              <quiet>false</quiet>
+              <header>src/main/resources/license-header.txt</header>
+              <aggregate>true</aggregate>
+              <includes>
+                  <include>src/**</include>
+                  <include>**/pom.xml</include>
+              </includes>
+              <excludes>
+                <!-- can remove once http://code.google.com/p/maven-license-plugin/issues/detail?id=72 is resolved -->
+                <exclude>**/*.scaml</exclude>
+                <exclude>**/LICENSE.txt</exclude>
+                <exclude>**/LICENSE</exclude>
+                <exclude>**/.svn/**</exclude>
+            
+                <!-- ignore files produced during a build -->
+                <exclude>**/target/**</exclude>
+            
+                <!-- ignore binary files -->
+                <exclude>**/*.jpg</exclude>
+                <exclude>**/*.png</exclude>
+                <exclude>**/*.gif</exclude>
+                <exclude>**/*.ico</exclude>
+                <exclude>**/*.keystore</exclude>
+
+              </excludes>
+              <useDefaultExcludes>false</useDefaultExcludes>
+              <mapping>
+                  <jj>JAVADOC_STYLE</jj>
+                  <proto>DOUBLESLASH_STYLE</proto>
+                  <index>SCRIPT_STYLE</index>
+              </mapping>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>        
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+      
+  </profiles>
 
 </project>

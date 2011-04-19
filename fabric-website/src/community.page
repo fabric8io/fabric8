@@ -21,7 +21,7 @@ The ${project_name} community is here to help you
     # Mailing List
 .right
   :&markdown
-    We really want you to get involved in the #{project_name} and we love [contributions](contributing.html). One of the easiest ways to get involved is to join the community discussions.
+    We really want you to get involved in #{project_name} and we love [contributions](contributing.html)! One of the easiest ways to get involved is to join the community discussions.
 
     The main mailing list is hosted at the [fabric google group](http://groups.google.com/group/fusefabric).
 

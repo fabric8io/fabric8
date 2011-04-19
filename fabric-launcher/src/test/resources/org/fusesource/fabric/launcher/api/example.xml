@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<service id="example" xmlns="http://fusesource.org/schema/fabric/launcher">
+
+  <notes>
+    This is an example service definition.
+  </notes>
+
+  <start>/etc/init.d/example</start>
+  <start>start</start>
+
+  <stop>/etc/init.d/example</stop>
+  <stop>stop</stop>
+
+  <pid_file>/var/run/example.pid</pid_file>
+
+</service>
