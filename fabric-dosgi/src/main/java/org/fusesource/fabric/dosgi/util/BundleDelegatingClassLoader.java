@@ -1,0 +1,118 @@
+/**
+ * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
+package org.fusesource.fabric.dosgi.util;
+
+import java.io.IOException;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+
+import org.osgi.framework.Bundle;
+
+/**
+ * A ClassLoader delegating to a given OSGi bundle.
+ *
+ * @version $Rev$, $Date$
+ */
+public class BundleDelegatingClassLoader extends ClassLoader {
+
+    private final Bundle bundle;
+    private final ClassLoader classLoader;
+
+    public BundleDelegatingClassLoader(Bundle bundle) {
+        this(bundle, null);
+    }
+
+    public BundleDelegatingClassLoader(Bundle bundle, ClassLoader classLoader) {
+        this.bundle = bundle;
+        this.classLoader = classLoader;
+    }
+
+    protected Class<?> findClass(final String name) throws ClassNotFoundException {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+                public Class<?> run() throws ClassNotFoundException {
+                    return bundle.loadClass(name);
+                }
+
+            });
+        } catch (PrivilegedActionException e) {
+            Exception cause = e.getException();
+
+            if (cause instanceof ClassNotFoundException) throw (ClassNotFoundException) cause;
+            else throw (RuntimeException) cause;
+        }
+    }
+
+    protected URL findResource(final String name) {
+        URL resource = AccessController.doPrivileged(new PrivilegedAction<URL>() {
+            public URL run() {
+                return bundle.getResource(name);
+            }
+        });
+        if (classLoader != null && resource == null) {
+            resource = classLoader.getResource(name);
+        }
+        return resource;
+    }
+
+    protected Enumeration<URL> findResources(final String name) throws IOException {
+        Enumeration<URL> urls;
+        try {
+            urls = AccessController.doPrivileged(new PrivilegedExceptionAction<Enumeration<URL>>() {
+                @SuppressWarnings("unchecked")
+                public Enumeration<URL> run() throws IOException {
+                    return (Enumeration<URL>) bundle.getResources(name);
+                }
+
+            });
+        } catch (PrivilegedActionException e) {
+            Exception cause = e.getException();
+
+            if (cause instanceof IOException) throw (IOException) cause;
+            else throw (RuntimeException) cause;
+        }
+
+        if (urls == null) {
+            urls = Collections.enumeration(new ArrayList<URL>());
+        }
+
+        return urls;
+    }
+
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        Class<?> clazz;
+        try {
+            clazz = findClass(name);
+        } catch (ClassNotFoundException cnfe) {
+            if (classLoader != null) {
+                try {
+                    clazz = classLoader.loadClass(name);
+                } catch (ClassNotFoundException e) {
+                    throw new ClassNotFoundException(name + " from bundle " + bundle.getBundleId() + " (" + bundle.getSymbolicName() + ")", cnfe);
+                }
+            } else {
+                throw new ClassNotFoundException(name + " from bundle " + bundle.getBundleId() + " (" + bundle.getSymbolicName() + ")", cnfe);
+            }
+        }
+        if (resolve) {
+            resolveClass(clazz);
+        }
+        return clazz;
+    }
+
+    public Bundle getBundle() {
+        return bundle;
+    }
+}

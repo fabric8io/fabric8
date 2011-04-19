@@ -141,6 +141,7 @@
         <module>fabric-agent</module>
         <module>fabric-commands</module>
         <module>fabric-camel</module>
+        <module>fabric-dosgi</module>
         <module>fabric-distro</module>
     </modules>
 
