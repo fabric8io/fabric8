@@ -8,6 +8,16 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.io.*;
+import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.BufferEditor;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.DispatchQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -16,20 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.fusesource.fabric.dosgi.io.ServerInvoker;
-import org.fusesource.fabric.dosgi.io.Transport;
-import org.fusesource.fabric.dosgi.io.TransportAcceptListener;
-import org.fusesource.fabric.dosgi.io.TransportListener;
-import org.fusesource.fabric.dosgi.io.TransportServer;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.hawtbuf.BufferEditor;
-import org.fusesource.hawtbuf.ByteArrayInputStream;
-import org.fusesource.hawtbuf.ByteArrayOutputStream;
-import org.fusesource.hawtdispatch.DispatchQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ServerInvokerImpl implements ServerInvoker {
 
@@ -95,9 +91,9 @@ public class ServerInvokerImpl implements ServerInvoker {
 
     protected void onCommand(final Transport transport, Object data) {
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream((Buffer) data);
+            DataByteArrayInputStream bais = new DataByteArrayInputStream((Buffer) data);
+            final int size = bais.readInt();
             final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-            final int size = ois.readInt();
             final String correlation = ois.readUTF();
             final String service = ois.readUTF();
 
@@ -140,9 +136,9 @@ public class ServerInvokerImpl implements ServerInvoker {
 
                     // Encode the response...
                     try {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
+                        baos.writeInt(0); // make space for the size field.
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
-                        oos.writeInt(0); // make space for the size field.
                         oos.writeUTF(correlation);
                         oos.writeObject(error);
                         oos.writeObject(value);

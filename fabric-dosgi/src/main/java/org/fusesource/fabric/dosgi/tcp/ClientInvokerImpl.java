@@ -8,6 +8,19 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.io.ClientInvoker;
+import org.fusesource.fabric.dosgi.io.ProtocolCodec;
+import org.fusesource.fabric.dosgi.io.Transport;
+import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
+import org.fusesource.fabric.dosgi.util.UuidGenerator;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.BufferEditor;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.DispatchQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
@@ -19,19 +32,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.fusesource.fabric.dosgi.io.ClientInvoker;
-import org.fusesource.fabric.dosgi.io.ProtocolCodec;
-import org.fusesource.fabric.dosgi.io.Transport;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.fabric.dosgi.util.UuidGenerator;
-import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.hawtbuf.BufferEditor;
-import org.fusesource.hawtbuf.ByteArrayInputStream;
-import org.fusesource.hawtbuf.ByteArrayOutputStream;
-import org.fusesource.hawtdispatch.DispatchQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ClientInvokerImpl implements ClientInvoker {
 
@@ -93,9 +93,9 @@ public class ClientInvokerImpl implements ClientInvoker {
 
     protected void onCommand(Object data) {
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream( (Buffer) data);
+            DataByteArrayInputStream bais = new DataByteArrayInputStream( (Buffer) data);
+            int size = bais.readInt();
             ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-            int size = ois.readInt();
             String correlation = ois.readUTF();
             ResponseFuture response = requests.remove(correlation);
             ois.setClassLoader(response.getClassLoader());
@@ -123,9 +123,9 @@ public class ClientInvokerImpl implements ClientInvoker {
         // We can probably get a nice perf boots if we track
         // average serialized request size so we can pick an optimal
         // initial byte array size.
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
+        baos.writeInt(0); // we don't know the size yet...
         ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeInt(0); // we don't know the size yet...
         oos.writeUTF(uuid);
         oos.writeUTF(service);
         oos.writeUTF(method.getName());
