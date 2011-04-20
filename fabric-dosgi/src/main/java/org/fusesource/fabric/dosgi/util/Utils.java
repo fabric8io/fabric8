@@ -27,41 +27,24 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.fusesource.fabric.dosgi.impl.EndpointDescription;
-import org.fusesource.fabric.dosgi.capset.SimpleFilter;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 
 public class Utils {
 
     public static final String FRAMEWORK_UUID = "org.osgi.framework.uuid";
 
     public static String getUUID(BundleContext bundleContext) {
-        synchronized (FRAMEWORK_UUID) {
-            String uuid = bundleContext.getProperty(FRAMEWORK_UUID);
-            if (uuid == null) {
-                uuid = UuidGenerator.getUUID();
-                System.setProperty(FRAMEWORK_UUID, uuid);
-            }
-            return uuid;
-        }
-    }
-
-    public static Map<String, SimpleFilter> normalizeScope(Object scope) throws InvalidSyntaxException {
-        Map<String, SimpleFilter> filters = new HashMap<String, SimpleFilter>();
-        if (scope instanceof String) {
-            filters.put((String) scope, SimpleFilter.parse((String) scope));
-        } else if (scope instanceof String[]) {
-            for (String f : (String[]) scope) {
-                filters.put(f, SimpleFilter.parse(f));
-            }
-        } else if (scope instanceof Collection) {
-            for (Object o : (Collection) scope) {
-                if (o instanceof String) {
-                    filters.put((String) o, SimpleFilter.parse((String) o));
+        String uuid = bundleContext.getProperty(FRAMEWORK_UUID);
+        if (uuid == null) {
+            synchronized (FRAMEWORK_UUID) {
+                uuid = bundleContext.getProperty(FRAMEWORK_UUID);
+                if (uuid == null) {
+                    uuid = UuidGenerator.getUUID();
+                    System.setProperty(FRAMEWORK_UUID, uuid);
                 }
             }
         }
-        return filters;
+        return uuid;
     }
 
     public static Set<String> normalize(Object object) {
@@ -287,14 +270,13 @@ public class Utils {
             boxedType = type;
         }
         String javaType = "java.lang." + boxedType;
+        if (boxedType.equals("Character")) {
+            return value.charAt(0);
+        }
         try {
-            if (boxedType.equals("Character")) {
-                return value.charAt(0);
-            } else {
-                Class<?> cls = ClassLoader.getSystemClassLoader().loadClass(javaType);
-                Constructor<?> ctor = cls.getConstructor(String.class);
-                return ctor.newInstance(value);
-            }
+            Class<?> cls = ClassLoader.getSystemClassLoader().loadClass(javaType);
+            Constructor<?> ctor = cls.getConstructor(String.class);
+            return ctor.newInstance(value);
         } catch (Exception e) {
             return null;
         }

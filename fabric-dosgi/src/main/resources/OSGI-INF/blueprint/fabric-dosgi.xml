@@ -1,0 +1,30 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <cm:property-placeholder persistent-id="org.fusesource.fabric.dosgi" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="port" value="2543"/>
+            <cm:property name="uri" value="tcp://localhost:${port}"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <bean id="activator" class="org.fusesource.fabric.dosgi.Activator" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="uri" value="${uri}"/>
+    </bean>
+
+    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient">
+        <reference-listener ref="activator" bind-method="registerZooKeeper" unbind-method="unregisterZooKeeper"/>
+    </reference>
+
+</blueprint>

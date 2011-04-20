@@ -66,7 +66,9 @@ public class ClientInvokerImpl implements ClientInvoker {
                     final Runnable coutDown = new Runnable() {
                         public void run() {
                             if (latch.decrementAndGet() == 0) {
-                                onComplete.run();
+                                if (onComplete != null) {
+                                    onComplete.run();
+                                }
                             }
                         }
                     };

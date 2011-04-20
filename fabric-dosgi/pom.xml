@@ -38,7 +38,6 @@
       <fabric.osgi.services.export>
       </fabric.osgi.services.export>
       <fabric.osgi.activator>
-          org.fusesource.fabric.dosgi.Activator
       </fabric.osgi.activator>
   </properties>
 

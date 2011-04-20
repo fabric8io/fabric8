@@ -32,7 +32,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -268,19 +267,19 @@ public class URISupport {
         return new URI(stripPrefix(uri.getSchemeSpecificPart().trim(), "//"));
     }
 
-    public static String createQueryString(Map options) throws URISyntaxException {
+    public static String createQueryString(Map<String,String> options) throws URISyntaxException {
         try {
             if (options.size() > 0) {
                 StringBuffer rc = new StringBuffer();
                 boolean first = true;
-                for (Iterator iter = options.keySet().iterator(); iter.hasNext();) {
+                for (Map.Entry<String,String> entry : options.entrySet()) {
                     if (first) {
                         first = false;
                     } else {
                         rc.append("&");
                     }
-                    String key = (String)iter.next();
-                    String value = (String)options.get(key);
+                    String key = entry.getKey();
+                    String value = entry.getValue();
                     rc.append(URLEncoder.encode(key, "UTF-8"));
                     rc.append("=");
                     rc.append(URLEncoder.encode(value, "UTF-8"));

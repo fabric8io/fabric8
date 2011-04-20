@@ -127,12 +127,12 @@ public final class IntrospectionSupport {
 
         HashMap<String, Object> rc = new HashMap<String, Object>(props.size());
 
-        for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
-            String name = (String)iter.next();
+        for (Iterator<Entry> iter = props.entrySet().iterator(); iter.hasNext();) {
+            Entry entry = iter.next();
+            String name = (String)entry.getKey();
             if (name.startsWith(optionPrefix)) {
-                Object value = props.get(name);
                 name = name.substring(optionPrefix.length());
-                rc.put(name, value);
+                rc.put(name, entry.getValue());
                 iter.remove();
             }
         }
@@ -150,8 +150,8 @@ public final class IntrospectionSupport {
             throw new IllegalArgumentException("props was null.");
         }
 
-        for (Iterator iter = props.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry entry = (Entry)iter.next();
+        for (Iterator<Entry> iter = props.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry entry = iter.next();
             if (setProperty(target, (String)entry.getKey(), entry.getValue())) {
                 iter.remove();
                 rc = true;

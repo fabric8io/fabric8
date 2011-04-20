@@ -94,13 +94,17 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     private String uuid;
 
-    private String uri = "tcp://0.0.0.0:2543";
+    private final String uri;
 
     private ClientInvoker client;
 
     private ServerInvoker server;
 
     public Manager(BundleContext context, IZKClient zooKeeper) throws Exception {
+        this(context, zooKeeper, "tcp://0.0.0.0:2543");
+    }
+
+    public Manager(BundleContext context, IZKClient zooKeeper, String uri) throws Exception {
         this.queue = Dispatch.createQueue();
         this.importedServices = new ConcurrentHashMap<EndpointDescription, Map<Long, ImportRegistration>>();
         this.exportedServices = new ConcurrentHashMap<ServiceReference, ExportRegistration>();
@@ -109,13 +113,6 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
                 Arrays.asList(Constants.OBJECTCLASS, ENDPOINT_FRAMEWORK_UUID), false);
         this.bundleContext = context;
         this.zooKeeper = zooKeeper;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
         this.uri = uri;
     }
 

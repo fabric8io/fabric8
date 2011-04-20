@@ -100,6 +100,8 @@ public class SimpleFilter
                 case APPROX:
                     m_string = "(" + m_name + "~=" + toEncodedString(m_value) + ")";
                     break;
+                default:
+                    throw new IllegalStateException();
             }
         }
         return m_string;
@@ -210,7 +212,7 @@ public class SimpleFilter
                     }
                     else
                     {
-                        stack.add(0, new Integer(idx));
+                        stack.add(0, idx);
                     }
                 }
                 else if (filter.charAt(idx) == '|')
@@ -223,7 +225,7 @@ public class SimpleFilter
                     }
                     else
                     {
-                        stack.add(0, new Integer(idx));
+                        stack.add(0, idx);
                     }
                 }
                 else if (filter.charAt(idx) == '!')
@@ -236,12 +238,12 @@ public class SimpleFilter
                     }
                     else
                     {
-                        stack.add(0, new Integer(idx));
+                        stack.add(0, idx);
                     }
                 }
                 else
                 {
-                    stack.add(0, new Integer(idx));
+                    stack.add(0, idx);
                 }
             }
             else if (!isEscaped && (filter.charAt(idx) == ')'))
@@ -261,11 +263,11 @@ public class SimpleFilter
                 else if (!stack.isEmpty() && (stack.get(0) instanceof SimpleFilter))
                 {
                     ((List) ((SimpleFilter) stack.get(0)).m_value).add(
-                        SimpleFilter.subfilter(filter, ((Integer) top).intValue(), idx));
+                        SimpleFilter.subfilter(filter, (Integer) top, idx));
                 }
                 else
                 {
-                    sf = SimpleFilter.subfilter(filter, ((Integer) top).intValue(), idx);
+                    sf = SimpleFilter.subfilter(filter, (Integer) top, idx);
                 }
             }
             else if (!isEscaped && (filter.charAt(idx) == '\\'))
@@ -317,7 +319,7 @@ public class SimpleFilter
         startIdx = skipWhitespace(filter, attrEndIdx);
 
         // Determine the operator type.
-        int op = -1;
+        int op;
         switch (filter.charAt(startIdx))
         {
             case '=':
@@ -383,7 +385,7 @@ public class SimpleFilter
 
     public static List<String> parseSubstring(String value)
     {
-        List<String> pieces = new ArrayList();
+        List<String> pieces = new ArrayList<String>();
         StringBuffer ss = new StringBuffer();
         // int kind = SIMPLE; // assume until proven otherwise
         boolean wasStar = false; // indicates last piece was a star
@@ -394,17 +396,12 @@ public class SimpleFilter
 
         // We assume (sub)strings can contain leading and trailing blanks
         boolean escaped = false;
-loop:   for (;;)
-        {
-            if (idx >= value.length())
-            {
-                if (wasStar)
-                {
+        for (; ;) {
+            if (idx >= value.length()) {
+                if (wasStar) {
                     // insert last piece as "" to handle trailing star
                     rightstar = true;
-                }
-                else
-                {
+                } else {
                     pieces.add(ss.toString());
                     // accumulate the last piece
                     // note that in the case of
@@ -412,43 +409,33 @@ loop:   for (;;)
                     // the string "" (!=null)
                 }
                 ss.setLength(0);
-                break loop;
+                break;
             }
 
             // Read the next character and account for escapes.
             char c = value.charAt(idx++);
-            if (!escaped && ((c == '(') || (c == ')')))
-            {
+            if (!escaped && ((c == '(') || (c == ')'))) {
                 throw new IllegalArgumentException(
-                    "Illegal value: " + value);
-            }
-            else if (!escaped && (c == '*'))
-            {
-                if (wasStar)
-                {
+                        "Illegal value: " + value);
+            } else if (!escaped && (c == '*')) {
+                if (wasStar) {
                     // encountered two successive stars;
                     // I assume this is illegal
                     throw new IllegalArgumentException("Invalid filter string: " + value);
                 }
-                if (ss.length() > 0)
-                {
+                if (ss.length() > 0) {
                     pieces.add(ss.toString()); // accumulate the pieces
                     // between '*' occurrences
                 }
                 ss.setLength(0);
                 // if this is a leading star, then track it
-                if (pieces.size() == 0)
-                {
+                if (pieces.size() == 0) {
                     leftstar = true;
                 }
                 wasStar = true;
-            }
-            else if (!escaped && (c == '\\'))
-            {
+            } else if (!escaped && (c == '\\')) {
                 escaped = true;
-            }
-            else
-            {
+            } else {
                 escaped = false;
                 wasStar = false;
                 ss.append(c);
@@ -506,45 +493,32 @@ loop:   for (;;)
 
         int index = 0;
 
-loop:   for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
             String piece = pieces.get(i);
 
             // If this is the first piece, then make sure the
             // string starts with it.
-            if (i == 0)
-            {
-                if (!s.startsWith(piece))
-                {
+            if (i == 0) {
+                if (!s.startsWith(piece)) {
                     result = false;
-                    break loop;
+                    break;
                 }
             }
 
             // If this is the last piece, then make sure the
             // string ends with it.
-            if (i == len - 1)
-            {
-                if (s.endsWith(piece))
-                {
-                    result = true;
-                }
-                else
-                {
-                    result = false;
-                }
-                break loop;
+            if (i == (len - 1)) {
+                result = s.endsWith(piece);
+                break;
             }
 
             // If this is neither the first or last piece, then
             // make sure the string contains it.
-            if ((i > 0) && (i < (len - 1)))
-            {
+            if ((i > 0) && (i < (len - 1))) {
                 index = s.indexOf(piece, index);
-                if (index < 0)
-                {
+                if (index < 0) {
                     result = false;
-                    break loop;
+                    break;
                 }
             }
 

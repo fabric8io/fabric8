@@ -8,57 +8,50 @@
  */
 package org.fusesource.fabric.dosgi;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.fusesource.fabric.dosgi.impl.Manager;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-public class Activator implements BundleActivator, ServiceTrackerCustomizer {
+public class Activator {
 
-    private BundleContext context;
-    private ServiceTracker tracker;
-    private Map<IZKClient, Manager> managers = new ConcurrentHashMap<IZKClient, Manager>();
+    private BundleContext bundleContext;
+    private Manager manager;
+    private String uri;
+    private ServiceReference reference;
 
-    public void start(BundleContext context) throws Exception {
-        this.context = context;
-        this.tracker = new ServiceTracker(this.context, IZKClient.class.getName(), this);
-        this.tracker.open();
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
-    public void stop(BundleContext context) throws Exception {
-        tracker.close();
-        for (Manager manager : managers.values()) {
-            manager.destroy();
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public void destroy() {
+        if (manager != null) {
+            Manager mgr = manager;
+            ServiceReference ref = reference;
+            reference = null;
+            manager = null;
+            this.bundleContext.ungetService(ref);
+            mgr.destroy();
         }
     }
 
-    public Object addingService(ServiceReference reference) {
-        IZKClient zooKeeper = (IZKClient) this.context.getService(reference);
+    public void registerZooKeeper(ServiceReference ref) {
         try {
-            Manager manager = new Manager(this.context, zooKeeper);
+            destroy();
+            reference = ref;
+            manager = new Manager(this.bundleContext, (IZKClient) this.bundleContext.getService(reference), uri);
             manager.init();
-            this.managers.put(zooKeeper, manager);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return zooKeeper;
     }
 
-    public void modifiedService(ServiceReference reference, Object service) {
-    }
-
-    public void removedService(ServiceReference reference, Object service) {
-        Manager manager = this.managers.remove(service);
-        if (manager != null) {
-            manager.destroy();
-        }
-        this.context.ungetService(reference);
+    public void unregisterZooKeeper(ServiceReference reference) {
+        destroy();
     }
 
 }

@@ -28,7 +28,7 @@ public abstract class TransportPool implements Service {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(TransportPool.class);
 
-    public static int DEFAULT_POOL_SIZE = 2;
+    public static final int DEFAULT_POOL_SIZE = 2;
 
     protected final String uri;
     protected final DispatchQueue queue;
