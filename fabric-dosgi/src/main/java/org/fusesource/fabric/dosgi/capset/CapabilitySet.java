@@ -6,6 +6,22 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.fusesource.fabric.dosgi.capset;
 
 import java.lang.reflect.Array;
@@ -20,11 +36,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CapabilitySet<C extends Capability>
 {
     private final Map<String, Map<Object, Set<C>>> m_indices;
     private final Set<C> m_capSet = new HashSet<C>();
+    private final ReadWriteLock m_lock = new ReentrantReadWriteLock();
 
     public CapabilitySet(List<String> indexProps, boolean caseSensitive)
     {
@@ -38,6 +57,19 @@ public class CapabilitySet<C extends Capability>
     }
 
     public void addCapability(C cap)
+    {
+        m_lock.writeLock().lock();
+        try
+        {
+            doAddCapability(cap);
+        }
+        finally
+        {
+            m_lock.writeLock().unlock();
+        }
+    }
+
+    private void doAddCapability(C cap)
     {
         m_capSet.add(cap);
 
@@ -84,6 +116,19 @@ public class CapabilitySet<C extends Capability>
     }
 
     public void removeCapability(C cap)
+    {
+        m_lock.writeLock().lock();
+        try
+        {
+            doRemoveCapability(cap);
+        }
+        finally
+        {
+            m_lock.writeLock().unlock();
+        }
+    }
+
+    private void doRemoveCapability(C cap)
     {
         if (m_capSet.remove(cap))
         {
@@ -133,7 +178,15 @@ public class CapabilitySet<C extends Capability>
 
     public Set<C> match(SimpleFilter sf)
     {
-        return match(m_capSet, sf);
+        m_lock.readLock().lock();
+        try
+        {
+            return match(m_capSet, sf);
+        }
+        finally
+        {
+            m_lock.readLock().unlock();
+        }
     }
 
     private Set<C> match(Set<C> caps, SimpleFilter sf)

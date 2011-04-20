@@ -8,15 +8,12 @@
  */
 package org.fusesource.fabric.dosgi;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.fusesource.fabric.dosgi.impl.EndpointDescription;
 import org.fusesource.fabric.dosgi.impl.Manager;
-import org.fusesource.fabric.dosgi.io.ProtocolCodec;
-import org.fusesource.fabric.dosgi.tcp.TcpTransport;
 import org.fusesource.fabric.dosgi.util.Utils;
 import org.junit.Test;
 import org.osgi.framework.BundleActivator;
@@ -58,11 +55,4 @@ public class UtilsTest {
         assertEquals(3, ((int[]) endpoint2.getProperties().get("ints"))[2]);
     }
 
-    public void testProy() throws Exception {
-        Method method = TcpTransport.class.getMethod("setProtocolCodec", ProtocolCodec.class);
-
-//        method.getParameterTypes()
-
-        org.springframework.remoting.rmi.RmiServiceExporter exporter = null;
-    }
 }

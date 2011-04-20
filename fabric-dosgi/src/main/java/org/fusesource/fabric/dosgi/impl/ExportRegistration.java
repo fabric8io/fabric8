@@ -8,9 +8,6 @@
  */
 package org.fusesource.fabric.dosgi.impl;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-import org.fusesource.fabric.dosgi.util.BundleDelegatingClassLoader;
 import org.osgi.framework.ServiceReference;
 
 public class ExportRegistration {
@@ -18,14 +15,12 @@ public class ExportRegistration {
     final ServiceReference exportedService;
     final EndpointDescription exportedEndpoint;
     final String zooKeeperNode;
-    final XStream xstream;
     boolean closed;
 
     public ExportRegistration(ServiceReference exportedService, EndpointDescription exportedEndpoint, String zooKeeperNode) {
         this.exportedService = exportedService;
         this.exportedEndpoint = exportedEndpoint;
         this.zooKeeperNode = zooKeeperNode;
-        this.xstream = new XStream(null, new StaxDriver(), new BundleDelegatingClassLoader(exportedService.getBundle(), Manager.class.getClassLoader()));
     }
 
     public EndpointDescription getExportedEndpoint() {
@@ -38,10 +33,6 @@ public class ExportRegistration {
 
     public String getZooKeeperNode() {
         return closed ? null : zooKeeperNode;
-    }
-
-    public XStream getXStream() {
-        return xstream;
     }
 
     public void close() {
