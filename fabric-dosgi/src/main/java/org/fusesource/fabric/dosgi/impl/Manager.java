@@ -11,8 +11,8 @@ package org.fusesource.fabric.dosgi.impl;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -108,7 +108,8 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.exportedServices = new ConcurrentHashMap<ServiceReference, ExportRegistration>();
         this.exportedServicesPerId = new ConcurrentHashMap<String, ExportRegistration>();
         this.listeners = new ConcurrentHashMap<ListenerInfo, SimpleFilter>();
-        this.remoteEndpoints = new CapabilitySet<EndpointDescription>(Collections.singletonList(Constants.OBJECTCLASS), false);
+        this.remoteEndpoints = new CapabilitySet<EndpointDescription>(
+                Arrays.asList(Constants.OBJECTCLASS, ENDPOINT_FRAMEWORK_UUID), false);
         this.bundleContext = context;
         this.zooKeeper = zooKeeper;
         this.client = new ClientInvokerImpl(queue);
