@@ -100,6 +100,7 @@ public class ManagerTest {
             expect(reference.getPropertyKeys()).andReturn(props.keySet().toArray(new String[0]));
             expect(reference.getBundle()).andReturn(expBundle).anyTimes();
             expect(expBundle.getBundleContext()).andReturn(expBundleContext).anyTimes();
+            expect(expBundle.getState()).andReturn(Bundle.ACTIVE).anyTimes();
 
             replay(bundleContext, registration, reference, expBundleContext, expBundle);
 

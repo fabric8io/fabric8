@@ -28,6 +28,7 @@
       </fabric.osgi.export>
       <fabric.osgi.import.before.defaults>
           !org.objectweb.asm,
+          org.eclipse.osgi*;resolution:=optional
       </fabric.osgi.import.before.defaults>
       <fabric.osgi.import.additional>
       </fabric.osgi.import.additional>
@@ -94,6 +95,11 @@
           <artifactId>fabric-zookeeper-spring</artifactId>
           <version>${project.version}</version>
           <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.eclipse</groupId>
+          <artifactId>osgi</artifactId>
       </dependency>
 
   </dependencies>

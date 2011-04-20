@@ -31,7 +31,7 @@ import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
 import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
-import org.fusesource.fabric.dosgi.util.BundleDelegatingClassLoader;
+import org.fusesource.fabric.dosgi.util.AriesFrameworkUtil;
 import org.fusesource.fabric.dosgi.util.Utils;
 import org.fusesource.fabric.dosgi.util.UuidGenerator;
 import org.fusesource.hawtdispatch.Dispatch;
@@ -152,6 +152,9 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
             for (ImportRegistration registration : registrations.values()) {
                 registration.getImportedService().unregister();
             }
+        }
+        for (ServiceReference reference : this.exportedServices.keySet()) {
+            unExportService(reference);
         }
         this.server.stop();
         this.client.stop();
@@ -393,7 +396,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
             public void unget() {
                 reference.getBundle().getBundleContext().ungetService(reference);
             }
-        }, new BundleDelegatingClassLoader(reference.getBundle()));
+        }, AriesFrameworkUtil.getClassLoader(reference.getBundle()));
 
         String descStr = Utils.getEndpointDescriptionXML(description);
         // Publish in ZooKeeper
@@ -438,7 +441,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         }
 
         public Object getService(Bundle bundle, ServiceRegistration registration) {
-            ClassLoader classLoader = new BundleDelegatingClassLoader(bundle, Manager.class.getClassLoader());
+            ClassLoader classLoader = AriesFrameworkUtil.getClassLoader(bundle);
             List<Class> interfaces = new ArrayList<Class>();
             for (String interfaceName : description.getInterfaces()) {
                 try {
