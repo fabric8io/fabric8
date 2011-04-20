@@ -19,7 +19,8 @@
   </parent>
 
   <artifactId>fabric-dosgi</artifactId>
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric :: DOSGi</name>
+  <description>Fabric Distributed OSGi</description>
   <packaging>bundle</packaging>
 
   <properties>
@@ -93,6 +94,7 @@
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-zookeeper-spring</artifactId>
           <version>${project.version}</version>
+          <scope>test</scope>
       </dependency>
 
   </dependencies>

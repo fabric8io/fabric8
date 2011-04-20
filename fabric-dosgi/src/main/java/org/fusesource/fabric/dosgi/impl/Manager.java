@@ -92,8 +92,6 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     private final Map<ListenerInfo, SimpleFilter> listeners;
 
-    private final Map<String, ExportRegistration> exportedServicesPerId;
-
     private String uuid;
 
     private String uri = "tcp://0.0.0.0:2543";
@@ -106,17 +104,27 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.queue = Dispatch.createQueue();
         this.importedServices = new ConcurrentHashMap<EndpointDescription, Map<Long, ImportRegistration>>();
         this.exportedServices = new ConcurrentHashMap<ServiceReference, ExportRegistration>();
-        this.exportedServicesPerId = new ConcurrentHashMap<String, ExportRegistration>();
         this.listeners = new ConcurrentHashMap<ListenerInfo, SimpleFilter>();
         this.remoteEndpoints = new CapabilitySet<EndpointDescription>(
                 Arrays.asList(Constants.OBJECTCLASS, ENDPOINT_FRAMEWORK_UUID), false);
         this.bundleContext = context;
         this.zooKeeper = zooKeeper;
-        this.client = new ClientInvokerImpl(queue);
-        this.server = new ServerInvokerImpl(uri, queue);
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public void init() throws Exception {
+        // Create client and server
+        this.client = new ClientInvokerImpl(queue);
+        this.server = new ServerInvokerImpl(uri, queue);
+        this.client.start();
+        this.server.start();
         // ZooKeeper tracking
         try {
             this.zooKeeper.createWithParents(DOSGI_REGISTRY, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -127,9 +135,6 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.tree.track(this);
         // UUID
         this.uuid = Utils.getUUID(this.bundleContext);
-        // Start server
-        this.client.start();
-        this.server.start();
         // Service listener filter
         String filter = "(" + RemoteConstants.SERVICE_EXPORTED_INTERFACES + "=*)";
         // Initialization
@@ -320,7 +325,6 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
                 ExportRegistration registration = doExportService(reference);
                 if (registration != null) {
                     exportedServices.put(reference, registration);
-                    exportedServicesPerId.put(registration.getExportedEndpoint().getId(), registration);
                 }
             } catch (Exception e) {
                 LOGGER.info("Error when exporting endpoint", e);
