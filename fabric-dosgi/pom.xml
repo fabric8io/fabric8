@@ -76,6 +76,11 @@
           <artifactId>hawtdispatch</artifactId>
           <version>1.2</version>
       </dependency>
+      <dependency>
+          <groupId>org.fusesource.hawtbuf</groupId>
+          <artifactId>hawtbuf</artifactId>
+          <version>1.4</version>
+      </dependency>
 
       <dependency>
           <groupId>org.easymock</groupId>

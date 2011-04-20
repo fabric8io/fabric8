@@ -8,8 +8,6 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -26,6 +24,10 @@ import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
 import org.fusesource.fabric.dosgi.util.UuidGenerator;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.BufferEditor;
+import org.fusesource.hawtbuf.ByteArrayInputStream;
+import org.fusesource.hawtbuf.ByteArrayOutputStream;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +92,9 @@ public class ClientInvokerImpl implements ClientInvoker {
 
     protected void onCommand(Object data) {
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) data);
+            ByteArrayInputStream bais = new ByteArrayInputStream( (Buffer) data);
             ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
+            int size = ois.readInt();
             String correlation = ois.readUTF();
             ResponseFuture response = requests.remove(correlation);
             ois.setClassLoader(response.getClassLoader());
@@ -120,15 +123,25 @@ public class ClientInvokerImpl implements ClientInvoker {
                     }
                     String uuid = UuidGenerator.getUUID();
                     requests.put(uuid, future);
-                    // Prepare request and send
+
+                    // We can probably get a nice perf boots if we track
+                    // average serialized request size so we can pick an optimal
+                    // initial byte array size.
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
+                    oos.writeInt(0); // we don't know the size yet...
                     oos.writeUTF(uuid);
                     oos.writeUTF(service);
                     oos.writeUTF(method.getName());
                     oos.writeObject(method.getParameterTypes());
                     oos.writeObject(args);
-                    pool.offer(baos.toByteArray());
+                    Buffer command = baos.toBuffer();
+
+                    // copy and get and editor to we can set the size field.
+                    BufferEditor editor = command.buffer().bigEndianEditor();
+                    editor.writeInt(command.length);
+
+                    pool.offer(command);
                 } catch (Exception e) {
                     LOGGER.info("Error while sending request", e);
                 }
