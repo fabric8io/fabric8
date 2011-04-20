@@ -105,23 +105,14 @@ public final class AriesFrameworkUtil {
         return false;
     }
 
+    /**
+     * Returns true if we are in felix.
+     *
+     * @param bundleClassName the class name of the bundle implementation.
+     * @return true if we are in felix, false otherwise.
+     */
     private static boolean isFelix(String bundleClassName) {
         return bundleClassName != null && bundleClassName.startsWith("org.apache.felix");
     }
 
-    /**
-     * This method attempts to get the classloader for a bundle. It will force the creation
-     * of a classloader, so if no classloader exists. If the bundle is in installed state, but
-     * cannot be resolved the null will be returned.
-     *
-     * @param b the bundle to get a classloader for
-     * @return the classloader.
-     */
-    public static ClassLoader getClassLoaderForced(Bundle b) {
-        try {
-            b.loadClass("java.lang.Object");
-        } catch (ClassNotFoundException e) {
-        }
-        return WORKER.getClassLoader(b);
-    }
 }
