@@ -32,7 +32,7 @@ public abstract class TransportPool implements Service {
 
     protected final String uri;
     protected final DispatchQueue queue;
-    protected final List<Object> pending = new LinkedList<Object>();
+    protected final LinkedList<Object> pending = new LinkedList<Object>();
     protected final Map<Transport, State> transports = new HashMap<Transport, State>();
     protected AtomicBoolean running = new AtomicBoolean(false);
     protected int poolSize;
@@ -142,16 +142,16 @@ public abstract class TransportPool implements Service {
         }
 
         public void onRefill(Transport transport) {
-            if (pending.size() > 0) {
-                Object data = pending.remove(0);
-                if (transport.offer(data)) {
+            while (pending.size() > 0) {
+                Object data = pending.getFirst();
+                if (!transport.offer(data)) {
                     transports.put(transport, State.Writing);
+                    return;
                 } else {
-                    pending.add(data);
+                    pending.removeFirst();
                 }
-            } else {
-                transports.put(transport, State.Idle);
             }
+            transports.put(transport, State.Idle);
         }
 
         public void onTransportFailure(Transport transport, IOException error) {
