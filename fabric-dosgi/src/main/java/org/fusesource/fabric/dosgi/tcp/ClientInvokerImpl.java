@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -110,7 +111,35 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
-    protected Object request(final String address, final String service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException {
+    protected Object request(final String address, final String service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException {
+
+        final String uuid = UuidGenerator.getUUID();
+
+        // Encode the request before we try to pass it onto
+        // IO layers so that #1 we can report encoding error back to the caller
+        // and #2 reduce CPU load done in the execution queue since it's
+        // serially executed.
+
+        // We can probably get a nice perf boots if we track
+        // average serialized request size so we can pick an optimal
+        // initial byte array size.
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeInt(0); // we don't know the size yet...
+        oos.writeUTF(uuid);
+        oos.writeUTF(service);
+        oos.writeUTF(method.getName());
+        oos.writeObject(method.getParameterTypes());
+        oos.writeObject(args);
+
+        // toBuffer() is better than toByteArray() since it avoids an
+        // array copy.
+        final Buffer command = baos.toBuffer();
+
+        // Update the field size.
+        BufferEditor editor = command.buffer().bigEndianEditor();
+        editor.writeInt(command.length);
+
         final ResponseFuture future = new ResponseFuture(classLoader);
         queue.execute(new Runnable() {
             public void run() {
@@ -121,26 +150,7 @@ public class ClientInvokerImpl implements ClientInvoker {
                         transports.put(address,  pool);
                         pool.start();
                     }
-                    String uuid = UuidGenerator.getUUID();
                     requests.put(uuid, future);
-
-                    // We can probably get a nice perf boots if we track
-                    // average serialized request size so we can pick an optimal
-                    // initial byte array size.
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(baos);
-                    oos.writeInt(0); // we don't know the size yet...
-                    oos.writeUTF(uuid);
-                    oos.writeUTF(service);
-                    oos.writeUTF(method.getName());
-                    oos.writeObject(method.getParameterTypes());
-                    oos.writeObject(args);
-                    Buffer command = baos.toBuffer();
-
-                    // copy and get and editor to we can set the size field.
-                    BufferEditor editor = command.buffer().bigEndianEditor();
-                    editor.writeInt(command.length);
-
                     pool.offer(command);
                 } catch (Exception e) {
                     LOGGER.info("Error while sending request", e);

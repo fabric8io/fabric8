@@ -8,8 +8,6 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -25,6 +23,10 @@ import org.fusesource.fabric.dosgi.io.TransportAcceptListener;
 import org.fusesource.fabric.dosgi.io.TransportListener;
 import org.fusesource.fabric.dosgi.io.TransportServer;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.BufferEditor;
+import org.fusesource.hawtbuf.ByteArrayInputStream;
+import org.fusesource.hawtbuf.ByteArrayOutputStream;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,19 +95,33 @@ public class ServerInvokerImpl implements ServerInvoker {
 
     protected void onCommand(final Transport transport, Object data) {
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) data);
-            ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
+            ByteArrayInputStream bais = new ByteArrayInputStream((Buffer) data);
+            final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
+            final int size = ois.readInt();
             final String correlation = ois.readUTF();
             final String service = ois.readUTF();
-            ClassLoader loader = loaders.get(service);
-            ois.setClassLoader(loader);
-            final String name = ois.readUTF();
-            final Class[] types = (Class[]) ois.readObject();
-            final Object[] args = (Object[]) ois.readObject();
+
+            ois.setClassLoader(loaders.get(service));
+            final ServiceFactory factory = handlers.get(service);
 
             executor.submit(new Runnable() {
                 public void run() {
-                    ServiceFactory factory = handlers.get(service);
+
+                    // Lets decode the remaining args on the target's executor
+                    // to take cpu load off the
+
+                    final String name;
+                    final Class[] types;
+                    final Object[] args;
+                    try {
+                        name = ois.readUTF();
+                        types = (Class[]) ois.readObject();
+                        args = (Object[]) ois.readObject();
+                    } catch (Exception e) {
+                        LOGGER.info("Error while reading request", e);
+                        return;
+                    }
+
                     Object svc = factory.get();
                     Object value = null;
                     Throwable error = null;
@@ -121,29 +137,39 @@ public class ServerInvokerImpl implements ServerInvoker {
                     } finally {
                         factory.unget();
                     }
-                    final Throwable finalError = error;
-                    final Object finalValue = value;
-                    queue.execute(new Runnable() {
-                        public void run() {
-                            try {
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                                oos.writeUTF(correlation);
-                                oos.writeObject(finalError);
-                                oos.writeObject(finalValue);
-                                transport.offer(baos.toByteArray());
-                            } catch (Exception e) {
-                                LOGGER.info("Error while writing answer");
+
+                    // Encode the response...
+                    try {
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);
+                        oos.writeInt(0); // make space for the size field.
+                        oos.writeUTF(correlation);
+                        oos.writeObject(error);
+                        oos.writeObject(value);
+
+                        // toBuffer() is better than toByteArray() since it avoids an
+                        // array copy.
+                        final Buffer command = baos.toBuffer();
+
+                        // Update the size field.
+                        BufferEditor editor = command.buffer().bigEndianEditor();
+                        editor.writeInt(command.length);
+
+                        queue.execute(new Runnable() {
+                            public void run() {
+                                transport.offer(command);
                             }
-                        }
-                    });
+                        });
+                    } catch (Exception e) {
+                        LOGGER.info("Error while writing answer");
+                    }
 
                 }
             });
 
 
         } catch (Exception e) {
-            LOGGER.info("Error while reading response", e);
+            LOGGER.info("Error while reading request", e);
         }
     }
 
