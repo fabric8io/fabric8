@@ -84,6 +84,7 @@ public class LengthPrefixedCodec implements ProtocolCodec {
                     write_buffer.put(b.data, b.offset, b.length);
                 }
                 next_write_buffers.clear();
+                next_write_size = 0;
                 write_buffer.flip();
             }
 
