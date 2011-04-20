@@ -35,6 +35,7 @@
       <fabric.osgi.private.pkg>
           org.fusesource.fabric.dosgi*,
           org.fusesource.hawtdispatch*,
+          org.fusesource.hawtbuf*
       </fabric.osgi.private.pkg>
       <fabric.osgi.services.export>
       </fabric.osgi.services.export>
