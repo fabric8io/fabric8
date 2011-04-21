@@ -63,13 +63,18 @@ public class SimplePathTemplate {
     }
 
     public String bindByName(Map<String, String> params) {
+        if (params.size() != parameters.size()) {
+            throw new IllegalArgumentException("Parameters mismatch. Path template contains " + parameters.size()
+                + " parameters, " + params.size() + " was given");
+        }
+
         String localPath = path;
 
         for (String key : params.keySet()) {
             if (!parameters.contains(key)) {
                 throw new IllegalArgumentException("Unknown parameter " + key);
             }
-            replace(localPath, key, params.get(key));
+            localPath = replace(localPath, key, params.get(key));
         }
         return localPath;
     }

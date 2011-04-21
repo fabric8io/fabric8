@@ -9,6 +9,8 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
+import java.util.Collection;
+import java.util.Map;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -27,15 +29,15 @@ public class ListProfiles extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        Profile[] profiles = profileService.getProfiles(version);
-        printProfiles(profiles, System.out);
+        Map<String, Profile> profiles = profileService.getProfiles(version);
+        printProfiles(profiles.values(), System.out);
         return null;
     }
 
-    protected void printProfiles(Profile[] profiles, PrintStream out) {
+    protected void printProfiles(Collection<Profile> profiles, PrintStream out) {
         out.println(String.format("%-30s %s", "[id]", "[parents]"));
         for (Profile profile : profiles) {
-            out.println(String.format("%-30s %s", profile.getId(), toString(profile.getParents())));
+            out.println(String.format("%-30s %s", profile.getName(), toString(profile.getParents())));
         }
     }
 
