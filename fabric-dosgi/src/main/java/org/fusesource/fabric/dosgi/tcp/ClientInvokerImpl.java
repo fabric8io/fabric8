@@ -8,6 +8,20 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
@@ -20,18 +34,6 @@ import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientInvokerImpl implements ClientInvoker {
 
@@ -111,7 +113,7 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
-    protected Object request(final String address, final String service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException {
+    protected Object request(final String address, final String service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException, TimeoutException {
 
         final String uuid = UuidGenerator.getUUID();
 
@@ -157,7 +159,8 @@ public class ClientInvokerImpl implements ClientInvoker {
                 }
             }
         });
-        return future.get();
+        // TODO: make that configurable, that's only for tests
+        return future.get(5, TimeUnit.SECONDS);
     }
 
     protected static class ResponseFuture extends FutureTask<Object> {

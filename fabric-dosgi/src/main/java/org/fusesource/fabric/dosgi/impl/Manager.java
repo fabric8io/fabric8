@@ -243,7 +243,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
             Collection<BundleContext> contexts = (Collection<BundleContext>) collection;
             for (Iterator<BundleContext> iterator = contexts.iterator(); iterator.hasNext();) {
                 BundleContext context = iterator.next();
-                if (context != reference.getBundle().getBundleContext()) {
+                if (context != reference.getBundle().getBundleContext() && context != this.bundleContext) {
                     iterator.remove();
                 }
             }
@@ -261,7 +261,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         for (Iterator<ServiceReference> iterator = references.iterator(); iterator.hasNext();) {
             ServiceReference reference = iterator.next();
             if (reference.getProperty(SERVICE_IMPORTED) != null && reference.getProperty(FABRIC_ADDRESS) != null) {
-                if (context != reference.getBundle().getBundleContext()) {
+                if (context != reference.getBundle().getBundleContext() && context != this.bundleContext) {
                     iterator.remove();
                 }
             }

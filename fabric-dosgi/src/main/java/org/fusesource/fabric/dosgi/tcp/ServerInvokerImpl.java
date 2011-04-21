@@ -8,16 +8,7 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.io.*;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.hawtbuf.BufferEditor;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
-import org.fusesource.hawtdispatch.DispatchQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +17,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.fusesource.fabric.dosgi.io.ServerInvoker;
+import org.fusesource.fabric.dosgi.io.Transport;
+import org.fusesource.fabric.dosgi.io.TransportAcceptListener;
+import org.fusesource.fabric.dosgi.io.TransportListener;
+import org.fusesource.fabric.dosgi.io.TransportServer;
+import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.BufferEditor;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.DispatchQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServerInvokerImpl implements ServerInvoker {
 
@@ -193,7 +198,9 @@ public class ServerInvokerImpl implements ServerInvoker {
         }
 
         public void onTransportFailure(Transport transport, IOException error) {
-            LOGGER.info("Transport failure", error);
+            if (!transport.isDisposed() && !(error instanceof EOFException)) {
+                LOGGER.info("Transport failure", error);
+            }
         }
 
         public void onTransportConnected(Transport transport) {

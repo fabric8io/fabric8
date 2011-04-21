@@ -11,8 +11,8 @@ package org.fusesource.fabric.dosgi.tcp;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,29 +28,28 @@ public abstract class TransportPool implements Service {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(TransportPool.class);
 
-    public static final int DEFAULT_POOL_SIZE = 2;
+    public static final int DEFAULT_POOL_SIZE = 1;
+
+    public static final long DEFAULT_EVICTION_DELAY = TimeUnit.MINUTES.toMillis(1) * 0;
 
     protected final String uri;
     protected final DispatchQueue queue;
     protected final LinkedList<Object> pending = new LinkedList<Object>();
-    protected final Map<Transport, State> transports = new HashMap<Transport, State>();
+    protected final Map<Transport, Long> transports = new HashMap<Transport, Long>();
     protected AtomicBoolean running = new AtomicBoolean(false);
-    protected int poolSize;
 
-    enum State {
-        Creating,
-        Writing,
-        Idle
-    }
+    protected int poolSize;
+    protected long evictionDelay;
 
     public TransportPool(String uri, DispatchQueue queue) {
-        this(uri, queue, DEFAULT_POOL_SIZE);
+        this(uri, queue, DEFAULT_POOL_SIZE, DEFAULT_EVICTION_DELAY);
     }
 
-    public TransportPool(String uri, DispatchQueue queue, int poolSize) {
+    public TransportPool(String uri, DispatchQueue queue, int poolSize, long evictionDelay) {
         this.uri = uri;
         this.queue = queue;
         this.poolSize = poolSize;
+        this.evictionDelay = evictionDelay;
     }
 
     protected abstract Transport createTransport(String uri) throws Exception;
@@ -76,8 +75,8 @@ public abstract class TransportPool implements Service {
     }
 
     protected Transport getIdleTransport() {
-        for (Map.Entry<Transport, State> entry : transports.entrySet()) {
-            if (entry.getValue() == State.Idle) {
+        for (Map.Entry<Transport, Long> entry : transports.entrySet()) {
+            if (entry.getValue() > 0) {
                 return entry.getKey();
             }
         }
@@ -116,8 +115,8 @@ public abstract class TransportPool implements Service {
                             }
                         }
                     };
-                    for (Map.Entry<Transport, State> entry : transports.entrySet()) {
-                        entry.getKey().stop(coutDown);
+                    for (Transport transport : transports.keySet()) {
+                        transport.stop(coutDown);
                     }
                 }
             });
@@ -127,11 +126,12 @@ public abstract class TransportPool implements Service {
     }
 
     protected void startNewTransport() throws Exception {
+System.err.println("Creating new transport for: " + this.uri);
         Transport transport = createTransport(this.uri);
         transport.setDispatchQueue(queue);
         transport.setProtocolCodec(createCodec());
         transport.setTransportListener(new Listener());
-        transports.put(transport, State.Creating);
+        transports.put(transport, 0L);
         transport.start();
     }
 
@@ -141,22 +141,36 @@ public abstract class TransportPool implements Service {
             TransportPool.this.onCommand(command);
         }
 
-        public void onRefill(Transport transport) {
+        public void onRefill(final Transport transport) {
             while (pending.size() > 0) {
                 Object data = pending.getFirst();
                 if (!transport.offer(data)) {
-                    transports.put(transport, State.Writing);
+                    transports.put(transport, 0L);
                     return;
                 } else {
                     pending.removeFirst();
                 }
             }
-            transports.put(transport, State.Idle);
+            final long time = System.currentTimeMillis();
+            transports.put(transport, time);
+            if (evictionDelay > 0) {
+                queue.executeAfter(evictionDelay, TimeUnit.MILLISECONDS, new Runnable() {
+                    public void run() {
+                        if (transports.get(transport) == time) {
+                            transports.remove(transport);
+                            transport.stop();
+                        }
+                    }
+                });
+            }
         }
 
         public void onTransportFailure(Transport transport, IOException error) {
-            transports.remove(transport);
-            transport.stop();
+            if (!transport.isDisposed()) {
+                LOGGER.info("Transport failure", error);
+                transports.remove(transport);
+                transport.stop();
+            }
         }
 
         public void onTransportConnected(Transport transport) {
