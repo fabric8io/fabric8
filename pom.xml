@@ -147,7 +147,6 @@
             <version>${slf4j-version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <modules>
@@ -161,6 +160,7 @@
         <module>fabric-activemq</module>
         <module>fabric-distro</module>
         <module>fabric-groups</module>
+        <module>fabric-util</module>
     </modules>
 
     <build>
@@ -391,6 +391,11 @@
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- OSGi -->
