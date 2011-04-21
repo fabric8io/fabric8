@@ -14,6 +14,7 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
@@ -83,21 +84,31 @@ public class InvocationTest {
 
             final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
 
-            final int nbThreads = 1;
-            final int nbInvocationsPerThread = 100;
+            final int nbThreads = 100;
+            final int nbInvocationsPerThread = 1000;
 
             final AtomicInteger requests = new AtomicInteger(0);
             final AtomicInteger failures = new AtomicInteger(0);
+            final long latencies[] = new long[nbThreads*nbInvocationsPerThread];
 
             Thread[] threads = new Thread[nbThreads];
             for (int t = 0; t < nbThreads; t++) {
+                final int thread_idx = t;
                 threads[t] = new Thread() {
                     public void run() {
                         for (int i = 0; i < nbInvocationsPerThread; i++) {
                             try {
                                 requests.incrementAndGet();
-                                assertEquals("Hello Fabric!", hello.hello("Fabric"));
+                                String response;
+
+                                long start = System.nanoTime();
+                                response = hello.hello("Fabric");
+                                long end = System.nanoTime();
+                                latencies[(thread_idx*nbInvocationsPerThread)+i] = end-start;
+
+                                assertEquals("Hello Fabric!", response);
                             } catch (Throwable t) {
+                                latencies[(thread_idx*nbInvocationsPerThread)+i] = -1;
                                 failures.incrementAndGet();
                                 if (t instanceof UndeclaredThrowableException) {
                                     t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
@@ -109,11 +120,28 @@ public class InvocationTest {
                 };
                 threads[t].start();
             }
+
+
             for (int t = 0; t < nbThreads; t++) {
                 threads[t].join();
             }
 
+            long latency_count = 0;
+            long latency_sum = 0;
+            for (int t = 0; t < latencies.length; t++) {
+                if( latencies[t] != -1 ) {
+                    latency_count += 1;
+                    latency_sum += latencies[t];
+                }
+            }
+            double latency_avg = (latency_sum * 1.0d)/latency_count;
+
+
+            long MILLIS_IN_A_NANO = TimeUnit.MILLISECONDS.toNanos(1);
+
+
             System.err.println("Ratio: " + failures.get() + " / " + requests.get());
+            System.err.println(String.format("Average request latency: %.2f ms", (latency_avg / MILLIS_IN_A_NANO)));
         }
         finally {
             server.stop();
