@@ -32,12 +32,12 @@ public class LengthPrefixedCodec implements ProtocolCodec {
     ArrayList<Buffer> next_write_buffers = new ArrayList<Buffer>();
     int next_write_size = 0;
 
-    protected boolean isFull() {
-        return next_write_size >= (write_buffer_size >> 2);
+    public boolean full() {
+        return next_write_size >= (write_buffer_size >> 1);
     }
 
-    protected boolean isEmpty() {
-        return write_buffer.remaining() == 0;
+    protected boolean empty() {
+        return write_buffer.remaining() == 0 && next_write_size==0;
     }
 
     public void setWritableByteChannel(WritableByteChannel channel) {
@@ -52,10 +52,10 @@ public class LengthPrefixedCodec implements ProtocolCodec {
     }
 
     public BufferState write(Object value) throws IOException {
-        if (isFull()) {
+        if (full()) {
             return BufferState.FULL;
         } else {
-            boolean wasEmpty = isEmpty();
+            boolean wasEmpty = empty();
             Buffer buffer = (Buffer) value;
             next_write_size += buffer.length;
             next_write_buffers.add(buffer);
@@ -64,7 +64,7 @@ public class LengthPrefixedCodec implements ProtocolCodec {
     }
 
     public BufferState flush() throws IOException {
-        if (isEmpty() && next_write_size > 0) {
+        if (write_buffer.remaining() == 0 && next_write_size > 0) {
             if( next_write_buffers.size()==1 ) {
                 write_buffer = next_write_buffers.remove(0).toByteBuffer();
             } else {
@@ -92,7 +92,7 @@ public class LengthPrefixedCodec implements ProtocolCodec {
         if (write_buffer.remaining() != 0) {
             write_counter += write_channel.write(write_buffer);
         }
-        return isEmpty() ? BufferState.EMPTY : BufferState.NOT_EMPTY;
+        return empty() ? BufferState.EMPTY : BufferState.NOT_EMPTY;
     }
 
     public long getWriteCounter() {
