@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -27,7 +28,6 @@ import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.fabric.dosgi.util.UuidGenerator;
 import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
@@ -36,6 +36,19 @@ import org.slf4j.LoggerFactory;
 public class ClientInvokerImpl implements ClientInvoker {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ClientInvokerImpl.class);
+
+    private final static HashMap<Class,String> CLASS_TO_PRIMITIVE = new HashMap<Class, String>(8, 1.0F);
+
+    static {
+        CLASS_TO_PRIMITIVE.put(boolean.class,"Z");
+        CLASS_TO_PRIMITIVE.put(byte.class,"B");
+        CLASS_TO_PRIMITIVE.put(char.class,"C");
+        CLASS_TO_PRIMITIVE.put(short.class,"S");
+        CLASS_TO_PRIMITIVE.put(int.class,"I");
+        CLASS_TO_PRIMITIVE.put(long.class,"J");
+        CLASS_TO_PRIMITIVE.put(float.class,"F");
+        CLASS_TO_PRIMITIVE.put(double.class,"D");
+    }
 
     private final AtomicLong correlationGenerator = new AtomicLong();
     private final DispatchQueue queue;
@@ -114,6 +127,43 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
+    static final WeakHashMap<Method, Buffer> method_cache = new WeakHashMap<Method, Buffer>();
+
+    private Buffer encodeMethod(Method method) throws IOException {
+        Buffer rc = null;
+        synchronized (method_cache) {
+            rc = method_cache.get(method);
+        }
+        if( rc==null ) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(method.getName());
+            sb.append(",");
+            Class<?>[] types = method.getParameterTypes();
+            for(int i=0; i < types.length; i++) {
+                if( i!=0 ) {
+                    sb.append(",");
+                }
+                sb.append(encodeClassName(types[i]));
+            }
+            rc = new UTF8Buffer(sb.toString()).buffer();
+            synchronized (method_cache) {
+                method_cache.put(method, rc);
+            }
+        }
+        return rc;
+    }
+
+    String encodeClassName(Class<?> type) {
+        if( type.getComponentType()!=null ) {
+            return "["+ encodeClassName(type.getComponentType());
+        }
+        if( type.isPrimitive() ) {
+            return CLASS_TO_PRIMITIVE.get(type);
+        } else {
+            return "L"+type.getName();
+        }
+    }
+
     protected Object request(ProxyInvocationHandler handler, final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException, TimeoutException {
 
         final long correlation = correlationGenerator.incrementAndGet();
@@ -126,21 +176,17 @@ public class ClientInvokerImpl implements ClientInvoker {
         DataByteArrayOutputStream baos = new DataByteArrayOutputStream((int) (handler.lastRequestSize*1.10));
         baos.writeInt(0); // we don't know the size yet...
         baos.writeVarLong(correlation);
-        baos.writeVarInt(service.length);
-        baos.write(service);
+        writeBuffer(baos, service);
+        writeBuffer(baos, encodeMethod(method));
 
-        int p1 = baos.position();
-
+        // TODO: perhaps use a different encoding method for the args based on annotations found on the method.
         ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeUTF(method.getName());
-        oos.writeObject(method.getParameterTypes());
-        int p2 = baos.position();
-
         oos.writeObject(args);
 
         // toBuffer() is better than toByteArray() since it avoids an
         // array copy.
         final Buffer command = baos.toBuffer();
+
 
         // Update the field size.
         BufferEditor editor = command.buffer().bigEndianEditor();
@@ -166,6 +212,11 @@ public class ClientInvokerImpl implements ClientInvoker {
         });
         // TODO: make that configurable, that's only for tests
         return future.get(5, TimeUnit.SECONDS);
+    }
+
+    private void writeBuffer(DataByteArrayOutputStream baos, Buffer value) throws IOException {
+        baos.writeVarInt(value.length);
+        baos.write(value);
     }
 
     protected static class ResponseFuture extends FutureTask<Object> {

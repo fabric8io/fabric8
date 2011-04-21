@@ -11,6 +11,7 @@ package org.fusesource.fabric.dosgi.tcp;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -32,12 +33,67 @@ import org.slf4j.LoggerFactory;
 public class ServerInvokerImpl implements ServerInvoker {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServerInvokerImpl.class);
+    static private final HashMap<String, Class> PRIMITIVE_TO_CLASS = new HashMap<String, Class>(8, 1.0F);
+    static {
+        PRIMITIVE_TO_CLASS.put("Z", boolean.class);
+        PRIMITIVE_TO_CLASS.put("B", byte.class);
+        PRIMITIVE_TO_CLASS.put("C", char.class);
+        PRIMITIVE_TO_CLASS.put("S", short.class);
+        PRIMITIVE_TO_CLASS.put("I", int.class);
+        PRIMITIVE_TO_CLASS.put("J", long.class);
+        PRIMITIVE_TO_CLASS.put("F", float.class);
+        PRIMITIVE_TO_CLASS.put("D", double.class);
+    }
 
     protected final ExecutorService executor = Executors.newCachedThreadPool();
     protected final DispatchQueue queue;
     protected final TransportServer server;
-    protected final Map<UTF8Buffer, ServiceFactory> handlers = new HashMap<UTF8Buffer, ServiceFactory>();
-    protected final Map<UTF8Buffer, ClassLoader> loaders = new HashMap<UTF8Buffer, ClassLoader>();
+    protected final Map<UTF8Buffer, ServiceFactoryHolder> holders = new HashMap<UTF8Buffer, ServiceFactoryHolder>();
+
+    static class ServiceFactoryHolder {
+
+        private final ServiceFactory factory;
+        private final ClassLoader loader;
+        private final Class clazz;
+        private HashMap<Buffer, Method> method_cache = new HashMap<Buffer, Method>();
+
+        public ServiceFactoryHolder(ServiceFactory factory, ClassLoader loader) {
+            this.factory = factory;
+            this.loader = loader;
+            clazz = factory.get().getClass();
+            factory.unget();
+        }
+
+        private Method method(Buffer data) throws IOException, NoSuchMethodException, ClassNotFoundException {
+            Method rc = method_cache.get(data);
+            if( rc ==null ) {
+                String[] parts = data.utf8().toString().split(",");
+                String name = parts[0];
+                Class params[] = new Class[parts.length-1];
+                for( int  i=0; i < params.length; i++) {
+                    params[i] = decodeClass(parts[i+1]);
+                }
+                rc = clazz.getMethod(name, params);
+                method_cache.put(data, rc);
+            }
+            return rc;
+        }
+
+        private Class<?> decodeClass(String s) throws ClassNotFoundException {
+            if( s.startsWith("[")) {
+                Class<?> nested = decodeClass(s.substring(1));
+                return Array.newInstance(nested,0).getClass();
+            }
+            String c = s.substring(0,1);
+            if( c.equals("L") ) {
+                return loader.loadClass(s.substring(1));
+            } else {
+                return PRIMITIVE_TO_CLASS.get(c);
+            }
+        }
+
+    }
+
 
     public ServerInvokerImpl(String address, DispatchQueue queue) throws Exception {
         this.queue = queue;
@@ -53,8 +109,7 @@ public class ServerInvokerImpl implements ServerInvoker {
     public void registerService(final String id, final ServiceFactory service, final ClassLoader classLoader) {
         queue.execute(new Runnable() {
             public void run() {
-                handlers.put(new UTF8Buffer(id), service);
-                loaders.put(new UTF8Buffer(id), classLoader);
+                holders.put(new UTF8Buffer(id), new ServiceFactoryHolder(service, classLoader));
             }
         });
     }
@@ -62,8 +117,7 @@ public class ServerInvokerImpl implements ServerInvoker {
     public void unregisterService(final String id) {
         queue.execute(new Runnable() {
             public void run() {
-                handlers.remove(new UTF8Buffer(id));
-                loaders.remove(new UTF8Buffer(id));
+                holders.remove(new UTF8Buffer(id));
             }
         });
     }
@@ -91,53 +145,52 @@ public class ServerInvokerImpl implements ServerInvoker {
         });
     }
 
+
     protected void onCommand(final Transport transport, Object data) {
         try {
-            DataByteArrayInputStream bais = new DataByteArrayInputStream((Buffer) data);
+            final DataByteArrayInputStream bais = new DataByteArrayInputStream((Buffer) data);
             final int size = bais.readInt();
             final long correlation = bais.readVarLong();
 
             // Use UTF8Buffer instead of string to avoid encoding/decoding UTF-8 strings
             // for every request.
-            final UTF8Buffer service = readUTF8Buffer(bais);
+            final UTF8Buffer service = readBuffer(bais).utf8();
+            final Buffer encoded_method = readBuffer(bais);
 
-            final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-
-            ois.setClassLoader(loaders.get(service));
-            final ServiceFactory factory = handlers.get(service);
+            final ServiceFactoryHolder holder = holders.get(service);
+            final Method method = holder.method(encoded_method);
 
             executor.submit(new Runnable() {
                 public void run() {
 
                     // Lets decode the remaining args on the target's executor
                     // to take cpu load off the
-
-                    final String name;
-                    final Class[] types;
-                    final Object[] args;
-                    try {
-                        name = ois.readUTF();
-                        types = (Class[]) ois.readObject();
-                        args = (Object[]) ois.readObject();
-                    } catch (Exception e) {
-                        LOGGER.info("Error while reading request", e);
-                        return;
-                    }
-
-                    Object svc = factory.get();
                     Object value = null;
                     Throwable error = null;
+
+                    Object svc = holder.factory.get();
                     try {
-                        Method method = svc.getClass().getMethod(name, types);
-                        value = method.invoke(svc, args);
-                    } catch (Throwable t) {
-                        if (t instanceof InvocationTargetException) {
-                            error = t.getCause();
-                        } else {
-                            error = t;
+                        try {
+
+                            // TODO: we could use method annotations to switch to different payload
+                            //       serialization strategy at this point.
+
+                            final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
+                            ois.setClassLoader(holder.loader);
+                            final Object[] args = (Object[]) ois.readObject();
+
+                            value = method.invoke(svc, args);
+
+                        } catch (Throwable t) {
+                            if (t instanceof InvocationTargetException) {
+                                error = t.getCause();
+                            } else {
+                                error = t;
+                            }
                         }
+
                     } finally {
-                        factory.unget();
+                        holder.factory.unget();
                     }
 
                     // Encode the response...
@@ -175,10 +228,10 @@ public class ServerInvokerImpl implements ServerInvoker {
         }
     }
 
-    private UTF8Buffer readUTF8Buffer(DataByteArrayInputStream bais) throws IOException {
+    private Buffer readBuffer(DataByteArrayInputStream bais) throws IOException {
         byte b[] = new byte[bais.readVarInt()];
         bais.readFully(b);
-        return new UTF8Buffer(b);
+        return new Buffer(b);
     }
 
     class InvokerAcceptListener implements TransportAcceptListener {
