@@ -27,6 +27,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class InvocationTest {
+    final static long MILLIS_IN_A_NANO = TimeUnit.MILLISECONDS.toNanos(1);
+    final static long SECONDS_IN_A_NANO = TimeUnit.SECONDS.toNanos(1);
 
     @Test
     public void testInvoke() throws Exception {
@@ -91,6 +93,7 @@ public class InvocationTest {
             final AtomicInteger failures = new AtomicInteger(0);
             final long latencies[] = new long[nbThreads*nbInvocationsPerThread];
 
+            final long start = System.nanoTime();
             Thread[] threads = new Thread[nbThreads];
             for (int t = 0; t < nbThreads; t++) {
                 final int thread_idx = t;
@@ -101,9 +104,9 @@ public class InvocationTest {
                                 requests.incrementAndGet();
                                 String response;
 
-                                long start = System.nanoTime();
+                                final long start = System.nanoTime();
                                 response = hello.hello("Fabric");
-                                long end = System.nanoTime();
+                                final long end = System.nanoTime();
                                 latencies[(thread_idx*nbInvocationsPerThread)+i] = end-start;
 
                                 assertEquals("Hello Fabric!", response);
@@ -121,27 +124,23 @@ public class InvocationTest {
                 threads[t].start();
             }
 
-
             for (int t = 0; t < nbThreads; t++) {
                 threads[t].join();
             }
+            final long end = System.nanoTime();
 
-            long latency_count = 0;
             long latency_sum = 0;
             for (int t = 0; t < latencies.length; t++) {
                 if( latencies[t] != -1 ) {
-                    latency_count += 1;
                     latency_sum += latencies[t];
                 }
             }
-            double latency_avg = (latency_sum * 1.0d)/latency_count;
+            double latency_avg = ((latency_sum * 1.0d)/requests.get()) / MILLIS_IN_A_NANO;
+            double request_rate = ((requests.get() * 1.0d)/(end-start)) * SECONDS_IN_A_NANO;
 
-
-            long MILLIS_IN_A_NANO = TimeUnit.MILLISECONDS.toNanos(1);
-
-
-            System.err.println("Ratio: " + failures.get() + " / " + requests.get());
-            System.err.println(String.format("Average request latency: %.2f ms", (latency_avg / MILLIS_IN_A_NANO)));
+            System.err.println(String.format("Requests/Second: %,.2f", request_rate));
+            System.err.println(String.format("Average request latency: %,.2f ms", latency_avg));
+            System.err.println("Error Ratio: " + failures.get() + " / " + requests.get());
         }
         finally {
             server.stop();
