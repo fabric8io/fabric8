@@ -24,10 +24,7 @@ import org.fusesource.fabric.dosgi.io.TransportAcceptListener;
 import org.fusesource.fabric.dosgi.io.TransportListener;
 import org.fusesource.fabric.dosgi.io.TransportServer;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.hawtbuf.BufferEditor;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +36,8 @@ public class ServerInvokerImpl implements ServerInvoker {
     protected final ExecutorService executor = Executors.newCachedThreadPool();
     protected final DispatchQueue queue;
     protected final TransportServer server;
-    protected final Map<String, ServiceFactory> handlers = new HashMap<String, ServiceFactory>();
-    protected final Map<String, ClassLoader> loaders = new HashMap<String, ClassLoader>();
+    protected final Map<UTF8Buffer, ServiceFactory> handlers = new HashMap<UTF8Buffer, ServiceFactory>();
+    protected final Map<UTF8Buffer, ClassLoader> loaders = new HashMap<UTF8Buffer, ClassLoader>();
 
     public ServerInvokerImpl(String address, DispatchQueue queue) throws Exception {
         this.queue = queue;
@@ -56,8 +53,8 @@ public class ServerInvokerImpl implements ServerInvoker {
     public void registerService(final String id, final ServiceFactory service, final ClassLoader classLoader) {
         queue.execute(new Runnable() {
             public void run() {
-                handlers.put(id, service);
-                loaders.put(id, classLoader);
+                handlers.put(new UTF8Buffer(id), service);
+                loaders.put(new UTF8Buffer(id), classLoader);
             }
         });
     }
@@ -65,8 +62,8 @@ public class ServerInvokerImpl implements ServerInvoker {
     public void unregisterService(final String id) {
         queue.execute(new Runnable() {
             public void run() {
-                handlers.remove(id);
-                loaders.remove(id);
+                handlers.remove(new UTF8Buffer(id));
+                loaders.remove(new UTF8Buffer(id));
             }
         });
     }
@@ -98,9 +95,13 @@ public class ServerInvokerImpl implements ServerInvoker {
         try {
             DataByteArrayInputStream bais = new DataByteArrayInputStream((Buffer) data);
             final int size = bais.readInt();
+            final long correlation = bais.readVarLong();
+
+            // Use UTF8Buffer instead of string to avoid encoding/decoding UTF-8 strings
+            // for every request.
+            final UTF8Buffer service = readUTF8Buffer(bais);
+
             final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-            final String correlation = ois.readUTF();
-            final String service = ois.readUTF();
 
             ois.setClassLoader(loaders.get(service));
             final ServiceFactory factory = handlers.get(service);
@@ -143,8 +144,8 @@ public class ServerInvokerImpl implements ServerInvoker {
                     try {
                         DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
                         baos.writeInt(0); // make space for the size field.
+                        baos.writeVarLong(correlation);
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
-                        oos.writeUTF(correlation);
                         oos.writeObject(error);
                         oos.writeObject(value);
 
@@ -172,6 +173,12 @@ public class ServerInvokerImpl implements ServerInvoker {
         } catch (Exception e) {
             LOGGER.info("Error while reading request", e);
         }
+    }
+
+    private UTF8Buffer readUTF8Buffer(DataByteArrayInputStream bais) throws IOException {
+        byte b[] = new byte[bais.readVarInt()];
+        bais.readFully(b);
+        return new UTF8Buffer(b);
     }
 
     class InvokerAcceptListener implements TransportAcceptListener {

@@ -21,16 +21,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
 import org.fusesource.fabric.dosgi.util.UuidGenerator;
-import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.hawtbuf.BufferEditor;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +37,11 @@ public class ClientInvokerImpl implements ClientInvoker {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ClientInvokerImpl.class);
 
+    private final AtomicLong correlationGenerator = new AtomicLong();
     private final DispatchQueue queue;
     private final Map<String, TransportPool> transports = new HashMap<String, TransportPool>();
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Map<String, ResponseFuture> requests = new HashMap<String, ResponseFuture>();
+    private final Map<Long, ResponseFuture> requests = new HashMap<Long, ResponseFuture>();
 
     public ClientInvokerImpl(DispatchQueue queue) {
         this.queue = queue;
@@ -97,25 +96,27 @@ public class ClientInvokerImpl implements ClientInvoker {
         try {
             DataByteArrayInputStream bais = new DataByteArrayInputStream( (Buffer) data);
             int size = bais.readInt();
+            long correlation = bais.readVarLong();
             ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-            String correlation = ois.readUTF();
             ResponseFuture response = requests.remove(correlation);
-            ois.setClassLoader(response.getClassLoader());
-            Throwable error = (Throwable) ois.readObject();
-            Object value = ois.readObject();
-            if (error != null) {
-                response.setException(error);
-            } else {
-                response.set(value);
+            if( response!=null ) {
+                ois.setClassLoader(response.getClassLoader());
+                Throwable error = (Throwable) ois.readObject();
+                Object value = ois.readObject();
+                if (error != null) {
+                    response.setException(error);
+                } else {
+                    response.set(value);
+                }
             }
         } catch (Exception e) {
             LOGGER.info("Error while reading response", e);
         }
     }
 
-    protected Object request(final String address, final String service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException, TimeoutException {
+    protected Object request(final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException, TimeoutException {
 
-        final String uuid = UuidGenerator.getUUID();
+        final long correlation = correlationGenerator.incrementAndGet();
 
         // Encode the request before we try to pass it onto
         // IO layers so that #1 we can report encoding error back to the caller
@@ -127,9 +128,11 @@ public class ClientInvokerImpl implements ClientInvoker {
         // initial byte array size.
         DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
         baos.writeInt(0); // we don't know the size yet...
+        baos.writeVarLong(correlation);
+        baos.writeVarInt(service.length);
+        baos.write(service);
+
         ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeUTF(uuid);
-        oos.writeUTF(service);
         oos.writeUTF(method.getName());
         oos.writeObject(method.getParameterTypes());
         oos.writeObject(args);
@@ -152,7 +155,7 @@ public class ClientInvokerImpl implements ClientInvoker {
                         transports.put(address,  pool);
                         pool.start();
                     }
-                    requests.put(uuid, future);
+                    requests.put(correlation, future);
                     pool.offer(command);
                 } catch (Exception e) {
                     LOGGER.info("Error while sending request", e);
@@ -195,12 +198,12 @@ public class ClientInvokerImpl implements ClientInvoker {
     protected class ProxyInvocationHandler implements InvocationHandler {
 
         final String address;
-        final String service;
+        final UTF8Buffer service;
         final ClassLoader classLoader;
 
         public ProxyInvocationHandler(String address, String service, ClassLoader classLoader) {
             this.address = address;
-            this.service = service;
+            this.service = new UTF8Buffer(service);
             this.classLoader = classLoader;
         }
 
