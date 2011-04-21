@@ -28,10 +28,10 @@ public class ListAgents extends FabricCommand {
         out.println(String.format("%-30s %-10s %s", "[id]", "[alive]", "[profiles]"));
         for (Agent agent : agents.values()) {
             if (agent.isRoot()) {
-                out.println(String.format("%-30s %-10s %s", agent.getId(), agent.isAlive(), toString(agent.getProfiles())));
+                out.println(String.format("%-30s %-10s %s", agent.getId(), agent.isAlive(), toString(agent.getProfileNames())));
                 for (Agent child : agents.values()) {
                     if (child.getParent() == agent) {
-                        out.println(String.format("%-30s %-10s %s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles())));
+                        out.println(String.format("%-30s %-10s %s", "  " + child.getId(), child.isAlive(), toString(child.getProfileNames())));
                     }
                 }
             }

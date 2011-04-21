@@ -162,12 +162,12 @@
         <module>fabric-agent</module>
         <module>fabric-commands</module>
         <module>fabric-camel</module>
-        <module>fabric-dosgi</module>
         <module>fabric-activemq</module>
         <module>fabric-distro</module>
         <module>fabric-groups</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
+        <module>fabric-util</module>
     </modules>
 
     <build>
@@ -400,6 +400,11 @@
                 <artifactId>fabric-zookeeper-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -498,12 +503,6 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework</artifactId>
                 <version>3.0.9</version>
-            </dependency>
-            <!-- Equinox -->
-            <dependency>
-                <groupId>org.eclipse.osgi</groupId>
-                <artifactId>org.eclipse.osgi</artifactId>
-                <version>3.6.0.v20100517</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

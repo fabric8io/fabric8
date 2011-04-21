@@ -14,12 +14,14 @@ import java.util.List;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.JmxTemplate.BundleStateCallback;
 import org.fusesource.fabric.service.JmxTemplate.ServiceStateCallback;
+import org.fusesource.fabric.util.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -53,7 +55,7 @@ public class AgentImpl implements Agent {
 
     public boolean isAlive() {
         try {
-            return zooKeeper.exists("/fabric/registry/agents/alive/" + id) != null;
+            return zooKeeper.exists(ZkPath.AGENT_ALIVE.getPath(id)) != null;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -64,16 +66,16 @@ public class AgentImpl implements Agent {
     }
 
     public String getSshUrl() {
-        return getZkData("ssh");
+        return getZkData("SSH");
     }
 
     public String getJmxUrl() {
-        return getZkData("jmx");
+        return getZkData("JMX");
     }
 
     private String getZkData(String name) {
         try {
-            return zooKeeper.getStringData("/fabric/registry/agents/config/" + id + "/" + name);
+            return zooKeeper.getStringData(ZkPath.valueOf("AGENT_" + name).getPath(id));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -125,41 +127,39 @@ public class AgentImpl implements Agent {
         }
     }
 
-    public Profile[] getProfiles() {
+    public String[] getProfileNames() {
         try {
-            String version = zooKeeper.getStringData("/fabric/configs/agents/" + id);
+            String version = getVersion();
             String node = "/fabric/configs/versions/" + version + "/agents/" + id;
             String str = zooKeeper.getStringData(node);
             if (str == null) {
-                return new Profile[0];
+                return new String[0];
             }
-            List<Profile> profiles = new ArrayList<Profile>();
-            for (String p : str.split(" ")) {
-                profiles.add(new ProfileImpl(p, version, zooKeeper));
-            }
-            return profiles.toArray(new Profile[profiles.size()]);
+            return str.split(" ");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void setProfiles(Profile[] profiles) {
+    public void setProfileNames(String[] profiles) {
         try {
-            String version = zooKeeper.getStringData("/fabric/configs/agents/" + id);
+            String version = getVersion();
             String node = "/fabric/configs/versions/" + version + "/agents/" + id;
             String str = "";
-            for (Profile parent : profiles) {
-                if (!version.equals(parent.getVersion())) {
-                    throw new IllegalArgumentException("Bad profile: " + parent);
-                }
+
+            for (String profile : profiles) {
                 if (!str.isEmpty()) {
                     str += " ";
                 }
-                str += parent.getId();
+                str += profile;
             }
             zooKeeper.setData( node, str );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String getVersion() throws InterruptedException, KeeperException {
+        return zooKeeper.getStringData(ZkPath.CONFIG_AGENT.getPath(id));
     }
 }
