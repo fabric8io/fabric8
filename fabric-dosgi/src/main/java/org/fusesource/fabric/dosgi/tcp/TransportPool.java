@@ -64,9 +64,12 @@ public abstract class TransportPool implements Service {
         }
         queue.execute(new Runnable() {
             public void run() {
-                Transport idleTransport = getIdleTransport();
-                if (idleTransport != null) {
-                    idleTransport.offer(data);
+                Transport transport = getIdleTransport();
+                if (transport != null) {
+                    transport.offer(data);
+                    if( transport.full() ) {
+                        transports.put(transport, 0L);
+                    }
                 } else {
                     pending.add(data);
                 }
@@ -142,27 +145,28 @@ System.err.println("Creating new transport for: " + this.uri);
         }
 
         public void onRefill(final Transport transport) {
-            while (pending.size() > 0) {
-                Object data = pending.getFirst();
-                if (!transport.offer(data)) {
-                    transports.put(transport, 0L);
-                    return;
-                } else {
-                    pending.removeFirst();
+            while (pending.size() > 0 &&  !transport.full()) {
+                boolean accepted = transport.offer(pending.removeFirst());
+                assert accepted: "Should have been accepted since the transport was not full";
+            }
+
+            if( transport.full() ) {
+                transports.put(transport, 0L);
+            } else {
+                final long time = System.currentTimeMillis();
+                transports.put(transport, time);
+                if (evictionDelay > 0) {
+                    queue.executeAfter(evictionDelay, TimeUnit.MILLISECONDS, new Runnable() {
+                        public void run() {
+                            if (transports.get(transport) == time) {
+                                transports.remove(transport);
+                                transport.stop();
+                            }
+                        }
+                    });
                 }
             }
-            final long time = System.currentTimeMillis();
-            transports.put(transport, time);
-            if (evictionDelay > 0) {
-                queue.executeAfter(evictionDelay, TimeUnit.MILLISECONDS, new Runnable() {
-                    public void run() {
-                        if (transports.get(transport) == time) {
-                            transports.remove(transport);
-                            transport.stop();
-                        }
-                    }
-                });
-            }
+
         }
 
         public void onTransportFailure(Transport transport, IOException error) {
