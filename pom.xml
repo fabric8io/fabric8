@@ -98,6 +98,10 @@
         <war-plugin-version>2.1.1</war-plugin-version>
         <scalatest-version>1.2</scalatest-version>
         <hawtbuf-version>1.4</hawtbuf-version>
+        <hawtdispatch-version>1.2</hawtdispatch-version>
+        <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
+        <sigar-version>1.6.4</sigar-version>
+        <jackson-version>1.7.0</jackson-version>
 
 
         <maven.compiler.source>1.5</maven.compiler.source>
@@ -147,6 +151,7 @@
             <version>${slf4j-version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <modules>
@@ -160,6 +165,8 @@
         <module>fabric-activemq</module>
         <module>fabric-distro</module>
         <module>fabric-groups</module>
+        <module>fabric-monitor</module>
+        <module>fabric-launcher</module>
         <module>fabric-util</module>
     </modules>
 

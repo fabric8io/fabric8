@@ -1,0 +1,423 @@
+/**
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ *
+ *     http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
+
+package org.fusesource.fabric.launcher.internal
+
+import org.fusesource.hawtdispatch._
+import java.util.concurrent.TimeUnit
+import collection.mutable.ListBuffer
+import collection.mutable.HashMap
+import org.hyperic.sigar.Sigar
+import java.io.File
+import java.lang.String
+import FileSupport._
+import ProcessSupport._
+import org.fusesource.fabric.launcher.api.{ServiceStatusDTO, LaunchManager, ServiceDTO}
+
+/**
+ * <p>
+ * </p>
+ *
+ * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
+ */
+class DefaultLaunchManager extends LaunchManager {
+
+  val sigar = new Sigar
+
+  val dispatch_queue = createQueue("LaunchManager")
+
+  val periodic_check = dispatch_queue.repeatAfter(1, TimeUnit.SECONDS) {
+    current_services.values.foreach(_.check)
+  }
+  
+  trait StatusCheck {
+    def pid:Option[Long]
+    def is_running:Boolean
+  }
+
+  def is_pid_running(pid:Long) = {
+    try {
+      sigar.getProcList.contains(pid)
+    } catch {
+      case e:Throwable =>
+        e.printStackTrace
+        false
+    }
+  }
+
+  case class PidFileStatusCheck(pid_file:File) extends StatusCheck {
+    def pid = {
+      if( pid_file.exists ) {
+        try {
+          Some(new String(pid_file.read).trim.toLong)
+        } catch {
+          case _ => None
+        }
+      } else {
+        None
+      }
+    }
+
+    def is_running:Boolean = {
+      pid.map{ pid=>
+        val rc = is_pid_running(pid)
+        if( !rc ) {
+          // delete the pid file if the process is no longer running.
+          pid_file.delete
+        }
+        rc
+      }.getOrElse(false)
+    }
+
+  }
+
+  trait State {
+    val at:Long = System.currentTimeMillis
+    def age = System.currentTimeMillis-at
+    def error:String=null
+    def check:Unit
+  }
+
+  case class Service (
+    id:String,
+    start_on_boot:Boolean,
+    start_command:List[String],
+    stop_command:List[String],
+    status_check:StatusCheck
+  ) {
+
+
+    override def toString: String = "Service(%s, %s)".format(id, state)
+
+    val dispatch_queue = createQueue("service: "+id)
+
+    val disable_listeners = ListBuffer[() => Unit]()
+
+    // make these volatile so that a monitoring thread can
+    // directly access the current state.
+
+    @volatile
+    var enabled = start_on_boot
+    @volatile
+    var state:State = _
+
+    def init = {
+      state = if( status_check.is_running ) {
+        Running()
+      } else {
+        Stopped()
+      }
+      dispatch_queue {
+        state.check
+      }
+    }
+
+    def updating(prev:Service) = {
+      state = Updating(prev)
+      prev.dispatch_queue {
+
+        val start_state = if(start_on_boot == prev.start_on_boot) {
+          prev.enabled
+        } else {
+          start_on_boot
+        }
+
+        dispatch_queue {
+          enabled = start_state
+          prev.disable {
+            dispatch_queue {
+              state = Stopped()
+              state.check
+            }
+          }
+        }
+      }
+    }
+
+    def enable:Unit = dispatch_queue {
+      enabled = true
+      state.check
+    }
+
+    def disable(on_disabled: =>Unit ):Unit = dispatch_queue {
+      disable_listeners.append( on_disabled _ )
+      enabled  = false
+      state.check
+    }
+
+    def check = dispatch_queue {
+      state.check
+    }
+
+    private def start(attempt:Int):State = {
+      try {
+        System.out.println("starting service with: "+start_command.mkString(" "))
+        val pb = new ProcessBuilder().command(start_command: _*)
+        val process = pb.start(System.out, System.err)
+        Starting(attempt, process)
+      } catch {
+        case e:Throwable =>
+          object DelayedStart extends Function0[State] {
+            def apply = start(attempt+1)
+          }
+          Delay(1000, DelayedStart, e.toString)
+      }
+    }
+
+    private def stop:State = {
+      if( status_check.is_running ) {
+        val pid = status_check.pid
+        try {
+          System.out.println("stopping service with: "+start_command.mkString(" "))
+          val pb = new ProcessBuilder().command(stop_command: _*)
+          val process = pb.start(System.out, System.err)
+          Stopping(process, pid)
+        } catch {
+          case e:Throwable =>
+
+            if( pid.isDefined ) {
+              Killing(pid.get)
+            } else {
+              // the stop command is our only option so try again
+              // after a delay
+              object DelayedStop extends Function0[State] {
+                def apply = stop
+              }
+              Delay(1000, DelayedStop, e.toString)
+            }
+        }
+      } else {
+        Stopped()
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////
+    //
+    // State Machine Impl
+    //
+    //////////////////////////////////////////////////////////////////
+    case class Stopped(override val error:String=null) extends State {
+      def check = {
+        // trigger any disabled listeners now..
+        disable_listeners.foreach(_())
+        disable_listeners.clear
+
+        if( enabled ) {
+          state = start(0)
+          state.check
+        }
+      }
+    }
+
+    case class Starting(attempt:Int, process:Process) extends State {
+      process.on_exit { code =>
+        dispatch_queue {
+          state = if( status_check.is_running ) {
+            Running()
+          } else {
+            object DelayedStart extends Function0[State] {
+              def apply = start(attempt+1)
+            }
+            Delay(1000, DelayedStart, "pid is not running")
+          }
+          state.check
+        }
+      }
+
+      def check = {
+        // TODO: perhaps enforce time limit on how long the start command can run?
+      }
+    }
+
+
+    case class Running() extends State {
+      def check = {
+        if( enabled ) {
+          if( status_check.is_running ) {
+            // we are at the desired state...
+          } else {
+            state = start(0)
+            state.check
+          }
+        } else {
+          state = stop
+          state.check
+        }
+      }
+    }
+
+    case class Delay(delay:Long, then:()=>State, override val error:String=null) extends State {
+      val enabled_at_start = enabled
+
+      dispatch_queue.after(delay, TimeUnit.MILLISECONDS) {
+        state.check
+      }
+      def check = {
+        // if the enabled state changes or the delay duration
+        // passes we can do the transition
+        if( enabled_at_start!=enabled || age >= delay ) {
+          state = then()
+          state.check
+        }
+      }
+    }
+
+    case class Stopping(process:Process, pid:Option[Long]) extends State {
+      process.on_exit { code =>
+        dispatch_queue {
+          state = if( enabled ) {
+            // looks like we don't want to stop anymore..
+            if( status_check.is_running ) {
+              Running()
+            } else {
+              Stopped()
+            }
+          } else {
+            // stop command might fail.. follow up with a hard kill.
+            if( status_check.is_running ) {
+              if(pid.isDefined) {
+                println("Stop command failed to stop the process.  Killing")
+                Killing(pid.get)
+              } else {
+                object DelayedStop extends Function0[State] {
+                  def apply = stop
+                }
+                Delay(1000, DelayedStop, "Service was still running after stop command was run.")
+              }
+            } else {
+              Stopped()
+            }
+          }
+          state.check
+        }
+      }
+
+      def check = {
+        // this state ends once the stop command finishes executing..
+        // TODO: we could implement a timeout here
+      }
+    }
+
+    case class Killing(pid:Long) extends State {
+
+      def check = {
+        if( is_pid_running(pid) ) {
+          try {
+            System.out.println("Sending kill signal to: "+pid)
+            sigar.kill(pid, 9)
+          } catch {
+            case _ =>
+          }
+          if( !is_pid_running(pid) ) {
+            state = Stopped()
+            state.check
+          }
+        } else {
+          state = Stopped()
+          state.check
+        }
+      }
+    }
+
+    case class Updating(previous:Service) extends State {
+      def check = {
+        // we can't don't state until the previous
+        // service instance stops.
+      }
+    }
+
+  }
+
+  var current_services = HashMap[String, Service]()
+
+  def status:Future[Seq[ServiceStatusDTO]] = dispatch_queue future {
+    current_services.values.map { service =>
+
+      val status = new ServiceStatusDTO
+      status.id = service.id
+      status.enabled = service.enabled
+      status.pid = service.status_check.pid.map(new java.lang.Long(_)).getOrElse(null)
+
+      val state = service.state
+      status.state = state.toString
+      status.state_age = state.age
+      status
+
+    }.toSeq
+  }
+
+  def configure( value:Traversable[ServiceDTO] ) = dispatch_queue {
+
+    import collection.JavaConversions._
+
+    def file_separator(command:List[String]) = {
+      command match {
+        case first :: rest =>
+          def command_args = FileSupport.fix_file_separator(first) :: rest
+	      if( is_os_windows ) {
+	      	"cmd" :: "/c"  :: command_args
+	      } else {
+	      	command_args
+	      } 
+	      
+        case _ => command
+      }
+    }
+
+    val next_services = Map[String, Service]( value.map { dto=>
+      val enabled = dto.enabled==null || dto.enabled.booleanValue
+      val start_command = file_separator(asScalaIterable(dto.start).toList)
+      val end_command = file_separator(asScalaIterable(dto.stop).toList)
+      val status_check=new PidFileStatusCheck(new File(dto.pid_file))
+      dto.id -> Service(dto.id, enabled, start_command, end_command, status_check)
+    }.toSeq : _*)
+
+
+    // Figure out which services are being added, removed, or updated.
+    val existing_keys = current_services.keys.toSet
+    val next_service_keys = next_services.keys.toSet
+    val updating = existing_keys.intersect(next_service_keys)
+    val adding = next_service_keys -- updating
+    val removing = existing_keys -- next_service_keys
+
+    adding.foreach { id =>
+      val next = next_services.get(id).get
+      next.init
+      current_services += id -> next
+    }
+
+    updating.foreach { id =>
+      val next = next_services.get(id).get
+      val prev = current_services.get(id).get
+
+      // did the service configuration change?
+      if( next != prev ) {
+        next.updating(prev)
+        current_services.put(id, next)
+      }
+    }
+
+    removing.foreach{ id =>
+      val prev = current_services.get(id).get
+      prev.disable { dispatch_queue {
+          if( current_services.get(id) == Some(prev) ) {
+            current_services -= id
+          }
+        }
+      }
+    }
+  }
+
+  def close = {
+    periodic_check.close
+    sigar.close
+  }
+
+}

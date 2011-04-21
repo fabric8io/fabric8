@@ -1,0 +1,113 @@
+<!--
+
+    Copyright (C) 2009 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the AGPL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>fabric-dosgi</artifactId>
+  <name>FuseSource Fabric :: DOSGi</name>
+  <description>Fabric Distributed OSGi</description>
+  <packaging>bundle</packaging>
+
+  <properties>
+      <fabric.osgi.export>
+      </fabric.osgi.export>
+      <fabric.osgi.import.before.defaults>
+          !org.objectweb.asm,
+          org.eclipse.osgi*;resolution:=optional
+      </fabric.osgi.import.before.defaults>
+      <fabric.osgi.import.additional>
+      </fabric.osgi.import.additional>
+      <fabric.osgi.private.pkg>
+          org.fusesource.fabric.dosgi*,
+          org.fusesource.hawtdispatch*,
+          org.fusesource.hawtbuf*
+      </fabric.osgi.private.pkg>
+      <fabric.osgi.services.export>
+      </fabric.osgi.services.export>
+      <fabric.osgi.activator>
+      </fabric.osgi.activator>
+  </properties>
+
+  <dependencies>
+      <dependency>
+      <groupId>org.linkedin</groupId>
+      <artifactId>org.linkedin.zookeeper-impl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.compendium</artifactId>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.enterprise</artifactId>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.fusesource.hawtdispatch</groupId>
+          <artifactId>hawtdispatch</artifactId>
+          <version>1.2</version>
+      </dependency>
+      <dependency>
+          <groupId>org.fusesource.hawtbuf</groupId>
+          <artifactId>hawtbuf</artifactId>
+          <version>1.4</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.easymock</groupId>
+          <artifactId>easymock</artifactId>
+          <version>2.4</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-zookeeper-spring</artifactId>
+          <version>${project.version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.eclipse.osgi</groupId>
+          <artifactId>org.eclipse.osgi</artifactId>
+      </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+    </plugins>
+  </build>
+
+</project>
