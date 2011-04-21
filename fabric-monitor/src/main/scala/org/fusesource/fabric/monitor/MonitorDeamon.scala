@@ -52,7 +52,7 @@ object MonitorDeamon {
     if( conf==null ) {
       System.err.println("The --conf option was not specified.")
       System.exit(1)
-    }
+  }
 
     val conf_dir = new File(conf)
     if( !conf_dir.isDirectory ) {
@@ -69,11 +69,11 @@ object MonitorDeamon {
 
 
     // Load the launcher configurations..
-    val launch_manager:Monitor = new DefaultMonitor
-    launch_manager.poller_factories = finder.singletons
+    val monitor:Monitor = new DefaultMonitor("")
+    monitor.poller_factories = finder.singletons
 
     while(true) {
-      launch_manager.configure(load(conf_dir))
+      monitor.configure(load(conf_dir))
       Thread.sleep(1000)
     }
   }
