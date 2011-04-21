@@ -114,7 +114,7 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
-    protected Object request(final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException, TimeoutException {
+    protected Object request(final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args, int lastRequestSize[]) throws ExecutionException, InterruptedException, IOException, TimeoutException {
 
         final long correlation = correlationGenerator.incrementAndGet();
 
@@ -123,18 +123,19 @@ public class ClientInvokerImpl implements ClientInvoker {
         // and #2 reduce CPU load done in the execution queue since it's
         // serially executed.
 
-        // We can probably get a nice perf boots if we track
-        // average serialized request size so we can pick an optimal
-        // initial byte array size.
-        DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
+        DataByteArrayOutputStream baos = new DataByteArrayOutputStream((int) (lastRequestSize[0]*1.10));
         baos.writeInt(0); // we don't know the size yet...
         baos.writeVarLong(correlation);
         baos.writeVarInt(service.length);
         baos.write(service);
 
+        int p1 = baos.position();
+
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeUTF(method.getName());
         oos.writeObject(method.getParameterTypes());
+        int p2 = baos.position();
+
         oos.writeObject(args);
 
         // toBuffer() is better than toByteArray() since it avoids an
@@ -144,6 +145,7 @@ public class ClientInvokerImpl implements ClientInvoker {
         // Update the field size.
         BufferEditor editor = command.buffer().bigEndianEditor();
         editor.writeInt(command.length);
+        lastRequestSize[0] = command.length;
 
         final ResponseFuture future = new ResponseFuture(classLoader);
         queue.execute(new Runnable() {
@@ -200,6 +202,7 @@ public class ClientInvokerImpl implements ClientInvoker {
         final String address;
         final UTF8Buffer service;
         final ClassLoader classLoader;
+        final int[] lastRequestSize = new int [] {250};
 
         public ProxyInvocationHandler(String address, String service, ClassLoader classLoader) {
             this.address = address;
@@ -208,7 +211,7 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            return request(address, service, classLoader, method, args);
+            return request(address, service, classLoader, method, args, lastRequestSize);
         }
 
     }
