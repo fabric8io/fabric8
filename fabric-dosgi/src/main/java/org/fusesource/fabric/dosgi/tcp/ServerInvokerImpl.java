@@ -45,7 +45,7 @@ public class ServerInvokerImpl implements ServerInvoker {
         PRIMITIVE_TO_CLASS.put("D", double.class);
     }
 
-    protected final ExecutorService executor = Executors.newCachedThreadPool();
+    protected final ExecutorService executor = Executors.newFixedThreadPool(8);
     protected final DispatchQueue queue;
     protected final TransportServer server;
     protected final Map<UTF8Buffer, ServiceFactoryHolder> holders = new HashMap<UTF8Buffer, ServiceFactoryHolder>();
@@ -66,7 +66,7 @@ public class ServerInvokerImpl implements ServerInvoker {
 
         private Method method(Buffer data) throws IOException, NoSuchMethodException, ClassNotFoundException {
             Method rc = method_cache.get(data);
-            if( rc ==null ) {
+            if( rc == null ) {
                 String[] parts = data.utf8().toString().split(",");
                 String name = parts[0];
                 Class params[] = new Class[parts.length-1];

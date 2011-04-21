@@ -28,9 +28,9 @@ public abstract class TransportPool implements Service {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(TransportPool.class);
 
-    public static final int DEFAULT_POOL_SIZE = 1;
+    public static final int DEFAULT_POOL_SIZE = 2;
 
-    public static final long DEFAULT_EVICTION_DELAY = TimeUnit.MINUTES.toMillis(1) * 0;
+    public static final long DEFAULT_EVICTION_DELAY = TimeUnit.MINUTES.toMillis(5);
 
     protected final String uri;
     protected final DispatchQueue queue;

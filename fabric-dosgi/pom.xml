@@ -100,6 +100,7 @@
       <dependency>
           <groupId>org.eclipse.osgi</groupId>
           <artifactId>org.eclipse.osgi</artifactId>
+          <optional>true</optional>
       </dependency>
 
   </dependencies>

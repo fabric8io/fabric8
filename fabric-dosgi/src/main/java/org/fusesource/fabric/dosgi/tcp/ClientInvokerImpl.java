@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 public class ClientInvokerImpl implements ClientInvoker {
 
+    public static final long DEFAULT_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(ClientInvokerImpl.class);
 
     private final static HashMap<Class,String> CLASS_TO_PRIMITIVE = new HashMap<Class, String>(8, 1.0F);
@@ -50,14 +52,20 @@ public class ClientInvokerImpl implements ClientInvoker {
         CLASS_TO_PRIMITIVE.put(double.class,"D");
     }
 
-    private final AtomicLong correlationGenerator = new AtomicLong();
-    private final DispatchQueue queue;
-    private final Map<String, TransportPool> transports = new HashMap<String, TransportPool>();
-    private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Map<Long, ResponseFuture> requests = new HashMap<Long, ResponseFuture>();
+    protected final AtomicLong correlationGenerator = new AtomicLong();
+    protected final DispatchQueue queue;
+    protected final Map<String, TransportPool> transports = new HashMap<String, TransportPool>();
+    protected final AtomicBoolean running = new AtomicBoolean(false);
+    protected final Map<Long, ResponseFuture> requests = new HashMap<Long, ResponseFuture>();
+    protected final long timeout;
 
     public ClientInvokerImpl(DispatchQueue queue) {
+        this(queue, DEFAULT_TIMEOUT);
+    }
+
+    public ClientInvokerImpl(DispatchQueue queue, long timeout) {
         this.queue = queue;
+        this.timeout = timeout;
     }
 
     public void start() throws Exception {
@@ -211,7 +219,7 @@ public class ClientInvokerImpl implements ClientInvoker {
             }
         });
         // TODO: make that configurable, that's only for tests
-        return future.get(5, TimeUnit.SECONDS);
+        return future.get(timeout, TimeUnit.MILLISECONDS);
     }
 
     private void writeBuffer(DataByteArrayOutputStream baos, Buffer value) throws IOException {
@@ -270,7 +278,7 @@ public class ClientInvokerImpl implements ClientInvoker {
     protected class InvokerTransportPool extends TransportPool {
 
         public InvokerTransportPool(String uri, DispatchQueue queue) {
-            super(uri, queue);
+            super(uri, queue, TransportPool.DEFAULT_POOL_SIZE, timeout << 1);
         }
 
         @Override
