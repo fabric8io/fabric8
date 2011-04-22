@@ -28,28 +28,25 @@ import java.util.concurrent.FutureTask;
  */
 public class BlockingInvocationStrategy implements InvocationStrategy {
 
+    public static final BlockingInvocationStrategy INSTANCE = new BlockingInvocationStrategy();
+
     private static final Callable<Object> EMPTY_CALLABLE = new Callable<Object>() {
         public Object call() {
             return null;
         }
     };
 
-    final SerializationStrategy serializationStrategy;
-
-    public BlockingInvocationStrategy(SerializationStrategy serializationStrategy) {
-        this.serializationStrategy = serializationStrategy;
-    }
-
-
     private class BlockingResponseFuture extends FutureTask<Object> implements ResponseFuture, AsyncCallback {
 
         private final ClassLoader loader;
         private final Method method;
+        private final SerializationStrategy serializationStrategy;
 
-        public BlockingResponseFuture(ClassLoader loader, Method method) {
+        public BlockingResponseFuture(ClassLoader loader, Method method, SerializationStrategy serializationStrategy) {
             super(EMPTY_CALLABLE);
             this.loader = loader;
             this.method = method;
+            this.serializationStrategy = serializationStrategy;
         }
 
         public void set(DataByteArrayInputStream source) throws IOException, ClassNotFoundException {
@@ -69,12 +66,12 @@ public class BlockingInvocationStrategy implements InvocationStrategy {
         }
     }
 
-    public ResponseFuture request(ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
+    public ResponseFuture request(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
         serializationStrategy.encodeRequest(loader, method.getParameterTypes(), args, target);
-        return new BlockingResponseFuture(loader, method);
+        return new BlockingResponseFuture(loader, method, serializationStrategy);
     }
 
-    public void service(ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, DataByteArrayOutputStream responseStream, Runnable onComplete) {
+    public void service(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, DataByteArrayOutputStream responseStream, Runnable onComplete) {
 
         int pos = responseStream.position();
         try {

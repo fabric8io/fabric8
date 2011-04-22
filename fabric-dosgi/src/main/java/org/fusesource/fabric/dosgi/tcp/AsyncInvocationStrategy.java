@@ -29,28 +29,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AsyncInvocationStrategy implements InvocationStrategy {
 
+    public static final AsyncInvocationStrategy INSTANCE = new AsyncInvocationStrategy();
+
     static public boolean isAsyncMethod(Method method) {
         Class<?>[] types = method.getParameterTypes();
         return types.length != 0 && types[types.length - 1] == AsyncCallback.class;
     }
 
 
-    final SerializationStrategy serializationStrategy;
-
-    public AsyncInvocationStrategy(SerializationStrategy serializationStrategy) {
-        this.serializationStrategy = serializationStrategy;
-    }
-
     private class AsyncResponseFuture implements ResponseFuture {
 
         private final ClassLoader loader;
         private final Method method;
         private final AsyncCallback callback;
+        private final SerializationStrategy serializationStrategy;
 
-        public AsyncResponseFuture(ClassLoader loader, Method method, AsyncCallback callback) {
+        public AsyncResponseFuture(ClassLoader loader, Method method, AsyncCallback callback, SerializationStrategy serializationStrategy) {
             this.loader = loader;
             this.method = method;
             this.callback = callback;
+            this.serializationStrategy = serializationStrategy;
         }
 
         public void set(DataByteArrayInputStream source) throws IOException, ClassNotFoundException {
@@ -68,7 +66,7 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
 
     }
 
-    public ResponseFuture request(ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
+    public ResponseFuture request(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
         if(!isAsyncMethod(method)) {
             throw new IllegalArgumentException("Invalid async method declaration: last argument is not a RequestCallback");
         }
@@ -79,7 +77,7 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
 
         serializationStrategy.encodeRequest(loader, new_types, new_args, target);
 
-        return new AsyncResponseFuture(loader, method, (AsyncCallback) args[args.length-1]);
+        return new AsyncResponseFuture(loader, method, (AsyncCallback) args[args.length-1], serializationStrategy);
     }
 
     static private Class<?>[] payloadTypes(Method method) {
@@ -95,15 +93,17 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
         private final Method method;
         private final DataByteArrayOutputStream responseStream;
         private final Runnable onComplete;
+        private final SerializationStrategy serializationStrategy;
         private final int pos;
         // Used to protect against sending multiple responses.
         final AtomicBoolean responded = new AtomicBoolean(false);
 
-        public ServiceResponse(ClassLoader loader, Method method, DataByteArrayOutputStream responseStream, Runnable onComplete) {
+        public ServiceResponse(ClassLoader loader, Method method, DataByteArrayOutputStream responseStream, Runnable onComplete, SerializationStrategy serializationStrategy) {
             this.loader = loader;
             this.method = method;
             this.responseStream = responseStream;
             this.onComplete = onComplete;
+            this.serializationStrategy = serializationStrategy;
             pos = responseStream.position();
         }
 
@@ -126,9 +126,9 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
         }
 
     }
-    public void service(ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, final DataByteArrayOutputStream responseStream, final Runnable onComplete) {
+    public void service(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, final DataByteArrayOutputStream responseStream, final Runnable onComplete) {
 
-        final ServiceResponse helper = new ServiceResponse(loader, method, responseStream, onComplete);
+        final ServiceResponse helper = new ServiceResponse(loader, method, responseStream, onComplete, serializationStrategy);
         try {
 
             Object[] new_args = new Object[method.getParameterTypes().length];

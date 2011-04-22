@@ -47,12 +47,15 @@ public class ServerInvokerImpl implements ServerInvoker {
     protected final TransportServer server;
     protected final Map<UTF8Buffer, ServiceFactoryHolder> holders = new HashMap<UTF8Buffer, ServiceFactoryHolder>();
 
-    static class MethodMetadata {
-        final Method method;
-        final InvocationStrategy strategy;
+    static class MethodData {
 
-        MethodMetadata(InvocationStrategy invocationStrategy, Method method) {
-            this.strategy = invocationStrategy;
+        private final SerializationStrategy serializationStrategy;
+        final InvocationStrategy invocationStrategy;
+        final Method method;
+
+        MethodData(InvocationStrategy invocationStrategy, SerializationStrategy serializationStrategy, Method method) {
+            this.invocationStrategy = invocationStrategy;
+            this.serializationStrategy = serializationStrategy;
             this.method = method;
         }
     }
@@ -62,7 +65,7 @@ public class ServerInvokerImpl implements ServerInvoker {
         private final ServiceFactory factory;
         private final ClassLoader loader;
         private final Class clazz;
-        private HashMap<Buffer, MethodMetadata> method_cache = new HashMap<Buffer, MethodMetadata>();
+        private HashMap<Buffer, MethodData> method_cache = new HashMap<Buffer, MethodData>();
 
         public ServiceFactoryHolder(ServiceFactory factory, ClassLoader loader) {
             this.factory = factory;
@@ -72,8 +75,8 @@ public class ServerInvokerImpl implements ServerInvoker {
             factory.unget();
         }
 
-        private MethodMetadata method(Buffer data) throws IOException, NoSuchMethodException, ClassNotFoundException {
-            MethodMetadata rc = method_cache.get(data);
+        private MethodData getMethodData(Buffer data) throws IOException, NoSuchMethodException, ClassNotFoundException {
+            MethodData rc = method_cache.get(data);
             if( rc == null ) {
                 String[] parts = data.utf8().toString().split(",");
                 String name = parts[0];
@@ -83,15 +86,15 @@ public class ServerInvokerImpl implements ServerInvoker {
                 }
                 Method method = clazz.getMethod(name, params);
 
-                SerializationStrategy serializationStrategy = new ObjectSerializationStrategy();
-                final InvocationStrategy strategy;
+                SerializationStrategy serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+                final InvocationStrategy invocationStrategy;
                 if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
-                    strategy = new AsyncInvocationStrategy(serializationStrategy);
+                    invocationStrategy = AsyncInvocationStrategy.INSTANCE;
                 } else {
-                    strategy = new BlockingInvocationStrategy(serializationStrategy);
+                    invocationStrategy = BlockingInvocationStrategy.INSTANCE;
                 }
 
-                rc = new MethodMetadata(strategy, method);
+                rc = new MethodData(invocationStrategy, serializationStrategy, method);
                 method_cache.put(data, rc);
             }
             return rc;
@@ -176,7 +179,7 @@ public class ServerInvokerImpl implements ServerInvoker {
             final Buffer encoded_method = readBuffer(bais);
 
             final ServiceFactoryHolder holder = holders.get(service);
-            final MethodMetadata methodMetaData = holder.method(encoded_method);
+            final MethodData methodData = holder.getMethodData(encoded_method);
 
             final Object svc = holder.factory.get();
 
@@ -193,7 +196,7 @@ public class ServerInvokerImpl implements ServerInvoker {
 
                     // Lets decode the remaining args on the target's executor
                     // to take cpu load off the
-                    methodMetaData.strategy.service(holder.loader, methodMetaData.method, svc, bais, baos, new Runnable() {
+                    methodData.invocationStrategy.service(methodData.serializationStrategy, holder.loader, methodData.method, svc, bais, baos, new Runnable() {
                         public void run() {
                             holder.factory.unget();
                             final Buffer command = baos.toBuffer();

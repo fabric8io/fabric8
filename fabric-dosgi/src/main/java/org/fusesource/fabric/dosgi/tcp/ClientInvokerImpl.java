@@ -123,20 +123,22 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
-    static final WeakHashMap<Method, MethodMetadata> method_cache = new WeakHashMap<Method, MethodMetadata>();
+    static final WeakHashMap<Method, MethodData> method_cache = new WeakHashMap<Method, MethodData>();
 
-    static class MethodMetadata {
+    static class MethodData {
+        private final SerializationStrategy serializationStrategy;
         final Buffer signature;
-        final InvocationStrategy strategy;
+        final InvocationStrategy invocationStrategy;
 
-        MethodMetadata(InvocationStrategy invocationStrategy, Buffer signature) {
-            this.strategy = invocationStrategy;
+        MethodData(InvocationStrategy invocationStrategy, SerializationStrategy serializationStrategy, Buffer signature) {
+            this.invocationStrategy = invocationStrategy;
+            this.serializationStrategy = serializationStrategy;
             this.signature = signature;
         }
     }
 
-    private MethodMetadata getMethodMetadata(Method method) throws IOException {
-        MethodMetadata rc = null;
+    private MethodData getMethodData(Method method) throws IOException {
+        MethodData rc = null;
         synchronized (method_cache) {
             rc = method_cache.get(method);
         }
@@ -151,17 +153,19 @@ public class ClientInvokerImpl implements ClientInvoker {
                 }
                 sb.append(encodeClassName(types[i]));
             }
+            Buffer signature = new UTF8Buffer(sb.toString()).buffer();
 
             // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
-            SerializationStrategy serializationStrategy = new ObjectSerializationStrategy();
+            SerializationStrategy serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+
             final InvocationStrategy strategy;
             if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
-                strategy = new AsyncInvocationStrategy(serializationStrategy);
+                strategy = AsyncInvocationStrategy.INSTANCE;
             } else {
-                strategy = new BlockingInvocationStrategy(serializationStrategy);
+                strategy = BlockingInvocationStrategy.INSTANCE;
             }
 
-            rc = new MethodMetadata(strategy, new UTF8Buffer(sb.toString()).buffer());
+            rc = new MethodData(strategy, serializationStrategy, signature);
             synchronized (method_cache) {
                 method_cache.put(method, rc);
             }
@@ -194,10 +198,10 @@ public class ClientInvokerImpl implements ClientInvoker {
         baos.writeVarLong(correlation);
         writeBuffer(baos, service);
 
-        MethodMetadata methodData = getMethodMetadata(method);
+        MethodData methodData = getMethodData(method);
         writeBuffer(baos, methodData.signature);
 
-        final ResponseFuture future = methodData.strategy.request(classLoader, method, args, baos);
+        final ResponseFuture future = methodData.invocationStrategy.request(methodData.serializationStrategy, classLoader, method, args, baos);
 
         // toBuffer() is better than toByteArray() since it avoids an
         // array copy.
