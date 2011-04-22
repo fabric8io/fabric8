@@ -8,32 +8,16 @@
  */
 package org.fusesource.fabric.api;
 
-import java.net.URI;
 import java.util.Map;
 
 public interface Profile {
 
-    String getName();
-
-    // version is read only
+    String getId();
     String getVersion();
 
     Profile[] getParents();
     void setParents(Profile[] parents);
 
-    URI[] getBundles();
-    void setBundles(URI[] bundles);
-
-    String[] getFeatures();
-    void setFeatures(String[] features);
-
-    URI[] getFeatureRepositories();
-    void setFeatureRepositories(URI[] uris);
-
     Map<String, Map<String, String>> getConfigurations();
-    void setConfigurations(Map<String, Map<String, String>> configurations);
-
-    Profile[] getExtensions();
-    void setExtensions(Profile[] profiles);
 
 }

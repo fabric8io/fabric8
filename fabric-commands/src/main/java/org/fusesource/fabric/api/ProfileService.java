@@ -8,17 +8,13 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.Map;
-
 public interface ProfileService {
 
-    Map<String, Profile> getProfiles(String version);
+    Profile[] getProfiles(String version);
 
-    void updateProfile(String name, Profile newProfile) throws Exception;
+    Profile createProfile(String version, String name);
 
-    void removeProfile(Profile profile) throws Exception;
-
-    Profile createProfile(String version, String name) throws Exception;
+    void deleteProfile(Profile profile);
 
 
 }

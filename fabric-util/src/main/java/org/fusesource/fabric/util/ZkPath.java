@@ -7,19 +7,11 @@ import java.util.Map;
  */
 public enum ZkPath {
 
-    PROFILES    ("/fabric/configs/versions/{version}/profiles"),
+    PROFILES    ("/fabric/registry/profiles"),
     ALIVE       ("/fabric/registry/agents/alive"),
     CONFIG      ("/fabric/registry/agents/config/{name}"),
-    AGENTS      ("/fabric/registry/agents/config"),
-
-    // config nodes
-    CONFIGS_AGENTS ("/fabric/configs/agents/"),
-    CONFIG_AGENT   ("/fabric/configs/agents/{name}"),
-
-    CONFIGS_VERSIONS_AGENT ("/fabric/configs/versions/{version}/agents/{name}"),
 
     // Agent nodes
-    AGENT           ("/fabric/registry/agents/config/{name}"),
     AGENT_ALIVE     ("/fabric/registry/agents/alive/{name}"),
     AGENT_IP        ("/fabric/registry/agents/config/{name}/ip"),
     AGENT_ROOT      ("/fabric/registry/agents/config/{name}/root"),
@@ -28,15 +20,14 @@ public enum ZkPath {
     AGENT_PROFILES  ("/fabric/registry/agents/config/{name}/profiles"),
 
     // profile nodes
-    PROFILE           ("/fabric/configs/versions/{version}/profiles/{name}"),
-    PROFILE_BUNDLES   ("/fabric/configs/versions/{version}/profiles/{name}/bundles"),
-    PROFILE_PARENTS   ("/fabric/configs/versions/{version}/profiles/{name}/parents"),
-    PROFILE_PARENT    ("/fabric/configs/versions/{version}/profiles/{name}/parents/{parent}"),
-    PROFILE_FEATURES  ("/fabric/configs/versions/{version}/profiles/{name}/features"),
-    PROFILE_REPOSITORIES  ("/fabric/configs/versions/{version}/profiles/{name}/repositories"),
-    PROFILE_CONFIG_PIDS   ("/fabric/configs/versions/{version}/profiles/{name}/configurations"),
-    PROFILE_CONFIG_KEYS   ("/fabric/configs/versions/{version}/profiles/{name}/configurations/{pid}"),
-    PROFILE_CONFIG_VALUE  ("/fabric/configs/versions/{version}/profiles/{name}/configurations/{pid}/{key}");
+    PROFILE           ("/fabric/registry/profiles/{name}"),
+    PROFILE_BUNDLES   ("/fabric/registry/profiles/{name}/bundles"),
+    PROFILE_PARENTS   ("/fabric/registry/profiles/{name}/parents"),
+    PROFILE_FEATURES  ("/fabric/registry/profiles/{name}/features"),
+    PROFILE_REPOSITORIES  ("/fabric/registry/profiles/{name}/repositories"),
+    PROFILE_CONFIG_PIDS   ("/fabric/registry/profiles/{name}/configurations"),
+    PROFILE_CONFIG_KEYS   ("/fabric/registry/profiles/{name}/configurations/{pid}"),
+    PROFILE_CONFIG_VALUE  ("/fabric/registry/profiles/{name}/configurations/{pid}/{key}");
 
     /**
      * Path template.

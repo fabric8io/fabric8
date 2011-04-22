@@ -19,7 +19,7 @@ public interface Agent {
 
     boolean isAlive();
 
-    // Runtime information
+    // Runtime informations
     boolean isRoot();
     String getSshUrl();
     String getJmxUrl();
@@ -27,7 +27,7 @@ public interface Agent {
     BundleInfo[] getBundles();
     ServiceInfo[] getServices();
 
-    String[] getProfileNames();
-    void setProfileNames(String[] profiles);
+    Profile[] getProfiles();
+    void setProfiles(Profile[] profiles);
 
 }

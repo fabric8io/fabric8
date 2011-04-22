@@ -8,9 +8,7 @@
  */
 package org.fusesource.fabric.service;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,86 +17,71 @@ import org.linkedin.zookeeper.client.IZKClient;
 
 public class ProfileImpl implements Profile {
 
+    private final String id;
+    private final String version;
+    private final IZKClient zooKeeper;
 
-    private String name;
-    private String version;
-
-    private Profile[] parents = new Profile[0];
-    private Profile[] extensions = new Profile[0];
-
-    private URI[] bundles = new URI[0];
-    private String[] features = new String[0];
-    private URI[] featureRepositories;
-    private Map<String, Map<String,String>> configurations = new HashMap<String, Map<String, String>>();
-
-    public ProfileImpl(String name, String version) {
-        this.name = name;
+    public ProfileImpl(String id, String version, IZKClient zooKeeper) {
+        this.id = id;
         this.version = version;
+        this.zooKeeper = zooKeeper;
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
     public String getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public Profile[] getParents() {
-        return this.parents;
+        try {
+            String node = "/fabric/configs/versions/" + version + "/profiles/" + id;
+            String str = zooKeeper.getStringData(node);
+            if (str == null) {
+                return new Profile[0];
+            }
+            List<Profile> profiles = new ArrayList<Profile>();
+            for (String p : str.split(" ")) {
+                profiles.add(new ProfileImpl(p, version, zooKeeper));
+            }
+            return profiles.toArray(new Profile[profiles.size()]);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setParents(Profile[] parents) {
-        this.parents = parents;
-    }
-
-    public URI[] getBundles() {
-        return this.bundles;
-    }
-
-    public void setBundles(URI[] bundles) {
-        this.bundles = bundles;
-    }
-
-    public String[] getFeatures() {
-        return this.features;
-    }
-
-    public void setFeatures(String[] features) {
-        this.features = features;
+        try {
+            String str = "";
+            for (Profile parent : parents) {
+                if (!version.equals(parent.getVersion())) {
+                    throw new IllegalArgumentException("Bad profile: " + parent);
+                }
+                if (!str.isEmpty()) {
+                    str += " ";
+                }
+                str += parent.getId();
+            }
+            zooKeeper.setData( "/fabric/configs/versions/" + version + "/profiles/" + id, str );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Map<String, Map<String, String>> getConfigurations() {
-        return configurations;
+        // TODO
+        return null;
     }
 
-    public void setConfigurations(Map<String, Map<String, String>> configurations) {
-        this.configurations = configurations;
-    }
-
-    public URI[] getFeatureRepositories() {
-        return featureRepositories;
-    }
-
-    public void setFeatureRepositories(URI[] uris) {
-        featureRepositories = uris;
-    }
-
-    public Profile[] getExtensions() {
-        return this.extensions;
-    }
-
-    public void setExtensions(Profile[] extensions) {
-        this.extensions = extensions;
-    }
 
     @Override
     public String toString() {
-        return String.format("ProfileImpl[name=%s,version=%s]", name, version);
+        return "ProfileImpl[" +
+                "id='" + id + '\'' +
+                ", version='" + version + '\'' +
+                ']';
     }
 
     @Override
@@ -106,7 +89,7 @@ public class ProfileImpl implements Profile {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProfileImpl profile = (ProfileImpl) o;
-        if (!name.equals(profile.name)) return false;
+        if (!id.equals(profile.id)) return false;
         if (!version.equals(profile.version)) return false;
 
         return true;
@@ -114,7 +97,7 @@ public class ProfileImpl implements Profile {
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
+        int result = id.hashCode();
         result = 31 * result + version.hashCode();
         return result;
     }

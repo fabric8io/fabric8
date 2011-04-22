@@ -89,10 +89,12 @@
             <artifactId>commons-logging-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-util</artifactId>
-        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+
+        </plugins>
+    </build>
 
 </project>

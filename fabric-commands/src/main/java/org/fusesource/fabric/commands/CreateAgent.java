@@ -40,13 +40,12 @@ public class CreateAgent extends FabricCommand {
             throw new Exception("Unknown agent: " + parent);
         }
         List<String> names = this.profiles;
-
         if (names == null || names.isEmpty()) {
             names = Collections.singletonList("default");
         }
-        // Profile[] profiles = getProfiles(version, names);
+        Profile[] profiles = getProfiles(version, names);
         Agent child = agentService.createChild(agent, name);
-        child.setProfileNames(names.toArray(new String[names.size()]));
+        child.setProfiles(profiles);
         return null;
     }
 

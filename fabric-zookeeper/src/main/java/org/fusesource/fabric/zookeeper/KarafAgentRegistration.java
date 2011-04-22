@@ -24,15 +24,12 @@ import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import static org.fusesource.fabric.util.ZkPath.*;
-
 public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware {
 
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private String name;
-    //private String nodeAlive;
-    //private String nodeConfig;
+    private String nodeAlive;
+    private String nodeConfig;
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -42,11 +39,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         this.zooKeeper = zooKeeper;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /*
     public String getNodeAlive() {
         return nodeAlive;
     }
@@ -62,7 +54,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
     public void setNodeConfig(String nodeConfig) {
         this.nodeConfig = nodeConfig;
     }
-    */
 
     public ConfigurationAdmin getConfigurationAdmin() {
         return configurationAdmin;
@@ -74,20 +65,19 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
 
     public void onConnected() {
         try {
-            String aliveNode = AGENT_ALIVE.getPath(name);
-            Stat stat = zooKeeper.exists(aliveNode);
+            Stat stat = zooKeeper.exists(nodeAlive);
             if (stat != null) {
                 if (stat.getEphemeralOwner() != zooKeeper.getSessionId()) {
-                    zooKeeper.delete(aliveNode);
-                    zooKeeper.createWithParents(aliveNode, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                    zooKeeper.delete(nodeAlive);
+                    zooKeeper.createWithParents(nodeAlive, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 }
             } else {
-                zooKeeper.createWithParents(aliveNode, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                zooKeeper.createWithParents(nodeAlive, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
             }
-            zooKeeper.createOrSetWithParents(AGENT_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(AGENT_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(AGENT_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(nodeConfig + "/jmx", getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(nodeConfig + "/ssh", getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(nodeConfig + "/ip", getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(nodeConfig + "/root", getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (Exception e) {
             // TODO
             e.printStackTrace();

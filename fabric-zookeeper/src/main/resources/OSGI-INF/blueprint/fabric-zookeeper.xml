@@ -11,7 +11,7 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <ext:property-placeholder placeholder-prefix="\$[" placeholder-suffix="]">
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]">
         <ext:default-properties>
             <ext:property name="zookeeper.url" value="localhost:2181"/>
         </ext:default-properties>
@@ -19,7 +19,7 @@
 
     <cm:property-placeholder persistent-id="org.fusesource.fabric.zookeeper" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="zookeeper.url" value="\$[zookeeper.url]"/>
+            <cm:property name="zookeeper.url" value="$[zookeeper.url]"/>
             <cm:property name="zookeeper.timeout" value="10s"/>
         </cm:default-properties>
     </cm:property-placeholder>
@@ -39,11 +39,8 @@
         <property name="configurationAdmin">
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>
-        <property name="name" value="\$[karaf.name]"/>
-        <!--
         <property name="nodeAlive" value="/fabric/registry/agents/alive/$[karaf.name]"/>
         <property name="nodeConfig" value="/fabric/registry/agents/config/$[karaf.name]"/>
-        -->
     </bean>
 
     <bean id="serviceRegistrationListener" class="org.fusesource.fabric.zookeeper.ServiceRegistrationListener" destroy-method="onDisconnected">
