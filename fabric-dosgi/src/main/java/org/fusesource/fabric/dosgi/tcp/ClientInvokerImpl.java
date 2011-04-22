@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
@@ -121,10 +123,20 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
-    static final WeakHashMap<Method, Buffer> method_cache = new WeakHashMap<Method, Buffer>();
+    static final WeakHashMap<Method, MethodMetadata> method_cache = new WeakHashMap<Method, MethodMetadata>();
 
-    private Buffer encodeMethod(Method method) throws IOException {
-        Buffer rc = null;
+    static class MethodMetadata {
+        final Buffer signature;
+        final InvocationStrategy strategy;
+
+        MethodMetadata(InvocationStrategy invocationStrategy, Buffer signature) {
+            this.strategy = invocationStrategy;
+            this.signature = signature;
+        }
+    }
+
+    private MethodMetadata getMethodMetadata(Method method) throws IOException {
+        MethodMetadata rc = null;
         synchronized (method_cache) {
             rc = method_cache.get(method);
         }
@@ -139,7 +151,17 @@ public class ClientInvokerImpl implements ClientInvoker {
                 }
                 sb.append(encodeClassName(types[i]));
             }
-            rc = new UTF8Buffer(sb.toString()).buffer();
+
+            // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
+            SerializationStrategy serializationStrategy = new ObjectSerializationStrategy();
+            final InvocationStrategy strategy;
+            if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
+                strategy = new AsyncInvocationStrategy(serializationStrategy);
+            } else {
+                strategy = new BlockingInvocationStrategy(serializationStrategy);
+            }
+
+            rc = new MethodMetadata(strategy, new UTF8Buffer(sb.toString()).buffer());
             synchronized (method_cache) {
                 method_cache.put(method, rc);
             }
@@ -171,17 +193,11 @@ public class ClientInvokerImpl implements ClientInvoker {
         baos.writeInt(0); // we don't know the size yet...
         baos.writeVarLong(correlation);
         writeBuffer(baos, service);
-        writeBuffer(baos, encodeMethod(method));
 
-        // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
-        final InvocationStrategy strategy;
-        if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
-            strategy = new AsyncInvocationStrategy();
-        } else {
-            strategy = new BlockingInvocationStrategy();
-        }
+        MethodMetadata methodData = getMethodMetadata(method);
+        writeBuffer(baos, methodData.signature);
 
-        final ResponseFuture future = strategy.request(classLoader, method, args, baos);
+        final ResponseFuture future = methodData.strategy.request(classLoader, method, args, baos);
 
         // toBuffer() is better than toByteArray() since it avoids an
         // array copy.
