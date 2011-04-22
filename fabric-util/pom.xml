@@ -14,12 +14,8 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <fabric.osgi.import>
-            !org.fusesource.fabric.util,
-            *
-        </fabric.osgi.import>
         <fabric.osgi.export>
-            org.fusesource.fabric.util;version=${fabric.osgi.version}
+            org.fusesource.fabric.util;version=${fabric.osgi.version};-noimport:=true
         </fabric.osgi.export>
     </properties>
 
