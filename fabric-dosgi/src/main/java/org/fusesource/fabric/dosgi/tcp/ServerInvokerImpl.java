@@ -156,7 +156,12 @@ public class ServerInvokerImpl implements ServerInvoker {
 
             // TODO: we could use method annotations to switch to different payload
             //       serialization strategy at this point.
-            final RequestCodecStrategy strategy = new ObjectSerializationStrategy();
+            final RequestCodecStrategy strategy;
+            if( AsyncObjectSerializationStrategy.isAsyncMethod(method) ) {
+                strategy = new AsyncObjectSerializationStrategy();
+            } else {
+                strategy = new ObjectSerializationStrategy();
+            }
 
             executor.submit(new Runnable() {
                 public void run() {

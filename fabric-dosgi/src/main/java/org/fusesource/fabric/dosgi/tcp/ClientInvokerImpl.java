@@ -176,7 +176,13 @@ public class ClientInvokerImpl implements ClientInvoker {
         writeBuffer(baos, encodeMethod(method));
 
         // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
-        RequestCodecStrategy strategy = new ObjectSerializationStrategy();
+        final RequestCodecStrategy strategy;
+        if( AsyncObjectSerializationStrategy.isAsyncMethod(method) ) {
+            strategy = new AsyncObjectSerializationStrategy();
+        } else {
+            strategy = new ObjectSerializationStrategy();
+        }
+
         final ResponseFuture future = strategy.request(classLoader, method, args, baos);
 
         // toBuffer() is better than toByteArray() since it avoids an
