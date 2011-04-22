@@ -1,3 +1,12 @@
+/**
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ *
+ *     http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
 package org.fusesource.fabric.util;
 
 import java.util.Map;
@@ -7,11 +16,19 @@ import java.util.Map;
  */
 public enum ZkPath {
 
-    PROFILES    ("/fabric/registry/profiles"),
+    PROFILES    ("/fabric/configs/versions/{version}/profiles"),
     ALIVE       ("/fabric/registry/agents/alive"),
     CONFIG      ("/fabric/registry/agents/config/{name}"),
+    AGENTS      ("/fabric/registry/agents/config"),
+
+    // config nodes
+    CONFIGS_AGENTS ("/fabric/configs/agents/"),
+    CONFIG_AGENT   ("/fabric/configs/agents/{name}"),
+
+    CONFIGS_VERSIONS_AGENT ("/fabric/configs/versions/{version}/agents/{name}"),
 
     // Agent nodes
+    AGENT           ("/fabric/registry/agents/config/{name}"),
     AGENT_ALIVE     ("/fabric/registry/agents/alive/{name}"),
     AGENT_IP        ("/fabric/registry/agents/config/{name}/ip"),
     AGENT_ROOT      ("/fabric/registry/agents/config/{name}/root"),
@@ -20,14 +37,7 @@ public enum ZkPath {
     AGENT_PROFILES  ("/fabric/registry/agents/config/{name}/profiles"),
 
     // profile nodes
-    PROFILE           ("/fabric/registry/profiles/{name}"),
-    PROFILE_BUNDLES   ("/fabric/registry/profiles/{name}/bundles"),
-    PROFILE_PARENTS   ("/fabric/registry/profiles/{name}/parents"),
-    PROFILE_FEATURES  ("/fabric/registry/profiles/{name}/features"),
-    PROFILE_REPOSITORIES  ("/fabric/registry/profiles/{name}/repositories"),
-    PROFILE_CONFIG_PIDS   ("/fabric/registry/profiles/{name}/configurations"),
-    PROFILE_CONFIG_KEYS   ("/fabric/registry/profiles/{name}/configurations/{pid}"),
-    PROFILE_CONFIG_VALUE  ("/fabric/registry/profiles/{name}/configurations/{pid}/{key}");
+    PROFILE         ("/fabric/configs/versions/{version}/profiles/{name}");
 
     /**
      * Path template.
