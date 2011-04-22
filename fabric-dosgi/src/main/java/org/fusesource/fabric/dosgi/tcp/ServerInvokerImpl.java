@@ -47,12 +47,22 @@ public class ServerInvokerImpl implements ServerInvoker {
     protected final TransportServer server;
     protected final Map<UTF8Buffer, ServiceFactoryHolder> holders = new HashMap<UTF8Buffer, ServiceFactoryHolder>();
 
+    static class MethodMetadata {
+        final Method method;
+        final InvocationStrategy strategy;
+
+        MethodMetadata(InvocationStrategy invocationStrategy, Method method) {
+            this.strategy = invocationStrategy;
+            this.method = method;
+        }
+    }
+
     class ServiceFactoryHolder {
 
         private final ServiceFactory factory;
         private final ClassLoader loader;
         private final Class clazz;
-        private HashMap<Buffer, Method> method_cache = new HashMap<Buffer, Method>();
+        private HashMap<Buffer, MethodMetadata> method_cache = new HashMap<Buffer, MethodMetadata>();
 
         public ServiceFactoryHolder(ServiceFactory factory, ClassLoader loader) {
             this.factory = factory;
@@ -62,8 +72,8 @@ public class ServerInvokerImpl implements ServerInvoker {
             factory.unget();
         }
 
-        private Method method(Buffer data) throws IOException, NoSuchMethodException, ClassNotFoundException {
-            Method rc = method_cache.get(data);
+        private MethodMetadata method(Buffer data) throws IOException, NoSuchMethodException, ClassNotFoundException {
+            MethodMetadata rc = method_cache.get(data);
             if( rc == null ) {
                 String[] parts = data.utf8().toString().split(",");
                 String name = parts[0];
@@ -71,7 +81,17 @@ public class ServerInvokerImpl implements ServerInvoker {
                 for( int  i=0; i < params.length; i++) {
                     params[i] = decodeClass(parts[i+1]);
                 }
-                rc = clazz.getMethod(name, params);
+                Method method = clazz.getMethod(name, params);
+
+                SerializationStrategy serializationStrategy = new ObjectSerializationStrategy();
+                final InvocationStrategy strategy;
+                if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
+                    strategy = new AsyncInvocationStrategy(serializationStrategy);
+                } else {
+                    strategy = new BlockingInvocationStrategy(serializationStrategy);
+                }
+
+                rc = new MethodMetadata(strategy, method);
                 method_cache.put(data, rc);
             }
             return rc;
@@ -156,17 +176,7 @@ public class ServerInvokerImpl implements ServerInvoker {
             final Buffer encoded_method = readBuffer(bais);
 
             final ServiceFactoryHolder holder = holders.get(service);
-            final Method method = holder.method(encoded_method);
-
-            // TODO: we could use method annotations to switch to different payload
-            //       serialization strategy at this point.
-            SerializationStrategy serializationStrategy = new ObjectSerializationStrategy();
-            final InvocationStrategy strategy;
-            if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
-                strategy = new AsyncInvocationStrategy(serializationStrategy);
-            } else {
-                strategy = new BlockingInvocationStrategy(serializationStrategy);
-            }
+            final MethodMetadata methodMetaData = holder.method(encoded_method);
 
             final Object svc = holder.factory.get();
 
@@ -183,7 +193,7 @@ public class ServerInvokerImpl implements ServerInvoker {
 
                     // Lets decode the remaining args on the target's executor
                     // to take cpu load off the
-                    strategy.service(holder.loader, method, svc, bais, baos, new Runnable() {
+                    methodMetaData.strategy.service(holder.loader, methodMetaData.method, svc, bais, baos, new Runnable() {
                         public void run() {
                             holder.factory.unget();
                             final Buffer command = baos.toBuffer();
