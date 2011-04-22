@@ -24,6 +24,7 @@
  */
 package org.fusesource.fabric.dosgi.io;
 
+import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.hawtdispatch.DispatchQueue;
 
 /**
@@ -31,7 +32,7 @@ import org.fusesource.hawtdispatch.DispatchQueue;
  * 
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public interface Transport extends Service {
+public interface Transport extends Service, Dispatched {
 
 
     boolean full();
@@ -57,13 +58,6 @@ public interface Transport extends Service {
      * @param commandListener
      */
     void setTransportListener(TransportListener commandListener);
-
-    /**
-     * Returns the dispatch queue used by the transport
-     *
-     * @return
-     */
-    DispatchQueue getDispatchQueue();
 
     /**
      * Sets the dispatch queue used by the transport

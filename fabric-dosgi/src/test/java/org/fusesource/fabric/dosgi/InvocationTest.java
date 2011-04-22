@@ -17,6 +17,9 @@ import java.net.ServerSocket;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.fusesource.fabric.dosgi.api.AsyncCallback;
+import org.fusesource.fabric.dosgi.api.AsyncCallbackFuture;
+import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
 import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
@@ -64,6 +67,11 @@ public class InvocationTest {
             assertEquals('d', hello.mix(new Integer[]{new Integer(0)}));
             assertEquals('e', hello.mix(new int[0][0]));
             assertEquals('f', hello.mix(new Integer[0][0]));
+
+            final AsyncCallbackFuture<String> future = new AsyncCallbackFuture<String>();
+            hello.hello("Hiram", future);
+            assertEquals("Hello Hiram!", future.get(2, TimeUnit.SECONDS));
+
         }
         finally {
             server.stop();
@@ -161,39 +169,69 @@ public class InvocationTest {
     public static interface Hello {
         String hello(String name);
 
+        // async version of the hello method.
+        void hello(String name, AsyncCallback<String> callback);
+
         char mix(int value);
         char mix(int[] value);
         char mix(Integer value);
         char mix(Integer[] value);
         char mix(int[][] value);
         char mix(Integer[][] value);
+
     }
 
-    public static class HelloImpl implements Hello {
+    public static class HelloImpl implements Hello, Dispatched {
+
+        DispatchQueue queue = Dispatch.createQueue();
+
+        public DispatchQueue getDispatchQueue() {
+            return queue;
+        }
+
+        private void queueCheck() {
+            if( !queue.isExecuting() ) {
+                throw new IllegalStateException("Not executing on our dispatch queue");
+            }
+        }
+
         public String hello(String name) {
+            queueCheck();
             return "Hello " + name + "!";
         }
 
+
+        public void hello(String name, AsyncCallback<String> callback) {
+            queueCheck();
+            callback.onSuccess(hello(name));
+        }
+
         public char mix(int value) {
+            queueCheck();
             return 'a';
         }
 
         public char mix(int[] value) {
+            queueCheck();
             return 'b';
         }
 
         public char mix(Integer value) {
+            queueCheck();
             return 'c';
         }
 
         public char mix(Integer[] value) {
+            queueCheck();
             return 'd';
         }
 
         public char mix(int[][] value) {
+            queueCheck();
             return 'e';
         }
         public char mix(Integer[][] value) {
+            queueCheck();
             return 'f';
         }
     }
