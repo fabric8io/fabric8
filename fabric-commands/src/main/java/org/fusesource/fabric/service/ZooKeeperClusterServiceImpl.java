@@ -131,6 +131,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public List<String> getClusterAgents() {
         try {
+            Configuration[] configs = configurationAdmin.listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
+            if (configs == null || configs.length == 0) {
+                return Collections.emptyList();
+            }
             List<String> list = new ArrayList<String>();
             if (zooKeeper.exists("/fabric/configs/versions/" + version + "/general/zookeeper-cluster") != null) {
                 String clusterId = zooKeeper.getStringData("/fabric/configs/versions/" + version + "/general/zookeeper-cluster");
@@ -163,7 +167,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             }
             Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
-
             if (zooKeeperUrl == null) {
                 if (agents.size() != 1 || !agents.get(0).equals(System.getProperty("karaf.name"))) {
                     throw new IllegalArgumentException("The first zookeeper cluster must be configured on this agent only.");
@@ -270,7 +273,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Unable to create zookeeper quorum", e);
+            throw new RuntimeException("Unable to create zookeeper quorum: " + e.getMessage(), e);
         }
     }
 
@@ -307,7 +310,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             current.addAll(agents);
             createCluster(current);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to add agents to zookeeper quorum", e);
+            throw new RuntimeException("Unable to add agents to zookeeper quorum: " + e.getMessage(), e);
         }
     }
 
@@ -317,7 +320,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             current.removeAll(agents);
             createCluster(current);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to add agents to zookeeper quorum", e);
+            throw new RuntimeException("Unable to add agents to zookeeper quorum: " + e.getMessage(), e);
         }
     }
 

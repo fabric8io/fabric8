@@ -41,9 +41,15 @@ public class ZkCluster extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         if (agents == null || agents.isEmpty()) {
-            System.out.println("ZooKeeper agents: ");
-            for (String agent : service.getClusterAgents()) {
-                System.out.println("  " + agent);
+            List<String> cluster = service.getClusterAgents();
+            if (cluster == null || cluster.isEmpty()) {
+                throw new IllegalStateException("No ZooKeeper server set up.  Use \"fabric:zk-cluster " + System.getProperty("karaf.name") + "\" to set up one.");
+
+            } else {
+                System.out.println("ZooKeeper agents: ");
+                for (String agent : service.getClusterAgents()) {
+                    System.out.println("  " + agent);
+                }
             }
         } else if (add) {
             service.addToCluster(agents);
