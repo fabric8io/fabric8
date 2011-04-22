@@ -8,30 +8,26 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.api.RequestCodecStrategy;
+import org.fusesource.fabric.dosgi.api.ResponseFuture;
+import org.fusesource.fabric.dosgi.io.ClientInvoker;
+import org.fusesource.fabric.dosgi.io.ProtocolCodec;
+import org.fusesource.fabric.dosgi.io.Transport;
+import org.fusesource.hawtbuf.*;
+import org.fusesource.hawtdispatch.DispatchQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.fusesource.fabric.dosgi.io.ClientInvoker;
-import org.fusesource.fabric.dosgi.io.ProtocolCodec;
-import org.fusesource.fabric.dosgi.io.Transport;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.hawtbuf.*;
-import org.fusesource.hawtdispatch.DispatchQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ClientInvokerImpl implements ClientInvoker {
 
@@ -118,17 +114,9 @@ public class ClientInvokerImpl implements ClientInvoker {
             DataByteArrayInputStream bais = new DataByteArrayInputStream( (Buffer) data);
             int size = bais.readInt();
             long correlation = bais.readVarLong();
-            ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
             ResponseFuture response = requests.remove(correlation);
             if( response!=null ) {
-                ois.setClassLoader(response.getClassLoader());
-                Throwable error = (Throwable) ois.readObject();
-                Object value = ois.readObject();
-                if (error != null) {
-                    response.setException(error);
-                } else {
-                    response.set(value);
-                }
+                response.set(bais);
             }
         } catch (Exception e) {
             LOGGER.info("Error while reading response", e);
@@ -172,7 +160,7 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
-    protected Object request(ProxyInvocationHandler handler, final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException, TimeoutException {
+    protected Object request(ProxyInvocationHandler handler, final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args) throws Exception {
 
         final long correlation = correlationGenerator.incrementAndGet();
 
@@ -187,9 +175,9 @@ public class ClientInvokerImpl implements ClientInvoker {
         writeBuffer(baos, service);
         writeBuffer(baos, encodeMethod(method));
 
-        // TODO: perhaps use a different encoding method for the args based on annotations found on the method.
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(args);
+        // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
+        RequestCodecStrategy strategy = new ObjectSerializationStrategy();
+        final ResponseFuture future = strategy.request(classLoader, method, args, baos);
 
         // toBuffer() is better than toByteArray() since it avoids an
         // array copy.
@@ -201,7 +189,6 @@ public class ClientInvokerImpl implements ClientInvoker {
         editor.writeInt(command.length);
         handler.lastRequestSize = command.length;
 
-        final ResponseFuture future = new ResponseFuture(classLoader);
         queue.execute(new Runnable() {
             public void run() {
                 try {
@@ -218,6 +205,7 @@ public class ClientInvokerImpl implements ClientInvoker {
                 }
             }
         });
+
         // TODO: make that configurable, that's only for tests
         return future.get(timeout, TimeUnit.MILLISECONDS);
     }
@@ -225,35 +213,6 @@ public class ClientInvokerImpl implements ClientInvoker {
     private void writeBuffer(DataByteArrayOutputStream baos, Buffer value) throws IOException {
         baos.writeVarInt(value.length);
         baos.write(value);
-    }
-
-    protected static class ResponseFuture extends FutureTask<Object> {
-
-        private static final Callable<Object> EMPTY_CALLABLE = new Callable<Object>() {
-            public Object call() {
-                return null;
-            }
-        };
-        private final ClassLoader classLoader;
-
-        public ResponseFuture(ClassLoader classLoader) {
-            super(EMPTY_CALLABLE);
-            this.classLoader = classLoader;
-        }
-
-        public ClassLoader getClassLoader() {
-            return classLoader;
-        }
-
-        @Override
-        public void set(Object object) {
-            super.set(object);
-        }
-
-        @Override
-        public void setException(Throwable throwable) {
-            super.setException(throwable);
-        }
     }
 
     protected class ProxyInvocationHandler implements InvocationHandler {

@@ -8,27 +8,21 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.api.RequestCodecStrategy;
+import org.fusesource.fabric.dosgi.io.*;
+import org.fusesource.hawtbuf.*;
+import org.fusesource.hawtdispatch.DispatchQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.fusesource.fabric.dosgi.io.ServerInvoker;
-import org.fusesource.fabric.dosgi.io.Transport;
-import org.fusesource.fabric.dosgi.io.TransportAcceptListener;
-import org.fusesource.fabric.dosgi.io.TransportListener;
-import org.fusesource.fabric.dosgi.io.TransportServer;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.hawtbuf.*;
-import org.fusesource.hawtdispatch.DispatchQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ServerInvokerImpl implements ServerInvoker {
 
@@ -160,65 +154,41 @@ public class ServerInvokerImpl implements ServerInvoker {
             final ServiceFactoryHolder holder = holders.get(service);
             final Method method = holder.method(encoded_method);
 
+            // TODO: we could use method annotations to switch to different payload
+            //       serialization strategy at this point.
+            final RequestCodecStrategy strategy = new ObjectSerializationStrategy();
+
             executor.submit(new Runnable() {
                 public void run() {
 
-                    // Lets decode the remaining args on the target's executor
-                    // to take cpu load off the
-                    Object value = null;
-                    Throwable error = null;
-
-                    Object svc = holder.factory.get();
+                    final DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
                     try {
-                        try {
-
-                            // TODO: we could use method annotations to switch to different payload
-                            //       serialization strategy at this point.
-
-                            final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-                            ois.setClassLoader(holder.loader);
-                            final Object[] args = (Object[]) ois.readObject();
-
-                            value = method.invoke(svc, args);
-
-                        } catch (Throwable t) {
-                            if (t instanceof InvocationTargetException) {
-                                error = t.getCause();
-                            } else {
-                                error = t;
-                            }
-                        }
-
-                    } finally {
-                        holder.factory.unget();
-                    }
-
-                    // Encode the response...
-                    try {
-                        DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
                         baos.writeInt(0); // make space for the size field.
                         baos.writeVarLong(correlation);
-                        ObjectOutputStream oos = new ObjectOutputStream(baos);
-                        oos.writeObject(error);
-                        oos.writeObject(value);
-
-                        // toBuffer() is better than toByteArray() since it avoids an
-                        // array copy.
-                        final Buffer command = baos.toBuffer();
-
-                        // Update the size field.
-                        BufferEditor editor = command.buffer().bigEndianEditor();
-                        editor.writeInt(command.length);
-
-                        queue.execute(new Runnable() {
-                            public void run() {
-                                transport.offer(command);
-                            }
-                        });
-                    } catch (Exception e) {
-                        LOGGER.info("Error while writing answer");
+                    } catch (IOException e) { // should not happen
+                        throw new RuntimeException(e);
                     }
 
+                    // Lets decode the remaining args on the target's executor
+                    // to take cpu load off the
+
+                    Object svc = holder.factory.get();
+                    strategy.service(holder.loader, method, svc, bais, baos, new Runnable() {
+                        public void run() {
+                            holder.factory.unget();
+                            final Buffer command = baos.toBuffer();
+
+                            // Update the size field.
+                            BufferEditor editor = command.buffer().bigEndianEditor();
+                            editor.writeInt(command.length);
+
+                            queue.execute(new Runnable() {
+                                public void run() {
+                                    transport.offer(command);
+                                }
+                            });
+                        }
+                    });
                 }
             });
 
