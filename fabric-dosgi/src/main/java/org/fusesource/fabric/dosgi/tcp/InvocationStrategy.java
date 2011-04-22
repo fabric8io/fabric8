@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.dosgi.api;
+package org.fusesource.fabric.dosgi.tcp;
 
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public interface RequestCodecStrategy {
+public interface InvocationStrategy {
 
     public ResponseFuture request(ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream requestStream) throws Exception;
 

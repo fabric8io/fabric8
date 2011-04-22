@@ -8,7 +8,7 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.api.RequestCodecStrategy;
+import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.fabric.dosgi.io.*;
 import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,12 +40,12 @@ public class ServerInvokerImpl implements ServerInvoker {
         PRIMITIVE_TO_CLASS.put("D", double.class);
     }
 
-    protected final ExecutorService executor = Executors.newFixedThreadPool(8);
+    protected final ExecutorService blockingExecutor = Executors.newFixedThreadPool(8);
     protected final DispatchQueue queue;
     protected final TransportServer server;
     protected final Map<UTF8Buffer, ServiceFactoryHolder> holders = new HashMap<UTF8Buffer, ServiceFactoryHolder>();
 
-    static class ServiceFactoryHolder {
+    class ServiceFactoryHolder {
 
         private final ServiceFactory factory;
         private final ClassLoader loader;
@@ -54,7 +55,8 @@ public class ServerInvokerImpl implements ServerInvoker {
         public ServiceFactoryHolder(ServiceFactory factory, ClassLoader loader) {
             this.factory = factory;
             this.loader = loader;
-            clazz = factory.get().getClass();
+            Object o = factory.get();
+            clazz = o.getClass();
             factory.unget();
         }
 
@@ -131,7 +133,7 @@ public class ServerInvokerImpl implements ServerInvoker {
     public void stop(final Runnable onComplete) {
         this.server.stop(new Runnable() {
             public void run() {
-                executor.shutdown();
+                blockingExecutor.shutdown();
                 if (onComplete != null) {
                     onComplete.run();
                 }
@@ -156,14 +158,16 @@ public class ServerInvokerImpl implements ServerInvoker {
 
             // TODO: we could use method annotations to switch to different payload
             //       serialization strategy at this point.
-            final RequestCodecStrategy strategy;
-            if( AsyncObjectSerializationStrategy.isAsyncMethod(method) ) {
-                strategy = new AsyncObjectSerializationStrategy();
+            final InvocationStrategy strategy;
+            if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
+                strategy = new AsyncInvocationStrategy();
             } else {
-                strategy = new ObjectSerializationStrategy();
+                strategy = new BlockingInvocationStrategy();
             }
 
-            executor.submit(new Runnable() {
+            final Object svc = holder.factory.get();
+
+            Runnable task = new Runnable() {
                 public void run() {
 
                     final DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
@@ -177,7 +181,6 @@ public class ServerInvokerImpl implements ServerInvoker {
                     // Lets decode the remaining args on the target's executor
                     // to take cpu load off the
 
-                    Object svc = holder.factory.get();
                     strategy.service(holder.loader, method, svc, bais, baos, new Runnable() {
                         public void run() {
                             holder.factory.unget();
@@ -195,8 +198,15 @@ public class ServerInvokerImpl implements ServerInvoker {
                         }
                     });
                 }
-            });
+            };
 
+            Executor executor;
+            if( svc instanceof Dispatched ) {
+                executor = ((Dispatched)svc).getDispatchQueue();
+            } else {
+                executor = blockingExecutor;
+            }
+            executor.execute(task);
 
         } catch (Exception e) {
             LOGGER.info("Error while reading request", e);

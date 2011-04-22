@@ -8,8 +8,6 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.api.RequestCodecStrategy;
-import org.fusesource.fabric.dosgi.api.ResponseFuture;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
@@ -28,7 +26,7 @@ import java.util.concurrent.FutureTask;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public class ObjectSerializationStrategy implements RequestCodecStrategy {
+public class BlockingInvocationStrategy implements InvocationStrategy {
 
     private static class ObjectResponseFuture extends FutureTask<Object> implements ResponseFuture {
 

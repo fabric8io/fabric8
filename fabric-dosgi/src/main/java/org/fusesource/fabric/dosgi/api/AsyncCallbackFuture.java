@@ -17,9 +17,9 @@ import java.util.concurrent.FutureTask;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public class RequestCallbackFuture<T> extends FutureTask<T> implements RequestCallback<T> {
+public class AsyncCallbackFuture<T> extends FutureTask<T> implements AsyncCallback<T> {
 
-    public RequestCallbackFuture() {
+    public AsyncCallbackFuture() {
         super(new Callable<T>() {
             public T call() {
                 return null;

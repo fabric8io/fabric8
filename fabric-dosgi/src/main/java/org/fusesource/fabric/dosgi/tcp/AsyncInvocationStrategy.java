@@ -8,9 +8,7 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.api.RequestCallback;
-import org.fusesource.fabric.dosgi.api.RequestCodecStrategy;
-import org.fusesource.fabric.dosgi.api.ResponseFuture;
+import org.fusesource.fabric.dosgi.api.AsyncCallback;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
@@ -28,11 +26,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public class AsyncObjectSerializationStrategy implements RequestCodecStrategy {
+public class AsyncInvocationStrategy implements InvocationStrategy {
 
     static public boolean isAsyncMethod(Method method) {
         Class<?>[] types = method.getParameterTypes();
-        return types.length != 0 && types[types.length - 1] == RequestCallback.class;
+        return types.length != 0 && types[types.length - 1] == AsyncCallback.class;
     }
 
     private static class ObjectResponseFuture extends FutureTask<Object> implements ResponseFuture {
@@ -43,9 +41,9 @@ public class AsyncObjectSerializationStrategy implements RequestCodecStrategy {
             }
         };
         private final ClassLoader loader;
-        private final RequestCallback callback;
+        private final AsyncCallback callback;
 
-        public ObjectResponseFuture(ClassLoader loader, RequestCallback callback) {
+        public ObjectResponseFuture(ClassLoader loader, AsyncCallback callback) {
             super(EMPTY_CALLABLE);
             this.loader = loader;
             this.callback = callback;
@@ -90,7 +88,7 @@ public class AsyncObjectSerializationStrategy implements RequestCodecStrategy {
         oos.writeObject(new_args);
         oos.flush();
 
-        return new ObjectResponseFuture(loader, (RequestCallback) args[args.length-1]);
+        return new ObjectResponseFuture(loader, (AsyncCallback) args[args.length-1]);
     }
 
     static class ServiceResponse {
@@ -140,7 +138,7 @@ public class AsyncObjectSerializationStrategy implements RequestCodecStrategy {
             final Object[] args = (Object[]) ois.readObject();
             Object[] new_args = new Object[args.length+1];
             System.arraycopy(args, 0, new_args, 0, args.length);
-            new_args[new_args.length-1] = new RequestCallback<Object>() {
+            new_args[new_args.length-1] = new AsyncCallback<Object>() {
                 public void onSuccess(Object result) {
                     helper.send(null, result);
                 }

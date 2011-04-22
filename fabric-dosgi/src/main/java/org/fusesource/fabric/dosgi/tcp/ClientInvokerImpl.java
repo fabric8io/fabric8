@@ -8,8 +8,6 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.api.RequestCodecStrategy;
-import org.fusesource.fabric.dosgi.api.ResponseFuture;
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
@@ -176,11 +174,11 @@ public class ClientInvokerImpl implements ClientInvoker {
         writeBuffer(baos, encodeMethod(method));
 
         // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
-        final RequestCodecStrategy strategy;
-        if( AsyncObjectSerializationStrategy.isAsyncMethod(method) ) {
-            strategy = new AsyncObjectSerializationStrategy();
+        final InvocationStrategy strategy;
+        if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
+            strategy = new AsyncInvocationStrategy();
         } else {
-            strategy = new ObjectSerializationStrategy();
+            strategy = new BlockingInvocationStrategy();
         }
 
         final ResponseFuture future = strategy.request(classLoader, method, args, baos);

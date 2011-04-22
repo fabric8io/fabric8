@@ -14,13 +14,12 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
-import org.fusesource.fabric.dosgi.api.RequestCallback;
-import org.fusesource.fabric.dosgi.api.RequestCallbackFuture;
+import org.fusesource.fabric.dosgi.api.AsyncCallback;
+import org.fusesource.fabric.dosgi.api.AsyncCallbackFuture;
+import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
 import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
@@ -69,7 +68,7 @@ public class InvocationTest {
             assertEquals('e', hello.mix(new int[0][0]));
             assertEquals('f', hello.mix(new Integer[0][0]));
 
-            final RequestCallbackFuture<String> future = new RequestCallbackFuture<String>();
+            final AsyncCallbackFuture<String> future = new AsyncCallbackFuture<String>();
             hello.hello("Hiram", future);
             assertEquals("Hello Hiram!", future.get(2, TimeUnit.SECONDS));
 
@@ -171,7 +170,7 @@ public class InvocationTest {
         String hello(String name);
 
         // async version of the hello method.
-        void hello(String name, RequestCallback<String> callback);
+        void hello(String name, AsyncCallback<String> callback);
 
         char mix(int value);
         char mix(int[] value);
@@ -182,35 +181,57 @@ public class InvocationTest {
 
     }
 
-    public static class HelloImpl implements Hello {
+    public static class HelloImpl implements Hello, Dispatched {
+
+        DispatchQueue queue = Dispatch.createQueue();
+
+        public DispatchQueue getDispatchQueue() {
+            return queue;
+        }
+
+        private void queueCheck() {
+            if( !queue.isExecuting() ) {
+                throw new IllegalStateException("Not executing on our dispatch queue");
+            }
+        }
+
         public String hello(String name) {
+            queueCheck();
             return "Hello " + name + "!";
         }
 
-        public void hello(String name, RequestCallback<String> callback) {
+
+        public void hello(String name, AsyncCallback<String> callback) {
+            queueCheck();
             callback.onSuccess(hello(name));
         }
 
         public char mix(int value) {
+            queueCheck();
             return 'a';
         }
 
         public char mix(int[] value) {
+            queueCheck();
             return 'b';
         }
 
         public char mix(Integer value) {
+            queueCheck();
             return 'c';
         }
 
         public char mix(Integer[] value) {
+            queueCheck();
             return 'd';
         }
 
         public char mix(int[][] value) {
+            queueCheck();
             return 'e';
         }
         public char mix(Integer[][] value) {
+            queueCheck();
             return 'f';
         }
     }

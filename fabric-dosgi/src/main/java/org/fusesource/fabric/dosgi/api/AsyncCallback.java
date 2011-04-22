@@ -14,7 +14,7 @@ package org.fusesource.fabric.dosgi.api;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public interface RequestCallback<T> {
+public interface AsyncCallback<T> {
     void onSuccess(T result);
     void onFailure(Throwable failure);
 }
