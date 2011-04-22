@@ -9,6 +9,8 @@
 package org.fusesource.fabric.dosgi.tcp;
 
 import org.fusesource.fabric.dosgi.api.Dispatched;
+import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.fabric.dosgi.io.*;
 import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
@@ -158,11 +160,12 @@ public class ServerInvokerImpl implements ServerInvoker {
 
             // TODO: we could use method annotations to switch to different payload
             //       serialization strategy at this point.
+            SerializationStrategy serializationStrategy = new ObjectSerializationStrategy();
             final InvocationStrategy strategy;
             if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
-                strategy = new AsyncInvocationStrategy();
+                strategy = new AsyncInvocationStrategy(serializationStrategy);
             } else {
-                strategy = new BlockingInvocationStrategy();
+                strategy = new BlockingInvocationStrategy(serializationStrategy);
             }
 
             final Object svc = holder.factory.get();
@@ -180,7 +183,6 @@ public class ServerInvokerImpl implements ServerInvoker {
 
                     // Lets decode the remaining args on the target's executor
                     // to take cpu load off the
-
                     strategy.service(holder.loader, method, svc, bais, baos, new Runnable() {
                         public void run() {
                             holder.factory.unget();

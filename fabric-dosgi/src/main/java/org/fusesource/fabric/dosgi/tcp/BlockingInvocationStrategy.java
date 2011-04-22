@@ -8,12 +8,12 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
+import org.fusesource.fabric.dosgi.api.AsyncCallback;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
@@ -28,39 +28,50 @@ import java.util.concurrent.FutureTask;
  */
 public class BlockingInvocationStrategy implements InvocationStrategy {
 
-    private static class ObjectResponseFuture extends FutureTask<Object> implements ResponseFuture {
+    private static final Callable<Object> EMPTY_CALLABLE = new Callable<Object>() {
+        public Object call() {
+            return null;
+        }
+    };
 
-        private static final Callable<Object> EMPTY_CALLABLE = new Callable<Object>() {
-            public Object call() {
-                return null;
-            }
-        };
+    final SerializationStrategy serializationStrategy;
+
+    public BlockingInvocationStrategy(SerializationStrategy serializationStrategy) {
+        this.serializationStrategy = serializationStrategy;
+    }
+
+
+    private class BlockingResponseFuture extends FutureTask<Object> implements ResponseFuture, AsyncCallback {
+
         private final ClassLoader loader;
+        private final Method method;
 
-        public ObjectResponseFuture(ClassLoader loader) {
+        public BlockingResponseFuture(ClassLoader loader, Method method) {
             super(EMPTY_CALLABLE);
             this.loader = loader;
+            this.method = method;
         }
 
         public void set(DataByteArrayInputStream source) throws IOException, ClassNotFoundException {
-            ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(source);
-            ois.setClassLoader(loader);
-            Throwable error = (Throwable) ois.readObject();
-            Object value = ois.readObject();
-            if (error != null) {
-                super.setException(error);
-            } else {
-                super.set(value);
+            try {
+                serializationStrategy.decodeResponse(loader, method.getReturnType(), source, this);
+            } catch (Throwable e) {
+                super.setException(e);
             }
         }
 
+        public void onSuccess(Object result) {
+            super.set(result);
+        }
+
+        public void onFailure(Throwable failure) {
+            super.setException(failure);
+        }
     }
 
-    public ResponseFuture request(ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(target);
-        oos.writeObject(args);
-        oos.flush();
-        return new ObjectResponseFuture(loader);
+    public ResponseFuture request(ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
+        serializationStrategy.encodeRequest(loader, method.getParameterTypes(), args, target);
+        return new BlockingResponseFuture(loader, method);
     }
 
     public void service(ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, DataByteArrayOutputStream responseStream, Runnable onComplete) {
@@ -72,9 +83,9 @@ public class BlockingInvocationStrategy implements InvocationStrategy {
             Throwable error = null;
 
             try {
-                final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(requestStream);
-                ois.setClassLoader(loader);
-                final Object[] args = (Object[]) ois.readObject();
+                Class<?>[] types = method.getParameterTypes();
+                final Object[] args = new Object[types.length];
+                serializationStrategy.decodeRequest(loader, types, requestStream, args);
                 value = method.invoke(target, args);
             } catch (Throwable t) {
                 if (t instanceof InvocationTargetException) {
@@ -84,19 +95,14 @@ public class BlockingInvocationStrategy implements InvocationStrategy {
                 }
             }
 
-            ObjectOutputStream oos = new ObjectOutputStream(responseStream);
-            oos.writeObject(error);
-            oos.writeObject(value);
-            oos.flush();
+            serializationStrategy.encodeResponse(loader, method.getReturnType(), value, error, responseStream);
 
         } catch(Exception e) {
 
             // we failed to encode the response.. reposition and write that error.
             try {
                 responseStream.position(pos);
-                ObjectOutputStream oos = new ObjectOutputStream(responseStream);
-                oos.writeObject(new RemoteException(e.toString()));
-                oos.writeObject(null);
+                serializationStrategy.encodeResponse(loader, method.getReturnType(), null, new RemoteException(e.toString()), responseStream);
             } catch (Exception unexpected) {
                 unexpected.printStackTrace();
             }
