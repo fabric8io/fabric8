@@ -14,12 +14,14 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fusesource.fabric.dosgi.api.AsyncCallback;
 import org.fusesource.fabric.dosgi.api.AsyncCallbackFuture;
 import org.fusesource.fabric.dosgi.api.Dispatched;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
 import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
@@ -39,9 +41,11 @@ public class InvocationTest {
         int port = getFreePort();
 
         DispatchQueue queue = Dispatch.createQueue();
-        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue);
+        HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue, map);
         server.start();
-        ClientInvokerImpl client = new ClientInvokerImpl(queue);
+        ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
         client.start();
 
         try {
@@ -83,10 +87,12 @@ public class InvocationTest {
     public void testUnderLoad() throws Exception {
         int port = getFreePort();
 
+        HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+
         DispatchQueue queue = Dispatch.createQueue();
-        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue);
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue, map);
         server.start();
-        ClientInvokerImpl client = new ClientInvokerImpl(queue);
+        ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
         client.start();
 
         try {
@@ -185,7 +191,7 @@ public class InvocationTest {
 
         DispatchQueue queue = Dispatch.createQueue();
 
-        public DispatchQueue getDispatchQueue() {
+        public DispatchQueue queue() {
             return queue;
         }
 

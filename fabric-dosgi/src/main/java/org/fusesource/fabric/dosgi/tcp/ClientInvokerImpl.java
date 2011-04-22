@@ -8,8 +8,11 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.Serialization;
 import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.fabric.dosgi.impl.Manager;
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
@@ -29,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ClientInvokerImpl implements ClientInvoker {
+public class ClientInvokerImpl implements ClientInvoker, Dispatched {
 
     public static final long DEFAULT_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
@@ -54,14 +57,20 @@ public class ClientInvokerImpl implements ClientInvoker {
     protected final AtomicBoolean running = new AtomicBoolean(false);
     protected final Map<Long, ResponseFuture> requests = new HashMap<Long, ResponseFuture>();
     protected final long timeout;
+    protected final Map<String, SerializationStrategy> serializationStrategies;
 
-    public ClientInvokerImpl(DispatchQueue queue) {
-        this(queue, DEFAULT_TIMEOUT);
+    public ClientInvokerImpl(DispatchQueue queue, Map<String, SerializationStrategy> serializationStrategies) {
+        this(queue, DEFAULT_TIMEOUT, serializationStrategies);
     }
 
-    public ClientInvokerImpl(DispatchQueue queue, long timeout) {
+    public ClientInvokerImpl(DispatchQueue queue, long timeout, Map<String, SerializationStrategy> serializationStrategies) {
         this.queue = queue;
         this.timeout = timeout;
+        this.serializationStrategies = serializationStrategies;
+    }
+
+    public DispatchQueue queue() {
+        return queue;
     }
 
     public void start() throws Exception {
@@ -81,7 +90,7 @@ public class ClientInvokerImpl implements ClientInvoker {
 
     public void stop(final Runnable onComplete) {
         if (running.compareAndSet(true, false)) {
-            queue.execute(new Runnable() {
+            queue().execute(new Runnable() {
                 public void run() {
                     final AtomicInteger latch = new AtomicInteger(transports.size());
                     final Runnable coutDown = new Runnable() {
@@ -155,8 +164,16 @@ public class ClientInvokerImpl implements ClientInvoker {
             }
             Buffer signature = new UTF8Buffer(sb.toString()).buffer();
 
-            // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
-            SerializationStrategy serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+            Serialization annotation = method.getAnnotation(Serialization.class);
+            SerializationStrategy serializationStrategy;
+            if( annotation!=null ) {
+                serializationStrategy = serializationStrategies.get(annotation.value());
+                if( serializationStrategy==null ) {
+                    throw new RuntimeException("Could not find the serialization strategy named: "+annotation.value());
+                }
+            } else {
+                serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+            }
 
             final InvocationStrategy strategy;
             if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
@@ -213,13 +230,13 @@ public class ClientInvokerImpl implements ClientInvoker {
         editor.writeInt(command.length);
         handler.lastRequestSize = command.length;
 
-        queue.execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 try {
                     TransportPool pool = transports.get(address);
                     if (pool == null) {
-                        pool = new InvokerTransportPool(address, queue);
-                        transports.put(address,  pool);
+                        pool = new InvokerTransportPool(address, queue());
+                        transports.put(address, pool);
                         pool.start();
                     }
                     requests.put(correlation, future);

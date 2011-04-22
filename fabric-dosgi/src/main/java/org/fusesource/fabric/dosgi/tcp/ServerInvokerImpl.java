@@ -10,7 +10,9 @@ package org.fusesource.fabric.dosgi.tcp;
 
 import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.Serialization;
 import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.fabric.dosgi.impl.Manager;
 import org.fusesource.fabric.dosgi.io.*;
 import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
@@ -27,7 +29,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ServerInvokerImpl implements ServerInvoker {
+public class ServerInvokerImpl implements ServerInvoker, Dispatched {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServerInvokerImpl.class);
     static private final HashMap<String, Class> PRIMITIVE_TO_CLASS = new HashMap<String, Class>(8, 1.0F);
@@ -44,6 +46,7 @@ public class ServerInvokerImpl implements ServerInvoker {
 
     protected final ExecutorService blockingExecutor = Executors.newFixedThreadPool(8);
     protected final DispatchQueue queue;
+    private final Map<String, SerializationStrategy> serializationStrategies;
     protected final TransportServer server;
     protected final Map<UTF8Buffer, ServiceFactoryHolder> holders = new HashMap<UTF8Buffer, ServiceFactoryHolder>();
 
@@ -86,7 +89,19 @@ public class ServerInvokerImpl implements ServerInvoker {
                 }
                 Method method = clazz.getMethod(name, params);
 
-                SerializationStrategy serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+
+                Serialization annotation = method.getAnnotation(Serialization.class);
+                SerializationStrategy serializationStrategy;
+                if( annotation!=null ) {
+                    serializationStrategy = serializationStrategies.get(annotation.value());
+                    if( serializationStrategy==null ) {
+                        throw new RuntimeException("Could not find the serialization strategy named: "+annotation.value());
+                    }
+                } else {
+                    serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+                }
+
+
                 final InvocationStrategy invocationStrategy;
                 if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
                     invocationStrategy = AsyncInvocationStrategy.INSTANCE;
@@ -116,11 +131,16 @@ public class ServerInvokerImpl implements ServerInvoker {
     }
 
 
-    public ServerInvokerImpl(String address, DispatchQueue queue) throws Exception {
+    public ServerInvokerImpl(String address, DispatchQueue queue, Map<String, SerializationStrategy> serializationStrategies) throws Exception {
         this.queue = queue;
+        this.serializationStrategies = serializationStrategies;
         this.server = new TcpTransportFactory().bind(address);
         this.server.setDispatchQueue(queue);
         this.server.setAcceptListener(new InvokerAcceptListener());
+    }
+
+    public DispatchQueue queue() {
+        return queue;
     }
 
     public String getConnectAddress() {
@@ -128,7 +148,7 @@ public class ServerInvokerImpl implements ServerInvoker {
     }
 
     public void registerService(final String id, final ServiceFactory service, final ClassLoader classLoader) {
-        queue.execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 holders.put(new UTF8Buffer(id), new ServiceFactoryHolder(service, classLoader));
             }
@@ -136,7 +156,7 @@ public class ServerInvokerImpl implements ServerInvoker {
     }
 
     public void unregisterService(final String id) {
-        queue.execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 holders.remove(new UTF8Buffer(id));
             }
@@ -205,7 +225,7 @@ public class ServerInvokerImpl implements ServerInvoker {
                             BufferEditor editor = command.buffer().bigEndianEditor();
                             editor.writeInt(command.length);
 
-                            queue.execute(new Runnable() {
+                            queue().execute(new Runnable() {
                                 public void run() {
                                     transport.offer(command);
                                 }
@@ -217,7 +237,7 @@ public class ServerInvokerImpl implements ServerInvoker {
 
             Executor executor;
             if( svc instanceof Dispatched ) {
-                executor = ((Dispatched)svc).getDispatchQueue();
+                executor = ((Dispatched)svc).queue();
             } else {
                 executor = blockingExecutor;
             }
@@ -238,7 +258,7 @@ public class ServerInvokerImpl implements ServerInvoker {
 
         public void onAccept(TransportServer transportServer, TcpTransport transport) {
             transport.setProtocolCodec(new LengthPrefixedCodec());
-            transport.setDispatchQueue(queue);
+            transport.setDispatchQueue(queue());
             transport.setTransportListener(new InvokerTransportListener());
             transport.start();
         }

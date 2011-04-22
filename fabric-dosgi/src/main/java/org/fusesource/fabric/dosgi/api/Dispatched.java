@@ -12,6 +12,6 @@ import org.fusesource.hawtdispatch.DispatchQueue;
  */
 public interface Dispatched {
 
-    DispatchQueue getDispatchQueue();
+    DispatchQueue queue();
 
 }

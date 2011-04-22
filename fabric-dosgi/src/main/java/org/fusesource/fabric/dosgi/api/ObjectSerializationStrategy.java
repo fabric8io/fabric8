@@ -31,6 +31,10 @@ import java.util.concurrent.FutureTask;
 public class ObjectSerializationStrategy implements SerializationStrategy {
     public static final ObjectSerializationStrategy INSTANCE = new ObjectSerializationStrategy();
 
+    public String name() {
+        return "object";
+    }
+
     public void encodeRequest(ClassLoader loader, Class<?>[] types, Object[] args, DataByteArrayOutputStream target) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(target);
         oos.writeObject(args);
