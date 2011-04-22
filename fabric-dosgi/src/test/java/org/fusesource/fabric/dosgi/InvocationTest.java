@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.dosgi;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -18,13 +19,12 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.fusesource.fabric.dosgi.api.AsyncCallback;
-import org.fusesource.fabric.dosgi.api.AsyncCallbackFuture;
-import org.fusesource.fabric.dosgi.api.Dispatched;
-import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.fabric.dosgi.api.*;
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
 import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.junit.Test;
@@ -42,6 +42,7 @@ public class InvocationTest {
 
         DispatchQueue queue = Dispatch.createQueue();
         HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+        map.put("extern", new ExternSerializationStrategy());
 
         ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue, map);
         server.start();
@@ -76,6 +77,7 @@ public class InvocationTest {
             hello.hello("Hiram", future);
             assertEquals("Hello Hiram!", future.get(2, TimeUnit.SECONDS));
 
+            assertEquals("Hello Hiram!", hello.exernHello(new ExternValue("Hiram")).value );
         }
         finally {
             server.stop();
@@ -172,6 +174,25 @@ public class InvocationTest {
     }
 
 
+    public static class ExternValue implements Extern {
+        String value;
+
+        public ExternValue() {
+        }
+
+        public ExternValue(String value) {
+            this.value = value;
+        }
+
+        public void write(DataByteArrayOutputStream target) throws IOException {
+            target.writeUTF(value);
+        }
+
+        public void read(DataByteArrayInputStream target) throws IOException {
+            value = target.readUTF();
+        }
+    }
+
     public static interface Hello {
         String hello(String name);
 
@@ -184,6 +205,9 @@ public class InvocationTest {
         char mix(Integer[] value);
         char mix(int[][] value);
         char mix(Integer[][] value);
+
+        @Serialization("extern")
+        ExternValue exernHello(ExternValue name);
 
     }
 
@@ -204,6 +228,11 @@ public class InvocationTest {
         public String hello(String name) {
             queueCheck();
             return "Hello " + name + "!";
+        }
+
+        @Serialization("extern")
+        public ExternValue exernHello(ExternValue name) {
+            return new ExternValue(hello(name.value));  //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
@@ -240,6 +269,7 @@ public class InvocationTest {
             queueCheck();
             return 'f';
         }
+
     }
 
     static int getFreePort() throws IOException {
@@ -250,5 +280,53 @@ public class InvocationTest {
         } finally {
             sock.close();
         }
+    }
+
+    interface Extern {
+        void write(DataByteArrayOutputStream target) throws IOException;
+        void read(DataByteArrayInputStream target) throws IOException;
+    }
+
+    public static class ExternSerializationStrategy implements SerializationStrategy {
+
+        public String name() {
+            return "extern";
+        }
+
+        public void encodeRequest(ClassLoader loader, Class<?>[] types, Object[] args, DataByteArrayOutputStream target) throws Exception {
+            target.writeUTF(args[0].getClass().getName());
+            ((Extern)args[0]).write(target);
+        }
+
+        public void decodeRequest(ClassLoader loader, Class<?>[] types, DataByteArrayInputStream source, Object[] target) throws Exception {
+            String name = source.readUTF();
+            target[0] = loader.loadClass(name).newInstance();
+            ((Extern)target[0]).read(source);
+        }
+
+
+        public void encodeResponse(ClassLoader loader, Class<?> type, Object value, Throwable error, DataByteArrayOutputStream target) throws Exception {
+            if( error!=null ) {
+                target.writeBoolean(true);
+                target.writeUTF(error.getMessage());
+            } else {
+                target.writeBoolean(false);
+                target.writeUTF(value.getClass().getName());
+                ((Extern)value).write(target);
+            }
+        }
+
+        public void decodeResponse(ClassLoader loader, Class<?> type, DataByteArrayInputStream source, AsyncCallback result) throws Exception {
+            if( source.readBoolean() ) {
+                result.onFailure(new RuntimeException(source.readUTF()));
+            } else {
+                String name = source.readUTF();
+                Object obj = loader.loadClass(name).newInstance();
+                ((Extern)obj).read(source);
+                result.onSuccess(obj);
+            }
+        }
+
+
     }
 }
