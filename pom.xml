@@ -106,7 +106,7 @@
 
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
-      <spring-version>3.0.4.RELEASE</spring-version>
+        <spring-version>3.0.4.RELEASE</spring-version>
     </properties>
 
 
@@ -510,6 +510,23 @@
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>3.6.0.v20100517</version>
             </dependency>
+            <!-- Hawt stuff -->
+          <dependency>
+              <groupId>org.fusesource.hawtdispatch</groupId>
+              <artifactId>hawtdispatch</artifactId>
+              <version>${hawtdispatch-version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.fusesource.hawtbuf</groupId>
+              <artifactId>hawtbuf</artifactId>
+              <version>${hawtbuf-version}</version>
+          </dependency>
+            <!-- EasyMock -->
+          <dependency>
+              <groupId>org.easymock</groupId>
+              <artifactId>easymock</artifactId>
+              <version>2.4</version>
+          </dependency>
         </dependencies>
     </dependencyManagement>
 

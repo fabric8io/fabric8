@@ -128,4 +128,11 @@
         <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-dosgi" version="${project.version}" resolver="(obr)">
+        <feature>fabric-zookeeper</feature>
+        <bundle dependency="true">mvn:org.fusesource.hawtdispatch/hawtdispatch/${hawtdispatch-version}</bundle>
+        <bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuf-version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-dosgi/${project.version}</bundle>
+    </feature>
+
 </features>
