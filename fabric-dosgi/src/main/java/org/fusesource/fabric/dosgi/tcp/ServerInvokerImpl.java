@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -138,6 +139,11 @@ public class ServerInvokerImpl implements ServerInvoker, Dispatched {
         this.server.setDispatchQueue(queue);
         this.server.setAcceptListener(new InvokerAcceptListener());
     }
+
+    public InetSocketAddress getSocketAddress() {
+        return this.server.getSocketAddress();
+    }
+
 
     public DispatchQueue queue() {
         return queue;

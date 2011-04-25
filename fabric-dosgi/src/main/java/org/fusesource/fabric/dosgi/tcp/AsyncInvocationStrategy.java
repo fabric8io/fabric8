@@ -17,6 +17,8 @@ import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.rmi.RemoteException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,7 +55,7 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
 
         public void set(DataByteArrayInputStream source) throws IOException, ClassNotFoundException {
             try {
-                serializationStrategy.decodeResponse(loader, method.getReturnType(), source, callback);
+                serializationStrategy.decodeResponse(loader, getResultType(method), source, callback);
             } catch (Throwable e) {
                 e.printStackTrace(); // come on app.. avoid throwing us your exceptions will ya?
             }
@@ -87,6 +89,13 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
         return new_types;
     }
 
+    static private Class getResultType(Method method) {
+        Type[] types = method.getGenericParameterTypes();
+        ParameterizedType t = (ParameterizedType) types[types.length-1];
+        return (Class) t.getActualTypeArguments()[0];
+    }
+
+
     class ServiceResponse {
 
         private final ClassLoader loader;
@@ -109,13 +118,14 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
 
         public void send(Throwable error, Object value) {
             if( responded.compareAndSet(false, true) ) {
+                Class resultType = getResultType(method);
                 try {
-                    serializationStrategy.encodeResponse(loader, method.getReturnType(), value, error, responseStream);
+                    serializationStrategy.encodeResponse(loader, resultType, value, error, responseStream);
                 } catch (Exception e) {
                     // we failed to encode the response.. reposition and write that error.
                     try {
                         responseStream.position(pos);
-                        serializationStrategy.encodeResponse(loader, method.getReturnType(), value, new RemoteException(e.toString()), responseStream);
+                        serializationStrategy.encodeResponse(loader, resultType, value, new RemoteException(e.toString()), responseStream);
                     } catch (Exception unexpected) {
                         unexpected.printStackTrace();
                     }
@@ -124,6 +134,7 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
                 }
             }
         }
+
 
     }
     public void service(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, final DataByteArrayOutputStream responseStream, final Runnable onComplete) {

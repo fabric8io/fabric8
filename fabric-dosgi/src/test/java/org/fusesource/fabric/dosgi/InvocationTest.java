@@ -8,13 +8,9 @@
  */
 package org.fusesource.fabric.dosgi;
 
-import java.io.Externalizable;
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,11 +19,11 @@ import org.fusesource.fabric.dosgi.api.*;
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
 import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.junit.Test;
+
+import javax.management.StringValueExp;
 
 import static org.junit.Assert.assertEquals;
 
@@ -38,14 +34,13 @@ public class InvocationTest {
     @Test
     public void testInvoke() throws Exception {
 
-        int port = getFreePort();
-
         DispatchQueue queue = Dispatch.createQueue();
         HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
-        map.put("extern", new ExternSerializationStrategy());
+        map.put("protobuf", new ProtobufSerializationStrategy());
 
-        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue, map);
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
         server.start();
+
         ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
         client.start();
 
@@ -59,7 +54,7 @@ public class InvocationTest {
             }, HelloImpl.class.getClassLoader());
 
 
-            InvocationHandler handler = client.getProxy("tcp://localhost:" + port, "service-id", HelloImpl.class.getClassLoader());
+            InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
             Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
 
             assertEquals("Hello Fabric!", hello.hello("Fabric"));
@@ -73,11 +68,16 @@ public class InvocationTest {
             assertEquals('e', hello.mix(new int[0][0]));
             assertEquals('f', hello.mix(new Integer[0][0]));
 
-            final AsyncCallbackFuture<String> future = new AsyncCallbackFuture<String>();
-            hello.hello("Hiram", future);
-            assertEquals("Hello Hiram!", future.get(2, TimeUnit.SECONDS));
+            AsyncCallbackFuture<String> future1 = new AsyncCallbackFuture<String>();
+            hello.hello("Hiram", future1);
+            assertEquals("Hello Hiram!", future1.get(2, TimeUnit.SECONDS));
 
-            assertEquals("Hello Hiram!", hello.exernHello(new ExternValue("Hiram")).value );
+            assertEquals("Hello Hiram!", hello.protobuf(stringValue("Hiram")).getValue());
+
+            AsyncCallbackFuture<StringValue.Getter> future2 = new AsyncCallbackFuture<StringValue.Getter>();
+            hello.protobuf(stringValue("Hiram Async"), future2);
+            assertEquals("Hello Hiram Async!", future2.get(2, TimeUnit.SECONDS).getValue());
+
         }
         finally {
             server.stop();
@@ -87,12 +87,10 @@ public class InvocationTest {
 
     @Test
     public void testUnderLoad() throws Exception {
-        int port = getFreePort();
-
         HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
 
         DispatchQueue queue = Dispatch.createQueue();
-        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue, map);
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
         server.start();
         ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
         client.start();
@@ -107,7 +105,7 @@ public class InvocationTest {
             }, HelloImpl.class.getClassLoader());
 
 
-            InvocationHandler handler = client.getProxy("tcp://localhost:" + port, "service-id", HelloImpl.class.getClassLoader());
+            InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
 
             final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
 
@@ -173,26 +171,6 @@ public class InvocationTest {
         }
     }
 
-
-    public static class ExternValue implements Extern {
-        String value;
-
-        public ExternValue() {
-        }
-
-        public ExternValue(String value) {
-            this.value = value;
-        }
-
-        public void write(DataByteArrayOutputStream target) throws IOException {
-            target.writeUTF(value);
-        }
-
-        public void read(DataByteArrayInputStream target) throws IOException {
-            value = target.readUTF();
-        }
-    }
-
     public static interface Hello {
         String hello(String name);
 
@@ -206,9 +184,18 @@ public class InvocationTest {
         char mix(int[][] value);
         char mix(Integer[][] value);
 
-        @Serialization("extern")
-        ExternValue exernHello(ExternValue name);
+        @Serialization("protobuf")
+        StringValue.Getter protobuf(StringValue.Getter name);
 
+        @Serialization("protobuf")
+        void protobuf(StringValue.Getter name, AsyncCallback<StringValue.Getter> callback);
+
+    }
+
+    static private StringValue.Bean stringValue(String hello) {
+        StringValue.Bean rc = new StringValue.Bean();
+        rc.setValue(hello);
+        return rc;
     }
 
     public static class HelloImpl implements Hello, Dispatched {
@@ -230,11 +217,15 @@ public class InvocationTest {
             return "Hello " + name + "!";
         }
 
-        @Serialization("extern")
-        public ExternValue exernHello(ExternValue name) {
-            return new ExternValue(hello(name.value));  //To change body of implemented methods use File | Settings | File Templates.
+        @Serialization("protobuf")
+        public StringValue.Getter protobuf(StringValue.Getter name) {
+            return stringValue(hello(name.getValue()));
         }
 
+        @Serialization("protobuf")
+        public void protobuf(StringValue.Getter name, AsyncCallback<StringValue.Getter> callback) {
+            callback.onSuccess(protobuf(name));
+        }
 
         public void hello(String name, AsyncCallback<String> callback) {
             queueCheck();
@@ -272,61 +263,5 @@ public class InvocationTest {
 
     }
 
-    static int getFreePort() throws IOException {
-        ServerSocket sock = new ServerSocket();
-        try {
-            sock.bind(new InetSocketAddress(0));
-            return sock.getLocalPort();
-        } finally {
-            sock.close();
-        }
-    }
 
-    interface Extern {
-        void write(DataByteArrayOutputStream target) throws IOException;
-        void read(DataByteArrayInputStream target) throws IOException;
-    }
-
-    public static class ExternSerializationStrategy implements SerializationStrategy {
-
-        public String name() {
-            return "extern";
-        }
-
-        public void encodeRequest(ClassLoader loader, Class<?>[] types, Object[] args, DataByteArrayOutputStream target) throws Exception {
-            target.writeUTF(args[0].getClass().getName());
-            ((Extern)args[0]).write(target);
-        }
-
-        public void decodeRequest(ClassLoader loader, Class<?>[] types, DataByteArrayInputStream source, Object[] target) throws Exception {
-            String name = source.readUTF();
-            target[0] = loader.loadClass(name).newInstance();
-            ((Extern)target[0]).read(source);
-        }
-
-
-        public void encodeResponse(ClassLoader loader, Class<?> type, Object value, Throwable error, DataByteArrayOutputStream target) throws Exception {
-            if( error!=null ) {
-                target.writeBoolean(true);
-                target.writeUTF(error.getMessage());
-            } else {
-                target.writeBoolean(false);
-                target.writeUTF(value.getClass().getName());
-                ((Extern)value).write(target);
-            }
-        }
-
-        public void decodeResponse(ClassLoader loader, Class<?> type, DataByteArrayInputStream source, AsyncCallback result) throws Exception {
-            if( source.readBoolean() ) {
-                result.onFailure(new RuntimeException(source.readUTF()));
-            } else {
-                String name = source.readUTF();
-                Object obj = loader.loadClass(name).newInstance();
-                ((Extern)obj).read(source);
-                result.onSuccess(obj);
-            }
-        }
-
-
-    }
 }
