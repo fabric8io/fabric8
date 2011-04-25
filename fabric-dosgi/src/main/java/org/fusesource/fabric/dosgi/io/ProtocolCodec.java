@@ -94,6 +94,11 @@ public interface ProtocolCodec {
     BufferState flush() throws IOException;
 
     /**
+     * @return true if the codec will no accept any more writes.
+     */
+    boolean full();
+
+    /**
      * @return The number of bytes written.
      */
     public long getWriteCounter();

@@ -8,40 +8,139 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.api.Dispatched;
+import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.Serialization;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.fabric.dosgi.impl.Manager;
 import org.fusesource.fabric.dosgi.io.*;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.hawtbuf.BufferEditor;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ServerInvokerImpl implements ServerInvoker {
+public class ServerInvokerImpl implements ServerInvoker, Dispatched {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServerInvokerImpl.class);
+    static private final HashMap<String, Class> PRIMITIVE_TO_CLASS = new HashMap<String, Class>(8, 1.0F);
+    static {
+        PRIMITIVE_TO_CLASS.put("Z", boolean.class);
+        PRIMITIVE_TO_CLASS.put("B", byte.class);
+        PRIMITIVE_TO_CLASS.put("C", char.class);
+        PRIMITIVE_TO_CLASS.put("S", short.class);
+        PRIMITIVE_TO_CLASS.put("I", int.class);
+        PRIMITIVE_TO_CLASS.put("J", long.class);
+        PRIMITIVE_TO_CLASS.put("F", float.class);
+        PRIMITIVE_TO_CLASS.put("D", double.class);
+    }
 
-    protected final ExecutorService executor = Executors.newCachedThreadPool();
+    protected final ExecutorService blockingExecutor = Executors.newFixedThreadPool(8);
     protected final DispatchQueue queue;
+    private final Map<String, SerializationStrategy> serializationStrategies;
     protected final TransportServer server;
-    protected final Map<String, ServiceFactory> handlers = new HashMap<String, ServiceFactory>();
-    protected final Map<String, ClassLoader> loaders = new HashMap<String, ClassLoader>();
+    protected final Map<UTF8Buffer, ServiceFactoryHolder> holders = new HashMap<UTF8Buffer, ServiceFactoryHolder>();
 
-    public ServerInvokerImpl(String address, DispatchQueue queue) throws Exception {
+    static class MethodData {
+
+        private final SerializationStrategy serializationStrategy;
+        final InvocationStrategy invocationStrategy;
+        final Method method;
+
+        MethodData(InvocationStrategy invocationStrategy, SerializationStrategy serializationStrategy, Method method) {
+            this.invocationStrategy = invocationStrategy;
+            this.serializationStrategy = serializationStrategy;
+            this.method = method;
+        }
+    }
+
+    class ServiceFactoryHolder {
+
+        private final ServiceFactory factory;
+        private final ClassLoader loader;
+        private final Class clazz;
+        private HashMap<Buffer, MethodData> method_cache = new HashMap<Buffer, MethodData>();
+
+        public ServiceFactoryHolder(ServiceFactory factory, ClassLoader loader) {
+            this.factory = factory;
+            this.loader = loader;
+            Object o = factory.get();
+            clazz = o.getClass();
+            factory.unget();
+        }
+
+        private MethodData getMethodData(Buffer data) throws IOException, NoSuchMethodException, ClassNotFoundException {
+            MethodData rc = method_cache.get(data);
+            if( rc == null ) {
+                String[] parts = data.utf8().toString().split(",");
+                String name = parts[0];
+                Class params[] = new Class[parts.length-1];
+                for( int  i=0; i < params.length; i++) {
+                    params[i] = decodeClass(parts[i+1]);
+                }
+                Method method = clazz.getMethod(name, params);
+
+
+                Serialization annotation = method.getAnnotation(Serialization.class);
+                SerializationStrategy serializationStrategy;
+                if( annotation!=null ) {
+                    serializationStrategy = serializationStrategies.get(annotation.value());
+                    if( serializationStrategy==null ) {
+                        throw new RuntimeException("Could not find the serialization strategy named: "+annotation.value());
+                    }
+                } else {
+                    serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+                }
+
+
+                final InvocationStrategy invocationStrategy;
+                if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
+                    invocationStrategy = AsyncInvocationStrategy.INSTANCE;
+                } else {
+                    invocationStrategy = BlockingInvocationStrategy.INSTANCE;
+                }
+
+                rc = new MethodData(invocationStrategy, serializationStrategy, method);
+                method_cache.put(data, rc);
+            }
+            return rc;
+        }
+
+        private Class<?> decodeClass(String s) throws ClassNotFoundException {
+            if( s.startsWith("[")) {
+                Class<?> nested = decodeClass(s.substring(1));
+                return Array.newInstance(nested,0).getClass();
+            }
+            String c = s.substring(0,1);
+            if( c.equals("L") ) {
+                return loader.loadClass(s.substring(1));
+            } else {
+                return PRIMITIVE_TO_CLASS.get(c);
+            }
+        }
+
+    }
+
+
+    public ServerInvokerImpl(String address, DispatchQueue queue, Map<String, SerializationStrategy> serializationStrategies) throws Exception {
         this.queue = queue;
+        this.serializationStrategies = serializationStrategies;
         this.server = new TcpTransportFactory().bind(address);
         this.server.setDispatchQueue(queue);
         this.server.setAcceptListener(new InvokerAcceptListener());
+    }
+
+    public DispatchQueue queue() {
+        return queue;
     }
 
     public String getConnectAddress() {
@@ -49,19 +148,17 @@ public class ServerInvokerImpl implements ServerInvoker {
     }
 
     public void registerService(final String id, final ServiceFactory service, final ClassLoader classLoader) {
-        queue.execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
-                handlers.put(id, service);
-                loaders.put(id, classLoader);
+                holders.put(new UTF8Buffer(id), new ServiceFactoryHolder(service, classLoader));
             }
         });
     }
 
     public void unregisterService(final String id) {
-        queue.execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
-                handlers.remove(id);
-                loaders.remove(id);
+                holders.remove(new UTF8Buffer(id));
             }
         });
     }
@@ -81,7 +178,7 @@ public class ServerInvokerImpl implements ServerInvoker {
     public void stop(final Runnable onComplete) {
         this.server.stop(new Runnable() {
             public void run() {
-                executor.shutdown();
+                blockingExecutor.shutdown();
                 if (onComplete != null) {
                     onComplete.run();
                 }
@@ -89,91 +186,79 @@ public class ServerInvokerImpl implements ServerInvoker {
         });
     }
 
+
     protected void onCommand(final Transport transport, Object data) {
         try {
-            DataByteArrayInputStream bais = new DataByteArrayInputStream((Buffer) data);
+            final DataByteArrayInputStream bais = new DataByteArrayInputStream((Buffer) data);
             final int size = bais.readInt();
-            final ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-            final String correlation = ois.readUTF();
-            final String service = ois.readUTF();
+            final long correlation = bais.readVarLong();
 
-            ois.setClassLoader(loaders.get(service));
-            final ServiceFactory factory = handlers.get(service);
+            // Use UTF8Buffer instead of string to avoid encoding/decoding UTF-8 strings
+            // for every request.
+            final UTF8Buffer service = readBuffer(bais).utf8();
+            final Buffer encoded_method = readBuffer(bais);
 
-            executor.submit(new Runnable() {
+            final ServiceFactoryHolder holder = holders.get(service);
+            final MethodData methodData = holder.getMethodData(encoded_method);
+
+            final Object svc = holder.factory.get();
+
+            Runnable task = new Runnable() {
                 public void run() {
+
+                    final DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
+                    try {
+                        baos.writeInt(0); // make space for the size field.
+                        baos.writeVarLong(correlation);
+                    } catch (IOException e) { // should not happen
+                        throw new RuntimeException(e);
+                    }
 
                     // Lets decode the remaining args on the target's executor
                     // to take cpu load off the
+                    methodData.invocationStrategy.service(methodData.serializationStrategy, holder.loader, methodData.method, svc, bais, baos, new Runnable() {
+                        public void run() {
+                            holder.factory.unget();
+                            final Buffer command = baos.toBuffer();
 
-                    final String name;
-                    final Class[] types;
-                    final Object[] args;
-                    try {
-                        name = ois.readUTF();
-                        types = (Class[]) ois.readObject();
-                        args = (Object[]) ois.readObject();
-                    } catch (Exception e) {
-                        LOGGER.info("Error while reading request", e);
-                        return;
-                    }
+                            // Update the size field.
+                            BufferEditor editor = command.buffer().bigEndianEditor();
+                            editor.writeInt(command.length);
 
-                    Object svc = factory.get();
-                    Object value = null;
-                    Throwable error = null;
-                    try {
-                        Method method = svc.getClass().getMethod(name, types);
-                        value = method.invoke(svc, args);
-                    } catch (Throwable t) {
-                        if (t instanceof InvocationTargetException) {
-                            error = t.getCause();
-                        } else {
-                            error = t;
+                            queue().execute(new Runnable() {
+                                public void run() {
+                                    transport.offer(command);
+                                }
+                            });
                         }
-                    } finally {
-                        factory.unget();
-                    }
-
-                    // Encode the response...
-                    try {
-                        DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
-                        baos.writeInt(0); // make space for the size field.
-                        ObjectOutputStream oos = new ObjectOutputStream(baos);
-                        oos.writeUTF(correlation);
-                        oos.writeObject(error);
-                        oos.writeObject(value);
-
-                        // toBuffer() is better than toByteArray() since it avoids an
-                        // array copy.
-                        final Buffer command = baos.toBuffer();
-
-                        // Update the size field.
-                        BufferEditor editor = command.buffer().bigEndianEditor();
-                        editor.writeInt(command.length);
-
-                        queue.execute(new Runnable() {
-                            public void run() {
-                                transport.offer(command);
-                            }
-                        });
-                    } catch (Exception e) {
-                        LOGGER.info("Error while writing answer");
-                    }
-
+                    });
                 }
-            });
+            };
 
+            Executor executor;
+            if( svc instanceof Dispatched ) {
+                executor = ((Dispatched)svc).queue();
+            } else {
+                executor = blockingExecutor;
+            }
+            executor.execute(task);
 
         } catch (Exception e) {
             LOGGER.info("Error while reading request", e);
         }
     }
 
+    private Buffer readBuffer(DataByteArrayInputStream bais) throws IOException {
+        byte b[] = new byte[bais.readVarInt()];
+        bais.readFully(b);
+        return new Buffer(b);
+    }
+
     class InvokerAcceptListener implements TransportAcceptListener {
 
         public void onAccept(TransportServer transportServer, TcpTransport transport) {
             transport.setProtocolCodec(new LengthPrefixedCodec());
-            transport.setDispatchQueue(queue);
+            transport.setDispatchQueue(queue());
             transport.setTransportListener(new InvokerTransportListener());
             transport.start();
         }
@@ -193,7 +278,9 @@ public class ServerInvokerImpl implements ServerInvoker {
         }
 
         public void onTransportFailure(Transport transport, IOException error) {
-            LOGGER.info("Transport failure", error);
+            if (!transport.isDisposed() && !(error instanceof EOFException)) {
+                LOGGER.info("Transport failure", error);
+            }
         }
 
         public void onTransportConnected(Transport transport) {

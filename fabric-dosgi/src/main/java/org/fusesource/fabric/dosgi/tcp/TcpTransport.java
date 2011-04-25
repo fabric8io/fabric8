@@ -116,7 +116,7 @@ public class TcpTransport implements Transport {
     }
 
     final public void start(final Runnable onCompleted) {
-        getDispatchQueue().execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 if (_serviceState == CREATED ||
                         _serviceState == STOPPED) {
@@ -146,7 +146,7 @@ public class TcpTransport implements Transport {
     }
 
     final public void stop(final Runnable onCompleted) {
-        getDispatchQueue().execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 if (_serviceState == STARTED) {
                     final STOPPING state = new STOPPING();
@@ -296,7 +296,6 @@ public class TcpTransport implements Transport {
     private DispatchSource writeSource;
 
     protected boolean useLocalHost = true;
-    protected boolean full = false;
 
     int max_read_rate;
     int max_write_rate;
@@ -466,7 +465,7 @@ public class TcpTransport implements Transport {
     }
 
 
-    public DispatchQueue getDispatchQueue() {
+    public DispatchQueue queue() {
         return dispatchQueue;
     }
 
@@ -597,7 +596,7 @@ public class TcpTransport implements Transport {
 
 
     public boolean full() {
-        return full;
+        return codec.full();
     }
 
     public boolean offer(Object command) {

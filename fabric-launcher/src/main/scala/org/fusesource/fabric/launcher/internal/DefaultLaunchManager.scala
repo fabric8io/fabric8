@@ -20,6 +20,15 @@ import java.lang.String
 import FileSupport._
 import ProcessSupport._
 import org.fusesource.fabric.launcher.api.{ServiceStatusDTO, LaunchManager, ServiceDTO}
+import org.fusesource.fabric.monitor.internal.{DefaultMonitor, ClassFinder}
+import org.fusesource.fabric.monitor.api._
+import org.fusesource.fabric.monitor.plugins.{ProcessPollDTO, ProcessPollerFactory}
+
+object DefaultLaunchManager {
+
+  val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/org.fusesource.fabric.monitor/poller-factory.index"
+
+}
 
 /**
  * <p>
@@ -27,10 +36,18 @@ import org.fusesource.fabric.launcher.api.{ServiceStatusDTO, LaunchManager, Serv
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class DefaultLaunchManager extends LaunchManager {
+class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
+  import DefaultLaunchManager._
 
   val sigar = new Sigar
 
+  // Use an embedded monitor to extract the status of the
+  // launched services..
+  val monitor:Monitor = new DefaultMonitor(stats_dir.getCanonicalPath+"/");
+  {
+    val finder = new ClassFinder(DATA_POLLER_FACTORY_RESOURCE, classOf[PollerFactory])
+    monitor.poller_factories = finder.singletons
+  }
   val dispatch_queue = createQueue("LaunchManager")
 
   val periodic_check = dispatch_queue.repeatAfter(1, TimeUnit.SECONDS) {
@@ -92,6 +109,40 @@ class DefaultLaunchManager extends LaunchManager {
     stop_command:List[String],
     status_check:StatusCheck
   ) {
+
+
+    val monitor_config = {
+      val rc = new MonitoredSetDTO
+      rc.name = "service/"+id
+      rc.step = "1s"
+
+      def archive(window:String, step:String="1s", consolidation:String="AVERAGE") = {
+        val rc = new ArchiveDTO
+        rc.consolidation = consolidation
+        rc.step = step
+        rc.window = window
+        rc
+      }
+
+      rc.archives.add(archive("5m"))
+      rc.archives.add(archive("24h", "1m"))
+      rc.archives.add(archive("30d", "1h"))
+      rc.archives.add(archive("1y", "1d"))
+
+      // Lets gather all the stats that the process poller can get us..
+      ProcessPollerFactory.discover(null).foreach( rc.data_sources.add(_) )
+      rc
+    }
+
+    def update_monitoring_pid(pid:java.lang.Long) = {
+      import collection.JavaConversions._
+      monitor_config.data_sources.foreach { source =>
+        source.poll match {
+          case x:ProcessPollDTO => x.pid = pid
+          case _ =>
+        }
+      }
+    }
 
 
     override def toString: String = "Service(%s, %s)".format(id, state)
@@ -204,6 +255,7 @@ class DefaultLaunchManager extends LaunchManager {
     //
     //////////////////////////////////////////////////////////////////
     case class Stopped(override val error:String=null) extends State {
+      update_monitoring_pid(null)
       def check = {
         // trigger any disabled listeners now..
         disable_listeners.foreach(_())
@@ -238,11 +290,15 @@ class DefaultLaunchManager extends LaunchManager {
 
 
     case class Running() extends State {
+
+      status_check.pid.foreach(update_monitoring_pid(_))
+
       def check = {
         if( enabled ) {
           if( status_check.is_running ) {
             // we are at the desired state...
           } else {
+            update_monitoring_pid(null)
             state = start(0)
             state.check
           }
@@ -251,6 +307,8 @@ class DefaultLaunchManager extends LaunchManager {
           state.check
         }
       }
+
+
     }
 
     case class Delay(delay:Long, then:()=>State, override val error:String=null) extends State {
@@ -413,6 +471,11 @@ class DefaultLaunchManager extends LaunchManager {
         }
       }
     }
+
+    val monitor_config = current_services.values.map(_.monitor_config).toList
+    println("configuring with: "+monitor_config)
+    monitor.configure(monitor_config)
+
   }
 
   def close = {

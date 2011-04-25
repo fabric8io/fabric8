@@ -8,42 +8,69 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.api.Dispatched;
+import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.Serialization;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.fabric.dosgi.impl.Manager;
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.fabric.dosgi.util.UuidGenerator;
-import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.hawtbuf.BufferEditor;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtbuf.*;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
-public class ClientInvokerImpl implements ClientInvoker {
+public class ClientInvokerImpl implements ClientInvoker, Dispatched {
+
+    public static final long DEFAULT_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ClientInvokerImpl.class);
 
-    private final DispatchQueue queue;
-    private final Map<String, TransportPool> transports = new HashMap<String, TransportPool>();
-    private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Map<String, ResponseFuture> requests = new HashMap<String, ResponseFuture>();
+    private final static HashMap<Class,String> CLASS_TO_PRIMITIVE = new HashMap<Class, String>(8, 1.0F);
 
-    public ClientInvokerImpl(DispatchQueue queue) {
+    static {
+        CLASS_TO_PRIMITIVE.put(boolean.class,"Z");
+        CLASS_TO_PRIMITIVE.put(byte.class,"B");
+        CLASS_TO_PRIMITIVE.put(char.class,"C");
+        CLASS_TO_PRIMITIVE.put(short.class,"S");
+        CLASS_TO_PRIMITIVE.put(int.class,"I");
+        CLASS_TO_PRIMITIVE.put(long.class,"J");
+        CLASS_TO_PRIMITIVE.put(float.class,"F");
+        CLASS_TO_PRIMITIVE.put(double.class,"D");
+    }
+
+    protected final AtomicLong correlationGenerator = new AtomicLong();
+    protected final DispatchQueue queue;
+    protected final Map<String, TransportPool> transports = new HashMap<String, TransportPool>();
+    protected final AtomicBoolean running = new AtomicBoolean(false);
+    protected final Map<Long, ResponseFuture> requests = new HashMap<Long, ResponseFuture>();
+    protected final long timeout;
+    protected final Map<String, SerializationStrategy> serializationStrategies;
+
+    public ClientInvokerImpl(DispatchQueue queue, Map<String, SerializationStrategy> serializationStrategies) {
+        this(queue, DEFAULT_TIMEOUT, serializationStrategies);
+    }
+
+    public ClientInvokerImpl(DispatchQueue queue, long timeout, Map<String, SerializationStrategy> serializationStrategies) {
         this.queue = queue;
+        this.timeout = timeout;
+        this.serializationStrategies = serializationStrategies;
+    }
+
+    public DispatchQueue queue() {
+        return queue;
     }
 
     public void start() throws Exception {
@@ -63,7 +90,7 @@ public class ClientInvokerImpl implements ClientInvoker {
 
     public void stop(final Runnable onComplete) {
         if (running.compareAndSet(true, false)) {
-            queue.execute(new Runnable() {
+            queue().execute(new Runnable() {
                 public void run() {
                     final AtomicInteger latch = new AtomicInteger(transports.size());
                     final Runnable coutDown = new Runnable() {
@@ -95,114 +122,155 @@ public class ClientInvokerImpl implements ClientInvoker {
         try {
             DataByteArrayInputStream bais = new DataByteArrayInputStream( (Buffer) data);
             int size = bais.readInt();
-            ClassLoaderObjectInputStream ois = new ClassLoaderObjectInputStream(bais);
-            String correlation = ois.readUTF();
+            long correlation = bais.readVarLong();
             ResponseFuture response = requests.remove(correlation);
-            ois.setClassLoader(response.getClassLoader());
-            Throwable error = (Throwable) ois.readObject();
-            Object value = ois.readObject();
-            if (error != null) {
-                response.setException(error);
-            } else {
-                response.set(value);
+            if( response!=null ) {
+                response.set(bais);
             }
         } catch (Exception e) {
             LOGGER.info("Error while reading response", e);
         }
     }
 
-    protected Object request(final String address, final String service, final ClassLoader classLoader, final Method method, final Object[] args) throws ExecutionException, InterruptedException, IOException {
+    static final WeakHashMap<Method, MethodData> method_cache = new WeakHashMap<Method, MethodData>();
 
-        final String uuid = UuidGenerator.getUUID();
+    static class MethodData {
+        private final SerializationStrategy serializationStrategy;
+        final Buffer signature;
+        final InvocationStrategy invocationStrategy;
+
+        MethodData(InvocationStrategy invocationStrategy, SerializationStrategy serializationStrategy, Buffer signature) {
+            this.invocationStrategy = invocationStrategy;
+            this.serializationStrategy = serializationStrategy;
+            this.signature = signature;
+        }
+    }
+
+    private MethodData getMethodData(Method method) throws IOException {
+        MethodData rc = null;
+        synchronized (method_cache) {
+            rc = method_cache.get(method);
+        }
+        if( rc==null ) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(method.getName());
+            sb.append(",");
+            Class<?>[] types = method.getParameterTypes();
+            for(int i=0; i < types.length; i++) {
+                if( i!=0 ) {
+                    sb.append(",");
+                }
+                sb.append(encodeClassName(types[i]));
+            }
+            Buffer signature = new UTF8Buffer(sb.toString()).buffer();
+
+            Serialization annotation = method.getAnnotation(Serialization.class);
+            SerializationStrategy serializationStrategy;
+            if( annotation!=null ) {
+                serializationStrategy = serializationStrategies.get(annotation.value());
+                if( serializationStrategy==null ) {
+                    throw new RuntimeException("Could not find the serialization strategy named: "+annotation.value());
+                }
+            } else {
+                serializationStrategy = ObjectSerializationStrategy.INSTANCE;
+            }
+
+            final InvocationStrategy strategy;
+            if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
+                strategy = AsyncInvocationStrategy.INSTANCE;
+            } else {
+                strategy = BlockingInvocationStrategy.INSTANCE;
+            }
+
+            rc = new MethodData(strategy, serializationStrategy, signature);
+            synchronized (method_cache) {
+                method_cache.put(method, rc);
+            }
+        }
+        return rc;
+    }
+
+    String encodeClassName(Class<?> type) {
+        if( type.getComponentType()!=null ) {
+            return "["+ encodeClassName(type.getComponentType());
+        }
+        if( type.isPrimitive() ) {
+            return CLASS_TO_PRIMITIVE.get(type);
+        } else {
+            return "L"+type.getName();
+        }
+    }
+
+    protected Object request(ProxyInvocationHandler handler, final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args) throws Exception {
+
+        final long correlation = correlationGenerator.incrementAndGet();
 
         // Encode the request before we try to pass it onto
         // IO layers so that #1 we can report encoding error back to the caller
         // and #2 reduce CPU load done in the execution queue since it's
         // serially executed.
 
-        // We can probably get a nice perf boots if we track
-        // average serialized request size so we can pick an optimal
-        // initial byte array size.
-        DataByteArrayOutputStream baos = new DataByteArrayOutputStream();
+        DataByteArrayOutputStream baos = new DataByteArrayOutputStream((int) (handler.lastRequestSize*1.10));
         baos.writeInt(0); // we don't know the size yet...
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeUTF(uuid);
-        oos.writeUTF(service);
-        oos.writeUTF(method.getName());
-        oos.writeObject(method.getParameterTypes());
-        oos.writeObject(args);
+        baos.writeVarLong(correlation);
+        writeBuffer(baos, service);
+
+        MethodData methodData = getMethodData(method);
+        writeBuffer(baos, methodData.signature);
+
+        final ResponseFuture future = methodData.invocationStrategy.request(methodData.serializationStrategy, classLoader, method, args, baos);
 
         // toBuffer() is better than toByteArray() since it avoids an
         // array copy.
         final Buffer command = baos.toBuffer();
 
+
         // Update the field size.
         BufferEditor editor = command.buffer().bigEndianEditor();
         editor.writeInt(command.length);
+        handler.lastRequestSize = command.length;
 
-        final ResponseFuture future = new ResponseFuture(classLoader);
-        queue.execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 try {
                     TransportPool pool = transports.get(address);
                     if (pool == null) {
-                        pool = new InvokerTransportPool(address, queue);
-                        transports.put(address,  pool);
+                        pool = new InvokerTransportPool(address, queue());
+                        transports.put(address, pool);
                         pool.start();
                     }
-                    requests.put(uuid, future);
+                    requests.put(correlation, future);
                     pool.offer(command);
                 } catch (Exception e) {
                     LOGGER.info("Error while sending request", e);
                 }
             }
         });
-        return future.get();
+
+        // TODO: make that configurable, that's only for tests
+        return future.get(timeout, TimeUnit.MILLISECONDS);
     }
 
-    protected static class ResponseFuture extends FutureTask<Object> {
-
-        private static final Callable<Object> EMPTY_CALLABLE = new Callable<Object>() {
-            public Object call() {
-                return null;
-            }
-        };
-        private final ClassLoader classLoader;
-
-        public ResponseFuture(ClassLoader classLoader) {
-            super(EMPTY_CALLABLE);
-            this.classLoader = classLoader;
-        }
-
-        public ClassLoader getClassLoader() {
-            return classLoader;
-        }
-
-        @Override
-        public void set(Object object) {
-            super.set(object);
-        }
-
-        @Override
-        public void setException(Throwable throwable) {
-            super.setException(throwable);
-        }
+    private void writeBuffer(DataByteArrayOutputStream baos, Buffer value) throws IOException {
+        baos.writeVarInt(value.length);
+        baos.write(value);
     }
 
     protected class ProxyInvocationHandler implements InvocationHandler {
 
         final String address;
-        final String service;
+        final UTF8Buffer service;
         final ClassLoader classLoader;
+        int lastRequestSize = 250;
 
         public ProxyInvocationHandler(String address, String service, ClassLoader classLoader) {
             this.address = address;
-            this.service = service;
+            this.service = new UTF8Buffer(service);
             this.classLoader = classLoader;
         }
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            return request(address, service, classLoader, method, args);
+            return request(this, address, service, classLoader, method, args);
         }
 
     }
@@ -210,7 +278,7 @@ public class ClientInvokerImpl implements ClientInvoker {
     protected class InvokerTransportPool extends TransportPool {
 
         public InvokerTransportPool(String uri, DispatchQueue queue) {
-            super(uri, queue);
+            super(uri, queue, TransportPool.DEFAULT_POOL_SIZE, timeout << 1);
         }
 
         @Override

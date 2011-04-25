@@ -23,13 +23,15 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-@XmlRootElement(name="system_poll")
+@XmlRootElement(name="process_poll")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SystemPollDTO extends PollDTO {
+public class ProcessPollDTO extends PollDTO {
+
+    @XmlAttribute
+    volatile public Long pid;
 
     @XmlAttribute
     public String resource;
-
 
     @Override
     public boolean equals(Object o) {
@@ -37,8 +39,9 @@ public class SystemPollDTO extends PollDTO {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        SystemPollDTO that = (SystemPollDTO) o;
+        ProcessPollDTO that = (ProcessPollDTO) o;
 
+        if (pid != null ? !pid.equals(that.pid) : that.pid != null) return false;
         if (resource != null ? !resource.equals(that.resource) : that.resource != null) return false;
 
         return true;
@@ -47,14 +50,16 @@ public class SystemPollDTO extends PollDTO {
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        result = 31 * result + (pid != null ? pid.hashCode() : 0);
         result = 31 * result + (resource != null ? resource.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "SystemPollDTO{" +
-                "resource='" + resource + '\'' +
+        return "ProcessPollDTO{" +
+                "pid=" + pid +
+                ", resource='" + resource + '\'' +
                 '}';
     }
 }

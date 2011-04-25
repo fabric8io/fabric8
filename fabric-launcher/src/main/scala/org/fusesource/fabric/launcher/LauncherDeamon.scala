@@ -36,15 +36,32 @@ object LauncherDeamon {
 
   def main(args: Array[String]):Unit = {
 
-    var conf:String = null
+    var conf_dir:File = null
+    var stats_dir:File = null
 
     // parse the command line options..
     var remaining = args.toList
     while( !remaining.isEmpty ) {
       remaining match {
         case "--conf" :: value :: tail =>
-          conf = value
           remaining = tail
+
+          conf_dir = new File(value)
+          if( !conf_dir.isDirectory ) {
+            System.err.println("The conf setting '%s' is not a directory".format(value))
+            System.exit(1)
+          }
+
+
+        case "--stats" :: value :: tail =>
+          remaining = tail
+
+          stats_dir = new File(value)
+          if( !stats_dir.isDirectory ) {
+            System.err.println("The stats setting '%s' is not a directory".format(value))
+            System.exit(1)
+          }
+
 
         case _ =>
           System.err.println("invalid arguments: "+remaining.mkString(" "))
@@ -52,16 +69,15 @@ object LauncherDeamon {
       }
     }
 
-    if( conf==null ) {
+    if( conf_dir==null ) {
       System.err.println("The --conf option was not specified.")
       System.exit(1)
     }
 
-    val conf_dir = new File(conf)
-    if( !conf_dir.isDirectory ) {
-      System.err.println("The conf setting '%s' is not a directory".format(conf))
-      System.exit(1)
+    if( stats_dir==null ) {
+      stats_dir = new File("stats")
     }
+
 
     print_banner(System.out)
 
@@ -70,7 +86,7 @@ object LauncherDeamon {
     unpack_native_libs
 
     // Load the launcher configurations..
-    val launch_manager:LaunchManager = new DefaultLaunchManager
+    val launch_manager:LaunchManager = new DefaultLaunchManager(stats_dir)
 
     while(true) {
       launch_manager.configure(load(conf_dir))

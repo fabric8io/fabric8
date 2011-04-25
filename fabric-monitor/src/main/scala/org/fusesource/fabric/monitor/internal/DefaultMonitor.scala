@@ -18,16 +18,13 @@ import org.fusesource.fabric.monitor.api._
 import java.util.concurrent.atomic.AtomicBoolean
 import org.rrd4j.core.Util
 import org.linkedin.util.clock.Timespan
-import java.util.concurrent.TimeUnit
-
 /**
  * <p>
  * </p>
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class DefaultMonitor(
-
+class DefaultMonitor (
    val rrd_file_prefix:String="",
    val rrd_backend:RrdBackendFactory = new RrdNioBackendFactory()
    ) extends Monitor {
@@ -152,7 +149,6 @@ class DefaultMonitor(
 
   def configure(value: Traversable[MonitoredSetDTO]): Unit = {
 
-    import collection.JavaConversions._
     val next_services = Map[String, MonitoredSet]( value.map { dto=>
       dto.name -> MonitoredSet(dto)
     }.toSeq : _*)

@@ -39,8 +39,11 @@
         <property name="configurationAdmin">
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>
-        <property name="nodeAlive" value="/fabric/registry/agents/alive/\$[karaf.name]"/>
-        <property name="nodeConfig" value="/fabric/registry/agents/config/\$[karaf.name]"/>
+        <property name="name" value="\$[karaf.name]"/>
+        <!--
+        <property name="nodeAlive" value="/fabric/registry/agents/alive/$[karaf.name]"/>
+        <property name="nodeConfig" value="/fabric/registry/agents/config/$[karaf.name]"/>
+        -->
     </bean>
 
     <bean id="serviceRegistrationListener" class="org.fusesource.fabric.zookeeper.ServiceRegistrationListener" destroy-method="onDisconnected">
