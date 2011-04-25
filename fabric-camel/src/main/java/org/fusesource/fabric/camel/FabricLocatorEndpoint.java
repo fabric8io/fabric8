@@ -69,8 +69,6 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
         }
         group.add(new ChangeListener(){
             public void changed(byte[][] members) {
-                // need to clean up the processor first
-                loadBalancer.getProcessors().clear();
                 for (byte[] uri : members) {
                     try {
                         loadBalancer.addProcessor(getProcessor(new String(uri, "UTF-8")));
