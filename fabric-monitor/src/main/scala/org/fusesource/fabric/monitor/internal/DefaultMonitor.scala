@@ -18,6 +18,10 @@ import org.fusesource.fabric.monitor.api._
 import java.util.concurrent.atomic.AtomicBoolean
 import org.rrd4j.core.Util
 import org.linkedin.util.clock.Timespan
+import java.io.File
+import FileSupport._
+
+
 /**
  * <p>
  * </p>
@@ -38,8 +42,12 @@ class DefaultMonitor (
 
     val sample_span = Timespan.parse(dto.step)
 
+    def file_base_name: String = {
+      rrd_file_prefix + name
+    }
+
     def rrd_def = {
-      val rc = new RrdDef(rrd_file_prefix+name+".rrd", sample_span.getDurationInSeconds)
+      val rc = new RrdDef(file_base_name+".rrd", sample_span.getDurationInSeconds)
       data_sources.foreach { source =>
         import source._
 
@@ -82,6 +90,10 @@ class DefaultMonitor (
 
     def start = {
       if( active.compareAndSet(false, true) ) {
+
+
+
+        new File(file_base_name+".json").write_bytes(JsonCodec.encode(dto))
 
         thread = new Thread("Monitoring: "+name) {
           setDaemon(true)

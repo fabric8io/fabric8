@@ -11,8 +11,8 @@
 package org.fusesource.fabric.monitor.plugins
 
 import org.fusesource.fabric.monitor.api.{Poller, DataSourceDTO, PollerFactory}
-import org.hyperic.sigar.Sigar
 import collection.mutable.ListBuffer
+import org.hyperic.sigar.{SigarNotImplementedException, Sigar}
 
 /**
  * <p>
@@ -23,6 +23,44 @@ import collection.mutable.ListBuffer
 object ProcessPollerFactory extends PollerFactory {
 
   def jaxb_package = getClass.getName.replaceAll("""\.[^\.]*$""", "")
+
+  val supported_stats = {
+    var list = List[String]()
+
+    val sigar = new Sigar
+    val pid = sigar.getPid
+
+    try {
+      sigar.getProcState(pid)
+      list ::= "threads"
+    } catch { case x:SigarNotImplementedException => }
+
+    try {
+      sigar.getProcCpu(pid)
+      list ::= "cpu-percent"
+      list ::= "cpu-sys"
+      list ::= "cpu-total"
+      list ::= "cpu-last"
+      list ::= "cpu-start"
+    } catch { case x:SigarNotImplementedException => }
+
+    try {
+      sigar.getProcFd(pid)
+      list ::= "fd-total"
+    } catch { case x:SigarNotImplementedException => }
+
+    try {
+      sigar.getProcMem(pid)
+      list ::= "mem-resident"
+      list ::= "mem-share"
+      list ::= "mem-size"
+      list ::= "mem-major-faults"
+      list ::= "mem-minor-faults"
+    } catch { case x:SigarNotImplementedException => }
+
+    sigar.close
+    list
+  }
 
 
   def discover(pid:java.lang.Long):Array[DataSourceDTO] = {
@@ -41,39 +79,11 @@ object ProcessPollerFactory extends PollerFactory {
       rc
     }
 
-    rc += source("threads", "Thread Count", "The number of threads running in the process")
-    rc += source("cpu-percent")
-    rc += source("cpu-sys")
-    rc += source("cpu-total")
-    rc += source("cpu-sys")
-    rc += source("cpu-last")
-    rc += source("cpu-start")
-    rc += source("fd-total")
-    rc += source("mem-resident")
-    rc += source("mem-share")
-    rc += source("mem-size")
-    rc += source("mem-major-faults")
-    rc += source("mem-minor-faults")
-    rc.toArray
-
+    supported_stats.map(source(_)).toArray
   }
 
   def accepts(source: DataSourceDTO) = source.poll match {
-    case x:ProcessPollDTO => x.resource match {
-      case "threads"          => true
-      case "cpu-percent"      => true
-      case "cpu-sys"          => true
-      case "cpu-total"        => true
-      case "cpu-last"         => true
-      case "cpu-start"        => true
-      case "fd-total"         => true
-      case "mem-resident"     => true
-      case "mem-share"        => true
-      case "mem-size"         => true
-      case "mem-major-faults" => true
-      case "mem-minor-faults" => true
-      case _ => false
-    }
+    case x:ProcessPollDTO => supported_stats.contains(x.resource)
     case _ => false
   }
 
@@ -91,23 +101,28 @@ object ProcessPollerFactory extends PollerFactory {
       sources.map { source =>
         val dto = source.poll.asInstanceOf[ProcessPollDTO]
         Option(dto.pid).map{ pid=>
-          def state = sigar.getProcState(pid.longValue)
-          def cpu = sigar.getProcCpu(pid.longValue)
-          def fd = sigar.getProcFd(pid.longValue)
-          def mem = sigar.getProcMem(pid.longValue)
-          dto.resource match {
-            case "threads"        => state.getThreads.toDouble
-            case "cpu-percent"    => cpu.getPercent
-            case "cpu-sys"        => cpu.getSys.toDouble
-            case "cpu-total"      => cpu.getTotal.toDouble
-            case "cpu-last"       => cpu.getLastTime.toDouble
-            case "cpu-start"      => cpu.getStartTime.toDouble
-            case "fd-total"       => fd.getTotal.toDouble
-            case "mem-resident"   => mem.getResident.toDouble
-            case "mem-share"      => mem.getShare.toDouble
-            case "mem-size"       => mem.getSize.toDouble
-            case "mem-major-faults"=> mem.getMajorFaults.toDouble
-            case "mem-minor-faults"=> mem.getMinorFaults.toDouble
+          try {
+            def state = sigar.getProcState(pid.longValue)
+            def cpu = sigar.getProcCpu(pid.longValue)
+            def fd = sigar.getProcFd(pid.longValue)
+            def mem = sigar.getProcMem(pid.longValue)
+
+            dto.resource match {
+              case "threads" => state.getThreads.toDouble
+              case "cpu-percent" => cpu.getPercent
+              case "cpu-sys" => cpu.getSys.toDouble
+              case "cpu-total" => cpu.getTotal.toDouble
+              case "cpu-last" => cpu.getLastTime.toDouble
+              case "cpu-start" => cpu.getStartTime.toDouble
+              case "fd-total" => fd.getTotal.toDouble
+              case "mem-resident" => mem.getResident.toDouble
+              case "mem-share" => mem.getShare.toDouble
+              case "mem-size" => mem.getSize.toDouble
+              case "mem-major-faults" => mem.getMajorFaults.toDouble
+              case "mem-minor-faults" => mem.getMinorFaults.toDouble
+            }
+          } catch {
+            case _ => Double.NaN
           }
         }.getOrElse(Double.NaN)
       }

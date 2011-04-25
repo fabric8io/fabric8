@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.launcher.api
+package org.fusesource.fabric.monitor.api
 
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller

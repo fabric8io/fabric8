@@ -51,6 +51,13 @@ object IOSupport {
     }
   }
 
+  def write_text(out: OutputStream, value: String, charset:String="UTF-8"): Unit = {
+    write_bytes(out, value.getBytes(charset))
+  }
+
+  def write_bytes(out: OutputStream, data: Array[Byte]): Unit = {
+    copy(new ByteArrayInputStream(data), out)
+  }
 }
 
 object FileSupport {
@@ -100,14 +107,25 @@ object FileSupport {
       }
     }
 
-    def read: Array[Byte] = {
+    def read_bytes: Array[Byte] = {
       using(new FileInputStream(self)) { in =>
-        read_bytes(in)
+        IOSupport.read_bytes(in)
       }
     }
 
-    def read_text(charset: String = "UTF-8"): String = new String(this.read, charset)
+    def read_text(charset: String = "UTF-8"): String = new String(this.read_bytes, charset)
 
+    def write_bytes(data:Array[Byte]):Unit = {
+      using(new FileOutputStream(self)) { out =>
+        IOSupport.write_bytes(out, data)
+      }
+    }
+
+    def write_text(data:String, charset:String="UTF-8"):Unit = {
+      using(new FileOutputStream(self)) { out =>
+        IOSupport.write_text(out, data, charset)
+      }
+    }
   }
 
 }

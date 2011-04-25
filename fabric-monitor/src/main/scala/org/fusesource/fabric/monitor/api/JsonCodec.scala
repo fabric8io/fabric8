@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.launcher.api
+package org.fusesource.fabric.monitor.api
 
 import org.codehaus.jackson.map.ObjectMapper
 import java.io._
