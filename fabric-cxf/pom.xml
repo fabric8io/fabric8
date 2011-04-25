@@ -18,9 +18,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-camel</artifactId>
-    <name>FuseSource Fabric :: Camel</name>
-    <description>Fabric Camel component</description>
+    <artifactId>fabric-cxf</artifactId>
+    <name>FuseSource Fabric :: CXF</name>
+    <description>Fabric CXF component</description>
     <packaging>bundle</packaging>
 
     <properties>
@@ -42,19 +42,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-spring</artifactId>
-            <version>${camel-version}</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-bundle</artifactId>
+            <version>${cxf-version}</version>
         </dependency>
 
         <!-- testing -->
-        <!--
-            <dependency>
-              <groupId>ch.qos.logback</groupId>
-              <artifactId>logback-classic</artifactId>
-              <scope>test</scope>
-            </dependency>
-        -->
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
