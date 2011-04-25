@@ -12,6 +12,7 @@ import org.fusesource.fabric.dosgi.api.AsyncCallback;
 import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.Dispatch;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -67,6 +68,9 @@ public class BlockingInvocationStrategy implements InvocationStrategy {
     }
 
     public ResponseFuture request(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
+
+        assert Dispatch.getCurrentQueue() == null : "You should not do blocking RPC class when executing on a dispatch queue";
+
         serializationStrategy.encodeRequest(loader, method.getParameterTypes(), args, target);
         return new BlockingResponseFuture(loader, method, serializationStrategy);
     }

@@ -13,6 +13,8 @@ import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.Dispatch;
+import org.fusesource.hawtdispatch.DispatchQueue;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -45,19 +47,33 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
         private final Method method;
         private final AsyncCallback callback;
         private final SerializationStrategy serializationStrategy;
+        private final DispatchQueue queue;
 
-        public AsyncResponseFuture(ClassLoader loader, Method method, AsyncCallback callback, SerializationStrategy serializationStrategy) {
+        public AsyncResponseFuture(ClassLoader loader, Method method, AsyncCallback callback, SerializationStrategy serializationStrategy, DispatchQueue queue) {
             this.loader = loader;
             this.method = method;
             this.callback = callback;
             this.serializationStrategy = serializationStrategy;
+            this.queue = queue;
         }
 
-        public void set(DataByteArrayInputStream source) throws IOException, ClassNotFoundException {
+        public void set(final DataByteArrayInputStream source) {
+            if( queue!=null ) {
+                queue.execute(new Runnable() {
+                    public void run() {
+                        decodeIt(source);
+                    }
+                });
+            } else {
+                decodeIt(source);
+            }
+        }
+
+        private void decodeIt(DataByteArrayInputStream source) {
             try {
                 serializationStrategy.decodeResponse(loader, getResultType(method), source, callback);
             } catch (Throwable e) {
-                e.printStackTrace(); // come on app.. avoid throwing us your exceptions will ya?
+                e.printStackTrace();
             }
         }
 
@@ -79,7 +95,7 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
 
         serializationStrategy.encodeRequest(loader, new_types, new_args, target);
 
-        return new AsyncResponseFuture(loader, method, (AsyncCallback) args[args.length-1], serializationStrategy);
+        return new AsyncResponseFuture(loader, method, (AsyncCallback) args[args.length-1], serializationStrategy, Dispatch.getCurrentQueue());
     }
 
     static private Class<?>[] payloadTypes(Method method) {
