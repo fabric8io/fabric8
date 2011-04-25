@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,13 +24,16 @@ import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.junit.Test;
 
-import javax.management.StringValueExp;
-
+import static org.fusesource.hawtdispatch.Dispatch.createQueue;
 import static org.junit.Assert.assertEquals;
 
 public class InvocationTest {
     final static long MILLIS_IN_A_NANO = TimeUnit.MILLISECONDS.toNanos(1);
     final static long SECONDS_IN_A_NANO = TimeUnit.SECONDS.toNanos(1);
+
+    final int BENCHMARK_CLIENTS = 100;
+    final int BENCHMARK_INVOCATIONS_PER_CLIENT = 1000;
+
 
     @Test
     public void testInvoke() throws Exception {
@@ -86,7 +90,7 @@ public class InvocationTest {
     }
 
     @Test
-    public void testUnderLoad() throws Exception {
+    public void testUnderLoadSyncObject() throws Exception {
         HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
 
         DispatchQueue queue = Dispatch.createQueue();
@@ -96,9 +100,10 @@ public class InvocationTest {
         client.start();
 
         try {
+            final HelloImpl helloImpl = new HelloImpl();
             server.registerService("service-id", new ServerInvoker.ServiceFactory() {
                 public Object get() {
-                    return new HelloImpl();
+                    return helloImpl;
                 }
                 public void unget() {
                 }
@@ -109,20 +114,17 @@ public class InvocationTest {
 
             final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
 
-            final int nbThreads = 100;
-            final int nbInvocationsPerThread = 1000;
-
             final AtomicInteger requests = new AtomicInteger(0);
             final AtomicInteger failures = new AtomicInteger(0);
-            final long latencies[] = new long[nbThreads*nbInvocationsPerThread];
+            final long latencies[] = new long[BENCHMARK_CLIENTS * BENCHMARK_INVOCATIONS_PER_CLIENT];
 
             final long start = System.nanoTime();
-            Thread[] threads = new Thread[nbThreads];
-            for (int t = 0; t < nbThreads; t++) {
+            Thread[] threads = new Thread[BENCHMARK_CLIENTS];
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
                 final int thread_idx = t;
                 threads[t] = new Thread() {
                     public void run() {
-                        for (int i = 0; i < nbInvocationsPerThread; i++) {
+                        for (int i = 0; i < BENCHMARK_INVOCATIONS_PER_CLIENT; i++) {
                             try {
                                 requests.incrementAndGet();
                                 String response;
@@ -130,11 +132,11 @@ public class InvocationTest {
                                 final long start = System.nanoTime();
                                 response = hello.hello("Fabric");
                                 final long end = System.nanoTime();
-                                latencies[(thread_idx*nbInvocationsPerThread)+i] = end-start;
+                                latencies[(thread_idx* BENCHMARK_INVOCATIONS_PER_CLIENT)+i] = end-start;
 
                                 assertEquals("Hello Fabric!", response);
                             } catch (Throwable t) {
-                                latencies[(thread_idx*nbInvocationsPerThread)+i] = -1;
+                                latencies[(thread_idx* BENCHMARK_INVOCATIONS_PER_CLIENT)+i] = -1;
                                 failures.incrementAndGet();
                                 if (t instanceof UndeclaredThrowableException) {
                                     t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
@@ -147,7 +149,136 @@ public class InvocationTest {
                 threads[t].start();
             }
 
-            for (int t = 0; t < nbThreads; t++) {
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
+                threads[t].join();
+            }
+            final long end = System.nanoTime();
+
+            long latency_sum = 0;
+            for (int t = 0; t < latencies.length; t++) {
+                if( latencies[t] != -1 ) {
+                    latency_sum += latencies[t];
+                }
+            }
+            double latency_avg = ((latency_sum * 1.0d)/requests.get()) / MILLIS_IN_A_NANO;
+            double request_rate = ((requests.get() * 1.0d)/(end-start)) * SECONDS_IN_A_NANO;
+
+            System.err.println(String.format("Requests/Second: %,.2f", request_rate));
+            System.err.println(String.format("Average request latency: %,.2f ms", latency_avg));
+            System.err.println("Error Ratio: " + failures.get() + " / " + requests.get());
+        }
+        finally {
+            server.stop();
+            client.stop();
+        }
+    }
+
+
+    class AsyncClient implements AsyncCallback<StringValue.Getter> {
+
+        final int thread_idx;
+        final int nbInvocationsPerThread;
+        final long latencies[];
+        final AtomicInteger requests;
+        final AtomicInteger failures;
+        final Hello hello;
+
+        final DispatchQueue queue = createQueue();
+        final StringValue.Buffer msg = stringValue("Fabric").freeze();
+        final CountDownLatch done = new CountDownLatch(1);
+
+        int i;
+        long start;
+
+
+        AsyncClient(int thread_idx, int nbInvocationsPerThread, Hello hello, AtomicInteger failures, AtomicInteger requests, long[] latencies) {
+            this.failures = failures;
+            this.requests = requests;
+            this.nbInvocationsPerThread = nbInvocationsPerThread;
+            this.latencies = latencies;
+            this.hello = hello;
+            this.thread_idx = thread_idx;
+        }
+
+        void start() {
+            queue.execute(new Runnable() {
+                public void run() {
+                    sendNext();
+                }
+            });
+        }
+
+        void join() throws InterruptedException {
+            done.await();
+        }
+
+        private void sendNext() {
+            if( i < nbInvocationsPerThread ) {
+                requests.incrementAndGet();
+                start = System.nanoTime();
+                hello.protobuf(msg, this);
+            } else {
+                done.countDown();
+            }
+        }
+
+        public void onSuccess(StringValue.Getter result) {
+            latencies[(thread_idx*nbInvocationsPerThread)+i] = System.nanoTime() -start;
+            i++;
+            sendNext();
+        }
+
+        public void onFailure(Throwable t) {
+            failures.incrementAndGet();
+            latencies[(thread_idx*nbInvocationsPerThread)+i] = -1;
+            i++;
+            if (t instanceof UndeclaredThrowableException) {
+                t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
+            }
+            System.err.println("Error: " + t.getClass().getName() + (t.getMessage() != null ? " (" + t.getMessage() + ")" : ""));
+            sendNext();
+        }
+    }
+
+    @Test
+    public void testUnderLoadAsyncProto() throws Exception {
+        HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+        map.put("protobuf", new ProtobufSerializationStrategy());
+
+        DispatchQueue queue = Dispatch.createQueue();
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
+        server.start();
+        ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
+        client.start();
+
+        try {
+
+            final HelloImpl helloImpl = new HelloImpl();
+            server.registerService("service-id", new ServerInvoker.ServiceFactory() {
+                public Object get() {
+                    return helloImpl;
+                }
+                public void unget() {
+                }
+            }, HelloImpl.class.getClassLoader());
+
+
+            InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
+
+            final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
+
+            final AtomicInteger requests = new AtomicInteger(0);
+            final AtomicInteger failures = new AtomicInteger(0);
+            final long latencies[] = new long[BENCHMARK_CLIENTS * BENCHMARK_INVOCATIONS_PER_CLIENT];
+
+            final long start = System.nanoTime();
+            AsyncClient[] threads = new AsyncClient[BENCHMARK_CLIENTS];
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
+                threads[t] = new AsyncClient(t, BENCHMARK_INVOCATIONS_PER_CLIENT, hello, failures, requests, latencies);
+                threads[t].start();
+            }
+
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
                 threads[t].join();
             }
             final long end = System.nanoTime();
