@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.groups.internal
 
 import org.apache.zookeeper._
 import java.lang.String
