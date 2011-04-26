@@ -27,6 +27,9 @@ public class FabricServerListener implements ServerLifeCycleListener {
     public void startServer(Server server) {
         // get the server address
         String address = server.getEndpoint().getEndpointInfo().getAddress();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("The CXF server is start with address " + address);
+        }
         try {
             group.join(address, address.getBytes("UTF-8"));
         } catch (Exception ex) {
@@ -37,6 +40,9 @@ public class FabricServerListener implements ServerLifeCycleListener {
     public void stopServer(Server server) {
         // get the server address
         String address = server.getEndpoint().getEndpointInfo().getAddress();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("The CXF server is stopped with address " + address);
+        }
         group.leave(address);
     }
 }

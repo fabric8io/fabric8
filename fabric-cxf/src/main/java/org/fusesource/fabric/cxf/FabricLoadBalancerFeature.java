@@ -14,8 +14,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.Group;
@@ -29,17 +27,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class FabricFeature extends AbstractFeature implements InitializingBean, DisposableBean {
-    private static final transient Log LOG = LogFactory.getLog(FabricFeature.class);
+public class FabricLoadBalancerFeature extends AbstractFeature implements InitializingBean, DisposableBean {
+    private static final transient Log LOG = LogFactory.getLog(FabricLoadBalancerFeature.class);
     @Autowired
     private IZKClient zkClient;
-    private String zkRoot = "/fabric/cxf/endpoints";
+    private String zkRoot = "/fabric/cxf/endpoints/";
     private String fabricPath;
     private Group group;
+    private LoadBalanceStrategy loadBalanceStrategy;
     private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
     public void initialize(Client client, Bus bus) {
-         // setup the failover conduit selector for it
+        LoadBalanceTargetSelector selector =
+            new LoadBalanceTargetSelector();
+        selector.setEndpoint(client.getEndpoint());
+        selector.setLoadBalanceStrategy(getLoadBalanceStrategy());
+        client.setConduitSelector(selector);
     }
 
     public void initialize(Bus bus) {
@@ -53,33 +56,28 @@ public class FabricFeature extends AbstractFeature implements InitializingBean, 
         }
     }
 
-    protected void doStart() throws Exception {
-        if (zkClient == null) {
-            zkClient = new ZKClientFactoryBean().getObject();
-        }
-        checkZkConnected();
-    }
-
     protected void checkZkConnected() throws Exception {
         if (!zkClient.isConnected()) {
             throw new Exception("Could not connect to ZooKeeper " + zkClient);
         }
     }
 
-    protected void doStop() throws Exception {
-        if (zkClient != null) {
-            zkClient.close();
-        }
-    }
-
-
     public void afterPropertiesSet() throws Exception {
-        doStart();
-        group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath, accessControlList);
+        if (zkClient == null) {
+            zkClient = new ZKClientFactoryBean().getObject();
+        }
+        checkZkConnected();
+        group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath, accessControlList);
+        if (loadBalanceStrategy == null) {
+            loadBalanceStrategy = new RandomLoadBalanceStrategy();
+        }
+        loadBalanceStrategy.setGroup(group);
     }
 
     public void destroy() throws Exception {
-        doStop();
+        if (zkClient != null) {
+            zkClient.close();
+        }
     }
 
     public String getFabricPath() {
@@ -105,4 +103,13 @@ public class FabricFeature extends AbstractFeature implements InitializingBean, 
     public void setZkClient(IZKClient zkClient) {
         this.zkClient = zkClient;
     }
+
+    public LoadBalanceStrategy getLoadBalanceStrategy() {
+        return loadBalanceStrategy;
+    }
+
+    public void setLoadBalanceStrategy(LoadBalanceStrategy strategy) {
+        this.loadBalanceStrategy = strategy;
+    }
+
 }
