@@ -189,7 +189,19 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 features.add(feature);
             }
         }
-        updateDeployment(repositories, features);
+        Set<String> bundles = new HashSet<String>();
+        for (String key : properties.keySet()) {
+            if (key.startsWith("bundle.")) {
+                String url = properties.get(key);
+                if (url == null || url.length() == 0) {
+                    url = key.substring("bundle.".length());
+                }
+                if (url != null && url.length() > 0) {
+                    bundles.add(url);
+                }
+            }
+        }
+        updateDeployment(repositories, features, bundles);
         for (String key : properties.keySet()) {
             if (key.equals("framework")) {
                 String url = properties.get(key);
@@ -270,14 +282,14 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return set;
     }
 
-    private void updateDeployment(Map<URI, Repository> repositories, Set<Feature> features) throws Exception {
+    private void updateDeployment(Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles) throws Exception {
         Set<Feature> allFeatures = addFeatures(features, repositories.values());
-        downloadBundles(allFeatures);
-        List<Resource> bundles = getObrResolver().resolve(allFeatures);
+        downloadBundles(allFeatures, bundles);
+        List<Resource> toDeploy = getObrResolver().resolve(allFeatures, bundles);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Configuration changed.  New bundles list:\n");
-        for (Resource bundle : bundles) {
+        for (Resource bundle : toDeploy) {
             sb.append("  ").append(bundle.getURI()).append("\n");
         }
         LOGGER.info(sb.toString());
@@ -292,7 +304,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getBundleId() != 0) {
                 Resource resource = null;
-                for (Resource res : bundles) {
+                for (Resource res : toDeploy) {
                     if (res.getSymbolicName().equals(bundle.getSymbolicName())
                             && res.getVersion().equals(bundle.getVersion())) {
                         resource = res;
@@ -301,7 +313,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
                 if (resource != null) {
                     toIgnore.add(bundle);
-                    bundles.remove(resource);
+                    toDeploy.remove(resource);
                 } else {
                     toDelete.add(bundle);
                 }
@@ -309,7 +321,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
 
         // Second pass on remaining resources
-        for (Resource resource : bundles) {
+        for (Resource resource : toDeploy) {
             TreeMap<Version, Bundle> matching = new TreeMap<Version, Bundle>();
             VersionRange range = getMicroVersionRange(resource.getVersion());
             for (Bundle bundle : toDelete) {
@@ -522,12 +534,15 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
     }
 
-    protected void downloadBundles(Set<Feature> features) throws IOException, InterruptedException {
+    protected void downloadBundles(Set<Feature> features, Set<String> bundles) throws IOException, InterruptedException {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             for (BundleInfo bundle : feature.getBundles()) {
                 locations.add(bundle.getLocation());
             }
+        }
+        for (String bundle : bundles) {
+            locations.add(bundle);
         }
         final CountDownLatch latch = new CountDownLatch(locations.size());
         final FutureListener listener = new FutureListener() {

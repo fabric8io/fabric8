@@ -33,6 +33,13 @@
 
           If the [name] isn't specified, the [id] will be used as the feature name.
 
+      * Bundles
+          Single bundles can be deployed using the following properties:
+
+            bundle.[id] = [url]
+
+           If the [url] isn't specified, the [id] will be used as the bundle url.
+
       * Framework
           The jar to be used for the OSGi framework can be specified as below:
 
