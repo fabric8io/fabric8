@@ -10,6 +10,8 @@ package org.fusesource.fabric.api;
 
 public interface ProfileService {
 
+    String[] getVersions();
+
     Profile[] getProfiles(String version);
 
     Profile createProfile(String version, String name);

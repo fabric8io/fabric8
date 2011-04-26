@@ -77,19 +77,29 @@ public class ProfileImpl implements Profile {
     }
 
     public void setBundles(URI[] bundles) {
-        // TODO
+
     }
 
     public URI[] getBundles() {
-        return null; // TODO
+        List<String> bundles = getAgentConfiguration("bundle.");
+
+        URI[] uris = new URI[bundles.size()];
+        int i = 0;
+        for (String uri : bundles) {
+            uris[i++] = URI.create(uri);
+        }
+
+        return uris;
     }
 
     public void setFeatures(String[] features) {
-        // TODO
+
     }
 
     public String[] getFeatures() {
-        return null; // TODO
+        List<String> features = getAgentConfiguration("feature.");
+
+        return features.toArray(new String[features.size()]);
     }
 
     public void setFeatureRepositories(URI[] repositories) {
@@ -97,7 +107,15 @@ public class ProfileImpl implements Profile {
     }
 
     public URI[] getFeatureRepositories() {
-        return null; // TODO
+        List<String> repositories = getAgentConfiguration("repository.");
+
+        URI[] uris = new URI[repositories.size()];
+        int i = 0;
+        for (String uri : repositories) {
+            uris[i++] = URI.create(uri);
+        }
+
+        return uris;
     }
 
     public boolean isOverlay() {
@@ -108,15 +126,27 @@ public class ProfileImpl implements Profile {
         return null; // TODO
     }
 
-    /*
-    private Map<String, String> getAgentConfiguration() {
-        Map<String, String> agent = getProfileConfigurations().get(AGENT_PID);
-        if (agent == null) {
-            agent = new HashMap<String, String>();
+    private List<String> getAgentConfiguration(String prefix) {
+        List<String> cfg = new ArrayList<String>();
+
+        Map<String,String> all = getConfigurations().get(AGENT_PID);
+        if (all == null) {
+            return cfg;
         }
-        return agent;
+
+        for (Map.Entry<String, String> entry : all.entrySet()) {
+            if (entry.getKey().startsWith(prefix)) {
+                String value = entry.getValue();
+
+                if (value == null || value.length() == 0) {
+                    value = entry.getKey().substring(prefix.length());
+                }
+                cfg.add(value);
+            }
+        }
+
+        return cfg;
     }
-    */
 
     public Map<String, Map<String, String>> getConfigurations() {
         try {

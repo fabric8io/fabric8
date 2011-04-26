@@ -30,6 +30,15 @@ public class ProfileServiceImpl implements ProfileService {
         this.zooKeeper = zooKeeper;
     }
 
+    public String[] getVersions() {
+        try {
+            List<String> versions = zooKeeper.getChildren("/fabric/configs/versions");
+            return versions.toArray(new String[versions.size()]);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
     public Profile[] getProfiles(String version) {
         try {
 
