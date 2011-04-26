@@ -32,7 +32,7 @@ public enum ZkPath {
     AGENT_IP        ("/fabric/registry/agents/config/{agent}/ip"),
     AGENT_ROOT      ("/fabric/registry/agents/config/{agent}/root"),
     AGENT_JMX       ("/fabric/registry/agents/config/{agent}/jmx"),
-    AGENT_SSH       ("/fabric/registry/agents/config/{agent}/ssh"),
+    AGENT_SSH       ("/fabric/registry/agents/config/{agent}/ssh");
 
     /**
      * Path template.
