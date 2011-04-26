@@ -48,7 +48,7 @@ public class ObrResolver {
         this.repositoryAdmin = repositoryAdmin;
     }
 
-    public List<Resource> resolve(Set<Feature> features) throws Exception {
+    public List<Resource> resolve(Set<Feature> features, Set<String> bundles) throws Exception {
         List<Requirement> reqs = new ArrayList<Requirement>();
         List<Resource> ress = new ArrayList<Resource>();
         List<Resource> deploy = new ArrayList<Resource>();
@@ -65,6 +65,12 @@ public class ObrResolver {
                     reqs.add(req);
                     infos.put(req, bundleInfo);
                 }
+            }
+            for (final String bundle : bundles) {
+                URL url = new URL(bundle);
+                Resource res = repositoryAdmin.getHelper().createResource(url);
+                ress.add(res);
+                infos.put(res, new SimpleBundleInfo(bundle));
             }
         }
 
@@ -137,4 +143,31 @@ public class ObrResolver {
         return repositoryAdmin.getHelper().requirement(name, filter);
     }
 
+    private static class SimpleBundleInfo implements BundleInfo {
+        private final String bundle;
+
+        public SimpleBundleInfo(String bundle) {
+            this.bundle = bundle;
+        }
+
+        @Override
+        public String getLocation() {
+            return bundle;
+        }
+
+        @Override
+        public int getStartLevel() {
+            return 0;
+        }
+
+        @Override
+        public boolean isStart() {
+            return true;
+        }
+
+        @Override
+        public boolean isDependency() {
+            return false;
+        }
+    }
 }
