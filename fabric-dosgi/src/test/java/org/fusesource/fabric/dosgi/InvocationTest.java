@@ -8,18 +8,15 @@
  */
 package org.fusesource.fabric.dosgi;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
+import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.fusesource.fabric.dosgi.api.AsyncCallback;
-import org.fusesource.fabric.dosgi.api.AsyncCallbackFuture;
-import org.fusesource.fabric.dosgi.api.Dispatched;
+import org.fusesource.fabric.dosgi.api.*;
 import org.fusesource.fabric.dosgi.io.ServerInvoker;
 import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
@@ -27,21 +24,28 @@ import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
 import org.junit.Test;
 
+import static org.fusesource.hawtdispatch.Dispatch.createQueue;
 import static org.junit.Assert.assertEquals;
 
 public class InvocationTest {
     final static long MILLIS_IN_A_NANO = TimeUnit.MILLISECONDS.toNanos(1);
     final static long SECONDS_IN_A_NANO = TimeUnit.SECONDS.toNanos(1);
 
+    final int BENCHMARK_CLIENTS = 100;
+    final int BENCHMARK_INVOCATIONS_PER_CLIENT = 1000;
+
+
     @Test
     public void testInvoke() throws Exception {
 
-        int port = getFreePort();
-
         DispatchQueue queue = Dispatch.createQueue();
-        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue);
+        HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+        map.put("protobuf", new ProtobufSerializationStrategy());
+
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
         server.start();
-        ClientInvokerImpl client = new ClientInvokerImpl(queue);
+
+        ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
         client.start();
 
         try {
@@ -54,7 +58,7 @@ public class InvocationTest {
             }, HelloImpl.class.getClassLoader());
 
 
-            InvocationHandler handler = client.getProxy("tcp://localhost:" + port, "service-id", HelloImpl.class.getClassLoader());
+            InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
             Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
 
             assertEquals("Hello Fabric!", hello.hello("Fabric"));
@@ -68,9 +72,15 @@ public class InvocationTest {
             assertEquals('e', hello.mix(new int[0][0]));
             assertEquals('f', hello.mix(new Integer[0][0]));
 
-            final AsyncCallbackFuture<String> future = new AsyncCallbackFuture<String>();
-            hello.hello("Hiram", future);
-            assertEquals("Hello Hiram!", future.get(2, TimeUnit.SECONDS));
+            AsyncCallbackFuture<String> future1 = new AsyncCallbackFuture<String>();
+            hello.hello("Hiram", future1);
+            assertEquals("Hello Hiram!", future1.get(2, TimeUnit.SECONDS));
+
+            assertEquals("Hello Hiram!", hello.protobuf(stringValue("Hiram")).getValue());
+
+            AsyncCallbackFuture<StringValue.Getter> future2 = new AsyncCallbackFuture<StringValue.Getter>();
+            hello.protobuf(stringValue("Hiram Async"), future2);
+            assertEquals("Hello Hiram Async!", future2.get(2, TimeUnit.SECONDS).getValue());
 
         }
         finally {
@@ -80,43 +90,41 @@ public class InvocationTest {
     }
 
     @Test
-    public void testUnderLoad() throws Exception {
-        int port = getFreePort();
+    public void testUnderLoadSyncObject() throws Exception {
+        HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
 
         DispatchQueue queue = Dispatch.createQueue();
-        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:" + port, queue);
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
         server.start();
-        ClientInvokerImpl client = new ClientInvokerImpl(queue);
+        ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
         client.start();
 
         try {
+            final HelloImpl helloImpl = new HelloImpl();
             server.registerService("service-id", new ServerInvoker.ServiceFactory() {
                 public Object get() {
-                    return new HelloImpl();
+                    return helloImpl;
                 }
                 public void unget() {
                 }
             }, HelloImpl.class.getClassLoader());
 
 
-            InvocationHandler handler = client.getProxy("tcp://localhost:" + port, "service-id", HelloImpl.class.getClassLoader());
+            InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
 
             final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
 
-            final int nbThreads = 100;
-            final int nbInvocationsPerThread = 1000;
-
             final AtomicInteger requests = new AtomicInteger(0);
             final AtomicInteger failures = new AtomicInteger(0);
-            final long latencies[] = new long[nbThreads*nbInvocationsPerThread];
+            final long latencies[] = new long[BENCHMARK_CLIENTS * BENCHMARK_INVOCATIONS_PER_CLIENT];
 
             final long start = System.nanoTime();
-            Thread[] threads = new Thread[nbThreads];
-            for (int t = 0; t < nbThreads; t++) {
+            Thread[] threads = new Thread[BENCHMARK_CLIENTS];
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
                 final int thread_idx = t;
                 threads[t] = new Thread() {
                     public void run() {
-                        for (int i = 0; i < nbInvocationsPerThread; i++) {
+                        for (int i = 0; i < BENCHMARK_INVOCATIONS_PER_CLIENT; i++) {
                             try {
                                 requests.incrementAndGet();
                                 String response;
@@ -124,11 +132,11 @@ public class InvocationTest {
                                 final long start = System.nanoTime();
                                 response = hello.hello("Fabric");
                                 final long end = System.nanoTime();
-                                latencies[(thread_idx*nbInvocationsPerThread)+i] = end-start;
+                                latencies[(thread_idx* BENCHMARK_INVOCATIONS_PER_CLIENT)+i] = end-start;
 
                                 assertEquals("Hello Fabric!", response);
                             } catch (Throwable t) {
-                                latencies[(thread_idx*nbInvocationsPerThread)+i] = -1;
+                                latencies[(thread_idx* BENCHMARK_INVOCATIONS_PER_CLIENT)+i] = -1;
                                 failures.incrementAndGet();
                                 if (t instanceof UndeclaredThrowableException) {
                                     t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
@@ -141,7 +149,7 @@ public class InvocationTest {
                 threads[t].start();
             }
 
-            for (int t = 0; t < nbThreads; t++) {
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
                 threads[t].join();
             }
             final long end = System.nanoTime();
@@ -166,6 +174,134 @@ public class InvocationTest {
     }
 
 
+    class AsyncClient implements AsyncCallback<StringValue.Getter> {
+
+        final int thread_idx;
+        final int nbInvocationsPerThread;
+        final long latencies[];
+        final AtomicInteger requests;
+        final AtomicInteger failures;
+        final Hello hello;
+
+        final DispatchQueue queue = createQueue();
+        final StringValue.Buffer msg = stringValue("Fabric").freeze();
+        final CountDownLatch done = new CountDownLatch(1);
+
+        int i;
+        long start;
+
+
+        AsyncClient(int thread_idx, int nbInvocationsPerThread, Hello hello, AtomicInteger failures, AtomicInteger requests, long[] latencies) {
+            this.failures = failures;
+            this.requests = requests;
+            this.nbInvocationsPerThread = nbInvocationsPerThread;
+            this.latencies = latencies;
+            this.hello = hello;
+            this.thread_idx = thread_idx;
+        }
+
+        void start() {
+            queue.execute(new Runnable() {
+                public void run() {
+                    sendNext();
+                }
+            });
+        }
+
+        void join() throws InterruptedException {
+            done.await();
+        }
+
+        private void sendNext() {
+            if( i < nbInvocationsPerThread ) {
+                requests.incrementAndGet();
+                start = System.nanoTime();
+                hello.protobuf(msg, this);
+            } else {
+                done.countDown();
+            }
+        }
+
+        public void onSuccess(StringValue.Getter result) {
+            latencies[(thread_idx*nbInvocationsPerThread)+i] = System.nanoTime() -start;
+            i++;
+            sendNext();
+        }
+
+        public void onFailure(Throwable t) {
+            failures.incrementAndGet();
+            latencies[(thread_idx*nbInvocationsPerThread)+i] = -1;
+            i++;
+            if (t instanceof UndeclaredThrowableException) {
+                t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
+            }
+            System.err.println("Error: " + t.getClass().getName() + (t.getMessage() != null ? " (" + t.getMessage() + ")" : ""));
+            sendNext();
+        }
+    }
+
+    @Test
+    public void testUnderLoadAsyncProto() throws Exception {
+        HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+        map.put("protobuf", new ProtobufSerializationStrategy());
+
+        DispatchQueue queue = Dispatch.createQueue();
+        ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
+        server.start();
+        ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
+        client.start();
+
+        try {
+
+            final HelloImpl helloImpl = new HelloImpl();
+            server.registerService("service-id", new ServerInvoker.ServiceFactory() {
+                public Object get() {
+                    return helloImpl;
+                }
+                public void unget() {
+                }
+            }, HelloImpl.class.getClassLoader());
+
+
+            InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
+
+            final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
+
+            final AtomicInteger requests = new AtomicInteger(0);
+            final AtomicInteger failures = new AtomicInteger(0);
+            final long latencies[] = new long[BENCHMARK_CLIENTS * BENCHMARK_INVOCATIONS_PER_CLIENT];
+
+            final long start = System.nanoTime();
+            AsyncClient[] threads = new AsyncClient[BENCHMARK_CLIENTS];
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
+                threads[t] = new AsyncClient(t, BENCHMARK_INVOCATIONS_PER_CLIENT, hello, failures, requests, latencies);
+                threads[t].start();
+            }
+
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
+                threads[t].join();
+            }
+            final long end = System.nanoTime();
+
+            long latency_sum = 0;
+            for (int t = 0; t < latencies.length; t++) {
+                if( latencies[t] != -1 ) {
+                    latency_sum += latencies[t];
+                }
+            }
+            double latency_avg = ((latency_sum * 1.0d)/requests.get()) / MILLIS_IN_A_NANO;
+            double request_rate = ((requests.get() * 1.0d)/(end-start)) * SECONDS_IN_A_NANO;
+
+            System.err.println(String.format("Requests/Second: %,.2f", request_rate));
+            System.err.println(String.format("Average request latency: %,.2f ms", latency_avg));
+            System.err.println("Error Ratio: " + failures.get() + " / " + requests.get());
+        }
+        finally {
+            server.stop();
+            client.stop();
+        }
+    }
+
     public static interface Hello {
         String hello(String name);
 
@@ -179,13 +315,25 @@ public class InvocationTest {
         char mix(int[][] value);
         char mix(Integer[][] value);
 
+        @Serialization("protobuf")
+        StringValue.Getter protobuf(StringValue.Getter name);
+
+        @Serialization("protobuf")
+        void protobuf(StringValue.Getter name, AsyncCallback<StringValue.Getter> callback);
+
+    }
+
+    static private StringValue.Bean stringValue(String hello) {
+        StringValue.Bean rc = new StringValue.Bean();
+        rc.setValue(hello);
+        return rc;
     }
 
     public static class HelloImpl implements Hello, Dispatched {
 
         DispatchQueue queue = Dispatch.createQueue();
 
-        public DispatchQueue getDispatchQueue() {
+        public DispatchQueue queue() {
             return queue;
         }
 
@@ -200,6 +348,15 @@ public class InvocationTest {
             return "Hello " + name + "!";
         }
 
+        @Serialization("protobuf")
+        public StringValue.Getter protobuf(StringValue.Getter name) {
+            return stringValue(hello(name.getValue()));
+        }
+
+        @Serialization("protobuf")
+        public void protobuf(StringValue.Getter name, AsyncCallback<StringValue.Getter> callback) {
+            callback.onSuccess(protobuf(name));
+        }
 
         public void hello(String name, AsyncCallback<String> callback) {
             queueCheck();
@@ -234,15 +391,8 @@ public class InvocationTest {
             queueCheck();
             return 'f';
         }
+
     }
 
-    static int getFreePort() throws IOException {
-        ServerSocket sock = new ServerSocket();
-        try {
-            sock.bind(new InetSocketAddress(0));
-            return sock.getLocalPort();
-        } finally {
-            sock.close();
-        }
-    }
+
 }

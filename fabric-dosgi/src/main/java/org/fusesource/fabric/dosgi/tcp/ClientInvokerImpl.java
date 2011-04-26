@@ -8,8 +8,11 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
+import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.Serialization;
 import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.fabric.dosgi.impl.Manager;
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.fabric.dosgi.io.Transport;
@@ -29,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ClientInvokerImpl implements ClientInvoker {
+public class ClientInvokerImpl implements ClientInvoker, Dispatched {
 
     public static final long DEFAULT_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
@@ -54,14 +57,20 @@ public class ClientInvokerImpl implements ClientInvoker {
     protected final AtomicBoolean running = new AtomicBoolean(false);
     protected final Map<Long, ResponseFuture> requests = new HashMap<Long, ResponseFuture>();
     protected final long timeout;
+    protected final Map<String, SerializationStrategy> serializationStrategies;
 
-    public ClientInvokerImpl(DispatchQueue queue) {
-        this(queue, DEFAULT_TIMEOUT);
+    public ClientInvokerImpl(DispatchQueue queue, Map<String, SerializationStrategy> serializationStrategies) {
+        this(queue, DEFAULT_TIMEOUT, serializationStrategies);
     }
 
-    public ClientInvokerImpl(DispatchQueue queue, long timeout) {
+    public ClientInvokerImpl(DispatchQueue queue, long timeout, Map<String, SerializationStrategy> serializationStrategies) {
         this.queue = queue;
         this.timeout = timeout;
+        this.serializationStrategies = serializationStrategies;
+    }
+
+    public DispatchQueue queue() {
+        return queue;
     }
 
     public void start() throws Exception {
@@ -81,7 +90,7 @@ public class ClientInvokerImpl implements ClientInvoker {
 
     public void stop(final Runnable onComplete) {
         if (running.compareAndSet(true, false)) {
-            queue.execute(new Runnable() {
+            queue().execute(new Runnable() {
                 public void run() {
                     final AtomicInteger latch = new AtomicInteger(transports.size());
                     final Runnable coutDown = new Runnable() {
@@ -123,20 +132,22 @@ public class ClientInvokerImpl implements ClientInvoker {
         }
     }
 
-    static final WeakHashMap<Method, MethodMetadata> method_cache = new WeakHashMap<Method, MethodMetadata>();
+    static final WeakHashMap<Method, MethodData> method_cache = new WeakHashMap<Method, MethodData>();
 
-    static class MethodMetadata {
+    static class MethodData {
+        private final SerializationStrategy serializationStrategy;
         final Buffer signature;
-        final InvocationStrategy strategy;
+        final InvocationStrategy invocationStrategy;
 
-        MethodMetadata(InvocationStrategy invocationStrategy, Buffer signature) {
-            this.strategy = invocationStrategy;
+        MethodData(InvocationStrategy invocationStrategy, SerializationStrategy serializationStrategy, Buffer signature) {
+            this.invocationStrategy = invocationStrategy;
+            this.serializationStrategy = serializationStrategy;
             this.signature = signature;
         }
     }
 
-    private MethodMetadata getMethodMetadata(Method method) throws IOException {
-        MethodMetadata rc = null;
+    private MethodData getMethodData(Method method) throws IOException {
+        MethodData rc = null;
         synchronized (method_cache) {
             rc = method_cache.get(method);
         }
@@ -151,17 +162,27 @@ public class ClientInvokerImpl implements ClientInvoker {
                 }
                 sb.append(encodeClassName(types[i]));
             }
+            Buffer signature = new UTF8Buffer(sb.toString()).buffer();
 
-            // TODO: perhaps use a different encoding strategy for the args based on annotations found on the method.
-            SerializationStrategy serializationStrategy = new ObjectSerializationStrategy();
-            final InvocationStrategy strategy;
-            if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
-                strategy = new AsyncInvocationStrategy(serializationStrategy);
+            Serialization annotation = method.getAnnotation(Serialization.class);
+            SerializationStrategy serializationStrategy;
+            if( annotation!=null ) {
+                serializationStrategy = serializationStrategies.get(annotation.value());
+                if( serializationStrategy==null ) {
+                    throw new RuntimeException("Could not find the serialization strategy named: "+annotation.value());
+                }
             } else {
-                strategy = new BlockingInvocationStrategy(serializationStrategy);
+                serializationStrategy = ObjectSerializationStrategy.INSTANCE;
             }
 
-            rc = new MethodMetadata(strategy, new UTF8Buffer(sb.toString()).buffer());
+            final InvocationStrategy strategy;
+            if( AsyncInvocationStrategy.isAsyncMethod(method) ) {
+                strategy = AsyncInvocationStrategy.INSTANCE;
+            } else {
+                strategy = BlockingInvocationStrategy.INSTANCE;
+            }
+
+            rc = new MethodData(strategy, serializationStrategy, signature);
             synchronized (method_cache) {
                 method_cache.put(method, rc);
             }
@@ -194,10 +215,10 @@ public class ClientInvokerImpl implements ClientInvoker {
         baos.writeVarLong(correlation);
         writeBuffer(baos, service);
 
-        MethodMetadata methodData = getMethodMetadata(method);
+        MethodData methodData = getMethodData(method);
         writeBuffer(baos, methodData.signature);
 
-        final ResponseFuture future = methodData.strategy.request(classLoader, method, args, baos);
+        final ResponseFuture future = methodData.invocationStrategy.request(methodData.serializationStrategy, classLoader, method, args, baos);
 
         // toBuffer() is better than toByteArray() since it avoids an
         // array copy.
@@ -209,13 +230,13 @@ public class ClientInvokerImpl implements ClientInvoker {
         editor.writeInt(command.length);
         handler.lastRequestSize = command.length;
 
-        queue.execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 try {
                     TransportPool pool = transports.get(address);
                     if (pool == null) {
-                        pool = new InvokerTransportPool(address, queue);
-                        transports.put(address,  pool);
+                        pool = new InvokerTransportPool(address, queue());
+                        transports.put(address, pool);
                         pool.start();
                     }
                     requests.put(correlation, future);

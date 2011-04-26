@@ -78,6 +78,14 @@
             <groupId>org.fusesource.hawtbuf</groupId>
             <artifactId>hawtbuf</artifactId>
         </dependency>
+        
+        <!-- this is only needed you you want to use the ProtobufSerializationStrategy -->
+        <dependency>
+            <groupId>org.fusesource.hawtbuf</groupId>
+            <artifactId>hawtbuf-proto</artifactId>
+            <version>${hawtbuf-version}</version>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>org.easymock</groupId>
@@ -101,7 +109,21 @@
 
     <build>
         <plugins>
-
+            <plugin>
+              <groupId>org.fusesource.hawtbuf</groupId>
+              <artifactId>hawtbuf-protoc</artifactId>
+              <version>${hawtbuf-version}</version>
+              <configuration>
+                <type>alt</type>
+              </configuration>
+               <executions>
+                <execution>
+                  <goals>
+                    <goal>compile</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
         </plugins>
     </build>
 

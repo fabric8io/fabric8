@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.dosgi.api.Dispatched;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.fabric.dosgi.capset.CapabilitySet;
 import org.fusesource.fabric.dosgi.capset.SimpleFilter;
 import org.fusesource.fabric.dosgi.io.ClientInvoker;
@@ -58,7 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.osgi.service.remoteserviceadmin.RemoteConstants.*;
 
-public class Manager implements ServiceListener, ListenerHook, EventHook, FindHook, NodeEventsListener<String> {
+public class Manager implements ServiceListener, ListenerHook, EventHook, FindHook, NodeEventsListener<String>, Dispatched {
 
     public static final String CONFIG = "fabric-dosgi";
 
@@ -92,6 +94,9 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     private final Map<ListenerInfo, SimpleFilter> listeners;
 
+    private final Map<String, SerializationStrategy> serializationStrategies;
+
+
     private String uuid;
 
     private final String uri;
@@ -109,6 +114,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.importedServices = new ConcurrentHashMap<EndpointDescription, Map<Long, ImportRegistration>>();
         this.exportedServices = new ConcurrentHashMap<ServiceReference, ExportRegistration>();
         this.listeners = new ConcurrentHashMap<ListenerInfo, SimpleFilter>();
+        this.serializationStrategies = new ConcurrentHashMap<String, SerializationStrategy>();
         this.remoteEndpoints = new CapabilitySet<EndpointDescription>(
                 Arrays.asList(Constants.OBJECTCLASS, ENDPOINT_FRAMEWORK_UUID), false);
         this.bundleContext = context;
@@ -118,8 +124,8 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     public void init() throws Exception {
         // Create client and server
-        this.client = new ClientInvokerImpl(queue);
-        this.server = new ServerInvokerImpl(uri, queue);
+        this.client = new ClientInvokerImpl(queue, serializationStrategies);
+        this.server = new ServerInvokerImpl(uri, queue, serializationStrategies);
         this.client.start();
         this.server.start();
         // ZooKeeper tracking
@@ -430,6 +436,10 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         }
         reg.addReference(listener);
         return reg;
+    }
+
+    public DispatchQueue queue() {
+        return queue;
     }
 
     class Factory implements ServiceFactory {

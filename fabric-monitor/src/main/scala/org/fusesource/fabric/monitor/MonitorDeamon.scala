@@ -17,7 +17,7 @@ import internal.{ClassFinder, DefaultMonitor}
 import java.net.URLClassLoader
 import java.util.zip.ZipFile
 import java.io._
-import org.fusesource.fabric.launcher.api.{XmlCodec, JsonCodec}
+import org.fusesource.fabric.monitor.api.{XmlCodec, JsonCodec}
 import collection.mutable.HashMap
 
 /**

@@ -116,7 +116,7 @@ public class TcpTransport implements Transport {
     }
 
     final public void start(final Runnable onCompleted) {
-        getDispatchQueue().execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 if (_serviceState == CREATED ||
                         _serviceState == STOPPED) {
@@ -146,7 +146,7 @@ public class TcpTransport implements Transport {
     }
 
     final public void stop(final Runnable onCompleted) {
-        getDispatchQueue().execute(new Runnable() {
+        queue().execute(new Runnable() {
             public void run() {
                 if (_serviceState == STARTED) {
                     final STOPPING state = new STOPPING();
@@ -465,7 +465,7 @@ public class TcpTransport implements Transport {
     }
 
 
-    public DispatchQueue getDispatchQueue() {
+    public DispatchQueue queue() {
         return dispatchQueue;
     }
 

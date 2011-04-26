@@ -13,10 +13,14 @@ import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.Dispatch;
+import org.fusesource.hawtdispatch.DispatchQueue;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.rmi.RemoteException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,35 +33,47 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AsyncInvocationStrategy implements InvocationStrategy {
 
+    public static final AsyncInvocationStrategy INSTANCE = new AsyncInvocationStrategy();
+
     static public boolean isAsyncMethod(Method method) {
         Class<?>[] types = method.getParameterTypes();
         return types.length != 0 && types[types.length - 1] == AsyncCallback.class;
     }
 
 
-    final SerializationStrategy serializationStrategy;
-
-    public AsyncInvocationStrategy(SerializationStrategy serializationStrategy) {
-        this.serializationStrategy = serializationStrategy;
-    }
-
     private class AsyncResponseFuture implements ResponseFuture {
 
         private final ClassLoader loader;
         private final Method method;
         private final AsyncCallback callback;
+        private final SerializationStrategy serializationStrategy;
+        private final DispatchQueue queue;
 
-        public AsyncResponseFuture(ClassLoader loader, Method method, AsyncCallback callback) {
+        public AsyncResponseFuture(ClassLoader loader, Method method, AsyncCallback callback, SerializationStrategy serializationStrategy, DispatchQueue queue) {
             this.loader = loader;
             this.method = method;
             this.callback = callback;
+            this.serializationStrategy = serializationStrategy;
+            this.queue = queue;
         }
 
-        public void set(DataByteArrayInputStream source) throws IOException, ClassNotFoundException {
+        public void set(final DataByteArrayInputStream source) {
+            if( queue!=null ) {
+                queue.execute(new Runnable() {
+                    public void run() {
+                        decodeIt(source);
+                    }
+                });
+            } else {
+                decodeIt(source);
+            }
+        }
+
+        private void decodeIt(DataByteArrayInputStream source) {
             try {
-                serializationStrategy.decodeResponse(loader, method.getReturnType(), source, callback);
+                serializationStrategy.decodeResponse(loader, getResultType(method), source, callback);
             } catch (Throwable e) {
-                e.printStackTrace(); // come on app.. avoid throwing us your exceptions will ya?
+                e.printStackTrace();
             }
         }
 
@@ -68,7 +84,7 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
 
     }
 
-    public ResponseFuture request(ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
+    public ResponseFuture request(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {
         if(!isAsyncMethod(method)) {
             throw new IllegalArgumentException("Invalid async method declaration: last argument is not a RequestCallback");
         }
@@ -79,7 +95,7 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
 
         serializationStrategy.encodeRequest(loader, new_types, new_args, target);
 
-        return new AsyncResponseFuture(loader, method, (AsyncCallback) args[args.length-1]);
+        return new AsyncResponseFuture(loader, method, (AsyncCallback) args[args.length-1], serializationStrategy, Dispatch.getCurrentQueue());
     }
 
     static private Class<?>[] payloadTypes(Method method) {
@@ -89,33 +105,43 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
         return new_types;
     }
 
+    static private Class getResultType(Method method) {
+        Type[] types = method.getGenericParameterTypes();
+        ParameterizedType t = (ParameterizedType) types[types.length-1];
+        return (Class) t.getActualTypeArguments()[0];
+    }
+
+
     class ServiceResponse {
 
         private final ClassLoader loader;
         private final Method method;
         private final DataByteArrayOutputStream responseStream;
         private final Runnable onComplete;
+        private final SerializationStrategy serializationStrategy;
         private final int pos;
         // Used to protect against sending multiple responses.
         final AtomicBoolean responded = new AtomicBoolean(false);
 
-        public ServiceResponse(ClassLoader loader, Method method, DataByteArrayOutputStream responseStream, Runnable onComplete) {
+        public ServiceResponse(ClassLoader loader, Method method, DataByteArrayOutputStream responseStream, Runnable onComplete, SerializationStrategy serializationStrategy) {
             this.loader = loader;
             this.method = method;
             this.responseStream = responseStream;
             this.onComplete = onComplete;
+            this.serializationStrategy = serializationStrategy;
             pos = responseStream.position();
         }
 
         public void send(Throwable error, Object value) {
             if( responded.compareAndSet(false, true) ) {
+                Class resultType = getResultType(method);
                 try {
-                    serializationStrategy.encodeResponse(loader, method.getReturnType(), value, error, responseStream);
+                    serializationStrategy.encodeResponse(loader, resultType, value, error, responseStream);
                 } catch (Exception e) {
                     // we failed to encode the response.. reposition and write that error.
                     try {
                         responseStream.position(pos);
-                        serializationStrategy.encodeResponse(loader, method.getReturnType(), value, new RemoteException(e.toString()), responseStream);
+                        serializationStrategy.encodeResponse(loader, resultType, value, new RemoteException(e.toString()), responseStream);
                     } catch (Exception unexpected) {
                         unexpected.printStackTrace();
                     }
@@ -125,10 +151,11 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
             }
         }
 
-    }
-    public void service(ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, final DataByteArrayOutputStream responseStream, final Runnable onComplete) {
 
-        final ServiceResponse helper = new ServiceResponse(loader, method, responseStream, onComplete);
+    }
+    public void service(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object target, DataByteArrayInputStream requestStream, final DataByteArrayOutputStream responseStream, final Runnable onComplete) {
+
+        final ServiceResponse helper = new ServiceResponse(loader, method, responseStream, onComplete, serializationStrategy);
         try {
 
             Object[] new_args = new Object[method.getParameterTypes().length];

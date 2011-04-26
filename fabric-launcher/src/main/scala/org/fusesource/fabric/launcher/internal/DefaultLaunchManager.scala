@@ -43,6 +43,8 @@ class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
 
   // Use an embedded monitor to extract the status of the
   // launched services..
+
+  stats_dir.mkdirs
   val monitor:Monitor = new DefaultMonitor(stats_dir.getCanonicalPath+"/");
   {
     val finder = new ClassFinder(DATA_POLLER_FACTORY_RESOURCE, classOf[PollerFactory])
@@ -73,7 +75,7 @@ class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
     def pid = {
       if( pid_file.exists ) {
         try {
-          Some(new String(pid_file.read).trim.toLong)
+          Some(new String(pid_file.read_bytes).trim.toLong)
         } catch {
           case _ => None
         }
@@ -113,7 +115,7 @@ class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
 
     val monitor_config = {
       val rc = new MonitoredSetDTO
-      rc.name = "service/"+id
+      rc.name = id
       rc.step = "1s"
 
       def archive(window:String, step:String="1s", consolidation:String="AVERAGE") = {
@@ -473,7 +475,6 @@ class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
     }
 
     val monitor_config = current_services.values.map(_.monitor_config).toList
-    println("configuring with: "+monitor_config)
     monitor.configure(monitor_config)
 
   }

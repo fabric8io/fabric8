@@ -21,6 +21,8 @@ import java.io.IOException;
  */
 public interface SerializationStrategy {
 
+    String name();
+
     void encodeRequest(ClassLoader loader, Class<?>[] types, Object[] args, DataByteArrayOutputStream target) throws Exception;
 
     void decodeResponse(ClassLoader loader, Class<?> type, DataByteArrayInputStream source, AsyncCallback result) throws Exception;
