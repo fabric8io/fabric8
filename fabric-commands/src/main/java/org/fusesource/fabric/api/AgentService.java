@@ -12,14 +12,14 @@ import java.util.Map;
 
 public interface AgentService {
 
-    Map<String, Agent> getAgents() throws Exception;
+    Map<String, Agent> getAgents();
 
-    Agent createChild(Agent parent, String name) throws Exception;
+    Agent createChild(Agent parent, String name);
 
-    void destroy(Agent agent) throws Exception;
+    void destroy(Agent agent);
 
-    void startAgent(Agent agent) throws Exception;
+    void startAgent(Agent agent);
 
-    void stopAgent(Agent agent) throws Exception;
+    void stopAgent(Agent agent);
 
 }

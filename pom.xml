@@ -105,7 +105,7 @@
 
 
         <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.5</maven.compiler.target>
+        <maven.compiler.target>1.6</maven.compiler.target>
         <spring-version>3.0.4.RELEASE</spring-version>
     </properties>
 

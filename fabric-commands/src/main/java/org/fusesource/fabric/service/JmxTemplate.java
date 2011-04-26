@@ -22,6 +22,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.FabricException;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -62,13 +63,22 @@ public class JmxTemplate {
         T doWithServiceState(ServiceStateMBean serviceState) throws Exception;
     }
 
-    public <T> T execute(Agent agent, JmxConnectorCallback<T> callback) throws Exception {
+    public <T> T execute(Agent agent, JmxConnectorCallback<T> callback) {
         String rootUrl = agent.getJmxUrl();
-        JMXConnector connector = JMXConnectorFactory.connect(
-                new JMXServiceURL(rootUrl),
-                getEnvCred(login, password));
+        JMXConnector connector;
+        try {
+            connector = JMXConnectorFactory.connect(
+                    new JMXServiceURL(rootUrl),
+                    getEnvCred(login, password));
+        } catch (IOException e) {
+            throw new FabricException(e);
+        }
         try {
             return callback.doWithJmxConnector(connector);
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
         } finally {
             try {
                 connector.close();
@@ -79,7 +89,7 @@ public class JmxTemplate {
 
     // mBean specific callbacks
 
-    public <T> T execute(final Agent agent, final AdminServiceCallback<T> callback) throws Exception {
+    public <T> T execute(final Agent agent, final AdminServiceCallback<T> callback) {
         return execute(agent, new JmxConnectorCallback<T>() {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[] {"type", "admin", "name", agent.getId()};
@@ -88,7 +98,7 @@ public class JmxTemplate {
         });
     }
 
-    public <T> T execute(final Agent agent, final BundleStateCallback<T> callback) throws Exception {
+    public <T> T execute(final Agent agent, final BundleStateCallback<T> callback) {
         return execute(agent, new JmxConnectorCallback<T>() {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[] {"type", "bundleState", "version", "1.5"};
@@ -97,7 +107,7 @@ public class JmxTemplate {
         });
     }
 
-    public <T> T execute(final Agent agent, final ServiceStateCallback<T> callback) throws Exception {
+    public <T> T execute(final Agent agent, final ServiceStateCallback<T> callback) {
         return execute(agent, new JmxConnectorCallback<T>() {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[] {"type", "serviceState", "version", "1.5"};
@@ -106,8 +116,12 @@ public class JmxTemplate {
         });
     }
 
-    private <T> T getMBean(JMXConnector connector, Class<T> type, String domain, String ... params) throws Exception {
-        return JMX.newMBeanProxy(connector.getMBeanServerConnection(), safeObjectName(domain, params), type);
+    private <T> T getMBean(JMXConnector connector, Class<T> type, String domain, String ... params) {
+        try {
+            return JMX.newMBeanProxy(connector.getMBeanServerConnection(), safeObjectName(domain, params), type);
+        } catch (IOException e) {
+            throw new FabricException(e);
+        }
     }
 
     public static ObjectName safeObjectName(String domain, String ... args) {

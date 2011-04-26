@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.linkedin.zookeeper.client.IZKClient;
 
@@ -48,7 +49,7 @@ public class ProfileImpl implements Profile {
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 
@@ -66,7 +67,7 @@ public class ProfileImpl implements Profile {
             }
             zooKeeper.setData( "/fabric/configs/versions/" + version + "/profiles/" + id, str );
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 

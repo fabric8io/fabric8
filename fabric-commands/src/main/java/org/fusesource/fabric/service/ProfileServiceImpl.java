@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.ProfileService;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -39,7 +40,7 @@ public class ProfileServiceImpl implements ProfileService {
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 
@@ -48,7 +49,7 @@ public class ProfileServiceImpl implements ProfileService {
             zooKeeper.createWithParents("/fabric/configs/versions/" + version + "/profiles/" + name, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT );
             return new ProfileImpl(name, version, zooKeeper);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 
@@ -56,7 +57,7 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             zooKeeper.deleteWithChildren("/fabric/configs/versions/" + profile.getVersion() + "/profiles/" + profile.getId());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 }

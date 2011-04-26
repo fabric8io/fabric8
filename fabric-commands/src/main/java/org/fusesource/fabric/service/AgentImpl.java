@@ -15,6 +15,7 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
@@ -55,7 +56,7 @@ public class AgentImpl implements Agent {
         try {
             return zooKeeper.exists("/fabric/registry/agents/alive/" + id) != null;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 
@@ -75,7 +76,7 @@ public class AgentImpl implements Agent {
         try {
             return zooKeeper.getStringData("/fabric/registry/agents/config/" + id + "/" + name);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 
@@ -159,7 +160,7 @@ public class AgentImpl implements Agent {
             }
             zooKeeper.setData( node, str );
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FabricException(e);
         }
     }
 }
