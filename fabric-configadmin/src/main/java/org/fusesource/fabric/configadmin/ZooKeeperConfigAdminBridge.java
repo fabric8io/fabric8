@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.tracker.NodeEvent;
@@ -48,8 +49,6 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
 
     private IZKClient zooKeeper;
     private ConfigurationAdmin configAdmin;
-    private String agentNode = "/fabric/configs/agents";
-    private String versionsNode = "/fabric/configs/versions";
     private String name;
     private String version;
     private String node;
@@ -66,11 +65,11 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     public void onConnected() {
         try {
             // Find our root node
-            version = zooKeeper.getStringData(agentNode + "/" + name);
+            version = zooKeeper.getStringData(ZkPath.CONFIG_AGENT.getPath(name));
             if (version == null) {
-                throw new IllegalStateException("Configuration for node " + name + " not found at " + agentNode + "/" + name);
+                throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_AGENT.getPath(name));
             }
-            node = versionsNode + "/" + version + "/agents/" + name;
+            node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, name);
             if (zooKeeper.exists(node) == null) {
                 zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
@@ -101,13 +100,13 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 if (data != null) {
                     String[] parents = data.split(" ");
                     for (String parent : parents) {
-                        track(versionsNode + "/" + version + "/profiles/" + parent);
+                        track(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));
                     }
                 }
             } else {
                 // If the node does not exist yet, we track the parent to make
                 // sure we receive the node creation event
-                String p = versionsNode + "/" + version + "/profiles";
+                String p = ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version);
                 if (!trees.containsKey(p)) {
                     tree = new ZooKeeperTreeTracker<String>(zooKeeper, new ZKStringDataReader(), p, 1);
                     trees.put(p, tree);
@@ -130,7 +129,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                     if (key.startsWith("zk:")) {
                         key = key.substring("zk:".length());
                         if (key.charAt(0) != '/') {
-                            key = "/fabric/registry/agents/config/" + key;
+                            key = ZkPath.AGENT.getPath(key);
                         }
                         try {
                             return zooKeeper.getStringData(key);
@@ -153,7 +152,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
         String[] parents = root != null && root.getData() != null ? root.getData().split(" ") : new String[0];
         for (String parent : parents) {
-            load(pid, versionsNode + "/" + version + "/profiles/" + parent, dict);
+            load(pid, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), dict);
         }
         TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid) : null;
         if (cfg != null && !DELETED.equals(cfg.getData())) {
@@ -175,7 +174,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
         String[] parents = root != null && root.getData() != null ? root.getData().split(" ") : new String[0];
         for (String parent : parents) {
-            getPids(versionsNode + "/" + version + "/profiles/" + parent, pids);
+            getPids(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), pids);
         }
         for (String pid : getChildren(tree, node)) {
             TrackedNode<String> n = tree.getTree().get(node + "/" + pid);

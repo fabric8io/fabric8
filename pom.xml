@@ -236,6 +236,7 @@
                     <!-- these settings are mandatory to avoid SureFire giving a bogus system property to the web container -->
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
+                    <failIfNoTests>false</failIfNoTests>
                     <includes>
                         <include>**/*Test.*</include>
                     </includes>

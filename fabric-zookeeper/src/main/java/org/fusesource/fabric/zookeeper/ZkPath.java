@@ -18,27 +18,21 @@ import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
  */
 public enum ZkPath {
 
-    PROFILES    ("/fabric/configs/versions/{version}/profiles"),
-    ALIVE       ("/fabric/registry/agents/alive"),
-    CONFIG      ("/fabric/registry/agents/config/{name}"),
-    AGENTS      ("/fabric/registry/agents/config"),
 
     // config nodes
-    CONFIGS_AGENTS ("/fabric/configs/agents/"),
-    CONFIG_AGENT   ("/fabric/configs/agents/{name}"),
-
-    CONFIGS_VERSIONS_AGENT ("/fabric/configs/versions/{version}/agents/{name}"),
+    CONFIGS_AGENTS          ("/fabric/configs/agents/"),
+    CONFIG_AGENT            ("/fabric/configs/agents/{agent}"),
+    CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
+    CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profile/{profile}"),
+    CONFIG_VERSIONS_AGENT   ("/fabric/configs/versions/{version}/agents/{agent}"),
 
     // Agent nodes
-    AGENT           ("/fabric/registry/agents/config/{name}"),
-    AGENT_ALIVE     ("/fabric/registry/agents/alive/{name}"),
-    AGENT_IP        ("/fabric/registry/agents/config/{name}/ip"),
-    AGENT_ROOT      ("/fabric/registry/agents/config/{name}/root"),
-    AGENT_JMX       ("/fabric/registry/agents/config/{name}/jmx"),
-    AGENT_SSH       ("/fabric/registry/agents/config/{name}/ssh"),
-
-    // profile nodes
-    PROFILE         ("/fabric/configs/versions/{version}/profiles/{name}");
+    AGENT           ("/fabric/registry/agents/config/{agent}"),
+    AGENT_ALIVE     ("/fabric/registry/agents/alive/{agent}"),
+    AGENT_IP        ("/fabric/registry/agents/config/{agent}/ip"),
+    AGENT_ROOT      ("/fabric/registry/agents/config/{agent}/root"),
+    AGENT_JMX       ("/fabric/registry/agents/config/{agent}/jmx"),
+    AGENT_SSH       ("/fabric/registry/agents/config/{agent}/ssh"),
 
     /**
      * Path template.
