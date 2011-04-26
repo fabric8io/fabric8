@@ -24,7 +24,7 @@
   <artifactId>fabric-scala</artifactId>
   <packaging>pom</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric :: Scala Parent</name>
   <description>Holds the common Maven settings for Scala based modules.</description>
   
  <dependencies>

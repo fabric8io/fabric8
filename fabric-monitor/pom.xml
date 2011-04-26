@@ -21,7 +21,7 @@
   </parent>
 
   <artifactId>fabric-monitor</artifactId>
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric :: Monitor</name>
   <packaging>bundle</packaging>
 
   <dependencies>

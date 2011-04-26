@@ -20,7 +20,7 @@
   </parent>
 
   <artifactId>fabric-activemq</artifactId>
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric :: ActiveMQ</name>
   <packaging>bundle</packaging>
 
   <properties>

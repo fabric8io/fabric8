@@ -21,7 +21,7 @@
   </parent>
 
   <artifactId>fabric-launcher</artifactId>
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric :: Launcher</name>
   <packaging>bundle</packaging>
 
   <dependencies>

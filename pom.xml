@@ -71,7 +71,7 @@
         <fabric.osgi.activator/>
         <fabric.osgi.failok>false</fabric.osgi.failok>
         <fabric.osgi.private.pkg>!*</fabric.osgi.private.pkg>
-        <fabric.osgi.export>org.fusesource.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
+        <fabric.osgi.export>org.fusesource.fabric.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
         <fabric.osgi.split.pkg>-split-package:=first</fabric.osgi.split.pkg>
         <fabric.osgi.import>${fabric.osgi.import.pkg}</fabric.osgi.import>
         <fabric.osgi.dynamic/>

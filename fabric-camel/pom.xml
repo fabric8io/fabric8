@@ -24,6 +24,12 @@
     <packaging>bundle</packaging>
 
     <properties>
+        <fabric.osgi.export>
+            org.fusesource.fabric.camel
+        </fabric.osgi.export>
+        <fabric.osgi.import.pkg>
+            org.springframework.beans.factory.annotation;resolution:=optional,*
+        </fabric.osgi.import.pkg>
         <fabric.osgi.activator>org.fusesource.fabric.camel.Activator</fabric.osgi.activator>
     </properties>
 

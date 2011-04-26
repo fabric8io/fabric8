@@ -24,7 +24,7 @@
   </parent>
 
   <artifactId>fabric-groups</artifactId>
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric :: Groups</name>
   <packaging>bundle</packaging>
 
   <dependencies>
