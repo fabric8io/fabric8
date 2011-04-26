@@ -104,7 +104,7 @@
         <jackson-version>1.7.0</jackson-version>
 
 
-        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
         <spring-version>3.0.4.RELEASE</spring-version>
     </properties>
@@ -167,7 +167,6 @@
         <module>fabric-groups</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
-        <module>fabric-util</module>
     </modules>
 
     <build>

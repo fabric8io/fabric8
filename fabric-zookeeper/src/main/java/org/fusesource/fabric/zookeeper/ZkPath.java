@@ -7,9 +7,11 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.util;
+package org.fusesource.fabric.zookeeper;
 
 import java.util.Map;
+
+import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
 
 /**
  * Set of paths which are used by fon.
@@ -34,7 +36,6 @@ public enum ZkPath {
     AGENT_ROOT      ("/fabric/registry/agents/config/{name}/root"),
     AGENT_JMX       ("/fabric/registry/agents/config/{name}/jmx"),
     AGENT_SSH       ("/fabric/registry/agents/config/{name}/ssh"),
-    AGENT_PROFILES  ("/fabric/registry/agents/config/{name}/profiles"),
 
     // profile nodes
     PROFILE         ("/fabric/configs/versions/{version}/profiles/{name}");

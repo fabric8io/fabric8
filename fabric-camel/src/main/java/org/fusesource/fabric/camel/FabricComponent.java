@@ -8,6 +8,9 @@
  */
 package org.fusesource.fabric.camel;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.impl.ProducerCache;
@@ -15,18 +18,14 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
-import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.ZKClientFactoryBean;
+import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.ZKClient;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * The FABRIC camel component for providing endpoint discovery, clustering and load balancing.
@@ -99,7 +98,9 @@ public class FabricComponent extends DefaultComponent {
     protected void doStart() throws Exception {
         super.doStart();
         if (zkClient == null) {
-            zkClient = new ZKClientFactoryBean().getObject();
+            ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
+            client.start();
+            zkClient = client;
         }
         checkZkConnected();
         if (producerCache == null) {

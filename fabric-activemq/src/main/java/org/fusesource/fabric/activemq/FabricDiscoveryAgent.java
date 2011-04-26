@@ -9,6 +9,15 @@
  */
 package org.fusesource.fabric.activemq;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
@@ -19,17 +28,9 @@ import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.ZKClientFactoryBean;
+import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import org.linkedin.zookeeper.client.ZKClient;
 
 public class FabricDiscoveryAgent implements DiscoveryAgent {
     
@@ -150,7 +151,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             running.set(true);
 
             if (zkClient == null) {
-                zkClient = new ZKClientFactoryBean().getObject();
+                ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
+                client.start();
+                zkClient = client;
             }
 
             group = ZooKeeperGroupFactory.create(zkClient, "/fabric/activemq-clusters/" + groupName, acl);

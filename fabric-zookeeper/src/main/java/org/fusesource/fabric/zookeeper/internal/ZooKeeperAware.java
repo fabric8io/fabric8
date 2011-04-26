@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.zookeeper;
+package org.fusesource.fabric.zookeeper.internal;
 
 import org.linkedin.zookeeper.client.IZKClient;
 

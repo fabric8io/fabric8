@@ -25,7 +25,7 @@
 
     <properties>
         <fabric.osgi.export>
-            org.fusesource.fabric.zookeeper.services;version=${fabric.osgi.version};-noimport:=true,
+            org.fusesource.fabric.zookeeper;version=${fabric.osgi.version};-noimport:=true,
             org.linkedin.zookeeper*;version=${linkedin-zookeeper-version};-noimport:=true,
             org.linkedin.util.*,
             org.apache.zookeeper*;version="3.3.1";-noimport:=true,
@@ -43,9 +43,8 @@
         <fabric.osgi.private.pkg>
             org.apache.jute*,
             org.fusesource.fabric.zookeeper.commands,
-            org.fusesource.fabric.zookeeper.services.impl,
             org.fusesource.fabric.zookeeper.commands,
-            org.fusesource.fabric.zookeeper,
+            org.fusesource.fabric.zookeeper.internal,
         </fabric.osgi.private.pkg>
         <fabric.osgi.services.export>
             org.linkedin.zookeeper.client.IZKClient
@@ -87,6 +86,12 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
