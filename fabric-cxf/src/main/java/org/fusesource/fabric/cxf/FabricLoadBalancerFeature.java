@@ -18,7 +18,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.ZKClientFactoryBean;
+import org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean;
 import org.linkedin.zookeeper.client.IZKClient;
 
 import org.springframework.beans.factory.DisposableBean;
