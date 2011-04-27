@@ -60,8 +60,14 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             } else {
                 zooKeeper.createWithParents(nodeAlive, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
             }
-            zooKeeper.createOrSetWithParents(AGENT_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(AGENT_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            String jmxUrl = getJmxUrl();
+            if (jmxUrl != null) {
+                zooKeeper.createOrSetWithParents(AGENT_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            }
+            String sshUrl = getSshUrl();
+            if (sshUrl != null) {
+                zooKeeper.createOrSetWithParents(AGENT_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            }
             zooKeeper.createOrSetWithParents(AGENT_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (Exception e) {
@@ -89,17 +95,24 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
 
     private String getJmxUrl() throws IOException {
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.management");
-        String jmx = (String) config.getProperties().get("serviceUrl");
-        jmx = jmx.replace("service:jmx:rmi://localhost:", "service:jmx:rmi://" + getLocalHostAddress() + ":");
-        return jmx;
+        if (config.getProperties() != null) {
+            String jmx = (String) config.getProperties().get("serviceUrl");
+            jmx = jmx.replace("service:jmx:rmi://localhost:", "service:jmx:rmi://" + getLocalHostAddress() + ":");
+            return jmx;
+        } else {
+            return null;
+        }
     }
 
     private String getSshUrl() throws IOException {
-        Configuration config;
-        config = configurationAdmin.getConfiguration("org.apache.karaf.shell");
-        String host = (String) config.getProperties().get("sshHost");
-        String port = (String) config.getProperties().get("sshPort");
-        return getExternalAddresses(host, port);
+        Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.shell");
+        if (config != null) {
+            String host = (String) config.getProperties().get("sshHost");
+            String port = (String) config.getProperties().get("sshPort");
+            return getExternalAddresses(host, port);
+        } else {
+            return null;
+        }
     }
 
     private static String getLocalHostAddress() throws UnknownHostException {

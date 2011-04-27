@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class SimplePathTemplate {
 
     private static Pattern PATTERN = Pattern.compile("\\{([^/]+?)\\}");
-    private List<String> parameters = new ArrayList();
+    private List<String> parameters = new ArrayList<String>();
     private String path;
 
     public SimplePathTemplate(String path) {
@@ -80,6 +80,9 @@ public class SimplePathTemplate {
     }
 
     private String replace(String text, String key, String value) {
+        if (value == null) {
+            throw new NullPointerException("Parameter " + key + " is null.");
+        }
         return text.replace("{" + key + "}", value);
     }
 }
