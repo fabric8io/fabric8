@@ -30,6 +30,23 @@ public class ProfileServiceImpl implements ProfileService {
         this.zooKeeper = zooKeeper;
     }
 
+    public void createVersion(String version) {
+        try {
+            zooKeeper.createWithParents("/fabric/configs/versions/" + version, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createWithParents("/fabric/configs/versions/" + version + "/profiles", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public void deleteVersion(String version) {
+        try {
+            zooKeeper.deleteWithChildren("/fabric/configs/versions/" + version);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
     public String[] getVersions() {
         try {
             List<String> versions = zooKeeper.getChildren("/fabric/configs/versions");
