@@ -22,4 +22,6 @@ public interface ZooKeeperClusterService {
 
     void removeFromCluster(List<String> agents);
 
+    void clean();
+
 }

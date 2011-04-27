@@ -23,7 +23,7 @@ public enum ZkPath {
     CONFIGS_AGENTS          ("/fabric/configs/agents/"),
     CONFIG_AGENT            ("/fabric/configs/agents/{agent}"),
     CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
-    CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profile/{profile}"),
+    CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profiles/{profile}"),
     CONFIG_VERSIONS_AGENT   ("/fabric/configs/versions/{version}/agents/{agent}"),
 
     // Agent nodes
