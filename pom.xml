@@ -80,7 +80,7 @@
         <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
         <fabric.osgi.services.export></fabric.osgi.services.export>
 
-
+        <cxf-version>2.3.3-fuse-01-09</cxf-version>
         <camel-version>2.6.0-fuse-01-09</camel-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
         <karaf-version>2.2.1-SNAPSHOT</karaf-version>
@@ -162,6 +162,7 @@
         <module>fabric-agent</module>
         <module>fabric-commands</module>
         <module>fabric-camel</module>
+        <module>fabric-cxf</module>
         <module>fabric-activemq</module>
         <module>fabric-distro</module>
         <module>fabric-groups</module>
