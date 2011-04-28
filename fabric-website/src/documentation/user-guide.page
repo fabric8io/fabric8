@@ -106,6 +106,7 @@ Like the Camel Fabric above, the **CXF Fabric** makes it easy to expose physical
 ### OSGi Fabric
 
 The OSGi registry by default contains local services. However since Fabric has a Configuration Registry defining profiles along with a Runtime Registry for discovery, its easy to configure Fabric to expose remote OSGi services into the Runtime Registry for different profiles so that you can get invisible remoting of services with dynamic discovery, load balancing and fail over.
+The OSGi Fabric follows the OSGi Remote Services specification.  Any service exported in the OSGi registry with a property named "service.exported.interfaces" (with a value of either "*" or a list of interfaces to export) will be automatically exported in Fabric Registry and imported on other Fabric agents as needed.
 
 ### Process Fabric
 
