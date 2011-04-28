@@ -56,6 +56,10 @@
         </dependency>
 
         <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
         </dependency>
