@@ -35,6 +35,8 @@ class DefaultMonitor (
 
   var step_duration = 1000L
 
+  def path_to_rrd_file(name:String) = rrd_file_prefix + name +".rrd"
+
   case class MonitoredSet(dto:MonitoredSetDTO) {
 
     import dto._
@@ -47,7 +49,7 @@ class DefaultMonitor (
     }
 
     def rrd_def = {
-      val rc = new RrdDef(file_base_name+".rrd", sample_span.getDurationInSeconds)
+      val rc = new RrdDef(path_to_rrd_file(name), sample_span.getDurationInSeconds)
       data_sources.foreach { source =>
         import source._
 
@@ -116,7 +118,7 @@ class DefaultMonitor (
                 val sample = rrd_db.createSample()
                 sample.setTime(Util.getTime)
 
-                println("Collecting samples from %d pollers.".format(pollers.size))
+//                println("Collecting samples from %d pollers.".format(pollers.size))
                 pollers.foreach { case poller =>
                   val sources = poller.sources
                   val results = poller.poll
@@ -125,7 +127,7 @@ class DefaultMonitor (
                     sample.setValue(dto.id, result);
                   }
                 }
-                println("Collected sample: "+sample.dump)
+//                println("Collected sample: "+sample.dump)
                 sample.update();
 
                 Thread.sleep( step_duration * sample_span.getDurationInSeconds)

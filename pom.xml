@@ -102,6 +102,8 @@
         <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
         <sigar-version>1.6.4</sigar-version>
         <jackson-version>1.7.0</jackson-version>
+        <jersey-version>1.5</jersey-version>
+        <jetty-version>7.1.6.v20100715</jetty-version>
 
 
         <maven.compiler.source>1.6</maven.compiler.source>
@@ -344,6 +346,20 @@
             <snapshots><enabled>true</enabled></snapshots>
             <releases><enabled>false</enabled></releases>
         </repository>
+        
+        <repository>
+          <id>java.net.m2</id>
+          <url>http://download.java.net/maven/2</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>glassfish-repo-archive</id>
+          <url>http://maven.glassfish.org/content/groups/glassfish</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+            
     </repositories>
 
     <pluginRepositories>

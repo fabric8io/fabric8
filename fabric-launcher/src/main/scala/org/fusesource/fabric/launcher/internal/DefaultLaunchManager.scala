@@ -45,7 +45,7 @@ class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
   // launched services..
 
   stats_dir.mkdirs
-  val monitor:Monitor = new DefaultMonitor(stats_dir.getCanonicalPath+"/");
+  val monitor = new DefaultMonitor(stats_dir.getCanonicalPath+"/");
   {
     val finder = new ClassFinder(DATA_POLLER_FACTORY_RESOURCE, classOf[PollerFactory])
     monitor.poller_factories = finder.singletons
@@ -408,6 +408,7 @@ class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
       val state = service.state
       status.state = state.toString
       status.state_age = state.age
+      status.monitors = service.monitor_config
       status
 
     }.toSeq

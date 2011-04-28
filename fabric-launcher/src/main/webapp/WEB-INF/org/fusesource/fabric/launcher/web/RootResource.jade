@@ -1,0 +1,25 @@
+-# Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+-#
+-#     http://fusesource.com
+-#
+-# The software in this package is published under the terms of the
+-# CDDL license a copy of which has been included with this distribution
+-# in the license.txt file.
+
+- import org.fusesource.fabric.launcher.web.ViewHelper._
+
+- val values = launch_manager.status()
+
+h1 Services
+
+- for( status <- values )
+  .service
+    h2.id #{status.id}
+    .enabled   Enabled: #{status.enabled}
+    .state     State: #{status.state}
+    .state_age Age: #{uptime(status.state_age)}
+    .pid       PID: #{status.pid}
+
+    img(src={link_to_graph(status.id, "memory")})
+    img(src={link_to_graph(status.id, "cpu")})
+

@@ -10,16 +10,19 @@
 
 package org.fusesource.fabric.launcher
 
-import org.fusesource.hawtdispatch._
-import java.util.concurrent.TimeUnit
-import internal.FileSupport._
+import internal.{FileSupport, DefaultLaunchManager}
 import internal.IOSupport._
-import org.fusesource.fabric.launcher.internal.DefaultLaunchManager
 import org.fusesource.fabric.launcher.api.{XmlCodec, JsonCodec, ServiceDTO, LaunchManager}
-import org.hyperic.jni.ArchLoader
 import java.net.URLClassLoader
 import java.util.zip.ZipFile
 import java.io._
+import org.eclipse.jetty.server.{Connector, Server}
+import org.eclipse.jetty.webapp.WebAppContext
+import org.eclipse.jetty.server.nio.SelectChannelConnector
+import java.io.File
+import java.lang.String
+import java.net.URI
+import web.RootResource
 
 /**
  * <p>
@@ -86,17 +89,60 @@ object LauncherDeamon {
     unpack_native_libs
 
     // Load the launcher configurations..
-    val launch_manager:LaunchManager = new DefaultLaunchManager(stats_dir)
+    val launch_manager = new DefaultLaunchManager(stats_dir)
+
+    RootResource.launch_manager = Some(launch_manager)
+
+    import FileSupport._
+
+    val bind ="http://127.0.0.1:8080"
+    val bind_uri = new URI(bind)
+    val prefix = "/"+bind_uri.getPath.stripPrefix("/")
+    val host = bind_uri.getHost
+    val port = bind_uri.getPort
+
+    var connector = new SelectChannelConnector
+    connector.setHost(host)
+    connector.setPort(port)
+
+    def webapp:File = {
+
+      // the war might be on the classpath..
+      val resource = "org/fusesource/fabric/launcher/banner.txt"
+      var url = LauncherDeamon.getClass.getClassLoader.getResource(resource)
+      if(url!=null) {
+        if( url.getProtocol == "jar") {
+          // we are probably being run from a maven build..
+          url = new java.net.URL( url.getFile.stripSuffix("!/"+resource) )
+          val jar = new File( url.getFile )
+          if( jar.isFile ) {
+            return jar.getParentFile / (jar.getName.stripSuffix(".jar")+".war")
+          }
+        } else if( url.getProtocol == "file") {
+          // we are probably being run from an IDE...
+          val rc = new File( url.getFile.stripSuffix("/"+resource) )
+          if( rc.isDirectory ) {
+            return rc/".."/".."/"src"/"main"/"webapp"
+          }
+        }
+      }
+      return null
+    }
+
+    def admin_app = {
+      var app_context = new WebAppContext
+      app_context.setContextPath(prefix)
+      app_context.setWar(webapp.getCanonicalPath)
+      app_context
+    }
+
+    val server = new Server
+    server.setHandler(admin_app)
+    server.setConnectors(Array[Connector](connector))
+    server.start
 
     while(true) {
       launch_manager.configure(load(conf_dir))
-      val values = launch_manager.status()
-      if( !values.isEmpty ) {
-        println("========= sevice status ==========")
-        values.foreach { status =>
-          println(new String(JsonCodec.encode(status), "UTF-8"))
-        }
-      }
       Thread.sleep(1000)
     }
   }
