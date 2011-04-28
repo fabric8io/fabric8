@@ -23,6 +23,18 @@ public class ZooKeeperUtils {
         }
     }
 
+    public static void copy( IZKClient zk, String from, String to ) throws InterruptedException, KeeperException {
+        for (String child : zk.getChildren(from)) {
+            String fromChild = from + "/" + child;
+            String toChild = to + "/" + child;
+            if (zk.exists(toChild) == null) {
+                byte[] data  = zk.getData(fromChild);
+                zk.createBytesNodeWithParents(toChild, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                copy(zk, fromChild, toChild);
+            }
+        }
+    }
+
     public static void add( IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) == null) {
             zooKeeper.createOrSetWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -70,6 +82,10 @@ public class ZooKeeperUtils {
 
     public static void set( IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
         zooKeeper.createOrSetWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+    }
+
+    public static void create( IZKClient zooKeeper, String path ) throws InterruptedException, KeeperException {
+        zooKeeper.createWithParents(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
     public static void createDefault( IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {

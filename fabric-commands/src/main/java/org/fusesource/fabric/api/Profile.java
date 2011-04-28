@@ -8,10 +8,18 @@
  */
 package org.fusesource.fabric.api;
 
-import java.net.URI;
 import java.util.Map;
 
 public interface Profile {
+
+    /**
+     * Key indicating a deletion.
+     * This value can appear as the value of a key in a configuration
+     * or as a key itself.  If used as a key, the whole configuration
+     * is flagged has been deleted from its parent when computing the
+     * overlay.
+     */
+    final String DELETED = "#deleted#";
 
     String getId();
     String getVersion();
@@ -20,16 +28,13 @@ public interface Profile {
     void setParents(Profile[] parents);
 
     Map<String, Map<String, String>> getConfigurations();
+
+    /**
+     * Update configurations of this profile with the new values
+     *
+     * @param configurations
+     */
     void setConfigurations(Map<String, Map<String, String>> configurations);
-
-    URI[] getBundles();
-    void setBundles(URI[] bundles);
-
-    String[] getFeatures();
-    void setFeatures(String[] features);
-
-    URI[] getFeatureRepositories();
-    void setFeatureRepositories(URI[] uris);
 
     /**
      * Gets profile with configuration slitted with parents.
@@ -37,5 +42,12 @@ public interface Profile {
      * @return Calculated profile or null if instance is already a calculated overlay.
      */
     Profile getOverlay();
+
+    /**
+     * Indicate if this profile is an overlay or not.
+     *
+     * @return
+     */
+    boolean isOverlay();
 
 }

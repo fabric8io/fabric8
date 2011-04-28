@@ -60,6 +60,9 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     }
 
     public void destroy() throws Exception {
+        for (ZooKeeperTreeTracker<String> tree : trees.values()) {
+            tree.destroy();
+        }
     }
 
     public void onConnected() {

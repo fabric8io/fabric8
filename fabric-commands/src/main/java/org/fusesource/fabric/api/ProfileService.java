@@ -11,6 +11,7 @@ package org.fusesource.fabric.api;
 public interface ProfileService {
 
     void createVersion(String version);
+    void copyVersion(String from, String to);
     void deleteVersion(String version);
 
     String[] getVersions();

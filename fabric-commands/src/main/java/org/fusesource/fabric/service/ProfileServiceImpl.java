@@ -16,6 +16,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.ProfileService;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 
 public class ProfileServiceImpl implements ProfileService {
@@ -32,8 +33,16 @@ public class ProfileServiceImpl implements ProfileService {
 
     public void createVersion(String version) {
         try {
-            zooKeeper.createWithParents("/fabric/configs/versions/" + version, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createWithParents("/fabric/configs/versions/" + version + "/profiles", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createWithParents(ZkPath.CONFIG_VERSION.getPath(version), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createWithParents(ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public void copyVersion(String fromVersion, String toVersion) {
+        try {
+            ZooKeeperUtils.copy(zooKeeper, ZkPath.CONFIG_VERSION.getPath(fromVersion), ZkPath.CONFIG_VERSION.getPath(toVersion));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -41,7 +50,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     public void deleteVersion(String version) {
         try {
-            zooKeeper.deleteWithChildren("/fabric/configs/versions/" + version);
+            zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSION.getPath(version));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -49,7 +58,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     public String[] getVersions() {
         try {
-            List<String> versions = zooKeeper.getChildren("/fabric/configs/versions");
+            List<String> versions = zooKeeper.getChildren(ZkPath.CONFIG_VERSIONS.getPath());
             return versions.toArray(new String[versions.size()]);
         } catch (Exception e) {
             throw new FabricException(e);
@@ -59,7 +68,7 @@ public class ProfileServiceImpl implements ProfileService {
     public Profile[] getProfiles(String version) {
         try {
 
-            List<String> names = zooKeeper.getChildren("/fabric/configs/versions/" + version + "/profiles");
+            List<String> names = zooKeeper.getChildren(ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version));
             List<Profile> profiles = new ArrayList<Profile>();
             for (String name : names) {
                 profiles.add(new ProfileImpl(name, version, zooKeeper));
@@ -72,7 +81,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     public Profile createProfile(String version, String name) {
         try {
-            zooKeeper.createWithParents("/fabric/configs/versions/" + version + "/profiles/" + name, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT );
+            ZooKeeperUtils.create( zooKeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name) );
             return new ProfileImpl(name, version, zooKeeper);
         } catch (Exception e) {
             throw new FabricException(e);
@@ -81,7 +90,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     public void deleteProfile(Profile profile) {
         try {
-            zooKeeper.deleteWithChildren("/fabric/configs/versions/" + profile.getVersion() + "/profiles/" + profile.getId());
+            zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(profile.getVersion(), profile.getId()));
         } catch (Exception e) {
             throw new FabricException(e);
         }
