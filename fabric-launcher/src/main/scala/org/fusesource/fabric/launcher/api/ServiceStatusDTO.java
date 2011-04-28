@@ -11,6 +11,8 @@
 package org.fusesource.fabric.launcher.api;
 
 
+import org.fusesource.fabric.monitor.api.MonitoredSetDTO;
+
 import javax.xml.bind.annotation.*;
 
 /**
@@ -34,5 +36,8 @@ public class ServiceStatusDTO {
 
     @XmlAttribute
     public Long pid;
+
+    @XmlElement
+    public MonitoredSetDTO monitors;
 
 }
