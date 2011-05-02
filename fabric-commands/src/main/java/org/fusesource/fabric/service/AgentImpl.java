@@ -21,6 +21,7 @@ import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.JmxTemplate.BundleStateCallback;
 import org.fusesource.fabric.service.JmxTemplate.ServiceStateCallback;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -54,7 +55,7 @@ public class AgentImpl implements Agent {
 
     public boolean isAlive() {
         try {
-            return zooKeeper.exists("/fabric/registry/agents/alive/" + id) != null;
+            return zooKeeper.exists(ZkPath.AGENT_ALIVE.getPath(id)) != null;
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -65,16 +66,16 @@ public class AgentImpl implements Agent {
     }
 
     public String getSshUrl() {
-        return getZkData("ssh");
+        return getZkData(ZkPath.AGENT_SSH);
     }
 
     public String getJmxUrl() {
-        return getZkData("jmx");
+        return getZkData(ZkPath.AGENT_JMX);
     }
 
-    private String getZkData(String name) {
+    private String getZkData(ZkPath path) {
         try {
-            return zooKeeper.getStringData("/fabric/registry/agents/config/" + id + "/" + name);
+            return zooKeeper.getStringData(path.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -128,8 +129,8 @@ public class AgentImpl implements Agent {
 
     public Profile[] getProfiles() {
         try {
-            String version = zooKeeper.getStringData("/fabric/configs/agents/" + id);
-            String node = "/fabric/configs/versions/" + version + "/agents/" + id;
+            String version = zooKeeper.getStringData(ZkPath.AGENT.getPath(id));
+            String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
             String str = zooKeeper.getStringData(node);
             if (str == null) {
                 return new Profile[0];
@@ -146,8 +147,8 @@ public class AgentImpl implements Agent {
 
     public void setProfiles(Profile[] profiles) {
         try {
-            String version = zooKeeper.getStringData("/fabric/configs/agents/" + id);
-            String node = "/fabric/configs/versions/" + version + "/agents/" + id;
+            String version = zooKeeper.getStringData(ZkPath.AGENT.getPath(id));
+            String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
             String str = "";
             for (Profile parent : profiles) {
                 if (!version.equals(parent.getVersion())) {
