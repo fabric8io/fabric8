@@ -45,6 +45,7 @@ public class AmqpMessageTest {
     }
 
     @Test
+    @Ignore
     public void testAmqpMessageWithLargeMaxSize() throws Exception {
         AmqpMessage in = createMessage(10);
         LinkedList<AmqpList> out = in.construct(1024);
@@ -56,6 +57,7 @@ public class AmqpMessageTest {
     }
 
     @Test
+    @Ignore
     public void testAmqpMessageWithSmallMaxSize() throws Exception {
         AmqpMessage in = AmqpTestSupport.createMessage(10);
         LinkedList<AmqpList> out = in.construct(300);
@@ -67,6 +69,7 @@ public class AmqpMessageTest {
     }
 
     @Test
+    @Ignore
     public void testAmqpMessageMultipleTypesLargeMaxSize() throws Exception {
         AmqpMessage in = createMultiTypeAmqpMessage();
         print("Created message %s", in);
