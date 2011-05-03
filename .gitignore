@@ -6,4 +6,6 @@ overlays
 .DS_Store
 .settings
 bin
+*.swp
+*.log
 
