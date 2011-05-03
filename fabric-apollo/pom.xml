@@ -140,7 +140,6 @@
 
   <modules>
     <module>fusemq-scala</module>
-    <module>fusemq-hbase</module>
     <module>fusemq-cluster</module>
     <module>fusemq-cli</module>
     <module>fusemq-amqp-gen</module>
