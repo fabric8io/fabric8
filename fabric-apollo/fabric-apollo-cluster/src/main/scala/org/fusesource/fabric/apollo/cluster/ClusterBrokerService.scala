@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 import org.apache.activemq.apollo.broker.Broker
 import org.osgi.service.cm.ConfigurationAdmin
@@ -20,7 +20,7 @@ import FileSupport._
 import java.io.File
 import org.linkedin.zookeeper.client.IZKClient
 import org.fusesource.hawtbuf.ByteArrayInputStream
-import org.fusesource.fusemq.cluster.dto.ClusterRouterDTO
+import org.fusesource.fabric.apollo.cluster.dto.ClusterRouterDTO
 import org.fusesource.hawtdispatch._
 import org.apache.zookeeper.AsyncCallback.DataCallback
 import org.apache.zookeeper.data.Stat

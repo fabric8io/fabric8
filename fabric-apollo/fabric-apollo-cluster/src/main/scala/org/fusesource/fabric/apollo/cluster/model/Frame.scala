@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster.model
+package org.fusesource.fabric.apollo.cluster.model
 
 import org.fusesource.hawtbuf.Buffer
 import org.apache.activemq.apollo.broker.Sizer

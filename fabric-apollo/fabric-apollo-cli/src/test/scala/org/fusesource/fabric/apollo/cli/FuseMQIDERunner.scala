@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cli
+package org.fusesource.fabric.apollo.cli
 
 import org.junit.Test
 import java.io.File
@@ -32,7 +32,7 @@ object FuseMQIDERunner  {
 
     // Setups where the broker base directory is...
     if( System.getProperty("apollo.base") == null ) {
-      val apollo_base = new File(getClass.getClassLoader.getResource("example-fusemq/etc/apollo.xml").toURI.resolve("..").toURL.getFile)
+      val apollo_base = new File(getClass.getClassLoader.getResource("example-fabric.apollo/etc/apollo.xml").toURI.resolve("..").toURL.getFile)
       System.setProperty("apollo.base", apollo_base.getCanonicalPath)
     }
     println("apollo.base=%s".format(System.getProperty("apollo.base")));

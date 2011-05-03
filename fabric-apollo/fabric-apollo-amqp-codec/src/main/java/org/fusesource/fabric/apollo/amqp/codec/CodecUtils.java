@@ -8,15 +8,15 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpEncodingError;
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpMarshaller;
-import org.fusesource.fusemq.amqp.codec.types.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpEncodingError;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpMarshaller;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpType;
 
 import java.io.*;
 
-import static org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller;
 
 /**
  *

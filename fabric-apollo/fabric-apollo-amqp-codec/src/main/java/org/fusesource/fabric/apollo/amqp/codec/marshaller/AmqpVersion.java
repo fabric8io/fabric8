@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.marshaller;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fusemq.amqp.codec.BitUtils;
+import org.fusesource.fabric.apollo.amqp.codec.BitUtils;
 
 public class AmqpVersion {
 

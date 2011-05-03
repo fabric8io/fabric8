@@ -8,11 +8,11 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.marshaller;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.fusemq.amqp.codec.AmqpDefinitions;
-import org.fusesource.fusemq.amqp.codec.AmqpProtocolHeader;
+import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
+import org.fusesource.fabric.apollo.amqp.codec.AmqpProtocolHeader;
 import org.fusesource.hawtbuf.codec.Codec;
 
 import java.io.DataInput;

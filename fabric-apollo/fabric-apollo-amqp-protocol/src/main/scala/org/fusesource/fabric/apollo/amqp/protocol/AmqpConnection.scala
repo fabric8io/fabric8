@@ -8,23 +8,23 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.hawtdispatch._
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
-import org.fusesource.fusemq.amqp.codec.types.TypeFactory._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import org.apache.activemq.apollo.util.Logging
 import java.io.{EOFException, IOException}
-import org.fusesource.fusemq.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.apache.activemq.apollo.transport._
 import scala.math._
 import scala.util.Random
 import collection.mutable.{Queue, LinkedList, HashMap, SynchronizedMap}
 import tcp.{TcpTransportServer, TcpTransportFactory}
-import org.fusesource.fusemq.amqp.api._
+import org.fusesource.fabric.apollo.amqp.api._
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, Sink}
-import org.fusesource.fusemq.amqp.codec._
+import org.fusesource.fabric.apollo.amqp.codec._
 import java.net.URI
 
 /**

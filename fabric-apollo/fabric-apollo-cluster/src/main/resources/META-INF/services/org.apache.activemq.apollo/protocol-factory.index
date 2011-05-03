@@ -11,4 +11,4 @@
 ## ---------------------------------------------------------------------------
 ##
 ## ---------------------------------------------------------------------------
-org.fusesource.fusemq.cluster.protocol.ClusterProtocolFactory
+org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocolFactory

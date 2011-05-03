@@ -8,20 +8,20 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.types;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
 import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpEncodingError;
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpMarshaller;
-import org.fusesource.fusemq.amqp.codec.marshaller.Encoded;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpEncodingError;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpMarshaller;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.Encoded;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Iterator;
 
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.createAmqpBoolean;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.createAmqpNull;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpBoolean;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpNull;
 
 /**
  * Wrapper to handle fields with value="true", which is encoded with a descriptor and then a list type.

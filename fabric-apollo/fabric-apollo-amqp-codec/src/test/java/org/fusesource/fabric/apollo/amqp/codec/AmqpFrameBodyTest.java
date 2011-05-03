@@ -8,15 +8,15 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fusemq.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.fusesource.fusemq.amqp.codec.AmqpTestSupport.print;
-import static org.fusesource.fusemq.amqp.codec.CodecUtils.marshalUnmarshal;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.AmqpTestSupport.print;
+import static org.fusesource.fabric.apollo.amqp.codec.CodecUtils.marshalUnmarshal;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 
 /**
  *

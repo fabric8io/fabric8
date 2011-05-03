@@ -8,18 +8,18 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.broker
+package org.fusesource.fabric.apollo.amqp.broker
 
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.Logging
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
 import org.fusesource.hawtbuf.AsciiBuffer.ascii
-import org.fusesource.fusemq.amqp.codec.types.TypeFactory._
-import org.fusesource.fusemq.amqp.protocol._
-import org.fusesource.fusemq.amqp.api._
-import org.fusesource.fusemq.amqp.api.Message
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
+import org.fusesource.fabric.apollo.amqp.protocol._
+import org.fusesource.fabric.apollo.amqp.api._
+import org.fusesource.fabric.apollo.amqp.api.Message
 import org.apache.activemq.apollo.dto.DestinationDTO
-import org.fusesource.fusemq.amqp.codec.types.{AmqpTransfer, AmqpRole}
+import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpTransfer, AmqpRole}
 import org.apache.activemq.apollo.broker._
 import scala.math._
 

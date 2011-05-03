@@ -15,14 +15,14 @@
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.fusesource.fusemq</groupId>
-    <artifactId>fusemq-project</artifactId>
+    <groupId>org.fusesource.fabric.apollo</groupId>
+    <artifactId>fabric-apollo-project</artifactId>
     <version>1.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
-  <groupId>org.fusesource.fusemq</groupId>
-  <artifactId>fusemq-amqp-gen</artifactId>
+  <groupId>org.fusesource.fabric.apollo</groupId>
+  <artifactId>fabric-apollo-amqp-gen</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
@@ -85,9 +85,9 @@
                 <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask"/>
                 <mkdir dir="${project.build.directory}/generated-sources/xjc"/>
                 <xjc destdir="${project.build.directory}/generated-sources/xjc"
-                     package="org.fusesource.fusemq.amqp.jaxb.schema">
+                     package="org.fusesource.fabric.apollo.amqp.jaxb.schema">
                   <arg value="-dtd"/>
-                  <schema file="${basedir}/src/main/resources/org/fusesource/fusemq/amqp/generator/amqp.dtd"/>
+                  <schema file="${basedir}/src/main/resources/org/fusesource/fabric/apollo/amqp/generator/amqp.dtd"/>
                 </xjc>
               </tasks>
             </configuration>

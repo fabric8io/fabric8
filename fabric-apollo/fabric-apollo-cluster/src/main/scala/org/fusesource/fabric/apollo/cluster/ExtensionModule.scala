@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -32,5 +32,5 @@ import org.apache.activemq.apollo.util.Module
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 class ExtensionModule extends Module {
-  override def xml_packages = Array("org.fusesource.fusemq.cluster.dto")
+  override def xml_packages = Array("org.fusesource.fabric.apollo.cluster.dto")
 }

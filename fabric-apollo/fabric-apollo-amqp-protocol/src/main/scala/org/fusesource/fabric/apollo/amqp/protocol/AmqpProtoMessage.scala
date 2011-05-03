@@ -8,19 +8,19 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fusemq.amqp.codec.types._
-import org.fusesource.fusemq.amqp.codec.CodecUtils._
-import org.fusesource.fusemq.amqp.codec.types.TypeFactory._
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.CodecUtils._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
 import collection.mutable.ListBuffer
 import java.util.{UUID, LinkedList}
 import org.apache.activemq.apollo.util.Logging
-import org.fusesource.fusemq.amqp.api.{Outcome, Message}
+import org.fusesource.fabric.apollo.amqp.api.{Outcome, Message}
 import org.fusesource.hawtbuf.{ByteArrayOutputStream, ByteArrayInputStream, Buffer}
 import java.io._
-import org.fusesource.fusemq.amqp.codec.{CodecUtils, AmqpMessage}
+import org.fusesource.fabric.apollo.amqp.codec.{CodecUtils, AmqpMessage}
 
 /**
  *

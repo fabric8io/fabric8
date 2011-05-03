@@ -8,13 +8,13 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
 /**
  * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
  */
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fusemq.amqp.codec.AmqpDefinitions
+import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions
 
 /**
  * <p>

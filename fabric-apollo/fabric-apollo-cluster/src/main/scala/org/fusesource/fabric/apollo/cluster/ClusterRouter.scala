@@ -8,18 +8,18 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 import org.apache.activemq.apollo.util._
 import ReporterLevel._
-import org.fusesource.fusemq.cluster.dto.ClusterRouterDTO
+import org.fusesource.fabric.apollo.cluster.dto.ClusterRouterDTO
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.broker.security.SecurityContext
 import org.apache.activemq.apollo.dto._
 import org.apache.activemq.apollo.util.path.Path
 import org.fusesource.hawtdispatch._
 import scala.collection.mutable.HashMap
-import org.fusesource.fusemq.cluster.util.HashRing
+import org.fusesource.fabric.apollo.cluster.util.HashRing
 
 /**
  * <p>

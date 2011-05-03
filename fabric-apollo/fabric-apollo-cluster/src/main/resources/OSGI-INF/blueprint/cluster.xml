@@ -26,7 +26,7 @@
   </cm:property-placeholder>
 
 
-  <bean id="cluster-broker" class="org.fusesource.fusemq.cluster.OsgiClusterBrokerService"
+  <bean id="cluster-broker" class="org.fusesource.fabric.apollo.cluster.OsgiClusterBrokerService"
         init-method="start" destroy-method="stop">
     <property name="context" ref="blueprintBundleContext"/>
     <property name="basedir" value="${apollo.base}"/>

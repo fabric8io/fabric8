@@ -8,19 +8,19 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fusemq.amqp.codec.types.AmqpList;
-import org.fusesource.fusemq.amqp.codec.types.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpList;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpType;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.LinkedList;
 
-import static org.fusesource.fusemq.amqp.codec.AmqpTestSupport.*;
-import static org.fusesource.fusemq.amqp.codec.CodecUtils.getSize;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.AmqpTestSupport.*;
+import static org.fusesource.fabric.apollo.amqp.codec.CodecUtils.getSize;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 import static org.junit.Assert.assertEquals;
 
 /**

@@ -8,13 +8,13 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.generator;
+package org.fusesource.fabric.apollo.amqp.generator;
 
 public class JAXBGen {
 
 	public static final void main(String [] args)
 	{
 		//TODO perhaps add make this a util for generating jaxb.schema?
-	    //xjc -dtd amqp.dtd -verbose -d generated -p org.fusesource.fusemq.amqp.jaxb.schema -target 2.0
+	    //xjc -dtd amqp.dtd -verbose -d generated -p org.fusesource.fabric.apollo.amqp.jaxb.schema -target 2.0
 	}
 }

@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.api;
+package org.fusesource.fabric.apollo.amqp.api;
 
 /**
  * Represents an AMQP server that listens for incoming client connections

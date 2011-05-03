@@ -8,11 +8,11 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fusemq.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types._
 import TypeFactory._
-import org.fusesource.fusemq.amqp.api._
+import org.fusesource.fabric.apollo.amqp.api._
 import collection.mutable.ListBuffer
 import Lifetime._
 import DistributionMode._

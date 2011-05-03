@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fusemq.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,8 +19,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.fusesource.fusemq.amqp.codec.CodecUtils.marshalUnmarshal;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.CodecUtils.marshalUnmarshal;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 
 /**
  *

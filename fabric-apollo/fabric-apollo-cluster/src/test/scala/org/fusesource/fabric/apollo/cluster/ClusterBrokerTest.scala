@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.FileSupport._

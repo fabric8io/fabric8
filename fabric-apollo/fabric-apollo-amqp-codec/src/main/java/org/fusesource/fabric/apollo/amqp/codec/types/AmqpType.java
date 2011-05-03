@@ -8,12 +8,12 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.types;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpEncodingError;
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpMarshaller;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpEncodingError;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpMarshaller;
 
 public interface AmqpType<Bean, EncodedBuffer extends AmqpBuffer<?>> {
 

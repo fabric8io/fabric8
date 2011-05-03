@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.marshaller;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 public class UnexpectedTypeException extends AmqpEncodingError {
 

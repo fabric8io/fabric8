@@ -8,10 +8,10 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.generator;
+package org.fusesource.fabric.apollo.amqp.generator;
 
-import org.fusesource.fusemq.amqp.jaxb.schema.Doc;
-import org.fusesource.fusemq.amqp.jaxb.schema.Field;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Doc;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Field;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

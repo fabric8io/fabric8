@@ -8,12 +8,12 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.generator;
+package org.fusesource.fabric.apollo.amqp.generator;
 
-import org.fusesource.fusemq.amqp.jaxb.schema.Amqp;
-import org.fusesource.fusemq.amqp.jaxb.schema.Definition;
-import org.fusesource.fusemq.amqp.jaxb.schema.Section;
-import org.fusesource.fusemq.amqp.jaxb.schema.Type;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Amqp;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Definition;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Section;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

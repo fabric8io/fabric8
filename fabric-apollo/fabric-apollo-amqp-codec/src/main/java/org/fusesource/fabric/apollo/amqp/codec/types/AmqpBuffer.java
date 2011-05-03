@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.types;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
-import org.fusesource.fusemq.amqp.codec.marshaller.Encoded;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.Encoded;
 
 public interface AmqpBuffer<V> {
 

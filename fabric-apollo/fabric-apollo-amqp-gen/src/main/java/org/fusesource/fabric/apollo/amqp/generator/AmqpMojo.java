@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.generator;
+package org.fusesource.fabric.apollo.amqp.generator;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -77,7 +77,7 @@ public class AmqpMojo extends AbstractMojo {
     /**
      * The package prefix to put the generated Java classes in
      *
-     * @parameter default-value="org.fusesource.fusemq.amqp.codec"
+     * @parameter default-value="org.fusesource.fabric.apollo.amqp.codec"
      */
     private String packagePrefix;
 

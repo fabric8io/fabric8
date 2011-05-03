@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.types;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
 import java.util.Iterator;
 import java.util.List;

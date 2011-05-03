@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster.protocol
+package org.fusesource.fabric.apollo.cluster.protocol
 
 import ClusterProtocolConstants._
 import java.lang.String
@@ -18,10 +18,10 @@ import org.apache.activemq.apollo.dto.JsonCodec
 import scala.collection
 import org.fusesource.hawtbuf.{Buffer, ByteArrayOutputStream}
 import util.continuations._
-import org.fusesource.fusemq.cluster.{Peer, ClusterBroker}
-import org.fusesource.fusemq.cluster.model._
+import org.fusesource.fabric.apollo.cluster.{Peer, ClusterBroker}
+import org.fusesource.fabric.apollo.cluster.model._
 import org.apache.activemq.apollo.broker.protocol.ProtocolHandler
-import org.fusesource.fusemq.cluster.dto.{ClusterConnectionStatusDTO, ClusterBrokerDTO, ClusterProtocolHelloDTO}
+import org.fusesource.fabric.apollo.cluster.dto.{ClusterConnectionStatusDTO, ClusterBrokerDTO, ClusterProtocolHelloDTO}
 
 object ClusterProtocolHandler extends Log
 

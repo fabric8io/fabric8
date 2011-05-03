@@ -8,11 +8,11 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.broker
+package org.fusesource.fabric.apollo.amqp.broker
 
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.fusesource.fusemq.amqp.api._
+import org.fusesource.fabric.apollo.amqp.api._
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import scala.math._

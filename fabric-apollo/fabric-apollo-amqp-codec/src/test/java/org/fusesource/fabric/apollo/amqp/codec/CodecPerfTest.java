@@ -8,10 +8,10 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fusemq.amqp.codec.types.AmqpFragment;
-import org.fusesource.fusemq.amqp.codec.types.AmqpTransfer;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpFragment;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpTransfer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,8 +22,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.fusesource.fusemq.amqp.codec.CodecUtils.marshalUnmarshal;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.CodecUtils.marshalUnmarshal;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 
 /**
  *

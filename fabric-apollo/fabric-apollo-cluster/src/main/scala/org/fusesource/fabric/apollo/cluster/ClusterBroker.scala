@@ -8,21 +8,21 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 import org.fusesource.hawtdispatch._
 import java.lang.String
-import org.fusesource.fusemq.cluster.dto.ClusterBrokerDTO
+import org.fusesource.fabric.apollo.cluster.dto.ClusterBrokerDTO
 import org.apache.activemq.apollo.broker._
 import java.io.IOException
 import org.apache.activemq.apollo.transport.{DefaultTransportListener, TransportFactory}
 import org.apache.activemq.apollo.util._
-import org.fusesource.fusemq.cluster.protocol.ClusterProtocol
+import org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocol
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fusemq.cluster.model._
+import org.fusesource.fabric.apollo.cluster.model._
 import collection.mutable.HashMap
 import org.apache.activemq.apollo.broker.protocol.{ProtocolHandler, AnyProtocol}
-import org.fusesource.fusemq.cluster.util.{HashRing, Hasher}
+import org.fusesource.fabric.apollo.cluster.util.{HashRing, Hasher}
 
 object ClusterBroker extends Log {
   implicit def encode_peer_info(value:PeerInfo.Buffer):Buffer = value.toFramedBuffer

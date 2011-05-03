@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.generator;
+package org.fusesource.fabric.apollo.amqp.generator;
 
-import org.fusesource.fusemq.amqp.jaxb.schema.Choice;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Choice;
 
 import java.util.LinkedList;
 

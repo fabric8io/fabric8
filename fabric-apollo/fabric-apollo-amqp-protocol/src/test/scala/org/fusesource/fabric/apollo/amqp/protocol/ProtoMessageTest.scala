@@ -9,11 +9,11 @@
  */
 
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
 import java.util.UUID
-import org.fusesource.fusemq.amqp.codec.CodecUtils._
-import org.fusesource.fusemq.amqp.codec.types.TypeFactory._
+import org.fusesource.fabric.apollo.amqp.codec.CodecUtils._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.FunSuiteSupport
 import org.fusesource.hawtbuf.Buffer

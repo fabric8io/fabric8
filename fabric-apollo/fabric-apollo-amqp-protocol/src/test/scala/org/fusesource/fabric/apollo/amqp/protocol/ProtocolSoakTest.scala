@@ -8,10 +8,10 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.apache.activemq.apollo.util.{FunSuiteSupport, Logging}
-import org.fusesource.fusemq.amqp.api._
+import org.fusesource.fabric.apollo.amqp.api._
 import org.fusesource.hawtdispatch._
 import scala.math._
 import collection.mutable.{ListBuffer, HashMap}

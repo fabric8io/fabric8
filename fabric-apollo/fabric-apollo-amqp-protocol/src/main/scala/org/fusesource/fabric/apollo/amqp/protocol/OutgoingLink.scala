@@ -8,16 +8,16 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fusemq.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.Logging
 import AmqpConversions._
 import AmqpProtocolSupport._
 import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
 import scala.util.continuations._
-import org.fusesource.fusemq.amqp.api.{Message, Sender}
+import org.fusesource.fabric.apollo.amqp.api.{Message, Sender}
 
 /**
  *

@@ -8,18 +8,18 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0;
 
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpEncodingError;
-import org.fusesource.fusemq.amqp.codec.marshaller.Encoded;
-import org.fusesource.fusemq.amqp.codec.marshaller.UnexpectedTypeException;
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpBinaryMarshaller.BINARY_ENCODING;
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpBooleanMarshaller.BOOLEAN_ENCODING;
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpListMarshaller.LIST_ENCODING;
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMapMarshaller.MAP_ENCODING;
-import org.fusesource.fusemq.amqp.codec.types.AmqpType;
-import org.fusesource.fusemq.amqp.codec.types.IAmqpList;
-import org.fusesource.fusemq.amqp.codec.types.IAmqpMap;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpEncodingError;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.Encoded;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.UnexpectedTypeException;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpBinaryMarshaller.BINARY_ENCODING;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpBooleanMarshaller.BOOLEAN_ENCODING;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpListMarshaller.LIST_ENCODING;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMapMarshaller.MAP_ENCODING;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.types.IAmqpList;
+import org.fusesource.fabric.apollo.amqp.codec.types.IAmqpMap;
 import org.fusesource.hawtbuf.Buffer;
 
 import java.io.DataInput;
@@ -29,7 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Map;
 
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.createAmqpNull;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpNull;
 
 public class Encoder extends BaseEncoder {
 
@@ -117,7 +117,7 @@ public class Encoder extends BaseEncoder {
     // ///////////////////////////////////////////////////////////////////////////////////////////////////
     public static final <E extends AmqpType<?, ?>> AmqpListMarshaller.LIST_ENCODING chooseListEncoding(IAmqpList<E> val) throws AmqpEncodingError {
         boolean useArrayEncoding = useArrayEncoding(val);
-        if (!Boolean.parseBoolean(System.getProperty("org.fusesource.fusemq.amqp.codec.Use8BitListEncodings"))) {
+        if (!Boolean.parseBoolean(System.getProperty("org.fusesource.fabric.apollo.amqp.codec.Use8BitListEncodings"))) {
             if ( useArrayEncoding ) {
                 return AmqpListMarshaller.LIST_ENCODING.ARRAY32;
             } else {
@@ -143,7 +143,7 @@ public class Encoder extends BaseEncoder {
     }
 
     private static <E extends AmqpType<?, ?>> boolean useArrayEncoding(IAmqpList<E> val) {
-        if ( Boolean.parseBoolean(System.getProperty("org.fusesource.fusemq.amqp.codec.NoArrayEncoding")) ) {
+        if ( Boolean.parseBoolean(System.getProperty("org.fusesource.fabric.apollo.amqp.codec.NoArrayEncoding")) ) {
             return false;
         }
         if (val.getListCount() == 1) {

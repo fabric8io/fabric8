@@ -8,12 +8,12 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.scalatest.matchers.ShouldMatchers
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.fusesource.fusemq.amqp.api.{AmqpConnectionFactory, Outcome}
+import org.fusesource.fabric.apollo.amqp.api.{AmqpConnectionFactory, Outcome}
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 /**

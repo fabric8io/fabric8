@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.marshaller;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 public class AmqpEncodingError extends Error {
     private static final long serialVersionUID = 1L;

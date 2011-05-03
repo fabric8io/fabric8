@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fusemq.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.fusesource.fusemq.amqp.codec.AmqpTestSupport.*;
-import static org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpListMarshaller.LIST_ENCODING.ARRAY8;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.AmqpTestSupport.*;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpListMarshaller.LIST_ENCODING.ARRAY8;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 
 /**
  *
@@ -208,8 +208,8 @@ public class AmqpDescribedTypeTest {
 
     @Test
     public void testMultipleWithSeveralValues() throws Exception {
-        System.setProperty("org.fusesource.fusemq.amqp.codec.Use8BitListEncodings", "true");
-        System.setProperty("org.fusesource.fusemq.amqp.codec.NoArrayEncoding", "false");
+        System.setProperty("org.fusesource.fabric.apollo.amqp.codec.Use8BitListEncodings", "true");
+        System.setProperty("org.fusesource.fabric.apollo.amqp.codec.NoArrayEncoding", "false");
         List<AmqpSymbol> list = new ArrayList<AmqpSymbol>();
         list.add(createAmqpSymbol("ASCII"));
         list.add(createAmqpSymbol("EBCDIC"));

@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster.protocol
+package org.fusesource.fabric.apollo.cluster.protocol
 
 import org.apache.activemq.apollo.broker.protocol.{Protocol, ProtocolFactory}
 import org.apache.activemq.apollo.broker.store.MessageRecord

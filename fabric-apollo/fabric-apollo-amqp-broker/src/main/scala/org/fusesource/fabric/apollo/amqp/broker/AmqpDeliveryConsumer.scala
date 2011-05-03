@@ -8,19 +8,19 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.broker
+package org.fusesource.fabric.apollo.amqp.broker
 
 import org.apache.activemq.apollo.broker.{DeliverySession, DeliveryProducer, Delivery, DeliveryConsumer}
 import org.fusesource.hawtbuf.AsciiBuffer
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtdispatch._
-import org.fusesource.fusemq.amqp.protocol.{AmqpProtoMessage, OutgoingLink, FlowControlListener}
-import org.fusesource.fusemq.amqp.api.DistributionMode._
-import org.fusesource.fusemq.amqp.protocol.AmqpConversions._
-import org.fusesource.fusemq.amqp.api.{Outcome, Sender}
+import org.fusesource.fabric.apollo.amqp.protocol.{AmqpProtoMessage, OutgoingLink, FlowControlListener}
+import org.fusesource.fabric.apollo.amqp.api.DistributionMode._
+import org.fusesource.fabric.apollo.amqp.protocol.AmqpConversions._
+import org.fusesource.fabric.apollo.amqp.api.{Outcome, Sender}
 import org.apache.activemq.apollo.dto.{DestinationDTO, DurableSubscriptionDestinationDTO, TopicDestinationDTO}
 import org.apache.activemq.apollo.filter.BooleanExpression
-import org.fusesource.fusemq.amqp.codec.types.{AmqpString, AmqpSymbol, AmqpFilter}
+import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpString, AmqpSymbol, AmqpFilter}
 import org.apache.activemq.apollo.selector.SelectorParser
 import collection.mutable.ListBuffer
 

@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster.cli
+package org.fusesource.fabric.apollo.cluster.cli
 
 
 import org.apache.felix.gogo.commands.{Action, Option => option, Argument => argument, Command => command}
@@ -19,7 +19,7 @@ import org.apache.felix.service.command.CommandSession
 import org.apache.activemq.apollo.cli.commands.Helper
 import org.linkedin.zookeeper.client.ZKClient
 import org.linkedin.util.clock.Timespan
-import org.fusesource.fusemq.cluster.ClusterBrokerService
+import org.fusesource.fabric.apollo.cluster.ClusterBrokerService
 import org.apache.activemq.apollo.util.ServiceControl
 
 /**

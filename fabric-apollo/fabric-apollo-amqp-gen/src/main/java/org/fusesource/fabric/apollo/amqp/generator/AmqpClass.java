@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.generator;
+package org.fusesource.fabric.apollo.amqp.generator;
 
-import org.fusesource.fusemq.amqp.jaxb.schema.*;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.rmi.UnexpectedException;
 import java.util.*;
 
-import static org.fusesource.fusemq.amqp.generator.Utils.appendIfNotNull;
-import static org.fusesource.fusemq.amqp.generator.Utils.appendIfTrue;
+import static org.fusesource.fabric.apollo.amqp.generator.Utils.appendIfNotNull;
+import static org.fusesource.fabric.apollo.amqp.generator.Utils.appendIfTrue;
 
 public class AmqpClass {
 
@@ -88,9 +88,9 @@ public class AmqpClass {
                 AmqpEncoding encoding = new AmqpEncoding();
                 encoding.parseFromEncoding((Encoding) typeAttribute);
                 encodings.add(encoding);
-            } else if (typeAttribute instanceof org.fusesource.fusemq.amqp.jaxb.schema.Error) {
+            } else if (typeAttribute instanceof org.fusesource.fabric.apollo.amqp.jaxb.schema.Error) {
                 error = new AmqpError();
-                error.parseFromError((org.fusesource.fusemq.amqp.jaxb.schema.Error) typeAttribute);
+                error.parseFromError((org.fusesource.fabric.apollo.amqp.jaxb.schema.Error) typeAttribute);
             }
         }
 

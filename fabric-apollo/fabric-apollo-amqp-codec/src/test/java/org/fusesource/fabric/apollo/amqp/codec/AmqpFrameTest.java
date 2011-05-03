@@ -9,19 +9,19 @@
  */
 
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fusemq.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.UUID;
 
-import static org.fusesource.fusemq.amqp.codec.AmqpTestSupport.*;
-import static org.fusesource.fusemq.amqp.codec.CodecUtils.marshalAmqpFrame;
-import static org.fusesource.fusemq.amqp.codec.CodecUtils.unmarshalAmqpFrame;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.AmqpTestSupport.*;
+import static org.fusesource.fabric.apollo.amqp.codec.CodecUtils.marshalAmqpFrame;
+import static org.fusesource.fabric.apollo.amqp.codec.CodecUtils.unmarshalAmqpFrame;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 
 /**
  *

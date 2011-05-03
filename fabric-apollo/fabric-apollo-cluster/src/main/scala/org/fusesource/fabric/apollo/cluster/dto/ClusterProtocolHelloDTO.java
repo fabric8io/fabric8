@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster.dto;
+package org.fusesource.fabric.apollo.cluster.dto;
 
 import org.apache.activemq.apollo.dto.ConnectorDTO;
 import org.apache.activemq.apollo.dto.RouterDTO;

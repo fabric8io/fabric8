@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fusemq.amqp.codec.AmqpCommand
+import org.fusesource.fabric.apollo.amqp.codec.AmqpCommand
 import org.fusesource.hawtdispatch.DispatchQueue
 
 /**

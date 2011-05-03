@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0;
 
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpEncodingError;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpEncodingError;
 
 import java.io.DataOutput;
 import java.io.IOException;

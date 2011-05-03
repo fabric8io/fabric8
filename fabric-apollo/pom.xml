@@ -21,8 +21,8 @@
     
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.fusesource.fusemq</groupId>
-  <artifactId>fusemq-project</artifactId>
+  <groupId>org.fusesource.fabric.apollo</groupId>
+  <artifactId>fabric-apollo-project</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -35,10 +35,10 @@
 
   <properties>
     <!-- build settings -->
-    <forge-project-id>fusemq</forge-project-id>
+    <forge-project-id>fabric.apollo</forge-project-id>
     <forge-project-id-uc>FUSEMQ</forge-project-id-uc>
     
-    <release-altGitURL>scm:git:ssh://git@github.com:fusesource/fusemq.git</release-altGitURL>
+    <release-altGitURL>scm:git:ssh://git@github.com:fusesource/fabric.apollo.git</release-altGitURL>
     
     <apollo-version>1.0-SNAPSHOT</apollo-version>
     <activemq-version>5.4.1</activemq-version>
@@ -70,7 +70,7 @@
 
   </properties>
 
-  <url>http://fusemq.fusesource.org/</url>
+  <url>http://fabric.apollo.fusesource.org/</url>
   <inceptionYear>2010</inceptionYear>
 
   <!-- 
@@ -86,33 +86,33 @@
   <!-- <mailingLists>
     <mailingList>
       <name>FuseMQ discussion list</name>
-      <archive>http://groups.google.com/group/fusemq</archive>
-      <post>fusemq@googlegroups.com</post>
-      <subscribe>fusemq+subscribe@googlegroups.com</subscribe>
-      <unsubscribe>fusemq+unsubscribe@googlegroups.com</unsubscribe>
+      <archive>http://groups.google.com/group/fabric.apollo</archive>
+      <post>fabric.apollo@googlegroups.com</post>
+      <subscribe>fabric.apollo+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>fabric.apollo+unsubscribe@googlegroups.com</unsubscribe>
     </mailingList>
     <mailingList>
       <name>Commits and issue tracker list</name>
-      <archive>http://groups.google.com/group/fusemq-commits</archive>
-      <post>fusemq-commits@googlegroups.com</post>
-      <subscribe>fusemq-commits+subscribe@googlegroups.com</subscribe>
-      <unsubscribe>fusemq-commits+unsubscribe@googlegroups.com</unsubscribe>
+      <archive>http://groups.google.com/group/fabric.apollo-commits</archive>
+      <post>fabric.apollo-commits@googlegroups.com</post>
+      <subscribe>fabric.apollo-commits+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>fabric.apollo-commits+unsubscribe@googlegroups.com</unsubscribe>
     </mailingList>
   </mailingLists> -->
 
   <scm>
-    <connection>scm:git:git://github.com/fusesource/fusemq.git</connection>
+    <connection>scm:git:git://github.com/fusesource/fabric.apollo.git</connection>
     <!-- 
     TODO - hack this in your ~/.m2/settings.xml to point to your local checkout for releases 
     see comments here: http://jira.codehaus.org/browse/MRELEASE-605
     -->
     <developerConnection>${release-altGitURL}</developerConnection>
-    <url>http://github.com/fusesource/fusemq/tree/master</url>
+    <url>http://github.com/fusesource/fabric.apollo/tree/master</url>
   </scm>
 
   <!-- <issueManagement>
     <system>assembla</system>
-    <url>http://fusemq.assembla.com/spaces/fusemq/support/tickets</url>
+    <url>http://fabric.apollo.assembla.com/spaces/fabric.apollo/support/tickets</url>
   </issueManagement> -->
 
   <!-- <ciManagement>

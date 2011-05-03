@@ -8,20 +8,20 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0;
 
 import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpEncodingError;
-import org.fusesource.fusemq.amqp.codec.marshaller.Encoded;
-import org.fusesource.fusemq.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpEncodingError;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.Encoded;
+import org.fusesource.fabric.apollo.amqp.codec.types.*;
 
 import java.io.DataInput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.fusesource.fusemq.amqp.codec.types.IAmqpList.AmqpWrapperList;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.IAmqpList.AmqpWrapperList;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 
 /**
  * Marshaller for Multiple wrapper type

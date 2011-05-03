@@ -8,12 +8,12 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster.protocol
+package org.fusesource.fabric.apollo.cluster.protocol
 
 import org.apache.activemq.apollo.transport.ProtocolCodec
 import java.nio.ByteBuffer
 import java.nio.channels.{SocketChannel, WritableByteChannel, ReadableByteChannel}
-import org.fusesource.fusemq.cluster.model.Frame
+import org.fusesource.fabric.apollo.cluster.model.Frame
 import java.io.EOFException
 import java.net.ProtocolException
 import ClusterProtocolConstants._

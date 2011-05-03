@@ -8,4 +8,4 @@
 # in the license.txt file.
 #
 
-org.fusesource.fusemq.cluster.ExtensionModule
+org.fusesource.fabric.apollo.cluster.ExtensionModule

@@ -8,22 +8,22 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.broker
+package org.fusesource.fabric.apollo.amqp.broker
 
 import java.lang.{String, Class}
-import org.fusesource.fusemq.amqp.codec.types.TypeFactory._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import org.apache.activemq.apollo.broker.{DestinationParser, Message}
-import org.fusesource.fusemq.amqp.codec.CodecUtils.getSize
+import org.fusesource.fabric.apollo.amqp.codec.CodecUtils.getSize
 import org.apache.activemq.apollo.broker.store.MessageRecord
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
-import org.fusesource.fusemq.amqp.protocol.AmqpConstants._
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
+import org.fusesource.fabric.apollo.amqp.protocol.AmqpConstants._
 import org.fusesource.hawtbuf.{ByteArrayOutputStream, ByteArrayInputStream, Buffer, AsciiBuffer}
 import java.io.{DataOutputStream, DataInputStream}
-import org.fusesource.fusemq.amqp.protocol.{AmqpConversions, AmqpProtoMessage}
+import org.fusesource.fabric.apollo.amqp.protocol.{AmqpConversions, AmqpProtoMessage}
 import AmqpConversions._
 import java.math.BigInteger
 import org.apache.activemq.apollo.util.Logging
-import org.fusesource.fusemq.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types._
 
 object AmqpMessageTransfer {
   val parser = new DestinationParser()

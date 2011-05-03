@@ -8,13 +8,13 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpMarshaller;
-import org.fusesource.fusemq.amqp.codec.marshaller.Encoded;
-import org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.MultipleMarshaller;
-import org.fusesource.fusemq.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpMarshaller;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.Encoded;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.MultipleMarshaller;
+import org.fusesource.fabric.apollo.amqp.codec.types.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
-import static org.fusesource.fusemq.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
 
 public class AmqpTestSupport {
 
@@ -119,13 +119,13 @@ public class AmqpTestSupport {
 
     // needed to unmarshal types that would normally be unmarshalled from a containing type
     static public AmqpFilterSet unmarshalAmqpFilterSet(byte[] b) throws IOException {
-        AmqpMarshaller marshaller = org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
+        AmqpMarshaller marshaller = org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
         DataInputStream in = new DataInputStream(new ByteArrayInputStream(b));
         return AmqpFilterSet.AmqpFilterSetBuffer.create(in, marshaller);
     }
 
     static public AmqpOptions unmarshalAmqpOptions(byte[] b) throws IOException {
-        AmqpMarshaller marshaller = org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
+        AmqpMarshaller marshaller = org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
         DataInputStream in = new DataInputStream(new ByteArrayInputStream(b));
         return AmqpOptions.AmqpOptionsBuffer.create(in, marshaller);
     }

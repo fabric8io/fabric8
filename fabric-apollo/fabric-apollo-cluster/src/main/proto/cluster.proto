@@ -10,7 +10,7 @@
 
 //
 //
-package org.fusesource.fusemq.cluster.model;
+package org.fusesource.fabric.apollo.cluster.model;
 
 option java_multiple_files = true;
 

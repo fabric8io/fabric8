@@ -8,13 +8,13 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fusemq.amqp.codec.types._
-import org.fusesource.fusemq.amqp.codec.types.TypeFactory._
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import collection.JavaConversions._
 import AmqpConversions._
-import org.fusesource.fusemq.amqp.api.{DistributionMode, Lifetime, Outcome}
+import org.fusesource.fabric.apollo.amqp.api.{DistributionMode, Lifetime, Outcome}
 import java.util.concurrent.atomic.AtomicLong
 
 /**

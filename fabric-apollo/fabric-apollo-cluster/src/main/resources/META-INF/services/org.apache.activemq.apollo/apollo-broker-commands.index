@@ -8,6 +8,6 @@
 # in the license.txt file.
 #
 
-org.fusesource.fusemq.cluster.cli.Cluster
-org.fusesource.fusemq.cluster.cli.ClusterPush
-org.fusesource.fusemq.cluster.cli.ClusterPull
+org.fusesource.fabric.apollo.cluster.cli.Cluster
+org.fusesource.fabric.apollo.cluster.cli.ClusterPush
+org.fusesource.fabric.apollo.cluster.cli.ClusterPull

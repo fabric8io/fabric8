@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 import dto.{ChannelStatusDTO, ClusterConnectionStatusDTO, ClusterBrokerDTO, ClusterRouterDTO}
 import org.fusesource.hawtdispatch._
@@ -16,7 +16,7 @@ import java.lang.String
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.util._
 import org.fusesource.hawtbuf.proto.MessageBuffer
-import org.fusesource.fusemq.cluster.model._
+import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf._
 import scala.collection.mutable.{HashMap, HashSet}
 import org.fusesource.hawtbuf.Buffer._
@@ -24,9 +24,9 @@ import scala.util.continuations._
 import org.apache.activemq.apollo.dto.{DestinationDTO, XmlCodec}
 import org.apache.activemq.apollo.broker.protocol.ProtocolFactory
 import org.apache.activemq.apollo.broker.store.MessageRecord
-import org.fusesource.fusemq.cluster.protocol.{ClusterProtocolConstants, ClusterProtocolCodec, ClusterProtocolHandler}
+import org.fusesource.fabric.apollo.cluster.protocol.{ClusterProtocolConstants, ClusterProtocolCodec, ClusterProtocolHandler}
 import ClusterProtocolConstants._
-import org.fusesource.fusemq.cluster.model.ChannelAck.Bean
+import org.fusesource.fabric.apollo.cluster.model.ChannelAck.Bean
 
 object Peer extends Log
 

@@ -8,13 +8,13 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.hawtbuf.Buffer;
-import org.fusesource.fusemq.amqp.codec.marshaller.AmqpMarshaller;
-import org.fusesource.fusemq.amqp.codec.marshaller.Encoded;
-import org.fusesource.fusemq.amqp.codec.types.AmqpNull;
-import org.fusesource.fusemq.amqp.codec.types.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpMarshaller;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.Encoded;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpNull;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpType;
 
 import java.io.*;
 import java.nio.channels.ReadableByteChannel;
@@ -142,7 +142,7 @@ import java.nio.channels.WritableByteChannel;
 
 public class AmqpFrame {
 
-    static AmqpMarshaller marshaller = org.fusesource.fusemq.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
+    static AmqpMarshaller marshaller = org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
 
     protected Buffer header = new Buffer(8);
     protected Buffer extHeader = new Buffer(0);

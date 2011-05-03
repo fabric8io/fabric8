@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.api;
+package org.fusesource.fabric.apollo.amqp.api;
 
-import org.fusesource.fusemq.amqp.protocol.AmqpConnection;
+import org.fusesource.fabric.apollo.amqp.protocol.AmqpConnection;
 
 /**
  *

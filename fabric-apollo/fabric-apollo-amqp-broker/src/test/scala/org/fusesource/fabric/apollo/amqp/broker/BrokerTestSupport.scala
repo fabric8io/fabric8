@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.amqp.broker
+package org.fusesource.fabric.apollo.amqp.broker
 
 import org.apache.activemq.apollo.broker.Broker
 import org.apache.activemq.apollo.broker.BrokerFactory
@@ -38,7 +38,7 @@ trait BrokerTestSupport extends FunSuiteSupport with BeforeAndAfterEach with Log
 
   def getConnectionUri = "tcp://" + host + ":" + port
 
-  protected var brokerConfigUri: String = "xml:classpath:fusemq-amqp.xml"
+  protected var brokerConfigUri: String = "xml:classpath:fabric.apollo-amqp.xml"
   protected var port: Int = 5672
 
   override protected def beforeEach = startBroker

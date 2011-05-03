@@ -8,12 +8,12 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.broker._
-import org.fusesource.fusemq.cluster.protocol.ClusterProtocolHandler
-import org.fusesource.fusemq.cluster.model._
+import org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocolHandler
+import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.apollo.dto.{XmlCodec, DestinationDTO}
 import org.fusesource.hawtbuf.ByteArrayOutputStream

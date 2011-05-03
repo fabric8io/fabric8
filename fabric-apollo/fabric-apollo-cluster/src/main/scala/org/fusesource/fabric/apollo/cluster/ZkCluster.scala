@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.apollo.cluster
 
 import org.apache.zookeeper.ZooDefs.Ids
 import scala.collection.mutable.ListBuffer
@@ -22,7 +22,7 @@ import org.apache.activemq.apollo.broker.Broker
 import org.linkedin.zookeeper.tracker._
 import org.apache.zookeeper.KeeperException.Code
 import java.util.Collection
-import org.fusesource.fusemq.cluster.model.MemberRecord
+import org.fusesource.fabric.apollo.cluster.model.MemberRecord
 import org.fusesource.hawtbuf.Buffer
 
 trait ClusterListener {
