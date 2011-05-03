@@ -16,7 +16,7 @@
     <groupId>org.fusesource.fabric.apollo</groupId>
     <artifactId>fabric-apollo-scala</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <relativePath>../fabric.apollo-scala</relativePath>
+    <relativePath>../fabric-apollo-scala</relativePath>
   </parent>
   
   <modelVersion>4.0.0</modelVersion>
