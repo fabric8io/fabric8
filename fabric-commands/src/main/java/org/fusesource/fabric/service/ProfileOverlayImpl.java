@@ -23,13 +23,13 @@ public class ProfileOverlayImpl implements Profile {
 
     private final String id;
     private final String version;
-    private final IZKClient zooKeeper;
+    private final FabricServiceImpl service;
 
 
-    public ProfileOverlayImpl(String id, String version, IZKClient zooKeeper) {
+    public ProfileOverlayImpl(String id, String version, FabricServiceImpl service) {
         this.id = id;
         this.version = version;
-        this.zooKeeper = zooKeeper;
+        this.service = service;
     }
 
     @Override
@@ -65,6 +65,7 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public Profile[] getParents() {
         try {
+            IZKClient zooKeeper = service.getZooKeeper();
             String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
             String str = zooKeeper.getStringData(node);
             if (str == null) {
@@ -72,7 +73,7 @@ public class ProfileOverlayImpl implements Profile {
             }
             List<Profile> profiles = new ArrayList<Profile>();
             for (String p : str.split(" ")) {
-                profiles.add(new ProfileImpl(p, version, zooKeeper));
+                profiles.add(new ProfileImpl(p, version, service));
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
@@ -92,6 +93,7 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     private void doGetConfigurations(Map<String, Map<String, String>> configs, String node) throws InterruptedException, KeeperException {
+        IZKClient zooKeeper = service.getZooKeeper();
         String data = zooKeeper.getStringData(node);
         String[] parents = data != null ? data.split(" ") : new String[0];
         for (String parent : parents) {
@@ -117,6 +119,10 @@ public class ProfileOverlayImpl implements Profile {
                 }
             }
         }
+    }
+
+    public void delete() {
+        throw new UnsupportedOperationException("Can not delete an overlay profile");
     }
 
 }

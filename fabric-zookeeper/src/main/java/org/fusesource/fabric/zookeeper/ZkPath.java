@@ -22,6 +22,7 @@ public enum ZkPath {
     // config nodes
     CONFIGS_AGENTS          ("/fabric/configs/agents/"),
     CONFIG_AGENT            ("/fabric/configs/agents/{agent}"),
+    CONFIG_DEFAULT_VERSION  ("/fabric/configs/default-version"),
     CONFIG_VERSIONS         ("/fabric/configs/versions"),
     CONFIG_VERSION          ("/fabric/configs/versions/{version}"),
     CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
@@ -35,7 +36,8 @@ public enum ZkPath {
     AGENT_IP        ("/fabric/registry/agents/config/{agent}/ip"),
     AGENT_ROOT      ("/fabric/registry/agents/config/{agent}/root"),
     AGENT_JMX       ("/fabric/registry/agents/config/{agent}/jmx"),
-    AGENT_SSH       ("/fabric/registry/agents/config/{agent}/ssh");
+    AGENT_SSH       ("/fabric/registry/agents/config/{agent}/ssh"),
+    AGENT_LOCATION  ("/fabric/registry/agents/config/{agent}/loc");
 
     /**
      * Path template.

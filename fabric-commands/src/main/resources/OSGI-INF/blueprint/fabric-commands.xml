@@ -14,12 +14,12 @@
     <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient" availability="optional"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
-    <bean id="agentService" class="org.fusesource.fabric.service.AgentServiceImpl">
+    <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl">
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
-    <service ref="agentService" auto-export="interfaces" />
+    <service ref="fabricService" auto-export="interfaces" />
 
     <bean id="zooKeeperClusterService" class="org.fusesource.fabric.service.ZooKeeperClusterServiceImpl">
         <property name="bundleContext" ref="blueprintBundleContext"/>
@@ -29,12 +29,6 @@
 
     <service ref="zooKeeperClusterService" auto-export="interfaces" />
 
-    <bean id="profileService" class="org.fusesource.fabric.service.ProfileServiceImpl">
-        <property name="zooKeeper" ref="zooKeeper"/>
-    </bean>
-
-    <service ref="profileService" auto-export="interfaces" />
-
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="fabric/zk-cluster">
             <action class="org.fusesource.fabric.commands.ZkCluster">
@@ -43,32 +37,27 @@
         </command>
         <command name="fabric/create-agent">
             <action class="org.fusesource.fabric.commands.CreateAgent">
-                <property name="agentService" ref="agentService"/>
-                <property name="profileService" ref="profileService"/>
+                <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/list-agents">
             <action class="org.fusesource.fabric.commands.ListAgents">
-                <property name="agentService" ref="agentService"/>
-                <property name="profileService" ref="profileService"/>
+                <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/connect">
             <action class="org.fusesource.fabric.commands.Connect">
-                <property name="agentService" ref="agentService"/>
-                <property name="profileService" ref="profileService"/>
+                <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/create-profile">
             <action class="org.fusesource.fabric.commands.CreateProfile">
-                <property name="agentService" ref="agentService"/>
-                <property name="profileService" ref="profileService"/>
+                <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/list-profiles">
             <action class="org.fusesource.fabric.commands.ListProfiles">
-                <property name="agentService" ref="agentService"/>
-                <property name="profileService" ref="profileService"/>
+                <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
     </command-bundle>

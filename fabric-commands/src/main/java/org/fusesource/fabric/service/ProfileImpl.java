@@ -25,12 +25,12 @@ public class ProfileImpl implements Profile {
 
     private final String id;
     private final String version;
-    private final IZKClient zooKeeper;
+    private final FabricServiceImpl service;
 
-    public ProfileImpl(String id, String version, IZKClient zooKeeper) {
+    public ProfileImpl(String id, String version, FabricServiceImpl service) {
         this.id = id;
         this.version = version;
-        this.zooKeeper = zooKeeper;
+        this.service = service;
     }
 
     public String getId() {
@@ -44,13 +44,13 @@ public class ProfileImpl implements Profile {
     public Profile[] getParents() {
         try {
             String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
-            String str = zooKeeper.getStringData(node);
+            String str = service.getZooKeeper().getStringData(node);
             if (str == null) {
                 return new Profile[0];
             }
             List<Profile> profiles = new ArrayList<Profile>();
             for (String p : str.split(" ")) {
-                profiles.add(new ProfileImpl(p, version, zooKeeper));
+                profiles.add(new ProfileImpl(p, version, service));
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class ProfileImpl implements Profile {
                 }
                 str += parent.getId();
             }
-            zooKeeper.setData( ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id), str );
+            service.getZooKeeper().setData( ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id), str );
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -81,14 +81,14 @@ public class ProfileImpl implements Profile {
     }
 
     public Profile getOverlay() {
-        return new ProfileOverlayImpl(id, version, zooKeeper);
+        return new ProfileOverlayImpl(id, version, service);
     }
 
     public Map<String, Map<String, String>> getConfigurations() {
         try {
             Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
             String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
-            List<String> pids = zooKeeper.getChildren(path);
+            List<String> pids = service.getZooKeeper().getChildren(path);
             for (String pid : pids) {
                 configurations.put(pid, getConfiguration(pid));
             }
@@ -100,6 +100,7 @@ public class ProfileImpl implements Profile {
 
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
         try {
+            IZKClient zooKeeper = service.getZooKeeper();
             Map<String, Map<String, String>> oldCfgs = getConfigurations();
             // Store new configs
             String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
@@ -115,14 +116,16 @@ public class ProfileImpl implements Profile {
                     }
                 } else {
                     ZooKeeperUtils.set(zooKeeper, path + "/" + pid, "");
-                    for (Map.Entry<String, String> entry : configurations.get(pid).entrySet()) {
+                    for (Map.Entry<String, String> entry : newCfg.entrySet()) {
                         String oldValue = oldCfg != null ? oldCfg.remove(entry.getKey()) : null;
                         if (oldValue == null || !oldValue.equals(entry.getValue())) {
                             ZooKeeperUtils.set(zooKeeper, path + "/" + pid + "/" + entry.getKey(), entry.getValue());
                         }
                     }
-                    for (String key : oldCfg.keySet()) {
-                        zooKeeper.deleteWithChildren(path + "/" + pid + "/" + key);
+                    if (oldCfg != null) {
+                        for (String key : oldCfg.keySet()) {
+                            zooKeeper.deleteWithChildren(path + "/" + pid + "/" + key);
+                        }
                     }
                 }
             }
@@ -135,6 +138,7 @@ public class ProfileImpl implements Profile {
     }
 
     private Map<String, String> getConfiguration(String pid) throws InterruptedException, KeeperException {
+        IZKClient zooKeeper = service.getZooKeeper();
         String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/" + pid;
         if (zooKeeper.exists(path) == null) {
             return null;
@@ -151,6 +155,10 @@ public class ProfileImpl implements Profile {
             }
         }
         return map;
+    }
+
+    public void delete() {
+        service.deleteProfile(this);
     }
 
     @Override

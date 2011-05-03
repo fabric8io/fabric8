@@ -22,7 +22,6 @@ import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.JmxTemplate.BundleStateCallback;
 import org.fusesource.fabric.service.JmxTemplate.ServiceStateCallback;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -37,12 +36,12 @@ public class AgentImpl implements Agent {
 
     private final Agent parent;
     private final String id;
-    private final IZKClient zooKeeper;
+    private final FabricServiceImpl service;
 
-    public AgentImpl(Agent parent, String id, IZKClient zooKeeper) {
+    public AgentImpl(Agent parent, String id, FabricServiceImpl service) {
         this.parent = parent;
         this.id = id;
-        this.zooKeeper = zooKeeper;
+        this.service = service;
     }
 
     public Agent getParent() {
@@ -55,7 +54,7 @@ public class AgentImpl implements Agent {
 
     public boolean isAlive() {
         try {
-            return zooKeeper.exists(ZkPath.AGENT_ALIVE.getPath(id)) != null;
+            return service.getZooKeeper().exists(ZkPath.AGENT_ALIVE.getPath(id)) != null;
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -75,7 +74,7 @@ public class AgentImpl implements Agent {
 
     private String getZkData(ZkPath path) {
         try {
-            return zooKeeper.getStringData(path.getPath(id));
+            return service.getZooKeeper().getStringData(path.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -129,15 +128,15 @@ public class AgentImpl implements Agent {
 
     public Profile[] getProfiles() {
         try {
-            String version = zooKeeper.getStringData(ZkPath.AGENT.getPath(id));
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
             String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
-            String str = zooKeeper.getStringData(node);
+            String str = service.getZooKeeper().getStringData(node);
             if (str == null) {
                 return new Profile[0];
             }
             List<Profile> profiles = new ArrayList<Profile>();
             for (String p : str.split(" ")) {
-                profiles.add(new ProfileImpl(p, version, zooKeeper));
+                profiles.add(new ProfileImpl(p, version, service));
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
@@ -147,7 +146,7 @@ public class AgentImpl implements Agent {
 
     public void setProfiles(Profile[] profiles) {
         try {
-            String version = zooKeeper.getStringData(ZkPath.AGENT.getPath(id));
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
             String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
             String str = "";
             for (Profile parent : profiles) {
@@ -159,9 +158,45 @@ public class AgentImpl implements Agent {
                 }
                 str += parent.getId();
             }
-            zooKeeper.setData( node, str );
+            service.getZooKeeper().setData(node, str);
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    public String getLocation() {
+        try {
+            String path = ZkPath.AGENT_LOCATION.getPath(id);
+            if (service.getZooKeeper().exists(path) != null) {
+                return service.getZooKeeper().getStringData(path);
+            } else {
+                return "";
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public void setLocation(String location) {
+        try {
+            String path = ZkPath.AGENT_LOCATION.getPath(id);
+            ZooKeeperUtils.set( service.getZooKeeper(), path, location );
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public void start() {
+        service.startAgent(this);
+    }
+
+    @Override
+    public void stop() {
+        service.stopAgent(this);
+    }
+
+    @Override
+    public void destroy() {
+        service.destroy(this);
     }
 }

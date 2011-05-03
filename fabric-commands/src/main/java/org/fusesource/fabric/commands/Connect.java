@@ -43,7 +43,7 @@ public class Connect extends FabricCommand {
             cmdStr = "'" + sb.toString().replaceAll("'", "\\'") + "'";
         }
 
-        Agent a = agentService.getAgents().get(agent);
+        Agent a = fabricService.getAgent(agent);
         if (a == null) {
             throw new IllegalArgumentException("Agent " + agent + " does not exist.");
         }

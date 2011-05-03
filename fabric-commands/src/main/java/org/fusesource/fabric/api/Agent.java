@@ -30,4 +30,11 @@ public interface Agent {
     Profile[] getProfiles();
     void setProfiles(Profile[] profiles);
 
+    String getLocation();
+    void setLocation(String location);
+
+    void start();
+    void stop();
+    void destroy();
+
 }

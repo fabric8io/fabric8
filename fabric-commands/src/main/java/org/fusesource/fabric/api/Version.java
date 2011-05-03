@@ -8,18 +8,16 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.Map;
+public interface Version {
 
-public interface AgentService {
+    String getName();
 
-    Map<String, Agent> getAgents();
+    Version getDerivedFrom();
 
-    Agent createChild(Agent parent, String name);
+    Profile[] getProfiles();
 
-    void destroy(Agent agent);
+    Profile createProfile(String name);
 
-    void startAgent(Agent agent);
-
-    void stopAgent(Agent agent);
+    void delete();
 
 }

@@ -10,24 +10,21 @@ package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
 
-import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 
 @Command(name = "list-profiles", scope = "fabric", description = "List existing profiles")
 public class ListProfiles extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = "base";
-
-    @Argument(index = 0)
-    private String name;
-
+    private String version;
 
     @Override
     protected Object doExecute() throws Exception {
-        Profile[] profiles = profileService.getProfiles(version);
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Profile[] profiles = ver.getProfiles();
         printProfiles(profiles, System.out);
         return null;
     }

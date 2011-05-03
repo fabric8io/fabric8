@@ -50,4 +50,6 @@ public interface Profile {
      */
     boolean isOverlay();
 
+    void delete();
+
 }

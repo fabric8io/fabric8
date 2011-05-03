@@ -30,7 +30,7 @@ public class CreateProfile extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         Profile[] parents = getProfiles(version, this.parents);
-        Profile profile = profileService.createProfile(version, name);
+        Profile profile = fabricService.getVersion(version).createProfile(name);
         profile.setParents(parents);
         return null;
     }

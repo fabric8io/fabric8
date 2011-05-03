@@ -35,7 +35,7 @@ public class CreateAgent extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        Agent agent = agentService.getAgents().get( parent );
+        Agent agent = fabricService.getAgent( parent );
         if (agent == null) {
             throw new Exception("Unknown agent: " + parent);
         }
@@ -44,7 +44,7 @@ public class CreateAgent extends FabricCommand {
             names = Collections.singletonList("default");
         }
         Profile[] profiles = getProfiles(version, names);
-        Agent child = agentService.createChild(agent, name);
+        Agent child = fabricService.createAgent( agent, name );
         child.setProfiles(profiles);
         return null;
     }

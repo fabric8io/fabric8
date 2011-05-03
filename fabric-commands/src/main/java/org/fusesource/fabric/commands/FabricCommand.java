@@ -12,29 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.fusesource.fabric.api.AgentService;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.ProfileService;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
-    protected AgentService agentService;
-    protected ProfileService profileService;
+    protected FabricService fabricService;
 
-    public AgentService getAgentService() {
-        return agentService;
+    public FabricService getFabricService() {
+        return fabricService;
     }
 
-    public void setAgentService(AgentService agentService) {
-        this.agentService = agentService;
-    }
-
-    public ProfileService getProfileService() {
-        return profileService;
-    }
-
-    public void setProfileService(ProfileService profileService) {
-        this.profileService = profileService;
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
     }
 
     protected String toString(Profile[] profiles) {
@@ -56,7 +46,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     }
 
     protected Profile[] getProfiles(String version, List<String> names) {
-        Profile[] allProfiles = profileService.getProfiles(version);
+        Profile[] allProfiles = fabricService.getVersion(version).getProfiles();
         List<Profile> profiles = new ArrayList<Profile>();
         if (names == null) {
             return new Profile[0];
