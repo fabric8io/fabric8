@@ -1,0 +1,118 @@
+//
+// Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+//
+//     http://fusesource.com
+//
+// The software in this package is published under the terms of the
+// CDDL license a copy of which has been included with this distribution
+// in the license.txt file.
+//
+
+//
+//
+package org.fusesource.fusemq.cluster.model;
+
+option java_multiple_files = true;
+
+//
+// This record is use by the ZkCluster to do
+// generic cluster membership discovery/registration.
+//
+message MemberRecord {
+   required string id = 1;
+   optional bytes data = 2;
+}
+
+//
+// Cluster brokers put PeerInfo records into the data field
+// of the MemberRecord when they register.
+//
+message PeerInfo {
+   optional int32 weight = 1;
+   optional string cluster_address = 2;
+   optional string client_address = 3;
+}
+
+//
+// This is the first message exchanged between peers
+// when they first connect.
+//
+message ProtocolHello {
+
+  // The version of the protocol
+  required string version = 1;
+  // The id of the cluster node.
+  required string id = 2;
+
+  // Tokens the brokers use to verify that
+  // the peers are actually part of the cluster.
+  repeated string security_tokens = 3;
+  
+  // The transport://address:port 
+  optional string address = 4;
+  
+  // What the connection should get used for control/data etc...
+  optional string connection_type = 5;
+  
+  repeated ConsumerInfo consumer_infos = 6;
+  repeated int64 open_channels = 7;
+  
+}
+
+message ConsumerInfo {
+   required int64 consumer_id=1;
+   required bytes virtual_host = 2 [java_override_type = "AsciiBuffer"];
+   repeated bytes destination = 3;
+}
+
+message ChannelOpen {
+   required int64 channel = 1;
+   
+   // If the channel is targeting a destination, then the following two 
+   // fields must be set..
+   optional bytes virtual_host = 2 [java_override_type = "AsciiBuffer"];
+   repeated bytes destination = 3; // an XML encoded DestinationDTO
+   
+   // Otherwise it is targeting a consumer and it should set the following
+   // field.
+   optional int64 consumer_id = 4; // matched to a ConsumerInfo
+}
+
+message ChannelDelivery {
+   required int64 channel = 1;
+   
+   // a message is only assigned a seq if it needs an ack.
+   optional int64 seq=2; 
+   
+   // If protocol is set, then size and data must be set too.. 
+   optional bytes protocol = 3 [java_override_type = "AsciiBuffer"];
+   optional int32 size = 4;
+   optional bytes data = 5;
+   
+   // The sender may set this so that the consumer end can release
+   // resources needed to do duplicate tracking.
+   optional int64 ack_seq=6;
+}
+
+message ChannelAck {
+   required int64 channel = 1;
+   repeated int64 delivery_seq=2; // Matches a ChannelDelivery.seq
+
+   // Sent by the consumer to the producer to control message flow. Two
+   // windows (byte_credits and delivery_credits) are tracked to determine
+   // if a producer is allowed to send more messages to the consumer.  A producer
+   // starts with both windows set to 0.  A consumer sends a ChannelAck to 
+   // the producer to increase the window.  When a producer sends a message,
+   // he decreases the window.
+   //
+   // byte_credits counts the size of an encoded framed ChannelDelivery message
+   // delivery_credits each ChannelDelivery message sent.
+   //
+   // A producer is allowed to send if at least one of the two windows is positive.
+   //
+   optional int32 byte_credits=3; 
+   optional int32 delivery_credits=4; 
+   
+   // if an error occurs on the channel.
+   optional bytes error = 5 [java_override_type = "AsciiBuffer"];
+}

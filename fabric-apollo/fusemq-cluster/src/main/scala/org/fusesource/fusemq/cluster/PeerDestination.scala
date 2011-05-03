@@ -1,0 +1,122 @@
+/**
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ *
+ *     http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
+
+package org.fusesource.fusemq.cluster
+
+import org.fusesource.hawtdispatch._
+import org.apache.activemq.apollo.broker._
+import org.fusesource.fusemq.cluster.protocol.ClusterProtocolHandler
+import org.fusesource.fusemq.cluster.model._
+import org.fusesource.hawtbuf.Buffer._
+import org.apache.activemq.apollo.dto.{XmlCodec, DestinationDTO}
+import org.fusesource.hawtbuf.ByteArrayOutputStream
+import scala.util.continuations._
+
+
+/**
+ * Channels can switch between connections
+ */
+class PeerDestination(val local_destination:DomainDestination, val peer:Peer) extends DomainDestination {
+
+  /////////////////////////////////////////////////////////////////////////////
+  // DomainDestination interface
+  /////////////////////////////////////////////////////////////////////////////
+  def virtual_host = local_destination.virtual_host
+  def id = local_destination.id
+  def destination_dto = local_destination.destination_dto
+
+  // setup the local destination to forward to the peer..
+  local_destination.bind(local_destination.destination_dto, forwarding_consumer)
+
+  def close() = {
+    // stop forwarding...
+    local_destination.unbind(forwarding_consumer, false)
+  }
+
+  def connect(destination: DestinationDTO, producer: BindableDeliveryProducer) = {
+    producer.bind(forwarding_consumer::Nil)
+  }
+
+  def disconnect(producer: BindableDeliveryProducer) = {
+    producer.unbind(forwarding_consumer::Nil)
+  }
+
+  def bind(destination: DestinationDTO, consumer: DeliveryConsumer) = {
+
+    val os = new ByteArrayOutputStream()
+    XmlCodec.encode(destination_dto, os, false)
+
+    val bean = new ConsumerInfo.Bean
+    bean.setVirtualHost(ascii(virtual_host.id))
+    bean.addDestination(os.toBuffer)
+
+    reset[Unit,Unit] {
+      val exported = peer.add_cluster_consumer(bean, consumer)
+   }
+  }
+  def unbind(consumer: DeliveryConsumer, persistent: Boolean) = {
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // DeliveryConsumer that forwards messages to the peer
+  /////////////////////////////////////////////////////////////////////////////
+  object forwarding_consumer extends BaseRetained with DeliveryConsumer {
+
+    def dispatch_queue = peer.dispatch_queue
+
+    var handler:ClusterProtocolHandler = _
+
+    override def connection = None
+    def matches(message: Delivery): Boolean = true
+    def is_persistent: Boolean = false
+
+    def connect(p: DeliveryProducer): DeliverySession = {
+
+      val os = new ByteArrayOutputStream()
+      XmlCodec.encode(destination_dto, os, false)
+      val bean = new ChannelOpen.Bean
+      bean.setVirtualHost(ascii(virtual_host.id))
+      bean.addDestination(os.toBuffer)
+      bean
+
+      new MutableSink[Delivery] with DeliverySession {
+
+        var closed = false
+        reset {
+          val channel = peer.open_channel(p.dispatch_queue, bean)
+          if( !closed ) {
+            downstream = Some(channel)
+          } else {
+            channel.close
+          }
+        }
+
+        def producer: DeliveryProducer = p
+        def consumer: DeliveryConsumer = forwarding_consumer
+
+        def close: Unit = {
+          if( !closed ) {
+            closed = true
+            downstream.foreach(_.asInstanceOf[Peer#OutboundChannelSink].close)
+          }
+        }
+
+        def remaining_capacity = downstream.map(_.asInstanceOf[Peer#OutboundChannelSink].remaining_capacity).getOrElse(0)
+
+      }
+
+    }
+
+    override def toString = "cluster destination %s on node %d".format(destination_dto.name, peer.id)
+  }
+
+}
+
+

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+    
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.fusesource.fusemq</groupId>
+  <artifactId>fusemq-project</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>The FuseMQ Project</description>
+
+  <prerequisites>
+    <maven>2.1.0</maven>
+  </prerequisites>
+
+  <properties>
+    <!-- build settings -->
+    <forge-project-id>fusemq</forge-project-id>
+    <forge-project-id-uc>FUSEMQ</forge-project-id-uc>
+    
+    <release-altGitURL>scm:git:ssh://git@github.com:fusesource/fusemq.git</release-altGitURL>
+    
+    <apollo-version>1.0-SNAPSHOT</apollo-version>
+    <activemq-version>5.4.1</activemq-version>
+    <scala-version>2.8.1</scala-version>
+    <scalatest-version>1.2</scalatest-version>
+    <jms-1.1-version>1.1.1</jms-1.1-version>
+    <hawtbuf-version>1.4</hawtbuf-version>
+    
+    <maven-scala-plugin-version>2.15.0</maven-scala-plugin-version>
+    <maven-surefire-plugin-version>2.4.3</maven-surefire-plugin-version>
+    <jetty-version>7.1.6.v20100715</jetty-version>
+    <jetty-plugin-version>7.0.1.v20091125</jetty-plugin-version>
+    <log4j-version>1.2.14</log4j-version>
+    <junit-version>4.7</junit-version>
+    <slf4j-version>1.6.1</slf4j-version>
+    
+    <jaxb-api-version>2.1</jaxb-api-version>
+    <jaxb-version>2.1.6</jaxb-version>
+    <xjc-version>2.1.10.1</xjc-version>
+    <hbase-version>0.91.0-SNAPSHOT</hbase-version>
+    <hadoop-version>0.20-append-r1044525</hadoop-version>
+    <scalate-version>1.3.2</scalate-version>
+    <servlet-api-version>2.5</servlet-api-version>
+
+    <osgi-version>4.2.0</osgi-version>
+    <karaf-version>2.2.0</karaf-version>
+    <osgi.fragment.host>org.apache.activemq.apollo-broker</osgi.fragment.host>
+    <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
+
+  </properties>
+
+  <url>http://fusemq.fusesource.org/</url>
+  <inceptionYear>2010</inceptionYear>
+
+  <!-- 
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses> 
+  -->
+
+  <!-- <mailingLists>
+    <mailingList>
+      <name>FuseMQ discussion list</name>
+      <archive>http://groups.google.com/group/fusemq</archive>
+      <post>fusemq@googlegroups.com</post>
+      <subscribe>fusemq+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>fusemq+unsubscribe@googlegroups.com</unsubscribe>
+    </mailingList>
+    <mailingList>
+      <name>Commits and issue tracker list</name>
+      <archive>http://groups.google.com/group/fusemq-commits</archive>
+      <post>fusemq-commits@googlegroups.com</post>
+      <subscribe>fusemq-commits+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>fusemq-commits+unsubscribe@googlegroups.com</unsubscribe>
+    </mailingList>
+  </mailingLists> -->
+
+  <scm>
+    <connection>scm:git:git://github.com/fusesource/fusemq.git</connection>
+    <!-- 
+    TODO - hack this in your ~/.m2/settings.xml to point to your local checkout for releases 
+    see comments here: http://jira.codehaus.org/browse/MRELEASE-605
+    -->
+    <developerConnection>${release-altGitURL}</developerConnection>
+    <url>http://github.com/fusesource/fusemq/tree/master</url>
+  </scm>
+
+  <!-- <issueManagement>
+    <system>assembla</system>
+    <url>http://fusemq.assembla.com/spaces/fusemq/support/tickets</url>
+  </issueManagement> -->
+
+  <!-- <ciManagement>
+    <system>teamcity</system>
+    <url>http://ci.fusesource.com/teamcity/project.html?projectId=project33</url>
+  </ciManagement> -->
+
+  <distributionManagement>
+    <site>
+      <id>website.fusesource.org</id>
+      <name>website</name>
+      <url>dav:http://fusesource.com/forge/dav/${forge-project-id}/maven/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <developers>
+    <developer>
+      <id>chirino</id>
+      <name>Hiram Chirino</name>
+      <url>http://hiramchirino.com/blog/</url>
+      <organization>FuseSource</organization>
+      <organizationUrl>http://fusesource.com/</organizationUrl>
+    </developer>
+  </developers>
+
+  <modules>
+    <module>fusemq-scala</module>
+    <module>fusemq-hbase</module>
+    <module>fusemq-cluster</module>
+    <module>fusemq-cli</module>
+    <module>fusemq-amqp-gen</module>
+    <module>fusemq-amqp-codec</module>
+    <module>fusemq-amqp-protocol</module>
+    <module>fusemq-amqp-broker</module>
+  </modules>
+
+  <build>
+    
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <optimize>true</optimize>
+          <debug>true</debug>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.4.3</version>
+        <configuration>
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+          <forkMode>once</forkMode>
+          <argLine>-enableassertions</argLine>
+          <failIfNoTests>false</failIfNoTests>
+          <workingDirectory>${basedir}</workingDirectory>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*TestCase.java</include>
+          </includes>
+          <excludes>
+            <exclude>**/legacy/**</exclude>
+            <exclude>**/perf/**</exclude>
+            <exclude>**/jaxb/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.3.4</version>
+        <extensions>true</extensions>
+        <inherited>true</inherited>
+        <configuration>
+          <instructions>
+            <Fragment-Host>${osgi.fragment.host}</Fragment-Host>
+            <Implementation-Title>${project.artifactId}</Implementation-Title>
+            <Implementation-Version>${project.version}</Implementation-Version>
+            <Bundle-Name>${project.artifactId}</Bundle-Name>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>{local-packages};version=${project.version};-noimport:=true</Export-Package>
+            <Import-Package>*</Import-Package>
+            <Private-Package>!*</Private-Package>
+            <_versionpolicy-impl>[$(version;==;$(@)),$(version;=+;$(@)))</_versionpolicy-impl>
+            <_versionpolicy-uses>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy-uses>
+            <_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>
+            <_failok>false</_failok>
+          </instructions>
+        </configuration>
+      </plugin>
+
+    </plugins>
+    
+  </build>
+
+  <profiles>
+    
+    <!-- 
+        Do a license check by running       : mvn -P license license:check  
+        UPdate the license check by running : mvn -P license license:format  
+      -->
+    <profile>
+      <id>license</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila.maven-license-plugin</groupId>
+            <artifactId>maven-license-plugin</artifactId>
+            <version>1.6.0</version>
+            <configuration>
+              <quiet>false</quiet>
+              <header>src/main/resources/license-header.txt</header>
+              <aggregate>true</aggregate>
+              <includes>
+                  <include>src/**</include>
+                  <include>**/pom.xml</include>
+              </includes>
+              <excludes>
+                <!-- can remove once http://code.google.com/p/maven-license-plugin/issues/detail?id=72 is resolved -->
+                <exclude>**/*.scaml</exclude>
+                <exclude>**/LICENSE.txt</exclude>
+                <exclude>**/LICENSE</exclude>
+                <exclude>**/.svn/**</exclude>
+            
+                <!-- ignore files produced during a build -->
+                <exclude>**/target/**</exclude>
+            
+                <!-- ignore binary files -->
+                <exclude>**/*.jpg</exclude>
+                <exclude>**/*.png</exclude>
+                <exclude>**/*.gif</exclude>
+                <exclude>**/*.ico</exclude>
+                <exclude>**/*.keystore</exclude>
+
+              </excludes>
+              <useDefaultExcludes>false</useDefaultExcludes>
+              <mapping>
+                  <jj>JAVADOC_STYLE</jj>
+                  <proto>DOUBLESLASH_STYLE</proto>
+                  <index>SCRIPT_STYLE</index>
+              </mapping>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>        
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+        
+   <profile>
+      <id>download</id>
+      <repositories>
+        <!-- holds the hbase snapshot build of hbase trunk -->
+        <repository>
+          <id>chirino.snapshots</id>
+          <url>http://people.apache.org/~chirino/maven2-snapshot/</url>
+        </repository>    
+        
+        <!-- holds the hadoop release -->
+        <repository>
+          <id>temp-thrift</id>
+          <name>Thrift 0.2.0</name>
+          <url>http://people.apache.org/~rawson/repo/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+        </repository>
+            
+        <repository>
+          <id>scala</id>
+          <name>Scala Tools</name>
+          <url>http://scala-tools.org/repo-releases</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>        
+        
+        <repository>
+          <id>java.net.m2</id>
+          <name>java.net Maven 2 Repo</name>
+          <url>http://download.java.net/maven/2</url>
+        </repository>
+        
+        <repository>
+          <id>fusesource.m2-snapshot</id>
+          <name>FuseSource Community Snapshot Repository</name>
+          <url>http://repo.fusesource.com/maven2-snapshot</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+        </repository>
+        
+        <repository>
+          <id>apache.snapshots</id>
+          <url>https://repository.apache.org/content/repositories/snapshots</url>
+          <snapshots><enabled>true</enabled></snapshots>
+          <releases><enabled>false</enabled></releases>
+        </repository>
+        
+        <repository>
+          <id>oracleReleases</id>
+          <url>http://download.oracle.com/maven</url>
+          <layout>default</layout>
+        </repository>        
+        
+        
+        <!-- <repository>
+          <id>glassfish-repo-archive</id>
+          <name>Nexus repository collection for Glassfish</name>
+          <url>http://maven.glassfish.org/content/groups/glassfish</url>
+          <snapshots>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>  -->
+               
+      </repositories>
+    </profile>
+  </profiles>
+
+</project>
