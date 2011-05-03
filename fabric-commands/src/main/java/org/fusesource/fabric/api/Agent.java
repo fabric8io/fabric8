@@ -27,6 +27,9 @@ public interface Agent {
     BundleInfo[] getBundles();
     ServiceInfo[] getServices();
 
+    Version getVersion();
+    void setVersion(Version version);
+
     Profile[] getProfiles();
     void setProfiles(Profile[] profiles);
 

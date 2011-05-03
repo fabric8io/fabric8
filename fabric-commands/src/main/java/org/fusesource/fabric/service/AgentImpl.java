@@ -17,6 +17,7 @@ import javax.management.openmbean.TabularData;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.JmxTemplate.BundleStateCallback;
@@ -123,6 +124,25 @@ public class AgentImpl implements Agent {
         } catch (Exception e) {
             logger.error("Error while retrieving services", e);
             return new ServiceInfo[0];
+        }
+    }
+
+    @Override
+    public Version getVersion() {
+        try {
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
+            return new VersionImpl(version, service);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void setVersion(Version version) {
+        try {
+            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_AGENT.getPath(id), version.getName() );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
