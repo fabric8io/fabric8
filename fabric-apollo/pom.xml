@@ -139,13 +139,13 @@
   </developers>
 
   <modules>
-    <module>fusemq-scala</module>
-    <module>fusemq-cluster</module>
-    <module>fusemq-cli</module>
-    <module>fusemq-amqp-gen</module>
-    <module>fusemq-amqp-codec</module>
-    <module>fusemq-amqp-protocol</module>
-    <module>fusemq-amqp-broker</module>
+    <module>fabric-apollo-scala</module>
+    <module>fabric-apollo-cluster</module>
+    <module>fabric-apollo-cli</module>
+    <module>fabric-apollo-amqp-gen</module>
+    <module>fabric-apollo-amqp-codec</module>
+    <module>fabric-apollo-amqp-protocol</module>
+    <module>fabric-apollo-amqp-broker</module>
   </modules>
 
   <build>
