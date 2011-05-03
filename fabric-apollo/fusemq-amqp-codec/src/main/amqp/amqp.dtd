@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<!ELEMENT amqp (doc|section)*>
+<!ATTLIST amqp
+          xmlns CDATA #IMPLIED
+          name CDATA #REQUIRED
+	  label CDATA #IMPLIED
+>
+
+<!ELEMENT section (doc|definition|type)*>
+<!ATTLIST section
+          name CDATA #REQUIRED
+          title CDATA #IMPLIED
+          label CDATA #IMPLIED
+>
+
+<!ELEMENT definition (doc)*>
+<!ATTLIST definition
+	  name CDATA #REQUIRED
+	  value CDATA #REQUIRED
+	  label CDATA #IMPLIED
+>
+
+<!ELEMENT type (encoding|descriptor|field|choice|error|doc)*>
+<!ATTLIST type
+          name CDATA #REQUIRED
+          class (primitive|composite|restricted|union) #REQUIRED
+          source CDATA #IMPLIED
+          provides CDATA #IMPLIED
+          label CDATA #IMPLIED
+>
+
+<!ELEMENT encoding (doc)*>
+<!ATTLIST encoding
+          name CDATA #IMPLIED
+          label CDATA #IMPLIED
+          code CDATA #REQUIRED
+          category (fixed|variable|compound|array) #REQUIRED
+          width CDATA #IMPLIED
+>
+
+
+<!ELEMENT descriptor (doc)*>
+<!ATTLIST descriptor
+          name CDATA #IMPLIED
+          code CDATA #IMPLIED
+>
+
+<!ELEMENT field (doc|error)*>
+<!ATTLIST field
+	  name CDATA #REQUIRED
+	  type CDATA #IMPLIED
+          requires CDATA #IMPLIED
+          default CDATA #IMPLIED
+          label CDATA #IMPLIED
+          mandatory CDATA #IMPLIED
+          multiple CDATA #IMPLIED
+>
+
+<!ELEMENT choice (doc)*>
+<!ATTLIST choice
+          name CDATA #REQUIRED
+          value CDATA #REQUIRED
+>
+
+<!ELEMENT error (doc)*>
+<!ATTLIST error
+	  name CDATA #REQUIRED
+          type CDATA #REQUIRED
+	  value CDATA #REQUIRED
+>
+
+<!ELEMENT doc (doc|p|ul|ol|dl|picture)*>
+<!ATTLIST doc
+          name CDATA #IMPLIED
+	  title CDATA #IMPLIED
+>
+
+<!ELEMENT p (#PCDATA|xref|b|i|term|todo|sup|sub)*>
+
+<!ELEMENT xref (#PCDATA)>
+<!ATTLIST xref
+          type CDATA #IMPLIED
+          name CDATA #REQUIRED
+>
+
+<!ELEMENT b (#PCDATA|sub|sup|i)*>
+<!ELEMENT i (#PCDATA|sub|sup|b)*>
+<!ELEMENT term (#PCDATA)>
+<!ELEMENT todo (#PCDATA)>
+<!ATTLIST todo
+          class (presentation|content|intent) #IMPLIED>
+<!ELEMENT sup (#PCDATA|sup|sub|b|i)*>
+<!ELEMENT sub (#PCDATA|sup|sub|b|i)*>
+
+<!ELEMENT ul (li)*>
+<!ATTLIST ul
+	  title CDATA #IMPLIED
+>
+<!ELEMENT ol (li)*>
+<!ATTLIST ol
+	  title CDATA #IMPLIED
+>
+
+<!ELEMENT li (p|ul)*>
+
+<!ELEMENT dl (dt, dd)*>
+<!ATTLIST dl
+	  title CDATA #IMPLIED
+>
+<!ELEMENT dt (#PCDATA)>
+<!ELEMENT dd (p)*>
+
+<!ELEMENT picture (#PCDATA)>
+<!ATTLIST picture
+	  title CDATA #IMPLIED
+>
