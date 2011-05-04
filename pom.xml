@@ -93,10 +93,12 @@
         <scalate-version>1.4.1</scalate-version>
         <servlet-api-version>2.5</servlet-api-version>
         <slf4j-version>1.6.1</slf4j-version>
+        <log4j-version>1.2.16</log4j-version>
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
         <scalatest-version>1.2</scalatest-version>
+        <junit-version>4.8.1</junit-version>
         <hawtbuf-version>1.4</hawtbuf-version>
         <hawtdispatch-version>1.2</hawtdispatch-version>
         <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
@@ -105,10 +107,18 @@
         <jersey-version>1.5</jersey-version>
         <jetty-version>7.1.6.v20100715</jetty-version>
 
-
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <spring-version>3.0.4.RELEASE</spring-version>
+        
+        <apollo-version>1.0-SNAPSHOT</apollo-version>
+        <activemq-version>5.4.1</activemq-version>
+        <jms-1.1-version>1.1.1</jms-1.1-version>
+        
+        <jaxb-api-version>2.1</jaxb-api-version>
+        <jaxb-version>2.1.6</jaxb-version>
+        <xjc-version>2.1.10.1</xjc-version>
+        
     </properties>
 
 
@@ -138,7 +148,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
+            <version>${junit-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -461,7 +471,7 @@
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.16</version>
+                <version>${log4j-version}</version>
             </dependency>
             <!-- Slf4j -->
             <dependency>

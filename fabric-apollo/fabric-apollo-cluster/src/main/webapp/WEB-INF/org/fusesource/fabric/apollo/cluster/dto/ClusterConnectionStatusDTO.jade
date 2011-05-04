@@ -1,0 +1,52 @@
+-# Licensed to the Apache Software Foundation (ASF) under one or more
+-# contributor license agreements.  See the NOTICE file distributed with
+-# this work for additional information regarding copyright ownership.
+-# The ASF licenses this file to You under the Apache License, Version 2.0
+-# (the "License"); you may not use this file except in compliance with
+-# the License.  You may obtain a copy of the License at
+-#
+-# http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+
+- import it._
+- val helper = new org.apache.activemq.apollo.web.resources.ViewHelper
+- import helper._
+
+.breadcumbs
+  a(href={strip_resolve("..")}) Back
+
+p state: #{state} #{ uptime(state_since) } ago
+
+- if( state == "STARTED" )
+  form(method="post" action={path("action/shutdown")})
+    input(type="submit" value="shutdown")
+
+p remote address: #{remote_address}
+p protocol: #{protocol}
+p transport: #{transport}
+p read counter: #{memory(read_counter)}
+p write counter: #{memory(write_counter)}
+
+p node id: #{node_id}
+p waiting on: #{waiting_on}
+p exported consumer count: #{exported_consumer_count}
+p imported consumer count: #{imported_consumer_count}
+
+h2 Inbound Channels
+- for ( channel <- inbound_channels )
+  h3 channel: #{channel.id}
+  p connected: #{channel.connected}
+  p byte credits: #{channel.byte_credits}
+  p delivery credits: #{channel.delivery_credits}
+
+h2 Outbound Channels
+- for ( channel <- outbound_channels )
+  h3 channel: #{channel.id}
+  p connected: #{channel.connected}
+  p byte credits: #{channel.byte_credits}
+  p delivery credits: #{channel.delivery_credits}

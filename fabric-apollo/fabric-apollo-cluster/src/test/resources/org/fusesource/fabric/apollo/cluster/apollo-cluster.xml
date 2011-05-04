@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<cluster_broker xmlns="http://activemq.apache.org/schema/activemq/apollo">
+  <notes>This broker configuration is what the unit tests in this module load up.</notes>
+
+  <cluster_weight>100</cluster_weight>
+  <security_token>letmein</security_token>
+  <security_token>mutliplesupported</security_token>
+
+  <virtual_host id="default" purge_on_startup="true">
+    <host_name>localhost</host_name>
+  </virtual_host>
+
+  <connector id="tcp" bind="tcp://[::]:0"/>
+
+</cluster_broker>
