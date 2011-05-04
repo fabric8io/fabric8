@@ -121,14 +121,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
       case None =>
     }
 
-    if (refiller != null) {
-      //trace("Running outgoing sink refiller")
-      reset {
-        dispatch ! {
-          refiller.run
-        }
-      }
-    }
+    Option(refiller).foreach((x) => dispatch << x)
   }
 
   def setFlowControlListener(listener: FlowControlListener): Unit = {
