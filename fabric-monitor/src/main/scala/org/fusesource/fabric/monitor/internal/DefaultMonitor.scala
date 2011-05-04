@@ -48,6 +48,8 @@ class DefaultMonitor (
       rrd_file_prefix + name
     }
 
+    def data_source_dto(id:String) = dto.data_sources.filter(_.id == id)
+
     def rrd_def = {
       val rc = new RrdDef(path_to_rrd_file(name), sample_span.getDurationInSeconds)
       data_sources.foreach { source =>
