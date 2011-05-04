@@ -64,6 +64,20 @@ public class DataSourceDTO {
     @XmlElement
     public PollDTO poll;
 
+    public DataSourceDTO() {
+    }
+
+    public DataSourceDTO(String id, String name, String description, String kind, String heartbeat, double min, double max, PollDTO poll) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.kind = kind;
+        this.heartbeat = heartbeat;
+        this.min = min;
+        this.max = max;
+        this.poll = poll;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
