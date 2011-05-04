@@ -113,7 +113,8 @@ public class AgentImpl implements Agent {
 
                     int i = 0;
                     for (Object data : services.values().toArray()) {
-                        info[i++] = new JmxServiceInfo((CompositeData) data);
+                        CompositeData svc = (CompositeData) data;
+                        info[i++] = new JmxServiceInfo(svc, serviceState.getProperties((Long) svc.get(ServiceStateMBean.IDENTIFIER)));
                     }
 
                     // sort services using service id to preserve same order like in framework
