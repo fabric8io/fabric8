@@ -8,18 +8,28 @@
  */
 package org.fusesource.fabric.service;
 
-import org.fusesource.fabric.api.data.ServiceInfo;
-
-import static org.osgi.jmx.framework.ServiceStateMBean.*;
+import java.util.Collection;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
+import org.fusesource.fabric.api.data.ServiceInfo;
+import org.osgi.jmx.JmxConstants;
+
+import static org.osgi.jmx.framework.ServiceStateMBean.BUNDLE_IDENTIFIER;
+import static org.osgi.jmx.framework.ServiceStateMBean.IDENTIFIER;
+import static org.osgi.jmx.framework.ServiceStateMBean.OBJECT_CLASS;
+import static org.osgi.jmx.framework.ServiceStateMBean.USING_BUNDLES;
 
 /**
  * Implementation of ServiceInfo interface based on CompositeData.
  */
 public class JmxServiceInfo extends JmxInfo implements ServiceInfo {
 
-    public JmxServiceInfo(CompositeData data) {
+    protected final TabularData properties;
+
+    public JmxServiceInfo(CompositeData data, TabularData properties) {
         super(data, IDENTIFIER);
+        this.properties = properties;
     }
 
     public Long getBundleId() {
@@ -34,4 +44,33 @@ public class JmxServiceInfo extends JmxInfo implements ServiceInfo {
         return (String[]) data.get(OBJECT_CLASS);
     }
 
+    @Override
+    public Property[] getProperties() {
+        Property[] props = new Property[this.properties.size()];
+        int i = 0;
+        for (CompositeData data : (Collection<CompositeData>) properties.values()) {
+            String key = data.get(JmxConstants.KEY).toString();
+            Object value = data.get(JmxConstants.VALUE);
+            props[i++] = new PropertyImpl(key, value);
+        }
+        return props;
+    }
+
+    static class PropertyImpl implements Property {
+        final String key;
+        final Object value;
+
+        PropertyImpl(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+    }
 }

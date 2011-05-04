@@ -43,4 +43,12 @@ public interface ServiceInfo {
      */
     String[] getObjectClasses();
 
+    Property[] getProperties();
+
+
+    interface Property {
+        String getKey();
+        Object getValue();
+    }
+
 }
