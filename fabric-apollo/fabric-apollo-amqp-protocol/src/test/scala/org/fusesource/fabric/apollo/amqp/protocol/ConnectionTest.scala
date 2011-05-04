@@ -50,6 +50,31 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
     latch.await(10, TimeUnit.SECONDS) should be (true)
   }
 
+  test("Create server connection, connect to it, stop heartbeat thread and check that the connection is disconnected") {
+    val server = new BaseTestServer
+    server.bind("tcp://localhost:0")
+
+    val latch = new CountDownLatch(1)
+    val client = AmqpConnectionFactory.create
+    client.setOnClose(^{
+      debug("Connection closed")
+      latch.countDown
+    })
+    client.connect(server.getConnectionUri, ^{
+      debug("Client connected")
+      val session = client.createSession
+      session.begin(^{
+        debug("Session started")
+        client.getDispatchQueue.after(5, TimeUnit.SECONDS) {
+          client.asInstanceOf[AmqpConnection].heartbeat_monitor.stop
+        }
+      })
+    })
+
+    latch.await(30, TimeUnit.SECONDS) should be (true)
+
+  }
+
   test("Create server connection with TCP, connect, create a session and link, then disconnect") {
     val server = new TestReceiver
 

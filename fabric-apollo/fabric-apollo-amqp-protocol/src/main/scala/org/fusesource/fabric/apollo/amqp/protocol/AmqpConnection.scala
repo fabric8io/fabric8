@@ -27,6 +27,7 @@ import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, 
 import org.fusesource.fabric.apollo.amqp.codec._
 import java.net.URI
 import java.util.concurrent.TimeUnit
+import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 
 /**
  *
@@ -35,6 +36,8 @@ object AmqpConnection {
 
   val DEFAULT_DIE_DELAY = 1 * 1000
   var die_delay = DEFAULT_DIE_DELAY
+
+  val DEFAULT_HEARTBEAT = 2 * 1000L
 
   def connection() = {
     val rc = new AmqpConnection
@@ -47,7 +50,6 @@ object AmqpConnection {
   }
 }
 
-// TODO - Heartbeats
 class AmqpConnection extends Connection with ConnectionHandler with SessionConnection with TransportListener with Logging {
   import AmqpConnection._
 
@@ -67,6 +69,11 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   val headerSent: AtomicBoolean = new AtomicBoolean(false)
   val openSent: AtomicBoolean = new AtomicBoolean(false)
   val closeSent: AtomicBoolean = new AtomicBoolean(false)
+  val heartbeat_monitor = new HeartBeatMonitor
+
+  var idle_timeout = DEFAULT_HEARTBEAT
+  var heartbeat_interval = idle_timeout / 2
+
   var uri:String = null
   var hostname:Option[String] = None
   var maxFrameSize: Long = 0
@@ -219,6 +226,9 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
         case a:AmqpProtocolHeader =>
           header(a)
         case frame:AmqpFrame =>
+          if (frame.getBody == null) {
+            return
+          }
           if (closeSent.get) {
             frame.getBody match {
               case c:AmqpClose =>
@@ -276,6 +286,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     if ( !openSent.getAndSet(true) ) {
       val response: AmqpOpen = createAmqpOpen
       response.setChannelMax(channel_max)
+      response.setIdleTimeOut(idle_timeout)
       Option(containerId).foreach((x) => response.setContainerId(x.asInstanceOf[String]))
       response.setContainerId(containerId)
       hostname.foreach((x) => response.setHostname(x))
@@ -296,6 +307,22 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     }
     Option(open).foreach((o) => {
       connecting = false
+      Option(open.getIdleTimeOut) match {
+        case Some(timeout) =>
+          idle_timeout = idle_timeout.min(timeout.getValue.longValue)
+          heartbeat_interval = idle_timeout / 2
+          heartbeat_monitor.read_interval = idle_timeout
+          heartbeat_monitor.write_interval = heartbeat_interval
+          heartbeat_monitor.transport = transport
+          heartbeat_monitor.on_dead = () => {
+            close("Idle timeout expired")
+          }
+          heartbeat_monitor.on_keep_alive = () => {
+            connection_session.offer(new AmqpFrame)
+          }
+          heartbeat_monitor.start
+        case None =>
+      }
       connectedTask.foreach((x) => dispatchQueue << x)
     })
   }
@@ -335,6 +362,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
         case None =>
           info("Closing connection")
       }
+      heartbeat_monitor.stop
       send(close)
       dispatchQueue.after(die_delay, TimeUnit.MILLISECONDS) {
         stop(disconnectedTask.getOrElse(NOOP))
