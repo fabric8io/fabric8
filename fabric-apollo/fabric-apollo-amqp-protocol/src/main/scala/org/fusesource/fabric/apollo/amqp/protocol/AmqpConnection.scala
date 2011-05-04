@@ -26,11 +26,16 @@ import org.fusesource.fabric.apollo.amqp.api._
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, Sink}
 import org.fusesource.fabric.apollo.amqp.codec._
 import java.net.URI
+import java.util.concurrent.TimeUnit
 
 /**
  *
  */
 object AmqpConnection {
+
+  val DEFAULT_DIE_DELAY = 1 * 1000
+  var die_delay = DEFAULT_DIE_DELAY
+
   def connection() = {
     val rc = new AmqpConnection
     rc.asInstanceOf[Connection]
@@ -44,6 +49,7 @@ object AmqpConnection {
 
 // TODO - Heartbeats
 class AmqpConnection extends Connection with ConnectionHandler with SessionConnection with TransportListener with Logging {
+  import AmqpConnection._
 
   var dispatchQueue: DispatchQueue =  Dispatch.createQueue
 
@@ -213,11 +219,16 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
         case a:AmqpProtocolHeader =>
           header(a)
         case frame:AmqpFrame =>
-          if ( closeSent.get && frame.getBody(classOf[AmqpClose]) == null ) {
-            warn("disposing of frame : " + frame + ", connection is closed")
-            return
+          if (closeSent.get) {
+            frame.getBody match {
+              case c:AmqpClose =>
+                handle_frame(frame)
+              case _ =>
+                debug("disposing of frame : " + frame + ", connection is closed")
+            }
+          } else {
+            handle_frame(frame)
           }
-          handle_frame(frame)
         case _ =>
           throw new RuntimeException("Received invalid frame : " + command)
       }
@@ -325,7 +336,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
           info("Closing connection")
       }
       send(close)
-      dispatchQueue {
+      dispatchQueue.after(die_delay, TimeUnit.MILLISECONDS) {
         stop(disconnectedTask.getOrElse(NOOP))
       }
     }

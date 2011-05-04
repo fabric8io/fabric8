@@ -47,7 +47,7 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
       })
     })
 
-    latch.await(2, TimeUnit.SECONDS) should be (true)
+    latch.await(10, TimeUnit.SECONDS) should be (true)
   }
 
   test("Create server connection with TCP, connect, create a session and link, then disconnect") {
