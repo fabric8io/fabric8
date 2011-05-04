@@ -39,11 +39,17 @@ class JmxPollerFactory extends PollerFactory {
       val mbeanName = new ObjectName(dto.mbean);
       try {
         server.getAttribute(mbeanName, dto.attribute) match {
-          case x:Number => x.doubleValue()
-          case x:AnyRef => x.toString.toDouble
+          case x:Number =>
+            println("a number: "+x)
+            x.doubleValue()
+          case x:AnyRef =>
+            println("somethign else: "+x)
+            x.toString.toDouble
         }
       } catch {
-        case _ => Double.NaN
+        case e:Throwable =>
+          e.printStackTrace()
+          Double.NaN
       }
     }
   }

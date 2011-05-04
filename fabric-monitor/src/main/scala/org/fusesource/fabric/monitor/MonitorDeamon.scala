@@ -28,8 +28,10 @@ import collection.mutable.HashMap
  */
 object MonitorDeamon {
 
-  val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/org.fusesource.fabric.monitor/poller-factory.index"
+  private val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/org.fusesource.fabric.monitor/poller-factory.index"
+  private val finder = new ClassFinder(DATA_POLLER_FACTORY_RESOURCE, classOf[PollerFactory])
 
+  def poller_factories = finder.singletons
 
   def main(args: Array[String]):Unit = {
 
@@ -65,12 +67,9 @@ object MonitorDeamon {
     unpack_native_libs
 
 
-    val finder = new ClassFinder(DATA_POLLER_FACTORY_RESOURCE, classOf[PollerFactory])
-
-
     // Load the launcher configurations..
     val monitor:Monitor = new DefaultMonitor("")
-    monitor.poller_factories = finder.singletons
+    monitor.poller_factories = poller_factories
 
     while(true) {
       monitor.configure(load(conf_dir))

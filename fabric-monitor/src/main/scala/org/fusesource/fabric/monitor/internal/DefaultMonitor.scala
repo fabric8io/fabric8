@@ -50,7 +50,7 @@ class DefaultMonitor (
 
     def data_source_dto(id:String) = dto.data_sources.filter(_.id == id)
 
-    def rrd_def = {
+    val rrd_def = {
       val rc = new RrdDef(path_to_rrd_file(name), sample_span.getDurationInSeconds)
       data_sources.foreach { source =>
         import source._
@@ -76,14 +76,16 @@ class DefaultMonitor (
         val total_span = Timespan.parse(window)
         val rows = (total_span.getDurationInMilliseconds / archive_span.getDurationInMilliseconds).toInt
 
-        rc.addArchive(consolidation.toUpperCase match {
-          case "AVERAGE"  => AVERAGE
-          case "MIN"  => MIN
-          case "MAX"  => MAX
-          case "LAST"  => LAST
-          case "FIRST"  => FIRST
-          case "TOTAL"  => TOTAL
-        }, xff, steps, rows);
+        val consolFun = consolidation.toUpperCase match {
+          case "AVERAGE" => AVERAGE
+          case "MIN" => MIN
+          case "MAX" => MAX
+          case "LAST" => LAST
+          case "FIRST" => FIRST
+          case "TOTAL" => TOTAL
+        }
+
+        rc.addArchive(consolFun, xff, steps, rows);
       }
       rc
     }
@@ -102,21 +104,21 @@ class DefaultMonitor (
         thread = new Thread("Monitoring: "+name) {
           setDaemon(true)
           override def run: Unit = {
-            val rrd_db = new RrdDb(rrd_def, rrd_backend);
-            try {
 
-              val sources_by_factory = HashMap[PollerFactory, List[DataSourceDTO]]()
-              data_sources.foreach { source =>
-                poller_factories.find(_.accepts(source)).foreach { factory =>
-                  val sources = sources_by_factory.getOrElseUpdate(factory, Nil)
-                  sources_by_factory.put(factory, source::sources)
-                }
+            val sources_by_factory = HashMap[PollerFactory, List[DataSourceDTO]]()
+            data_sources.foreach { source =>
+              poller_factories.find(_.accepts(source)).foreach { factory =>
+                val sources = sources_by_factory.getOrElseUpdate(factory, Nil)
+                sources_by_factory.put(factory, source::sources)
               }
+            }
 
-              pollers = (sources_by_factory.map{case (factory, sources)=> factory.create(sources.toArray) }).toList
+            pollers = (sources_by_factory.map{case (factory, sources)=> factory.create(sources.toArray) }).toList
 
-              while(active.get) {
+            while(active.get) {
 
+              val rrd_db = new RrdDb(rrd_def, rrd_backend);
+              try {
                 val sample = rrd_db.createSample()
                 sample.setTime(Util.getTime)
 
@@ -129,17 +131,17 @@ class DefaultMonitor (
                     sample.setValue(dto.id, result);
                   }
                 }
-//                println("Collected sample: "+sample.dump)
+                println("Collected sample: "+sample.dump)
                 sample.update();
-
-                Thread.sleep( step_duration * sample_span.getDurationInSeconds)
-
+              } finally {
+                rrd_db.close
               }
 
+              Thread.sleep( step_duration * sample_span.getDurationInSeconds)
 
-            } finally {
-              rrd_db.close
             }
+
+
           }
         }
         thread.start()
