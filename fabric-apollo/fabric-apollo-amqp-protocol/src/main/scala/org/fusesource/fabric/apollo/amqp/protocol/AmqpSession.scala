@@ -26,11 +26,12 @@ import collection.mutable.ListBuffer
 import java.util.concurrent.{TimeUnit, Executors, ExecutorService, LinkedBlockingQueue}
 import java.util.Date
 import org.fusesource.hawtbuf.Buffer
+import org.apache.activemq.apollo.broker.Sink
 
 /**
  *
  */
-class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Logging {
+class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[AmqpProtoMessage] with Logging {
 
   val current_transfer_id = new AtomicLong(1)
   val current_handle: AtomicInteger = new AtomicInteger(0)
@@ -66,14 +67,18 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   // TODO - add accessors for this
   val ackTime = 500
 
+  // for session flow control...
+  var refiller:Runnable = null
+
+  def full = unsettled_outgoing.size > outgoing_window_max
+
+  def offer(message:AmqpProtoMessage) : Boolean = {
+    true
+  }
 
   override def toString = {
     "AmqpSession{local_channel=%s remote_channel=%s incoming_window_max=%s incoming_window=%s remote_outgoing_window=%s outgoing_window_max=%s outgoing_window=%s remote_outgoing_window=%s}" format (channel, remote_channel, incoming_window_max, incoming_window, remote_outgoing_window, outgoing_window_max, outgoing_window, remote_outgoing_window)
   }
-
-  def session_credit = 1L
-
-  def unsettled_lwm = 0
 
   def established = begin_sent.get == true && end_sent.get == false
 
