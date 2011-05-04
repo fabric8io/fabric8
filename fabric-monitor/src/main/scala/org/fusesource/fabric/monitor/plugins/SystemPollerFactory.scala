@@ -45,38 +45,36 @@ object SystemPollerFactory extends PollerFactory {
     case _ => false
   }
 
-  def create(s: Array[DataSourceDTO]) = new Poller {
-
+  def create(s: DataSourceDTO) = new Poller {
+    val source = s
+    val dto = source.poll.asInstanceOf[SystemPollDTO]
     val sigar = new Sigar
+
 
     def close = {
       sigar.close
     }
 
-    def sources = s
-
     def poll = {
-
       lazy val cpu = sigar.getCpu
       lazy val mem = sigar.getMem
-      sources.map { source =>
-        source.poll.asInstanceOf[SystemPollDTO].resource match {
-          case "cpu-idle"         => cpu.getIdle.toDouble
-          case "cpu-sys"          => cpu.getSys.toDouble
-          case "cpu-user"         => cpu.getUser.toDouble
-          case "cpu-total"        => cpu.getTotal.toDouble
-          case "cpu-wait"         => cpu.getWait.toDouble
-          case "cpu-nice"         => cpu.getNice.toDouble
-          case "cpu-irq"          => cpu.getIrq.toDouble
-          case "mem-free"         => mem.getFree.toDouble
-          case "mem-ram"          => mem.getRam.toDouble
-          case "mem-total"        => mem.getTotal.toDouble
-          case "mem-used"         => mem.getUsed.toDouble
-          case "mem-actual-free"  => mem.getActualFree.toDouble
-          case "mem-actual-used"  => mem.getActualUsed.toDouble
-          case "mem-free-percent" => mem.getFreePercent
-          case "mem-used-percent" => mem.getUsedPercent
-        }
+
+      dto.resource match {
+        case "cpu-idle" => cpu.getIdle.toDouble
+        case "cpu-sys" => cpu.getSys.toDouble
+        case "cpu-user" => cpu.getUser.toDouble
+        case "cpu-total" => cpu.getTotal.toDouble
+        case "cpu-wait" => cpu.getWait.toDouble
+        case "cpu-nice" => cpu.getNice.toDouble
+        case "cpu-irq" => cpu.getIrq.toDouble
+        case "mem-free" => mem.getFree.toDouble
+        case "mem-ram" => mem.getRam.toDouble
+        case "mem-total" => mem.getTotal.toDouble
+        case "mem-used" => mem.getUsed.toDouble
+        case "mem-actual-free" => mem.getActualFree.toDouble
+        case "mem-actual-used" => mem.getActualUsed.toDouble
+        case "mem-free-percent" => mem.getFreePercent
+        case "mem-used-percent" => mem.getUsedPercent
       }
     }
 

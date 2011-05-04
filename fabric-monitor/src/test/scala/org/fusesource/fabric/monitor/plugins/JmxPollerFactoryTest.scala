@@ -12,14 +12,17 @@ class JmxPollerFactoryTest extends FunSuiteSupport {
     dto.kind = "guage"
     dto.poll = new MBeanAttributePollDTO("java.lang:type=Threading", "ThreadCount")
 
-    val dtos = Array(dto)
-    val poller = new JmxPollerFactory
+    val pollerFactory = new JmxPollerFactory()
 
-    expect(true, "should accept: " + dto) {
-      poller.accepts(dto)
-    }
+    assert(pollerFactory.accepts(dto), "factory: " + pollerFactory + "should accept: " + dto)
 
-    // TODO now lets do some polling!
+    val poller = pollerFactory.create(dto)
+    val value = poller.poll
 
+    poller.close
+    // TODO have a close on the PollerFactory?
+
+    println("value: " + value)
+    assert(value != Double.NaN && value > 0, "Invalid thread count: " + value)
   }
 }

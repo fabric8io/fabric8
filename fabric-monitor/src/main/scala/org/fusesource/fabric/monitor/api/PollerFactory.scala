@@ -11,29 +11,29 @@
 package org.fusesource.fabric.monitor.api
 
 /**
- * <p>
- * </p>
+ * Creates a Poller for a given DataSourceDTO
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 trait PollerFactory {
 
-  def jaxb_package:String
+  def jaxb_package: String
 
-  def accepts(source:DataSourceDTO):Boolean
+  def accepts(source: DataSourceDTO): Boolean
 
-  def create(sources:Array[DataSourceDTO]):Poller
+  def create(source: DataSourceDTO): Poller
 
 }
 
 /**
- * <p>
- * </p>
+ * Capable of polling for a value
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 trait Poller {
-  def close:Unit
-  def sources:Array[DataSourceDTO]
-  def poll:Array[Double]
+  def close: Unit
+
+  def source: DataSourceDTO
+
+  def poll: Double
 }

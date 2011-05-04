@@ -111,7 +111,7 @@ class DefaultMonitor (
                 }
               }
 
-              pollers = (sources_by_factory.map{case (factory, sources)=> factory.create(sources.toArray) }).toList
+              pollers = (sources_by_factory.flatMap{case (factory, sources)=> sources.map(s => factory.create(s))}).toList
 
               while(active.get) {
 
@@ -119,13 +119,10 @@ class DefaultMonitor (
                 sample.setTime(Util.getTime)
 
 //                println("Collecting samples from %d pollers.".format(pollers.size))
-                pollers.foreach { case poller =>
-                  val sources = poller.sources
-                  val results = poller.poll
-
-                  sources.zip(results).foreach { case (dto, result) =>
-                    sample.setValue(dto.id, result);
-                  }
+                pollers.foreach { poller =>
+                  val result = poller.poll
+                  val dto = poller.source
+                  sample.setValue(dto.id, result)
                 }
 //                println("Collected sample: "+sample.dump)
                 sample.update();

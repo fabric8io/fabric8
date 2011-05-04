@@ -87,20 +87,18 @@ object ProcessPollerFactory extends PollerFactory {
     case _ => false
   }
 
-  def create(s: Array[DataSourceDTO]) = new Poller {
-
+  def create(s: DataSourceDTO) = new Poller {
+    val source = s
+    val dto = source.poll.asInstanceOf[ProcessPollDTO]
     val sigar = new Sigar
 
     def close = {
       sigar.close
     }
 
-    def sources = s
-
     def poll = {
-      sources.map { source =>
-        val dto = source.poll.asInstanceOf[ProcessPollDTO]
-        Option(dto.pid).map{ pid=>
+      Option(dto.pid).map{
+          pid =>
           try {
             def state = sigar.getProcState(pid.longValue)
             def cpu = sigar.getProcCpu(pid.longValue)
@@ -124,9 +122,7 @@ object ProcessPollerFactory extends PollerFactory {
           } catch {
             case _ => Double.NaN
           }
-        }.getOrElse(Double.NaN)
-      }
+      }.getOrElse(Double.NaN)
     }
-
   }
 }
