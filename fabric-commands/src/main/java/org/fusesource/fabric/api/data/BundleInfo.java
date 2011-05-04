@@ -21,11 +21,17 @@ public interface BundleInfo {
     }
 
     State getState();
+    Header[] getHeaders();
     String getSymbolicName();
     Long getId();
     String getVersion();
 
     String[] getImportPackages();
     String[] getExportPackages();
+
+    interface Header {
+        String getKey();
+        String getValue();
+    }
 
 }
