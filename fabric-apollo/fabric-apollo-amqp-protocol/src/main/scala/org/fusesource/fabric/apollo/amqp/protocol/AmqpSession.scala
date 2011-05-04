@@ -26,11 +26,12 @@ import collection.mutable.ListBuffer
 import java.util.concurrent.{TimeUnit, Executors, ExecutorService, LinkedBlockingQueue}
 import java.util.Date
 import org.fusesource.hawtbuf.Buffer
+import org.apache.activemq.apollo.broker.Sink
 
 /**
  *
  */
-class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Logging {
+class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[AmqpProtoMessage] with Logging {
 
   val current_transfer_id = new AtomicLong(1)
   val current_handle: AtomicInteger = new AtomicInteger(0)
@@ -49,8 +50,11 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var on_begin:Option[Runnable] = None
   var on_end:Option[Runnable] = None
 
-  var incoming_window = 1L
-  var outgoing_window = 1L
+  var incoming_window_max = 1L
+  var outgoing_window_max = 1L
+
+  var incoming_window = incoming_window_max
+  var outgoing_window = outgoing_window_max
 
   var remote_incoming_window = 0L
   var remote_outgoing_window = 0L
@@ -63,14 +67,18 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   // TODO - add accessors for this
   val ackTime = 500
 
+  // for session flow control...
+  var refiller:Runnable = null
 
-  override def toString = {
-    "AmqpSession{local_channel=" + channel + " remote_channel=" + remote_channel + "}"
+  def full = unsettled_outgoing.size > outgoing_window_max
+
+  def offer(message:AmqpProtoMessage) : Boolean = {
+    true
   }
 
-  def session_credit = 1L
-
-  def unsettled_lwm = 0
+  override def toString = {
+    "AmqpSession{local_channel=%s remote_channel=%s incoming_window_max=%s incoming_window=%s remote_outgoing_window=%s outgoing_window_max=%s outgoing_window=%s remote_outgoing_window=%s}" format (channel, remote_channel, incoming_window_max, incoming_window, remote_outgoing_window, outgoing_window_max, outgoing_window, remote_outgoing_window)
+  }
 
   def established = begin_sent.get == true && end_sent.get == false
 
@@ -370,13 +378,29 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   }
 
   def flow(flow: AmqpFlow) = {
-    val key = flow.getHandle.getValue.shortValue
-    store.get_by_remote_handle(key) match {
-      case Some(link) =>
-        //trace("Directing incoming flow from remote handle %s to local handle %s", key, link.handle)
-        link.peer_flowstate(flow)
+    // look at session level info
+    Option(flow.getOutgoingWindow) match {
       case None =>
-        info("Link not found for incoming flow : %s", flow)
+      case Some(window) =>
+        remote_outgoing_window = window.longValue
+    }
+    Option(flow.getIncomingWindow) match {
+      case None =>
+      case Some(window) =>
+        remote_incoming_window = window.longValue
+    }
+
+    // now see if this flow needs to be passed on to a link
+    Option(flow.getHandle) match {
+      case None =>
+      case Some(handle) =>
+        store.get_by_remote_handle(handle.getValue.shortValue) match {
+          case Some(link) =>
+            //trace("Directing incoming flow from remote handle %s to local handle %s", key, link.handle)
+            link.peer_flowstate(flow)
+          case None =>
+            info("Link not found for incoming flow : %s", flow)
+        }
     }
   }
 
@@ -453,7 +477,29 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def getOutgoingWindow = outgoing_window
   def getIncomingWindow = incoming_window
-  def setOutgoingWindow(window:Long) = outgoing_window = window
-  def setIncomingWindow(window:Long) = incoming_window = window
+
+  def setOutgoingWindow(window:Long) = {
+    outgoing_window_max = window
+    val diff = outgoing_window_max - outgoing_window
+    val old = outgoing_window
+    outgoing_window = outgoing_window + diff
+    if (old != outgoing_window && established) {
+      val flow = createAmqpFlow
+      update_flow_state(flow)
+      send(flow)
+    }
+  }
+
+  def setIncomingWindow(window:Long) = {
+    incoming_window_max = window
+    val diff = incoming_window_max - incoming_window
+    val old = incoming_window
+    incoming_window = incoming_window + diff
+    if (old != incoming_window && established) {
+      val flow = createAmqpFlow
+      update_flow_state(flow)
+      send(flow)
+    }
+  }
 
 }

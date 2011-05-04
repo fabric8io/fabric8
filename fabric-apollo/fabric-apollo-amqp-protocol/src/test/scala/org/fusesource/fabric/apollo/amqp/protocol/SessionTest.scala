@@ -167,6 +167,36 @@ class SessionTest extends FunSuiteSupport with ShouldMatchers with Logging {
     }
   }
 
+  test("Create session and change window sizes") {
+    val (session1, session2) = create_sessions.asInstanceOf[(AmqpSession, AmqpSession)]
+
+    def display = {
+      info("\nSession 1 : %s\n\nSession 2 : %s", session1, session2)
+    }
+
+    session1.begin(NOOP)
+
+    display
+
+    session1.outgoing_window should be (1L)
+    session2.outgoing_window should be (1L)
+
+    session1.setOutgoingWindow(10L)
+
+    display
+
+    session1.outgoing_window should be (10L)
+    session2.remote_outgoing_window should be (10L)
+
+    session2.setIncomingWindow(10L)
+
+    display
+
+    session2.incoming_window should be (10L)
+    session1.remote_incoming_window should be (10L)
+
+  }
+
   /*
     test("Attach, detach and re-attach") {
 
@@ -247,7 +277,7 @@ class TestLinkListener(msgListener:MessageListener) extends LinkListener {
   }
 }
 
-class DummyConnection extends SessionConnection with ConnectionHandler {
+class DummyConnection extends SessionConnection with ConnectionHandler with Logging {
 
   val queue = Dispatch.createQueue
 
@@ -273,6 +303,7 @@ class DummyConnection extends SessionConnection with ConnectionHandler {
   def release(channel:Int) = {}
 
   def send(channel:Int, cmd:AmqpCommand) = {
+    info("Channel %s sending %s", channel, cmd)
     val frame = new AmqpFrame(cmd)
     frame.setChannel(channel)
     frame.handle(_peer.handler.handler)

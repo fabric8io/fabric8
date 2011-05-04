@@ -56,6 +56,21 @@
       <version>${jackson-version}</version>
     </dependency>
 
+    <!-- In case you want to use a JAXRS resource to give you a JSON feed of
+         the monitored stats -->
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-server</artifactId>
+      <version>${jersey-version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet-api-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- for the handy TimeSpan class -->
     <dependency>
       <groupId>org.linkedin</groupId>
@@ -69,6 +84,21 @@
       </exclusions>
     </dependency>
 
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest</artifactId>
+      <version>${scalatest-version}</version>
+      <scope>test</scope>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+-->
   </dependencies>
 
   <build>
