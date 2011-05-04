@@ -31,7 +31,7 @@ public class AmqpFrameTest {
     // test an empty frame
     @Test
     public void testEmptyFrame() throws Exception {
-        AmqpFrame in = new AmqpFrame((AmqpCommand)null);
+        AmqpFrame in = new AmqpFrame();
         AmqpFrame out = marshalUnmarshal(in);
         Assert.assertTrue(in + " != " + out, in.equals(out));
     }
@@ -45,12 +45,12 @@ public class AmqpFrameTest {
         AmqpFrame in = new AmqpFrame(open);
 
         byte b[] = CodecUtils.marshal(open);
+        AmqpFrame out = marshalUnmarshal(in);
 
         long expectedLength = b.length;
         long length = in.getDataSize();
         Assert.assertEquals(expectedLength + " != " + length, expectedLength, length);
 
-        AmqpFrame out = marshalUnmarshal(in);
         Assert.assertTrue(in + " != " + out, in.equals(out));
         Assert.assertTrue(open + " != " + out.getBody(), open.equals(out.getBody()));
     }
