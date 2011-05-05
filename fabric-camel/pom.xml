@@ -19,9 +19,10 @@
     </parent>
 
     <artifactId>fabric-camel</artifactId>
-    <name>FuseSource Fabric :: Camel</name>
-    <description>Fabric Camel component</description>
     <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: Camel Component</description>
 
     <properties>
         <fabric.osgi.export>

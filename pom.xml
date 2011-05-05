@@ -23,8 +23,8 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
-    <name>FuseSource Fabric</name>
-    <description>FuseSource tooling for Karaf clusters.</description>
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric</description>
 
     <url>http://fabric.fusesource.org/</url>
 

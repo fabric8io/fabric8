@@ -19,9 +19,10 @@
     </parent>
 
     <artifactId>fabric-dosgi</artifactId>
-    <name>FuseSource Fabric :: DOSGi</name>
-    <description>Fabric Distributed OSGi</description>
     <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: Distributed OSGi</description>
 
     <properties>
         <fabric.osgi.export>

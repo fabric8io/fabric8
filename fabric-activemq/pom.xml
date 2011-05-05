@@ -20,8 +20,10 @@
   </parent>
 
   <artifactId>fabric-activemq</artifactId>
-  <name>FuseSource Fabric :: ActiveMQ</name>
   <packaging>bundle</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>FuseSource Fabric :: ActiveMQ</description>
 
   <properties>
       <fon.osgi.activator>org.fusesource.fabric.activemq.Activator</fon.osgi.activator>

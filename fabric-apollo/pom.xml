@@ -27,7 +27,7 @@
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
-  <description>The Fabric Apollo Modules</description>
+  <description>FuseSource Fabric :: Apollo Modules</description>
 
   <prerequisites>
     <maven>2.1.0</maven>

@@ -19,9 +19,10 @@
     </parent>
 
     <artifactId>fabric-commands</artifactId>
-    <name>FuseSource Fabric :: Commands</name>
-    <description>Fabric Karaf commands</description>
     <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: Karaf Commands</description>
 
     <properties>
         <fabric.osgi.export>

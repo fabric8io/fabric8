@@ -11,8 +11,8 @@
   <artifactId>fabric-website</artifactId>
   <packaging>war</packaging>
 
-  <name>FuseSource Fabric :: Web Site</name>
-  <description>Fuse Fabric Website and Documentation</description>
+  <name>${project.artifactId}</name>
+  <description>FuseSource Fabric :: Website and Documentation</description>
 
   <properties>
     <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
