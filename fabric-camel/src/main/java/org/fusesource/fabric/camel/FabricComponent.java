@@ -98,7 +98,12 @@ public class FabricComponent extends DefaultComponent {
     protected void doStart() throws Exception {
         super.doStart();
         if (zkClient == null) {
+            zkClient = (IZKClient) getCamelContext().getRegistry().lookup(IZKClient.class.getName());
+            LOG.debug("IZKClient find in camel registry.");
+        }
+        if (zkClient == null) {
             ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
+            LOG.debug("IZKClient not find in camel registry and created.");
             client.start();
             zkClient = client;
         }
