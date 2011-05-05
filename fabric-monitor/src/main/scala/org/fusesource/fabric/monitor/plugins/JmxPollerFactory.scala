@@ -40,15 +40,12 @@ class JmxPollerFactory extends PollerFactory {
       try {
         server.getAttribute(mbeanName, dto.attribute) match {
           case x:Number =>
-            println("a number: "+x)
             x.doubleValue()
           case x:AnyRef =>
-            println("somethign else: "+x)
             x.toString.toDouble
         }
       } catch {
         case e:Throwable =>
-          e.printStackTrace()
           Double.NaN
       }
     }

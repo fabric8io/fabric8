@@ -28,7 +28,7 @@ class MonitoredResource(monitor:DefaultMonitor) {
     println(List(id, start, end, step))
 
     val monitored_set = monitor.current_monitored_sets.get(id).getOrElse(result(NOT_FOUND))
-    val rrd_db = new RrdDb(monitored_set.rrd_def, monitor.rrd_backend);
+    val rrd_db = new RrdDb(monitored_set.rrd_file_name, true, monitor.rrd_backend);
     try {
 
 //      if ( filter !=null && !filter.isEmpty ) {
@@ -44,21 +44,23 @@ class MonitoredResource(monitor:DefaultMonitor) {
         rc.step = 1
       }
       if( rc.end == 0 ) {
-        rc.end = Util.getTime
+        rc.end = Util.getTime-1
       }
       if( rc.start == 0 ) {
-        rc.start = rc.end - (rc.step*60*5)
+        rc.start = rc.end - (rc.step*60)
       }
+      monitored_set.rrd_archive_funcs.foreach { consol_fun =>
+        val request = rrd_db.createFetchRequest(consol_fun, rc.start, rc.end, rc.step)
+        val data = request.fetchData()
+        for( name <- data.getDsNames ) {
+          val t = new DataSourceViewDTO
+          t.id = name
+          t.consolidation = consol_fun.toString
+          // t.label = monitored_set.data_source_dto(name).map(_.name).getOrElse("")
+          t.data = data.getValues(name)
+          rc.data_sources.add(t)
+        }
 
-      val request: FetchRequest = rrd_db.createFetchRequest(ConsolFun.AVERAGE, rc.start, rc.end, rc.step)
-
-      val data: FetchData = request.fetchData()
-      for( name <- data.getDsNames ) {
-        val t = new DataSourceViewDTO
-        t.id = name
-        // t.label = monitored_set.data_source_dto(name).map(_.name).getOrElse("")
-        t.data = data.getValues(name)
-        rc.data_sources.add(t)
       }
 
       rc

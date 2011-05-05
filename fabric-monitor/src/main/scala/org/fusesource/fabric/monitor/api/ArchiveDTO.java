@@ -30,7 +30,7 @@ public class ArchiveDTO {
      * TOTAL: The total of the data points is stored.
      */
     @XmlAttribute
-    public String consolidation = "AVERAGE";
+    public String consolidation;
 
     /**
      *

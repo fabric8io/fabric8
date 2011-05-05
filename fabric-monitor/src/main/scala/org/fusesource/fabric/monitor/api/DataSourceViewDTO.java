@@ -24,6 +24,17 @@ public class DataSourceViewDTO {
     @XmlAttribute
     public String id;
 
+    /**
+     * AVERAGE: The average of the data points is stored.
+     * MIN: The smallest of the data points is stored.
+     * MAX: The largest of the data points is stored.
+     * LAST: The last data point is used.
+     * FIRST: The fist data point is used.
+     * TOTAL: The total of the data points is stored.
+     */
+    @XmlAttribute
+    public String consolidation;
+
     @XmlElement(name="data")
     public double data[] = new double[]{};
 
