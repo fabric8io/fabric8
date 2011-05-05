@@ -50,8 +50,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var on_begin:Option[Runnable] = None
   var on_end:Option[Runnable] = None
 
-  var incoming_window_max = 1L
-  var outgoing_window_max = 1L
+  var incoming_window_max = 10L
+  var outgoing_window_max = 10L
 
   var incoming_window = incoming_window_max
   var outgoing_window = outgoing_window_max
@@ -355,7 +355,13 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     command match {
       case transfer:AmqpTransfer =>
         remote_incoming_window = remote_incoming_window - 1
-        trace("sending a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+        //trace("sending a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+        if (remote_incoming_window < 1) {
+          val flow = createAmqpFlow
+          update_flow_state(flow)
+          flow.setEcho(true)
+          send(flow)
+        }
 
       case flow:AmqpFlow =>
         update_flow_state(flow)
@@ -376,7 +382,13 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
     remote_outgoing_window = remote_outgoing_window - 1
 
-    trace("received a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+    //trace("received a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+    if (remote_outgoing_window < 1) {
+      val flow = createAmqpFlow
+      update_flow_state(flow)
+      flow.setEcho(true)
+      send(flow)
+    }
 
     val key = transfer.getHandle.getValue.shortValue
     store.get_by_remote_handle(key) match {
@@ -424,11 +436,21 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         remote_incoming_window = 1L + incoming_window - current_transfer_id.get.longValue
     }
 
-    trace("received a flow, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+    //trace("received a flow, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
 
     // now see if this flow needs to be passed on to a link
     Option(flow.getHandle) match {
       case None =>
+        Option(flow.getEcho) match {
+          case Some(echo) =>
+            if (echo.booleanValue) {
+              val flow = createAmqpFlow
+              update_flow_state(flow)
+              send(flow)
+            }
+          case None =>
+        }
+
       case Some(handle) =>
         store.get_by_remote_handle(handle.getValue.shortValue) match {
           case Some(link) =>

@@ -139,7 +139,7 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
     incoming.offer(message)
   }
 
-  def peer_flowstate(flowState: AmqpFlow): Unit = {
+  override def peer_flowstate(flowState: AmqpFlow): Unit = {
     available = flowState.getAvailable
     transfer_count = flowState.getTransferCount
 
@@ -165,6 +165,7 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
           case None =>
         }
     }
+    super.peer_flowstate(flowState)
   }
 
 }
