@@ -21,128 +21,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 /**
- *
- *   <section name="framing" label="frame layout and encoding">
- *  <doc>
- *    <p>
- *      Frames are divided into three distinct areas: a fixed width frame header, a variable width
- *      extended header, and a variable width frame body.
- *    </p>
- *    <pre>
- *    required        optional        optional
- *+--------------+-----------------+------------+
- *| frame header | extended header | frame body |
- *+--------------+-----------------+------------+
- *  8 bytes        *variable*      *variable*
- *    </pre>
- *    <dl>
- *      <dt>frame header</dt>
- *      <dd><p>The frame header is a fixed size (8 byte) structure that precedes each frame. The
- *          frame header includes mandatory information required to parse the rest of the frame
- *          including size and type information.</p></dd>
- *      <dt>extended header</dt>
- *      <dd><p>The extended header is a variable width area preceeding the frame body. This is an
- *          extension point defined for future expansion. The treatment of this area depends on the
- *          frame type.</p></dd>
- *      <dt>frame body</dt>
- *      <dd><p>The frame body is a variable width sequence of bytes the format of which depends on
- *          the frame type.</p></dd>
- *    </dl>
- *  </doc>
- *  <doc title="Frame Layout">
- *    <p>
- *      The diagram below shows the details of the general frame layout for all frame types.
- *    </p>
- *    <pre>
- *         +0       +1       +2       +3
- *     +-----------------------------------+ -.
- *   0 |                SIZE               |  |
- *     +-----------------------------------+  |---> Frame Header
- *   4 |  DOFF  |  TYPE  | <TYPE-SPECIFIC> |  |      (8 bytes)
- *     +-----------------------------------+ -'
- *     +-----------------------------------+ -.
- *   8 |                ...                |  |
- *     .                                   .  |---> Extended Header
- *     .          <TYPE-SPECIFIC>          .  |  (DOFF * 4 - 8) bytes
- *     |                ...                |  |
- *     +-----------------------------------+ -'
- *     +-----------------------------------+ -.
- *DOFF |                                   |  |
- *     .                                   .  |
- *     .                                   .  |
- *     .                                   .  |
- *     .          <TYPE-SPECIFIC>          .  |---> Frame Body
- *     .                                   .  |  (SIZE - DOFF * 4) bytes
- *     .                                   .  |
- *     .                                   .  |
- *     .                           ________|  |
- *     |                ...       |           |
- *     +--------------------------+          -'
- *    </pre>
- *    <dl>
- *      <dt>SIZE</dt>
- *      <dd><p>Bytes 0-3 of the frame header contain the frame size. This is an unsigned 32-bit
- *          integer that MUST contain the total frame size of the frame header, extended header, and
- *          frame body. The frame is malformed if the size is less than the the size of the required
- *          frame header (8 bytes).</p></dd>
- *      <dt>DOFF</dt>
- *      <dd><p>Byte 4 of the frame header is the data offset. This gives the position of the body
- *          within the frame. The value of the data offset is unsigned 8-bit integer specifying a
- *          count of 4 byte words. Due to the mandatory 8 byte frame header, the frame is malformed
- *          if the value is less than 2.</p></dd>
- *      <dt>TYPE</dt>
- *      <dd><p>Byte 5 of the frame header is a type code. The type code indicates the format and
- *          purpose of the frame. The subsequent bytes in the frame header may be interpreted
- *          differently depending on the type of the frame. A type code of 0x00 indicates that the
- *          frame is an AMQP frame. </p></dd>
- *    </dl>
- *  </doc>
- *  <doc title="AMQP Frames">
- *    <p>
- *      The AMQP frame type defines header bytes 6 and 7 to contain a channel number.
- *      <todo class="presentation">need to reference what a channel is</todo> The AMQP frame type
- *      defines bodies encoded as described types in the AMQP type system.
- *    </p>
- *    <pre>
- *            type: 0x00 - AMQP frame
- *         +0       +1       +2       +3
- *     +-----------------------------------+ -.
- *   0 |                SIZE               |  |
- *     +-----------------------------------+  |---> Frame Header
- *   4 |  DOFF  |  TYPE  |     CHANNEL     |  |      (8 bytes)
- *     +-----------------------------------+ -'
- *     +-----------------------------------+ -.
- *   8 |                ...                |  |
- *     .                                   .  |---> Extended Header
- *     .             <IGNORED>             .  |  (DOFF * 4 - 8) bytes
- *     |                ...                |  |
- *     +-----------------------------------+ -'
- *     +-----------------------------------+ -.
-4*DOFF |                                   |  |
- *8    .                                   .  |
- *     .                                   .  |
- *     .      Open / Begin / Attach        .  |
- *     .   Flow / Transfer / Disposition   .  |---> Frame Body
- *     .      Detach / End / Close         .  |  (SIZE - DOFF * 4) bytes
- *     .                                   .  |
- *     .                                   .  |
- *     .                           ________|  |
- *     |                ...       |           |
- *     +--------------------------+          -'
- *    </pre>
- *    <p>
- *      A frame with no body may be used to generate artificial traffic as needed to satisfy any
- *      negotiated heartbeat interval. Other than resetting the heartbeat timer, an empty AMQP frame
- *      has no effect on the recipient.
- *    </p>
- *  </doc>
- *</section>
- *
+ * Represents an AMQP frame
  */
-
 public class AmqpFrame {
 
-    static AmqpMarshaller marshaller = org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
+    static final AmqpMarshaller marshaller = org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
 
     protected Buffer header = new Buffer(8);
     protected Buffer extHeader = new Buffer(0);
@@ -156,8 +39,9 @@ public class AmqpFrame {
     protected static final int TYPE_OFFSET = 5;
     protected static final int CHANNEL_OFFSET = 6;
 
-    private AmqpFrame() {
-
+    public AmqpFrame() {
+        setType(0);
+        this.body = null;
     }
 
     public AmqpFrame(AmqpCommand body) {
@@ -166,17 +50,13 @@ public class AmqpFrame {
         if ( this.body instanceof AmqpNull) {
             this.body = null;
         }
-        setDoff(calculateDataOffset());
-        setSize(getFrameSize());
     }
 
     public AmqpFrame(DataInput in) throws IOException {
-        setType(0);
         read(in);
     }
 
     public AmqpFrame(ReadableByteChannel channel) throws IOException {
-        setType(0);
         bytesRead = read(channel);
     }
 

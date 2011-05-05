@@ -28,6 +28,29 @@ class JmxPollerFactory(val mbeanServer: MBeanServer = ManagementFactory.getPlatf
       mbeanServer.getAttribute(objectName, attribute) match {
         case n: Number => n.doubleValue
         case v => throw new IllegalMBeanAttributeType(mbeanPoll, v)
+      /*
+      val servers = MBeanServerFactory.findMBeanServer(null)
+      if( servers.isEmpty ) {
+        mbeanDTOs.map (dto => Double.NaN)
+      } else {
+        val server = servers.get(0)
+        mbeanDTOs.map { dto => pollMbeanAttribute(server, dto) }
+      }
+    }
+
+    def pollMbeanAttribute(server:MBeanServer, dto: MBeanAttributePollDTO) = {
+      val mbeanName = new ObjectName(dto.mbean);
+      try {
+        server.getAttribute(mbeanName, dto.attribute) match {
+          case x:Number =>
+            x.doubleValue()
+          case x:AnyRef =>
+            x.toString.toDouble
+        }
+      } catch {
+        case e:Throwable =>
+          Double.NaN
+     */
       }
     }
   }
