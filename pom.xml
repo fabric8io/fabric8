@@ -560,10 +560,20 @@
     </dependencyManagement>
 
   <profiles>
+    
+    <profile>
+      <id>apollo</id>
+
+      <modules>
+        <module>fabric-apollo</module>
+      </modules>
+    </profile>
+        
     <profile>
       <id>distro</id>
 
       <modules>
+        <module>fabric-apollo</module>
         <module>fabric-website</module>
       </modules>
     </profile>
