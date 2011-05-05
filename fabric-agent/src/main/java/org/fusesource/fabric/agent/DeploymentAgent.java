@@ -275,7 +275,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Feature dep : feature.getDependencies()) {
             Feature f = search(dep.getName(), dep.getVersion(), repositories);
             if (f == null) {
-                throw new IllegalArgumentException("Unable to find feature " + feature.getName() + "/" + feature.getVersion());
+                throw new IllegalArgumentException("Unable to find feature " + dep.getName() + "/" + dep.getVersion());
             }
             addFeatures(set, f, repositories);
         }
