@@ -19,9 +19,10 @@
     </parent>
 
     <artifactId>fabric-zookeeper</artifactId>
-    <name>FuseSource Fabric :: ZooKeeper</name>
-    <description>Fabric ZooKeeper service</description>
     <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: ZooKeeper Service</description>
 
     <properties>
         <fabric.osgi.export>

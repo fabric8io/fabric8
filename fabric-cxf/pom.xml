@@ -19,9 +19,10 @@
     </parent>
 
     <artifactId>fabric-cxf</artifactId>
-    <name>FuseSource Fabric :: CXF</name>
-    <description>Fabric CXF component</description>
     <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: CXF Component</description>
 
     <properties>
         <fabric.osgi.activator>org.fusesource.fabric.camel.Activator</fabric.osgi.activator>

@@ -19,9 +19,10 @@
     </parent>
 
     <artifactId>fabric-agent</artifactId>
-    <name>FuseSource Fabric :: Agent</name>
-    <description>Fabric provisioning agent</description>
     <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: Provisioning Agent</description>
 
     <properties>
         <fabric.osgi.import>

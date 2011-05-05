@@ -21,8 +21,10 @@
   </parent>
 
   <artifactId>fabric-launcher</artifactId>
-  <name>FuseSource Fabric :: Launcher</name>
   <packaging>war</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>FuseSource Fabric :: Launcher</description>
 
   <properties>
     <jetty-port>8080</jetty-port>

@@ -24,8 +24,10 @@
   </parent>
 
   <artifactId>fabric-groups</artifactId>
-  <name>FuseSource Fabric :: Groups</name>
   <packaging>bundle</packaging>
+  
+  <name>${project.artifactId}</name>
+  <description>FuseSource Fabric :: Cluster Groups API</description>
 
   <dependencies>
     <dependency>

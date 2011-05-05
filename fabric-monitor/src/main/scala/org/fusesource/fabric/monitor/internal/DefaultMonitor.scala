@@ -63,6 +63,7 @@ class DefaultMonitor (
     def data_source_dto(id:String) = dto.data_sources.filter(_.id == id)
 
     val rrd_def = {
+      println("Creating RRD file to: " + rrd_file_name)
       val rc = new RrdDef(rrd_file_name, sample_span.getDurationInSeconds)
       data_sources.foreach { source =>
         import source._
@@ -130,7 +131,9 @@ class DefaultMonitor (
               while(active.get) {
 
                 val sample = rrd_db.createSample()
-                sample.setTime(Util.getTime)
+                sample.setTime(Util.getTime())
+
+                val start = System.currentTimeMillis()
 
 //                println("Collecting samples from %d pollers.".format(pollers.size))
                 pollers.foreach { poller =>
@@ -142,7 +145,14 @@ class DefaultMonitor (
 
                 sample.update();
 
-                Thread.sleep( step_duration * sample_span.getDurationInSeconds)
+                // Sleep until we need to poll again.
+                def remaining = (start + (step_duration * sample_span.getDurationInSeconds)) - System.currentTimeMillis()
+                var r = remaining
+                while( r > 0 ) {
+                  Thread.sleep( r )
+                  r = remaining
+                }
+
 
               }
             } finally {
