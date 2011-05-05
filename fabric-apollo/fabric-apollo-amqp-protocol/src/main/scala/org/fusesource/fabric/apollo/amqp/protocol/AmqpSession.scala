@@ -122,6 +122,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
     begin.setOutgoingWindow(outgoing_window)
     begin.setIncomingWindow(incoming_window)
+    begin.setNextOutgoingId(current_transfer_id.get)
     //trace("Sending begin from local channel %s for remote channel %s", channel, remote_channel)
     connection.send(channel, begin)
   }
@@ -144,6 +145,12 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         window.longValue
       case None =>
         throw new RuntimeException("Remote outgoing window not specified")
+    }
+    next_incoming_transfer_id = Option(peer_begin.getNextOutgoingId) match {
+      case Some(id) =>
+        Option(id.getValue.longValue)
+      case None =>
+        throw new RuntimeException("Next outgoing transfer ID not specified")
     }
     if (!begin_sent.getAndSet(true)) {
       begin(true)
@@ -305,7 +312,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def update_flow_state(flowState:AmqpFlow) = {
     // TODO - session-level flow control
-    flowState.setNextOutgoingId(current_transfer_id.get + 1L)
+    flowState.setNextOutgoingId(current_transfer_id.get)
     flowState.setIncomingWindow(incoming_window)
     flowState.setOutgoingWindow(outgoing_window)
     next_incoming_transfer_id.foreach((x) => flowState.setNextIncomingId(x))
@@ -346,6 +353,10 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       }
     }
     command match {
+      case transfer:AmqpTransfer =>
+        remote_incoming_window = remote_incoming_window - 1
+        trace("sending a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+
       case flow:AmqpFlow =>
         update_flow_state(flow)
       case _ =>
@@ -362,6 +373,11 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       case None =>
         throw new RuntimeException("No transfer ID specified by peer")
     }
+
+    remote_outgoing_window = remote_outgoing_window - 1
+
+    trace("received a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+
     val key = transfer.getHandle.getValue.shortValue
     store.get_by_remote_handle(key) match {
       case Some(link) =>
@@ -378,17 +394,37 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   }
 
   def flow(flow: AmqpFlow) = {
-    // look at session level info
-    Option(flow.getOutgoingWindow) match {
-      case None =>
+    val flow_outgoing_window = Option(flow.getOutgoingWindow) match {
       case Some(window) =>
-        remote_outgoing_window = window.longValue
-    }
-    Option(flow.getIncomingWindow) match {
+        window.longValue
       case None =>
-      case Some(window) =>
-        remote_incoming_window = window.longValue
+        throw new RuntimeException("No outgoing window present in incoming flow")
     }
+    val flow_incoming_window = Option(flow.getIncomingWindow) match {
+      case Some(window) =>
+        window.longValue
+      case None =>
+        throw new RuntimeException("No incoming window present in incoming flow")
+    }
+    val next_incoming_transfer_id = Option(flow.getNextOutgoingId) match {
+      case Some(id) =>
+        id.getValue.longValue
+      case None =>
+        throw new RuntimeException("Next incoming transfer ID not present in flow")
+    }
+
+    this.next_incoming_transfer_id = Option(next_incoming_transfer_id)
+    remote_outgoing_window = flow_outgoing_window
+
+    Option(flow.getNextIncomingId) match {
+      case Some(id) =>
+        val next_incoming_transfer_id = id.getValue.longValue
+        remote_incoming_window = next_incoming_transfer_id + flow_incoming_window - current_transfer_id.get.longValue
+      case None =>
+        remote_incoming_window = 1L + incoming_window - current_transfer_id.get.longValue
+    }
+
+    trace("received a flow, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
 
     // now see if this flow needs to be passed on to a link
     Option(flow.getHandle) match {
