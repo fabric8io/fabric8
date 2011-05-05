@@ -35,7 +35,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
   var refiller:Runnable = null
 
   val outgoing = new OverflowSink[AmqpProtoMessage](this)
-  outgoing.refiller = ^{}
+  outgoing.refiller = NOOP
   val dispatch = session.dispatch_queue
 
   override def flowstate = {
@@ -91,7 +91,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
     true
   }
 
-  def peer_flowstate(flowState: AmqpFlow): Unit = {
+  override def peer_flowstate(flowState: AmqpFlow): Unit = {
     Option(flowState.getLinkCredit) match {
       case Some(credit) =>
         link_credit match {
@@ -122,6 +122,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
     }
 
     Option(refiller).foreach((x) => dispatch << x)
+    super.peer_flowstate(flowState)
   }
 
   def setFlowControlListener(listener: FlowControlListener): Unit = {

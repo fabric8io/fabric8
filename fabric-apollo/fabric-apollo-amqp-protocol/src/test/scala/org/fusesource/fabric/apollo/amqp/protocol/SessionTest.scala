@@ -178,22 +178,22 @@ class SessionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
     display
 
-    session1.outgoing_window should be (1L)
-    session2.outgoing_window should be (1L)
-
-    session1.setOutgoingWindow(10L)
-
-    display
-
     session1.outgoing_window should be (10L)
-    session2.remote_outgoing_window should be (10L)
+    session2.outgoing_window should be (10L)
 
-    session2.setIncomingWindow(10L)
+    session1.setOutgoingWindow(20L)
 
     display
 
-    session2.incoming_window should be (10L)
-    session1.remote_incoming_window should be (10L)
+    session1.outgoing_window should be (20L)
+    session2.remote_outgoing_window should be (20L)
+
+    session2.setIncomingWindow(20L)
+
+    display
+
+    session2.incoming_window should be (20L)
+    session1.remote_incoming_window should be (20L)
 
   }
 
