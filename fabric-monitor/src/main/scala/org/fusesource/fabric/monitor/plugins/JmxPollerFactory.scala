@@ -7,8 +7,10 @@ import javax.management.{ObjectName, MBeanServer}
 /**
  * A PollerFactory for dealing with JMX Attribute polls
  */
-class JmxPollerFactory(val mbeanServer: MBeanServer = ManagementFactory.getPlatformMBeanServer) extends PollerFactory {
+class JmxPollerFactory extends PollerFactory {
   def jaxb_package = getClass.getName.replaceAll("""\.[^\.]*$""", "")
+
+  def mbeanServer: MBeanServer = ManagementFactory.getPlatformMBeanServer()
 
   def accepts(source: DataSourceDTO) = source.poll match {
     case x: MBeanAttributePollDTO => true
