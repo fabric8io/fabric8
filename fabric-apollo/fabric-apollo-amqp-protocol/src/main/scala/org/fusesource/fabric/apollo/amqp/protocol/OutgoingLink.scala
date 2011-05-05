@@ -35,7 +35,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
   var refiller:Runnable = null
 
   val outgoing = new OverflowSink[AmqpProtoMessage](this)
-  outgoing.refiller = ^{}
+  outgoing.refiller = NOOP
   val dispatch = session.dispatch_queue
 
   override def flowstate = {

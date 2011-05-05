@@ -26,12 +26,12 @@ import collection.mutable.ListBuffer
 import java.util.concurrent.{TimeUnit, Executors, ExecutorService, LinkedBlockingQueue}
 import java.util.Date
 import org.fusesource.hawtbuf.Buffer
-import org.apache.activemq.apollo.broker.Sink
+import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
 
 /**
  *
  */
-class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[AmqpProtoMessage] with Logging {
+class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[Runnable] with Logging {
 
   val current_transfer_id = new AtomicLong(1)
   val current_handle: AtomicInteger = new AtomicInteger(0)
@@ -67,13 +67,20 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   // TODO - add accessors for this
   val ackTime = 500
 
-  // for session flow control...
   var refiller:Runnable = null
 
-  def full = unsettled_outgoing.size > outgoing_window_max
+  val outgoing = new OverflowSink[Runnable](this)
+  outgoing.refiller = NOOP
 
-  def offer(message:AmqpProtoMessage) : Boolean = {
-    true
+  def full = remote_incoming_window <= 0
+
+  def offer(runnable:Runnable) : Boolean = {
+    if (remote_incoming_window > 0) {
+      runnable.run
+      true
+    } else {
+      false
+    }
   }
 
   override def toString = {
@@ -320,24 +327,27 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def send(link:AmqpLink, message:AmqpProtoMessage):Unit = {
 
-    message.getHeader.setTransmitTime(new Date)
-    Option(message.getProperties.getUserId).getOrElse(message.getProperties.setUserId(new Buffer(System.getProperty("user.name").getBytes)))
+    outgoing.offer(^{
+      message.getHeader.setTransmitTime(new Date)
+      Option(message.getProperties.getUserId).getOrElse(message.getProperties.setUserId(new Buffer(System.getProperty("user.name").getBytes)))
 
-    val transfer = message.transfer(current_transfer_id.getAndIncrement)
-    transfer.setHandle(link.handle.get)
+      val transfer = message.transfer(current_transfer_id.getAndIncrement)
+      transfer.setHandle(link.handle.get)
 
-    if (!Option(transfer.getSettled).getOrElse(false).asInstanceOf[Boolean]) {
-      //trace("Adding outgoing transfer ID %s to unsettled map for link handle %s", transfer.getTransferId, transfer.getHandle)
-      unsettled_outgoing += message.tag -> message
-      id_to_tag += transfer.getTransferId.getValue.longValue -> message.tag
-    } else {
-      //trace("Directly ack'ing transfer ID %s that has already been settled", transfer.getTransferId);
-      message.outcome = Outcome.ACCEPTED
-      message.onAck.foreach((x) => dispatch_queue << x)
-    }
+      if (!Option(transfer.getSettled).getOrElse(false).asInstanceOf[Boolean]) {
+        //trace("Adding outgoing transfer ID %s to unsettled map for link handle %s", transfer.getTransferId, transfer.getHandle)
+        unsettled_outgoing += message.tag -> message
+        id_to_tag += transfer.getTransferId.getValue.longValue -> message.tag
+      } else {
+        //trace("Directly ack'ing transfer ID %s that has already been settled", transfer.getTransferId);
+        message.outcome = Outcome.ACCEPTED
+        message.onAck.foreach((x) => dispatch_queue << x)
+      }
 
-    message.onSend.foreach((x) => dispatch_queue << x)
-    send(link, transfer)
+      message.onSend.foreach((x) => dispatch_queue << x)
+      send(link, transfer)
+    })
+
   }
 
   def send(link:AmqpLink, command:AmqpCommand):Unit = {
@@ -437,6 +447,10 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
 
     //trace("received a flow, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+
+    if (remote_incoming_window > 0 && refiller != null) {
+      dispatch_queue << refiller
+    }
 
     // now see if this flow needs to be passed on to a link
     Option(flow.getHandle) match {
