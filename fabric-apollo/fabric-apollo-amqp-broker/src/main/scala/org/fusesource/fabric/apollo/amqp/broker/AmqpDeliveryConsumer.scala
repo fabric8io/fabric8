@@ -17,12 +17,12 @@ import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.protocol.{AmqpProtoMessage, OutgoingLink, FlowControlListener}
 import org.fusesource.fabric.apollo.amqp.api.DistributionMode._
 import org.fusesource.fabric.apollo.amqp.protocol.AmqpConversions._
-import org.fusesource.fabric.apollo.amqp.api.{Outcome, Sender}
 import org.apache.activemq.apollo.dto.{DestinationDTO, DurableSubscriptionDestinationDTO, TopicDestinationDTO}
 import org.apache.activemq.apollo.filter.BooleanExpression
 import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpString, AmqpSymbol, AmqpFilter}
 import org.apache.activemq.apollo.selector.SelectorParser
 import collection.mutable.ListBuffer
+import org.fusesource.fabric.apollo.amqp.api.{Session, Outcome, Sender}
 
 /**
  * An AMQP sender that consumes message deliveries
@@ -90,7 +90,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
 
   def connect(p:DeliveryProducer) = new AmqpDeliverySession(p)
 
-  class AmqpDeliverySession(p:DeliveryProducer) extends DeliverySession with FlowControlListener {
+  class AmqpDeliverySession(p:DeliveryProducer) extends DeliverySession {
 
     retain
 
@@ -98,11 +98,6 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
     def consumer = AmqpDeliveryConsumer.this
     var closed = false
     val session = handler.outbound_sessions.open(producer.dispatch_queue)
-
-    // TODO
-    link.asInstanceOf[OutgoingLink].setFlowControlListener(this)
-
-    def canSend = refiller.run
 
     def remaining_capacity = session.remaining_capacity
 
@@ -120,7 +115,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
     def full() : Boolean = {
         // TODO
       val out = link.asInstanceOf[OutgoingLink]
-      val rc = out.canSend
+      val rc = out.canSend && out.session.asInstanceOf[Session].sufficientSessionCredit
       //trace("checking state of outgoing link, able to send : %s", rc)
       if (!rc) {
         try {
@@ -167,7 +162,10 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
     }
 
     def refiller = session.refiller
-    def refiller_= (value:Runnable) = { session.refiller=value }
+    def refiller_= (value:Runnable) = {
+      session.refiller=value
+      link.setRefiller(session.refiller)
+    }
 
   }
 }

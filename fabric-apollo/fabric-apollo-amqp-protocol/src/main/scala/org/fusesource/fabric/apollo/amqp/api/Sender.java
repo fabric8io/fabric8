@@ -27,7 +27,13 @@ public interface Sender extends Link {
     public boolean put(Message message);
 
     /**
-     * Sets a task to be performed when the sender has sufficient link credit to send and no outstanding messages in it's internal buffer.
+     * Returns whether or not this sender has sufficient link credit to send a message
+     * @return
+     */
+    public boolean sufficientLinkCredit();
+
+    /**
+     * Sets a task to be performed when the sender has sufficient link or session credit to send and no outstanding messages in it's internal buffer.
      * @param refiller
      */
     public void setRefiller(Runnable refiller);

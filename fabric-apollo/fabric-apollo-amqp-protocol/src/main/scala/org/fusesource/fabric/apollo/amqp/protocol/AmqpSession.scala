@@ -70,21 +70,37 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var refiller:Runnable = null
 
   val outgoing = new OverflowSink[Runnable](this)
-  outgoing.refiller = NOOP
+  outgoing.refiller = ^{
+    if (!full) {
+      store.foreach( (link) => {
+        if (link.role == AmqpRole.SENDER) {
+          val refiller = link.asInstanceOf[OutgoingLink].outgoing.refiller
+          if (refiller != null && refiller != NOOP) {
+            dispatch_queue << ^{
+              //trace("Running refiller for link %s, state : %s", link, this)
+              refiller.run
+            }
+          }
+        }
+      })
+    }
+  }
 
   def full = remote_incoming_window <= 0
 
   def offer(runnable:Runnable) : Boolean = {
-    if (remote_incoming_window > 0) {
+    if (full) {
+      false
+    } else {
       runnable.run
       true
-    } else {
-      false
     }
   }
 
+  def sufficientSessionCredit = !full
+
   override def toString = {
-    "AmqpSession{local_channel=%s remote_channel=%s incoming_window_max=%s incoming_window=%s remote_outgoing_window=%s outgoing_window_max=%s outgoing_window=%s remote_outgoing_window=%s}" format (channel, remote_channel, incoming_window_max, incoming_window, remote_outgoing_window, outgoing_window_max, outgoing_window, remote_outgoing_window)
+    "AmqpSession{local_channel=%s remote_channel=%s incoming_window_max=%s incoming_window=%s remote_outgoing_window=%s outgoing_window_max=%s outgoing_window=%s remote_incoming_window=%s next_outgoing_transfer_id=%s, next_incoming_transfer_id=%s}" format (channel, remote_channel, incoming_window_max, incoming_window, remote_outgoing_window, outgoing_window_max, outgoing_window, remote_incoming_window, current_transfer_id.get, next_incoming_transfer_id)
   }
 
   def established = begin_sent.get == true && end_sent.get == false
@@ -365,7 +381,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     command match {
       case transfer:AmqpTransfer =>
         remote_incoming_window = remote_incoming_window - 1
-        //trace("sending a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+        //trace("Sending a transfer, state : %s", this)
         if (remote_incoming_window < 1) {
           val flow = createAmqpFlow
           update_flow_state(flow)
@@ -392,7 +408,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
     remote_outgoing_window = remote_outgoing_window - 1
 
-    //trace("received a transfer, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+    //trace("Received a transfer, state : %s", this);
+
     if (remote_outgoing_window < 1) {
       val flow = createAmqpFlow
       update_flow_state(flow)
@@ -446,10 +463,13 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         remote_incoming_window = 1L + incoming_window - current_transfer_id.get.longValue
     }
 
-    //trace("received a flow, remote_incoming_window : %s remote_outgoing_window : %s", remote_incoming_window, remote_outgoing_window)
+    //trace("Received a flow, state : %s", this)
 
     if (remote_incoming_window > 0 && refiller != null) {
-      dispatch_queue << refiller
+      dispatch_queue << ^{
+        //trace("Session running refiller, state : %s", this)
+        refiller.run
+      }
     }
 
     // now see if this flow needs to be passed on to a link
