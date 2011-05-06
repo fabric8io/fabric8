@@ -12,13 +12,13 @@
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
-        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.9-SNAPSHOT</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.8-fuse-00-10</bundle>
 
         <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/1.2.6</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/1.2.6</bundle>
 
-        <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/1.6.1</bundle>
-        <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/1.6.1</bundle>
+        <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/1.6.2</bundle>
+        <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/1.6.2</bundle>
 
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/${karaf-version}</bundle>
@@ -28,7 +28,7 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
 
-        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint/0.3</bundle>
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint/0.3.1</bundle>
         <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>

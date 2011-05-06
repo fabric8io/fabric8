@@ -45,6 +45,7 @@ import org.apache.karaf.features.internal.RepositoryImpl;
 import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.download.Future;
 import org.fusesource.fabric.agent.download.FutureListener;
+import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
 import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
@@ -154,6 +155,13 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         if (props == null) {
             return;
         }
+        final MavenConfigurationImpl config = new MavenConfigurationImpl(
+                new DictionaryPropertyResolver(props,
+                        new PropertiesPropertyResolver(System.getProperties())),
+                "org.ops4j.pax.url.mvn"
+        );
+        config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
+        manager = new DownloadManager(config);
         Map<String, String> properties = new HashMap<String, String>();
         for (Enumeration e = props.keys(); e.hasMoreElements();) {
             Object key = e.nextElement();

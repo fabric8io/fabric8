@@ -63,6 +63,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         for (ZooKeeperTreeTracker<String> tree : trees.values()) {
             tree.destroy();
         }
+        trees.clear();
     }
 
     public void onConnected() {
