@@ -107,8 +107,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             set( client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", "0000" );
             set( client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/0000", karafName );
 
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.useFallbackRepositories", "false" );
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.disableAether", "true" );
             createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots" );
             createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases" );
 
