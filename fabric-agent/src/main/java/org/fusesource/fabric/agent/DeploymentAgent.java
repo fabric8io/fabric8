@@ -526,6 +526,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     protected boolean updateFramework(String url) throws Exception {
+        if (!url.startsWith("mvn:")) {
+            throw new IllegalArgumentException("Framework url must use the mvn: protocol");
+        }
         File file = manager.download(url).await().getFile();
         String path = file.getPath();
         if (path.startsWith(System.getProperty("karaf.home"))) {

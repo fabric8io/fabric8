@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.agent.download;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,12 +48,28 @@ public class DownloadManager {
                 url = url.substring(0, url.lastIndexOf('$') - 1);
             }
         }
-        if (!url.startsWith("mvn:")) {
-            throw new IllegalArgumentException("Unsupported url: " + url);
+        if (url.startsWith("blueprint:") || url.startsWith("spring:")) {
+            url = url.substring(url.indexOf(':') + 1);
         }
-        DownloadTask task = new DownloadTask(url, system, configuration);
-        executor.submit(task);
-        return task.getFuture();
+        if (url.startsWith("mvn:")) {
+            DownloadTask task = new DownloadTask(url, system, configuration);
+            executor.submit(task);
+            return task.getFuture();
+        } else {
+            return new DoneDownload();
+        }
+    }
+
+    protected static class DoneDownload extends DefaultFuture<DownloadFuture> implements DownloadFuture {
+
+        public DoneDownload() {
+            setValue(null);
+        }
+
+        @Override
+        public File getFile() throws IOException {
+            return null;
+        }
     }
 
 }
