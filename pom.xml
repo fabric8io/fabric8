@@ -182,6 +182,7 @@
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
         <module>fabric-dosgi</module>
+        <module>fabric-examples</module>
     </modules>
 
     <build>
@@ -417,6 +418,11 @@
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-agent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-camel</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
