@@ -162,6 +162,16 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 properties.put(key.toString(), val.toString());
             }
         }
+        // Update framework if needed
+        for (String key : properties.keySet()) {
+            if (key.equals("framework")) {
+                String url = properties.get(key);
+                if (updateFramework(url)) {
+                    return;
+                }
+            }
+        }
+        // Compute deployment
         Map<URI, Repository> repositories = new HashMap<URI, Repository>();
         for (String key : properties.keySet()) {
             if (key.startsWith("repository.")) {
@@ -201,13 +211,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
             }
         }
+        // Update bundles
         updateDeployment(repositories, features, bundles);
-        for (String key : properties.keySet()) {
-            if (key.equals("framework")) {
-                String url = properties.get(key);
-                updateFramework(url);
-            }
-        }
     }
 
     private void addRepository(Map<URI, Repository> repositories, URI uri) throws Exception {
@@ -371,8 +376,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             Bundle bundle = entry.getKey();
             Resource resource = entry.getValue();
             InputStream is = new URL(resource.getURI()).openStream();
+            bundle.stop(Bundle.STOP_TRANSIENT);
             bundle.update(is);
             toRefresh.add(bundle);
+            toStart.add(bundle);
         }
         for (Resource resource : toInstall) {
             Bundle bundle = bundleContext.installBundle(resource.getURI());
@@ -518,7 +525,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return result;
     }
 
-    protected void updateFramework(String url) throws Exception {
+    protected boolean updateFramework(String url) throws Exception {
         File file = manager.download(url).await().getFile();
         String path = file.getPath();
         if (path.startsWith(System.getProperty("karaf.home"))) {
@@ -531,7 +538,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             properties.save();
             System.setProperty("karaf.restart", "true");
             bundleContext.getBundle(0).stop();
+            return true;
         }
+        return false;
     }
 
     protected void downloadBundles(Set<Feature> features, Set<String> bundles) throws IOException, InterruptedException {
