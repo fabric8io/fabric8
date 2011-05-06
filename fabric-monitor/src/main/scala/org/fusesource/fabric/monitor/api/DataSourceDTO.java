@@ -14,6 +14,8 @@ package org.fusesource.fabric.monitor.api;
 import javax.xml.bind.annotation.*;
 
 /**
+ * Represents a kind of value which is to be polled along with its polling mechanism (such as a Process/System/JMX value etc)
+ *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 @XmlRootElement(name="data_source")

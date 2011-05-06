@@ -15,8 +15,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * <p>
- * </p>
+ * Defines a kind of polled value
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
