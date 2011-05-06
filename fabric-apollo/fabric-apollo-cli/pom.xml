@@ -133,12 +133,12 @@
       <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-openwire</artifactId>
       <version>${apollo-version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-amqp-broker</artifactId>
