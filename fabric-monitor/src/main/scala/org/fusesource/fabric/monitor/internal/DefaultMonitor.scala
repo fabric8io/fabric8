@@ -148,7 +148,7 @@ class DefaultMonitor (
                 pollers.foreach { poller =>
                   val result = poller.poll
                   val dto = poller.source
-                  sample.setValue(dto.id, result)
+                  sample.setValue(dto.rrd_id, result)
                 }
 //                println("Collected sample: "+sample.dump)
 

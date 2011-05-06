@@ -1,8 +1,8 @@
 package org.fusesource.fabric.monitor.plugins
 
 import jmx.{JmxConstants, MBeanAttributeKeyPollDTO, JmxDataSourceRegistry}
-import org.fusesource.fabric.monitor.api.{PollDTO, DataSourceDTO, MonitoredSetDTO}
 import collection.JavaConverters._
+import org.fusesource.fabric.monitor.api.{ArchiveDTO, PollDTO, DataSourceDTO, MonitoredSetDTO}
 
 /**
  * A helper class for building a monitor set
@@ -18,6 +18,12 @@ abstract class MonitorSetBuilder(name: String) {
   }
 
   def configure: Unit
+
+  def archive( window: String, step: String = null,consolidation: String = "AVERAGE") = {
+    val a = new ArchiveDTO(consolidation, step, window)
+    set.archives.add(a)
+    a
+  }
 
   def dataSource(poll: PollDTO, id: String, name: String = null, description: String = null, kind: String = "gauge", heartbeat: String = "1s", min: Double = Double.NaN, max: Double = Double.NaN) = {
     var n = if (name == null) id else name

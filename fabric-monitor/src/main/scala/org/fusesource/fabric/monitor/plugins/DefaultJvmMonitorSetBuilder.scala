@@ -6,6 +6,15 @@ package org.fusesource.fabric.monitor.plugins
 class DefaultJvmMonitorSetBuilder extends MonitorSetBuilder("JvmStatistics") {
 
   def configure {
+    archive("5m")
+/*
+    TODO can we support more than one archive???
+
+    archive("24h", "1m")
+    archive("30d", "1h")
+    archive("1y", "1d")
+*/
+
     jmxDataSources(
       // heap
       "java.lang:name=Par Survivor Space,type=MemoryPool/Usage/used" -> "jvm.heap.parSurvivor",
