@@ -32,7 +32,7 @@ public class MonitoredSetDTO {
     public String name;
 
     @XmlAttribute
-    public String step = "60s";
+    public String step = "1s";
 
     @XmlElement(name="data_source")
     public List<DataSourceDTO> data_sources = new ArrayList<DataSourceDTO>();

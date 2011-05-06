@@ -2,6 +2,7 @@ package org.fusesource.fabric.monitor.plugins
 package jmx
 
 import collection.JavaConversions._
+import org.fusesource.fabric.monitor.api.{DataSourceDTO, DataSourceGroupDTO}
 
 class DefaultJvmMonitorSetTest extends FunSuiteSupport {
 
@@ -27,12 +28,39 @@ class DefaultJvmMonitorSetTest extends FunSuiteSupport {
   }
 
 
-  ignore("query JMX beans") {
+  def dump(d: DataSourceGroupDTO, indent: Int, concise: Boolean) {
+    printIndent(indent)
+    println(if (concise) d.id else d)
+    val newIndent = indent + 1
+    for (child <- d.children) {
+      dump(child, newIndent, concise)
+    }
+    for (ds <- d.data_sources) {
+      dump(ds, newIndent, concise)
+    }
+  }
+
+  def dump(d: DataSourceDTO, indent: Int, concise: Boolean) {
+    printIndent(indent)
+    println(if (concise) d.id else d)
+    val newIndent = indent + 1
+    for (child <- d.children) {
+      dump(child, newIndent, concise)
+    }
+  }
+
+  def printIndent(indent: Int) {
+    for (i <- 0.to(indent)) {
+      print("  ")
+    }
+  }
+
+  test("query JMX beans") {
     val registry = new JmxDataSourceRegistry()
 
     val answer = registry.findSources()
-    for (a <- answer) {
-      println("Found: " + a)
+    for ((d, a) <- answer) {
+      dump(a, 0, true)
     }
   }
 }

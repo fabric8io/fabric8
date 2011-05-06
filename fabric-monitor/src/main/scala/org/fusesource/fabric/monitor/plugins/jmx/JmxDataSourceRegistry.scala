@@ -6,19 +6,25 @@ import collection.mutable.{ListBuffer, HashMap}
 import org.fusesource.fabric.monitor.api.{DataSourceGroupDTO, DataSourceDTO}
 import javax.management.{MBeanAttributeInfo, QueryExp, ObjectName}
 import javax.management.openmbean.CompositeData
+import JmxConstants._
 
 /**
  * Discovers the available values in JMX
  */
 class JmxDataSourceRegistry extends JmxMixin {
-  val SEPARATOR = "/"
 
   def createDataSource(objectName: String, attributeName: String): Option[DataSourceDTO] = {
-    val o = new ObjectName(objectName)
-    val info = mbeanServer.getMBeanInfo(o)
-    info.getAttributes.find(_.getName == attributeName) match {
-      case Some(attrInfo) => Some(createDataSource(o, attrInfo))
-      case _ => None
+    try {
+      val o = new ObjectName(objectName)
+      val info = mbeanServer.getMBeanInfo(o)
+      info.getAttributes.find(_.getName == attributeName) match {
+        case Some(attrInfo) => Some(createDataSource(o, attrInfo))
+        case _ => None
+      }
+    }
+    catch {
+      case e => println("Caught: " + e)
+      None
     }
   }
 
@@ -31,7 +37,7 @@ class JmxDataSourceRegistry extends JmxMixin {
     dto.description = attributeInfo.getDescription
 
     // TODO use special repo somewhere to figure out the accurage kinds???
-    dto.kind = "guage"
+    dto.kind = "gauge"
     dto.heartbeat = "1s"
 
     val dtoPoll = new MBeanAttributePollDTO(name, attributeName)
@@ -49,13 +55,13 @@ class JmxDataSourceRegistry extends JmxMixin {
             kdto.description = k
 
             // TODO use special repo somewhere to figure out the accurage kinds???
-            kdto.kind = "guage"
+            kdto.kind = "gauge"
             kdto.heartbeat = "1s"
 
             kdto.poll = new MBeanAttributeKeyPollDTO(name, attributeName, k)
             dto.children.add(kdto)
           }
-        case a => println("Not a CompositeData value: " + a)
+        case a => println("MBean " + objectName + " attribute " + attributeName + " is not a CompositeData value: " + a)
       }
     }
     dto
@@ -66,8 +72,8 @@ class JmxDataSourceRegistry extends JmxMixin {
 
     val map = HashMap[String,DataSourceGroupDTO]()
 
-    val answer = mbeanServer.queryNames(objectName, query)
-    for (o <- answer) {
+    val names = mbeanServer.queryNames(objectName, query)
+    for (o <- names) {
       val d = o.getDomain
 
       val domainGroup = map.getOrElseUpdate(d, new DataSourceGroupDTO(d))
@@ -75,6 +81,7 @@ class JmxDataSourceRegistry extends JmxMixin {
 
       val objectGroup = new DataSourceGroupDTO(o.getCanonicalName)
       objectGroup.description = info.getDescription
+      domainGroup.children.add(objectGroup)
 
       for (attr <- info.getAttributes) {
         val dto: DataSourceDTO = createDataSource(o, attr)
