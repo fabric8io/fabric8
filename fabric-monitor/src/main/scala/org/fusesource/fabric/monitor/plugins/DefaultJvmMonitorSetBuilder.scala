@@ -7,6 +7,9 @@ class DefaultJvmMonitorSetBuilder extends MonitorSetBuilder("JvmStatistics") {
 
   def configure {
     archive("5m")
+    archive("24h", "1m")
+    archive("1y", "1h")
+
 /*
     TODO can we support more than one archive???
 
