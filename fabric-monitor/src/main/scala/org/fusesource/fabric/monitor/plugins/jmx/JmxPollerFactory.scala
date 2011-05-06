@@ -1,4 +1,5 @@
 package org.fusesource.fabric.monitor.plugins
+package jmx
 
 import org.fusesource.fabric.monitor.api.{Poller, DataSourceDTO, PollerFactory}
 import management.ManagementFactory
@@ -7,10 +8,8 @@ import javax.management.{ObjectName, MBeanServer}
 /**
  * A PollerFactory for dealing with JMX Attribute polls
  */
-class JmxPollerFactory extends PollerFactory {
+class JmxPollerFactory extends PollerFactory with JmxMixin {
   def jaxb_package = getClass.getName.replaceAll("""\.[^\.]*$""", "")
-
-  def mbeanServer: MBeanServer = ManagementFactory.getPlatformMBeanServer()
 
   def accepts(source: DataSourceDTO) = source.poll match {
     case x: MBeanAttributePollDTO => true
