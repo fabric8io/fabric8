@@ -1,6 +1,6 @@
 package org.fusesource.fabric.monitor.plugins
 
-import jmx.{MBeanAttributeKeyPollDTO, JmxDataSourceRegistry}
+import jmx.{JmxConstants, MBeanAttributeKeyPollDTO, JmxDataSourceRegistry}
 import org.fusesource.fabric.monitor.api.{PollDTO, DataSourceDTO, MonitoredSetDTO}
 import collection.JavaConverters._
 
@@ -25,6 +25,24 @@ abstract class MonitorSetBuilder(name: String) {
     val ds = new DataSourceDTO(id, n, d, kind, heartbeat, min, max, poll)
     addDataSource(ds)
     ds
+  }
+
+  def jmxDataSources(ids: String*): List[DataSourceDTO] = {
+    var answer = List[DataSourceDTO]()
+    for (id <- ids) {
+      val paths = id.split(JmxConstants.SEPARATOR)
+     val ds: Option[DataSourceDTO] = if (paths.length < 2) {
+        throw new IllegalArgumentException("JMX IDs must have at least 2 paths separated by " + JmxConstants.SEPARATOR)
+      } else if (paths.length < 3) {
+        jmxDataSource(paths(0), paths(1))
+      } else {
+        jmxDataSource(paths(0), paths(1), paths(2))
+      }
+      if (ds.isDefined) {
+        answer :+ ds.get
+      }
+    }
+    answer
   }
 
   def jmxDataSource(objectName: String, attributeName: String, key: String): Option[DataSourceDTO] = {

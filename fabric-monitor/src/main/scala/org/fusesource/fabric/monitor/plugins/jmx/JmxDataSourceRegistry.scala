@@ -6,12 +6,12 @@ import collection.mutable.{ListBuffer, HashMap}
 import org.fusesource.fabric.monitor.api.{DataSourceGroupDTO, DataSourceDTO}
 import javax.management.{MBeanAttributeInfo, QueryExp, ObjectName}
 import javax.management.openmbean.CompositeData
+import JmxConstants._
 
 /**
  * Discovers the available values in JMX
  */
 class JmxDataSourceRegistry extends JmxMixin {
-  val SEPARATOR = "/"
 
   def createDataSource(objectName: String, attributeName: String): Option[DataSourceDTO] = {
     val o = new ObjectName(objectName)
@@ -55,7 +55,7 @@ class JmxDataSourceRegistry extends JmxMixin {
             kdto.poll = new MBeanAttributeKeyPollDTO(name, attributeName, k)
             dto.children.add(kdto)
           }
-        case a => println("Not a CompositeData value: " + a)
+        case a => println("MBean " + objectName + " attribute " + attributeName + " is not a CompositeData value: " + a)
       }
     }
     dto
@@ -66,8 +66,8 @@ class JmxDataSourceRegistry extends JmxMixin {
 
     val map = HashMap[String,DataSourceGroupDTO]()
 
-    val answer = mbeanServer.queryNames(objectName, query)
-    for (o <- answer) {
+    val names = mbeanServer.queryNames(objectName, query)
+    for (o <- names) {
       val d = o.getDomain
 
       val domainGroup = map.getOrElseUpdate(d, new DataSourceGroupDTO(d))
@@ -75,6 +75,7 @@ class JmxDataSourceRegistry extends JmxMixin {
 
       val objectGroup = new DataSourceGroupDTO(o.getCanonicalName)
       objectGroup.description = info.getDescription
+      domainGroup.children.add(objectGroup)
 
       for (attr <- info.getAttributes) {
         val dto: DataSourceDTO = createDataSource(o, attr)

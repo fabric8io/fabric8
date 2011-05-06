@@ -6,9 +6,7 @@ import javax.management.MBeanServer
 /**
  * For classes which need to communicate with a JMX MBeanServer
  */
-trait JmxMixin {
-
-  def mbeanServer: MBeanServer = ManagementFactory.getPlatformMBeanServer()
-
+object JmxConstants {
+  val SEPARATOR = "/"
 }
 
