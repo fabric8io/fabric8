@@ -233,6 +233,8 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
             frame.getBody match {
               case c:AmqpClose =>
                 handle_frame(frame)
+              case e:AmqpEnd =>
+                handle_frame(frame)
               case _ =>
                 debug("disposing of frame : " + frame + ", connection is closed")
             }
