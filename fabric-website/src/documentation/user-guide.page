@@ -103,6 +103,64 @@ In the above route we send to the endpoint **fabric:myName** which at runtime wi
 
 Like the Camel Fabric above, the **CXF Fabric** makes it easy to expose physical web services into the Runtime Registry so that clients can just bind to the logical name of the service and at runtime locate and load balance across the running implementations.
 
+Basically, your CXF endpoint will know nothing about the Fabric runtime, and you just need to configure the FabricLoadBalanceFeature with the ZKClientFactoryBean and set the feature into the bus, the FabricLoadBalanceFeature will interact with Fabric runtime automatically.
+
+You can configure the fabricPath of the FabricLoadBalancerFeature for the CXF server and CXF client to use.
+
+{pygmentize:: xml}
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxfcore="http://cxf.apache.org/core"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+ 
+  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+    <property name="timeoutText" value="30s"/>
+    <property name="connectString" value="localhost:2181"/>
+  </bean>
+
+  <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
+      <property name="fabricPath" value="simple" />
+  </bean>
+  <!-- configure the feature on the bus -->
+  <cxfcore:bus>
+    <cxfcore:features>
+      <ref bean="fabicLoadBalancerFeature" />
+    </cxfcore:features>
+  </cxfcore:bus>
+
+</beans>
+{pygmentize}
+
+#### Exposing a CXF endpoint into the fabric
+{pygmentize:: java}
+   // You just need to make sure the bus is configured with the FabricLoadBalanceFeature
+   ServerFactoryBean factory = new ServerFactoryBean();
+   factory.setServiceBean(new HelloImpl());
+   factory.setAddress("http://localhost:9000/simple/server");
+   factory.setBus(bus);
+   factory.create();
+{pygmentize}
+
+Here you can use the CXF normal code to publish the CXF service, but you need to make sure the FabricLoadBalancerFeature is registered into the bus that you service will be published.
+
+#### Invoking a CXF fabric endpoint
+{pygmentize:: java}
+   ClientProxyFactoryBean clientFactory = new ClientProxyFactoryBean();
+   clientFactory.setServiceClass(Hello.class);
+   // The address is not the actual address that the client will access
+   clientFactory.setAddress("http://someotherplace");
+   List<AbstractFeature> features = new ArrayList<AbstractFeature>();
+   features.add(feature);
+   // we need to setup the feature on the clientfactory
+   clientFactory.setFeatures(features);
+   Hello hello = clientFactory.create(Hello.class);
+   String response = hello.sayHello();
+   System.out.println(response);
+{pygmentize}
+
+For the CXF client, you just need to set the FabricLoadBalancerFeature directly into the clientFactory. The FabricLoadBalancerFeature will pick a real service physical address for the Fabric service registry for the client to use. 
+
 ### OSGi Fabric
 
 The OSGi registry by default contains local services. However since Fabric has a Configuration Registry defining profiles along with a Runtime Registry for discovery, its easy to configure Fabric to expose remote OSGi services into the Runtime Registry for different profiles so that you can get invisible remoting of services with dynamic discovery, load balancing and fail over.
