@@ -1,0 +1,102 @@
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>examples</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fabric-camel-master-slave</artifactId>
+    <packaging>pom</packaging>
+    <name>FuseSource :: Fabric :: Example :: Cluster with Camel Master/Slave</name>
+    <description>Demo showing a fabric cluster with camel master/slave</description>
+
+    <modules>
+        <module>camel-master</module>
+        <module>camel-slave</module>
+        <module>camel-all</module>
+        <module>features</module>
+    </modules>
+
+    <properties>
+        <build-helper-maven-plugin.version>1.5</build-helper-maven-plugin.version>
+        <felix-plugin.version>2.1.0</felix-plugin.version>
+        <camel.version>2.7.0</camel.version>
+
+        <osgi-import-pkg>*</osgi-import-pkg>
+        <osgi-export-pkg></osgi-export-pkg>
+        <osgi-private-pkg></osgi-private-pkg>
+        <osgi-dynamic-pkg></osgi-dynamic-pkg>
+        <require-bundle></require-bundle>
+        <spring-context></spring-context>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-spring</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+			<!-- to compile with 1.6 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+        <!-- to generate the MANIFEST-FILE of the bundle -->
+		<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<version>${felix-plugin.version}</version>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+						<Import-Package>
+                            ${osgi-import-pkg}
+					    </Import-Package>
+						<Export-Package>
+                            ${osgi-export-pkg}
+					    </Export-Package>
+						<Private-Package>
+                            ${osgi-private-pkg}
+						</Private-Package>
+                        <DynamicImport-Package>
+                            ${osgi-dynamic-pkg}
+						</DynamicImport-Package>
+                        <_failok>true</_failok>
+                        <Include-Resource>src/main/resources</Include-Resource>
+                        <Require-Bundle>${require-bundle}</Require-Bundle>
+                        <Spring-Context>${spring-context}</Spring-Context>
+					</instructions>
+				</configuration>
+			</plugin>
+        </plugins>
+    </build>
+
+
+</project>

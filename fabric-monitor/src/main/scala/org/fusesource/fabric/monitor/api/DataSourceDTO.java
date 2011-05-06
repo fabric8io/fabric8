@@ -12,8 +12,12 @@ package org.fusesource.fabric.monitor.api;
 
 
 import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * Represents a kind of value which is to be polled along with its polling mechanism (such as a Process/System/JMX value etc)
+ *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 @XmlRootElement(name="data_source")
@@ -63,6 +67,12 @@ public class DataSourceDTO {
      */
     @XmlElement
     public PollDTO poll;
+
+    /**
+     * for use for composite values which contain children such as in JMX where a value could be a CompositeData type
+     */
+    @XmlElement(name="children")
+    public List<DataSourceDTO> children = new ArrayList<DataSourceDTO>();
 
     public DataSourceDTO() {
     }

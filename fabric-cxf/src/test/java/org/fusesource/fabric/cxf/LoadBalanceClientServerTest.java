@@ -9,6 +9,8 @@
 
 package org.fusesource.fabric.cxf;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
@@ -33,6 +35,7 @@ public class LoadBalanceClientServerTest extends AbstractJUnit4SpringContextTest
     @Test
     public void testClientServer() throws Exception {
         assertNotNull(bus);
+        // The bus is load the feature
         ServerFactoryBean factory = new ServerFactoryBean();
         factory.setServiceBean(new HelloImpl());
         factory.setAddress("http://localhost:9000/simple/server");
@@ -42,15 +45,16 @@ public class LoadBalanceClientServerTest extends AbstractJUnit4SpringContextTest
         // sleep a while to let the service be published
         ClientProxyFactoryBean clientFactory = new ClientProxyFactoryBean();
         clientFactory.setServiceClass(Hello.class);
+        // The address is not the actual address that the client will access
         clientFactory.setAddress("http://someotherplace");
         clientFactory.setBus(bus);
         List<AbstractFeature> features = new ArrayList<AbstractFeature>();
         features.add(feature);
-        // we should setup the feature on the client server
+        // we need to setup the feature on the clientfactory
         clientFactory.setFeatures(features);
         Hello hello = clientFactory.create(Hello.class);
         String response = hello.sayHello();
-        System.out.println(response);
+        assertEquals("Get a wrong response", "Hello", response);
     }
 
 }

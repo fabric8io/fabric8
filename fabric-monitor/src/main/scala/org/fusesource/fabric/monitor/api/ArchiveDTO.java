@@ -14,6 +14,8 @@ package org.fusesource.fabric.monitor.api;
 import javax.xml.bind.annotation.*;
 
 /**
+ * Represents how a monitored value is archived in RRD tool databases
+ *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 @XmlRootElement(name="archive")

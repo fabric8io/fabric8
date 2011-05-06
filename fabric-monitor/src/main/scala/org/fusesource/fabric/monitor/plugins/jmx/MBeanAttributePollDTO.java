@@ -7,7 +7,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.monitor.plugins;
+package org.fusesource.fabric.monitor.plugins.jmx;
 
 import org.fusesource.fabric.monitor.api.PollDTO;
 

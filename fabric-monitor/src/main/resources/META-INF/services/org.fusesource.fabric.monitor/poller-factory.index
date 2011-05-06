@@ -12,4 +12,4 @@
 #
 org.fusesource.fabric.monitor.plugins.SystemPollerFactory
 org.fusesource.fabric.monitor.plugins.ProcessPollerFactory
-org.fusesource.fabric.monitor.plugins.JmxPollerFactory
+org.fusesource.fabric.monitor.plugins.jmx.JmxPollerFactory
