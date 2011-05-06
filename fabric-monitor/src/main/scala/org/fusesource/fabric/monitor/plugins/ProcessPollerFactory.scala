@@ -14,6 +14,7 @@ import org.fusesource.fabric.monitor.api.{Poller, DataSourceDTO, PollerFactory}
 import collection.mutable.ListBuffer
 import org.hyperic.sigar.{SigarNotImplementedException, Sigar}
 
+import ProcessConstants._
 
 /**
  * <p>
@@ -22,8 +23,6 @@ import org.hyperic.sigar.{SigarNotImplementedException, Sigar}
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 object ProcessPollerFactory extends PollerFactory {
-
-  import ProcessConstants._
 
   def jaxb_package = getClass.getName.replaceAll("""\.[^\.]*$""", "")
 
@@ -91,7 +90,6 @@ object ProcessPollerFactory extends PollerFactory {
   }
 
   def create(s: DataSourceDTO) = new Poller {
-    import ProcessConstants._
     val source = s
     val dto = source.poll.asInstanceOf[ProcessPollDTO]
     val sigar = new Sigar

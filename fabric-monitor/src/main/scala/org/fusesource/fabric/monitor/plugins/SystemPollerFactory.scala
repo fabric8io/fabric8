@@ -47,7 +47,6 @@ object SystemPollerFactory extends PollerFactory {
   }
 
   def create(s: DataSourceDTO) = new Poller {
-    import SystemConstants._
     val source = s
     val dto = source.poll.asInstanceOf[SystemPollDTO]
     val sigar = new Sigar
