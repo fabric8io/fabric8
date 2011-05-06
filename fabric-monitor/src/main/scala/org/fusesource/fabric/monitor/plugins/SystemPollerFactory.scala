@@ -13,6 +13,7 @@ package org.fusesource.fabric.monitor.plugins
 import org.fusesource.fabric.monitor.api.{Poller, DataSourceDTO, PollerFactory}
 import org.hyperic.sigar.Sigar
 
+
 /**
  * <p>
  * </p>
@@ -25,27 +26,28 @@ object SystemPollerFactory extends PollerFactory {
 
   def accepts(source: DataSourceDTO) = source.poll match {
     case x:SystemPollDTO => x.resource match {
-      case "cpu-idle"         => true
-      case "cpu-sys"          => true
-      case "cpu-user"         => true
-      case "cpu-total"        => true
-      case "cpu-wait"         => true
-      case "cpu-nice"         => true
-      case "cpu-irq"          => true
-      case "mem-free"         => true
-      case "mem-ram"          => true
-      case "mem-total"        => true
-      case "mem-used"         => true
-      case "mem-actual-free"  => true
-      case "mem-actual-used"  => true
-      case "mem-free-percent" => true
-      case "mem-used-percent" => true
+      case SystemConstants.cpu_idle         => true
+      case SystemConstants.cpu_sys          => true
+      case SystemConstants.cpu_user         => true
+      case SystemConstants.cpu_total        => true
+      case SystemConstants.cpu_wait         => true
+      case SystemConstants.cpu_nice         => true
+      case SystemConstants.cpu_irq          => true
+      case SystemConstants.mem_free         => true
+      case SystemConstants.mem_ram          => true
+      case SystemConstants.mem_total        => true
+      case SystemConstants.mem_used         => true
+      case SystemConstants.mem_actual_free  => true
+      case SystemConstants.mem_actual_used  => true
+      case SystemConstants.mem_free_percent => true
+      case SystemConstants.mem_used_percent => true
       case _ => false
     }
     case _ => false
   }
 
   def create(s: DataSourceDTO) = new Poller {
+    import SystemConstants._
     val source = s
     val dto = source.poll.asInstanceOf[SystemPollDTO]
     val sigar = new Sigar
@@ -60,21 +62,21 @@ object SystemPollerFactory extends PollerFactory {
       lazy val mem = sigar.getMem
 
       dto.resource match {
-        case "cpu-idle" => cpu.getIdle.toDouble
-        case "cpu-sys" => cpu.getSys.toDouble
-        case "cpu-user" => cpu.getUser.toDouble
-        case "cpu-total" => cpu.getTotal.toDouble
-        case "cpu-wait" => cpu.getWait.toDouble
-        case "cpu-nice" => cpu.getNice.toDouble
-        case "cpu-irq" => cpu.getIrq.toDouble
-        case "mem-free" => mem.getFree.toDouble
-        case "mem-ram" => mem.getRam.toDouble
-        case "mem-total" => mem.getTotal.toDouble
-        case "mem-used" => mem.getUsed.toDouble
-        case "mem-actual-free" => mem.getActualFree.toDouble
-        case "mem-actual-used" => mem.getActualUsed.toDouble
-        case "mem-free-percent" => mem.getFreePercent
-        case "mem-used-percent" => mem.getUsedPercent
+        case SystemConstants.cpu_idle => cpu.getIdle.toDouble
+        case SystemConstants.cpu_sys => cpu.getSys.toDouble
+        case SystemConstants.cpu_user => cpu.getUser.toDouble
+        case SystemConstants.cpu_total => cpu.getTotal.toDouble
+        case SystemConstants.cpu_wait => cpu.getWait.toDouble
+        case SystemConstants.cpu_nice => cpu.getNice.toDouble
+        case SystemConstants.cpu_irq => cpu.getIrq.toDouble
+        case SystemConstants.mem_free => mem.getFree.toDouble
+        case SystemConstants.mem_ram => mem.getRam.toDouble
+        case SystemConstants.mem_total => mem.getTotal.toDouble
+        case SystemConstants.mem_used => mem.getUsed.toDouble
+        case SystemConstants.mem_actual_free => mem.getActualFree.toDouble
+        case SystemConstants.mem_actual_used => mem.getActualUsed.toDouble
+        case SystemConstants.mem_free_percent => mem.getFreePercent
+        case SystemConstants.mem_used_percent => mem.getUsedPercent
       }
     }
 

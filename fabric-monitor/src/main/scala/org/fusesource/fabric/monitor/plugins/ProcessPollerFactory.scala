@@ -14,6 +14,7 @@ import org.fusesource.fabric.monitor.api.{Poller, DataSourceDTO, PollerFactory}
 import collection.mutable.ListBuffer
 import org.hyperic.sigar.{SigarNotImplementedException, Sigar}
 
+
 /**
  * <p>
  * </p>
@@ -21,6 +22,8 @@ import org.hyperic.sigar.{SigarNotImplementedException, Sigar}
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 object ProcessPollerFactory extends PollerFactory {
+
+  import ProcessConstants._
 
   def jaxb_package = getClass.getName.replaceAll("""\.[^\.]*$""", "")
 
@@ -32,30 +35,30 @@ object ProcessPollerFactory extends PollerFactory {
 
     try {
       sigar.getProcState(pid)
-      list ::= "threads"
+      list ::= threads
     } catch { case x:SigarNotImplementedException => }
 
     try {
       sigar.getProcCpu(pid)
-      list ::= "cpu-percent"
-      list ::= "cpu-sys"
-      list ::= "cpu-total"
-      list ::= "cpu-last"
-      list ::= "cpu-start"
+      list ::= cpu_percent
+      list ::= cpu_sys
+      list ::= cpu_total
+      list ::= cpu_last
+      list ::= cpu_start
     } catch { case x:SigarNotImplementedException => }
 
     try {
       sigar.getProcFd(pid)
-      list ::= "fd-total"
+      list ::= fd_total
     } catch { case x:SigarNotImplementedException => }
 
     try {
       sigar.getProcMem(pid)
-      list ::= "mem-resident"
-      list ::= "mem-share"
-      list ::= "mem-size"
-      list ::= "mem-major-faults"
-      list ::= "mem-minor-faults"
+      list ::= mem_resident
+      list ::= mem_share
+      list ::= mem_size
+      list ::= mem_major_faults
+      list ::= mem_minor_faults
     } catch { case x:SigarNotImplementedException => }
 
     sigar.close
@@ -88,6 +91,7 @@ object ProcessPollerFactory extends PollerFactory {
   }
 
   def create(s: DataSourceDTO) = new Poller {
+    import ProcessConstants._
     val source = s
     val dto = source.poll.asInstanceOf[ProcessPollDTO]
     val sigar = new Sigar
@@ -106,18 +110,18 @@ object ProcessPollerFactory extends PollerFactory {
             def mem = sigar.getProcMem(pid.longValue)
 
             dto.resource match {
-              case "threads" => state.getThreads.toDouble
-              case "cpu-percent" => cpu.getPercent
-              case "cpu-sys" => cpu.getSys.toDouble
-              case "cpu-total" => cpu.getTotal.toDouble
-              case "cpu-last" => cpu.getLastTime.toDouble
-              case "cpu-start" => cpu.getStartTime.toDouble
-              case "fd-total" => fd.getTotal.toDouble
-              case "mem-resident" => mem.getResident.toDouble
-              case "mem-share" => mem.getShare.toDouble
-              case "mem-size" => mem.getSize.toDouble
-              case "mem-major-faults" => mem.getMajorFaults.toDouble
-              case "mem-minor-faults" => mem.getMinorFaults.toDouble
+              case ProcessConstants.threads => state.getThreads.toDouble
+              case ProcessConstants.cpu_percent => cpu.getPercent
+              case ProcessConstants.cpu_sys => cpu.getSys.toDouble
+              case ProcessConstants.cpu_total => cpu.getTotal.toDouble
+              case ProcessConstants.cpu_last => cpu.getLastTime.toDouble
+              case ProcessConstants.cpu_start => cpu.getStartTime.toDouble
+              case ProcessConstants.fd_total => fd.getTotal.toDouble
+              case ProcessConstants.mem_resident => mem.getResident.toDouble
+              case ProcessConstants.mem_share => mem.getShare.toDouble
+              case ProcessConstants.mem_size => mem.getSize.toDouble
+              case ProcessConstants.mem_major_faults => mem.getMajorFaults.toDouble
+              case ProcessConstants.mem_minor_faults => mem.getMinorFaults.toDouble
             }
           } catch {
             case _ => Double.NaN
