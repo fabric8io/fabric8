@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgi="http://www.springframework.org/schema/osgi"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/osgi
+         http://www.springframework.org/schema/osgi/spring-osgi.xsd
+         http://camel.apache.org/schema/spring
+         http://camel.apache.org/schema/spring/camel-spring.xsd">
+ <!--
+ <osgi:reference id="zkClient" interface="org.linkedin.zookeeper.client.IZKClient" />
+  -->
+
+  <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="fabric-slave">
+      <from uri="timer://foo?fixedRate=true&amp;period=10000"/>
+      <setBody>
+          <simple>Hello from Fabric Slave</simple>
+      </setBody>
+      <to uri="fabric:cheese"/>
+      <log message=">> ${body}"/>
+    </route>
+
+  </camelContext>
+
+</beans>
