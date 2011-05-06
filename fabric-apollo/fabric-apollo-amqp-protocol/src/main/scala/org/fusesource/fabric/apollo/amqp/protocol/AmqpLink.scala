@@ -301,7 +301,15 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   def setDesiredCapabilities(capabilities:Array[String]) = source.setCapabilities(array2Multiple(array_string_2_array_symbol(capabilities)))
   def getDesiredCapabilities = array_symbol_2_array_string(multiple2Array(source.getCapabilities))
 
-  def peer_flowstate(flowState: AmqpFlow): Unit
+  def peer_flowstate(flowState: AmqpFlow) = {
+    Option(flowstate.getEcho) match {
+      case Some(echo) =>
+        if (echo.booleanValue) {
+          session.send(this, flowstate)
+        }
+      case None =>
+    }
+  }
   def transfer(message:AmqpProtoMessage) : Unit
 
   def role:AmqpRole

@@ -8,6 +8,11 @@ Getting Started guide for Fabric
 
 --- name:content pipeline:jade
 
+h2
+  | Warning
+  p
+    | The below getting started only works on Karaf 2.2.1-SNAPSHOT for now.
+
 .left
   :markdown
     # Checkout Fabric

@@ -44,6 +44,12 @@ public interface Session {
     public long getIncomingWindow();
 
     /**
+     * Returns whether or not there is sufficient session credit to send based on the remote peer's incoming window
+     * @return
+     */
+    public boolean sufficientSessionCredit();
+
+    /**
      * Starts this session
      * @param onBegin task to be performed when the peer ackowledges the session has been started
      */

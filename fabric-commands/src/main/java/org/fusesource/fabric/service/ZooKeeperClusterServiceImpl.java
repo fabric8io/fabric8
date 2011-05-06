@@ -68,6 +68,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createLocalServer(int port) {
+        ZKClient client = null;
         try {
             String karafName = System.getProperty("karaf.name");
             Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
@@ -87,12 +88,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             config.setBundleLocation(null);
             config.update(properties);
 
-            ZKClient client = new ZKClient(connectionUrl, Timespan.ONE_MINUTE, null);
+            client = new ZKClient(connectionUrl, Timespan.ONE_MINUTE, null);
             client.start();
             client.waitForStart();
 
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
-            set(client, defaultProfile + "/org.fusesource.fabric.zookeeper/zookeeper.url", connectionUrl);
+            set(client, defaultProfile + "/org.fusesource.fabric.zookeeper/zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
 
             String profileNode = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "zk-server-0000") + "/org.fusesource.fabric.zookeeper.server-0000";
             set( client, profileNode + "/tickTime", "2000" );
@@ -121,6 +122,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             bundle.start();
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper server configuration", e);
+        } finally {
+            if (client != null) {
+                client.destroy();
+            }
         }
     }
 

@@ -26,12 +26,12 @@ import collection.mutable.ListBuffer
 import java.util.concurrent.{TimeUnit, Executors, ExecutorService, LinkedBlockingQueue}
 import java.util.Date
 import org.fusesource.hawtbuf.Buffer
-import org.apache.activemq.apollo.broker.Sink
+import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
 
 /**
  *
  */
-class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[AmqpProtoMessage] with Logging {
+class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[Runnable] with Logging {
 
   val current_transfer_id = new AtomicLong(1)
   val current_handle: AtomicInteger = new AtomicInteger(0)
@@ -50,8 +50,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var on_begin:Option[Runnable] = None
   var on_end:Option[Runnable] = None
 
-  var incoming_window_max = 1L
-  var outgoing_window_max = 1L
+  var incoming_window_max = 10L
+  var outgoing_window_max = 10L
 
   var incoming_window = incoming_window_max
   var outgoing_window = outgoing_window_max
@@ -67,17 +67,40 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   // TODO - add accessors for this
   val ackTime = 500
 
-  // for session flow control...
   var refiller:Runnable = null
 
-  def full = unsettled_outgoing.size > outgoing_window_max
-
-  def offer(message:AmqpProtoMessage) : Boolean = {
-    true
+  val outgoing = new OverflowSink[Runnable](this)
+  outgoing.refiller = ^{
+    if (!full) {
+      store.foreach( (link) => {
+        if (link.role == AmqpRole.SENDER) {
+          val refiller = link.asInstanceOf[OutgoingLink].outgoing.refiller
+          if (refiller != null && refiller != NOOP) {
+            dispatch_queue << ^{
+              //trace("Running refiller for link %s, state : %s", link, this)
+              refiller.run
+            }
+          }
+        }
+      })
+    }
   }
 
+  def full = remote_incoming_window <= 0
+
+  def offer(runnable:Runnable) : Boolean = {
+    if (full) {
+      false
+    } else {
+      runnable.run
+      true
+    }
+  }
+
+  def sufficientSessionCredit = !full
+
   override def toString = {
-    "AmqpSession{local_channel=%s remote_channel=%s incoming_window_max=%s incoming_window=%s remote_outgoing_window=%s outgoing_window_max=%s outgoing_window=%s remote_outgoing_window=%s}" format (channel, remote_channel, incoming_window_max, incoming_window, remote_outgoing_window, outgoing_window_max, outgoing_window, remote_outgoing_window)
+    "AmqpSession{local_channel=%s remote_channel=%s incoming_window_max=%s incoming_window=%s remote_outgoing_window=%s outgoing_window_max=%s outgoing_window=%s remote_incoming_window=%s next_outgoing_transfer_id=%s, next_incoming_transfer_id=%s}" format (channel, remote_channel, incoming_window_max, incoming_window, remote_outgoing_window, outgoing_window_max, outgoing_window, remote_incoming_window, current_transfer_id.get, next_incoming_transfer_id)
   }
 
   def established = begin_sent.get == true && end_sent.get == false
@@ -122,6 +145,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
     begin.setOutgoingWindow(outgoing_window)
     begin.setIncomingWindow(incoming_window)
+    begin.setNextOutgoingId(current_transfer_id.get)
     //trace("Sending begin from local channel %s for remote channel %s", channel, remote_channel)
     connection.send(channel, begin)
   }
@@ -144,6 +168,12 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         window.longValue
       case None =>
         throw new RuntimeException("Remote outgoing window not specified")
+    }
+    next_incoming_transfer_id = Option(peer_begin.getNextOutgoingId) match {
+      case Some(id) =>
+        Option(id.getValue.longValue)
+      case None =>
+        throw new RuntimeException("Next outgoing transfer ID not specified")
     }
     if (!begin_sent.getAndSet(true)) {
       begin(true)
@@ -305,7 +335,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def update_flow_state(flowState:AmqpFlow) = {
     // TODO - session-level flow control
-    flowState.setNextOutgoingId(current_transfer_id.get + 1L)
+    flowState.setNextOutgoingId(current_transfer_id.get)
     flowState.setIncomingWindow(incoming_window)
     flowState.setOutgoingWindow(outgoing_window)
     next_incoming_transfer_id.foreach((x) => flowState.setNextIncomingId(x))
@@ -313,24 +343,27 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def send(link:AmqpLink, message:AmqpProtoMessage):Unit = {
 
-    message.getHeader.setTransmitTime(new Date)
-    Option(message.getProperties.getUserId).getOrElse(message.getProperties.setUserId(new Buffer(System.getProperty("user.name").getBytes)))
+    outgoing.offer(^{
+      message.getHeader.setTransmitTime(new Date)
+      Option(message.getProperties.getUserId).getOrElse(message.getProperties.setUserId(new Buffer(System.getProperty("user.name").getBytes)))
 
-    val transfer = message.transfer(current_transfer_id.getAndIncrement)
-    transfer.setHandle(link.handle.get)
+      val transfer = message.transfer(current_transfer_id.getAndIncrement)
+      transfer.setHandle(link.handle.get)
 
-    if (!Option(transfer.getSettled).getOrElse(false).asInstanceOf[Boolean]) {
-      //trace("Adding outgoing transfer ID %s to unsettled map for link handle %s", transfer.getTransferId, transfer.getHandle)
-      unsettled_outgoing += message.tag -> message
-      id_to_tag += transfer.getTransferId.getValue.longValue -> message.tag
-    } else {
-      //trace("Directly ack'ing transfer ID %s that has already been settled", transfer.getTransferId);
-      message.outcome = Outcome.ACCEPTED
-      message.onAck.foreach((x) => dispatch_queue << x)
-    }
+      if (!Option(transfer.getSettled).getOrElse(false).asInstanceOf[Boolean]) {
+        //trace("Adding outgoing transfer ID %s to unsettled map for link handle %s", transfer.getTransferId, transfer.getHandle)
+        unsettled_outgoing += message.tag -> message
+        id_to_tag += transfer.getTransferId.getValue.longValue -> message.tag
+      } else {
+        //trace("Directly ack'ing transfer ID %s that has already been settled", transfer.getTransferId);
+        message.outcome = Outcome.ACCEPTED
+        message.onAck.foreach((x) => dispatch_queue << x)
+      }
 
-    message.onSend.foreach((x) => dispatch_queue << x)
-    send(link, transfer)
+      message.onSend.foreach((x) => dispatch_queue << x)
+      send(link, transfer)
+    })
+
   }
 
   def send(link:AmqpLink, command:AmqpCommand):Unit = {
@@ -346,6 +379,16 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       }
     }
     command match {
+      case transfer:AmqpTransfer =>
+        remote_incoming_window = remote_incoming_window - 1
+        //trace("Sending a transfer, state : %s", this)
+        if (remote_incoming_window < 1) {
+          val flow = createAmqpFlow
+          update_flow_state(flow)
+          flow.setEcho(true)
+          send(flow)
+        }
+
       case flow:AmqpFlow =>
         update_flow_state(flow)
       case _ =>
@@ -362,6 +405,18 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       case None =>
         throw new RuntimeException("No transfer ID specified by peer")
     }
+
+    remote_outgoing_window = remote_outgoing_window - 1
+
+    //trace("Received a transfer, state : %s", this);
+
+    if (remote_outgoing_window < 1) {
+      val flow = createAmqpFlow
+      update_flow_state(flow)
+      flow.setEcho(true)
+      send(flow)
+    }
+
     val key = transfer.getHandle.getValue.shortValue
     store.get_by_remote_handle(key) match {
       case Some(link) =>
@@ -378,21 +433,58 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   }
 
   def flow(flow: AmqpFlow) = {
-    // look at session level info
-    Option(flow.getOutgoingWindow) match {
-      case None =>
+    val flow_outgoing_window = Option(flow.getOutgoingWindow) match {
       case Some(window) =>
-        remote_outgoing_window = window.longValue
+        window.longValue
+      case None =>
+        throw new RuntimeException("No outgoing window present in incoming flow")
     }
-    Option(flow.getIncomingWindow) match {
-      case None =>
+    val flow_incoming_window = Option(flow.getIncomingWindow) match {
       case Some(window) =>
-        remote_incoming_window = window.longValue
+        window.longValue
+      case None =>
+        throw new RuntimeException("No incoming window present in incoming flow")
+    }
+    val next_incoming_transfer_id = Option(flow.getNextOutgoingId) match {
+      case Some(id) =>
+        id.getValue.longValue
+      case None =>
+        throw new RuntimeException("Next incoming transfer ID not present in flow")
+    }
+
+    this.next_incoming_transfer_id = Option(next_incoming_transfer_id)
+    remote_outgoing_window = flow_outgoing_window
+
+    Option(flow.getNextIncomingId) match {
+      case Some(id) =>
+        val next_incoming_transfer_id = id.getValue.longValue
+        remote_incoming_window = next_incoming_transfer_id + flow_incoming_window - current_transfer_id.get.longValue
+      case None =>
+        remote_incoming_window = 1L + incoming_window - current_transfer_id.get.longValue
+    }
+
+    //trace("Received a flow, state : %s", this)
+
+    if (remote_incoming_window > 0 && refiller != null) {
+      dispatch_queue << ^{
+        //trace("Session running refiller, state : %s", this)
+        refiller.run
+      }
     }
 
     // now see if this flow needs to be passed on to a link
     Option(flow.getHandle) match {
       case None =>
+        Option(flow.getEcho) match {
+          case Some(echo) =>
+            if (echo.booleanValue) {
+              val flow = createAmqpFlow
+              update_flow_state(flow)
+              send(flow)
+            }
+          case None =>
+        }
+
       case Some(handle) =>
         store.get_by_remote_handle(handle.getValue.shortValue) match {
           case Some(link) =>
