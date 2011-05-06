@@ -19,7 +19,7 @@ abstract class MonitorSetBuilder(name: String) {
 
   def configure: Unit
 
-  def dataSource(poll: PollDTO, id: String, name: String = null, description: String = null, kind: String = "guage", heartbeat: String = "1s", min: Double = Double.NaN, max: Double = Double.NaN) = {
+  def dataSource(poll: PollDTO, id: String, name: String = null, description: String = null, kind: String = "gauge", heartbeat: String = "1s", min: Double = Double.NaN, max: Double = Double.NaN) = {
     var n = if (name == null) id else name
     var d = if (description == null) n else description
     val ds = new DataSourceDTO(id, n, d, kind, heartbeat, min, max, poll)
@@ -27,19 +27,21 @@ abstract class MonitorSetBuilder(name: String) {
     ds
   }
 
-  def jmxDataSources(ids: String*): List[DataSourceDTO] = {
+  def jmxDataSources(entries: Pair[String, String]*): List[DataSourceDTO] = {
     var answer = List[DataSourceDTO]()
-    for (id <- ids) {
+    for ((id, rrdId) <- entries) {
       val paths = id.split(JmxConstants.SEPARATOR)
-     val ds: Option[DataSourceDTO] = if (paths.length < 2) {
+      val ods: Option[DataSourceDTO] = if (paths.length < 2) {
         throw new IllegalArgumentException("JMX IDs must have at least 2 paths separated by " + JmxConstants.SEPARATOR)
       } else if (paths.length < 3) {
         jmxDataSource(paths(0), paths(1))
       } else {
         jmxDataSource(paths(0), paths(1), paths(2))
       }
-      if (ds.isDefined) {
-        answer :+ ds.get
+      if (ods.isDefined) {
+        val ds = ods.get
+        ds.rrd_id = rrdId
+        answer :+ ds
       }
     }
     answer

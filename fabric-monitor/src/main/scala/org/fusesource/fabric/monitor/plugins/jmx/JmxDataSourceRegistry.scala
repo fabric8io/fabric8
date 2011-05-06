@@ -14,11 +14,17 @@ import JmxConstants._
 class JmxDataSourceRegistry extends JmxMixin {
 
   def createDataSource(objectName: String, attributeName: String): Option[DataSourceDTO] = {
-    val o = new ObjectName(objectName)
-    val info = mbeanServer.getMBeanInfo(o)
-    info.getAttributes.find(_.getName == attributeName) match {
-      case Some(attrInfo) => Some(createDataSource(o, attrInfo))
-      case _ => None
+    try {
+      val o = new ObjectName(objectName)
+      val info = mbeanServer.getMBeanInfo(o)
+      info.getAttributes.find(_.getName == attributeName) match {
+        case Some(attrInfo) => Some(createDataSource(o, attrInfo))
+        case _ => None
+      }
+    }
+    catch {
+      case e => println("Caught: " + e)
+      None
     }
   }
 
@@ -31,7 +37,7 @@ class JmxDataSourceRegistry extends JmxMixin {
     dto.description = attributeInfo.getDescription
 
     // TODO use special repo somewhere to figure out the accurage kinds???
-    dto.kind = "guage"
+    dto.kind = "gauge"
     dto.heartbeat = "1s"
 
     val dtoPoll = new MBeanAttributePollDTO(name, attributeName)
@@ -49,7 +55,7 @@ class JmxDataSourceRegistry extends JmxMixin {
             kdto.description = k
 
             // TODO use special repo somewhere to figure out the accurage kinds???
-            kdto.kind = "guage"
+            kdto.kind = "gauge"
             kdto.heartbeat = "1s"
 
             kdto.poll = new MBeanAttributeKeyPollDTO(name, attributeName, k)

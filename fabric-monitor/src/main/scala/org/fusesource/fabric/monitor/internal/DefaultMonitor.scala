@@ -72,7 +72,16 @@ class DefaultMonitor (
           Timespan.parse(x).getDuration(Timespan.TimeUnit.SECOND)
         ).getOrElse(2 * sample_span.getDuration(Timespan.TimeUnit.SECOND))
 
-        rc.addDatasource(source.id, kind.toUpperCase match {
+        // if id is too big we should make a hash to avoid RRD barfing
+        if (source.rrd_id == null) {
+          source.rrd_id = if (source.id.size > 20) {
+            source.id.substring(10) + "#" + source.id.hashCode.toHexString
+          } else {
+            source.id
+          }
+        }
+
+        rc.addDatasource(source.rrd_id, kind.toUpperCase match {
           case "GAUGE"  => GAUGE
           case "COUNTER"  => COUNTER
           case "DERIVE"  => DERIVE

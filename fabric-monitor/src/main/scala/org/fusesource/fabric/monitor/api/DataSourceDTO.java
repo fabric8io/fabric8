@@ -33,6 +33,10 @@ public class DataSourceDTO {
     @XmlAttribute
     public String description;
 
+    @XmlAttribute
+    public String rrd_id;
+
+
     /**
      * Should be one of the following:
      *
