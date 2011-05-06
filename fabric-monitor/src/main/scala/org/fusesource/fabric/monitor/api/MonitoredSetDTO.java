@@ -40,6 +40,13 @@ public class MonitoredSetDTO {
     @XmlElement(name="archive")
     public List<ArchiveDTO> archives = new ArrayList<ArchiveDTO>();
 
+    public MonitoredSetDTO() {
+    }
+
+    public MonitoredSetDTO(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

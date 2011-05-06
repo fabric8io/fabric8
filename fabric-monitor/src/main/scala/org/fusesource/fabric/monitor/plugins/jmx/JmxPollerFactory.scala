@@ -2,8 +2,8 @@ package org.fusesource.fabric.monitor.plugins
 package jmx
 
 import org.fusesource.fabric.monitor.api.{Poller, DataSourceDTO, PollerFactory}
-import management.ManagementFactory
-import javax.management.{ObjectName, MBeanServer}
+import javax.management.openmbean.CompositeData
+import javax.management.ObjectName
 
 /**
  * A PollerFactory for dealing with JMX Attribute polls
@@ -16,48 +16,56 @@ class JmxPollerFactory extends PollerFactory with JmxMixin {
     case _ => false
   }
 
-  def create(s: DataSourceDTO) = new Poller {
-    val source = s
-    val mbeanPoll = source.poll.asInstanceOf[MBeanAttributePollDTO]
-    val objectName = new ObjectName(mbeanPoll.mbean)
-    val attribute = mbeanPoll.attribute
-
-    def close = {
+  protected def toNumber(value: AnyRef, message: String): Double = {
+    value match {
+      case n: Number => n.doubleValue
+      case x: AnyRef =>
+        x.toString.toDouble
+      case v => throw new ValueNotNumberException(message, v)
     }
+  }
 
-    def poll = {
-      mbeanServer.getAttribute(objectName, attribute) match {
-        case n: Number => n.doubleValue
-        case v => throw new IllegalMBeanAttributeType(mbeanPoll, v)
-      /*
-      val servers = MBeanServerFactory.findMBeanServer(null)
-      if( servers.isEmpty ) {
-        mbeanDTOs.map (dto => Double.NaN)
-      } else {
-        val server = servers.get(0)
-        mbeanDTOs.map { dto => pollMbeanAttribute(server, dto) }
-      }
-    }
+  def create(s: DataSourceDTO) = {
+    s.poll match {
+      case mbeanPoll: MBeanAttributePollDTO =>
+        import mbeanPoll._
+        val objectName = new ObjectName(mbean)
+        new Poller {
+          val source = s
 
-    def pollMbeanAttribute(server:MBeanServer, dto: MBeanAttributePollDTO) = {
-      val mbeanName = new ObjectName(dto.mbean);
-      try {
-        server.getAttribute(mbeanName, dto.attribute) match {
-          case x:Number =>
-            x.doubleValue()
-          case x:AnyRef =>
-            x.toString.toDouble
+          def close = {
+          }
+
+          def poll = {
+            val value = mbeanServer.getAttribute(objectName, attribute)
+            toNumber(value, "MBean " + mbean + " attribute " + attribute)
+          }
         }
-      } catch {
-        case e:Throwable =>
-          Double.NaN
-     */
-      }
+      case mbeanPoll: MBeanAttributeKeyPollDTO =>
+        import mbeanPoll._
+        val objectName = new ObjectName(mbean)
+        new Poller {
+          val source = s
+
+          def close = {
+          }
+
+          def poll = {
+            lazy val message = "MBean " + mbean + " attribute " + attribute + " key " + key
+            mbeanServer.getAttribute(objectName, attribute) match {
+              case cd: CompositeData => toNumber(cd.get(key), message)
+              case _ => throw new IllegalArgumentException(message + " is not a CompositeData value")
+            }
+          }
+        }
+      case p => throw new IllegalArgumentException("Cannot create a Poller for " + p)
     }
   }
 }
 
-class IllegalMBeanAttributeType(val mbeanPoll: MBeanAttributePollDTO, val value: AnyRef)
-        extends IllegalArgumentException("Invalid value " + value + " for " + mbeanPoll) {
+class ValueNotNumberException(message: String, val value: AnyRef)
+        extends IllegalArgumentException(message + " is not a number " + value + (if (value != null) {
+          " of type " + value.getClass.getName
+        } else " it was null")) {
 
 }
