@@ -12,6 +12,8 @@ package org.fusesource.fabric.monitor.api;
 
 
 import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a kind of value which is to be polled along with its polling mechanism (such as a Process/System/JMX value etc)
@@ -37,13 +39,13 @@ public class DataSourceDTO {
      * <ul>
      * <li>
      *      GAUGE: Is for things like temperatures or number of people in
-     *      a room or the value of a RedHat share.
+     *      a room or the amount of memory used.
      * </li><li>
      *      COUNTER: Is for continuous incrementing counters like the
-     *      ifInOctets counter in a router.
+     *      number of messages that have been dispatched to a queue
      * </li><li>
-     *      DERIVE: Will store the derivative of the line going from
-     *      the last to the current value of the data source.
+     *      DERIVE: Is for counters which can go up and down; so for things like
+     *      the pending messages on a queue
      * </li><li>
      *      ABSOLUTE: Is for counters which get reset upon reading.
      * </li>
@@ -65,6 +67,12 @@ public class DataSourceDTO {
      */
     @XmlElement
     public PollDTO poll;
+
+    /**
+     * for use for composite values which contain children such as in JMX where a value could be a CompositeData type
+     */
+    @XmlElement(name="children")
+    public List<DataSourceDTO> children = new ArrayList<DataSourceDTO>();
 
     public DataSourceDTO() {
     }

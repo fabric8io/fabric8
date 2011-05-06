@@ -37,6 +37,11 @@ public class DefaultFuture<T extends Future> implements Future<T> {
     private boolean ready;
     private int waiters;
 
+
+    public DefaultFuture() {
+        this(null);
+    }
+
     /**
      * Creates a new instance.
      */

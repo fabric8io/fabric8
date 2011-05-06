@@ -61,6 +61,15 @@
         <reference-listener ref="zkClientFactory" bind-method="registerListener" unbind-method="unregisterListener"/>
     </reference-list>
 
+    <bean id="zkUrlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">
+        <property name="zooKeeper" ref="zkClient"/>
+    </bean>
+    <service ref="zkUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
+        <service-properties>
+            <entry key="url.handler.protocol" value="zk"/>
+        </service-properties>
+    </service>
+
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="zk/create">
             <action class="org.fusesource.fabric.zookeeper.commands.Create">
