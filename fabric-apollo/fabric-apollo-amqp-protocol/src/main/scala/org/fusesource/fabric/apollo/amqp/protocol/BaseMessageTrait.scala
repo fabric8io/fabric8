@@ -69,7 +69,6 @@ trait GenericMessageTrait[T] extends GenericMessage[T] {
   var body:T = null.asInstanceOf[T]
 
   def getBody = body
-
   def setBody(body:T) = this.body = body
 }
 
@@ -77,7 +76,11 @@ class DataMessageImpl extends DataMessage with BaseMessageTrait with GenericMess
 
 class AmqpDataMessageImpl extends DataMessageImpl with BaseMessageTrait with GenericMessageTrait[Buffer]
 
-class AmqpMapMessageImpl extends AmqpMapMessage with BaseMessageTrait with GenericMessageTrait[AmqpFields]
+class AmqpMapMessageImpl extends AmqpMapMessage with BaseMessageTrait with GenericMessageTrait[AmqpFields] {
+  body = createAmqpFields
+}
 
-class AmqpListMessageImpl extends AmqpListMessage with BaseMessageTrait with GenericMessageTrait[AmqpList]
+class AmqpListMessageImpl extends AmqpListMessage with BaseMessageTrait with GenericMessageTrait[AmqpList] {
+  body = createAmqpList
+}
 
