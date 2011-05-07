@@ -33,25 +33,25 @@ abstract class MonitorSetBuilder(name: String) {
     ds
   }
 
-  def jmxDataSources(entries: Pair[String, String]*): List[DataSourceDTO] = {
-    var answer = List[DataSourceDTO]()
-    for ((id, rrdId) <- entries) {
-      val paths = id.split(JmxConstants.SEPARATOR)
-      val ods: Option[DataSourceDTO] = if (paths.length < 2) {
-        throw new IllegalArgumentException("JMX IDs must have at least 2 paths separated by " + JmxConstants.SEPARATOR)
-      } else if (paths.length < 3) {
-        jmxDataSource(paths(0), paths(1))
-      } else {
-        jmxDataSource(paths(0), paths(1), paths(2))
-      }
-      if (ods.isDefined) {
-        val ds = ods.get
-        ds.rrd_id = rrdId
-        answer :+ ds
-      }
-    }
-    answer
-  }
+//  def jmxDataSources(entries: Pair[String, String]*): List[DataSourceDTO] = {
+//    var answer = List[DataSourceDTO]()
+//    for ((id, rrdId) <- entries) {
+//      val paths = id.split(JmxConstants.SEPARATOR)
+//      val ods: Option[DataSourceDTO] = if (paths.length < 2) {
+//        throw new IllegalArgumentException("JMX IDs must have at least 2 paths separated by " + JmxConstants.SEPARATOR)
+//      } else if (paths.length < 3) {
+//        jmxDataSource(paths(0), paths(1))
+//      } else {
+//        jmxDataSource(paths(0), paths(1), paths(2))
+//      }
+//      if (ods.isDefined) {
+//        val ds = ods.get
+//        ds.rrd_id = rrdId
+//        answer :+ ds
+//      }
+//    }
+//    answer
+//  }
 
   def jmxDataSource(objectName: String, attributeName: String, key: String): Option[DataSourceDTO] = {
     jmxFactory.createDataSource(objectName, attributeName) match {
@@ -84,7 +84,7 @@ abstract class MonitorSetBuilder(name: String) {
       case Some(ds) => addDataSource(ds)
       case _ =>
       // TODO
-        println(message)
+      println(message)
     }
     answer
   }

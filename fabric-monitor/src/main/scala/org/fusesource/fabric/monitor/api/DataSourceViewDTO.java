@@ -24,6 +24,12 @@ public class DataSourceViewDTO {
     @XmlAttribute
     public String id;
 
+    @XmlAttribute
+    public String label;
+
+    @XmlAttribute
+    public String description;
+
     /**
      * AVERAGE: The average of the data points is stored.
      * MIN: The smallest of the data points is stored.
