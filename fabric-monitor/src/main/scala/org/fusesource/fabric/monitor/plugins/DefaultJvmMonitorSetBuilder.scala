@@ -3,7 +3,7 @@ package org.fusesource.fabric.monitor.plugins
 /**
  * Builds the default monitor set for a typical JVM
  */
-class DefaultJvmMonitorSetBuilder extends MonitorSetBuilder("jvmDefault") {
+class DefaultJvmMonitorSetBuilder extends MonitorSetBuilder("jvm-default") {
 
   def configure {
     archive("5m")
@@ -30,11 +30,6 @@ class DefaultJvmMonitorSetBuilder extends MonitorSetBuilder("jvmDefault") {
       source.id = "jvm.heap.par_survivor"
       source.name = "Survivor Memory Pool Used"
       source.description = "The survior memory pool holds object which survive past the eden pool"
-    }
-    jmxDataSource("java.lang:name=Par Eden Space,type=MemoryPool", "Usage", "used").foreach { source=>
-      source.id = "jvm.heap.par_eden"
-      source.name = "Eden Memory Pool Used"
-      source.description = "The eden memory pool is where objects are first allocated."
     }
     jmxDataSource("java.lang:name=Par Eden Space,type=MemoryPool", "Usage", "used").foreach { source=>
       source.id = "jvm.heap.par_eden"
