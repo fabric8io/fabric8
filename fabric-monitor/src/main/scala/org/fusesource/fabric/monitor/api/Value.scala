@@ -3,6 +3,7 @@ package api
 
 import plugins.jmx.JmxDataSourceRegistry
 import javax.management.ObjectName
+import org.fusesource.scalate.util.Measurements._
 
 object Value {
   val jmxFactory = new JmxDataSourceRegistry()
@@ -40,10 +41,20 @@ abstract class Value {
    */
   def get: Any = None
 
+  def name: String = ""
+
+  def description: String = ""
+
   /**
    * Returns true if this value is defined
    */
   def isDefined: Boolean = true
+
+
+  // helper methods to display the values as nicely formatted values
+  def bytes(defaultValue: String = "") = byte(get, defaultValue)
+  def millis(defaultValue: String = "") = milli(get, defaultValue)
+  def seconds(defaultValue: String = "") = second(get, defaultValue)
 }
 
 object NoValue extends Value {
@@ -54,8 +65,8 @@ object NoValue extends Value {
   override def toString = "NoValue"
 }
 
-case class JmxObjectValue(name: String) extends Value {
-  val objectName = new ObjectName(name)
+case class JmxObjectValue(oname: String) extends Value {
+  val objectName = new ObjectName(oname)
 
   def apply(key: String): Value = {
     jmxFactory.createDataSource(objectName, key) match {
@@ -75,6 +86,10 @@ class JmxObjectAttributeValue(objectName: ObjectName, attributeName: String, dto
     }
   }
 
+  override def name = dto.name
+
+  override def description = dto.description
+
   override def get = {
     pollers.find(_.accepts(dto)) match {
       case Some(pf) =>
@@ -88,7 +103,6 @@ class JmxObjectAttributeValue(objectName: ObjectName, attributeName: String, dto
 
   override def toString = "JmxObjectAttributeValue(" + objectName + ", " + attributeName + ")"
 }
-
 
 class JmxObjectAttributeKeyValue(objectName: ObjectName, attributeName: String, key: String, dto: DataSourceDTO) extends JmxObjectAttributeValue(objectName, attributeName, dto) {
   override def toString = "JmxObjectAttributeKeyValue(" + objectName + ", " + attributeName + ", " + key + ")"
