@@ -28,7 +28,7 @@ class MonitorService extends MonitorMBean {
   @volatile
   var monitor:Monitor = _
 
-  def setDataDir(datadir:File) = {
+  def setDatadir(datadir:File) = {
     this.datadir=datadir
   }
 
