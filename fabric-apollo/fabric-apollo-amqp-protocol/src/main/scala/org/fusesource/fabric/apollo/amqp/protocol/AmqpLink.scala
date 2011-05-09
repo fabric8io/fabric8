@@ -46,6 +46,8 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     return getClass.getSimpleName + "{name=" + name + " handle=" + handle + " remoteHandle=" + remoteHandle + " flowState=" + flowstate + "}"
   }
 
+  def getSession = session.asInstanceOf[Session]
+
   def established: Boolean = handle != None && remoteHandle != None
 
   def createMessage(tag:String): Message = AmqpProtoMessage.create(tag)

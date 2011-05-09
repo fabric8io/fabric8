@@ -22,6 +22,12 @@ import org.fusesource.fabric.apollo.amqp.codec.types.*;
 public interface Link {
 
     /**
+     * Returns the session that created this link
+     * @return
+     */
+    public Session getSession();
+
+    /**
      * Sets the name of this link
      * @param name
      */
