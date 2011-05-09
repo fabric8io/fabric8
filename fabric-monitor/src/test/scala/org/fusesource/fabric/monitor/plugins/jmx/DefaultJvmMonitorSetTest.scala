@@ -26,8 +26,10 @@ class DefaultJvmMonitorSetTest extends FunSuiteSupport {
       poller.close
       // TODO have a close on the PollerFactory?
 
-      println(ds.id + ": " + value)
-      //assert(value != Double.NaN && value > 0, "Invalid thread count: " + value)
+      if (verbose) {
+        println(ds.id + ": " + value)
+        //assert(value != Double.NaN && value > 0, "Invalid thread count: " + value)
+      }
     }
   }
 
