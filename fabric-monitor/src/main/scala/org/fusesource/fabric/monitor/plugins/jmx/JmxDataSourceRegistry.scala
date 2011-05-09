@@ -7,6 +7,12 @@ import org.fusesource.fabric.monitor.api.{DataSourceGroupDTO, DataSourceDTO}
 import javax.management.{MBeanAttributeInfo, QueryExp, ObjectName}
 import javax.management.openmbean.CompositeData
 import JmxConstants._
+import org.fusesource.scalate.util.Log
+
+object JmxDataSourceRegistry {
+  val log = Log(classOf[JmxDataSourceRegistry])
+}
+import JmxDataSourceRegistry._
 
 /**
  * Discovers the available values in JMX
@@ -25,7 +31,7 @@ class JmxDataSourceRegistry extends JmxMixin {
       }
     }
     catch {
-      case e => println("Caught: " + e)
+      case e => log.warn("Caught: " + e)
       None
     }
   }
@@ -63,7 +69,7 @@ class JmxDataSourceRegistry extends JmxMixin {
             kdto.poll = new MBeanAttributeKeyPollDTO(name, attributeName, k)
             dto.putChild(k, kdto)
           }
-        case a => println("MBean " + objectName + " attribute " + attributeName + " is not a CompositeData value: " + a)
+        case a => log.warn("MBean " + objectName + " attribute " + attributeName + " is not a CompositeData value: " + a)
       }
     }
     dto
