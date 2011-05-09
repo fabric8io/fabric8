@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -195,6 +196,30 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
+
+    private String getSubstitutedData(String path) throws InterruptedException, KeeperException {
+        String data = zooKeeper.getStringData(path);
+        Map<String,String> props = new HashMap<String,String>();
+        props.put("data", data);
+        InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
+                @Override
+                public String getValue(String key) {
+                    if (key.startsWith("zk:")) {
+                        key = key.substring("zk:".length());
+                        if (key.charAt(0) != '/') {
+                            key = ZkPath.AGENT.getPath(key);
+                        }
+                        try {
+                            return zooKeeper.getStringData(key);
+                        } catch (Exception e) {
+                        }
+                    }
+                    return null;
+                }
+            });
+        return props.get("data");
+    }
+
     public void createCluster(List<String> agents) {
         try {
             if (agents == null || agents.size() == 2) {
@@ -210,7 +235,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 return;
             }
 
-            String url = zooKeeper.getStringData( "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url" );
+            String url = getSubstitutedData( "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url" );
             if (!url.equals(zooKeeperUrl)) {
                 throw new IllegalStateException("The zookeeper configuration is not properly backed in the zookeeper tree.");
             }
@@ -226,11 +251,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             if ( oldClusterId != null ) {
                 for ( String node : zooKeeper.getAllChildren( "/fabric/configs/versions/" + version + "/profiles/zk-server-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId ) ) {
                     if (node.startsWith("server.")) {
-                        String data = zooKeeper.getStringData( "/fabric/configs/versions/" + version + "/profiles/zk-server-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId + "/" + node );
+                        String data = getSubstitutedData( "/fabric/configs/versions/" + version + "/profiles/zk-server-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId + "/" + node );
                         addUsedPorts(usedPorts, data);
                     }
                 }
-                String datas =  zooKeeper.getStringData( "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url" );
+                String datas =  getSubstitutedData( "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url" );
                 for (String data : datas.split(",")) {
                     addUsedPorts(usedPorts, data);
                 }
