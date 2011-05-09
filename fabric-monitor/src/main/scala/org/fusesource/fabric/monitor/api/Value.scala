@@ -39,10 +39,17 @@ abstract class Value {
    * Returns the actual value
    */
   def get: Any = None
+
+  /**
+   * Returns true if this value is defined
+   */
+  def isDefined: Boolean = true
 }
 
 object NoValue extends Value {
   def apply(key: String) = this
+
+  override def isDefined = false
 
   override def toString = "NoValue"
 }
