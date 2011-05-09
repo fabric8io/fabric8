@@ -52,9 +52,14 @@ abstract class Value {
 
 
   // helper methods to display the values as nicely formatted values
-  def bytes(defaultValue: String = "") = byte(get, defaultValue)
-  def millis(defaultValue: String = "") = milli(get, defaultValue)
-  def seconds(defaultValue: String = "") = second(get, defaultValue)
+  def bytes(defaultValue: String): String = byte(get, defaultValue)
+  def millis(defaultValue: String): String = milli(get, defaultValue)
+  def seconds(defaultValue: String): String = second(get, defaultValue)
+
+  def bytes: String = bytes("")
+  def millis: String = millis("")
+  def seconds: String = seconds("")
+
 }
 
 object NoValue extends Value {
