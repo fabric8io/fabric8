@@ -13,6 +13,7 @@ class JmxPollerFactory extends PollerFactory with JmxMixin {
 
   def accepts(source: DataSourceDTO) = source.poll match {
     case x: MBeanAttributePollDTO => true
+    case x: MBeanAttributeKeyPollDTO => true
     case _ => false
   }
 

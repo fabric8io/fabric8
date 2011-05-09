@@ -100,24 +100,18 @@
     </dependency>
 
     <!-- Optional Modules -->
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>apollo-stomp</artifactId>
-      <version>${apollo-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-hawtdb</artifactId>
       <version>${apollo-version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
+    </dependency> -->
+    <!-- <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-cassandra</artifactId>
       <version>${apollo-version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-bdb</artifactId>
@@ -139,12 +133,12 @@
       <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-openwire</artifactId>
       <version>${apollo-version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-amqp-broker</artifactId>

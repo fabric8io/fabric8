@@ -107,10 +107,15 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             set( client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", "0000" );
             set( client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/0000", karafName );
 
+            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.useFallbackRepositories", "false" );
+            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.disableAether", "true" );
+            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots" );
+            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases" );
+
             createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/repository.fabric", "mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features" );
             createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/feature.karaf", "karaf" );
             createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/feature.fabric-agent", "fabric-agent" );
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/framework", "mvn:org.apache.felix/org.apache.felix.framework/3.0.9" );
+            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/framework", "mvn:org.apache.felix/org.apache.felix.framework/3.0.9-fuse-00-10" );
 
             createDefault( client, ZkPath.CONFIG_AGENT.getPath(karafName), version);
             createDefault( client, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version,  karafName), "default zk-server-0000-1");

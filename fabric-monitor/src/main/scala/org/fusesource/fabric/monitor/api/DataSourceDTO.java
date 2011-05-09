@@ -39,13 +39,13 @@ public class DataSourceDTO {
      * <ul>
      * <li>
      *      GAUGE: Is for things like temperatures or number of people in
-     *      a room or the value of a RedHat share.
+     *      a room or the amount of memory used.
      * </li><li>
      *      COUNTER: Is for continuous incrementing counters like the
-     *      ifInOctets counter in a router.
+     *      number of messages that have been dispatched to a queue
      * </li><li>
-     *      DERIVE: Will store the derivative of the line going from
-     *      the last to the current value of the data source.
+     *      DERIVE: Is for counters which can go up and down; so for things like
+     *      the pending messages on a queue
      * </li><li>
      *      ABSOLUTE: Is for counters which get reset upon reading.
      * </li>

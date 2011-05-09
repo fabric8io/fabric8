@@ -45,6 +45,20 @@ class DefaultMonitor (
 
     val sample_span = Timespan.parse(dto.step)
 
+    val sources = {
+      var source_counter = 0 ;
+      (dto.data_sources.map { source =>
+
+        // rrd ids are limitied to 20 chars...  lets do the best we can:
+        var rrd_id = "%x:".format(source_counter)
+        // Use the right most part of the id as it's usually the most specific
+        rrd_id += source.id.takeRight(20-rrd_id.length)
+
+        source_counter += 1
+        (rrd_id, source)
+      }).toMap
+    }
+
     def file_base_name: String = {
       rrd_file_prefix + name
     }
@@ -60,19 +74,17 @@ class DefaultMonitor (
       case "TOTAL" => TOTAL
     }).toSet
 
-    def data_source_dto(id:String) = dto.data_sources.filter(_.id == id)
-
     val rrd_def = {
       println("Creating RRD file to: " + rrd_file_name)
       val rc = new RrdDef(rrd_file_name, sample_span.getDurationInSeconds)
-      data_sources.foreach { source =>
-        import source._
 
+      sources.foreach { case (rrd_id, source) =>
+        import source._
         val steps = Option(heartbeat).map( x =>
           Timespan.parse(x).getDuration(Timespan.TimeUnit.SECOND)
         ).getOrElse(2 * sample_span.getDuration(Timespan.TimeUnit.SECOND))
 
-        rc.addDatasource(source.id, kind.toUpperCase match {
+        rc.addDatasource(rrd_id, kind.toUpperCase match {
           case "GAUGE"  => GAUGE
           case "COUNTER"  => COUNTER
           case "DERIVE"  => DERIVE
@@ -103,7 +115,7 @@ class DefaultMonitor (
       rc
     }
 
-    var pollers = List[Poller]()
+    var pollers = List[(String, Poller)]()
     var thread:Thread = _
     var active = new AtomicBoolean()
 
@@ -116,15 +128,19 @@ class DefaultMonitor (
           setDaemon(true)
           override def run: Unit = {
 
-            val sources_by_factory = HashMap[PollerFactory, List[DataSourceDTO]]()
-            data_sources.foreach { source =>
+            val sources_by_factory = HashMap[PollerFactory, List[(String, DataSourceDTO)]]()
+            sources.foreach { case (rrd_id, source) =>
               poller_factories.find(_.accepts(source)).foreach { factory =>
                 val sources = sources_by_factory.getOrElseUpdate(factory, Nil)
-                sources_by_factory.put(factory, source::sources)
+                sources_by_factory.put(factory, (rrd_id, source)::sources)
               }
             }
 
-              pollers = (sources_by_factory.flatMap{case (factory, sources)=> sources.map(s => factory.create(s))}).toList
+            pollers = {
+              sources_by_factory.flatMap{ case (factory, sources)=>
+                sources.map{ case (rrd_id, source) => (rrd_id, factory.create(source)) }
+              }
+            }.toList
 
             val rrd_db = new RrdDb(rrd_def, rrd_backend);
             try {
@@ -136,10 +152,9 @@ class DefaultMonitor (
                 val start = System.currentTimeMillis()
 
 //                println("Collecting samples from %d pollers.".format(pollers.size))
-                pollers.foreach { poller =>
+                pollers.foreach { case (rrd_id, poller) =>
                   val result = poller.poll
-                  val dto = poller.source
-                  sample.setValue(dto.id, result)
+                  sample.setValue(rrd_id, result)
                 }
 //                println("Collected sample: "+sample.dump)
 

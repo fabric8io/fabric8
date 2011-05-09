@@ -46,6 +46,15 @@ public class ArchiveDTO {
     @XmlAttribute
     public String window;
 
+    public ArchiveDTO() {
+    }
+
+    public ArchiveDTO(String consolidation, String step, String window) {
+        this.consolidation = consolidation;
+        this.step = step;
+        this.window = window;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

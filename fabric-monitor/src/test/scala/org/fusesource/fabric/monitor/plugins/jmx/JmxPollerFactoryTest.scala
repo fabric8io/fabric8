@@ -10,7 +10,7 @@ class JmxPollerFactoryTest extends FunSuiteSupport {
     dto.id = "jmx.threadCount"
     dto.name = "JVM Thread Count"
     dto.description = "JVM Thread Count"
-    dto.kind = "guage"
+    dto.kind = "gauge"
     dto.poll = new MBeanAttributePollDTO("java.lang:type=Threading", "ThreadCount")
 
     val pollerFactory = new JmxPollerFactory()
