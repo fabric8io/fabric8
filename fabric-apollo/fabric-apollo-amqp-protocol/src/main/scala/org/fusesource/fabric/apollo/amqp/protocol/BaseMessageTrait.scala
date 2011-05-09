@@ -11,33 +11,64 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpList, AmqpFields}
 import org.fusesource.fabric.apollo.amqp.api._
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 
 /**
  *
  */
 trait BaseMessageTrait extends BaseMessage {
 
-  def getFooter = null
+  var _header:Option[AmqpHeader] = None
+  var _properties:Option[AmqpProperties] = None
+  var _message_annotations:Option[AmqpFields] = None
+  var _delivery_annotations:Option[AmqpFields] = None
+  var _application_properties:Option[AmqpFields] = None
+  var _footer:Option[AmqpFooter] = None
 
-  def getApplicationProperties = null
+  def header:AmqpHeader = _header.getOrElse {
+    _header = Option(createAmqpHeader)
+    _header.get
+  }
 
-  def getProperties = null
+  def properties = _properties.getOrElse {
+    _properties = Option(createAmqpProperties)
+    _properties.get
+  }
 
-  def getMessageAnnotations = null
+  def message_annotations = _message_annotations.getOrElse {
+    _message_annotations = Option(createAmqpFields)
+    _message_annotations.get
+  }
 
-  def getDeliveryAnnotations = null
+  def delivery_annotations = _delivery_annotations.getOrElse {
+    _delivery_annotations = Option(createAmqpFields)
+    _delivery_annotations.get
+  }
 
-  def getHeader = null
+  def application_properties = _application_properties.getOrElse {
+    _application_properties = Option(createAmqpFields)
+    _application_properties.get
+  }
 
+  def footer = _footer.getOrElse {
+    _footer = Option(createAmqpFooter)
+    _footer.get
+  }
+
+  def getHeader = header
+  def getProperties = properties
+  def getMessageAnnotations = message_annotations
+  def getDeliveryAnnotations = delivery_annotations
+  def getApplicationProperties = application_properties
+  def getFooter = footer
 }
 
 trait GenericMessageTrait[T] extends GenericMessage[T] {
   var body:T = null.asInstanceOf[T]
 
   def getBody = body
-
   def setBody(body:T) = this.body = body
 }
 
@@ -45,7 +76,11 @@ class DataMessageImpl extends DataMessage with BaseMessageTrait with GenericMess
 
 class AmqpDataMessageImpl extends DataMessageImpl with BaseMessageTrait with GenericMessageTrait[Buffer]
 
-class AmqpMapMessageImpl extends AmqpMapMessage with BaseMessageTrait with GenericMessageTrait[AmqpFields]
+class AmqpMapMessageImpl extends AmqpMapMessage with BaseMessageTrait with GenericMessageTrait[AmqpFields] {
+  body = createAmqpFields
+}
 
-class AmqpListMessageImpl extends AmqpListMessage with BaseMessageTrait with GenericMessageTrait[AmqpList]
+class AmqpListMessageImpl extends AmqpListMessage with BaseMessageTrait with GenericMessageTrait[AmqpList] {
+  body = createAmqpList
+}
 

@@ -92,7 +92,7 @@ class ProtocolSoakTest extends FunSuiteSupport with ShouldMatchers with Logging 
                 sender_count.incrementAndGet
 
                 def put(count:Int):Unit = {
-                  val msg = sender.createMessage
+                  val msg = sender.getSession.createMessage
                   msg.setSettled(settled)
                   msg.addBodyPart(new Buffer((se + ":" + s + " message #" + count).getBytes))
                   msg.onAck(^{

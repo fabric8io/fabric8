@@ -130,7 +130,7 @@ class SlowConsumerTest extends BrokerTestSupport with ShouldMatchers with Loggin
               debug("Sender attached")
               for (x <- (1 to expected_messages).toList) {
                 debug("putting message %s", x)
-                val message = sender.createMessage
+                val message = sender.getSession.createMessage
                 message.setSettled(false)
                 message.getHeader.setDurable(true)
                 message.addBodyPart(new Buffer(("message #" + x).getBytes))

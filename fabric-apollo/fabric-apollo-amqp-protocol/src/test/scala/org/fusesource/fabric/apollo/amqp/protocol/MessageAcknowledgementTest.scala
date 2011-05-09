@@ -68,7 +68,7 @@ class MessageAcknowledgementTest extends FunSuiteSupport with ShouldMatchers wit
         sender.setName("Test Link")
         sender.attach(^{
           def put(i:Int, max:Int):Unit = {
-            val message = sender.createMessage
+            val message = sender.getSession.createMessage
             message.addBodyPart(new Buffer(("Message #" + i).getBytes))
             message.setSettled(false)
             message.onAck(^{
@@ -134,7 +134,7 @@ class MessageAcknowledgementTest extends FunSuiteSupport with ShouldMatchers wit
         sender.setAddress("queue:test")
         sender.setName("Some Test Link")
         sender.attach(^{
-          val message = sender.createMessage
+          val message = sender.getSession.createMessage
           message.setSettled(false)
           message.addBodyPart(new Buffer("Test".getBytes))
           message.onAck(^{
@@ -198,7 +198,7 @@ class MessageAcknowledgementTest extends FunSuiteSupport with ShouldMatchers wit
         sender.attach(^{
           debug("Sender attached")
           def put(x:Int):Unit = {
-            val msg = sender.createMessage
+            val msg = sender.getSession.createMessage
             msg.addBodyPart(("message #" + x).getBytes)
             msg.setSettled(false)
             msg.setBatchable(true)

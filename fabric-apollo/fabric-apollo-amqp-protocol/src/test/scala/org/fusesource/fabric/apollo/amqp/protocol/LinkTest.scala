@@ -21,9 +21,10 @@ import org.scalatest.{BeforeAndAfterEach, TestFailedException}
 import org.fusesource.fabric.apollo.amqp.api.Outcome._
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{CountDownLatch, TimeUnit}
-import org.fusesource.fabric.apollo.amqp.api.{Sender, Receiver, MessageListener, Message}
 import collection.immutable.HashMap
 import AmqpConversions._
+import org.fusesource.fabric.apollo.amqp.api._
+import java.lang.String
 
 class LinkTest extends FunSuiteSupport with ShouldMatchers with BeforeAndAfterEach with Logging {
   def get_sender_receiver(address:String) : (OutgoingLink, IncomingLink) = {
@@ -111,7 +112,7 @@ class LinkTest extends FunSuiteSupport with ShouldMatchers with BeforeAndAfterEa
       sender.attach(^{
         debug("Attached sender")
         def put(sender:Sender, settled:Boolean, i:Int, max:Int):Unit = {
-          val msg = sender.createMessage
+          val msg = sender.getSession.createMessage
           msg.addBodyPart(("message #" + i).getBytes)
           msg.setSettled(settled)
           if (i < max) {
@@ -141,7 +142,7 @@ class LinkTest extends FunSuiteSupport with ShouldMatchers with BeforeAndAfterEa
   }
 }
 
-class TestSession extends LinkSession with Logging {
+class TestSession extends LinkSession with Session with MessageFactory with Logging {
   import AmqpConversions._
 
   var peer:AmqpLink = null
@@ -229,4 +230,24 @@ class TestSession extends LinkSession with Logging {
 
 
   def dispatch_queue = queue
+
+  def end(onEnd: Runnable) {}
+
+  def setLinkListener(listener: LinkListener) {}
+
+  def createReceiver() = null
+
+  def createSender() = null
+
+  def begin(onBegin: Runnable) {}
+
+  def sufficientSessionCredit() = false
+
+  def getIncomingWindow = 0L
+
+  def getOutgoingWindow = 0L
+
+  def setIncomingWindow(window: Long) {}
+
+  def setOutgoingWindow(window: Long) {}
 }

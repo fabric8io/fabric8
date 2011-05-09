@@ -81,7 +81,7 @@ class SessionTest extends FunSuiteSupport with ShouldMatchers with Logging {
             sender_latch.countDown
           })
           def put(x:Int):Unit = {
-            val msg = sender.createMessage
+            val msg = sender.getSession.createMessage
             msg.addBodyPart(new Buffer(("message #" + x).getBytes))
             if (x < num_messages) {
               msg.onSend( ^{
@@ -214,7 +214,7 @@ class SessionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
       sender.established should be (true)
 
-      val msg1 = sender.createMessage
+      val msg1 = sender.getSession.createMessage
       msg1.setBody("Message 1")
       val send_latch = new CountDownLatch(1)
       sender.setOnSendCallback(new OnSendCallback {
@@ -232,7 +232,7 @@ class SessionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
       sender.attach
       sender.established should be (true)
-      val msg2 = sender.createMessage
+      val msg2 = sender.getSession.createMessage
       msg2.setBody("Message 2")
       val send_latch_2 = new CountDownLatch(1)
       sender.setOnSendCallback(new OnSendCallback {
