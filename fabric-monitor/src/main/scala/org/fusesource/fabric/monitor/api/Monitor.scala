@@ -26,6 +26,7 @@ trait Monitor {
 
   def close:Unit
 
+  def fetch( fetch:FetchMonitoredViewDTO ):Option[MonitoredViewDTO]
 
   var poller_factories:Seq[PollerFactory]
 }
