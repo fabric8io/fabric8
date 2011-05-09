@@ -4,6 +4,7 @@ package api
 import plugins.jmx.JmxDataSourceRegistry
 import javax.management.ObjectName
 import org.fusesource.scalate.util.Measurements._
+import internal.Numbers
 
 object Value {
   val jmxFactory = new JmxDataSourceRegistry()
@@ -60,6 +61,22 @@ abstract class Value {
   def millis: String = millis("")
   def seconds: String = seconds("")
 
+  def double: Double = Numbers.toNumber(get, name)
+
+  /*
+  def percent(key1: String, key2: String, defaultValue: String = ""): String = {
+    try {
+      val n1 = apply(key1).double
+      val n2 = apply(key2).double
+      val percent = n1 / n2 * 100
+      // TODO get the current locale
+      percent
+    } catch {
+      case e => log.debug("Caught: " + e, e)
+      defaultValue
+    }
+  }
+  */
 }
 
 object NoValue extends Value {
