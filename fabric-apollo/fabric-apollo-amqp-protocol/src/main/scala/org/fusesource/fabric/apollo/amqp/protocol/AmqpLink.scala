@@ -50,10 +50,6 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
 
   def established: Boolean = handle != None && remoteHandle != None
 
-  def createMessage(tag:String): Message = AmqpProtoMessage.create(tag)
-  def createMessage(tag: AmqpDeliveryTag): Message = AmqpProtoMessage.create(tag)
-  def createMessage: Message = AmqpProtoMessage.create
-
   def attach(task:Runnable) = {
     onAttach = Option(task)
     attach

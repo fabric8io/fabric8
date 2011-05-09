@@ -31,7 +31,14 @@ import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
 /**
  *
  */
-class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[Runnable] with Logging {
+
+trait MessageFactory {
+  def createMessage(tag:String): Message = AmqpProtoMessage.create(tag)
+  def createMessage(tag: AmqpDeliveryTag): Message = AmqpProtoMessage.create(tag)
+  def createMessage: Message = AmqpProtoMessage.create
+}
+
+class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[Runnable] with MessageFactory with Logging {
 
   val current_transfer_id = new AtomicLong(1)
   val current_handle: AtomicInteger = new AtomicInteger(0)

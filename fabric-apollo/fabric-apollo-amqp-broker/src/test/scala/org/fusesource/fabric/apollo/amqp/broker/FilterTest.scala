@@ -83,7 +83,7 @@ class FilterTest extends BrokerTestSupport with ShouldMatchers {
 
         sender.attach(^{
 
-          val message1 = sender.createMessage
+          val message1 = sender.getSession.createMessage
           val attrs = createAmqpMessageAttributes
           attrs.put(createAmqpSymbol("a"), createAmqpString("1"))
           attrs.put(createAmqpSymbol("color"), createAmqpString("red"))
@@ -92,7 +92,7 @@ class FilterTest extends BrokerTestSupport with ShouldMatchers {
             sender.detach
           })
 
-          val message2 = sender.createMessage
+          val message2 = sender.getSession.createMessage
           sender.put(message2)
           sender.put(message1)
 

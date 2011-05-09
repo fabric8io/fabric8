@@ -75,26 +75,6 @@ public interface Link {
     public boolean established();
 
     /**
-     * Creates a new message
-     * @param tag the delivery tag to be used when creating the message
-     * @return an empty AMQP message
-     */
-    public Message createMessage(String tag);
-
-    /**
-     * Creates a new message
-     * @param tag the delivery tag to be used when creating the message
-     * @return an empty AMQP message
-     */
-    public Message createMessage(AmqpDeliveryTag tag);
-
-    /**
-     * Creates a new message with a delivery tag generated via UUID.randomUUID()
-     * @return an empty AMQP message
-     */
-    public Message createMessage();
-
-    /**
      * Sets the destination address for this link
      * @param address
      */
