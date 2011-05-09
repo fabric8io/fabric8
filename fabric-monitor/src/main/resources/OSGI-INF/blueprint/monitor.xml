@@ -24,7 +24,7 @@
 
   <cm:property-placeholder persistent-id="org.fusesource.fabric.monitor">
     <cm:default-properties>
-      <cm:property name="datadir" value="."/>
+      <cm:property name="datadir" value="data/stats"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
