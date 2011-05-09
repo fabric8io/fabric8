@@ -78,7 +78,7 @@ object ProcessPollerFactory extends PollerFactory {
       pp.pid = pid
       pp.resource = resource
       rc.poll = pp
-      rc
+      DataSourceEnricher(rc)
     }
 
     supported_stats.map(source(_)).toArray
