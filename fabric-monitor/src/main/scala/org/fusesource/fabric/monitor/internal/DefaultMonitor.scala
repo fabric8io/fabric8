@@ -19,8 +19,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.rrd4j.core.Util
 import org.linkedin.util.clock.Timespan
 import java.io.File
+import java.{util => ju}
 import FileSupport._
 import org.fusesource.fabric.monitor.api.ArchiveDTO._
+import java.util
+import collection.JavaConversions._
 
 
 /**
@@ -238,6 +241,94 @@ class DefaultMonitor (
   }
 
   def close: Unit = {
+
+  }
+
+  def fetch(fetch: FetchMonitoredViewDTO):Option[MonitoredViewDTO] = {
+    val monitored_set_id = fetch.monitored_set
+    val ids = fetch.data_sources
+    val consolidations = fetch.consolidations
+    val start = fetch.start
+    val end = fetch.end
+    val step = fetch.step
+
+    val monitored_set = current_monitored_sets.get(monitored_set_id) match {
+      case Some(x) => x
+      case None => return None
+    }
+
+    val rrd_db = new RrdDb(monitored_set.rrd_file_name, true, rrd_backend);
+    try {
+
+      val rc = new MonitoredViewDTO
+      rc.start = start
+      rc.end = end
+      rc.step = step
+
+      if( rc.step == 0 ) {
+        rc.step = 1
+      }
+      if( rc.end == 0 ) {
+        rc.end = Util.getTime-1
+      }
+      if( rc.start == 0 ) {
+        rc.start = rc.end - (rc.step*60*5)
+      }
+
+      monitored_set.rrd_archive_funcs.foreach { consol_fun =>
+        if( consolidations == null || consolidations.size == 0 || consolidations.contains(consol_fun) ) {
+          val request = rrd_db.createFetchRequest(consol_fun, rc.start, rc.end, rc.step)
+
+          if ( ids !=null && !ids.isEmpty ) {
+            // Map DS ids to rrd_ids so that we only fetch the requested data...
+            val filter: ju.Set[String] = asJavaSet(monitored_set.sources.flatMap { case (rrd_id, source) =>
+              if (ids.contains(source.id)) {
+                Some(rrd_id)
+              } else {
+                None
+              }
+            }.toSet)
+            request.setFilter(filter)
+          }
+
+          val data = request.fetchData();
+
+          for( rrd_id <- data.getDsNames ) {
+            val t = new DataSourceViewDTO
+
+            t.id = rrd_id
+            t.label = rrd_id
+            t.description = ""
+
+            // we can probably get better values from
+            // the data source dto
+            for( dto <- monitored_set.sources.get(rrd_id) ) {
+              t.id = dto.id
+              t.label = Option(dto.name)getOrElse(t.id)
+              t.description = Option(dto.description).getOrElse("")
+            }
+
+            rc.data_sources.add(t)
+
+            t.consolidation = consol_fun.toString
+            t.data = data.getValues(rrd_id)
+          }
+
+          // lets reorder the data so it matches the order it was
+          // requested in..
+          if ( ids !=null && !ids.isEmpty ) {
+            val sources = rc.data_sources.map( x=> (x.id, x) ).toMap
+            rc.data_sources = ids.flatMap(id => sources.get(id))
+          }
+
+        }
+      }
+
+      Some(rc)
+
+    } finally {
+      rrd_db.close()
+    }
 
   }
 }
