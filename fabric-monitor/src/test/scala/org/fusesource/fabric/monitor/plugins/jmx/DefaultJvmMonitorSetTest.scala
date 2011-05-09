@@ -6,10 +6,14 @@ import org.fusesource.fabric.monitor.api.{DataSourceDTO, DataSourceGroupDTO}
 
 class DefaultJvmMonitorSetTest extends FunSuiteSupport {
 
+  val verbose = false
+
   test("Default JVM Monitor set") {
     val set = new DefaultJvmMonitorSetBuilder().apply()
-    for (ds <- set.data_sources) {
-      println("DataSource: " + ds)
+    if (verbose) {
+      for (ds <- set.data_sources) {
+        println("DataSource: " + ds)
+      }
     }
 
     // now lets poll

@@ -28,7 +28,7 @@ abstract class MonitorSetBuilder(name: String) {
   def dataSource(poll: PollDTO, id: String, name: String = null, description: String = null, kind: String = "gauge", heartbeat: String = "1s", min: Double = Double.NaN, max: Double = Double.NaN) = {
     var n = if (name == null) id else name
     var d = if (description == null) n else description
-    val ds = new DataSourceDTO(id, n, d, kind, heartbeat, min, max, poll)
+    val ds = DataSourceEnricher(new DataSourceDTO(id, n, d, kind, heartbeat, min, max, poll))
     addDataSource(ds)
     ds
   }

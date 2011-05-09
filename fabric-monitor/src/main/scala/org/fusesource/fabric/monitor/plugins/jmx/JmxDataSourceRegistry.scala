@@ -38,7 +38,7 @@ class JmxDataSourceRegistry extends JmxMixin {
 
   def createDataSource(objectName: ObjectName, attributeInfo: MBeanAttributeInfo): DataSourceDTO = {
     val name = objectName.getCanonicalName
-    val dto = new DataSourceDTO
+    var dto = new DataSourceDTO
     val attributeName = attributeInfo.getName
     dto.id = name + SEPARATOR + attributeName
     dto.name = attributeName
@@ -50,6 +50,7 @@ class JmxDataSourceRegistry extends JmxMixin {
 
     val dtoPoll = new MBeanAttributePollDTO(name, attributeName)
     dto.poll = dtoPoll
+    dto = DataSourceEnricher(dto)
 
     val typeName = attributeInfo.getType
     if (typeName == classOf[CompositeData].getName) {
@@ -59,15 +60,13 @@ class JmxDataSourceRegistry extends JmxMixin {
           for (k <- t.keySet) {
             val kdto = new DataSourceDTO()
             kdto.id =  dto.id + SEPARATOR + k
-            kdto.name = k
-            kdto.description = k
-
-            // TODO use special repo somewhere to figure out the accurage kinds???
+            kdto.name = dto.name
+            kdto.description = dto.description
             kdto.kind = "gauge"
             kdto.heartbeat = "1s"
 
             kdto.poll = new MBeanAttributeKeyPollDTO(name, attributeName, k)
-            dto.putChild(k, kdto)
+            dto.putChild(k, DataSourceEnricher(kdto))
           }
         case a => log.warn("MBean " + objectName + " attribute " + attributeName + " is not a CompositeData value: " + a)
       }
