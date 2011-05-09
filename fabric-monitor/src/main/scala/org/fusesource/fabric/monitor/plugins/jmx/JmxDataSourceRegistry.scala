@@ -13,9 +13,11 @@ import JmxConstants._
  */
 class JmxDataSourceRegistry extends JmxMixin {
 
-  def createDataSource(objectName: String, attributeName: String): Option[DataSourceDTO] = {
+  def createDataSource(objectName: String, attributeName: String): Option[DataSourceDTO]
+    = createDataSource(new ObjectName(objectName), attributeName)
+
+  def createDataSource(o: ObjectName, attributeName: String): Option[DataSourceDTO] = {
     try {
-      val o = new ObjectName(objectName)
       val info = mbeanServer.getMBeanInfo(o)
       info.getAttributes.find(_.getName == attributeName) match {
         case Some(attrInfo) => Some(createDataSource(o, attrInfo))
@@ -59,7 +61,7 @@ class JmxDataSourceRegistry extends JmxMixin {
             kdto.heartbeat = "1s"
 
             kdto.poll = new MBeanAttributeKeyPollDTO(name, attributeName, k)
-            dto.children.add(kdto)
+            dto.putChild(k, kdto)
           }
         case a => println("MBean " + objectName + " attribute " + attributeName + " is not a CompositeData value: " + a)
       }

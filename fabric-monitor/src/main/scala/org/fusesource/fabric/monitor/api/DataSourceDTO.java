@@ -13,7 +13,9 @@ package org.fusesource.fabric.monitor.api;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a kind of value which is to be polled along with its polling mechanism (such as a Process/System/JMX value etc)
@@ -73,6 +75,9 @@ public class DataSourceDTO {
      */
     @XmlElement(name="children")
     public List<DataSourceDTO> children = new ArrayList<DataSourceDTO>();
+
+    @XmlTransient
+    public Map<String,DataSourceDTO> childMap = new HashMap<String, DataSourceDTO>();
 
     public DataSourceDTO() {
     }
@@ -136,4 +141,14 @@ public class DataSourceDTO {
                 ", poll=" + poll +
                 '}';
     }
+
+    public void putChild(String key, DataSourceDTO childDto) {
+        childMap.put(key, childDto);
+        children.add(childDto);
+    }
+
+    public DataSourceDTO getChild(String key) {
+        return childMap.get(key);
+    }
+
 }
