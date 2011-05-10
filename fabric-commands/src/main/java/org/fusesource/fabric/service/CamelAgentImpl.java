@@ -11,6 +11,7 @@ package org.fusesource.fabric.service;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.CamelAgent;
 import org.fusesource.fabric.api.data.RouteInfo;
+import org.fusesource.fabric.jmx.JmxTemplate;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;

@@ -12,6 +12,7 @@ import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.OSGiAgent;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
+import org.fusesource.fabric.jmx.JmxTemplate;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 
