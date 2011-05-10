@@ -35,6 +35,11 @@
             *
         </fabric.osgi.import>
         -->
+        <fabric.osgi.export>
+        </fabric.osgi.export>
+        <fabric.osgi.import>
+            *
+        </fabric.osgi.import>
         <fabric.osgi.private.pkg>
             org.fusesource.fabric.commands,
         </fabric.osgi.private.pkg>
