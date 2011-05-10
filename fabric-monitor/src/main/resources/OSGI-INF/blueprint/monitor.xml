@@ -36,12 +36,16 @@
     <!--<property name="configAdmin" ref="configAdmin"/>-->
   </bean>
 
-  <bean class="org.apache.karaf.management.MBeanRegistrer">
+  <bean id="monitor_mbean_registration" class="org.apache.karaf.management.MBeanRegistrer">
     <property name="mbeans">
       <map>
         <entry value="org.fusesource.fabric.monitor:type=Monitor" key-ref="monitor"/>
       </map>
     </property>
   </bean>
+
+  <reference id="mbeanServer" interface="javax.management.MBeanServer">
+    <reference-listener ref="monitor_mbean_registration" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
+  </reference>
 
 </blueprint>

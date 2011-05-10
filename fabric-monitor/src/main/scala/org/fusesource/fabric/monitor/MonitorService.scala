@@ -10,11 +10,14 @@
 
 package org.fusesource.fabric.monitor
 
-import api.{FetchMonitoredViewDTO, JsonCodec, MonitorMBean, Monitor}
+import api.{FetchMonitoredViewDTO, JsonCodec, Monitor}
 import internal.DefaultMonitor
 import java.io.File
 import plugins.DefaultJvmMonitorSetBuilder
-import javax.management.MBeanRegistration
+
+trait MonitorServiceMBean {
+  def fetch( fetch:String ):String
+}
 
 /**
  * <p>
@@ -22,7 +25,7 @@ import javax.management.MBeanRegistration
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class MonitorService extends MonitorMBean {
+class MonitorService extends MonitorServiceMBean {
 
   var datadir:File = _
   @volatile
