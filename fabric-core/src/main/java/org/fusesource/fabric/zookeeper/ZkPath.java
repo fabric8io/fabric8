@@ -11,7 +11,7 @@ package org.fusesource.fabric.zookeeper;
 
 import java.util.Map;
 
-import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
+import org.fusesource.fabric.internal.zookeeper.SimplePathTemplate;
 
 /**
  * Set of paths which are used by fon.

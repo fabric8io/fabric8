@@ -168,13 +168,13 @@
     </dependencies>
 
     <modules>
-        <module>fabric-zookeeper</module>
         <module>fabric-core</module>
+        <module>fabric-zookeeper</module>
+        <module>fabric-commands</module>
+        <module>fabric-agent</module>
         <module>fabric-scala</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
-        <module>fabric-agent</module>
-        <module>fabric-commands</module>
         <module>fabric-camel</module>
         <module>fabric-cxf</module>
         <module>fabric-activemq</module>

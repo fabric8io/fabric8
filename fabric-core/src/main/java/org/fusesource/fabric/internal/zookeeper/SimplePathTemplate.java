@@ -7,7 +7,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.zookeeper.internal;
+package org.fusesource.fabric.internal.zookeeper;
 
 import java.util.*;
 import java.util.regex.Matcher;
