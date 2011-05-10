@@ -34,6 +34,14 @@ object MessageSectionCodes {
   val FOOTER = 9L
 }
 
+object AmqpMessageFactory {
+
+  def create_from_fragments(fragments:List[AmqpFragment]) = {
+
+  }
+
+}
+
 import MessageSectionCodes._
 /**
  *
