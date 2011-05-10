@@ -70,15 +70,6 @@ public class DataSourceDTO {
     @XmlElement
     public PollDTO poll;
 
-    /**
-     * for use for composite values which contain children such as in JMX where a value could be a CompositeData type
-     */
-    @XmlElement(name="children")
-    public List<DataSourceDTO> children = new ArrayList<DataSourceDTO>();
-
-    @XmlTransient
-    public Map<String,DataSourceDTO> childMap = new HashMap<String, DataSourceDTO>();
-
     public DataSourceDTO() {
     }
 
@@ -102,13 +93,12 @@ public class DataSourceDTO {
 
         if (Double.compare(that.max, max) != 0) return false;
         if (Double.compare(that.min, min) != 0) return false;
-        if (heartbeat != null ? !heartbeat.equals(that.heartbeat) : that.heartbeat != null)
-            return false;
+        if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (heartbeat != null ? !heartbeat.equals(that.heartbeat) : that.heartbeat != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (kind != null ? !kind.equals(that.kind) : that.kind != null)
-            return false;
-        if (poll != null ? !poll.equals(that.poll) : that.poll != null)
-            return false;
+        if (kind != null ? !kind.equals(that.kind) : that.kind != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (poll != null ? !poll.equals(that.poll) : that.poll != null) return false;
 
         return true;
     }
@@ -118,6 +108,8 @@ public class DataSourceDTO {
         int result;
         long temp;
         result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (kind != null ? kind.hashCode() : 0);
         result = 31 * result + (heartbeat != null ? heartbeat.hashCode() : 0);
         temp = min != +0.0d ? Double.doubleToLongBits(min) : 0L;
@@ -141,14 +133,4 @@ public class DataSourceDTO {
                 ", poll=" + poll +
                 '}';
     }
-
-    public void putChild(String key, DataSourceDTO childDto) {
-        childMap.put(key, childDto);
-        children.add(childDto);
-    }
-
-    public DataSourceDTO getChild(String key) {
-        return childMap.get(key);
-    }
-
 }

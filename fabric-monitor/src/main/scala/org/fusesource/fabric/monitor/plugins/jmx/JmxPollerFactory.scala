@@ -14,7 +14,6 @@ class JmxPollerFactory extends PollerFactory with JmxMixin {
 
   def accepts(source: DataSourceDTO) = source.poll match {
     case x: MBeanAttributePollDTO => true
-    case x: MBeanAttributeKeyPollDTO => true
     case _ => false
   }
 
@@ -31,23 +30,14 @@ class JmxPollerFactory extends PollerFactory with JmxMixin {
 
           def poll = {
             val value = mbeanServer.getAttribute(objectName, attribute)
-            toNumber(value, "MBean " + mbean + " attribute " + attribute)
-          }
-        }
-      case mbeanPoll: MBeanAttributeKeyPollDTO =>
-        import mbeanPoll._
-        val objectName = new ObjectName(mbean)
-        new Poller {
-          val source = s
-
-          def close = {
-          }
-
-          def poll = {
-            lazy val message = "MBean " + mbean + " attribute " + attribute + " key " + key
-            mbeanServer.getAttribute(objectName, attribute) match {
-              case cd: CompositeData => toNumber(cd.get(key), message)
-              case _ => throw new IllegalArgumentException(message + " is not a CompositeData value")
+            if (key==null) {
+              toNumber(value, "MBean " + mbean + " attribute " + attribute)
+            } else {
+              def message = "MBean " + mbean + " attribute " + attribute + " key " + key
+              value match {
+                case cd: CompositeData => toNumber(cd.get(key), message)
+                case _ => throw new IllegalArgumentException(message + " is not a CompositeData value")
+              }
             }
           }
         }

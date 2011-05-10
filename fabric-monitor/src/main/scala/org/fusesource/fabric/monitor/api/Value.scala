@@ -1,10 +1,10 @@
-package org.fusesource.fabric.monitor
-package api
+package org.fusesource.fabric.monitor.api
 
-import plugins.jmx.JmxDataSourceRegistry
 import javax.management.ObjectName
 import org.fusesource.scalate.util.Measurements._
-import internal.Numbers
+import org.fusesource.fabric.monitor.internal.Numbers
+import org.fusesource.fabric.monitor.plugins.jmx.{JmxConstants, JmxDataSourceRegistry}
+import org.fusesource.fabric.monitor.MonitorDeamon
 
 object Value {
   val jmxFactory = new JmxDataSourceRegistry()
@@ -34,7 +34,7 @@ object Value {
 
 import Value._
 
-abstract class Value {
+sealed abstract class Value {
 
   /**
    * Navigates to a child value
@@ -94,26 +94,23 @@ object NoValue extends Value {
 case class JmxObjectValue(oname: String) extends Value {
   val objectName = new ObjectName(oname)
 
-  def apply(key: String): Value = {
-    jmxFactory.createDataSource(objectName, key) match {
-      case Some(dto) => new JmxObjectAttributeValue(objectName, key, dto)
+  def apply(attr: String): Value = {
+    jmxFactory.createDataSource(oname, attr) match {
+      case Some(dto) => new JmxObjectAttributeValue(this, attr, dto)
       case None => NoValue
     }
   }
 }
 
-class JmxObjectAttributeValue(objectName: ObjectName, attributeName: String, dto: DataSourceDTO) extends Value {
+case class JmxObjectAttributeValue(parent:JmxObjectValue, attributeName: String, dto: DataSourceDTO) extends Value {
   def apply(key: String) = {
-    val childDto = dto.getChild(key)
-    if (childDto != null) {
-       new JmxObjectAttributeKeyValue(objectName, attributeName, key, childDto)
-    } else {
-      NoValue
+    jmxFactory.createDataSource(parent.oname, attributeName, key) match {
+      case Some(dto) => new JmxObjectAttributeKeyValue(this, key, dto)
+      case None => NoValue
     }
   }
 
   override def name = dto.name
-
   override def description = dto.description
 
   override def get = {
@@ -127,9 +124,32 @@ class JmxObjectAttributeValue(objectName: ObjectName, attributeName: String, dto
     }
   }
 
-  override def toString = "JmxObjectAttributeValue(" + objectName + ", " + attributeName + ")"
+  override def toString = "JmxObjectAttributeValue(" + parent.oname + ", " + attributeName + ")"
 }
 
-class JmxObjectAttributeKeyValue(objectName: ObjectName, attributeName: String, key: String, dto: DataSourceDTO) extends JmxObjectAttributeValue(objectName, attributeName, dto) {
-  override def toString = "JmxObjectAttributeKeyValue(" + objectName + ", " + attributeName + ", " + key + ")"
+case class JmxObjectAttributeKeyValue(parent:JmxObjectAttributeValue, key: String, dto: DataSourceDTO) extends Value {
+
+  def apply(subkey: String) = {
+    val sub_key = key + JmxConstants.SEPARATOR + subkey
+    jmxFactory.createDataSource(parent.parent.oname, parent.attributeName, sub_key) match {
+      case Some(dto) => new JmxObjectAttributeKeyValue(parent, sub_key, dto)
+      case None => NoValue
+    }
+  }
+
+  override def name = dto.name
+  override def description = dto.description
+
+  override def get = {
+    pollers.find(_.accepts(dto)) match {
+      case Some(pf) =>
+        val poller = pf.create(dto)
+        val answer = poller.poll
+        poller.close
+        answer
+      case _ => None
+    }
+  }
+
+  override def toString = "JmxObjectAttributeKeyValue(" + parent.parent.oname + ", " + parent.attributeName + ", " + key + ")"
 }

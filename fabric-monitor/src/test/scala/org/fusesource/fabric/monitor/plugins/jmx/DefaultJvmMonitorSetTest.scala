@@ -2,7 +2,7 @@ package org.fusesource.fabric.monitor.plugins
 package jmx
 
 import collection.JavaConversions._
-import org.fusesource.fabric.monitor.api.{DataSourceDTO, DataSourceGroupDTO}
+import org.fusesource.fabric.monitor.api.DataSourceDTO
 
 class DefaultJvmMonitorSetTest extends FunSuiteSupport {
 
@@ -34,7 +34,7 @@ class DefaultJvmMonitorSetTest extends FunSuiteSupport {
   }
 
 
-  def dump(d: DataSourceGroupDTO, indent: Int, concise: Boolean) {
+  def dump(d: DataSourceGroup, indent: Int, concise: Boolean) {
     printIndent(indent)
     println(if (concise) d.id else d)
     val newIndent = indent + 1
@@ -49,10 +49,6 @@ class DefaultJvmMonitorSetTest extends FunSuiteSupport {
   def dump(d: DataSourceDTO, indent: Int, concise: Boolean) {
     printIndent(indent)
     println(if (concise) d.id else d)
-    val newIndent = indent + 1
-    for (child <- d.children) {
-      dump(child, newIndent, concise)
-    }
   }
 
   def printIndent(indent: Int) {

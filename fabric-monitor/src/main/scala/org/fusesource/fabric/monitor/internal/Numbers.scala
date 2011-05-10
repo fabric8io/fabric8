@@ -5,7 +5,7 @@ package org.fusesource.fabric.monitor.internal
  */
 object Numbers {
 
-  def toNumber(value: Any, message: String): Double = {
+  def toNumber(value: Any, message: => String): Double = {
     value match {
       case n: Number => n.doubleValue
       case null => throw new NullPointerException(message + " is not a number")
