@@ -39,7 +39,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private IZKClient zkClient;
     private List<ACL> acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
     private Group group;
-    private String groupName;
+    private String groupName = "default";
 
     private AtomicBoolean running=new AtomicBoolean();
     private final AtomicReference<DiscoveryListener> discoveryListener = new AtomicReference<DiscoveryListener>();
