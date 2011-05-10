@@ -44,25 +44,24 @@ class JmxDataSourceRegistry extends JmxMixin {
       }
 
     } catch {
-      case e => log.warn("Caught: " + e)
+      case e => log.warn(e, "Caught: " + e)
       None
     }
   }
 
 
   def findSources(name: String = null, query: QueryExp = null) = {
-    val objectName = if (name != null) new ObjectName(name) else null
-
+    val root = if (name != null) new ObjectName(name) else null
     val map = HashMap[String,DataSourceGroup]()
+    val names = mbeanServer.queryNames(root, query)
+    for (objectName <- names) {
 
-    val names = mbeanServer.queryNames(objectName, query)
-    for (o <- names) {
-      val d = o.getDomain
+      val domain = objectName.getDomain
+      val domainGroup = map.getOrElseUpdate(domain, new DataSourceGroup(domain))
+      val info = mbeanServer.getMBeanInfo(objectName)
 
-      val domainGroup = map.getOrElseUpdate(d, new DataSourceGroup(d))
-      val info = mbeanServer.getMBeanInfo(o)
-
-      val objectGroup = new DataSourceGroup(o.getCanonicalName)
+      val name = objectName.getCanonicalName
+      val objectGroup = new DataSourceGroup(name)
       objectGroup.description = info.getDescription
       domainGroup.children.add(objectGroup)
 
@@ -71,22 +70,24 @@ class JmxDataSourceRegistry extends JmxMixin {
 
           case "javax.management.openmbean.CompositeData" =>
 
-            mbeanServer.getAttribute(objectName, attr.getName) match {
+            val value = mbeanServer.getAttribute(objectName, attr.getName)
+            value match {
               case c: CompositeData =>
                 c.getCompositeType.keySet.foreach { key =>
 
                   // TODO: perhaps drill into the nested data types.
-                  createDataSource(objectName.getCanonicalName, attr.getName, key).foreach {
+                  createDataSource(name, attr.getName, key).foreach {
                     objectGroup.data_sources.add(_)
                   }
 
                 }
+              case null => // no value set.. so we can't discover any more info.
               case _ =>
-                log.warn("Did not CompositeData from the %s attribute %s", objectName.getCanonicalName, attr.getName)
+                log.warn("Did not CompositeData from the %s attribute %s.  Got %s", name, attr.getName, value)
             }
 
           case _ =>
-            createDataSource(objectName.getCanonicalName, attr.getName).foreach {
+            createDataSource(name, attr.getName).foreach {
               objectGroup.data_sources.add(_)
             }
         }
