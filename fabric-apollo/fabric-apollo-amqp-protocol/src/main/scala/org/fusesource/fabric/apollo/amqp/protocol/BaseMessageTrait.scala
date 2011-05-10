@@ -99,23 +99,38 @@ trait BaseMessageTrait extends BaseMessage {
   def executeOnAck(queue:DispatchQueue) = clearTasks(queue, _onAckTasks)
   def executeOnSend(queue:DispatchQueue) = clearTasks(queue, _onSendTasks)
 
-  def marshal_single_fragment_section(section_body:AmqpType[_, _], section_code:Long) = {
-    val rc = createAmqpFragment
-    rc.setPayload(new Buffer(CodecUtils.marshal(section_body.asInstanceOf[AmqpType[_, AmqpBuffer[_]]])))
-    rc.setSectionCode(section_code)
-    rc.setFirst(true)
-    rc.setLast(true)
-    rc
+  def marshal_section(payload:Buffer, section_code:Long, max_size:Long = 0) = {
+    if (max_size == 0) {
+      val rc = createAmqpFragment
+      rc.setPayload(payload)
+      rc.setSectionCode(section_code)
+      rc.setFirst(true)
+      rc.setLast(true)
+      List(rc)
+    } else {
+      val tmp = ListBuffer[AmqpFragment]()
+      var current_max = 0L
+      while (current_max < payload.length) {
+        val frag = createAmqpFragment
+        frag.setSectionCode(section_code)
+        frag.setFirst(false)
+        frag.setLast(false)
+        frag.setPayload(payload.slice(current_max.intValue, (current_max + max_size).min(payload.length).intValue))
+        current_max = current_max + max_size
+        tmp.append(frag)
+      }
+      tmp.head.setFirst(true)
+      tmp.last.setLast(true)
+      tmp.toList
+    }
   }
 
-  // TODO - check that this is calculating this correctly...
   def figure_out_section_offset(fragment:AmqpFragment) = {
     var offset = new BigInt(BigInteger.ZERO)
     val size = fragment.getListCount
-    // avoid taking any previously set section offset into account
-    fragment.set(size - 2, null)
     var i = 0
-    for ( i <- 1 to (size - 1) ) {
+    // element 5 is the payload, 4 is section offset
+    for ( i <- 0 to (size - 3) ) {
       val obj = fragment.get(i)
       if (obj != null) {
         offset = offset + BigInt(CodecUtils.marshal(obj.asInstanceOf[AmqpType[_, AmqpBuffer[_]]]).length)
@@ -129,20 +144,25 @@ trait BaseMessageTrait extends BaseMessage {
     fragment.setSectionOffset(offset.bigInteger)
   }
 
-  def maybe_add(l:ListBuffer[AmqpFragment], o:Option[AmqpType[_, _]], section_code:Long) = o.foreach((x) => l.append(marshal_single_fragment_section(x, section_code)))
+  def maybe_add(l:ListBuffer[AmqpFragment], o:Option[AmqpType[_, _]], section_code:Long, max_size:Long) = {
+    o.foreach((x) => {
+      val payload = new Buffer(CodecUtils.marshal(x.asInstanceOf[AmqpType[_, AmqpBuffer[_]]]))
+      l.appendAll(marshal_section(payload, section_code, max_size))
+    })
+  }
 
-  def marshal_to_amqp_fragments = {
+  def marshal_to_amqp_fragments(max_size:Long) = {
     val rc = ListBuffer[AmqpFragment]()
     // need to check section codes...
-    maybe_add(rc, _header, HEADER)
-    maybe_add(rc, _delivery_annotations, DELIVERY_ANNOTATIONS)
-    maybe_add(rc, _message_annotations, MESSAGE_ANNOTATIONS)
-    maybe_add(rc, _properties, PROPERTIES)
-    maybe_add(rc, _application_properties, APPLICATION_PROPERTIES)
+    maybe_add(rc, _header, HEADER, max_size)
+    maybe_add(rc, _delivery_annotations, DELIVERY_ANNOTATIONS, max_size)
+    maybe_add(rc, _message_annotations, MESSAGE_ANNOTATIONS, max_size)
+    maybe_add(rc, _properties, PROPERTIES, max_size)
+    maybe_add(rc, _application_properties, APPLICATION_PROPERTIES, max_size)
     if (has_body) {
-      rc.appendAll(marshal_application_data_section)
-      maybe_add(rc, _footer, FOOTER)
+      rc.appendAll(marshal_section(marshal_body, get_section_code, max_size))
     }
+    maybe_add(rc, _footer, FOOTER, max_size)
 
     var i = 0
     rc.foreach( (x) => {
@@ -152,16 +172,6 @@ trait BaseMessageTrait extends BaseMessage {
     })
 
     rc.toList
-  }
-
-  def marshal_application_data_section = {
-    // TODO - break up based on max size
-    val rc = createAmqpFragment
-    rc.setPayload(marshal_body)
-    rc.setSectionCode(get_section_code)
-    rc.setFirst(true)
-    rc.setLast(true)
-    List(rc)
   }
 
   def get_section_code:Long
