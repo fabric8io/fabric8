@@ -26,7 +26,8 @@
 
     <properties>
         <fabric.osgi.export>
-            org.fusesource.fabric.api*;version=${project.version}
+            org.fusesource.fabric.api*;version=${project.version},
+            org.fusesource.fabric.jmx*;version=${project.version}
         </fabric.osgi.export>
         <fabric.osgi.import>
             !org.fusesource.fabric.api*,
