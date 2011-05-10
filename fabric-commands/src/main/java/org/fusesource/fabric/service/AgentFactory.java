@@ -15,6 +15,8 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import java.util.*;
 
+import java.util.Collections;
+
 /**
  * An factory class which indicates agent type and creates new instances of concrete classes.
  *
@@ -23,6 +25,9 @@ import java.util.*;
 public class AgentFactory {
 
     public static Agent[] createChildren(final Agent parent, final FabricServiceImpl service) {
+        if (!parent.isAlive()) {
+            return new Agent[0];
+        }
         List<Agent> agents = new JmxTemplate().execute(parent, new JmxTemplate.JmxConnectorCallback<List<Agent>>() {
             @Override
             public List<Agent> doWithJmxConnector(JMXConnector connector) throws Exception {
