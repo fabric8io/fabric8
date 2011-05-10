@@ -72,6 +72,7 @@
 
 
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper/${project.version}</bundle>
     </feature>
 
