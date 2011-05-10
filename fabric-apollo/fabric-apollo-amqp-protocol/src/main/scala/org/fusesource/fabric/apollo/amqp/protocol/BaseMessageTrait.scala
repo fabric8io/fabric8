@@ -10,16 +10,17 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.hawtbuf.Buffer
 import org.fusesource.fabric.apollo.amqp.api._
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import java.util.LinkedList
 import org.fusesource.hawtdispatch._
-import collection.mutable.ListBuffer
 import org.fusesource.fabric.apollo.amqp.codec.CodecUtils
 import java.math.BigInteger
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.{EncodedBuffer, AmqpMarshaller}
+import collection.mutable.{HashMap, ListBuffer}
+import org.fusesource.hawtbuf.{ByteArrayOutputStream, Buffer}
+import java.io.{DataOutput, DataOutputStream}
 
 object MessageSectionCodes {
   val HEADER = 0L
@@ -29,21 +30,63 @@ object MessageSectionCodes {
   val APPLICATION_PROPERTIES = 4L
   val DATA = 5L
   val AMQP_DATA = 6L
-  val AMQP_MAP = 7L
-  val AMQP_LIST = 8L
+  val AMQP_MAP_DATA = 7L
+  val AMQP_LIST_DATA = 8L
   val FOOTER = 9L
 }
 
 import MessageSectionCodes._
+
+object AmqpMessageFactory {
+
+  def create_from_fragments(fragments:List[AmqpFragment]) = {
+    val rc:BaseMessageTrait = get_message_body_type(fragments) match {
+      case 0L =>
+        new DataMessageImpl
+      case DATA =>
+        new DataMessageImpl
+      case AMQP_DATA =>
+        new AmqpDataMessageImpl
+      case AMQP_MAP_DATA =>
+        new AmqpMapMessageImpl
+      case AMQP_LIST_DATA =>
+        new AmqpListMessageImpl
+      case _ =>
+        throw new RuntimeException("Message body type is unknown");
+    }
+    rc.unmarshal_from_amqp_fragments(fragments)
+    rc
+  }
+
+  def get_message_body_type(fragments:List[AmqpFragment]):Long = {
+    var rc = 0L
+    fragments.foreach((x) => {
+      x.getSectionCode.longValue match {
+        case DATA =>
+          rc = DATA
+        case AMQP_DATA =>
+          rc = AMQP_DATA
+        case AMQP_MAP_DATA =>
+          rc = AMQP_MAP_DATA
+        case AMQP_LIST_DATA =>
+          rc = AMQP_LIST_DATA
+        case _ =>
+      }
+    })
+    rc
+  }
+
+}
+
 /**
  *
  */
 trait BaseMessageTrait extends BaseMessage {
 
   var _header:Option[AmqpHeader] = None
-  var _properties:Option[AmqpProperties] = None
-  var _message_annotations:Option[AmqpFields] = None
   var _delivery_annotations:Option[AmqpFields] = None
+  var _message_annotations:Option[AmqpFields] = None
+  var _properties:Option[AmqpProperties] = None
   var _application_properties:Option[AmqpFields] = None
   var _footer:Option[AmqpFooter] = None
 
@@ -99,23 +142,38 @@ trait BaseMessageTrait extends BaseMessage {
   def executeOnAck(queue:DispatchQueue) = clearTasks(queue, _onAckTasks)
   def executeOnSend(queue:DispatchQueue) = clearTasks(queue, _onSendTasks)
 
-  def marshal_single_fragment_section(section_body:AmqpType[_, _], section_code:Long) = {
-    val rc = createAmqpFragment
-    rc.setPayload(new Buffer(CodecUtils.marshal(section_body.asInstanceOf[AmqpType[_, AmqpBuffer[_]]])))
-    rc.setSectionCode(section_code)
-    rc.setFirst(true)
-    rc.setLast(true)
-    rc
+  def marshal_section(payload:Buffer, section_code:Long, max_size:Long = 0) = {
+    if (max_size == 0) {
+      val rc = createAmqpFragment
+      rc.setPayload(payload)
+      rc.setSectionCode(section_code)
+      rc.setFirst(true)
+      rc.setLast(true)
+      List(rc)
+    } else {
+      val tmp = ListBuffer[AmqpFragment]()
+      var current_max = 0L
+      while (current_max < payload.length) {
+        val frag = createAmqpFragment
+        frag.setSectionCode(section_code)
+        frag.setFirst(false)
+        frag.setLast(false)
+        frag.setPayload(payload.slice(current_max.intValue, (current_max + max_size).min(payload.length).intValue))
+        current_max = current_max + max_size
+        tmp.append(frag)
+      }
+      tmp.head.setFirst(true)
+      tmp.last.setLast(true)
+      tmp.toList
+    }
   }
 
-  // TODO - check that this is calculating this correctly...
   def figure_out_section_offset(fragment:AmqpFragment) = {
     var offset = new BigInt(BigInteger.ZERO)
     val size = fragment.getListCount
-    // avoid taking any previously set section offset into account
-    fragment.set(size - 2, null)
     var i = 0
-    for ( i <- 1 to (size - 1) ) {
+    // element 5 is the payload, 4 is section offset
+    for ( i <- 0 to (size - 3) ) {
       val obj = fragment.get(i)
       if (obj != null) {
         offset = offset + BigInt(CodecUtils.marshal(obj.asInstanceOf[AmqpType[_, AmqpBuffer[_]]]).length)
@@ -129,24 +187,35 @@ trait BaseMessageTrait extends BaseMessage {
     fragment.setSectionOffset(offset.bigInteger)
   }
 
-  def maybe_add(l:ListBuffer[AmqpFragment], o:Option[AmqpType[_, _]], section_code:Long) = o.foreach((x) => l.append(marshal_single_fragment_section(x, section_code)))
+  def maybe_add(l:ListBuffer[AmqpFragment], o:Option[AmqpType[_, _]], section_code:Long, max_size:Long) = {
+    o.foreach((x) => {
+      val payload = new Buffer(CodecUtils.marshal(x.asInstanceOf[AmqpType[_, AmqpBuffer[_]]]))
+      l.appendAll(marshal_section(payload, section_code, max_size))
+    })
+  }
 
-  def marshal_to_amqp_fragments = {
+  def marshal_to_amqp_fragments(max_size:Long) = {
     val rc = ListBuffer[AmqpFragment]()
     // need to check section codes...
-    maybe_add(rc, _header, HEADER)
-    maybe_add(rc, _delivery_annotations, DELIVERY_ANNOTATIONS)
-    maybe_add(rc, _message_annotations, MESSAGE_ANNOTATIONS)
-    maybe_add(rc, _properties, PROPERTIES)
-    maybe_add(rc, _application_properties, APPLICATION_PROPERTIES)
+    maybe_add(rc, _header, HEADER, max_size)
+    maybe_add(rc, _delivery_annotations, DELIVERY_ANNOTATIONS, max_size)
+    maybe_add(rc, _message_annotations, MESSAGE_ANNOTATIONS, max_size)
+    maybe_add(rc, _properties, PROPERTIES, max_size)
+    maybe_add(rc, _application_properties, APPLICATION_PROPERTIES, max_size)
     if (has_body) {
-      rc.appendAll(marshal_application_data_section)
-      maybe_add(rc, _footer, FOOTER)
+      rc.appendAll(marshal_section(marshal_body, get_section_code, max_size))
     }
+    maybe_add(rc, _footer, FOOTER, max_size)
 
     var i = 0
+    var current_section_code = rc.head.getSectionCode
+    var current_section_number = 0
     rc.foreach( (x) => {
-      x.setSectionNumber(i)
+      if (x.getSectionCode != current_section_code) {
+        current_section_code = x.getSectionCode
+        current_section_number = current_section_number + 1
+      }
+      x.setSectionNumber(current_section_number)
       figure_out_section_offset(x)
       i = i + 1
     })
@@ -154,17 +223,101 @@ trait BaseMessageTrait extends BaseMessage {
     rc.toList
   }
 
-  def marshal_application_data_section = {
-    // TODO - break up based on max size
-    val rc = createAmqpFragment
-    rc.setPayload(marshal_body)
-    rc.setSectionCode(get_section_code)
-    rc.setFirst(true)
-    rc.setLast(true)
-    List(rc)
+  def unmarshal_from_amqp_fragments(fragments:List[AmqpFragment]) = {
+    val sections = break_up_message_sections(fragments)
+    sections.foreach {
+      case(section, fragments) =>
+        assemble_section(section, fragments.toList)
+    }
   }
 
+  def assemble_section(section:Long, fragments:List[AmqpFragment]) = {
+    val baos = new ByteArrayOutputStream
+    val out:DataOutput = new DataOutputStream(baos)
+    fragments.foreach((x) => {
+      x.getPayload.writeTo(out)
+    })
+
+    baos.flush
+
+    section match {
+      case HEADER =>
+        _header = Option(CodecUtils.unmarshal(baos.toByteArray))
+      case DELIVERY_ANNOTATIONS =>
+        _delivery_annotations = Option(CodecUtils.unmarshal(baos.toByteArray))
+      case MESSAGE_ANNOTATIONS =>
+        _message_annotations = Option(CodecUtils.unmarshal(baos.toByteArray))
+      case PROPERTIES =>
+        _properties = Option(CodecUtils.unmarshal(baos.toByteArray))
+      case APPLICATION_PROPERTIES =>
+        _application_properties = Option(CodecUtils.unmarshal(baos.toByteArray))
+      case DATA =>
+        unmarshal_body(baos.toBuffer)
+      case AMQP_DATA =>
+        unmarshal_body(baos.toBuffer)
+      case AMQP_MAP_DATA =>
+        unmarshal_body(baos.toBuffer)
+      case AMQP_LIST_DATA =>
+        unmarshal_body(baos.toBuffer)
+      case FOOTER =>
+        _footer = Option(CodecUtils.unmarshal(baos.toByteArray))
+    }
+
+  }
+
+  def break_up_message_sections(fragments:List[AmqpFragment]) = {
+    val rc = HashMap[Long, ListBuffer[AmqpFragment]]()
+    fragments.foreach((x) => {
+      val code = x.getSectionCode.longValue
+      rc.get(code) match {
+        case Some(fragments) =>
+          fragments.append(x)
+        case None =>
+          rc.put(code, ListBuffer[AmqpFragment](x))
+      }
+    })
+    rc
+  }
+
+  override def toString = {
+    val buf = new StringBuilder
+    buf.append(getClass.getSimpleName)
+    buf.append("{")
+    _header.foreach((x) => {
+      buf.append(" header=")
+      buf.append(x)
+    })
+    _delivery_annotations.foreach((x) => {
+      buf.append(" delivery_annotations=")
+      buf.append(x)
+    })
+    _message_annotations.foreach((x) => {
+      buf.append(" message_annotations=")
+      buf.append(x)
+    })
+    _properties.foreach((x) => {
+      buf.append(" properties=")
+      buf.append(x)
+    })
+    _application_properties.foreach((x) => {
+      buf.append(" application_properties=")
+      buf.append(x)
+    })
+    if (has_body) {
+      buf.append(" body=")
+      buf.append(body_as_string)
+    }
+    _footer.foreach((x) => {
+      buf.append(" footer=")
+      buf.append(x)
+    })
+    buf.append("}")
+    buf.toString
+  }
+
+  def body_as_string:String
   def get_section_code:Long
+  def unmarshal_body(body:Buffer)
   def marshal_body:Buffer
   def has_body:Boolean
 }
@@ -178,7 +331,9 @@ trait GenericMessageTrait[T] extends GenericMessage[T] {
 class DataMessageImpl extends DataMessage with BaseMessageTrait with GenericMessageTrait[Buffer] {
   override def get_section_code = DATA
   override def marshal_body = body
+  override def unmarshal_body(body:Buffer) = this.body = body
   override def has_body = body != null
+  override def body_as_string = body.toString
 }
 
 // Same as above but body section code is different
@@ -188,15 +343,19 @@ class AmqpDataMessageImpl extends DataMessageImpl with BaseMessageTrait with Gen
 
 class AmqpMapMessageImpl extends AmqpMapMessage with BaseMessageTrait with GenericMessageTrait[AmqpFields] {
   body = createAmqpFields
-  override def get_section_code = AMQP_MAP
+  override def get_section_code = AMQP_MAP_DATA
   override def marshal_body = new Buffer(CodecUtils.marshal(body))
+  override def unmarshal_body(body:Buffer) = this.body = AmqpFields.AmqpFieldsBuffer.create(body, body.getOffset, AmqpMarshaller.getMarshaller)
   override def has_body = body != null
+  override def body_as_string = body.toString
 }
 
 class AmqpListMessageImpl extends AmqpListMessage with BaseMessageTrait with GenericMessageTrait[AmqpList] {
   body = createAmqpList
-  override def get_section_code = AMQP_LIST
+  override def get_section_code = AMQP_LIST_DATA
   override def marshal_body = new Buffer(CodecUtils.marshal(body))
+  override def unmarshal_body(body:Buffer) = this.body = AmqpList.AmqpListBuffer.create(body, body.getOffset, AmqpMarshaller.getMarshaller)
   override def has_body = body != null
+  override def body_as_string = body.toString
 }
 
