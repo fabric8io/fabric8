@@ -12,16 +12,16 @@ import java.util.List;
 
 import org.apache.karaf.shell.console.Completer;
 import org.apache.zookeeper.KeeperException;
-import org.linkedin.zookeeper.client.ZKClient;
+import org.linkedin.zookeeper.client.IZKClient;
 
 public class ZNodeCompleter implements Completer {
-    private ZKClient zk;
+    private IZKClient zk;
 
     public ZNodeCompleter() {
         this.zk = zk;
     }
 
-    public void setZooKeeper(ZKClient zk) {
+    public void setZooKeeper(IZKClient zk) {
         this.zk = zk;
     }
 

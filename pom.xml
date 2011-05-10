@@ -170,6 +170,7 @@
     <modules>
         <module>fabric-core</module>
         <module>fabric-zookeeper</module>
+        <module>fabric-zookeeper-commands</module>
         <module>fabric-commands</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>
@@ -208,6 +209,7 @@
                         <instructions>
                             <Bundle-Name>${project.artifactId}</Bundle-Name>
                             <Bundle-SymbolicName>${fabric.osgi.symbolic.name}</Bundle-SymbolicName>
+                            <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
                             <Bundle-Activator>${fabric.osgi.activator}</Bundle-Activator>
                             <Export-Package>${fabric.osgi.export}</Export-Package>
                             <Import-Package>${fabric.osgi.import}</Import-Package>
@@ -479,6 +481,11 @@
                         <artifactId>jmxtools</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.linkedin</groupId>
+                <artifactId>org.linkedin.util-core</artifactId>
+                <version>${linkedin-zookeeper-version}</version>
             </dependency>
             <!-- Log4j -->
             <dependency>

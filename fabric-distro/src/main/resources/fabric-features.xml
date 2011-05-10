@@ -72,45 +72,7 @@
 
 
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper/${project.version}</bundle>
-    </feature>
-
-
-    <feature name="fabric-zookeeper-server-default" version="${project.version}" resolver="(obr)">
-        <config name="org.fusesource.fabric.zookeeper">
-            #
-            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
-            # http://fusesource.com
-            #
-            # The software in this package is published under the terms of the CDDL license
-            # a copy of which has been included with this distribution in the license.txt file.
-            #
-            zookeeper.url=localhost:2181
-        </config>
-        <config name="org.fusesource.fabric.zookeeper.server-default">
-            #
-            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
-            # http://fusesource.com
-            #
-            # The software in this package is published under the terms of the CDDL license
-            # a copy of which has been included with this distribution in the license.txt file.
-            #
-
-            # The number of milliseconds of each tick
-            tickTime=2000
-            # The number of ticks that the initial
-            # synchronization phase can take
-            initLimit=10
-            # The number of ticks that can pass between
-            # sending a request and getting an acknowledgement
-            syncLimit=5
-            # the directory where the snapshot is stored.
-            dataDir=${karaf.data}/zookeeper
-            # the port at which the clients will connect
-            clientPort=2181
-        </config>
-        <feature version="${project.version}">fabric-zookeeper</feature>
     </feature>
 
     <feature name="fabric-configadmin" version="${project.version}" resolver="(obr)">
@@ -126,6 +88,8 @@
 
     <feature name="fabric-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-commands/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
     </feature>
 

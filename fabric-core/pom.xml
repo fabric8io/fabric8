@@ -26,12 +26,8 @@
 
     <properties>
         <fabric.osgi.export>
-          org.fusesource.fabric.zookeeper;version=${fabric.osgi.version};-noimport:=true,
-            org.fusesource.fabric.api*;version=${project.version},
-            org.fusesource.fabric.service*;version=${project.version}
-            org.linkedin.zookeeper*;version=${linkedin-zookeeper-version};-noimport:=true,
-            org.linkedin.util.*,
-            org.apache.zookeeper*;version="3.3.1";-noimport:=true,
+          org.fusesource.fabric.api*;version=${project.version},
+          org.fusesource.fabric.service*;version=${project.version};-noimport:=true
         </fabric.osgi.export>
       <!--
         <fabric.osgi.import.before.defaults>
@@ -44,12 +40,7 @@
             org.apache.log4j*;version="[1.2,2)"
         </fabric.osgi.import.additional>
 -->
-        <fabric.osgi.import>
-            !org.fusesource.fabric.api*,
-            *
-        </fabric.osgi.import>
         <fabric.osgi.private.pkg>
-            org.apache.jute*,
             org.fusesource.fabric.internal
         </fabric.osgi.private.pkg>
     </properties>
@@ -78,25 +69,11 @@
           <scope>provided</scope>
       </dependency>
 
-      <!--
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.karaf.shell</groupId>
-            <artifactId>org.apache.karaf.shell.console</artifactId>
-        </dependency>
-        -->
-        <dependency>
-            <groupId>org.linkedin</groupId>
-            <artifactId>org.linkedin.zookeeper-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
