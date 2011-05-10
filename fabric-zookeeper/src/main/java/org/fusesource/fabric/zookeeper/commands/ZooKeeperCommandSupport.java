@@ -8,6 +8,9 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,5 +98,16 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
             }
         }
         return perm;
+    }
+
+    protected String loadUrl(URL url) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        String line;
+        StringBuffer content = new StringBuffer();
+        while ((line = reader.readLine()) != null) {
+            content.append(line);
+            content.append(System.getProperty("line.separator"));
+        }
+        return content.toString();
     }
 }
