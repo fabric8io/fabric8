@@ -129,7 +129,10 @@ trait BaseMessageTrait extends BaseMessage {
     }
   }
 
+  val default_offset = new BigInteger("7")
+
   def figure_out_section_offset(fragment:AmqpFragment) = {
+    /*
     var offset = new BigInt(BigInteger.ZERO)
     val size = fragment.getListCount
     var i = 0
@@ -146,6 +149,9 @@ trait BaseMessageTrait extends BaseMessage {
       offset = offset + 1
     }
     fragment.setSectionOffset(offset.bigInteger)
+    */
+    // This is only going to change if they change the fragment type
+    fragment.setSectionOffset(default_offset)
   }
 
   def maybe_add(l:ListBuffer[AmqpFragment], o:Option[AmqpType[_, _]], section_code:Long, max_size:Long) = {
