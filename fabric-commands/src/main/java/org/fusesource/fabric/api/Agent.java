@@ -13,6 +13,8 @@ import org.fusesource.fabric.api.data.ServiceInfo;
 
 public interface Agent {
 
+    String getType();
+
     String getId();
 
     Agent getParent();
@@ -23,9 +25,6 @@ public interface Agent {
     boolean isRoot();
     String getSshUrl();
     String getJmxUrl();
-
-    BundleInfo[] getBundles();
-    ServiceInfo[] getServices();
 
     Version getVersion();
     void setVersion(Version version);
@@ -39,5 +38,8 @@ public interface Agent {
     void start();
     void stop();
     void destroy();
+
+    //  gets children agents, eg process instances, maybe camel contexts
+    Agent[] getChildren();
 
 }
