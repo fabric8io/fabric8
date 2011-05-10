@@ -34,7 +34,7 @@ class DefaultDataSourceEnricher extends DataSourceEnricher {
         source.description = "This space holds tenured objects which are not expected to be garbage collected often."
       case Array("java.lang:name=Par Survivor Space,type=MemoryPool", "Usage") =>
         // case "jvm.heap.par_survivor" =>
-        source.name = "Space Used Par Survivor"
+        source.name = "Used Par Survivor Space"
         source.description = "This space holds object which survive past the eden pool"
       case Array("java.lang:name=Par Eden Space,type=MemoryPool", "Usage") =>
         // case "jvm.heap.par_eden" =>
