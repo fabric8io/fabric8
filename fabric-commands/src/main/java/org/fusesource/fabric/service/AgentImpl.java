@@ -20,8 +20,9 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
-import org.fusesource.fabric.service.JmxTemplate.BundleStateCallback;
-import org.fusesource.fabric.service.JmxTemplate.ServiceStateCallback;
+import org.fusesource.fabric.jmx.JmxTemplate;
+import org.fusesource.fabric.jmx.JmxTemplate.BundleStateCallback;
+import org.fusesource.fabric.jmx.JmxTemplate.ServiceStateCallback;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -33,7 +34,7 @@ public class AgentImpl implements Agent {
     /**
      * Logger.
      */
-    private Logger logger = LoggerFactory.getLogger(AgentImpl.class);
+    protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Agent parent;
     private final String id;
@@ -78,53 +79,6 @@ public class AgentImpl implements Agent {
             return service.getZooKeeper().getStringData(path.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
-        }
-    }
-
-    public BundleInfo[] getBundles() {
-        try {
-            return new JmxTemplate().execute(this, new BundleStateCallback<BundleInfo[]>() {
-                public BundleInfo[] doWithBundleState(BundleStateMBean bundleState) throws Exception {
-                    TabularData bundles = bundleState.listBundles();
-                    BundleInfo[] info = new BundleInfo[bundles.size()];
-
-                    int i = 0;
-                    for (Object data : bundles.values().toArray()) {
-                        info[i++] = new JmxBundleInfo((CompositeData) data);
-                    }
-
-                    // sort bundles using bundle id to preserve same order like in framework
-                    Arrays.sort(info, new BundleInfoComparator());
-                    return info;
-                }
-            });
-        } catch (Exception e) {
-            logger.error("Error while retrieving bundles", e);
-            return new BundleInfo[0];
-        }
-    }
-
-    public ServiceInfo[] getServices() {
-        try {
-            return new JmxTemplate().execute(this, new ServiceStateCallback<ServiceInfo[]>() {
-                public ServiceInfo[] doWithServiceState(ServiceStateMBean serviceState) throws Exception {
-                    TabularData services = serviceState.listServices();
-                    ServiceInfo[] info = new ServiceInfo[services.size()];
-
-                    int i = 0;
-                    for (Object data : services.values().toArray()) {
-                        CompositeData svc = (CompositeData) data;
-                        info[i++] = new JmxServiceInfo(svc, serviceState.getProperties((Long) svc.get(ServiceStateMBean.IDENTIFIER)));
-                    }
-
-                    // sort services using service id to preserve same order like in framework
-                    Arrays.sort(info, new ServiceInfoComparator());
-                    return info;
-                }
-            });
-        } catch (Exception e) {
-            logger.error("Error while retrieving services", e);
-            return new ServiceInfo[0];
         }
     }
 
@@ -219,5 +173,13 @@ public class AgentImpl implements Agent {
     @Override
     public void destroy() {
         service.destroy(this);
+    }
+
+    public Agent[] getChildren() {
+        return AgentFactory.createChildren(this, service);
+    }
+
+    public String getType() {
+        return "karaf";
     }
 }

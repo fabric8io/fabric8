@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.jmx;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -114,6 +114,22 @@ public class JmxTemplate {
                 return callback.doWithServiceState(getMBean(connector, ServiceStateMBean.class, "osgi.core", bean));
             }
         });
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     private <T> T getMBean(JMXConnector connector, Class<T> type, String domain, String ... params) {

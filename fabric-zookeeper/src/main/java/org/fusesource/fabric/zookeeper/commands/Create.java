@@ -8,6 +8,11 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -29,14 +34,19 @@ public class Create extends ZooKeeperCommandSupport {
     @Option(name = "-r", aliases = {"--recursive"}, description = "Automatically create parents")
     boolean recursive;
 
+    @Option(name = "-i", aliases = {"--import"}, description = "Import data from an url")
+    boolean importUrl;
+
     @Option(name = "-a", aliases = {"--acl"}, description = "Node ACLs")
     String acl;
 
     @Argument(index = 0, required = true, description = "Path of the node to create")
     String path;
 
-    @Argument(index = 1, required = false, description = "Data for the node")
+    @Argument(index = 1, required = false, description = "Data for the node, or url if 'import' option is used")
     String data;
+
+
 
     @Override
     protected Object doExecute() throws Exception {
@@ -51,10 +61,17 @@ public class Create extends ZooKeeperCommandSupport {
         } else {
             mode = CreateMode.PERSISTENT;
         }
+
+        String nodeData = data;
+
+        if (importUrl) {
+            nodeData = loadUrl(new URL(data));
+        }
+
         if (recursive) {
-            getZooKeeper().createWithParents(path, data, acls, mode);
+            getZooKeeper().createWithParents(path, nodeData, acls, mode);
         } else {
-            getZooKeeper().create(path, data, acls, mode);
+            getZooKeeper().create(path, nodeData, acls, mode);
         }
         return null;
     }

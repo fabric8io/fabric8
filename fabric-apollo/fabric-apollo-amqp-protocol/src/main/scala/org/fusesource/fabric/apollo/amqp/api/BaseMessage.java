@@ -15,6 +15,8 @@ import org.fusesource.fabric.apollo.amqp.codec.types.AmqpFooter;
 import org.fusesource.fabric.apollo.amqp.codec.types.AmqpHeader;
 import org.fusesource.fabric.apollo.amqp.codec.types.AmqpProperties;
 
+import java.util.LinkedList;
+
 /**
  * The common sections for all message types in an AMQP system
  */
@@ -50,11 +52,21 @@ public interface BaseMessage {
      */
     public AmqpFields getApplicationProperties();
 
-
     /**
      * Returns the message footer
      * @return
      */
     public AmqpFooter getFooter();
 
+    /**
+     * Returns the list of tasks to be performed when this message is settled by the peer link
+     * @return
+     */
+    public LinkedList<Runnable> getOnAckTasks();
+
+    /**
+     * Returns the list of tasks to be performed when this message is sent by the local session
+     * @return
+     */
+    public LinkedList<Runnable> getOnSendTasks();
 }

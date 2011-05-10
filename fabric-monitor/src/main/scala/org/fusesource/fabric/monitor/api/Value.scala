@@ -10,6 +10,10 @@ object Value {
   val jmxFactory = new JmxDataSourceRegistry()
   val pollers = MonitorDeamon.poller_factories
 
+  def defined(values: Value*): List[Value] = {
+    values.filter(_.isDefined).toList
+  }
+
   def apply(keys: String*): Value = {
     if (keys.size == 0) {
       NoValue
