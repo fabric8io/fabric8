@@ -18,9 +18,23 @@ import java.util.LinkedList
 import org.fusesource.hawtdispatch._
 import collection.mutable.ListBuffer
 import org.fusesource.fabric.apollo.amqp.codec.CodecUtils
+import java.math.BigInteger
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.{EncodedBuffer, AmqpMarshaller}
 
-// TODO - Assemble message from list of fragments
+object MessageSectionCodes {
+  val HEADER = 0L
+  val DELIVERY_ANNOTATIONS = 1L
+  val MESSAGE_ANNOTATIONS = 2L
+  val PROPERTIES = 3L
+  val APPLICATION_PROPERTIES = 4L
+  val DATA = 5L
+  val AMQP_DATA = 6L
+  val AMQP_MAP = 7L
+  val AMQP_LIST = 8L
+  val FOOTER = 9L
+}
 
+import MessageSectionCodes._
 /**
  *
  */
@@ -87,12 +101,32 @@ trait BaseMessageTrait extends BaseMessage {
 
   def marshal_single_fragment_section(section_body:AmqpType[_, _], section_code:Long) = {
     val rc = createAmqpFragment
-    rc.setPayload(new Buffer(CodecUtils.marshal(section_body)))
+    rc.setPayload(new Buffer(CodecUtils.marshal(section_body.asInstanceOf[AmqpType[_, AmqpBuffer[_]]])))
     rc.setSectionCode(section_code)
-    // TODO - section offset, section number?
     rc.setFirst(true)
     rc.setLast(true)
     rc
+  }
+
+  // TODO - check that this is calculating this correctly...
+  def figure_out_section_offset(fragment:AmqpFragment) = {
+    var offset = new BigInt(BigInteger.ZERO)
+    val size = fragment.getListCount
+    // avoid taking any previously set section offset into account
+    fragment.set(size - 2, null)
+    var i = 0
+    for ( i <- 1 to (size - 1) ) {
+      val obj = fragment.get(i)
+      if (obj != null) {
+        offset = offset + BigInt(CodecUtils.marshal(obj.asInstanceOf[AmqpType[_, AmqpBuffer[_]]]).length)
+      }
+    }
+    if (offset > 254) {
+      offset = offset + 8
+    } else {
+      offset = offset + 1
+    }
+    fragment.setSectionOffset(offset.bigInteger)
   }
 
   def maybe_add(l:ListBuffer[AmqpFragment], o:Option[AmqpType[_, _]], section_code:Long) = o.foreach((x) => l.append(marshal_single_fragment_section(x, section_code)))
@@ -100,52 +134,69 @@ trait BaseMessageTrait extends BaseMessage {
   def marshal_to_amqp_fragments = {
     val rc = ListBuffer[AmqpFragment]()
     // need to check section codes...
-    maybe_add(rc, _header, 0)
-    maybe_add(rc, _message_annotations, 1)
-    maybe_add(rc, _delivery_annotations, 2)
-    maybe_add(rc, _properties, 3)
-    maybe_add(rc, _application_properties, 4)
-    // add body here...
+    maybe_add(rc, _header, HEADER)
+    maybe_add(rc, _delivery_annotations, DELIVERY_ANNOTATIONS)
+    maybe_add(rc, _message_annotations, MESSAGE_ANNOTATIONS)
+    maybe_add(rc, _properties, PROPERTIES)
+    maybe_add(rc, _application_properties, APPLICATION_PROPERTIES)
+    if (has_body) {
+      rc.appendAll(marshal_application_data_section)
+      maybe_add(rc, _footer, FOOTER)
+    }
 
-    maybe_add(rc, _footer, 6)
+    var i = 0
+    rc.foreach( (x) => {
+      x.setSectionNumber(i)
+      figure_out_section_offset(x)
+      i = i + 1
+    })
 
     rc.toList
   }
 
+  def marshal_application_data_section = {
+    // TODO - break up based on max size
+    val rc = createAmqpFragment
+    rc.setPayload(marshal_body)
+    rc.setSectionCode(get_section_code)
+    rc.setFirst(true)
+    rc.setLast(true)
+    List(rc)
+  }
 
-  def marshal_application_data_section
-
+  def get_section_code:Long
+  def marshal_body:Buffer
+  def has_body:Boolean
 }
 
 trait GenericMessageTrait[T] extends GenericMessage[T] {
   var body:T = null.asInstanceOf[T]
-
   def getBody = body
   def setBody(body:T) = this.body = body
 }
 
 class DataMessageImpl extends DataMessage with BaseMessageTrait with GenericMessageTrait[Buffer] {
-  override def marshal_application_data_section = {
-    // TODO
-  }
+  override def get_section_code = DATA
+  override def marshal_body = body
+  override def has_body = body != null
 }
 
 // Same as above but body section code is different
-class AmqpDataMessageImpl extends DataMessageImpl with BaseMessageTrait with GenericMessageTrait[Buffer]
+class AmqpDataMessageImpl extends DataMessageImpl with BaseMessageTrait with GenericMessageTrait[Buffer] {
+  override def get_section_code = AMQP_DATA
+}
 
 class AmqpMapMessageImpl extends AmqpMapMessage with BaseMessageTrait with GenericMessageTrait[AmqpFields] {
   body = createAmqpFields
-
-  override def marshal_application_data_section = {
-    // TODO
-  }
+  override def get_section_code = AMQP_MAP
+  override def marshal_body = new Buffer(CodecUtils.marshal(body))
+  override def has_body = body != null
 }
 
 class AmqpListMessageImpl extends AmqpListMessage with BaseMessageTrait with GenericMessageTrait[AmqpList] {
   body = createAmqpList
-
-  override def marshal_application_data_section = {
-    // TODO
-  }
+  override def get_section_code = AMQP_LIST
+  override def marshal_body = new Buffer(CodecUtils.marshal(body))
+  override def has_body = body != null
 }
 
