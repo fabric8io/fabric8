@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
  * http://fusesource.com
  *
@@ -6,13 +6,14 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.OSGiAgent;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
-import org.fusesource.fabric.jmx.JmxTemplate;
+import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.service.JmxTemplate;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 

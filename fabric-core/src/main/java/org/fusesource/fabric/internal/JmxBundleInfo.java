@@ -1,4 +1,4 @@
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.internal;
 
 import java.util.Collection;
 import javax.management.openmbean.CompositeData;

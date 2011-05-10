@@ -125,6 +125,7 @@
 
     <feature name="fabric-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
     </feature>
 

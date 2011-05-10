@@ -1,4 +1,4 @@
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;

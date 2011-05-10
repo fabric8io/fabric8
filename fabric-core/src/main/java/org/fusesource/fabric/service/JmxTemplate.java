@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.jmx;
+package org.fusesource.fabric.service;
 
 import java.io.IOException;
 import java.util.Arrays;

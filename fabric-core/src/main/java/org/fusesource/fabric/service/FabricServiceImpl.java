@@ -21,7 +21,10 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.jmx.JmxTemplate;
+import org.fusesource.fabric.internal.AgentImpl;
+import org.fusesource.fabric.internal.ProfileImpl;
+import org.fusesource.fabric.internal.VersionImpl;
+import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.cm.Configuration;
@@ -174,7 +177,7 @@ public class FabricServiceImpl implements FabricService {
     private void createAgentConfig(String name) {
         try {
             String configVersion = getDefaultVersion().getName();
-            ZooKeeperUtils.createDefault( zooKeeper, ZkPath.CONFIG_AGENT.getPath(name), configVersion );
+            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(name), configVersion);
             ZooKeeperUtils.createDefault( zooKeeper, ZkPath.CONFIG_VERSIONS_AGENT.getPath(configVersion, name), profile );
         } catch (FabricException e) {
             throw e;
@@ -279,7 +282,7 @@ public class FabricServiceImpl implements FabricService {
 
     public Profile createProfile(String version, String name) {
         try {
-            ZooKeeperUtils.create( zooKeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name) );
+            ZooKeeperUtils.create(zooKeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name));
             return new ProfileImpl(name, version, this);
         } catch (Exception e) {
             throw new FabricException(e);

@@ -6,15 +6,15 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.internal;
 
 import java.util.Comparator;
 
-import org.fusesource.fabric.api.data.ServiceInfo;
+import org.fusesource.fabric.api.data.BundleInfo;
 
-public class ServiceInfoComparator implements Comparator<ServiceInfo> {
+public class BundleInfoComparator implements Comparator<BundleInfo> {
 
-    public int compare(ServiceInfo serviceInfo1, ServiceInfo serviceInfo2) {
-        return serviceInfo1.getId().compareTo(serviceInfo2.getId());
+    public int compare(BundleInfo object1, BundleInfo object2) {
+        return object1.getId().compareTo(object2.getId());
     }
 }

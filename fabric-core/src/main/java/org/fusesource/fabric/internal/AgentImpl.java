@@ -6,26 +6,17 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.internal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
 
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.api.data.BundleInfo;
-import org.fusesource.fabric.api.data.ServiceInfo;
-import org.fusesource.fabric.jmx.JmxTemplate;
-import org.fusesource.fabric.jmx.JmxTemplate.BundleStateCallback;
-import org.fusesource.fabric.jmx.JmxTemplate.ServiceStateCallback;
+import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.jmx.framework.BundleStateMBean;
-import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,10 +6,11 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.service.FabricServiceImpl;
 
 public class VersionImpl implements Version {
 

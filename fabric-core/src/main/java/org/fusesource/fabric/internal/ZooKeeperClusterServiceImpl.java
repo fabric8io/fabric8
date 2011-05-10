@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.internal;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -30,8 +30,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import static org.fusesource.fabric.service.ZooKeeperUtils.*;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
@@ -94,30 +92,30 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             client.waitForStart();
 
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
-            set(client, defaultProfile + "/org.fusesource.fabric.zookeeper/zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
+            ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.zookeeper/zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
 
             String profileNode = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "zk-server-0000") + "/org.fusesource.fabric.zookeeper.server-0000";
-            set( client, profileNode + "/tickTime", "2000" );
-            set( client, profileNode + "/initLimit", "10" );
-            set( client, profileNode + "/syncLimit", "5" );
-            set( client, profileNode + "/dataDir", "data/zookeeper/0000" );
+            ZooKeeperUtils.set(client, profileNode + "/tickTime", "2000");
+            ZooKeeperUtils.set(client, profileNode + "/initLimit", "10");
+            ZooKeeperUtils.set(client, profileNode + "/syncLimit", "5");
+            ZooKeeperUtils.set(client, profileNode + "/dataDir", "data/zookeeper/0000");
 
-            set( client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "zk-server-0000-1"), "zk-server-0000" );
+            ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "zk-server-0000-1"), "zk-server-0000");
             profileNode = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "zk-server-0000-1") + "/org.fusesource.fabric.zookeeper.server-0000";
-            set( client, profileNode + "/clientPort", "2181" );
-            set( client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", "0000" );
-            set( client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/0000", karafName );
+            ZooKeeperUtils.set(client, profileNode + "/clientPort", "2181");
+            ZooKeeperUtils.set(client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", "0000");
+            ZooKeeperUtils.set(client, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/0000", karafName);
 
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots" );
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases" );
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases");
 
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/repository.fabric", "mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features" );
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/feature.karaf", "karaf" );
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/feature.fabric-agent", "fabric-agent" );
-            createDefault( client, defaultProfile + "/org.fusesource.fabric.agent/framework", "mvn:org.apache.felix/org.apache.felix.framework/3.0.9-fuse-00-10" );
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/repository.fabric", "mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/feature.karaf", "karaf");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/feature.fabric-agent", "fabric-agent");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/framework", "mvn:org.apache.felix/org.apache.felix.framework/3.0.9-fuse-00-10");
 
-            createDefault( client, ZkPath.CONFIG_AGENT.getPath(karafName), version);
-            createDefault( client, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version,  karafName), "default zk-server-0000-1");
+            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_AGENT.getPath(karafName), version);
+            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, karafName), "default zk-server-0000-1");
 
             Bundle bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.0-SNAPSHOT");
             if (bundle.getState() == Bundle.ACTIVE) {
@@ -247,7 +245,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             // Find used zookeeper ports
             Map<String, List<Integer>> usedPorts = new HashMap<String, List<Integer>>();
-            String oldClusterId = get( zooKeeper, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster" );
+            String oldClusterId = ZooKeeperUtils.get(zooKeeper, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster");
             if ( oldClusterId != null ) {
                 for ( String node : zooKeeper.getAllChildren( "/fabric/configs/versions/" + version + "/profiles/zk-server-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId ) ) {
                     if (node.startsWith("server.")) {
@@ -270,10 +268,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             String profileNode = "/fabric/configs/versions/" + version + "/profiles/zk-server-" + newClusterId + "/org.fusesource.fabric.zookeeper.server-" + newClusterId;
 
-            set(zooKeeper, profileNode + "/tickTime", "2000");
-            set(zooKeeper, profileNode + "/initLimit", "10");
-            set(zooKeeper, profileNode + "/syncLimit", "5");
-            set(zooKeeper, profileNode + "/dataDir", "data/zookeeper/" + newClusterId);
+            ZooKeeperUtils.set(zooKeeper, profileNode + "/tickTime", "2000");
+            ZooKeeperUtils.set(zooKeeper, profileNode + "/initLimit", "10");
+            ZooKeeperUtils.set(zooKeeper, profileNode + "/syncLimit", "5");
+            ZooKeeperUtils.set(zooKeeper, profileNode + "/dataDir", "data/zookeeper/" + newClusterId);
 
             int index = 1;
             String connectionUrl = "";
@@ -283,16 +281,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 String ip = zooKeeper.getStringData("/fabric/registry/agents/config/" + agent + "/ip");
                 String profNode = "/fabric/configs/versions/" + version + "/profiles/zk-server-" + newClusterId + "-" + Integer.toString(index);
                 String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId;
-                add( zooKeeper, profNode, "zk-server-" + newClusterId );
+                ZooKeeperUtils.add(zooKeeper, profNode, "zk-server-" + newClusterId);
                 String port1 = Integer.toString(findPort(usedPorts, ip, 2181));
                 if (agents.size() > 1) {
                     String port2 = Integer.toString(findPort(usedPorts, ip, 2888));
                     String port3 = Integer.toString(findPort(usedPorts, ip, 3888));
-                    set(zooKeeper, profileNode + "/server." + Integer.toString(index), "${zk:" + agent + "/ip}:" + port2 + ":" + port3);
-                    set(zooKeeper, pidNode + "/server.id", Integer.toString(index));
+                    ZooKeeperUtils.set(zooKeeper, profileNode + "/server." + Integer.toString(index), "${zk:" + agent + "/ip}:" + port2 + ":" + port3);
+                    ZooKeeperUtils.set(zooKeeper, pidNode + "/server.id", Integer.toString(index));
                 }
-                set(zooKeeper, pidNode + "/clientPort", port1);
-                add(zooKeeper, "/fabric/configs/versions/" + version + "/agents/" + agent, "zk-server-" + newClusterId + "-" + Integer.toString(index));
+                ZooKeeperUtils.set(zooKeeper, pidNode + "/clientPort", port1);
+                ZooKeeperUtils.add(zooKeeper, "/fabric/configs/versions/" + version + "/agents/" + agent, "zk-server-" + newClusterId + "-" + Integer.toString(index));
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";
                     realConnectionUrl += ",";
@@ -315,16 +313,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     src.waitForStart();
                     dst.waitForStart();
 
-                    copy(src, dst, "/fabric/configs");
-                    set( dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", newClusterId );
-                    set( dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/" + newClusterId, agentList );
+                    ZooKeeperUtils.copy(src, dst, "/fabric/configs");
+                    ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", newClusterId);
+                    ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/" + newClusterId, agentList);
 
                     for (String agent : dst.getChildren("/fabric/configs/versions/" + version + "/agents")) {
-                        remove(dst, "/fabric/configs/versions/" + version + "/agents/" + agent, "zk-server-" + oldClusterId + "-.*");
+                        ZooKeeperUtils.remove(dst, "/fabric/configs/versions/" + version + "/agents/" + agent, "zk-server-" + oldClusterId + "-.*");
                     }
 
-                    set( dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url", connectionUrl );
-                    set( src, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url", connectionUrl );
+                    ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url", connectionUrl);
+                    ZooKeeperUtils.set(src, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper/zookeeper.url", connectionUrl);
 
 
                 } finally {
