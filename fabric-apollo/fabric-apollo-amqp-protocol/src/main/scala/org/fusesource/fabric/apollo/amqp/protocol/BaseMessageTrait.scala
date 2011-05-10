@@ -21,6 +21,7 @@ import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.{EncodedBuffer,
 import collection.mutable.{HashMap, ListBuffer}
 import org.fusesource.hawtbuf.{ByteArrayOutputStream, Buffer}
 import java.io.{DataOutput, DataOutputStream}
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpList
 
 object MessageSectionCodes {
   val HEADER = 0L
@@ -38,6 +39,14 @@ object MessageSectionCodes {
 import MessageSectionCodes._
 
 object AmqpMessageFactory {
+
+  def list_to_amqp_list[T <: AmqpType[_, _]](list:List[T]) = createAmqpList(new IAmqpList.ArrayBackedList(list.toArray))
+  def amqp_list_to_list[T <: AmqpType[_, _]](list:AmqpList) = list.toArray.toList
+
+  def create_from_multiple(fragments:Multiple) = {
+    val list = fragments.getValue.asInstanceOf[AmqpList]
+    create_from_fragments(amqp_list_to_list(list).asInstanceOf[List[AmqpFragment]])
+  }
 
   def create_from_fragments(fragments:List[AmqpFragment]) = {
     val rc:BaseMessageTrait = get_message_body_type(fragments) match {
@@ -75,8 +84,9 @@ object AmqpMessageFactory {
     })
     rc
   }
-
 }
+
+import AmqpMessageFactory._
 
 /**
  *
@@ -192,6 +202,12 @@ trait BaseMessageTrait extends BaseMessage {
       val payload = new Buffer(CodecUtils.marshal(x.asInstanceOf[AmqpType[_, AmqpBuffer[_]]]))
       l.appendAll(marshal_section(payload, section_code, max_size))
     })
+  }
+
+  def marshal_to_multiple(max_size:Long) = {
+    val rc = createMultiple
+    rc.setValue(list_to_amqp_list(marshal_to_amqp_fragments(max_size)))
+    rc
   }
 
   def marshal_to_amqp_fragments(max_size:Long) = {

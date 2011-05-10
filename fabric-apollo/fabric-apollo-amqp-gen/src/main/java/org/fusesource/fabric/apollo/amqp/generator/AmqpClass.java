@@ -1936,6 +1936,15 @@ public class AmqpClass {
             writer.newLine();
             writer.write(Utils.tab(--indent) + "}");
             writer.newLine();
+
+            writer.newLine();
+            writer.write(Utils.tab(indent) + "public AmqpType<?, ?>[] toArray() {");
+            writer.newLine();
+
+            writer.write(Utils.tab(++indent) + "throw new IllegalArgumentException(\"toArray() cannot be called on described types\");");
+            writer.newLine();
+            writer.write(Utils.tab(--indent) + "}");
+            writer.newLine();
         } else {
             descriptor.resolveDescribedType().writeFieldAccessors(writer, indent, buffer);
         }
@@ -2055,6 +2064,14 @@ public class AmqpClass {
         writer.newLine();
         writer.write(Utils.tab(--indent) + "}");
         writer.newLine();
+
+        writer.newLine();
+        writer.write(Utils.tab(indent) + "public " + TypeRegistry.any().typeMapping + "[] toArray() {");
+        writer.newLine();
+        writer.write(Utils.tab(++indent) + "return bean().toArray();");
+        writer.newLine();
+        writer.write(Utils.tab(--indent) + "}");
+        writer.newLine();
     }
 
     private void writeListBeanOverrides(BufferedWriter writer, int indent) throws IOException {
@@ -2088,6 +2105,14 @@ public class AmqpClass {
         writer.write(Utils.tab(indent) + "public Iterator<" + TypeRegistry.any().typeMapping + "> iterator() {");
         writer.newLine();
         writer.write(Utils.tab(++indent) + "return new AmqpListIterator<" + TypeRegistry.any().typeMapping + ">(bean.value);");
+        writer.newLine();
+        writer.write(Utils.tab(--indent) + "}");
+        writer.newLine();
+
+        writer.newLine();
+        writer.write(Utils.tab(indent) + "public " + TypeRegistry.any().typeMapping + "[] toArray() {");
+        writer.newLine();
+        writer.write(Utils.tab(++indent) + "return bean.value.toArray();");
         writer.newLine();
         writer.write(Utils.tab(--indent) + "}");
         writer.newLine();
@@ -2456,6 +2481,8 @@ public class AmqpClass {
             writer.write(Utils.tab(indent) + "public " + TypeRegistry.any().typeMapping + " get(int index);");
             writer.newLine();
             writer.write(Utils.tab(indent) + "public int getListCount();");
+            writer.newLine();
+            writer.write(Utils.tab(indent) + "public " + TypeRegistry.any().typeMapping + "[] toArray();");
             writer.newLine();
         }
 

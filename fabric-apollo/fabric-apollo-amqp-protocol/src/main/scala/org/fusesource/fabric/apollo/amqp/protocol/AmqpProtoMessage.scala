@@ -70,9 +70,7 @@ object AmqpProtoMessage {
 
 }
 
-// TODO - Fragmented messages
-
-// TODO - Revise exactly where delivery tags are tracked, they're more of a transfer thing than a message thing
+// TODO - replace with new message implementation (BaseMessage/BaseMessageTrait stuff) when latest spec updates are out
 
 class AmqpProtoMessage extends Message with Logging {
   import AmqpProtoMessage._
