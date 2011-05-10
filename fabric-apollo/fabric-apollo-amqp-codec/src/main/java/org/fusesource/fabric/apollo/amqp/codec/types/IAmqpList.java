@@ -21,6 +21,8 @@ public interface IAmqpList<E extends AmqpType<?, ?>> extends Iterable<E> {
 
     public int getListCount();
 
+    public E[] toArray();
+
     public static class AmqpListIterator<E extends AmqpType<?, ?>> implements Iterator<E> {
         int next = 0;
         final IAmqpList<E> list;
@@ -118,6 +120,10 @@ public interface IAmqpList<E extends AmqpType<?, ?>> extends Iterable<E> {
         public int hashCode() {
             return hashCodeFor(this);
         }
+
+        public E[] toArray() {
+            return (E[])list.toArray();
+        }
     }
 
     public static class ArrayBackedList<E extends AmqpType<?, ?>> extends AbstractAmqpList<E> {
@@ -160,6 +166,10 @@ public interface IAmqpList<E extends AmqpType<?, ?>> extends Iterable<E> {
 
         public int hashCode() {
             return hashCodeFor(this);
+        }
+
+        public E[] toArray() {
+            return list;
         }
     }
 }
