@@ -23,13 +23,13 @@ trait ConnectionHandler {
 
   def open(open: AmqpOpen): Unit
 
-  def sasl_challenge(saslChallenge: AmqpSaslChallenge) {}
+  def sasl_challenge(saslChallenge: AmqpSaslChallenge):Unit
 
-  def sasl_response(saslResponse: AmqpSaslResponse) {}
+  def sasl_response(saslResponse: AmqpSaslResponse):Unit
 
-  def sasl_mechanisms(saslMechanisms: AmqpSaslMechanisms) {}
+  def sasl_mechanisms(saslMechanisms: AmqpSaslMechanisms):Unit
 
-  def sasl_init(saslInit: AmqpSaslInit) {}
+  def sasl_init(saslInit: AmqpSaslInit):Unit
 
-  def sasl_outcome(saslOutcome: AmqpSaslOutcome) {}
+  def sasl_outcome(saslOutcome: AmqpSaslOutcome):Unit
 }

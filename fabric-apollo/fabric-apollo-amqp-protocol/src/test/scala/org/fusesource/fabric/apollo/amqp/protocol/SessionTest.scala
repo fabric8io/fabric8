@@ -279,6 +279,16 @@ class TestLinkListener(msgListener:MessageListener) extends LinkListener {
 
 class DummyConnection extends SessionConnection with ConnectionHandler with Logging {
 
+  def sasl_outcome(saslOutcome: AmqpSaslOutcome) {}
+
+  def sasl_init(saslInit: AmqpSaslInit) {}
+
+  def sasl_mechanisms(saslMechanisms: AmqpSaslMechanisms) {}
+
+  def sasl_response(saslResponse: AmqpSaslResponse) {}
+
+  def sasl_challenge(saslChallenge: AmqpSaslChallenge) {}
+
   val queue = Dispatch.createQueue
 
   var _peer:DummyConnection = null

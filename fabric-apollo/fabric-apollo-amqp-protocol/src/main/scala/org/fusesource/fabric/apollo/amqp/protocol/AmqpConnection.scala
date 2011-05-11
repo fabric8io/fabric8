@@ -20,14 +20,14 @@ import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.apache.activemq.apollo.transport._
 import scala.math._
 import scala.util.Random
-import collection.mutable.{Queue, LinkedList, HashMap, SynchronizedMap}
-import tcp.{TcpTransportServer, TcpTransportFactory}
+import collection.mutable.HashMap
 import org.fusesource.fabric.apollo.amqp.api._
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, Sink}
 import org.fusesource.fabric.apollo.amqp.codec._
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
+import AmqpConversions._
 
 /**
  *
@@ -523,68 +523,13 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     rc.toString
   }
 
-}
+  def sasl_outcome(saslOutcome: AmqpSaslOutcome) {}
 
-class AmqpServerConnection(listener:ConnectionListener) extends AmqpConnection with ServerConnection with TransportAcceptListener {
-  var transportServer:TransportServer = null
+  def sasl_init(saslInit: AmqpSaslInit) {}
 
-  def getListenPort = {
-    transportServer match {
-      case t:TcpTransportServer =>
-        t.getSocketAddress.getPort
-      case _ =>
-        0
-    }
-  }
+  def sasl_mechanisms(saslMechanisms: AmqpSaslMechanisms) {}
 
-  def getListenHost = {
-    transportServer match {
-      case t:TcpTransportServer =>
-        t.getSocketAddress.getHostName
-      case _ =>
-        ""
-    }
-  }
+  def sasl_response(saslResponse: AmqpSaslResponse) {}
 
-  def bind(uri:String) = {
-    init(uri)
-    transportServer = TransportFactory.bind(uri)
-    transportServer.setDispatchQueue(dispatchQueue)
-    transportServer.setAcceptListener(this)
-    transportServer.start()
-    info("AMQP Server listening on %s:%s", getListenHost, getListenPort)
-  }
-
-  def onAccept(transport:Transport) = {
-    val connection = new AmqpServerConnection(null)
-    connection.setContainerId(containerId)
-    val clientUri = transport.getTypeId + ":/" + transport.getRemoteAddress
-    info("Client connected from %s", clientUri)
-    connection.connect(Option(transport), uri)
-    //trace("Created AmqpConnection %s", connection)
-    listener.connectionCreated(connection)
-  }
-
-  def onAcceptError(error:Exception) = {
-
-  }
-
-  override def toString = {
-    val rc = new StringBuilder("AmqpServerConnection{")
-    Option(transportServer) match {
-      case Some(transport) =>
-        rc.append("local=")
-        rc.append(transport.getConnectAddress)
-      case None =>
-    }
-    Option(transport) match {
-      case Some(transport) =>
-        rc.append(" remote=")
-        rc.append(transport.getRemoteAddress)
-      case None =>
-    }
-    rc.append("}")
-    rc.toString
-  }
-
+  def sasl_challenge(saslChallenge: AmqpSaslChallenge) {}
 }
