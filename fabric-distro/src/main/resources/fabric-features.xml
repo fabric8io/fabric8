@@ -101,12 +101,14 @@
     </feature>
 
     <feature name="fabric-camel" version="${project.version}" resolver="(obr)">
-        <!--<bundle dependency="true">mvn:org.fusesource.commonman/commons-management/1.0</bundle>
-        <bundle dependency="true">mvn:org.apache.camel/camel-core/${camel-version}</bundle>-->
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>-->
         <feature version="[2.7,3.0)">camel</feature>
-        <bundle dependency="true">mvn:org.fusesource.fabric/fabric-groups/${project.version}</bundle>
+        <feature>fabric-groups</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-camel/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>-->
+        <bundle dependency="true">mvn:org.fusesource.fabric/fabric-groups/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-monitor" version="${project.version}" resolver="(obr)">
