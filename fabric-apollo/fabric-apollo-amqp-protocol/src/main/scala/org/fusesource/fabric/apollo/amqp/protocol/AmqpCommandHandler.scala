@@ -26,11 +26,11 @@ class AmqpCommandHandler(connection:ConnectionHandler, s:AmqpSession) extends Am
   def handleProtocolHeader(protocolHeader: AmqpProtocolHeader) = connection.header(protocolHeader)
   def handleClose(close: AmqpClose) = connection.close
   def handleOpen(open: AmqpOpen) = connection.open(open)
-  def handleSaslChallenge(saslChallenge: AmqpSaslChallenge) = connection.handleSaslChallenge(saslChallenge)
-  def handleSaslResponse(saslResponse: AmqpSaslResponse) = connection.handleSaslResponse(saslResponse)
-  def handleSaslMechanisms(saslMechanisms: AmqpSaslMechanisms) = connection.handleSaslMechanisms(saslMechanisms)
-  def handleSaslInit(saslInit: AmqpSaslInit) = connection.handleSaslInit(saslInit)
-  def handleSaslOutcome(saslOutcome: AmqpSaslOutcome) = connection.handleSaslOutcome(saslOutcome)
+  def handleSaslChallenge(saslChallenge: AmqpSaslChallenge) = connection.sasl_challenge(saslChallenge)
+  def handleSaslResponse(saslResponse: AmqpSaslResponse) = connection.sasl_response(saslResponse)
+  def handleSaslMechanisms(saslMechanisms: AmqpSaslMechanisms) = connection.sasl_mechanisms(saslMechanisms)
+  def handleSaslInit(saslInit: AmqpSaslInit) = connection.sasl_init(saslInit)
+  def handleSaslOutcome(saslOutcome: AmqpSaslOutcome) = connection.sasl_outcome(saslOutcome)
 
   def handleFlow(flow: AmqpFlow) = session.foreach((s) => s.flow(flow))
   def handleTransfer(transfer: AmqpTransfer) = session.foreach((s) => s.transfer(transfer))
