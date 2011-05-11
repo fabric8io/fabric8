@@ -69,6 +69,7 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
         }
         group.add(new ChangeListener(){
             public void changed(byte[][] members) {
+                // TODO - should we be clearing all the members here???
                 for (byte[] uri : members) {
                     try {
                         loadBalancer.addProcessor(getProcessor(new String(uri, "UTF-8")));

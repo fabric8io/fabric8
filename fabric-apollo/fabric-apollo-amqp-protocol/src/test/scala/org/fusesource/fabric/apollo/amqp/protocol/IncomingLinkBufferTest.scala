@@ -79,7 +79,7 @@ class IncomingLinkBufferTest extends FunSuiteSupport with ShouldMatchers with Lo
         })
         sender.attach(^{
           (1 to max).foreach((x) => {
-            val message = sender.createMessage
+            val message = sender.getSession.createMessage
             message.setSettled(false)
             if (x >= max) {
               message.onAck(^{

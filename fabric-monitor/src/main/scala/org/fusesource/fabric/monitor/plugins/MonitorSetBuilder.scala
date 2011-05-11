@@ -1,7 +1,6 @@
 package org.fusesource.fabric.monitor.plugins
 
-import jmx.{JmxConstants, MBeanAttributeKeyPollDTO, JmxDataSourceRegistry}
-import collection.JavaConverters._
+import jmx.JmxDataSourceRegistry
 import org.fusesource.fabric.monitor.api.{ArchiveDTO, PollDTO, DataSourceDTO, MonitoredSetDTO}
 
 /**
@@ -28,46 +27,19 @@ abstract class MonitorSetBuilder(name: String) {
   def dataSource(poll: PollDTO, id: String, name: String = null, description: String = null, kind: String = "gauge", heartbeat: String = "1s", min: Double = Double.NaN, max: Double = Double.NaN) = {
     var n = if (name == null) id else name
     var d = if (description == null) n else description
-    val ds = new DataSourceDTO(id, n, d, kind, heartbeat, min, max, poll)
+    val ds = DataSourceEnricher(new DataSourceDTO(id, n, d, kind, heartbeat, min, max, poll))
     addDataSource(ds)
     ds
   }
 
-//  def jmxDataSources(entries: Pair[String, String]*): List[DataSourceDTO] = {
-//    var answer = List[DataSourceDTO]()
-//    for ((id, rrdId) <- entries) {
-//      val paths = id.split(JmxConstants.SEPARATOR)
-//      val ods: Option[DataSourceDTO] = if (paths.length < 2) {
-//        throw new IllegalArgumentException("JMX IDs must have at least 2 paths separated by " + JmxConstants.SEPARATOR)
-//      } else if (paths.length < 3) {
-//        jmxDataSource(paths(0), paths(1))
-//      } else {
-//        jmxDataSource(paths(0), paths(1), paths(2))
-//      }
-//      if (ods.isDefined) {
-//        val ds = ods.get
-//        ds.rrd_id = rrdId
-//        answer :+ ds
-//      }
-//    }
-//    answer
-//  }
+  def jmxDataSource(objectName: String, attributeName: String, key: String=null): Option[DataSourceDTO] = {
+    def error_message = if (key==null)
+      "No attribute " + attributeName + " in MBean " + objectName
+    else
+      "No key " + key + " in MBean " + objectName + " attribute " + attributeName
 
-  def jmxDataSource(objectName: String, attributeName: String, key: String): Option[DataSourceDTO] = {
-    jmxFactory.createDataSource(objectName, attributeName) match {
-      case Some(ds) =>
-        val optKeyDS = ds.children.asScala.find(_.poll match {
-          case mak: MBeanAttributeKeyPollDTO => key == mak.key
-          case _ => false
-        })
-        addDataSource(optKeyDS, "No key " + key + " in MBean " + objectName + " attribute " + attributeName)
-      case _ => None
-    }
-  }
-
-  def jmxDataSource(objectName: String, attributeName: String): Option[DataSourceDTO] = {
-    val answer = jmxFactory.createDataSource(objectName, attributeName)
-    addDataSource(answer, "No attribute " + attributeName + " in MBean " + objectName)
+    val answer = jmxFactory.createDataSource(objectName, attributeName, key)
+    addDataSource(answer, error_message)
   }
 
   def processPoll(name: String) = {

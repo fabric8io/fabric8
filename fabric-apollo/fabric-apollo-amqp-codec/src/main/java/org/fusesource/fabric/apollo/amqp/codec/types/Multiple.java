@@ -112,6 +112,10 @@ public interface Multiple extends AmqpList {
             return new AmqpListIterator<AmqpType<?, ?>>(bean);
         }
 
+        public AmqpType<?, ?>[] toArray() {
+            throw new IllegalArgumentException("toArray() should not be called on a described type");
+        }
+
         public String toString() {
             String ret = "Multiple: ";
             if ( value != null ) {

@@ -1,16 +1,4 @@
 <?xml version="1.0"?>
-<!--
-
-    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
-
-        http://fusesource.com
-
-    The software in this package is published under the terms of the
-    CDDL license a copy of which has been included with this distribution
-    in the license.txt file.
-
--->
-
 <?xml-stylesheet type="text/xsl" href="amqp.xsl"?>
 
 <!--
@@ -18,27 +6,26 @@
   ================
   (c) Copyright Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche
   Boerse Systems, Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica
-  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, Novell, Progress Software,
-  Rabbit Technologies Ltd., Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela
-  Inc., TWIST Process Innovations Ltd, VMware, Inc., WS02 Inc. and 29West Inc. 2006-2011. All
-  rights reserved.
+  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress
+  Software, Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST
+  Process Innovations Ltd, VMware Inc. and WS02 Inc. 2006-2011. All rights reserved.
 
   License
   =======
 
   Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche Boerse Systems,
   Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica Corporation, JPMorgan
-  Chase Bank Inc. N.A, Microsoft Corporation, Novell, Progress Software, Rabbit Technologies Ltd.,
-  Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process
-  Innovations Ltd, VMware, Inc., WS02 Inc. and 29West Inc.(collectively, the "Authors") each hereby
-  grants to you a worldwide, perpetual, royalty-free, nontransferable, nonexclusive license to (i)
-  copy, display, distribute and implement the Advanced Message Queuing Protocol ("AMQP")
-  Specification and (ii) the Licensed Claims that are held by the Authors, all for the purpose of
-  implementing the Advanced Message Queuing Protocol Specification. Your license and any rights
-  under this Agreement will terminate immediately without notice from any Author if you bring any
-  claim, suit, demand, or action related to the Advanced Message Queuing Protocol Specification
-  against any Author. Upon termination, you shall destroy all copies of the Advanced Message
-  Queuing Protocol Specification in your possession or control.
+  Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
+  Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process Innovations Ltd,
+  VMware Inc. and WS02 Inc. (collectively, the "Authors") each hereby grants to you a worldwide,
+  perpetual, royalty-free, nontransferable, nonexclusive license to (i) copy, display, distribute
+  and implement the Advanced Message Queuing Protocol ("AMQP") Specification and (ii) the Licensed
+  Claims that are held by the Authors, all for the purpose of implementing the Advanced Message
+  Queuing Protocol Specification. Your license and any rights under this Agreement will terminate
+  immediately without notice from any Author if you bring any claim, suit, demand, or action related
+  to the Advanced Message Queuing Protocol Specification against any Author. Upon termination, you
+  shall destroy all copies of the Advanced Message Queuing Protocol Specification in your possession
+  or control.
 
   As used hereunder, "Licensed Claims" means those claims of a patent or patent application,
   throughout the world, excluding design patents and design registrations, owned or controlled, or
@@ -146,7 +133,7 @@
         </li>
 
         <li>
-          <p>transfer states for messages traveling between nodes</p>
+          <p>delivery states for messages traveling between nodes</p>
         </li>
 
         <li>
@@ -630,13 +617,13 @@
     </definition>
   </section>
 
-  <section name="transfer-state" title="Transfer State"
-           label="the transfer states defined for messaging">
+  <section name="delivery-state" title="Delivery State"
+           label="the delivery states defined for messaging">
     <doc>
       <p>
-        The Messaging layer defines a concrete set of transfer states which can be used (via the
+        The Messaging layer defines a concrete set of delivery states which can be used (via the
         <xref type="type" name="disposition"/> frame) to indicate the state of the message at the
-        receiver. The transfer state includes the number of <i>bytes-transferred</i>,
+        receiver. The delivery state includes the number of <i>bytes-transferred</i>,
         the <i>outcome</i> of processing at the receiver, and a <i>txn-id</i>.
       </p>
 
@@ -647,7 +634,7 @@
       </p>
 
       <p>
-        When no outcome is set, a transfer-state is considered non-terminal. In this case the
+        When no outcome is set, a delivery-state is considered non-terminal. In this case the
         bytes-transferred field may be used to indicate partial progress. Use of this field during
         link recovery allows the sender to resume the transfer of a large message without
         retransmitting all the message data.
@@ -675,9 +662,9 @@
       </ul>
     </doc>
 
-    <type class="composite" name="transfer-state" provides="transfer-state" source="list"
+    <type class="composite" name="delivery-state" provides="delivery-state" source="list"
           label="the state of a message transfer">
-      <descriptor name="amqp:transfer-state:list" code="0x00000000:0x00000023"/>
+      <descriptor name="amqp:delivery-state:list" code="0x00000000:0x00000023"/>
       <field name="options" type="options" label="options map"/>
       <field name="bytes-transferred" type="ulong"/>
       <field name="outcome" type="*" requires="outcome"/>
@@ -794,7 +781,7 @@
         node</i>. Not all Nodes store Messages for distribution, however these definitions permit
         some standardized interaction with those nodes that do. The transitions between these states
         are controlled by the transfer of Messages to/from a distribution node and the resulting
-        terminal transfer state. Note that the state of a Message at one distribution node does not
+        terminal delivery state. Note that the state of a Message at one distribution node does not
         affect the state of the same Message at a separate node.
       </p>
 
@@ -806,8 +793,8 @@
 
       <p>
         A Message will remain ACQUIRED at the distribution node until the transfer is settled. The
-        transfer state at the receiver determines how the message transitions when the transfer is
-        settled. If the transfer state at the receiver is not yet known, (e.g. the link endpoint is
+        delivery state at the receiver determines how the message transitions when the transfer is
+        settled. If the delivery state at the receiver is not yet known, (e.g. the link endpoint is
         destroyed before recovery occurs) the <i>default-outcome</i> of the source is used.
       </p>
 
@@ -889,7 +876,7 @@ settled with outcome: |        |
         Filters can be thought of as functions which take the message as input and return a boolean
         value: true if the message will be accepted by the source, false otherwise. A <i>filter</i>
         MUST NOT change its return value for a Message unless the state or annotations on the
-        Message at the Node change (e.g. through an updated transfer state).
+        Message at the Node change (e.g. through an updated delivery state).
       </p>
     </doc>
 
@@ -912,7 +899,7 @@ settled with outcome: |        |
 
       <p>
         A Source MUST NOT resend a Message which has previously been successfully transferred from
-        the Source, i.e. reached an ACCEPTED transfer state at the receiver. For a
+        the Source, i.e. reached an ACCEPTED delivery state at the receiver. For a
         <i>move</i> link with a default configuration this is trivially achieved as such an end
         result will lead to the Message in the ARCHIVED state on the Node, and thus anyway
         ineligible for transfer. For a <i>copy</i> link, state must be retained at the source to
@@ -926,7 +913,6 @@ settled with outcome: |        |
 
       <field name="options" type="options" label="options map"/>
       <field name="address" type="*" requires="address" label="the address of the source">
-        <error name="address-not-found" type="amqp-error" value="not-found"/>
         <doc>
           <p>
             The address is resolved to a Node in the Container of the sending Link Endpoint.
@@ -1027,7 +1013,6 @@ settled with outcome: |        |
 
       <field name="options" type="options" label="options map"/>
       <field name="address" type="*" requires="address" label="The address of the target.">
-        <error name="address-not-found" type="amqp-error" value="not-found"/>
         <doc>
           <p>
             The address is resolved to a Node by the Container of the receiving Link Endpoint.

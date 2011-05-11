@@ -22,7 +22,10 @@ public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
         try {
             
             FabricDiscoveryAgent rc = new FabricDiscoveryAgent();
-            rc.setGroupName(uri.getSchemeSpecificPart());
+            if( uri.getSchemeSpecificPart()!=null && uri.getSchemeSpecificPart().length() > 0 ){
+                rc.setGroupName(uri.getSchemeSpecificPart());
+            }
+
             return rc;
             
         } catch (Throwable e) {

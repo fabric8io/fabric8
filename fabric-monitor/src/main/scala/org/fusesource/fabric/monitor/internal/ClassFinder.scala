@@ -14,6 +14,7 @@ import java.io.InputStream
 import java.util.Properties
 import scala.collection.mutable.ListBuffer
 import collection.JavaConversions._
+import org.fusesource.scalate.util.Log
 
 
 /**
@@ -23,6 +24,8 @@ import collection.JavaConversions._
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 object ClassFinder {
+
+  val log = Log(classOf[ClassFinder[_]])
 
   var class_loader:ClassLoader = Option(ClassFinder.getClass.getClassLoader).getOrElse(ClassLoader.getSystemClassLoader)
 
@@ -47,7 +50,7 @@ object ClassFinder {
             classes += loader.loadClass(name)
           } catch {
             case e:Throwable =>
-              System.err.println("Could not load class %s using class loader: %s", name, loader)
+              log.warn("Could not load class %s using class loader: %s", name, loader)
           }
         }
       }
@@ -67,7 +70,7 @@ object ClassFinder {
           Some(moduleField.get(null).asInstanceOf[T])
         } catch {
           case e2: Throwable =>
-            System.err.println("Could not create an instance of '%s' using classloader %s", clazz.getName, clazz.getClassLoader)
+            log.warn("Could not create an instance of '%s' using classloader %s", clazz.getName, clazz.getClassLoader)
             None
         }
     }

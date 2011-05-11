@@ -11,23 +11,8 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient" availability="optional"/>
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
-
-    <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl">
-        <property name="zooKeeper" ref="zooKeeper"/>
-        <property name="configurationAdmin" ref="configurationAdmin"/>
-    </bean>
-
-    <service ref="fabricService" auto-export="interfaces" />
-
-    <bean id="zooKeeperClusterService" class="org.fusesource.fabric.service.ZooKeeperClusterServiceImpl">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
-        <property name="configurationAdmin" ref="configurationAdmin"/>
-    </bean>
-
-    <service ref="zooKeeperClusterService" auto-export="interfaces" />
+    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="fabric/zk-cluster">

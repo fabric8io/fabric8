@@ -39,6 +39,9 @@
         <property name="configurationAdmin">
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>
+        <property name="mbeanServer">
+            <reference interface="javax.management.MBeanServer" />
+        </property>
     </bean>
 
     <bean id="serviceRegistrationListener" class="org.fusesource.fabric.zookeeper.internal.ServiceRegistrationListener" destroy-method="onDisconnected">
@@ -69,67 +72,5 @@
             <entry key="url.handler.protocol" value="zk"/>
         </service-properties>
     </service>
-
-    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
-        <command name="zk/create">
-            <action class="org.fusesource.fabric.zookeeper.commands.Create">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-            <completers>
-                <ref component-id="znodeCompleter"/>
-                <null/>
-            </completers>
-        </command>
-        <command name="zk/delete">
-            <action class="org.fusesource.fabric.zookeeper.commands.Delete">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-            <completers>
-                <ref component-id="znodeCompleter"/>
-                <null/>
-            </completers>
-        </command>
-        <command name="zk/list">
-            <action class="org.fusesource.fabric.zookeeper.commands.List">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-            <completers>
-                <ref component-id="znodeCompleter"/>
-                <null/>
-            </completers>
-        </command>
-        <command name="zk/get">
-            <action class="org.fusesource.fabric.zookeeper.commands.Get">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-            <completers>
-                <ref component-id="znodeCompleter"/>
-                <null/>
-            </completers>
-        </command>
-        <command name="zk/set">
-            <action class="org.fusesource.fabric.zookeeper.commands.Set">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-            <completers>
-                <ref component-id="znodeCompleter"/>
-                <null/>
-            </completers>
-        </command>
-        <command name="zk/import">
-            <action class="org.fusesource.fabric.zookeeper.commands.Import">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-        </command>
-        <command name="zk/export">
-            <action class="org.fusesource.fabric.zookeeper.commands.Export">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-        </command>
-    </command-bundle>
-
-    <bean id="znodeCompleter" class="org.fusesource.fabric.zookeeper.commands.ZNodeCompleter">
-        <property name="zooKeeper" ref="zkClient"/>
-    </bean>
 
 </blueprint>

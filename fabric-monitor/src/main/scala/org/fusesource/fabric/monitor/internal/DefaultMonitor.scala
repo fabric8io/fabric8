@@ -24,7 +24,12 @@ import FileSupport._
 import org.fusesource.fabric.monitor.api.ArchiveDTO._
 import java.util
 import collection.JavaConversions._
+import org.fusesource.scalate.util.Log
 
+object DefaultMonitor {
+  val log = Log(classOf[DefaultMonitor])
+}
+import DefaultMonitor._
 
 /**
  * <p>
@@ -78,7 +83,7 @@ class DefaultMonitor (
     }).toSet
 
     val rrd_def = {
-      println("Creating RRD file to: " + rrd_file_name)
+      log.info("Creating RRD file to: " + rrd_file_name)
       val rc = new RrdDef(rrd_file_name, sample_span.getDurationInSeconds)
 
       sources.foreach { case (rrd_id, source) =>
@@ -154,12 +159,12 @@ class DefaultMonitor (
 
                 val start = System.currentTimeMillis()
 
-//                println("Collecting samples from %d pollers.".format(pollers.size))
+//                log.info("Collecting samples from %d pollers.".format(pollers.size))
                 pollers.foreach { case (rrd_id, poller) =>
                   val result = poller.poll
                   sample.setValue(rrd_id, result)
                 }
-//                println("Collected sample: "+sample.dump)
+//                log.info("Collected sample: "+sample.dump)
 
                 sample.update();
 

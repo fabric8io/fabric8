@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpDeliveryTag;
+
 /**
  *
  * A representation of an AMQP Session
@@ -66,6 +68,27 @@ public interface Session {
      * @return an unattached Receiver
      */
     public Receiver createReceiver();
+
+    /**
+     * Creates a new message
+     * @param tag the delivery tag to be used when creating the message
+     * @return an empty AMQP message
+     */
+    public Message createMessage(String tag);
+
+    /**
+     * Creates a new message
+     * @param tag the delivery tag to be used when creating the message
+     * @return an empty AMQP message
+     */
+    public Message createMessage(AmqpDeliveryTag tag);
+
+    /**
+     * Creates a new message with a delivery tag generated via UUID.randomUUID()
+     * @return an empty AMQP message
+     */
+    public Message createMessage();
+
 
     /**
      * Returns whether or not this session is associated with a connection and attached to a peer session

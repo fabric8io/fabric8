@@ -122,7 +122,7 @@ class BasicUseCasesTest extends BrokerTestSupport with ShouldMatchers {
         sender.attach(^ {
           latch.countDown
           def put(x: Int, max: Int): Unit = {
-            val message = sender.createMessage
+            val message = sender.getSession.createMessage
             message.setSettled(settled)
             message.getHeader.setDurable(durable)
 

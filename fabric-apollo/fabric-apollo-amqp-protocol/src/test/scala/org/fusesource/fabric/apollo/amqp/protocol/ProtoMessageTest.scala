@@ -97,12 +97,4 @@ class ProtoMessageTest extends FunSuiteSupport with ShouldMatchers {
     }
   }
 
-  test("Create message with multiple body elements, marshal/unmarshal") {
-    pending
-  }
-
-  test("Create large message, get transfers, reconstruct message") {
-    pending
-  }
-
 }

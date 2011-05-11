@@ -73,7 +73,7 @@ class SubscriptionTest extends BrokerTestSupport with ShouldMatchers {
         })
         sender.attach(^{
           def put(count:Int):Unit = {
-            val message = sender.createMessage
+            val message = sender.getSession.createMessage
             message.addBodyPart(("message " + count).getBytes)
             message.onAck(^{
               message.getOutcome match {

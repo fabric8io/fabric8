@@ -1,0 +1,78 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <reference id="zkClient" interface="org.linkedin.zookeeper.client.IZKClient" />
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="zk/create">
+            <action class="org.fusesource.fabric.zookeeper.commands.Create">
+                <property name="zooKeeper" ref="zkClient"/>
+            </action>
+            <completers>
+                <ref component-id="znodeCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="zk/delete">
+            <action class="org.fusesource.fabric.zookeeper.commands.Delete">
+                <property name="zooKeeper" ref="zkClient"/>
+            </action>
+            <completers>
+                <ref component-id="znodeCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="zk/list">
+            <action class="org.fusesource.fabric.zookeeper.commands.List">
+                <property name="zooKeeper" ref="zkClient"/>
+            </action>
+            <completers>
+                <ref component-id="znodeCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="zk/get">
+            <action class="org.fusesource.fabric.zookeeper.commands.Get">
+                <property name="zooKeeper" ref="zkClient"/>
+            </action>
+            <completers>
+                <ref component-id="znodeCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="zk/set">
+            <action class="org.fusesource.fabric.zookeeper.commands.Set">
+                <property name="zooKeeper" ref="zkClient"/>
+            </action>
+            <completers>
+                <ref component-id="znodeCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="zk/import">
+            <action class="org.fusesource.fabric.zookeeper.commands.Import">
+                <property name="zooKeeper" ref="zkClient"/>
+            </action>
+        </command>
+        <command name="zk/export">
+            <action class="org.fusesource.fabric.zookeeper.commands.Export">
+                <property name="zooKeeper" ref="zkClient"/>
+            </action>
+        </command>
+    </command-bundle>
+
+    <bean id="znodeCompleter" class="org.fusesource.fabric.zookeeper.commands.ZNodeCompleter">
+        <property name="zooKeeper" ref="zkClient"/>
+    </bean>
+
+</blueprint>

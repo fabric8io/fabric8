@@ -32,6 +32,8 @@ public enum ZkPath {
     // Agent nodes
     AGENTS          ("/fabric/registry/agents/config"),
     AGENT           ("/fabric/registry/agents/config/{agent}"),
+    AGENT_DOMAINS   ("/fabric/registry/agents/domains/{agent}"),
+    AGENT_DOMAIN    ("/fabric/registry/agents/domains/{agent}/{domain}"),
     AGENT_ALIVE     ("/fabric/registry/agents/alive/{agent}"),
     AGENT_IP        ("/fabric/registry/agents/config/{agent}/ip"),
     AGENT_ROOT      ("/fabric/registry/agents/config/{agent}/root"),

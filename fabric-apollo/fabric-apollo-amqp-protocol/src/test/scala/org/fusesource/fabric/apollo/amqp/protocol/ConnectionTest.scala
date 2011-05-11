@@ -152,7 +152,7 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
         sender.attach(^{
           debug("Sender attached")
           def put(x:Int):Unit = {
-            val msg = sender.createMessage
+            val msg = sender.getSession.createMessage
             msg.addBodyPart(new Buffer(("message #" + x).getBytes))
             if (x < max_messages) {
               msg.onSend( ^{
@@ -193,7 +193,7 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
           Thread.sleep(3000)
           val i = (1 to max_messages).toList
           i.foreach((x) => {
-            val msg = sender.createMessage
+            val msg = sender.getSession.createMessage
             msg.addBodyPart(("message #" + x).getBytes)
             msg.onSend( ^{
               debug("Sent message %s", i)
