@@ -11,7 +11,6 @@
 package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.hawtbuf.AsciiBuffer;
-import org.fusesource.hawtbuf.Buffer;
 
 /**
  * Definitions for the Amqp protocol
@@ -24,14 +23,24 @@ public interface AmqpDefinitions {
     public static final byte[] MAGIC = new AsciiBuffer("AMQP").getData();
 
     /**
-     * Default IANA assigned Amqp port as an int
+     * Default IANA assigned AMQP port as an int
      */
     public static final int PORT = Integer.parseInt(Definitions.PORT);
+
+    /**
+     * Default IANA assigned secure AMQP (amqps) port as an int
+     */
+    public static final int SECURE_PORT = Integer.parseInt(Definitions.SECURE_PORT);
 
     /**
      * Protocol ID, only used in the preamble, is defined to just be 0
      */
     public static final byte PROTOCOL_ID = 0x0;
+
+    /**
+     * SASL Protocol ID
+     */
+    public static final byte SASL_PROTOCOL_ID = 0x3;
 
     /**
      * Major as a byte
@@ -44,7 +53,7 @@ public interface AmqpDefinitions {
     public static final byte MINOR = Byte.parseByte(Definitions.MINOR);
 
     /**
-     * Rebision as a byte
+     * Revision as a byte
      */
     public static final byte REVISION = Byte.parseByte(Definitions.REVISION);
 
