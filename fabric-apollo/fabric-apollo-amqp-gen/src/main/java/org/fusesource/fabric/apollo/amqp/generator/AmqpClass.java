@@ -28,7 +28,6 @@ public class AmqpClass {
     protected String label;
     protected AmqpDoc doc = new AmqpDoc();
     protected AmqpChoice choice;
-    protected AmqpError error;
     protected AmqpDescriptor descriptor;
     protected LinkedList<AmqpEncoding> encodings;
     protected String restrictedType;
@@ -66,7 +65,7 @@ public class AmqpClass {
             Generator.COMMANDS.add(this.name);
         }
 
-        for (Object typeAttribute : type.getEncodingOrDescriptorOrFieldOrChoiceOrErrorOrDoc()) {
+        for (Object typeAttribute : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
             if (typeAttribute instanceof Field) {
                 AmqpField field = new AmqpField();
                 field.parseFromField((Field) typeAttribute);
@@ -88,9 +87,6 @@ public class AmqpClass {
                 AmqpEncoding encoding = new AmqpEncoding();
                 encoding.parseFromEncoding((Encoding) typeAttribute);
                 encodings.add(encoding);
-            } else if (typeAttribute instanceof org.fusesource.fabric.apollo.amqp.jaxb.schema.Error) {
-                error = new AmqpError();
-                error.parseFromError((org.fusesource.fabric.apollo.amqp.jaxb.schema.Error) typeAttribute);
             }
         }
 

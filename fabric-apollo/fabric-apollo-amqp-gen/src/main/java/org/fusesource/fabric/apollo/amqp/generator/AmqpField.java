@@ -35,7 +35,7 @@ public class AmqpField {
         type = field.getType();
         doc.setLabel(label);
 
-        for (Object object : field.getDocOrError()) {
+        for (Object object : field.getDoc()) {
             if (object instanceof Doc) {
                 doc.parseFromDoc((Doc) object);
             } else {
