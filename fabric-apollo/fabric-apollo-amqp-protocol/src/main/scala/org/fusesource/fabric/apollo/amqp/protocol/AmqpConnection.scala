@@ -77,7 +77,6 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   var uri:URI = null
   var hostname:Option[String] = None
   var maxFrameSize: Long = 0
-  var operationTimeout: Long = 10000
   var sessionListener:Option[SessionListener] = None
   var connectedTask:Option[Runnable] = None
   var disconnectedTask:Option[Runnable] = None
@@ -437,10 +436,6 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       connection_session.offer(frame)
     }
   }
-
-  def getOperationTimeout = operationTimeout
-
-  def setOperationTimeout(timeout: Long): Unit = operationTimeout = timeout
 
   def getContainerId = containerId
   def setContainerId(id:String) = containerId = id
