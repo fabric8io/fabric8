@@ -60,7 +60,7 @@ public class AmqpClass {
         this.restrictedType = type.getSource();
         this.label = type.getLabel();
         this.provides = type.getProvides();
-        if ( "frame".equals(provides) ) {
+        if ( "frame".equals(provides) || "sasl-frame".equals(provides) ) {
             isCommand = true;
             Generator.COMMANDS.add(this.name);
         }

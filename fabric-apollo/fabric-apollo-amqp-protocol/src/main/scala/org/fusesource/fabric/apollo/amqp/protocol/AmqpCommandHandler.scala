@@ -74,4 +74,14 @@ class AmqpCommandHandler(connection:ConnectionHandler, session:AmqpSession) exte
       session.attach(attach)
     }
   }
+
+  def handleSaslChallenge(saslChallenge: AmqpSaslChallenge) {}
+
+  def handleSaslResponse(saslResponse: AmqpSaslResponse) {}
+
+  def handleSaslMechanisms(saslMechanisms: AmqpSaslMechanisms) {}
+
+  def handleSaslInit(saslInit: AmqpSaslInit) {}
+
+  def handleSaslOutcome(saslOutcome: AmqpSaslOutcome) {}
 }
