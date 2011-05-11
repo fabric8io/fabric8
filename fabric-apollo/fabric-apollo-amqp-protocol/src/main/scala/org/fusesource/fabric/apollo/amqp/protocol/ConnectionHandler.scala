@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.fabric.apollo.amqp.codec.AmqpProtocolHeader
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpOpen
+import org.fusesource.fabric.apollo.amqp.codec.types._
 
 /**
  *
@@ -22,4 +22,14 @@ trait ConnectionHandler {
   def close: Unit
 
   def open(open: AmqpOpen): Unit
+
+  def handleSaslChallenge(saslChallenge: AmqpSaslChallenge) {}
+
+  def handleSaslResponse(saslResponse: AmqpSaslResponse) {}
+
+  def handleSaslMechanisms(saslMechanisms: AmqpSaslMechanisms) {}
+
+  def handleSaslInit(saslInit: AmqpSaslInit) {}
+
+  def handleSaslOutcome(saslOutcome: AmqpSaslOutcome) {}
 }

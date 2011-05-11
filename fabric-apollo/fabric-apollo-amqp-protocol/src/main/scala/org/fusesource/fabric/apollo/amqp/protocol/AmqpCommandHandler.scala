@@ -17,71 +17,27 @@ import org.fusesource.fabric.apollo.amqp.codec.types._
 /**
  *
  */
-class AmqpCommandHandler(connection:ConnectionHandler, session:AmqpSession) extends AmqpHandler {
+class AmqpCommandHandler(connection:ConnectionHandler, s:AmqpSession) extends AmqpHandler {
 
-  def handleProtocolHeader(protocolHeader: AmqpProtocolHeader): Unit = connection.header(protocolHeader)
-
+  val session = Option(s)
   def handleEmpty: Unit = {}
-
   def handleUnknown(body: AmqpType[_, _]): Unit = {}
 
-  def handleFlow(flow: AmqpFlow): Unit = {
-    if ( session != null ) {
-      session.flow(flow)
-    }
-  }
+  def handleProtocolHeader(protocolHeader: AmqpProtocolHeader) = connection.header(protocolHeader)
+  def handleClose(close: AmqpClose) = connection.close
+  def handleOpen(open: AmqpOpen) = connection.open(open)
+  def handleSaslChallenge(saslChallenge: AmqpSaslChallenge) = connection.handleSaslChallenge(saslChallenge)
+  def handleSaslResponse(saslResponse: AmqpSaslResponse) = connection.handleSaslResponse(saslResponse)
+  def handleSaslMechanisms(saslMechanisms: AmqpSaslMechanisms) = connection.handleSaslMechanisms(saslMechanisms)
+  def handleSaslInit(saslInit: AmqpSaslInit) = connection.handleSaslInit(saslInit)
+  def handleSaslOutcome(saslOutcome: AmqpSaslOutcome) = connection.handleSaslOutcome(saslOutcome)
 
-  def handleClose(close: AmqpClose): Unit = {
-    connection.close
-  }
+  def handleFlow(flow: AmqpFlow) = session.foreach((s) => s.flow(flow))
+  def handleTransfer(transfer: AmqpTransfer) = session.foreach((s) => s.transfer(transfer))
+  def handleDetach(detach: AmqpDetach) = session.foreach((s) => s.detach(detach))
+  def handleDisposition(disposition: AmqpDisposition) = session.foreach((s) => s.disposition(disposition))
+  def handleEnd(end: AmqpEnd) = session.foreach((s) => s.end(end))
+  def handleBegin(begin: AmqpBegin) = session.foreach((s) => s.begin(begin))
+  def handleAttach(attach: AmqpAttach) = session.foreach((s) => s.attach(attach))
 
-  def handleOpen(open: AmqpOpen): Unit = {
-    connection.open(open)
-  }
-
-  def handleTransfer(transfer: AmqpTransfer): Unit = {
-    if ( session != null ) {
-      session.transfer(transfer)
-    }
-  }
-
-  def handleDetach(detach: AmqpDetach): Unit = {
-    if ( session != null ) {
-      session.detach(detach)
-    }
-  }
-
-  def handleDisposition(disposition: AmqpDisposition): Unit = {
-    if ( session != null ) {
-      session.disposition(disposition)
-    }
-  }
-
-  def handleEnd(end: AmqpEnd): Unit = {
-    if ( session != null ) {
-      session.end(end)
-    }
-  }
-
-  def handleBegin(begin: AmqpBegin): Unit = {
-    if ( session != null ) {
-      session.begin(begin)
-    }
-  }
-
-  def handleAttach(attach: AmqpAttach): Unit = {
-    if ( session != null ) {
-      session.attach(attach)
-    }
-  }
-
-  def handleSaslChallenge(saslChallenge: AmqpSaslChallenge) {}
-
-  def handleSaslResponse(saslResponse: AmqpSaslResponse) {}
-
-  def handleSaslMechanisms(saslMechanisms: AmqpSaslMechanisms) {}
-
-  def handleSaslInit(saslInit: AmqpSaslInit) {}
-
-  def handleSaslOutcome(saslOutcome: AmqpSaslOutcome) {}
 }
