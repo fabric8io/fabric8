@@ -22,6 +22,13 @@ class DefaultJvmMonitorSetBuilder extends MonitorSetBuilder("jvm-default") {
     jmxDataSource("java.lang:name=Par Survivor Space,type=MemoryPool", "Usage", "max")
     jmxDataSource("java.lang:name=Par Eden Space,type=MemoryPool", "Usage", "used")
     jmxDataSource("java.lang:name=Par Eden Space,type=MemoryPool", "Usage", "max")
+    jmxDataSource("java.lang:name=PS Old Gen,type=MemoryPool", "Usage", "used")
+    jmxDataSource("java.lang:name=PS Old Gen,type=MemoryPool", "Usage", "max")
+    jmxDataSource("java.lang:name=PS Survivor Space,type=MemoryPool", "Usage", "used")
+    jmxDataSource("java.lang:name=PS Survivor Space,type=MemoryPool", "Usage", "max")
+    jmxDataSource("java.lang:name=PS Eden Space,type=MemoryPool", "Usage", "used")
+    jmxDataSource("java.lang:name=PS Eden Space,type=MemoryPool", "Usage", "max")
+
     jmxDataSource("java.lang:type=Memory", "HeapMemoryUsage", "used")
     jmxDataSource("java.lang:type=Memory", "HeapMemoryUsage", "committed")
 
@@ -30,6 +37,9 @@ class DefaultJvmMonitorSetBuilder extends MonitorSetBuilder("jvm-default") {
     //
     jmxDataSource("java.lang:name=CMS Perm Gen,type=MemoryPool", "Usage", "used")
     jmxDataSource("java.lang:name=CMS Perm Gen,type=MemoryPool", "Usage", "max")
+    jmxDataSource("java.lang:name=PS Perm Gen,type=MemoryPool", "Usage", "used")
+    jmxDataSource("java.lang:name=PS Perm Gen,type=MemoryPool", "Usage", "max")
+
     jmxDataSource("java.lang:name=Code Cache,type=MemoryPool", "Usage", "used")
     jmxDataSource("java.lang:name=Code Cache,type=MemoryPool", "Usage", "max")
     jmxDataSource("java.lang:type=Memory", "NonHeapMemoryUsage", "used")
