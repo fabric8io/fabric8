@@ -132,10 +132,7 @@
         <snapshotRepository>
             <id>fusesource-nexus-snapshots</id>
             <name>Fusesource Nexus Snapshots</name>
-            <!--
             <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
-            -->
-            <url>http://repo.fusesource.com/nexus/content/repositories/subscriber-snapshot</url>
         </snapshotRepository>
         <site>
             <id>website.fusesource.org</id>
