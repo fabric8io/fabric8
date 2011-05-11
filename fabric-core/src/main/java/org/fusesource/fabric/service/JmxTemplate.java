@@ -132,7 +132,7 @@ public class JmxTemplate {
         this.password = password;
     }
 
-    private <T> T getMBean(JMXConnector connector, Class<T> type, String domain, String ... params) {
+    public <T> T getMBean(JMXConnector connector, Class<T> type, String domain, String ... params) {
         try {
             return JMX.newMBeanProxy(connector.getMBeanServerConnection(), safeObjectName(domain, params), type);
         } catch (IOException e) {
