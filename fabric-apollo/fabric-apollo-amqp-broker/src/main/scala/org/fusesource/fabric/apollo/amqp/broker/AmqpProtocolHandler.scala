@@ -21,6 +21,7 @@ import org.apache.activemq.apollo.util.{Logging, Log}
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.hawtbuf.AsciiBuffer.ascii
 import org.apache.activemq.apollo.broker.{VirtualHost, BrokerConnection, DestinationParser}
+import java.net.URI
 
 // TODO - map Dynamic linkage to temp queue/topic
 class AmqpProtocolHandler extends AmqpConnection with ProtocolHandler with SessionListener with LinkListener with Logging {
@@ -37,7 +38,7 @@ class AmqpProtocolHandler extends AmqpConnection with ProtocolHandler with Sessi
 
   override def init(uri: String) = {
     //trace("Received new connection from %s", uri)
-    this.uri = uri
+    this.uri = new URI(uri)
     dispatchQueue = connection.dispatch_queue
     transport = connection.transport
     setSessionListener(this)

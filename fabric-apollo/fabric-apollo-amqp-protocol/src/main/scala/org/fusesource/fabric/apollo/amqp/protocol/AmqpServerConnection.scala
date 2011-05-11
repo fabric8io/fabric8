@@ -51,7 +51,7 @@ class AmqpServerConnection(listener:ConnectionListener) extends AmqpConnection w
     connection.setContainerId(containerId)
     val clientUri = transport.getTypeId + ":/" + transport.getRemoteAddress
     info("Client connected from %s", clientUri)
-    connection.connect(Option(transport), uri)
+    connection.connect(Option(transport), uri.toString)
     //trace("Created AmqpConnection %s", connection)
     listener.connectionCreated(connection)
   }

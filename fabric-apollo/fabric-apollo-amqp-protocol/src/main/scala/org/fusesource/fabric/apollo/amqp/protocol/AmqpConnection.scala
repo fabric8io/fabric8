@@ -74,7 +74,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   var idle_timeout = DEFAULT_HEARTBEAT
   var heartbeat_interval = idle_timeout / 2
 
-  var uri:String = null
+  var uri:URI = null
   var hostname:Option[String] = None
   var maxFrameSize: Long = 0
   var operationTimeout: Long = 10000
@@ -91,10 +91,10 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   def error = last_error
 
   def init(uri: String) = {
-    this.uri = uri
+    this.uri = new URI(uri)
     Option(uri) match {
       case Some(uri) =>
-        hostname = Option(new URI(uri).getHost.asInstanceOf[String])
+        hostname = Option(this.uri.getHost.asInstanceOf[String])
       case None =>
     }
     // TODO - containerID from URI string
