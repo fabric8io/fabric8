@@ -15,10 +15,10 @@
     to the fabric
 
 \u001B[1mENDPOINT-URI\u001B[0m
-    \u001B[3mfabric:myName:myComponent\u001B[0m
+    \u001B[32mfabric:myName:myComponent\u001B[0m
     where
-    myName : the name of the fabric service to be registered
-    myComponent : one of the camel component - http://camel.apache.org/components.html
+    \u001B[32myName\u001B[0m : the name of the fabric service to be registered
+    \u001B[32myComponent\u001B[0m : one of the camel component - http://camel.apache.org/components.html
 
 
 \u001B[1mEXAMPLE\u001B[0m
