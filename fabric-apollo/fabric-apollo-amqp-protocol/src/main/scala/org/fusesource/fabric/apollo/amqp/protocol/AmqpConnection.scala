@@ -320,7 +320,9 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
             close("Idle timeout expired")
           }
           heartbeat_monitor.on_keep_alive = () => {
-            connection_session.offer(new AmqpFrame)
+            val frame = new AmqpFrame
+            frame.setType(AmqpFrame.AMQP_FRAME_TYPE)
+            connection_session.offer(frame)
           }
           heartbeat_monitor.start
         case None =>
@@ -378,13 +380,18 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
 
   def send(channel:Int, command:AmqpCommand):Boolean = send(channel, command.asInstanceOf[AnyRef])
 
-  def send(channel:Int, command:AnyRef):Boolean = {
+  def send(channel:Int, command:AnyRef, sasl:Boolean = false):Boolean = {
 
-    def createFrame(command:AmqpCommand):AmqpFrame={
-      val frame:AmqpFrame = new AmqpFrame(command)
+    def createFrame(command:AmqpCommand, sasl:Boolean = false) = {
+      val rc = new AmqpFrame(command)
+      if (sasl) {
+        rc.setType(AmqpFrame.AMQP_SASL_FRAME_TYPE)
+      } else {
+        rc.setType(AmqpFrame.AMQP_FRAME_TYPE)
+      }
       //trace("Setting outgoing frame channel to %s" ,channel)
-      frame.setChannel(channel)
-      frame
+      rc.setChannel(channel)
+      rc
     }
 
     command match {
@@ -428,9 +435,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
           }
         }
 
-        //header(null)
-        //open(null)
-        doSend(createFrame(command))
+        doSend(createFrame(command, sasl))
       case _ =>
         warn("Unknown frame body passed to send : %s", command)
         false
