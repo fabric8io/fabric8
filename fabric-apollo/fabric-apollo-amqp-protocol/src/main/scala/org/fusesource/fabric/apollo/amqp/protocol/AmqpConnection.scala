@@ -14,13 +14,13 @@ import org.fusesource.hawtdispatch._
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
-import org.apache.activemq.apollo.util.Logging
 import java.io.{EOFException, IOException}
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.apache.activemq.apollo.transport._
 import scala.math._
 import scala.util.Random
 import collection.mutable.HashMap
+import collection.mutable.Map
 import org.fusesource.fabric.apollo.amqp.api._
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, Sink}
 import org.fusesource.fabric.apollo.amqp.codec._
@@ -28,6 +28,7 @@ import java.net.URI
 import java.util.concurrent.TimeUnit
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import AmqpConversions._
+import org.apache.activemq.apollo.util.{URISupport, Logging}
 
 /**
  *
@@ -75,6 +76,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   var heartbeat_interval = idle_timeout / 2
 
   var uri:URI = null
+  var options:Map[String, String] = null
   var hostname:Option[String] = None
   var maxFrameSize: Long = 0
   var sessionListener:Option[SessionListener] = None
@@ -91,21 +93,23 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
 
   def init(uri: String) = {
     this.uri = new URI(uri)
-    Option(uri) match {
-      case Some(uri) =>
-        hostname = Option(this.uri.getHost.asInstanceOf[String])
+    import scala.collection.JavaConversions._
+    options = asScalaMap(URISupport.parseParamters(this.uri))
+    options.get("idleTimeout") match {
+      case Some(timeout) =>
+        idle_timeout = timeout.toLong
       case None =>
     }
-    // TODO - containerID from URI string
-    Option(containerId) match {
+    options.get("containerId") match {
       case Some(id) =>
+        containerId = id
       case None =>
         containerId = UUID.randomUUID.toString
     }
+    hostname = Option(this.uri.getHost)
   }
 
   def connect(t:Option[Transport], uri:String) = {
-
     init(uri)
     t match {
       case Some(t) =>
