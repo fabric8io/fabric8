@@ -593,6 +593,7 @@
 
       <modules>
         <module>fabric-apollo</module>
+        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-website</module>
       </modules>
     </profile>

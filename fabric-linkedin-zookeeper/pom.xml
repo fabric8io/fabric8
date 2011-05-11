@@ -18,7 +18,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-zookeeper</artifactId>
+    <artifactId>fabric-linkedin-zookeeper</artifactId>
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
@@ -26,7 +26,9 @@
 
     <properties>
         <fabric.osgi.export>
-            org.fusesource.fabric.zookeeper;version=${fabric.osgi.version};-noimport:=true,
+            org.linkedin.zookeeper*;version=${linkedin-zookeeper-version};-noimport:=true,
+            org.linkedin.util.*;-noimport:=true,
+            org.apache.zookeeper*;version="3.3.1";-noimport:=true,
         </fabric.osgi.export>
         <fabric.osgi.import.before.defaults>
             !org.apache.log4j.jmx,
@@ -38,42 +40,26 @@
         <fabric.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
         </fabric.osgi.import.additional>
+        <fabric.osgi.private.pkg>
+            org.apache.jute*,
+            org.fusesource.fabric.zookeeper.internal,
+        </fabric.osgi.private.pkg>
+        <fabric.osgi.services.export>
+            org.linkedin.zookeeper.client.IZKClient
+        </fabric.osgi.services.export>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.zookeeper-impl</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.util-core</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging-api</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
