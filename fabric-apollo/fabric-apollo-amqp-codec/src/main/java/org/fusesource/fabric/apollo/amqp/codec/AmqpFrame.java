@@ -25,6 +25,9 @@ import java.nio.channels.WritableByteChannel;
  */
 public class AmqpFrame {
 
+    public static final int AMQP_FRAME_TYPE = 0x00;
+    public static final int AMQP_SASL_FRAME_TYPE = 0x01;
+
     static final AmqpMarshaller marshaller = org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller.getMarshaller();
 
     protected Buffer header = new Buffer(8);
@@ -40,12 +43,10 @@ public class AmqpFrame {
     protected static final int CHANNEL_OFFSET = 6;
 
     public AmqpFrame() {
-        setType(0);
         this.body = null;
     }
 
     public AmqpFrame(AmqpCommand body) {
-        setType(0);
         this.body = (AmqpType)body;
         if ( this.body instanceof AmqpNull) {
             this.body = null;
