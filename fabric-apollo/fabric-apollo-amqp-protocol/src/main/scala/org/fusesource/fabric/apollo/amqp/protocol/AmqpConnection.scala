@@ -406,32 +406,16 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
           // can silently ignore detach/end frames
           command match {
             case d:AmqpDetach =>
+              return true
             case e:AmqpEnd =>
-            case _ =>
-              warn("Connection is already closed, discarding outgoing frame body %s for channel %s", command, channel)
-          }
-          return false
-        }
-        if ( last_error != null ) {
-          command match {
-            case d:AmqpDetach =>
-              return false
-            case e:AmqpEnd =>
-              return false
-            case _ =>
-              warn("Transport has failed, discarding outgoing frame body %s for channel %s", command, channel)
-              throw last_error
-          }
-        }
-        if (closeSent.get) {
-          command match {
-            case d:AmqpDetach =>
-              return false
-            case e:AmqpEnd =>
-              return false
+              return true
             case _ =>
               warn("Transport is not connected, discarding outgoing frame body %s for channel %s", command, channel)
-              throw new RuntimeException("Transport connection not established")
+              if (last_error != null) {
+                throw last_error
+              } else {
+                throw new RuntimeException("Transport connection not established")
+              }
           }
         }
 
