@@ -17,11 +17,11 @@ import java.util.LinkedList
 import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.codec.CodecUtils
 import java.math.BigInteger
-import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.{EncodedBuffer, AmqpMarshaller}
 import collection.mutable.{HashMap, ListBuffer}
 import org.fusesource.hawtbuf.{ByteArrayOutputStream, Buffer}
 import java.io.{DataOutput, DataOutputStream}
-import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpList
+
+// TODO - figure out how to relate transfer-level attributes (settled, batchable, disposition) to a message
 
 object MessageSectionCodes {
   val HEADER = 0L
@@ -37,59 +37,10 @@ object MessageSectionCodes {
 }
 
 import MessageSectionCodes._
-
-object AmqpMessageFactory {
-
-  def list_to_amqp_list[T <: AmqpType[_, _]](list:List[T]) = createAmqpList(new IAmqpList.ArrayBackedList(list.toArray))
-  def amqp_list_to_list[T <: AmqpType[_, _]](list:AmqpList) = list.toArray.toList
-
-  def create_from_multiple(fragments:Multiple) = {
-    val list = fragments.getValue.asInstanceOf[AmqpList]
-    create_from_fragments(amqp_list_to_list(list).asInstanceOf[List[AmqpFragment]])
-  }
-
-  def create_from_fragments(fragments:List[AmqpFragment]) = {
-    val rc:BaseMessageTrait = get_message_body_type(fragments) match {
-      case 0L =>
-        new DataMessageImpl
-      case DATA =>
-        new DataMessageImpl
-      case AMQP_DATA =>
-        new AmqpDataMessageImpl
-      case AMQP_MAP_DATA =>
-        new AmqpMapMessageImpl
-      case AMQP_LIST_DATA =>
-        new AmqpListMessageImpl
-      case _ =>
-        throw new RuntimeException("Message body type is unknown");
-    }
-    rc.unmarshal_from_amqp_fragments(fragments)
-    rc
-  }
-
-  def get_message_body_type(fragments:List[AmqpFragment]):Long = {
-    var rc = 0L
-    fragments.foreach((x) => {
-      x.getSectionCode.longValue match {
-        case DATA =>
-          rc = DATA
-        case AMQP_DATA =>
-          rc = AMQP_DATA
-        case AMQP_MAP_DATA =>
-          rc = AMQP_MAP_DATA
-        case AMQP_LIST_DATA =>
-          rc = AMQP_LIST_DATA
-        case _ =>
-      }
-    })
-    rc
-  }
-}
-
 import AmqpMessageFactory._
 
 /**
- *
+ * Base representation of an AMQP message with everything except the body, delegates body marshalling/unmarshalling to derived classes
  */
 trait BaseMessageTrait extends BaseMessage {
 
@@ -178,7 +129,10 @@ trait BaseMessageTrait extends BaseMessage {
     }
   }
 
+  val default_offset = new BigInteger("7")
+
   def figure_out_section_offset(fragment:AmqpFragment) = {
+    /*
     var offset = new BigInt(BigInteger.ZERO)
     val size = fragment.getListCount
     var i = 0
@@ -195,6 +149,9 @@ trait BaseMessageTrait extends BaseMessage {
       offset = offset + 1
     }
     fragment.setSectionOffset(offset.bigInteger)
+    */
+    // This is only going to change if they change the fragment type
+    fragment.setSectionOffset(default_offset)
   }
 
   def maybe_add(l:ListBuffer[AmqpFragment], o:Option[AmqpType[_, _]], section_code:Long, max_size:Long) = {
@@ -344,34 +301,4 @@ trait GenericMessageTrait[T] extends GenericMessage[T] {
   def setBody(body:T) = this.body = body
 }
 
-class DataMessageImpl extends DataMessage with BaseMessageTrait with GenericMessageTrait[Buffer] {
-  override def get_section_code = DATA
-  override def marshal_body = body
-  override def unmarshal_body(body:Buffer) = this.body = body
-  override def has_body = body != null
-  override def body_as_string = body.toString
-}
-
-// Same as above but body section code is different
-class AmqpDataMessageImpl extends DataMessageImpl with BaseMessageTrait with GenericMessageTrait[Buffer] {
-  override def get_section_code = AMQP_DATA
-}
-
-class AmqpMapMessageImpl extends AmqpMapMessage with BaseMessageTrait with GenericMessageTrait[AmqpFields] {
-  body = createAmqpFields
-  override def get_section_code = AMQP_MAP_DATA
-  override def marshal_body = new Buffer(CodecUtils.marshal(body))
-  override def unmarshal_body(body:Buffer) = this.body = AmqpFields.AmqpFieldsBuffer.create(body, body.getOffset, AmqpMarshaller.getMarshaller)
-  override def has_body = body != null
-  override def body_as_string = body.toString
-}
-
-class AmqpListMessageImpl extends AmqpListMessage with BaseMessageTrait with GenericMessageTrait[AmqpList] {
-  body = createAmqpList
-  override def get_section_code = AMQP_LIST_DATA
-  override def marshal_body = new Buffer(CodecUtils.marshal(body))
-  override def unmarshal_body(body:Buffer) = this.body = AmqpList.AmqpListBuffer.create(body, body.getOffset, AmqpMarshaller.getMarshaller)
-  override def has_body = body != null
-  override def body_as_string = body.toString
-}
 
