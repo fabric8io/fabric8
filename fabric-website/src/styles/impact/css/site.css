@@ -233,3 +233,19 @@ th.confluenceTh
     background-color: #f0f0f0;
     text-align: center;
 }
+
+div.table table {
+    text-align:center;
+    font-size: 14pt;
+    width: 600px;
+}
+
+div.table td {
+    text-align: center;
+    font-size: 12pt;
+}
+
+div.table th {
+    text-align: center;
+    font-size: 14pt;
+}

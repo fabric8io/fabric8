@@ -11,6 +11,13 @@ The ${project_name} community is here to help you
 
 .left
   :markdown
+    # [Team members](committers/team.html)
+.right
+  :markdown
+    Committers/contributors on fuseSource Fabric project
+
+.left
+  :markdown
     # [Blog](blog/index.html)
 .right
   :markdown
