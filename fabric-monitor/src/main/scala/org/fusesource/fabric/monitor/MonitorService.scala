@@ -16,7 +16,7 @@ import java.io.File
 import plugins.DefaultJvmMonitorSetBuilder
 
 trait MonitorServiceMBean {
-  def fetch( fetch:String ):String
+  def fetch( fetch:Array[Byte] ):Array[Byte]
 }
 
 /**
@@ -55,14 +55,14 @@ class MonitorService extends MonitorServiceMBean {
     }
   }
 
-  def fetch(fetch: String):String = {
+  def fetch(fetch: Array[Byte]):Array[Byte] = {
     val m = monitor
     if ( m==null ) {
       return null;
     }
-    val request = JsonCodec.decode(classOf[FetchMonitoredViewDTO], fetch.getBytes("UTF-8"))
+    val request = JsonCodec.decode(classOf[FetchMonitoredViewDTO], fetch)
     val response = m.fetch(request)
-    new String(JsonCodec.encode(response), "UTF-8")
+    JsonCodec.encode(response)
   }
 
 }
