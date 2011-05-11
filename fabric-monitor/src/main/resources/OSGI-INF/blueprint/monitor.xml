@@ -39,7 +39,7 @@
   <bean id="monitor_mbean_registration" class="org.apache.karaf.management.MBeanRegistrer">
     <property name="mbeans">
       <map>
-        <entry value="org.fusesource.fabric.monitor:type=Monitor" key-ref="monitor"/>
+        <entry value="org.fusesource.fabric:type=Monitor" key-ref="monitor"/>
       </map>
     </property>
   </bean>

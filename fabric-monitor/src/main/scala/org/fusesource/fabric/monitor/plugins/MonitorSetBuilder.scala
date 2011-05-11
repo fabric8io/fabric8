@@ -55,8 +55,6 @@ abstract class MonitorSetBuilder(name: String) {
     answer match {
       case Some(ds) => addDataSource(ds)
       case _ =>
-      // TODO
-      println(message)
     }
     answer
   }

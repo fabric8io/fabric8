@@ -14,6 +14,7 @@ import api.{FetchMonitoredViewDTO, JsonCodec, Monitor}
 import internal.DefaultMonitor
 import java.io.File
 import plugins.DefaultJvmMonitorSetBuilder
+import plugins.jmx.JmxDataSourceRegistry
 
 trait MonitorServiceMBean {
   def fetch( fetch:Array[Byte] ):Array[Byte]
@@ -28,6 +29,7 @@ trait MonitorServiceMBean {
 class MonitorService extends MonitorServiceMBean {
 
   var datadir:File = _
+
   @volatile
   var monitor:Monitor = _
 
@@ -39,8 +41,15 @@ class MonitorService extends MonitorServiceMBean {
     if ( monitor==null ) {
       println("Starting Monitor Sevice at: "+datadir);
       datadir.mkdirs()
-      val monitor:Monitor = new DefaultMonitor(datadir.getCanonicalPath+"/")
+      monitor = new DefaultMonitor(datadir.getCanonicalPath+"/")
       monitor.poller_factories = MonitorDeamon.poller_factories
+
+      // to dump the mbeans available...
+//      val registry = new JmxDataSourceRegistry()
+//      val answer = registry.findSources()
+//      for ((d, a) <- answer) {
+//        a.dump(0, true)
+//      }
 
       val monitorSet = new DefaultJvmMonitorSetBuilder().apply()
       monitor.configure(List(monitorSet))
@@ -61,8 +70,8 @@ class MonitorService extends MonitorServiceMBean {
       return null;
     }
     val request = JsonCodec.decode(classOf[FetchMonitoredViewDTO], fetch)
-    val response = m.fetch(request)
-    JsonCodec.encode(response)
+    val rc = m.fetch(request).map(JsonCodec.encode(_)).getOrElse(null)
+    rc
   }
 
 }
