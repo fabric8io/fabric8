@@ -33,36 +33,12 @@ class DefaultJvmMonitorSetTest extends FunSuiteSupport {
     }
   }
 
-
-  def dump(d: DataSourceGroup, indent: Int, concise: Boolean) {
-    printIndent(indent)
-    println(if (concise) d.id else d)
-    val newIndent = indent + 1
-    for (child <- d.children) {
-      dump(child, newIndent, concise)
-    }
-    for (ds <- d.data_sources) {
-      dump(ds, newIndent, concise)
-    }
-  }
-
-  def dump(d: DataSourceDTO, indent: Int, concise: Boolean) {
-    printIndent(indent)
-    println(if (concise) d.id else d)
-  }
-
-  def printIndent(indent: Int) {
-    for (i <- 0.to(indent)) {
-      print("  ")
-    }
-  }
-
   test("query JMX beans") {
     val registry = new JmxDataSourceRegistry()
 
     val answer = registry.findSources()
     for ((d, a) <- answer) {
-      dump(a, 0, true)
+      a.dump(0, true)
     }
   }
 }
