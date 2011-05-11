@@ -1,16 +1,4 @@
 <?xml version="1.0"?>
-<!--
-
-    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
-
-        http://fusesource.com
-
-    The software in this package is published under the terms of the
-    CDDL license a copy of which has been included with this distribution
-    in the license.txt file.
-
--->
-
 <?xml-stylesheet type="text/xsl" href="amqp.xsl"?>
 
 <!--
@@ -18,27 +6,26 @@
   ================
   (c) Copyright Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche
   Boerse Systems, Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica
-  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, Novell, Progress Software,
-  Rabbit Technologies Ltd., Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela
-  Inc., TWIST Process Innovations Ltd, VMware, Inc., WS02 Inc. and 29West Inc. 2006-2011. All
-  rights reserved.
+  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress
+  Software, Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST
+  Process Innovations Ltd, VMware Inc. and WS02 Inc. 2006-2011. All rights reserved.
 
   License
   =======
 
   Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche Boerse Systems,
   Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica Corporation, JPMorgan
-  Chase Bank Inc. N.A, Microsoft Corporation, Novell, Progress Software, Rabbit Technologies Ltd.,
-  Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process
-  Innovations Ltd, VMware, Inc., WS02 Inc. and 29West Inc.(collectively, the "Authors") each hereby
-  grants to you a worldwide, perpetual, royalty-free, nontransferable, nonexclusive license to (i)
-  copy, display, distribute and implement the Advanced Message Queuing Protocol ("AMQP")
-  Specification and (ii) the Licensed Claims that are held by the Authors, all for the purpose of
-  implementing the Advanced Message Queuing Protocol Specification. Your license and any rights
-  under this Agreement will terminate immediately without notice from any Author if you bring any
-  claim, suit, demand, or action related to the Advanced Message Queuing Protocol Specification
-  against any Author. Upon termination, you shall destroy all copies of the Advanced Message
-  Queuing Protocol Specification in your possession or control.
+  Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
+  Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process Innovations Ltd,
+  VMware Inc. and WS02 Inc. (collectively, the "Authors") each hereby grants to you a worldwide,
+  perpetual, royalty-free, nontransferable, nonexclusive license to (i) copy, display, distribute
+  and implement the Advanced Message Queuing Protocol ("AMQP") Specification and (ii) the Licensed
+  Claims that are held by the Authors, all for the purpose of implementing the Advanced Message
+  Queuing Protocol Specification. Your license and any rights under this Agreement will terminate
+  immediately without notice from any Author if you bring any claim, suit, demand, or action related
+  to the Advanced Message Queuing Protocol Specification against any Author. Upon termination, you
+  shall destroy all copies of the Advanced Message Queuing Protocol Specification in your possession
+  or control.
 
   As used hereunder, "Licensed Claims" means those claims of a patent or patent application,
   throughout the world, excluding design patents and design registrations, owned or controlled, or
@@ -1290,7 +1277,7 @@ S:END(error) |       S:END |             | R:END    |
         referred to as <term>unsettled</term> transfers. When a Terminus forgets the state
         associated with a delivery-tag, it is considered <term>settled</term>. Each delivery attempt
         is assigned a unique <term>delivery-tag</term> at the Source. The status of an active
-        delivery attempt is known as the <term>Transfer State</term> of the delivery.
+        delivery attempt is known as the <term>Delivery State</term> of the delivery.
       </p>
 
       <p>
@@ -1298,7 +1285,7 @@ S:END(error) |       S:END |             | R:END    |
         state used for active communication between the local and remote endpoints. Link Endpoints
         therefore come in two flavors: <term>Senders</term> and <term>Receivers</term>. When the
         sending application submits a Message to the Sender for transport, it also supplies the
-        delivery-tag used by the Source to track the Transfer State. The Link Endpoint assigns the
+        delivery-tag used by the Source to track the Delivery State. The Link Endpoint assigns the
         Message data unique <term>transfer-ids</term> from a Session scoped sequence. These
         transfer-ids are used to efficiently reference subsets of the outstanding deliveries on a
         Session.
@@ -1314,9 +1301,9 @@ S:END(error) |       S:END |             | R:END    |
 
       <p>
         The original Link Endpoint state is not necessary for resumption of a Link. Only the
-        unsettled Transfer State maintained at the Termini is necessary for link resume, and this
+        unsettled Delivery State maintained at the Termini is necessary for link resume, and this
         need not be stored directly. The form of delivery-tags is intentionally left open-ended so
-        that they and their related Transfer State can, if desired, be (re)constructed from
+        that they and their related Delivery State can, if desired, be (re)constructed from
         application state, thereby minimizing or eliminating the need to retain additional
         protocol-specific state in order to resume a Link.
       </p>
@@ -1445,7 +1432,7 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
 
       <p>
         If either end of the Link is already associated with a Terminus, the <xref name="attach"/>
-        frame MUST include its unsettled transfer state.
+        frame MUST include its unsettled delivery state.
       </p>
 
       <picture title="Resuming a Link"><![CDATA[
@@ -2068,11 +2055,11 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
 
       <p>
         Once notified of the received message data, the application processes the message,
-        indicating the updated transfer state to the link endpoint as desired. Applications may wish
-        to classify transfer states as <term>terminal</term> or <term>non-terminal</term> depending
+        indicating the updated delivery state to the link endpoint as desired. Applications may wish
+        to classify delivery states as <term>terminal</term> or <term>non-terminal</term> depending
         on whether an endpoint will ever update the state further once it has been reached. In some
         cases (e.g. large messages or transactions), the receiving application may wish to indicate
-        non-terminal transfer states to the sender. This is done via the <xref name="disposition"/>
+        non-terminal delivery states to the sender. This is done via the <xref name="disposition"/>
         frame.
       </p>
 
@@ -2091,7 +2078,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
 
       <p>
         Once the receiving application has finished processing the message, it indicates to the link
-        endpoint a <i>terminal</i> transfer state that reflects the outcome of the application
+        endpoint a <i>terminal</i> delivery state that reflects the outcome of the application
         processing (successful or otherwise). This terminal state is then communicated back to the
         Sender via the disposition frame.
       </p>
@@ -2110,7 +2097,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
       </picture>
 
       <p>
-        Upon receiving the updated transfer state from the Receiver, the Sender will update its view
+        Upon receiving the updated delivery state from the Receiver, the Sender will update its view
         of the remote state and communicate this back to the sending application.
       </p>
 
@@ -2130,7 +2117,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
       <p>
         The sending application will then typically perform some action based on this terminal state
         and then settle the transfer, causing the Sender to remove the delivery-tag from its
-        unsettled map. The Sender will then send its final transfer state along with an indication
+        unsettled map. The Sender will then send its final delivery state along with an indication
         that the transfer is settled at the Sender. Note that this amounts to the Sender announcing
         that it is forever forgetting everything about the delivery-tag in question, and as such it
         is only possible to make such an announcement once, since after the Sender forgets, it has
@@ -2206,7 +2193,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
         results in an <i>at-most-once</i> guarantee. The Sender has indicated up front with his
         initial transmission that he has forgotten everything about this transfer and will therefore
         make no further attempts to send it. Should this transfer make it to the Receiver, the
-        Receiver clearly has no obligation to respond with updates of the Receiver's transfer state,
+        Receiver clearly has no obligation to respond with updates of the Receiver's delivery state,
         as they would be meaningless and ignored by the Sender.
       </p>
 
@@ -2258,7 +2245,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
         The Sender and Receiver policy regarding settling may either be pre-configured for the
         entire link, thereby allowing for optimized endpoint choices, or may be determined on an
         ad-hoc basis for each transfer. An application may also choose to settle an endpoint
-        independently of its transfer-state, for example the sending application may choose to
+        independently of its delivery state, for example the sending application may choose to
         settle a message due to the ttl expiring regardless of whether the Receiver has reached a
         terminal state.
       </p>
@@ -2268,9 +2255,9 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
     <doc name="resuming-transfers" title="Resuming Transfers">
       <p>
         When a suspended link having unsettled transfers is resumed, the <i>unsettled</i> field from
-        the <xref name="attach"/> frame will carry the delivery-tags and transfer-state of all
+        the <xref name="attach"/> frame will carry the delivery-tags and delivery state of all
         transfers considered unsettled by the issuing link endpoint. The set of delivery tags and
-        transfer-states contained in the unsettled maps from both endpoints can be divided into
+        delivery states contained in the unsettled maps from both endpoints can be divided into
         three categories:
       </p>
 
@@ -2294,7 +2281,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
 
       <ul>
         <li><p>The resume flag MUST be set to true when resuming a transfer.</p></li>
-        <li><p>The Sender MAY omit message data when the Transfer State of the Receiver indicates
+        <li><p>The Sender MAY omit message data when the Delivery State of the Receiver indicates
             retransmission is unnecessary.</p></li>
       </ul>
 
@@ -2618,11 +2605,13 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       </field>
 
       <field name="handle" type="handle" mandatory="true">
-        <error name="handle-busy" type="amqp-error" value="invalid-field">
-          <doc>
-            <p>The handle MUST NOT be used for other open Links.</p>
-          </doc>
-        </error>
+        <doc>
+          <p>
+            The handle MUST NOT be used for other open Links. An attempt to attach using a handle
+            which is already associated with a Link MUST be responded to with an immediate
+            <xref name="close"/> carrying a Handle-in-use <xref name="session-error"/>.
+           </p>
+        </doc>
       </field>
 
       <field name="role" type="role" mandatory="true" label="role of the link endpoint"/>
@@ -2645,12 +2634,12 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="unsettled" type="map" label="unsettled transfer state">
+      <field name="unsettled" type="map" label="unsettled delivery state">
         <doc>
           <p>
-            This is used to indicate any unsettled transfer states when a suspended link is resumed.
-            The map is keyed by delivery-tag with values indicating the transfer state. The local
-            and remote transfer states for a given delivery-tag MUST be compared to resolve any
+            This is used to indicate any unsettled delivery states when a suspended link is resumed.
+            The map is keyed by delivery-tag with values indicating the delivery state. The local
+            and remote delivery states for a given delivery-tag MUST be compared to resolve any
             in-doubt transfers. If necessary, transfers MAY be resent, or resumed based on the
             outcome of this comparison. See <xref name="resuming-transfers"/>.
           </p>
@@ -2751,12 +2740,16 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       </field>
 
       <field name="handle" type="handle">
-        <error name="unattached-handle" type="amqp-error" value="invalid-field"/>
         <doc>
           <p>
             If set, indicates that the flow frame carries flow state information for the local Link
             Endpoint associated with the given handle.  If not set, the flow frame is carrying only
             information pertaining to the Session Endpoint.
+          </p>
+          <p>
+            If set to a handle that is not currently associated with an attached Link, the
+            recipient MUST respond by ending the session with a unattached-handle
+            <xref name="session-error"/>.
           </p>
         </doc>
       </field>
@@ -2849,8 +2842,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         <doc>
           <p>Specifies the Link on which the Message is transferred.</p>
         </doc>
-
-        <error name="unattached-handle" type="amqp-error" value="invalid-field"/>
       </field>
 
       <field name="delivery-tag" type="delivery-tag" mandatory="true">
@@ -2864,7 +2855,7 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
 
       <field name="settled" type="boolean" default="false"/>
 
-      <field name="state" type="*" requires="transfer-state"/>
+      <field name="state" type="*" requires="delivery-state"/>
 
       <field name="resume" type="boolean" default="false" label="indicates a resumed transfer">
         <doc>
@@ -2890,8 +2881,8 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         <doc>
           <p>
             If true, then the issuer is hinting that there is no need for the peer to urgently
-            communicate updated transfer state. This hint may be used to artificially increase the
-            amount of batching an implementation uses when communicating transfer states, and
+            communicate updated delivery state. This hint may be used to artificially increase the
+            amount of batching an implementation uses when communicating delivery states, and
             thereby save bandwidth.
           </p>
         </doc>
@@ -2906,7 +2897,7 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
     <!-- - Frame: disposition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
     <type class="composite" name="disposition" source="list" provides="frame"
-          label="inform remote peer of transfer state changes">
+          label="inform remote peer of delivery state changes">
       <doc>
         <p>
           The disposition frame is used to inform the remote peer of local changes in the state of
@@ -2933,9 +2924,9 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         <doc>
           <p>
             If true, then the issuer is hinting that there is no need for the peer to urgently
-            communicate the impact of the updated transfer states. This hint may be used to
+            communicate the impact of the updated delivery states. This hint may be used to
             artificially increase the amount of batching an implementation uses when communicating
-            transfer states, and thereby save bandwidth.
+            delivery states, and thereby save bandwidth.
           </p>
         </doc>
       </field>
@@ -2966,10 +2957,10 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="state" type="*" requires="transfer-state" label="indicates state of transfers">
+      <field name="state" type="*" requires="delivery-state" label="indicates state of transfers">
         <doc>
           <p>
-            Communicates the transfer-state of all the transfers referenced by this disposition.
+            Communicates the delivery state of all the transfers referenced by this disposition.
           </p>
         </doc>
       </field>
@@ -3180,22 +3171,20 @@ msb                        lsb
           name="symbol"/> and all keys except those beginning with the string "x-" are reserved.
         </p>
       </doc>
-      <error name="unknown-option" type="amqp-error" value="not-implemented">
-        <doc>
-          <p>
-            On receiving a type with an options map containing keys or values which it does not
-            recognise, and for which the key does not begin with the string "x-opt-" an AMQP
-            container MUST indicate an error.
-          </p>
-        </doc>
-      </error>
+      <doc>
+        <p>
+          On receiving a type with an options map containing keys or values which it does not
+          recognise, and for which the key does not begin with the string "x-opt-" an AMQP
+          container MUST close the connection with the not-implemented <xref name="amqp-error"/>.
+        </p>
+      </doc>
     </type>
 
     <type class="composite" name="error" source="list" label="details of an error">
 
       <descriptor name="amqp:error:list" code="0x00000000:0x0000001d"/>
 
-      <field name="condition" type="symbol" requires="error" mandatory="true"
+      <field name="condition" type="symbol" requires="error-condition" mandatory="true"
              label="error condition">
         <doc>
           <p>A symbolic value indicating the error condition.</p>
@@ -3214,7 +3203,7 @@ msb                        lsb
       <field name="info" type="map" label="map carrying information about the error condition"/>
     </type>
 
-    <type class="restricted" name="amqp-error" source="symbol" provides="error"
+    <type class="restricted" name="amqp-error" source="symbol" provides="error-condition"
           label="shared error conditions">
 
       <choice name="internal-error" value="amqp:internal-error">
@@ -3308,7 +3297,7 @@ msb                        lsb
       </choice>
     </type>
 
-    <type class="restricted" name="connection-error" source="symbol" provides="error"
+    <type class="restricted" name="connection-error" source="symbol" provides="error-condition"
           label="symbols used to indicate connection error conditions">
 
       <choice name="connection-forced" value="amqp:connection:forced">
@@ -3327,7 +3316,7 @@ msb                        lsb
       </choice>
     </type>
 
-    <type class="restricted" name="session-error" source="symbol" provides="error"
+    <type class="restricted" name="session-error" source="symbol" provides="error-condition"
           label="symbols used to indicate session error conditions">
 
       <choice name="window-violation" value="amqp:session:window-violation">
@@ -3345,9 +3334,26 @@ msb                        lsb
           </p>
         </doc>
       </choice>
+
+      <choice name="handle-in-use" value="amqp:session:handle-in-use">
+        <doc>
+          <p>
+            An attach was received using a handle that is already in use for an attached Link.
+          </p>
+        </doc>
+      </choice>
+
+      <choice name="unattached-handle" value="amqp:session:unattached-handle">
+        <doc>
+          <p>
+            A frame (other than attach) was received referencing a handle which is not currently
+            in use of an attached Link.
+          </p>
+        </doc>
+      </choice>
     </type>
 
-    <type class="restricted" name="link-error" source="symbol" provides="error"
+    <type class="restricted" name="link-error" source="symbol" provides="error-condition"
           label="symbols used to indicate link error conditions">
 
       <choice name="detach-forced" value="amqp:link:detach-forced">
