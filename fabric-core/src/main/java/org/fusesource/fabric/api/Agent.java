@@ -11,6 +11,8 @@ package org.fusesource.fabric.api;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 
+import java.util.List;
+
 public interface Agent {
 
     String getType();
@@ -41,5 +43,10 @@ public interface Agent {
 
     //  gets children agents, eg process instances, maybe camel contexts
     Agent[] getChildren();
+
+    List<String> getJmxDomains();
+
+    BundleInfo[] getBundles();
+    ServiceInfo[] getServices();
 
 }
