@@ -28,7 +28,7 @@ public class ZKClientFactoryBean {
     private String connectString = "localhost:2181";
     private String timeoutText = "30s";
     private Watcher watcher;
-    private List<LifecycleListener> listeners;
+    private List<LifecycleListener> listeners = new ArrayList<LifecycleListener>();
     private Timespan timeout;
     protected ZKClient zkClient;
     private Timespan connectTimeout;
