@@ -80,6 +80,7 @@
         <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
         <fabric.osgi.services.export></fabric.osgi.services.export>
 
+        <activemq-version>5.4.2-fuse-03-09</activemq-version>
         <cxf-version>2.3.3-fuse-01-09</cxf-version>
         <camel-version>2.6.0-fuse-01-09</camel-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
@@ -98,7 +99,7 @@
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
-        <scalatest-version>1.2</scalatest-version>
+        <scalatest-version>1.3</scalatest-version>
         <junit-version>4.8.1</junit-version>
         <hawtbuf-version>1.4</hawtbuf-version>
         <hawtdispatch-version>1.2</hawtdispatch-version>
@@ -113,7 +114,6 @@
         <spring-version>3.0.4.RELEASE</spring-version>
         
         <apollo-version>1.0-SNAPSHOT</apollo-version>
-        <activemq-version>5.4.1</activemq-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         
         <jaxb-api-version>2.1</jaxb-api-version>
