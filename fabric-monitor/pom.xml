@@ -91,7 +91,7 @@
     <!-- testing -->
     <dependency>
       <groupId>org.scalatest</groupId>
-      <artifactId>scalatest</artifactId>
+      <artifactId>${scalatest-artifact}</artifactId>
       <version>${scalatest-version}</version>
       <scope>test</scope>
     </dependency>
