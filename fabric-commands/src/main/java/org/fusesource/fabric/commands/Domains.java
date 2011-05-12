@@ -13,6 +13,8 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
 
+import java.util.List;
+
 @Command(name = "domains", scope = "fabric", description = "Lists the domains an agent has")
 public class Domains extends FabricCommand {
 
@@ -24,7 +26,7 @@ public class Domains extends FabricCommand {
         if (a == null) {
             throw new IllegalArgumentException("Agent " + agent + " does not exist.");
         }
-        String[] domains = a.getJmxDomains();
+        List<String> domains = a.getJmxDomains();
         for (String domain : domains) {
             System.out.println(domain);
         }
