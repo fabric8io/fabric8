@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.fusesource</groupId>
         <artifactId>fusesource-pom</artifactId>
-        <version>1.0</version>
+        <version>1.5</version>
     </parent>
 
     <groupId>org.fusesource.fabric</groupId>
@@ -92,7 +92,6 @@
         <scala-version>2.9.0</scala-version>
         <scala-plugin-version>2.15.0</scala-plugin-version>
         <scalate-version>1.5.0-SNAPSHOT</scalate-version>
-        <scalatest-artifact>scalatest_2.9.0</scalatest-artifact>
         <scalatest-version>1.4.1</scalatest-version>
         <servlet-api-version>2.5</servlet-api-version>
         <slf4j-version>1.6.1</slf4j-version>
@@ -119,6 +118,7 @@
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.6</jaxb-version>
         <xjc-version>2.1.10.1</xjc-version>
+        <mvnplugins-version>1.14</mvnplugins-version>
         
     </properties>
 
@@ -154,7 +154,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>${scalatest-artifact}</artifactId>
+            <artifactId>scalatest_2.9.0</artifactId>
             <version>${scalatest-version}</version>
             <scope>test</scope>
         </dependency>
