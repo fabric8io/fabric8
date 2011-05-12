@@ -21,10 +21,9 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
+    <reference id="org.linkedin.zookeeper.client.IZKClient" interface="org.linkedin.zookeeper.client.IZKClient" />
+
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
-        <!--
-        <propertyPlaceholder id="properties" location="ref:fabricCamel"/>
-        -->
         <route id="fabric-server">
             <from uri="fabric:cheese:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
             <log message="Request received : ${body}"/>

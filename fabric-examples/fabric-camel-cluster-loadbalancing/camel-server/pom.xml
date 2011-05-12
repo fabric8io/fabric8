@@ -37,6 +37,5 @@
          <osgi-export-pkg></osgi-export-pkg>
          <osgi-private-pkg>
          </osgi-private-pkg>
-         <!-- <spring-context>*;publish-context:=false;create-asynchronously:=true</spring-context> -->
     </properties>
 </project>
