@@ -9,6 +9,7 @@
 package org.fusesource.fabric.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.fusesource.fabric.api.Agent;
@@ -87,6 +88,17 @@ public class AgentImpl implements Agent {
     public void setVersion(Version version) {
         try {
             ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_AGENT.getPath(id), version.getName() );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String[] getJmxDomains() {
+        try {
+            List<String> list = service.getZooKeeper().getChildren(ZkPath.AGENT_DOMAINS.getPath(id));
+            Collections.sort(list);
+            return list.toArray(new String[list.size()]);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

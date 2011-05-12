@@ -42,4 +42,6 @@ public interface Agent {
     //  gets children agents, eg process instances, maybe camel contexts
     Agent[] getChildren();
 
+    String[] getJmxDomains();
+
 }
