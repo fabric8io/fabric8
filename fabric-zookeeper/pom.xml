@@ -38,6 +38,9 @@
         <fabric.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
         </fabric.osgi.import.additional>
+        <fabric.osgi.services.export>
+            org.linkedin.zookeeper.client.IZKClient
+        </fabric.osgi.services.export>
     </properties>
 
     <dependencies>

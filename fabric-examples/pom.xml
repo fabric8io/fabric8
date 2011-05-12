@@ -18,13 +18,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>examples</artifactId>
+    <artifactId>fabric-examples</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource :: Fabric :: Examples</name>
+    <name>FuseSource Fabric :: Examples</name>
     <description>FuseSource Fabric :: Examples</description>
     
     <modules>
-      <module>fabric-camel-master-slave</module>
+      <module>fabric-camel-cluster-loadbalancing</module>
     </modules>  
 
 </project>
