@@ -1,0 +1,13 @@
+
+
+RUNNING
+=======
+1) Before you run Karaf you might like to set these environment variables...
+
+    export JAVA_PERM_MEM=64m
+    export JAVA_MAX_PERM_MEM=512m
+
+In an install of Karaf 2.2.1 or later such as from https://repository.apache.org/content/groups/snapshots-group/org/apache/karaf/apache-karaf/2.2.1-SNAPSHOT/
+run the following command...
+
+    shell:source mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/1.0-SNAPSHOT/karaf/installer
