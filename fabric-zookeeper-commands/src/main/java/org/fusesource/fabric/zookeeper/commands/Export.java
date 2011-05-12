@@ -31,6 +31,17 @@ public class Export extends ZooKeeperCommandSupport {
             }
         }
         String data = getZooKeeper().getStringData(path);
+        if (data != null && !data.isEmpty()) {
+            // truncate long data
+            String sep = System.getProperty("line.separator");
+            String[] lines = data.split(sep);
+            if (lines.length > 10) {
+
+                data = lines[0] + sep + lines[1] + sep + lines[2] + sep
+                        + " ... (truncated) ..." + sep
+                        + lines[lines.length - 3] + sep + lines[lines.length - 2] + sep + lines[lines.length - 1];
+            }
+        }
         if (data != null && !data.isEmpty() || paths.isEmpty()) {
             System.out.println(data != null && !data.isEmpty() ? path + " = " + data : path);
         }
