@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+           xsi:schemaLocation="
+           http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <!-- osgi blueprint property placeholder -->
+    <cm:property-placeholder id="placeholder" persistent-id="fabricCamel">
+        <cm:default-properties>
+            <cm:property name="portNumber" value="8181"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <!--
+        <propertyPlaceholder id="properties" location="ref:fabricCamel"/>
+        -->
+        <route id="fabric-server">
+            <from uri="fabric:cheese:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
+            <log message="Request received : ${body}"/>
+            <setHeader headerName="karaf.name">
+                <simple>${sys.karaf.name}</simple>
+            </setHeader>
+            <transform>
+                <simple>Response from Zookeeper agent</simple>
+            </transform>
+        </route>
+    </camelContext>
+
+</blueprint>
