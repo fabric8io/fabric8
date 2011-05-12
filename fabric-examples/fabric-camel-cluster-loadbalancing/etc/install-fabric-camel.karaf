@@ -1,0 +1,60 @@
+# install Fabric-camel example
+
+features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
+
+# Install fabric commands and monitor
+features:install fabric-commands
+# features:install fabric-monitor
+
+# Wait a bit
+shell:echo Waiting a couple of seconds for the fabric-commands to start
+shell:sleep 5000
+
+# Create the initial zookeeper server
+fabric:zk-cluster root
+shell:echo Waiting a couple of seconds for the zookeeper server to start
+shell:sleep 10000
+
+# Create the fabric-camel-cluster profile in zookeeper
+shell:echo Create fabric-camel-cluster profile
+fabric:create-profile --parents default fabric-camel-cluster
+
+# Define nodes of for the profile fabric-camel-cluster
+shell:echo add repositories, features, ... to the fabric-camel-cluster profile
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/2.7.0/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel camel
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric-camel-test mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/1.0-SNAPSHOT/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.fabric-camel-test camel-server
+
+# Define a new profile extending fabric-camel-cluster to specify the property of the port number used by the server
+shell:echo Create fabric-camel-cluster-port-9090 profile
+fabric:create-profile --parents fabric-camel-cluster fabric-camel-cluster-port-9090
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster-port-9090/fabricCamel/portNumber 9090
+
+# Define a new profile extending fabric-camel-cluster to specify the property of the port number used by the server
+shell:echo Create fabric-camel-cluster-port-9191 profile
+fabric:create-profile --parents fabric-camel-cluster fabric-camel-cluster-port-9191
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster-port-9191/fabricCamel/portNumber 9191
+
+# Create agents
+shell:echo Create fabric agent zk-9090 and wait 10s that it is created and configured
+fabric:create-agent --profile fabric-camel-cluster-port-9090 --parent root zk-9090
+shell:sleep 10000
+
+shell:echo Create fabric agent zk-9191
+fabric:create-agent --profile fabric-camel-cluster-port-9191 --parent root zk-9191
+shell:sleep 10000
+
+# Add on karaf root the camel features
+shell:echo Installing camel features repository and deploy camel
+features:addurl mvn:org.apache.camel.karaf/apache-camel/2.7.0/xml/features
+shell:sleep 1000
+
+features:install camel
+features:install camel-blueprint
+shell:sleep 1000
+shell:echo Installing camel fabric demo features repository and deploy camel-client
+features:addurl mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/1.0-SNAPSHOT/xml/features
+features:install camel-client
+
