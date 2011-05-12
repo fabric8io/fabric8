@@ -33,46 +33,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author ldywicki
  */
-public class JmxTemplate {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JmxTemplate.class);
-
-    private String login = "karaf";
-    private String password = "karaf";
-
-
-    public interface JmxConnectorCallback<T> {
-
-        T doWithJmxConnector(JMXConnector connector) throws Exception;
-
-    }
-
-    public interface AdminServiceCallback<T> {
-
-        T doWithAdminService(AdminServiceMBean adminService) throws Exception;
-
-    }
-
-    public interface BundleStateCallback<T> {
-
-        T doWithBundleState(BundleStateMBean bundleState) throws Exception;
-    }
-
-    public interface ServiceStateCallback<T> {
-
-        T doWithServiceState(ServiceStateMBean serviceState) throws Exception;
-    }
+public class JmxTemplate extends JmxTemplateSupport {
 
     public <T> T execute(Agent agent, JmxConnectorCallback<T> callback) {
-        String rootUrl = agent.getJmxUrl();
-        JMXConnector connector;
-        try {
-            connector = JMXConnectorFactory.connect(
-                    new JMXServiceURL(rootUrl),
-                    getEnvCred(login, password));
-        } catch (IOException e) {
-            throw new FabricException(e);
-        }
+        JMXConnector connector = createConnector(agent);
         try {
             return callback.doWithJmxConnector(connector);
         } catch (FabricException e) {
@@ -116,48 +80,4 @@ public class JmxTemplate {
         });
     }
 
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public <T> T getMBean(JMXConnector connector, Class<T> type, String domain, String ... params) {
-        try {
-            return JMX.newMBeanProxy(connector.getMBeanServerConnection(), safeObjectName(domain, params), type);
-        } catch (IOException e) {
-            throw new FabricException(e);
-        }
-    }
-
-    public static ObjectName safeObjectName(String domain, String ... args) {
-        if ((args.length % 2) != 0) {
-             LOGGER.warn("Not all values were defined for arguments %", Arrays.toString(args));
-        }
-        Hashtable<String, String> table = new Hashtable<String, String>();
-        for (int i = 0; i < args.length; i += 2) {
-            table.put(args[i], args[i + 1]);
-        }
-        try {
-            return new ObjectName(domain, table);
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException("Object name is invalid", e);
-        }
-    }
-
-    public static Map getEnvCred(String login, String password) {
-        Map env = new HashMap<String, Object>();
-        env.put(JMXConnector.CREDENTIALS, new String[] {login, password});
-        return env;
-    }
 }
