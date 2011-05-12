@@ -34,6 +34,28 @@
             <action class="org.fusesource.fabric.commands.Connect">
                 <property name="fabricService" ref="fabricService"/>
             </action>
+            <completers>
+                <ref component-id="agentCompleter" />
+                <null/>
+            </completers>
+        </command>
+        <command name="fabric/start">
+            <action class="org.fusesource.fabric.commands.Start">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="agentCompleter" />
+                <null/>
+            </completers>
+        </command>
+        <command name="fabric/stop">
+            <action class="org.fusesource.fabric.commands.Stop">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="agentCompleter" />
+                <null/>
+            </completers>
         </command>
         <command name="fabric/create-profile">
             <action class="org.fusesource.fabric.commands.CreateProfile">
@@ -46,5 +68,10 @@
             </action>
         </command>
     </command-bundle>
+
+    <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+
 
 </blueprint>
