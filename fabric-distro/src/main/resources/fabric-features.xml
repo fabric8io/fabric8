@@ -110,14 +110,20 @@
     </feature>
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>-->
+        <!-- TODO - replace with 2.9.0 version when available
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>
+        -->
+        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle dependency="true">mvn:org.fusesource.fabric/fabric-groups/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-monitor" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
 
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>-->
+        <!-- TODO - replace with 2.9.0 version when available
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>
+        -->
+        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle dependency="true">mvn:org.fusesource.hawtdispatch/hawtdispatch/${hawtdispatch-version}</bundle>
         <bundle dependency="true">mvn:org.fusesource.rrd4j/rrd4j/${rrd4j-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
