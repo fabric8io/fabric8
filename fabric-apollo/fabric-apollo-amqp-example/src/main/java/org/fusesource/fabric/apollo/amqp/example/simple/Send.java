@@ -14,4 +14,18 @@ package org.fusesource.fabric.apollo.amqp.example.simple;
  *
  */
 public class Send extends Client {
+
+    public static void main(String ... args) {
+
+    }
+
+    @Override
+    public void go() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void printHelp() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
