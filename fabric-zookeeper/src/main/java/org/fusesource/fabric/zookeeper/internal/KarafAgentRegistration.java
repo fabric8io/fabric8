@@ -16,6 +16,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Properties;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerNotification;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -23,13 +28,13 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.*;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.*;
 
@@ -39,7 +44,10 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
 
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private MBeanServer mbeanServer;
+    private BundleContext bundleContext;
+
+    private volatile MBeanServer mbeanServer;
+    private volatile boolean connected;
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -61,8 +69,13 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         this.mbeanServer = mbeanServer;
     }
 
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
     public void onConnected() {
         try {
+            connected = true;
             String name = System.getProperty("karaf.name");
             String nodeAlive = AGENT_ALIVE.getPath(name);
             Stat stat = zooKeeper.exists(nodeAlive);
@@ -96,7 +109,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
                 zooKeeper.createOrSetWithParents(AGENT_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
 
-            mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
+            registerDomains();
         } catch (Exception e) {
             // TODO
             e.printStackTrace();
@@ -158,8 +171,9 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
     }
 
     public void onDisconnected() {
+        connected = false;
         try {
-            mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
+            unregisterDomains();
         } catch (ServiceException e) {
             logger.trace("Mbean server is no longer available", e);
         } catch (Exception e) {
@@ -167,14 +181,56 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         }
     }
 
+    public void registerMBeanServer(ServiceReference ref) {
+        try {
+            String name = System.getProperty("karaf.name");
+            mbeanServer = (MBeanServer) bundleContext.getService(ref);
+            mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
+            registerDomains();
+        } catch (Exception e) {
+            logger.warn("An error occured during mbean server registration");
+        }
+    }
+
+    public void unregisterMBeanServer(ServiceReference ref) {
+        try {
+            mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
+            unregisterDomains();
+        } catch (Exception e) {
+            logger.warn("An error occured during mbean server unregistration");
+        }
+        mbeanServer = null;
+        bundleContext.ungetService(ref);
+    }
+
+    protected void registerDomains() throws InterruptedException, KeeperException {
+        if (connected && mbeanServer != null) {
+            String name = System.getProperty("karaf.name");
+            for (String domain : mbeanServer.getDomains()) {
+                zooKeeper.createOrSetWithParents(AGENT_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            }
+        }
+    }
+
+    protected void unregisterDomains() throws InterruptedException, KeeperException {
+        if (connected) {
+            String name = System.getProperty("karaf.name");
+            String domainsPath = AGENT_DOMAINS.getPath(name);
+            if (zooKeeper.exists(domainsPath) != null) {
+                for (String child : zooKeeper.getChildren(domainsPath)) {
+                    zooKeeper.delete(domainsPath + "/" + child);
+                }
+            }
+        }
+    }
+
     @Override
     public void handleNotification(Notification notif, Object o) {
         // handle mbeans registration and de-registration events
-        if (notif instanceof MBeanServerNotification) {
+        if (connected && mbeanServer != null && notif instanceof MBeanServerNotification) {
             MBeanServerNotification notification = (MBeanServerNotification) notif;
             String domain = notification.getMBeanName().getDomain();
             String path = AGENT_DOMAIN.getPath((String) o, domain);
-
             try {
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     if (zooKeeper.exists(path) == null) {

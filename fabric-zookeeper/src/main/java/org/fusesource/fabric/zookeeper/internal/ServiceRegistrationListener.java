@@ -14,13 +14,15 @@ import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.url.URLStreamHandlerService;
 
 public class ServiceRegistrationListener implements LifecycleListener, ZooKeeperAware {
 
     private IZKClient zooKeeper;
     private String zooKeeperUrl;
     private BundleContext bundleContext;
-    private ServiceRegistration registration;
+    private ServiceRegistration clientRegistration;
+    private ServiceRegistration handlerRegistration;
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -49,12 +51,20 @@ public class ServiceRegistrationListener implements LifecycleListener, ZooKeeper
     public void onConnected() {
         Properties props = new Properties();
         props.put("url", zooKeeperUrl);
-        registration = bundleContext.registerService(IZKClient.class.getName(), zooKeeper, props);
+        clientRegistration = bundleContext.registerService(IZKClient.class.getName(), zooKeeper, props);
+        props = new Properties();
+        props.put("url", zooKeeperUrl);
+        props.put("url.handler.protocol", "zk");
+        handlerRegistration = bundleContext.registerService(URLStreamHandlerService.class.getName(),
+                new ZkUrlHandler(zooKeeper), props);
     }
 
     public void onDisconnected() {
-        if (registration != null) {
-            registration.unregister();
+        if (clientRegistration != null) {
+            clientRegistration.unregister();
+        }
+        if (handlerRegistration != null) {
+            handlerRegistration.unregister();
         }
     }
 }

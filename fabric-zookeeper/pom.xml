@@ -39,7 +39,8 @@
             org.apache.log4j*;version="[1.2,2)"
         </fabric.osgi.import.additional>
         <fabric.osgi.services.export>
-            org.linkedin.zookeeper.client.IZKClient
+            org.linkedin.zookeeper.client.IZKClient,
+            org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
         </fabric.osgi.services.export>
     </properties>
 

@@ -39,10 +39,12 @@
         <property name="configurationAdmin">
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>
-        <property name="mbeanServer">
-            <reference interface="javax.management.MBeanServer" />
-        </property>
+        <property name="bundleContext" ref="blueprintBundleContext" />
     </bean>
+
+    <reference interface="javax.management.MBeanServer">
+        <reference-listener ref="karafAgentRegistration" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
+    </reference>
 
     <bean id="serviceRegistrationListener" class="org.fusesource.fabric.zookeeper.internal.ServiceRegistrationListener" destroy-method="onDisconnected">
         <property name="zooKeeperUrl" value="${zookeeper.url}"/>
@@ -63,14 +65,5 @@
     <reference-list interface="org.linkedin.zookeeper.client.LifecycleListener" availability="optional">
         <reference-listener ref="zkClientFactory" bind-method="registerListener" unbind-method="unregisterListener"/>
     </reference-list>
-
-    <bean id="zkUrlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">
-        <property name="zooKeeper" ref="zkClient"/>
-    </bean>
-    <service ref="zkUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
-        <service-properties>
-            <entry key="url.handler.protocol" value="zk"/>
-        </service-properties>
-    </service>
 
 </blueprint>
