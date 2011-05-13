@@ -129,9 +129,19 @@ class AmqpProtoMessage extends Message with Logging {
     val fragments = transfer.getFragments.getValue.asInstanceOf[IAmqpList[AmqpFragment]]
     _message = new AmqpMessage(fragments)
 
-    import AmqpConversions._
-    settled = Option[Boolean](transfer.getSettled).getOrElse(false)
-    batchable = Option[Boolean](transfer.getBatchable).getOrElse(false)
+    Option(transfer.getSettled) match {
+      case Some(s) =>
+        settled = s.booleanValue
+      case None =>
+        settled = false
+    }
+
+    Option(transfer.getBatchable) match {
+      case Some(s) =>
+        batchable = s.booleanValue
+      case None =>
+        batchable = false
+    }
   }
 
   def transfer(transfer_id:Long): AmqpTransfer = {

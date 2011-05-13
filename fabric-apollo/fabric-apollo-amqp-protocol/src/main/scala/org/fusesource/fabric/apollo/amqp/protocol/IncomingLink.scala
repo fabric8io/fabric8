@@ -39,6 +39,15 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
 
   def isFlowControlEnabled():Boolean = link_credit == None
 
+  override def attach(a:AmqpAttach) = {
+    super.attach(a)
+    Option(a.getInitialTransferCount) match {
+      case Some(c) =>
+        transfer_count = Option(c.getValue.longValue)
+      case None =>
+    }
+  }
+
   def enableFlowControl(enable:Boolean) = {
     if (enable) {
       link_credit = Option(0L)
