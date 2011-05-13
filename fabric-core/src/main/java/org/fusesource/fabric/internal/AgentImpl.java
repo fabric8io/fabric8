@@ -164,7 +164,7 @@ public class AgentImpl implements Agent {
 
     public BundleInfo[] getBundles() {
         try {
-            return new JmxTemplate().execute(getParent(), new JmxTemplate.BundleStateCallback<BundleInfo[]>() {
+            return new JmxTemplate().execute(this, new JmxTemplate.BundleStateCallback<BundleInfo[]>() {
                 public BundleInfo[] doWithBundleState(BundleStateMBean bundleState) throws Exception {
                     TabularData bundles = bundleState.listBundles();
                     BundleInfo[] info = new BundleInfo[bundles.size()];
@@ -187,7 +187,7 @@ public class AgentImpl implements Agent {
 
     public ServiceInfo[] getServices() {
         try {
-            return new JmxTemplate().execute(getParent(), new JmxTemplate.ServiceStateCallback<ServiceInfo[]>() {
+            return new JmxTemplate().execute(this, new JmxTemplate.ServiceStateCallback<ServiceInfo[]>() {
                 public ServiceInfo[] doWithServiceState(ServiceStateMBean serviceState) throws Exception {
                     TabularData services = serviceState.listServices();
                     ServiceInfo[] info = new ServiceInfo[services.size()];
