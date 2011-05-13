@@ -90,7 +90,7 @@
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <osgi-version>4.2.0</osgi-version>
         <scala-version>2.9.0</scala-version>
-        <scala-osgi-version>2.9.0.RC1</scala-osgi-version>
+        <scala-osgi-version>2.9.0</scala-osgi-version>
         <scala-plugin-version>2.15.0</scala-plugin-version>
         <scalate-version>1.5.0-SNAPSHOT</scalate-version>
         <scalatest-version>1.4.1</scalatest-version>
@@ -552,6 +552,14 @@
                 <artifactId>org.apache.karaf.admin.management</artifactId>
                 <version>${karaf-version}</version>
             </dependency>
+
+            <!-- OSGi Scala distro -->
+            <dependency>
+                <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala-osgi-version}</version>
+            </dependency>
+
             <!-- Others -->
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
