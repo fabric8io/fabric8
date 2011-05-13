@@ -39,6 +39,15 @@
                 <null/>
             </completers>
         </command>
+        <command name="fabric/domains">
+            <action class="org.fusesource.fabric.commands.Domains">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="agentCompleter" />
+                <null/>
+            </completers>
+        </command>
         <command name="fabric/start">
             <action class="org.fusesource.fabric.commands.Start">
                 <property name="fabricService" ref="fabricService"/>

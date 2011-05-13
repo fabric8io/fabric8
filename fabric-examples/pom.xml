@@ -25,6 +25,7 @@
     
     <modules>
       <module>fabric-camel-cluster-loadbalancing</module>
+        <module>fabric-camel-dosgi</module>
     </modules>  
 
 </project>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<features>
+
+    <feature name="fabric-example-camel-dosgi">
+        <feature>fabric-dosgi</feature>
+        <feature version="${camel.version}">camel</feature>
+        <feature version="${camel.version}">camel-blueprint</feature>
+        <bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/service/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/camel-route/${pom.version}</bundle>
+    </feature>
+
+    <feature name="fabric-example-dosgi">
+        <feature>fabric-dosgi</feature>
+        <bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/dosgi-service/${pom.version}</bundle>
+    </feature>
+
+</features>

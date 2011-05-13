@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.fusesource</groupId>
         <artifactId>fusesource-pom</artifactId>
-        <version>1.0</version>
+        <version>1.5</version>
     </parent>
 
     <groupId>org.fusesource.fabric</groupId>
@@ -80,6 +80,7 @@
         <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
         <fabric.osgi.services.export></fabric.osgi.services.export>
 
+        <activemq-version>5.4.2-fuse-03-09</activemq-version>
         <cxf-version>2.3.3-fuse-01-09</cxf-version>
         <camel-version>2.6.0-fuse-01-09</camel-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
@@ -88,17 +89,17 @@
         <logback-version>0.9.28</logback-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <osgi-version>4.2.0</osgi-version>
-        <scala-version>2.8.1</scala-version>
+        <scala-version>2.9.0</scala-version>
+        <scala-osgi-version>2.9.0</scala-osgi-version>
         <scala-plugin-version>2.15.0</scala-plugin-version>
         <scalate-version>1.5.0-SNAPSHOT</scalate-version>
-        <scalatest-version>1.2</scalatest-version>
+        <scalatest-version>1.4.1</scalatest-version>
         <servlet-api-version>2.5</servlet-api-version>
         <slf4j-version>1.6.1</slf4j-version>
         <log4j-version>1.2.16</log4j-version>
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
-        <scalatest-version>1.2</scalatest-version>
         <junit-version>4.8.1</junit-version>
         <hawtbuf-version>1.4</hawtbuf-version>
         <hawtdispatch-version>1.2</hawtdispatch-version>
@@ -113,12 +114,12 @@
         <spring-version>3.0.4.RELEASE</spring-version>
         
         <apollo-version>1.0-SNAPSHOT</apollo-version>
-        <activemq-version>5.4.1</activemq-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.6</jaxb-version>
         <xjc-version>2.1.10.1</xjc-version>
+        <mvnplugins-version>1.14</mvnplugins-version>
         
     </properties>
 
@@ -154,7 +155,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest</artifactId>
+            <artifactId>scalatest_2.9.0</artifactId>
             <version>${scalatest-version}</version>
             <scope>test</scope>
         </dependency>
@@ -551,6 +552,14 @@
                 <artifactId>org.apache.karaf.admin.management</artifactId>
                 <version>${karaf-version}</version>
             </dependency>
+
+            <!-- OSGi Scala distro -->
+            <dependency>
+                <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala-osgi-version}</version>
+            </dependency>
+
             <!-- Others -->
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>

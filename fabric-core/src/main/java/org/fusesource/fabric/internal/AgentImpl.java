@@ -9,16 +9,27 @@
 package org.fusesource.fabric.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.data.BundleInfo;
+import org.fusesource.fabric.api.data.ServiceInfo;
+import org.fusesource.fabric.service.AgentTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.service.NonCachingJmxTemplate;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.jmx.framework.BundleStateMBean;
+import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
 
 public class AgentImpl implements Agent {
 
@@ -30,11 +41,13 @@ public class AgentImpl implements Agent {
     private final Agent parent;
     private final String id;
     private final FabricServiceImpl service;
+    private AgentTemplate agentTemplate;
 
     public AgentImpl(Agent parent, String id, FabricServiceImpl service) {
         this.parent = parent;
         this.id = id;
         this.service = service;
+        this.agentTemplate = new AgentTemplate(parent, true);
     }
 
     public Agent getParent() {
@@ -152,6 +165,64 @@ public class AgentImpl implements Agent {
         }
     }
 
+    public BundleInfo[] getBundles() {
+        try {
+            return agentTemplate.execute(new AgentTemplate.BundleStateCallback<BundleInfo[]>() {
+                public BundleInfo[] doWithBundleState(BundleStateMBean bundleState) throws Exception {
+                    TabularData bundles = bundleState.listBundles();
+                    BundleInfo[] info = new BundleInfo[bundles.size()];
+
+                    int i = 0;
+                    for (Object data : bundles.values().toArray()) {
+                        info[i++] = new JmxBundleInfo((CompositeData) data);
+                    }
+
+                    // sort bundles using bundle id to preserve same order like in framework
+                    Arrays.sort(info, new BundleInfoComparator());
+                    return info;
+                }
+            });
+        } catch (Exception e) {
+            logger.error("Error while retrieving bundles", e);
+            return new BundleInfo[0];
+        }
+    }
+
+    public ServiceInfo[] getServices() {
+        try {
+            return agentTemplate.execute(new AgentTemplate.ServiceStateCallback<ServiceInfo[]>() {
+                public ServiceInfo[] doWithServiceState(ServiceStateMBean serviceState) throws Exception {
+                    TabularData services = serviceState.listServices();
+                    ServiceInfo[] info = new ServiceInfo[services.size()];
+
+                    int i = 0;
+                    for (Object data : services.values().toArray()) {
+                        CompositeData svc = (CompositeData) data;
+                        info[i++] = new JmxServiceInfo(svc, serviceState.getProperties((Long) svc.get(ServiceStateMBean.IDENTIFIER)));
+                    }
+
+                    // sort services using service id to preserve same order like in framework
+                    Arrays.sort(info, new ServiceInfoComparator());
+                    return info;
+                }
+            });
+        } catch (Exception e) {
+            logger.error("Error while retrieving services", e);
+            return new ServiceInfo[0];
+        }
+    }
+
+    public List<String> getJmxDomains() {
+        try {
+            List<String> list = service.getZooKeeper().getChildren(ZkPath.AGENT_DOMAINS.getPath(getId()));
+            Collections.sort(list);
+            return Collections.unmodifiableList(list);
+        } catch (Exception e) {
+            logger.error("Error while retrieving jmx domains", e);
+            return Collections.emptyList();
+        }
+    }
+
     public void start() {
         service.startAgent(this);
     }
@@ -167,10 +238,11 @@ public class AgentImpl implements Agent {
     }
 
     public Agent[] getChildren() {
-        return AgentFactory.createChildren(this, service);
+        return new Agent[0];
     }
 
     public String getType() {
         return "karaf";
     }
+
 }

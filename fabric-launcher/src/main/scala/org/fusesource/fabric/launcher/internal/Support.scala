@@ -245,7 +245,7 @@ object FilterSupport {
 
   implicit def asScalaMap(props:Properties):Map[String,String] = {
     import collection.JavaConversions._
-    Map[String,String](asScalaIterable(props.entrySet).toSeq.map(x=>(x.getKey.toString, x.getValue.toString)):_*)
+    Map[String,String](collectionAsScalaIterable(props.entrySet).toSeq.map(x=>(x.getKey.toString, x.getValue.toString)):_*)
   }
 
   def translate(value: String, translations:Map[String,String]): String = {

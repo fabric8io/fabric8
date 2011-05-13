@@ -250,7 +250,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-linkchecker-plugin</artifactId>
-        <version>${mvnplugins-plugin-version}</version>
+        <version>${mvnplugins-version}</version>
         <configuration>
           <excludedLinks>
             <value>http://github.com/</value>

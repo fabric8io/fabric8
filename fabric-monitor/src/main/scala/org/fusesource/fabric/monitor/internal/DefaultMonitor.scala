@@ -286,7 +286,7 @@ class DefaultMonitor (
 
           if ( ids !=null && !ids.isEmpty ) {
             // Map DS ids to rrd_ids so that we only fetch the requested data...
-            val filter: ju.Set[String] = asJavaSet(monitored_set.sources.flatMap { case (rrd_id, source) =>
+            val filter: ju.Set[String] = setAsJavaSet(monitored_set.sources.flatMap { case (rrd_id, source) =>
               if (ids.contains(source.id)) {
                 Some(rrd_id)
               } else {

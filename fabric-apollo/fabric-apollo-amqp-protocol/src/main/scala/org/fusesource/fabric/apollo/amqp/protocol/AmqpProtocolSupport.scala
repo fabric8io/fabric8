@@ -47,7 +47,7 @@ object AmqpProtocolSupport {
         rc
       case _ =>
         val rc = createMultiple
-        rc.setValue(createAmqpList(new IAmqpList.AmqpWrapperList[AmqpType[_,_]](asJavaList(list))))
+        rc.setValue(createAmqpList(new IAmqpList.AmqpWrapperList[AmqpType[_,_]](seqAsJavaList(list))))
         rc
     }
   }

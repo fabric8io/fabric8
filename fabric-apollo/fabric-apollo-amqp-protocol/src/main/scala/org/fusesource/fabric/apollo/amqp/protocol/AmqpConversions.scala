@@ -32,8 +32,8 @@ object AmqpConversions {
   implicit def amqpAmqpConnectionError2String(value:AmqpConnectionError) = value.getValue.getValue
   implicit def string2JavaLangString(value:String) = value.asInstanceOf[java.lang.String]
 
-  implicit def jlShort2Short(value:java.lang.Short) = value.asInstanceOf[Short]
-  implicit def jlBoolean2Boolean(value:java.lang.Boolean) = value.asInstanceOf[Boolean]
+//  implicit def jlShort2Short(value:java.lang.Short) = value.asInstanceOf[Short]
+//  implicit def jlBoolean2Boolean(value:java.lang.Boolean) = value.asInstanceOf[Boolean]
   implicit def handle2Int(value:AmqpHandle) = value.getValue.intValue
   implicit def transferNumber2Long(value:AmqpTransferNumber) = value.getValue.longValue
   implicit def sequenceNumber2Long(value:AmqpSequenceNo) = value.getValue.longValue

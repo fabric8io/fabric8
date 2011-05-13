@@ -57,16 +57,8 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         this.zooKeeper = zooKeeper;
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
-    }
-
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
-    }
-
-    public void setMbeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer = mbeanServer;
     }
 
     public void setBundleContext(BundleContext bundleContext) {
@@ -104,10 +96,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             }
             zooKeeper.createOrSetWithParents(AGENT_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-
-            for (String domain : mbeanServer.getDomains()) {
-                zooKeeper.createOrSetWithParents(AGENT_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            }
 
             registerDomains();
         } catch (Exception e) {

@@ -222,7 +222,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-uberize-plugin</artifactId>
-        <version>1.11</version>
+        <version>${mvnplugins-version}</version>
         <executions>
           <execution>
             <id>slim</id>

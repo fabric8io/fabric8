@@ -94,7 +94,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   def init(uri: String) = {
     this.uri = new URI(uri)
     import scala.collection.JavaConversions._
-    options = asScalaMap(URISupport.parseParamters(this.uri))
+    options = mapAsScalaMap(URISupport.parseParamters(this.uri))
     options.get("idleTimeout") match {
       case Some(timeout) =>
         idle_timeout = timeout.toLong

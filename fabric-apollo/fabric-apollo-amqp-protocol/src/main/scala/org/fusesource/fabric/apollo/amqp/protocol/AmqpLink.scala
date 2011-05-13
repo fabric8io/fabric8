@@ -65,6 +65,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
       case None =>
         session.attach(this)
         val attach: AmqpAttach = createAmqpAttach
+        attach.setInitialTransferCount(0L)
         attach.setHandle(handle.get)
         attach.setName(name)
         attach.setRole(role)
@@ -215,10 +216,20 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   def getTargetExpiryPolicy = target.getExpiryPolicy
   def setTargetExpiryPolicy(policy: AmqpTerminusExpiryPolicy) = target.setExpiryPolicy(policy)
 
-  def getSourceDurable = source.getDurable
+  def getSourceDurable = Option(source.getDurable) match {
+    case Some(b) =>
+      b
+    case None =>
+      false
+  }
   def setSourceDurable(durable: Boolean) = source.setDurable(durable)
 
-  def getTargetDurable = target.getDurable
+  def getTargetDurable = Option(target.getDurable) match {
+    case Some(b) =>
+      b
+    case None =>
+      false
+  }
   def setTargetDurable(durable: Boolean) = target.setDurable(durable)
 
   // TODO - implement with tmp topic/queues

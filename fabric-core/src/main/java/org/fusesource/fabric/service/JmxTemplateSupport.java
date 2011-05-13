@@ -29,25 +29,12 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * Base class for JmxTemplate helper classes
+ * Utility class which contains code related to JMX connectivity.
+ *
+ * @author ldywicki
  */
-public class JmxTemplateSupport {
+public abstract class JmxTemplateSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(JmxTemplateSupport.class);
-    protected String login = "karaf";
-    protected String password = "karaf";
-
-    protected JMXConnector createConnector(Agent agent) {
-        String rootUrl = agent.getJmxUrl();
-        JMXConnector connector;
-        try {
-            connector = JMXConnectorFactory.connect(
-                    new JMXServiceURL(rootUrl),
-                    getEnvCred(login, password));
-        } catch (IOException e) {
-            throw new FabricException(e);
-        }
-        return connector;
-    }
 
     public interface JmxConnectorCallback<T> {
 
@@ -55,21 +42,10 @@ public class JmxTemplateSupport {
 
     }
 
-    public interface AdminServiceCallback<T> {
+    public abstract <T> T execute(JmxConnectorCallback<T> callback);
 
-        T doWithAdminService(AdminServiceMBean adminService) throws Exception;
 
-    }
-
-    public interface BundleStateCallback<T> {
-
-        T doWithBundleState(BundleStateMBean bundleState) throws Exception;
-    }
-
-    public interface ServiceStateCallback<T> {
-
-        T doWithServiceState(ServiceStateMBean serviceState) throws Exception;
-    }
+    // mBean specific callbacks
 
     public static ObjectName safeObjectName(String domain, String ... args) {
         if ((args.length % 2) != 0) {
@@ -84,28 +60,6 @@ public class JmxTemplateSupport {
         } catch (MalformedObjectNameException e) {
             throw new RuntimeException("Object name is invalid", e);
         }
-    }
-
-    public static Map getEnvCred(String login, String password) {
-        Map env = new HashMap<String, Object>();
-        env.put(JMXConnector.CREDENTIALS, new String[] {login, password});
-        return env;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public <T> T getMBean(JMXConnector connector, Class<T> type, String domain, String ... params) {
