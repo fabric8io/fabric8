@@ -65,6 +65,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
       case None =>
         session.attach(this)
         val attach: AmqpAttach = createAmqpAttach
+        attach.setInitialTransferCount(0L)
         attach.setHandle(handle.get)
         attach.setName(name)
         attach.setRole(role)
