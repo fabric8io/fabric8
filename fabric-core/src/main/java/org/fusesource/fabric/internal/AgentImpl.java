@@ -19,8 +19,9 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
+import org.fusesource.fabric.service.AgentTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.service.JmxTemplate;
+import org.fusesource.fabric.service.NonCachingJmxTemplate;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -40,11 +41,13 @@ public class AgentImpl implements Agent {
     private final Agent parent;
     private final String id;
     private final FabricServiceImpl service;
+    private AgentTemplate agentTemplate;
 
     public AgentImpl(Agent parent, String id, FabricServiceImpl service) {
         this.parent = parent;
         this.id = id;
         this.service = service;
+        this.agentTemplate = new AgentTemplate(parent, true);
     }
 
     public Agent getParent() {
@@ -164,7 +167,7 @@ public class AgentImpl implements Agent {
 
     public BundleInfo[] getBundles() {
         try {
-            return new JmxTemplate().execute(getParent(), new JmxTemplate.BundleStateCallback<BundleInfo[]>() {
+            return agentTemplate.execute(new AgentTemplate.BundleStateCallback<BundleInfo[]>() {
                 public BundleInfo[] doWithBundleState(BundleStateMBean bundleState) throws Exception {
                     TabularData bundles = bundleState.listBundles();
                     BundleInfo[] info = new BundleInfo[bundles.size()];
@@ -187,7 +190,7 @@ public class AgentImpl implements Agent {
 
     public ServiceInfo[] getServices() {
         try {
-            return new JmxTemplate().execute(getParent(), new JmxTemplate.ServiceStateCallback<ServiceInfo[]>() {
+            return agentTemplate.execute(new AgentTemplate.ServiceStateCallback<ServiceInfo[]>() {
                 public ServiceInfo[] doWithServiceState(ServiceStateMBean serviceState) throws Exception {
                     TabularData services = serviceState.listServices();
                     ServiceInfo[] info = new ServiceInfo[services.size()];

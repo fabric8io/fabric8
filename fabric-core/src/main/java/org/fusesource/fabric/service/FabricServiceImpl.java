@@ -38,7 +38,6 @@ public class FabricServiceImpl implements FabricService {
     private IZKClient zooKeeper;
     private ConfigurationAdmin configurationAdmin;
     private String profile = DEFAULT_PROFILE;
-    private JmxTemplate jmxTemplate = new JmxTemplate();
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -103,7 +102,7 @@ public class FabricServiceImpl implements FabricService {
         if (agent.isRoot()) {
             throw new IllegalArgumentException("Can not stop root agents");
         }
-        jmxTemplate.execute(agent.getParent(), new JmxTemplate.AdminServiceCallback<Object>() {
+        getAgentTemplate(agent.getParent()).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 adminService.startInstance(agent.getId(), null);
                 return null;
@@ -115,7 +114,7 @@ public class FabricServiceImpl implements FabricService {
         if (agent.isRoot()) {
             throw new IllegalArgumentException("Can not stop root agents");
         }
-        jmxTemplate.execute(agent.getParent(), new JmxTemplate.AdminServiceCallback<Object>() {
+        getAgentTemplate(agent.getParent()).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 adminService.stopInstance(agent.getId());
                 return null;
@@ -130,7 +129,7 @@ public class FabricServiceImpl implements FabricService {
     public Agent createAgent(final Agent parent, final String name) {
         final String zooKeeperUrl = getZooKeeperUrl();
         createAgentConfig(name);
-        return jmxTemplate.execute(parent, new JmxTemplate.AdminServiceCallback<Agent>() {
+        return getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Agent>() {
             public Agent doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
                 String features = "fabric-agent";
@@ -151,7 +150,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     private void destroyChild(final Agent parent, final String name) {
-        jmxTemplate.execute(parent, new JmxTemplate.AdminServiceCallback<Object>() {
+        getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 adminService.stopInstance(name);
                 adminService.destroyInstance(name);
@@ -296,4 +295,13 @@ public class FabricServiceImpl implements FabricService {
             throw new FabricException(e);
         }
     }
+    
+    protected AgentTemplate getAgentTemplate(Agent agent) {
+        // there's no point caching the JMX Connector as we are unsure if we'll communicate again with the same agent any time soon
+        // though in the future we could possibly pool them
+        boolean cacheJmx = false;
+        return new AgentTemplate(agent, cacheJmx);
+    }
+
+    
 }
