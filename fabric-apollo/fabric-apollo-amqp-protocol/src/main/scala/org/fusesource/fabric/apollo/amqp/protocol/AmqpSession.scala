@@ -387,6 +387,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
     command match {
       case transfer:AmqpTransfer =>
+        outgoing_window = outgoing_window - 1
         remote_incoming_window = remote_incoming_window - 1
         //trace("Sending a transfer, state : %s", this)
         if (remote_incoming_window < 1) {
@@ -395,7 +396,12 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
           flow.setEcho(true)
           send(flow)
         }
-
+        if (outgoing_window < 1) {
+          val flow = createAmqpFlow
+          outgoing_window = outgoing_window_max
+          update_flow_state(flow)
+          send(flow)
+        }
       case flow:AmqpFlow =>
         update_flow_state(flow)
       case _ =>
@@ -413,6 +419,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         throw new RuntimeException("No transfer ID specified by peer")
     }
 
+    incoming_window = incoming_window - 1
     remote_outgoing_window = remote_outgoing_window - 1
 
     //trace("Received a transfer, state : %s", this);
@@ -421,6 +428,12 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       val flow = createAmqpFlow
       update_flow_state(flow)
       flow.setEcho(true)
+      send(flow)
+    }
+    if (incoming_window < 1) {
+      incoming_window = incoming_window_max
+      val flow = createAmqpFlow
+      update_flow_state(flow)
       send(flow)
     }
 
