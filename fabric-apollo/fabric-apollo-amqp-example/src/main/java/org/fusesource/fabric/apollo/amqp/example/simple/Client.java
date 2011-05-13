@@ -19,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public abstract class Client {
 
+    protected String transport = "tcp";
     protected int port = AmqpDefinitions.PORT;
     protected String hostname = "localhost";
 
@@ -48,6 +49,10 @@ public abstract class Client {
                 usage();
             }
         }
+    }
+
+    public String getConnectionURI() {
+        return String.format("%s://%s:%s", transport, hostname, port);
     }
 
     public abstract void go();

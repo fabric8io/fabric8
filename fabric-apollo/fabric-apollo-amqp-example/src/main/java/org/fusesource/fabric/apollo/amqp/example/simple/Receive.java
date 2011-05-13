@@ -16,12 +16,16 @@ package org.fusesource.fabric.apollo.amqp.example.simple;
 public class Receive extends Client {
 
     public static void main(String ... args) {
+        new Receive(args).go();
+    }
 
+    public Receive(String ... args) {
+        super(args);
     }
 
     @Override
     public void go() {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
