@@ -33,13 +33,10 @@ import javax.management.*;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.*;
 
-public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware, NotificationListener {
-
-    private transient Logger logger = LoggerFactory.getLogger(KarafAgentRegistration.class);
+public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware {
 
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private MBeanServer mbeanServer;
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -55,10 +52,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
-    }
-
-    public void setMbeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer = mbeanServer;
     }
 
     public void onConnected() {
@@ -91,12 +84,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             }
             zooKeeper.createOrSetWithParents(AGENT_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-
-            for (String domain : mbeanServer.getDomains()) {
-                zooKeeper.createOrSetWithParents(AGENT_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            }
-
-            mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
+            zooKeeper.createOrSetWithParents(AGENT_DOMAINS.getPath(name), "", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (Exception e) {
             // TODO
             e.printStackTrace();
@@ -158,37 +146,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
     }
 
     public void onDisconnected() {
-        try {
-            mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
-        } catch (ServiceException e) {
-            logger.trace("Mbean server is no longer available", e);
-        } catch (Exception e) {
-            logger.warn("An error occured during disconnecting to zookeeper", e);
-        }
     }
 
-    @Override
-    public void handleNotification(Notification notif, Object o) {
-        // handle mbeans registration and de-registration events
-        if (notif instanceof MBeanServerNotification) {
-            MBeanServerNotification notification = (MBeanServerNotification) notif;
-            String domain = notification.getMBeanName().getDomain();
-            String path = AGENT_DOMAIN.getPath((String) o, domain);
-
-            try {
-                if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (zooKeeper.exists(path) == null) {
-                        zooKeeper.create(path, "", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    }
-                } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (Arrays.binarySearch(mbeanServer.getDomains(), domain) == -1) {
-                        // domain is no present any more
-                        zooKeeper.delete(path);
-                    }
-                }
-            } catch (Exception e) {
-                logger.warn("Exception while jmx domain synchronization", e);
-            }
-        }
-    }
 }

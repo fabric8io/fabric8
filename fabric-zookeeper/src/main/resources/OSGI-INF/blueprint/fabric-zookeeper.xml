@@ -31,6 +31,7 @@
             <list>
                 <ref component-id="karafAgentRegistration"/>
                 <ref component-id="serviceRegistrationListener"/>
+                <ref component-id="jmxTracker" />
             </list>
         </property>
     </bean>
@@ -39,14 +40,17 @@
         <property name="configurationAdmin">
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>
-        <property name="mbeanServer">
-            <reference interface="javax.management.MBeanServer" />
-        </property>
     </bean>
 
     <bean id="serviceRegistrationListener" class="org.fusesource.fabric.zookeeper.internal.ServiceRegistrationListener" destroy-method="onDisconnected">
         <property name="zooKeeperUrl" value="${zookeeper.url}"/>
         <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
+
+    <bean id="jmxTracker" class="org.fusesource.fabric.zookeeper.internal.JmxTracker">
+        <argument>
+            <reference interface="javax.management.MBeanServer" />
+        </argument>
     </bean>
 
     <bean id="zkClient" factory-ref="zkClientFactory" factory-method="getObject"/>
