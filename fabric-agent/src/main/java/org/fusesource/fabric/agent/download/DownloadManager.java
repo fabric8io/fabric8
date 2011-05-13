@@ -8,11 +8,9 @@
  */
 package org.fusesource.fabric.agent.download;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.fusesource.fabric.agent.mvn.MavenConfiguration;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
@@ -22,7 +20,7 @@ public class DownloadManager {
     /**
      * Thread pool for downloads
      */
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
     /**
      * Service configuration.
@@ -42,33 +40,35 @@ public class DownloadManager {
     }
 
     public DownloadFuture download(String url) throws MalformedURLException {
-        if (url.startsWith("wrap:")) {
-            url = url.substring("wrap:".length());
-            if (url.contains("$")) {
-                url = url.substring(0, url.lastIndexOf('$') - 1);
+        String mvnUrl = url;
+        if (mvnUrl.startsWith("wrap:")) {
+            mvnUrl = mvnUrl.substring("wrap:".length());
+            if (mvnUrl.contains("$")) {
+                mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('$') - 1);
             }
         }
-        if (url.startsWith("blueprint:") || url.startsWith("spring:")) {
-            url = url.substring(url.indexOf(':') + 1);
+        if (mvnUrl.startsWith("blueprint:") || mvnUrl.startsWith("spring:")) {
+            mvnUrl = mvnUrl.substring(mvnUrl.indexOf(':') + 1);
         }
-        if (url.startsWith("mvn:")) {
-            DownloadTask task = new DownloadTask(url, system, configuration);
+        if (mvnUrl.startsWith("mvn:")) {
+            MavenDownloadTask task = new MavenDownloadTask(url, system, configuration, executor);
             executor.submit(task);
-            return task.getFuture();
+            if (!mvnUrl.equals(url)) {
+                final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
+                task.addListener(new FutureListener<DownloadFuture>() {
+                    @Override
+                    public void operationComplete(DownloadFuture future) {
+                        executor.submit(download);
+                    }
+                });
+                return download;
+            } else {
+                return task;
+            }
         } else {
-            return new DoneDownload();
-        }
-    }
-
-    protected static class DoneDownload extends DefaultFuture<DownloadFuture> implements DownloadFuture {
-
-        public DoneDownload() {
-            setValue(null);
-        }
-
-        @Override
-        public File getFile() throws IOException {
-            return null;
+            final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
+            executor.submit(download);
+            return download;
         }
     }
 

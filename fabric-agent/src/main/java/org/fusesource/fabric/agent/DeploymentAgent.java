@@ -9,6 +9,7 @@
 package org.fusesource.fabric.agent;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,15 +45,17 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeatureValidationUtil;
 import org.apache.karaf.features.internal.RepositoryImpl;
+import org.fusesource.fabric.agent.download.DownloadFuture;
 import org.fusesource.fabric.agent.download.DownloadManager;
-import org.fusesource.fabric.agent.download.Future;
 import org.fusesource.fabric.agent.download.FutureListener;
+import org.fusesource.fabric.agent.utils.MultiException;
 import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
 import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
@@ -225,6 +230,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private void addRepository(Map<URI, Repository> repositories, URI uri) throws Exception {
         if (!repositories.containsKey(uri)) {
+            manager.download(uri.toString()).getFile();
             FeatureValidationUtil.validate(uri);
             RepositoryImpl repo = new RepositoryImpl(uri);
             repositories.put(uri, repo);
@@ -297,16 +303,19 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private void updateDeployment(Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles) throws Exception {
         Set<Feature> allFeatures = addFeatures(features, repositories.values());
-        downloadBundles(allFeatures, bundles);
-        List<Resource> toDeploy = getObrResolver().resolve(allFeatures, bundles);
+        Map<String, File> downloads = downloadBundles(allFeatures, bundles);
+        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles);
+
+        Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
 
         StringBuilder sb = new StringBuilder();
         sb.append("Configuration changed.  New bundles list:\n");
-        for (Resource bundle : toDeploy) {
+        for (Resource bundle : allResources) {
             sb.append("  ").append(bundle.getURI()).append("\n");
         }
         LOGGER.info(sb.toString());
 
+        List<Resource> toDeploy = new ArrayList<Resource>(allResources);
         List<Resource> toInstall = new ArrayList<Resource>();
         List<Bundle> toDelete = new ArrayList<Bundle>();
         List<Bundle> toIgnore = new ArrayList<Bundle>();
@@ -314,6 +323,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
         // First pass: go through all installed bundles and mark them
         // as either to ignore or delete
+        // TODO: handle snapshots
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getBundleId() != 0) {
                 Resource resource = null;
@@ -327,6 +337,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 if (resource != null) {
                     toIgnore.add(bundle);
                     toDeploy.remove(resource);
+                    resToBnd.put(resource, bundle);
                 } else {
                     toDelete.add(bundle);
                 }
@@ -347,6 +358,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 Bundle bundle = matching.lastEntry().getValue();
                 toUpdate.put(bundle, resource);
                 toDelete.remove(bundle);
+                resToBnd.put(resource, bundle);
             } else {
                 toInstall.add(resource);
             }
@@ -371,7 +383,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             LOGGER.info("    " + resource.getURI());
         }
 
-
         Set<Bundle> toRefresh = new HashSet<Bundle>();
         Set<Bundle> toStart = new HashSet<Bundle>();
 
@@ -383,16 +394,32 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
             Bundle bundle = entry.getKey();
             Resource resource = entry.getValue();
-            InputStream is = new URL(resource.getURI()).openStream();
+            InputStream is;
+            File file = downloads.get(resource.getURI());
+            if (file != null) {
+                is = new FileInputStream(file);
+            } else {
+                LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
+                is = new URL(resource.getURI()).openStream();
+            }
             bundle.stop(Bundle.STOP_TRANSIENT);
             bundle.update(is);
             toRefresh.add(bundle);
             toStart.add(bundle);
         }
         for (Resource resource : toInstall) {
-            Bundle bundle = bundleContext.installBundle(resource.getURI());
+            InputStream is;
+            File file = downloads.get(resource.getURI());
+            if (file != null) {
+                is = new FileInputStream(file);
+            } else {
+                LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
+                is = new URL(resource.getURI()).openStream();
+            }
+            Bundle bundle = bundleContext.installBundle(resource.getURI(), is);
             toRefresh.add(bundle);
             toStart.add(bundle);
+            resToBnd.put(resource, bundle);
         }
 
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
@@ -407,12 +434,27 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             refreshPackages(toRefresh.toArray(new Bundle[toRefresh.size()]));
         }
 
+        // We hit FELIX-2949 if we don't use the correct order as Felix resolver isn't greedy.
+        // In order to minimize that, we make sure we resolve the bundles in the order they
+        // are given back by the resolution, meaning that all root bundles (i.e. those that were
+        // not flagged as dependencies in features) are started before the others.   This should
+        // make sure those important bundles are started first and minimize the problem.
+        List<Throwable> exceptions = new ArrayList<Throwable>();
         LOGGER.info("Starting bundles:");
-        for (Bundle bundle : toStart) {
+        for (Resource resource : allResources) {
+            Bundle bundle = resToBnd.get(resource);
             String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
             if (hostHeader == null) {
-                bundle.start();
+                LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
+                try {
+                    bundle.start();
+                } catch (BundleException e) {
+                    exceptions.add(e);
+                }
             }
+        }
+        if (!exceptions.isEmpty()) {
+            throw new MultiException("Error updating agent", exceptions);
         }
 
         LOGGER.info("Done.");
@@ -554,7 +596,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return false;
     }
 
-    protected void downloadBundles(Set<Feature> features, Set<String> bundles) throws IOException, InterruptedException {
+    protected Map<String, File> downloadBundles(Set<Feature> features, Set<String> bundles) throws Exception {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             for (BundleInfo bundle : feature.getBundles()) {
@@ -565,15 +607,26 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             locations.add(bundle);
         }
         final CountDownLatch latch = new CountDownLatch(locations.size());
-        final FutureListener listener = new FutureListener() {
-            public void operationComplete(Future future) {
-                latch.countDown();
+        final Map<String, File> downloads = new ConcurrentHashMap<String, File>();
+        final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
+        for (final String location : locations) {
+            manager.download(location).addListener(new FutureListener<DownloadFuture>() {
+            public void operationComplete(DownloadFuture future) {
+                try {
+                    downloads.put(location, future.getFile());
+                } catch (IOException e) {
+                    errors.add(e);
+                } finally {
+                    latch.countDown();
+                }
             }
-        };
-        for (String location : locations) {
-            manager.download(location).addListener(listener);
+        });
         }
         latch.await();
+        if (!errors.isEmpty()) {
+            throw new MultiException("Error while downloading bundles", errors);
+        }
+        return downloads;
     }
 
     public void frameworkEvent(FrameworkEvent event) {

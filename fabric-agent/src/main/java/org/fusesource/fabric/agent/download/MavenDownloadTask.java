@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.fusesource.fabric.agent.mvn.DownloadableArtifact;
@@ -36,7 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-public class DownloadTask implements Runnable {
+public class MavenDownloadTask extends AbstractDownloadTask implements Runnable {
 
     /**
      * Logger.
@@ -51,76 +52,64 @@ public class DownloadTask implements Runnable {
      */
     private static final String Ix4 = "    ";
 
-    private final DefaultDownloadFuture future = new DefaultDownloadFuture(null);
-    private final String url;
     private final MavenRepositoryURL system;
     private final MavenConfiguration configuration;
 
-    public DownloadTask(String url, MavenRepositoryURL system, MavenConfiguration configuration) {
-        this.url = url;
+    public MavenDownloadTask(String url, MavenRepositoryURL system, MavenConfiguration configuration, ScheduledExecutorService executor) {
+        super(url, executor);
         this.system = system;
         this.configuration = configuration;
     }
 
-    public DownloadFuture getFuture() {
-        return future;
-    }
-
-    public void run() {
-        try {
-            Parser parser = new Parser(url.substring("mvn:".length()));
-            Set<DownloadableArtifact> downloadables;
-            if (!parser.getVersion().contains("SNAPSHOT")) {
-                downloadables = doCollectPossibleDownloads(parser, Collections.singletonList(system));
-                if (!downloadables.isEmpty()) {
-                    DownloadableArtifact artifact = downloadables.iterator().next();
-                    URL url = artifact.getArtifactURL();
-                    File file = new File(URI.create(url.toString()));
-                    if (file.exists()) {
-                        future.setFile(file);
-                        return;
-                    }
+    protected File download() throws Exception {
+        Parser parser = new Parser(url.substring("mvn:".length()));
+        Set<DownloadableArtifact> downloadables;
+        if (!parser.getVersion().contains("SNAPSHOT")) {
+            downloadables = doCollectPossibleDownloads(parser, Collections.singletonList(system));
+            if (!downloadables.isEmpty()) {
+                DownloadableArtifact artifact = downloadables.iterator().next();
+                URL url = artifact.getArtifactURL();
+                File file = new File(URI.create(url.toString()));
+                if (file.exists()) {
+                    return file;
                 }
             }
-            downloadables = collectPossibleDownloads(parser);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Possible download locations for [" + url + "]");
-                for (DownloadableArtifact artifact : downloadables) {
-                    LOG.trace("  " + artifact);
-                }
-            }
-            for (DownloadableArtifact artifact : downloadables) {
-                LOG.trace("Downloading [" + artifact + "]");
-                try {
-                    configuration.enableProxy(artifact.getArtifactURL());
-
-                    String repository = new File(URI.create(system.getURL().toString())).getPath();
-                    if (!repository.endsWith(Parser.FILE_SEPARATOR)) {
-                        repository = repository + Parser.FILE_SEPARATOR;
-                    }
-                    InputStream is = artifact.getInputStream();
-                    File file = new File(repository + parser.getArtifactPath());
-                    File tmp = new File(file.toString() + ".tmp");
-                    tmp.getParentFile().mkdirs();
-                    OutputStream os = new FileOutputStream(tmp);
-                    copy(is, os);
-                    file.delete();
-                    tmp.renameTo(file);
-                    future.setFile(file);
-                    return;
-                } catch (IOException ignore) {
-                    // go on with next repository
-                    LOG.debug(Ix2 + "Could not download [" + artifact + "]");
-                    LOG.trace(Ix2 + "Reason [" + ignore.getClass().getName() + ": " + ignore.getMessage() + "]");
-                }
-            }
-            // no artifact found
-            throw new IOException(
-                    "URL [" + url + "] could not be resolved."
-            );
-        } catch (IOException t) {
-            future.setException(t);
         }
+        downloadables = collectPossibleDownloads(parser);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Possible download locations for [" + url + "]");
+            for (DownloadableArtifact artifact : downloadables) {
+                LOG.trace("  " + artifact);
+            }
+        }
+        for (DownloadableArtifact artifact : downloadables) {
+            LOG.trace("Downloading [" + artifact + "]");
+            try {
+                configuration.enableProxy(artifact.getArtifactURL());
+
+                String repository = new File(URI.create(system.getURL().toString())).getPath();
+                if (!repository.endsWith(Parser.FILE_SEPARATOR)) {
+                    repository = repository + Parser.FILE_SEPARATOR;
+                }
+                InputStream is = artifact.getInputStream();
+                File file = new File(repository + parser.getArtifactPath());
+                File tmp = new File(file.toString() + ".tmp");
+                tmp.getParentFile().mkdirs();
+                OutputStream os = new FileOutputStream(tmp);
+                copy(is, os);
+                file.delete();
+                tmp.renameTo(file);
+                return file;
+            } catch (IOException ignore) {
+                // go on with next repository
+                LOG.debug(Ix2 + "Could not download [" + artifact + "]");
+                LOG.trace(Ix2 + "Reason [" + ignore.getClass().getName() + ": " + ignore.getMessage() + "]");
+            }
+        }
+        // no artifact found
+        throw new IOException(
+                "URL [" + url + "] could not be resolved."
+        );
     }
 
     /**
@@ -453,50 +442,6 @@ public class DownloadTask implements Runnable {
     }
 
     /**
-     * Creates an IOException with a message and a cause.
-     *
-     * @param message exception message
-     * @param cause   exception cause
-     * @return the created IO Exception
-     */
-    private IOException initIOException(final String message, final Exception cause) {
-        IOException exception = new IOException(message);
-        exception.initCause(cause);
-        return exception;
-    }
-
-    /**
-     * Copy the input stream to the output
-     *
-     * @param inputStream
-     * @param outputStream
-     * @throws IOException
-     */
-    private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
-        try {
-            byte[] buffer = new byte[8192];
-            int len;
-            for (; ;) {
-                len = inputStream.read(buffer);
-                if (len > 0) {
-                    outputStream.write(buffer, 0, len);
-                } else {
-                    break;
-                }
-            }
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-            }
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-            }
-        }
-    }
-
-    /**
      * Sorting comparator for downladable artifacts.
      * The sorting is done by:
      * 1. descending version
@@ -520,38 +465,6 @@ public class DownloadTask implements Runnable {
             return result;
         }
 
-    }
-
-    public static class DefaultDownloadFuture extends DefaultFuture<DownloadFuture> implements DownloadFuture {
-
-        public DefaultDownloadFuture(Object lock) {
-            super(lock);
-        }
-
-        public File getFile() throws IOException {
-            Object v = getValue();
-            if (v instanceof File) {
-                return (File) v;
-            } else if (v instanceof IOException) {
-                throw (IOException) v;
-            } else {
-                return null;
-            }
-        }
-
-        public void setFile(File file) {
-            if (file == null) {
-                throw new NullPointerException("file");
-            }
-            setValue(file);
-        }
-
-        public void setException(IOException exception) {
-            if (exception == null) {
-                throw new NullPointerException("exception");
-            }
-            setValue(exception);
-        }
     }
 
     public static class Log {
