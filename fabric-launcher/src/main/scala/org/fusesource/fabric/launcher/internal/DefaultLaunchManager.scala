@@ -434,8 +434,8 @@ class DefaultLaunchManager(stats_dir:File) extends LaunchManager {
 
     val next_services = Map[String, Service]( value.map { dto=>
       val enabled = dto.enabled==null || dto.enabled.booleanValue
-      val start_command = file_separator(asScalaIterable(dto.start).toList)
-      val end_command = file_separator(asScalaIterable(dto.stop).toList)
+      val start_command = file_separator(collectionAsScalaIterable(dto.start).toList)
+      val end_command = file_separator(collectionAsScalaIterable(dto.stop).toList)
       val status_check=new PidFileStatusCheck(new File(dto.pid_file))
       dto.id -> Service(dto.id, enabled, start_command, end_command, status_check)
     }.toSeq : _*)

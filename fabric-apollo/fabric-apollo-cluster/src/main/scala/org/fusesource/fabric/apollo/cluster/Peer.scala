@@ -107,7 +107,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
 
     val local_tokens:Set[String] = broker.config match {
       case config:ClusterBrokerDTO =>
-        collection.JavaConversions.asScalaIterable(config.security_tokens).toSet
+        collection.JavaConversions.collectionAsScalaIterable(config.security_tokens).toSet
       case _ =>
         Set()
     }
@@ -116,7 +116,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
     if( !local_tokens.isEmpty ) {
       // We just need one token to match.  Nodes may be configured with multiple tokens
       // when a token is getting changed across a cluster.
-      val remote_tokens:Set[String] = collection.JavaConversions.asScalaIterable(hello.getSecurityTokensList).toSet
+      val remote_tokens:Set[String] = collection.JavaConversions.collectionAsScalaIterable(hello.getSecurityTokensList).toSet
 
       val intersection = local_tokens.intersect( remote_tokens )
       if( intersection.isEmpty ) {
@@ -557,7 +557,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
       session.on_channel_ack(ack)
       if( ack.hasDeliverySeq ) {
         import collection.JavaConversions._
-        val l = asScalaIterable(ack.getDeliverySeqList)
+        val l = collectionAsScalaIterable(ack.getDeliverySeqList)
         next_ack_seq = Some(l.last.longValue)
         l.foreach { seq =>
           val delivery = waiting_for_ack.remove(seq.longValue)
