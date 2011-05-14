@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.example.simple;
 
 import org.fusesource.fabric.apollo.amqp.api.*;
+import org.fusesource.hawtbuf.Buffer;
 
 /**
  *
@@ -62,7 +63,8 @@ public class Receive extends Client implements MessageListener {
     @Override
     public boolean offer(Receiver receiver, Message message) {
         received++;
-        System.out.println("Received message #" + received + " : " + message);
+        Buffer msg = (Buffer)message.getBodyPart(0);
+        System.out.println("Received message #" + received + " : " + msg.ascii());
         if (!message.getSettled()) {
             receiver.settle(message, Outcome.ACCEPTED);
         }

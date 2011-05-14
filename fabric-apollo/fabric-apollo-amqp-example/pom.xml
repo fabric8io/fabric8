@@ -49,8 +49,12 @@
   </dependencies>
 
   <properties>
-    <message-count>1</message-count>
+    <transport>tcp</transport>
+    <count>1</count>
     <address>queue:test</address>
+    <port>5672</port>
+    <hostname>localhost</hostname>
+    <settled>false</settled>
   </properties>
 
   <profiles>
@@ -72,8 +76,11 @@
                 <configuration>
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Send</mainClass>
                   <arguments>
-                    <argument>--count=${message-count}</argument>
+                    <argument>--count=${count}</argument>
                     <argument>--address=${address}</argument>
+                    <argument>--port=${port}</argument>
+                    <argument>--hostname=${hostname}</argument>
+                    <argument>--settled=${settled}</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -100,8 +107,11 @@
                 <configuration>
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Receive</mainClass>
                   <arguments>
-                    <argument>--count=${message-count}</argument>
+                    <argument>--count=${count}</argument>
                     <argument>--address=${address}</argument>
+                    <argument>--port=${port}</argument>
+                    <argument>--hostname=${hostname}</argument>
+                    <argument>--settled=${settled}</argument>
                   </arguments>
                 </configuration>
               </execution>
