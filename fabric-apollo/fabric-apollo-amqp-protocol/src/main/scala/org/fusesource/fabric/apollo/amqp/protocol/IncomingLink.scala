@@ -96,7 +96,7 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
             l.offer(link, value)
           } catch {
             case t:Throwable =>
-              info("Message listener threw exception %s, rejecting message", t)
+              info("Message listener threw exception %s, rejecting message", t.getStackTraceString)
               val error = createAmqpError
               error.setCondition("Application error")
               error.setDescription(t.getLocalizedMessage)
