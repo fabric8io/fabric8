@@ -74,7 +74,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
     def add = {
       // TODO - Could buffer messages in case the link gets detached and then eventually re-attached
       //require(established == true, "Link not established to createSession")
-      //trace("Adding new outgoing message %s", message)
+      trace("Adding new outgoing message %s", message)
       available = available + 1
       val protoMessage = message.asInstanceOf[AmqpProtoMessage]
       val rc = outgoing.offer(protoMessage)
@@ -111,7 +111,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
         link_credit = None
     }
 
-    //trace("Updated link credit to %s", link_credit)
+    trace("Updated link credit to %s", link_credit)
 
     flowControlListener match {
       case Some(listener) =>
@@ -135,18 +135,18 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
 
   def offer(message:AmqpProtoMessage) = {
     if (!established) {
-      //trace("received message offer but not established")
+      trace("received message offer but not established")
       false
     } else if (!sufficientLinkCredit) {
-      //trace("received message offer but insufficient link credit (%s)", link_credit)
+      trace("received message offer but insufficient link credit (%s)", link_credit)
       send_updated_flow_state(flowstate)
       false
     } else {
-      //trace("received message offer and am able to send")
+      trace("received message offer and am able to send")
       link_credit.foreach((x) => link_credit = Option(x - 1))
       transfer_count = transfer_count + 1
       available = available - 1
-      //trace("Sending message: %s", message)
+      trace("Sending message: %s", message)
       session.send(this, message)
       true
     }

@@ -150,7 +150,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       session.remote_channel = remoteChannel
       channels.put(remoteChannel,session.channel)
     }
-    //trace("Session created : %s", handler.session);
+    trace("Session created : %s", handler.session);
     sessionListener.foreach((x) => x.sessionCreated(this, session))
     session
   }
@@ -159,7 +159,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     sessions.remove(channel) match {
       case Some(handler) =>
         val remote_channel = channels.remove(handler.session.remote_channel)
-        //trace("Session released : %s", handler.session)
+        trace("Session released : %s", handler.session)
         sessionListener.foreach((x) => x.sessionReleased(this, handler.session))
       case None =>
     }
@@ -205,7 +205,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
         Option(b.getRemoteChannel) match {
           case Some(local_channel) =>
             channels.put(channel, local_channel.intValue)
-            //trace("Received response to begin frame sent from local_channel=%s from remote_channel=%s", local_channel.intValue, channel)
+            trace("Received response to begin frame sent from local_channel=%s from remote_channel=%s", local_channel.intValue, channel)
             session_from_remote_channel(channel) match {
               case Some(h) =>
                 h.session.remote_channel = channel
@@ -215,7 +215,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
             }
           case None =>
             val s = session(true, channel)
-            //trace("Created session from remote begin request %s", s)
+            trace("Created session from remote begin request %s", s)
             session_from_remote_channel(channel)
         }
       case _ =>
@@ -298,18 +298,14 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       if ( getMaxFrameSize != 0 ) {
         response.setMaxFrameSize(getMaxFrameSize)
       }
-      dispatchQueue !! {
-        /*
-        Option(open) match {
-          case Some(o) =>
-            trace("Received open frame {%s}, responding with {%s}", o, response)
-          case None =>
-            trace("Sending open frame {%s}", response)
-        }
-        */
-        val rc = send(response)
+      Option(open) match {
+        case Some(o) =>
+        trace("Received open frame {%s}, responding with {%s}", o, response)
+        case None =>
+        trace("Sending open frame {%s}", response)
       }
-    }
+      val rc = send(response)
+      }
     Option(open).foreach((o) => {
       connecting = false
       Option(open.getIdleTimeOut) match {
@@ -392,7 +388,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       } else {
         rc.setType(AmqpFrame.AMQP_FRAME_TYPE)
       }
-      //trace("Setting outgoing frame channel to %s" ,channel)
+      trace("Setting outgoing frame channel to %s" ,channel)
       rc.setChannel(channel)
       rc
     }
@@ -447,7 +443,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   def getPeerContainerId = peerContainerId
 
   def onRefill: Unit = {
-    //trace("onRefill called...")
+    trace("onRefill called...")
     if( transport_sink.refiller !=null ) {
       transport_sink.refiller.run
     }
@@ -469,7 +465,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   }
 
   def onTransportConnected: Unit = {
-    //trace("Connected to %s:/%s", transport.getTypeId, transport.getRemoteAddress)
+    trace("Connected to %s:/%s", transport.getTypeId, transport.getRemoteAddress)
     outbound_sessions = new SinkMux[AnyRef](transport_sink.map {
       x =>
         x
@@ -481,7 +477,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   }
 
   def onTransportDisconnected: Unit = {
-    //trace("Disconnected from %s", transport.getRemoteAddress)
+    trace("Disconnected from %s", transport.getRemoteAddress)
     close
   }
 

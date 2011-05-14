@@ -140,7 +140,7 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
   }
 
   def transfer(message:AmqpProtoMessage): Unit = {
-    //trace("Received incoming message : %s", message)
+    trace("Received incoming message : %s", message)
     available.foreach((x) => if (x > 0) {available = Option(x - 1)} else {available = Option(0L)})
     transfer_count.foreach((x) => transfer_count = Option(x + 1))
     // TODO - Should probably reject transfer if sender has exceeded available link credit, for now we'll be forgiving.
