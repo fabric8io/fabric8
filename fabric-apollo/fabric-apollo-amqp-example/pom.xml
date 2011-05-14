@@ -50,6 +50,7 @@
 
   <properties>
     <message-count>1</message-count>
+    <address>queue:test</address>
   </properties>
 
   <profiles>
@@ -72,6 +73,7 @@
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Send</mainClass>
                   <arguments>
                     <argument>--count=${message-count}</argument>
+                    <argument>--address=${address}</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -99,6 +101,7 @@
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Receive</mainClass>
                   <arguments>
                     <argument>--count=${message-count}</argument>
+                    <argument>--address=${address}</argument>
                   </arguments>
                 </configuration>
               </execution>
