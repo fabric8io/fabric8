@@ -356,6 +356,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
       val transfer = message.transfer(current_transfer_id.getAndIncrement)
       transfer.setHandle(link.handle.get)
+      transfer.setMessageFormat(0L)
 
       if (!Option(transfer.getSettled).getOrElse(false).asInstanceOf[Boolean]) {
         trace("Adding outgoing transfer ID %s to unsettled map for link handle %s", transfer.getTransferId, transfer.getHandle)
