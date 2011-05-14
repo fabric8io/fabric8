@@ -108,7 +108,13 @@ class AmqpMessageTransfer(val message:AmqpProtoMessage, val name:AmqpString, val
 
   def destination = dest
 
-  def persistent = Option[Boolean](message.header.getDurable).getOrElse(false)
+  def persistent = Option(message.header.getDurable) match {
+    case Some(b) =>
+      b.booleanValue
+    case None =>
+      false
+  }
+
   def expiration = Option[BigInteger](message.header.getTtl).getOrElse(BigInteger.ZERO).longValue
   def priority = Option[Short](message.header.getPriority).getOrElse(0).asInstanceOf[Byte]
 
