@@ -27,27 +27,8 @@ public class Send extends Client {
     }
 
     @Override
-    public void go() {
-        final Connection connection = AmqpConnectionFactory.create();
-        connection.setOnClose(new Runnable() {
-            public void run() {
-                exit_latch.countDown();
-            }
-        });
-        connection.connect(getConnectionURI(), new Runnable() {
-            public void run() {
-                onConnect(connection);
-            }
-        });
-        try {
-            System.out.println("Sending messages");
-            exit_latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void onConnect(final Connection connection) {
+        System.out.println("Connected, sending messages");
         final Session session = connection.createSession();
         final Sender sender = session.createSender();
         sender.setOnDetach(new Runnable() {
@@ -68,7 +49,7 @@ public class Send extends Client {
     }
 
     public void onAttach(final Connection connection, final Session session, final Sender sender) {
-        sendMessage(session, sender, 0);
+        sendMessage(session, sender, 1);
     }
 
     public void sendMessage(final Session session, final Sender sender, final int current_count) {
@@ -88,7 +69,7 @@ public class Send extends Client {
                 }
             });
         }
-        System.out.println("Sending message " + (current_count + 1));
+        System.out.println("Sending message " + current_count);
         sender.put(message);
     }
 

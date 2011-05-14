@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.example.simple;
 
+import org.fusesource.fabric.apollo.amqp.api.AmqpConnectionFactory;
+import org.fusesource.fabric.apollo.amqp.api.Connection;
 import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
 
 import java.util.concurrent.CountDownLatch;
@@ -55,11 +57,30 @@ public abstract class Client {
         return String.format("%s://%s:%s", transport, hostname, port);
     }
 
-    public abstract void go();
+    public void go() {
+        final Connection connection = AmqpConnectionFactory.create();
+        connection.setOnClose(new Runnable() {
+            public void run() {
+                exit_latch.countDown();
+            }
+        });
+        connection.connect(getConnectionURI(), new Runnable() {
+            public void run() {
+                onConnect(connection);
+            }
+        });
+        try {
+            exit_latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     public abstract void printHelp();
 
     public void usage() {
         printHelp();
         System.exit(0);
     }
+
+    public abstract void onConnect(Connection connection);
 }

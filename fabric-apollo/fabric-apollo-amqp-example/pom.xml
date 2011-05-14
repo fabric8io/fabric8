@@ -80,5 +80,32 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>receive</id>
+      <build>
+        <defaultGoal>test</defaultGoal>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+              <execution>
+                <phase>test</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Receive</mainClass>
+                  <arguments>
+                    <argument>--count=${message-count}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
