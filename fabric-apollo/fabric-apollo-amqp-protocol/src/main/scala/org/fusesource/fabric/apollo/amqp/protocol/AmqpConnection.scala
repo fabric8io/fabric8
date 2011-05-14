@@ -257,9 +257,8 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
 
   def header(protocolHeader: AmqpProtocolHeader): Unit = {
     if ( !headerSent.getAndSet(true) ) {
-      dispatchQueue !! {
+      def send_response = {
         val response = new AmqpProtocolHeader
-        /*
         Option(protocolHeader) match {
           case Some(h) =>
             trace("Received header {%s}, responding with {%s}", h, response)
@@ -267,8 +266,12 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
             trace("Sending protocol header {%s}", response)
 
         }
-        */
         val rc = send(response)
+      }
+      if (dispatchQueue != getCurrentQueue) {
+        dispatchQueue.future[Unit](send_response).apply
+      } else {
+        send_response
       }
     }
 
@@ -298,14 +301,22 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       if ( getMaxFrameSize != 0 ) {
         response.setMaxFrameSize(getMaxFrameSize)
       }
-      Option(open) match {
-        case Some(o) =>
-        trace("Received open frame {%s}, responding with {%s}", o, response)
-        case None =>
-        trace("Sending open frame {%s}", response)
+
+      def send_response = {
+        Option(open) match {
+          case Some(o) =>
+            trace("Received open frame {%s}, responding with {%s}", o, response)
+          case None =>
+            trace("Sending open frame {%s}", response)
+        }
+        val rc = send(response)
       }
-      val rc = send(response)
+      if (dispatchQueue != getCurrentQueue) {
+        dispatchQueue.future[Unit](send_response).apply
+      } else {
+        send_response
       }
+    }
     Option(open).foreach((o) => {
       connecting = false
       Option(open.getIdleTimeOut) match {
