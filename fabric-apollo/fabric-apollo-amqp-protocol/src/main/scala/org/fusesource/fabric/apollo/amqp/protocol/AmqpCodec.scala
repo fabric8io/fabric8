@@ -88,7 +88,7 @@ class AmqpCodec extends ProtocolCodec with Logging {
       ProtocolCodec.BufferState.FULL
     } else {
       val was_empty = is_empty
-      //debug("Sending %s", command);
+      debug("Sending %s", command);
       command match {
         case frame:AmqpProtocolHeader=>
           AmqpProtocolHeaderCodec.INSTANCE.encode(frame, new DataOutputStream(next_write_buffer))
@@ -106,9 +106,9 @@ class AmqpCodec extends ProtocolCodec with Logging {
   def flush():ProtocolCodec.BufferState = {
     // if we have a pending write that is being sent over the socket...
     if ( write_buffer.remaining() != 0 ) {
-      trace("Remaining data in write buffer : %s bytes", write_buffer.remaining())
+      //trace("Remaining data in write buffer : %s bytes", write_buffer.remaining())
       val bytes_out = write_channel.write(write_buffer)
-      trace("Wrote %s bytes", bytes_out);
+      //trace("Wrote %s bytes", bytes_out);
       write_counter += bytes_out
     }
 
@@ -119,7 +119,7 @@ class AmqpCodec extends ProtocolCodec with Logging {
         val prev_size = (write_buffer.position()+512).max(512).min(write_buffer_size)
         write_buffer = next_write_buffer.toBuffer().toByteBuffer()
         next_write_buffer = new DataByteArrayOutputStream(prev_size)
-        trace("Current write buffer size is %s bytes, next write buffer size is %s bytes", write_buffer.remaining, prev_size)
+        //trace("Current write buffer size is %s bytes, next write buffer size is %s bytes", write_buffer.remaining, prev_size)
     }
 
     if ( is_empty ) {
@@ -172,7 +172,7 @@ class AmqpCodec extends ProtocolCodec with Logging {
 
         // Try to fill the buffer with data from the socket..
         var count = read_channel.read(read_buffer)
-        trace("Read in %s bytes", count)
+        //trace("Read in %s bytes", count)
         if (count == -1) {
             throw new EOFException("Peer disconnected")
         } else if (count == 0) {
@@ -204,7 +204,7 @@ class AmqpCodec extends ProtocolCodec with Logging {
         }
       }
     }
-    //debug("Received %s", command)
+    debug("Received %s", command)
     return command
   }
 
@@ -212,7 +212,7 @@ class AmqpCodec extends ProtocolCodec with Logging {
     val protocol_header = AmqpProtocolHeaderCodec.INSTANCE.decode(new DataInputStream(read_buffer.array.in))
     val new_pos = read_buffer.position + AmqpProtocolHeaderCodec.INSTANCE.getFixedSize
     read_buffer.position(new_pos)
-    trace("Read protocol header, read_buffer position : %s", read_buffer.position)
+    //trace("Read protocol header, read_buffer position : %s", read_buffer.position)
 
     read_waiting_on += 8
     next_action = read_frame_header
@@ -220,13 +220,13 @@ class AmqpCodec extends ProtocolCodec with Logging {
   }
 
   def read_frame_header:()=>AnyRef = ()=> {
-    trace("Waiting to read in 8 byte frame header");
+    //trace("Waiting to read in 8 byte frame header");
     read_buffer.mark
     val buf = new Array[Byte](8)
     read_buffer.get(buf)
-    trace("Read in %s", buf.map{(x) => String.format("0x%02X", java.lang.Byte.valueOf(x))}.mkString(" "))
+    //trace("Read in %s", buf.map{(x) => String.format("0x%02X", java.lang.Byte.valueOf(x))}.mkString(" "))
     val size = BitUtils.getUInt(buf, 0).asInstanceOf[Int]
-    trace("Frame size : %s", size)
+    //trace("Frame size : %s", size)
     read_buffer.reset
     read_waiting_on += (size - 8)
     next_action = read_frame(size)
@@ -234,13 +234,13 @@ class AmqpCodec extends ProtocolCodec with Logging {
   }
 
   def read_frame(size:Int): ()=>AnyRef = ()=> {
-    trace("Next frame to read in is %s bytes, read_buffer.position=%s, read_buffer.array length=%s", size, read_buffer.position, read_buffer.array.length)
+    //trace("Next frame to read in is %s bytes, read_buffer.position=%s, read_buffer.array length=%s", size, read_buffer.position, read_buffer.array.length)
     val buf = new Buffer(read_buffer.array, read_buffer.position, size)
-    trace("Read in : %s", buf)
+    //trace("Read in : %s", buf)
     val rc = new AmqpFrame(new DataInputStream(buf.in))
     read_buffer.position(read_buffer.position+size)
 
-    trace("Read frame, read buffer position : %s", read_buffer.position)
+    //trace("Read frame, read buffer position : %s", read_buffer.position)
 
     read_waiting_on += 8
     next_action = read_frame_header
