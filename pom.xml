@@ -55,9 +55,9 @@
         </fabric.osgi.import.strict.version>
         <fabric.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fabric.osgi.import.default.version>
         <fabric.osgi.import.defaults>
-            org.springframework.*;version="[2.5,4)",
+            org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
-            org.apache.camel.*;version="[2.5,3)",
+            org.apache.camel.*;version="[2.6,3)",
         </fabric.osgi.import.defaults>
         <fabric.osgi.import.before.defaults/>
         <fabric.osgi.import.additional/>
@@ -105,13 +105,13 @@
         <hawtdispatch-version>1.2</hawtdispatch-version>
         <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
         <sigar-version>1.6.4</sigar-version>
-        <jackson-version>1.7.0</jackson-version>
+        <jackson-version>1.8.0</jackson-version>
         <jersey-version>1.5</jersey-version>
         <jetty-version>7.1.6.v20100715</jetty-version>
 
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        <spring-version>3.0.4.RELEASE</spring-version>
+        <spring-version>3.0.5.RELEASE</spring-version>
         
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
