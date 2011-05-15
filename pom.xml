@@ -57,7 +57,7 @@
         <fabric.osgi.import.defaults>
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
-            org.apache.camel.*;version="[2.6,3)",
+            org.apache.camel.*;version="[2.7,3)",
         </fabric.osgi.import.defaults>
         <fabric.osgi.import.before.defaults/>
         <fabric.osgi.import.additional/>
@@ -82,7 +82,7 @@
 
         <activemq-version>5.4.2-fuse-03-09</activemq-version>
         <cxf-version>2.3.3-fuse-01-09</cxf-version>
-        <camel-version>2.6.0-fuse-01-09</camel-version>
+        <camel-version>2.7.x-fuse-SNAPSHOT</camel-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
         <karaf-version>2.2.0-fuse-00-10</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
