@@ -38,7 +38,7 @@ object AmqpConnection {
   val DEFAULT_DIE_DELAY = 1 * 1000
   var die_delay = DEFAULT_DIE_DELAY
 
-  val DEFAULT_HEARTBEAT = 2 * 1000L
+  val DEFAULT_HEARTBEAT = 10 * 1000L
 
   def connection() = {
     val rc = new AmqpConnection
@@ -73,7 +73,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   val heartbeat_monitor = new HeartBeatMonitor
 
   var idle_timeout = DEFAULT_HEARTBEAT
-  var heartbeat_interval = idle_timeout / 2
+  def heartbeat_interval = (idle_timeout - (idle_timeout * 0.05)).asInstanceOf[Long]
 
   var uri:URI = null
   var options:Map[String, String] = null
@@ -322,7 +322,6 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       Option(open.getIdleTimeOut) match {
         case Some(timeout) =>
           idle_timeout = idle_timeout.min(timeout.getValue.longValue)
-          heartbeat_interval = idle_timeout / 2
           heartbeat_monitor.read_interval = idle_timeout
           heartbeat_monitor.write_interval = heartbeat_interval
           heartbeat_monitor.transport = transport

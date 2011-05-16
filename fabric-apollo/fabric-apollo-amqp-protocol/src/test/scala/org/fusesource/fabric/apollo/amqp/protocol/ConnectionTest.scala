@@ -71,7 +71,7 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
       })
     })
 
-    latch.await(30, TimeUnit.SECONDS) should be (true)
+    latch.await(60, TimeUnit.SECONDS) should be (true)
 
   }
 
