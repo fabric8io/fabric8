@@ -55,6 +55,7 @@
     <port>5672</port>
     <hostname>localhost</hostname>
     <settled>false</settled>
+    <batch_size>10</batch_size>
   </properties>
 
   <profiles>
@@ -77,6 +78,37 @@
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Send</mainClass>
                   <arguments>
                     <argument>--count=${count}</argument>
+                    <argument>--address=${address}</argument>
+                    <argument>--port=${port}</argument>
+                    <argument>--hostname=${hostname}</argument>
+                    <argument>--settled=${settled}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>batch_send</id>
+      <build>
+        <defaultGoal>test</defaultGoal>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+              <execution>
+                <phase>test</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.BatchSend</mainClass>
+                  <arguments>
+                    <argument>--batch_size=${batch_size}</argument>
                     <argument>--address=${address}</argument>
                     <argument>--port=${port}</argument>
                     <argument>--hostname=${hostname}</argument>

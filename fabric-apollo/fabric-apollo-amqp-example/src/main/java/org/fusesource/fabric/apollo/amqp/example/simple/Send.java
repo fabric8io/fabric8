@@ -14,7 +14,8 @@ import org.fusesource.fabric.apollo.amqp.api.*;
 import org.fusesource.hawtbuf.Buffer;
 
 /**
- *
+ * Simple AMQP sender that sends a message and waits for message 
+ * acknowledgement before sending the next message
  */
 public class Send extends Client {
 
@@ -56,6 +57,13 @@ public class Send extends Client {
         Message message = session.createMessage();
         message.addBodyPart(Buffer.ascii(message_prefix + current_count));
 
+        configureMessageTasks(session, sender, current_count, message);
+
+        System.out.println("Sending message " + current_count);
+        sender.put(message);
+    }
+
+    public void configureMessageTasks(final Session session, final Sender sender, final int current_count, final Message message) {
         if (current_count >= count) {
             message.onAck(new Runnable() {
                 public void run() {
@@ -69,8 +77,6 @@ public class Send extends Client {
                 }
             });
         }
-        System.out.println("Sending message " + current_count);
-        sender.put(message);
     }
 
     @Override

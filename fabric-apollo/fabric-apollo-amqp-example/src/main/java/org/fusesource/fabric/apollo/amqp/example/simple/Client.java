@@ -34,6 +34,10 @@ public abstract class Client {
     protected CountDownLatch exit_latch = new CountDownLatch(1);
 
     public Client(String ... args) {
+        parseArgs(args);
+    }
+
+    public void parseArgs(String ... args) {
         for(String arg : args) {
             if (arg.startsWith("--port")) {
                 port = Integer.parseInt(arg.split("=")[1]);
@@ -75,6 +79,7 @@ public abstract class Client {
             e.printStackTrace();
         }
     }
+
     public abstract void printHelp();
 
     public void usage() {
