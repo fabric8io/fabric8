@@ -40,7 +40,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
             val entry = iter.next
             val key:AmqpSymbol = entry.getKey.asInstanceOf[AmqpSymbol]
             val value:AmqpFilter = entry.getValue.asInstanceOf[AmqpFilter]
-            //trace("Adding filter \"%s\" : \"%s\"", key, value)
+            trace("Adding filter \"%s\" : \"%s\"", key, value)
             val expr = SelectorParser.parse(value.getPredicate.asInstanceOf[AmqpString].getValue)
             _filters.append((key.getValue, expr))
           }
@@ -80,7 +80,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       while (iter.hasNext && rc) {
         val (key, filter) = iter.next
         rc = filter.matches(delivery.message)
-        //trace("Filter \"%s\" evaluated to %s for message %s", key, rc, delivery.message)
+        trace("Filter \"%s\" evaluated to %s for message %s", key, rc, delivery.message)
       }
       rc
     } else {
@@ -107,7 +107,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       if ( !closed ) {
         closed = true
         consumer.handler.outbound_sessions.close(session)
-        //trace("Closed delivery consumer and releasing")
+        trace("Closed delivery consumer and releasing")
         release
       }
     }
@@ -116,7 +116,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
         // TODO
       val out = link.asInstanceOf[OutgoingLink]
       val rc = out.canSend && out.session.asInstanceOf[Session].sufficientSessionCredit
-      //trace("checking state of outgoing link, able to send : %s", rc)
+      trace("checking state of outgoing link, able to send : %s", rc)
       if (!rc) {
         try {
           // TODO - Figure out how many deliveries are available and let the client know
@@ -131,9 +131,9 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
     }
 
     def offer(delivery:Delivery) : Boolean = {
-      //trace("received message offer : %s", delivery);
+      trace("received message offer : %s", delivery);
       val message_transfer = delivery.message.asInstanceOf[AmqpMessageTransfer]
-      //trace("putting message : %s", message_transfer.message);
+      trace("putting message : %s", message_transfer.message);
       val message = link.getDistributionMode match {
         case MOVE =>
           message_transfer.message
@@ -144,6 +144,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       }
       if (message.settled) {
         if (delivery.ack != null) {
+          trace("acknowledging message delivery for message %s", message)
           delivery.ack(true, null)
         }
       } else {
@@ -151,10 +152,12 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
           message.outcome match {
             case Outcome.ACCEPTED =>
               if (delivery.ack != null) {
+                trace("acknowledging message delivery for message %s", message)
                 delivery.ack(true, null)
               }
             case _ =>
               if (delivery.ack != null) {
+                trace("acknowledging message delivery for message %s", message)
                 delivery.ack(false, null)
               }
           }
