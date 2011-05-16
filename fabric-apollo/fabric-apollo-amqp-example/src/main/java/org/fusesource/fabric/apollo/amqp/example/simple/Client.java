@@ -80,6 +80,10 @@ public abstract class Client {
         }
     }
 
+    public void println(String formatStr, Object ... args) {
+        System.out.println(String.format(formatStr, args));
+    }
+
     public abstract void printHelp();
 
     public void usage() {

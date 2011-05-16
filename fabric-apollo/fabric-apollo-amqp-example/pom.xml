@@ -108,6 +108,7 @@
                 <configuration>
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.BatchSend</mainClass>
                   <arguments>
+                    <argument>--count=${count}</argument>
                     <argument>--batch_size=${batch_size}</argument>
                     <argument>--address=${address}</argument>
                     <argument>--port=${port}</argument>

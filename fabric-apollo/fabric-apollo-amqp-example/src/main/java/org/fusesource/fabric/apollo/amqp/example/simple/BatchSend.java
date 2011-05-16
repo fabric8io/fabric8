@@ -20,9 +20,9 @@ import org.fusesource.hawtbuf.Buffer;
  */
 public class BatchSend extends Send {
 
-    protected int batch_size = 10;
+    protected int batch_size;
 
-    private int current_batch = 0;
+    private int current_batch;
 
     public static void main(String ... args) {
         new BatchSend(args).go();
@@ -30,26 +30,32 @@ public class BatchSend extends Send {
 
     public BatchSend(String ... args) {
         super(args);
-        count = batch_size * 5;
         current_batch = batch_size;
-        System.out.println("Using batch_size : " + batch_size + " and count : " + count);
+        println("Using batch_size : %s and count : %s", batch_size, count);
+        println("current_batch : %s", current_batch);
     }
 
     @Override
     public void parseArgs(String ... args) {
         super.parseArgs(args);
+        batch_size = 10;
         for(String arg : args) {
+            println("Checking arg : %s", arg);
             if (arg.startsWith("--batch_size")) {
                 batch_size = Integer.parseInt(arg.split("=")[1]);
+                println("Set batch_size to %s", batch_size);
             }
         }
     }
 
     @Override
     public void configureMessageTasks(final Session session, final Sender sender, final int current_count, final Message message) {
+
         current_batch--;
 
-        if (current_batch > 0) {
+        println("Messages left in batch : %s, left overall : %s", current_batch, count - current_count);
+
+        if (current_batch > 0 && !(current_count >= count)) {
             message.onPut(new Runnable() {
                 public void run() {
                     sendMessage(session, sender, current_count + 1);
