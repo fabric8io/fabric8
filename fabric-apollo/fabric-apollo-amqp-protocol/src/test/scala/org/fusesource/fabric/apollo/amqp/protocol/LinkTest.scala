@@ -228,6 +228,7 @@ class TestSession extends LinkSession with Session with MessageFactory with Logg
     }
   }
 
+  def getConnection = null.asInstanceOf[Connection]
 
   def dispatch_queue = queue
 

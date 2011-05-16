@@ -583,7 +583,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def setLinkListener(listener: LinkListener) = this.listener = Option(listener)
   def setRemoteChannel(channel: Short) = remote_channel = channel
-  def getConnection = connection
+  def getConnection = connection.asInstanceOf[Connection]
   def getChannel = channel
   def dispatch_queue = connection.getDispatchQueue
 
