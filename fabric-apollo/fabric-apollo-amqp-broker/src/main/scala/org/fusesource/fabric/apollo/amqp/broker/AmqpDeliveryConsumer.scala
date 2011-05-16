@@ -117,7 +117,8 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       val out = link.asInstanceOf[OutgoingLink]
       val rc = out.canSend && out.session.asInstanceOf[Session].sufficientSessionCredit
       trace("checking state of outgoing link, able to send : %s", rc)
-      if (!rc) {
+      trace("session : %s producer : %s", session, producer)
+      if (!out.canSend) {
         try {
           // TODO - Figure out how many deliveries are available and let the client know
           val flow = out.flowstate
