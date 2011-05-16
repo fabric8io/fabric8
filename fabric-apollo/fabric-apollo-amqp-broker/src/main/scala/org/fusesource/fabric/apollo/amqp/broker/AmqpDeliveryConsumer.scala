@@ -119,7 +119,10 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       //trace("checking state of outgoing link, able to send : %s", rc)
       if (!rc) {
         try {
-          out.send_updated_flow_state(out.flowstate)
+          // TODO - Figure out how many deliveries are available and let the client know
+          val flow = out.flowstate
+          flow.setAvailable(100L)
+          out.send_updated_flow_state(flow)
         } catch {
           case _ =>
         }
