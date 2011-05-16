@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.example.simple;
 
+import java.util.concurrent.TimeUnit;
 import org.fusesource.fabric.apollo.amqp.api.*;
 import org.fusesource.hawtbuf.Buffer;
 
@@ -23,6 +24,8 @@ public class BatchSend extends Send {
     protected int batch_size;
 
     private int current_batch;
+
+    //private long enqueue_delay = 0;
 
     public static void main(String ... args) {
         new BatchSend(args).go();
@@ -53,6 +56,14 @@ public class BatchSend extends Send {
         if (current_batch > 0 && !(current_count >= count)) {
             message.onPut(new Runnable() {
                 public void run() {
+                    /*
+                     * TODO - Decide if this delay is really wanted...
+                    session.getConnection().getDispatchQueue().executeAfter(enqueue_delay, TimeUnit.MILLISECONDS, new Runnable() {
+                        public void run() {
+                            sendMessage(session, sender, current_count + 1);
+                        }
+                    });
+                    */
                     sendMessage(session, sender, current_count + 1);
                 }
             });
