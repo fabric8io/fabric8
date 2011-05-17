@@ -16,6 +16,9 @@ import org.fusesource.fabric.apollo.amqp.api.Sender;
 import org.fusesource.fabric.apollo.amqp.api.Session;
 import org.fusesource.hawtbuf.Buffer;
 
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpLong;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpSymbol;
+
 /**
  * Simple AMQP sender that sends a message and waits for message
  * acknowledgement before sending the next message
@@ -36,8 +39,7 @@ public class Send extends Client {
         final Session session = connection.createSession();
         final Sender sender = session.createSender();
 
-        // TODO - fix marshalling of this when the corresponding attach comes from the broker
-        //sender.getSourceOptionsMap().put(createAmqpSymbol("batch-size"), createAmqpLong(batch_size));
+        sender.getSourceOptionsMap().put(createAmqpSymbol("batch-size"), createAmqpLong(batch_size));
 
         sender.setOnDetach(new Runnable() {
             public void run() {
@@ -66,7 +68,7 @@ public class Send extends Client {
 
         configureMessageTasks(session, sender, current_count, message);
 
-        println("Sending message %s : %s", current_count, message);
+        println("Sending message %s : %s", current_count, message.getBodyPart(0));
         sender.put(message);
     }
 

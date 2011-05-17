@@ -13,6 +13,9 @@ package org.fusesource.fabric.apollo.amqp.example.simple;
 import org.fusesource.fabric.apollo.amqp.api.*;
 import org.fusesource.hawtbuf.Buffer;
 
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpLong;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpSymbol;
+
 /**
  *
  */
@@ -47,14 +50,14 @@ public class Receive extends Client implements MessageListener {
             }
         });
 
-        // TODO - fix marshalling of this when the corresponding attach comes from the broker
-        //receiver.getSourceOptionsMap().put(createAmqpSymbol("batch-size"), createAmqpLong(batch_size));
+        receiver.getSourceOptionsMap().put(createAmqpSymbol("batch-size"), createAmqpLong(batch_size));
 
         receiver.setAddress(address);
         receiver.setListener(this);
         receiver.attach(new Runnable() {
             public void run() {
                 println("Attached receiver...");
+                receiver.addLinkCredit(batch_size);
             }
         });
     }
@@ -76,8 +79,8 @@ public class Receive extends Client implements MessageListener {
             receiver.detach();
         }
         Long credit = receiver.getAvailableLinkCredit();
-        if (credit != null && credit < 5) {
-            receiver.addLinkCredit(10 - credit);
+        if (credit != null && credit < 1) {
+            receiver.addLinkCredit(batch_size - credit);
         }
         return true;
     }
@@ -89,6 +92,6 @@ public class Receive extends Client implements MessageListener {
 
     @Override
     public long needLinkCredit(long available) {
-        return Math.max(available, 10);
+        return 0;
     }
 }
