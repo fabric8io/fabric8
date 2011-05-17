@@ -6,12 +6,16 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
+
 package org.fusesource.fabric.cxf;
 
-public class FabricFailOverFeature extends FabricLoadBalancerFeature {
+/**
+ * Always return the first physical address from the locator
+ */
+public class FirstOneLoadBalanceStrategy extends FabricLoadBalanceStrategySupport {
 
-    protected LoadBalanceStrategy getDefaultLoadBalanceStrategy() {
-        // This strategy always return the first physical address from the locator
-        return new FirstOneLoadBalanceStrategy();
+    @Override
+    public String getNextAlternateAddress() {
+        return alternateAddressList.get(0);
     }
 }

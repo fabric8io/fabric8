@@ -10,7 +10,10 @@ package org.fusesource.fabric.cxf;
 
 import org.fusesource.fabric.groups.Group;
 
+import java.util.List;
+
 public interface LoadBalanceStrategy {
     void setGroup(Group group);
+    List<String> getAlternateAddressList();
     String getNextAlternateAddress();
 }
