@@ -201,6 +201,26 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     }
   }
 
+  def getTargetOptionsMap = {
+    Option(target.getOptions) match {
+      case Some(options) =>
+        options
+      case None =>
+        target.setOptions(createAmqpOptions)
+        getTargetOptionsMap
+    }
+  }
+
+  def getSourceOptionsMap = {
+    Option(source.getOptions) match {
+      case Some(options) =>
+        options
+      case None =>
+        source.setOptions(createAmqpOptions)
+        getSourceOptionsMap
+    }
+  }
+
   def setAddress(address:String) = this.address = address
   def getAddress = this.address
 
