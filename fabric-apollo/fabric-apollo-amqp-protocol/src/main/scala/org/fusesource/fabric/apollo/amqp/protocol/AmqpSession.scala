@@ -57,8 +57,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var on_begin:Option[Runnable] = None
   var on_end:Option[Runnable] = None
 
-  var incoming_window_max = 10L
-  var outgoing_window_max = 10L
+  var incoming_window_max = 50L
+  var outgoing_window_max = 50L
 
   var incoming_window = incoming_window_max
   var outgoing_window = outgoing_window_max
@@ -67,12 +67,6 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var remote_outgoing_window = 0L
 
   var next_incoming_transfer_id:Option[Long] = None
-
-  val outstandingAcks = new LinkedBlockingQueue[Tuple4[Long, AmqpType[_,AmqpBuffer[_]], Boolean, Boolean]]
-  val service:ExecutorService = Executors.newSingleThreadExecutor
-  val startAckThread:AtomicBoolean = new AtomicBoolean(true)
-  // TODO - add accessors for this
-  val ackTime = 500
 
   var refiller:Runnable = null
 

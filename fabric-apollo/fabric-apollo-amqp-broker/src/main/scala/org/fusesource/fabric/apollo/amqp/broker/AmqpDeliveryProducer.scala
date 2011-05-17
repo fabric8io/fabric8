@@ -43,7 +43,7 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
 
   handler.connectDeliveryProducer(this)
 
-  // TODO - should calculate how much credit to supply to get maximum throughput
+  // TODO - Allow producer to configure how much credit to give via link capabilities
   def needLinkCredit(available:Long) : Long = {
     if (producer.full) {
       0L

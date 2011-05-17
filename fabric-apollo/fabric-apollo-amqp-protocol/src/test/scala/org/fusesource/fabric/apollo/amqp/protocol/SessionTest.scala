@@ -176,11 +176,6 @@ class SessionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
     session1.begin(NOOP)
 
-    display
-
-    session1.outgoing_window should be (10L)
-    session2.outgoing_window should be (10L)
-
     session1.setOutgoingWindow(20L)
 
     display

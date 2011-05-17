@@ -111,7 +111,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       }
     }
 
-    // TODO - make this configurable somehow...
+    // TODO - make this configurable via link desired capabilities
     var batch_size = 1000
     var current_batch = batch_size
 
