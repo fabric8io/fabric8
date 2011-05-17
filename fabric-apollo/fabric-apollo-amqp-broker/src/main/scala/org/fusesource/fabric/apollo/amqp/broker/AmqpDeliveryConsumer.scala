@@ -19,10 +19,11 @@ import org.fusesource.fabric.apollo.amqp.api.DistributionMode._
 import org.fusesource.fabric.apollo.amqp.protocol.AmqpConversions._
 import org.apache.activemq.apollo.dto.{DestinationDTO, DurableSubscriptionDestinationDTO, TopicDestinationDTO}
 import org.apache.activemq.apollo.filter.BooleanExpression
-import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpString, AmqpSymbol, AmqpFilter}
 import org.apache.activemq.apollo.selector.SelectorParser
 import collection.mutable.ListBuffer
 import org.fusesource.fabric.apollo.amqp.api.{Session, Outcome, Sender}
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 
 /**
  * An AMQP sender that consumes message deliveries
@@ -111,8 +112,15 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       }
     }
 
-    // TODO - make this configurable via link desired capabilities
-    var batch_size = 1000
+    val batch_size = {
+      val options = link.getSourceOptionsMap
+      Option[AmqpType[_, _]](options.get(createAmqpSymbol("batch-size"))) match {
+        case Some(size) =>
+          size.asInstanceOf[AmqpLong].getValue.longValue
+        case None =>
+          10L
+      }
+    }
     var current_batch = batch_size
 
     var full = false

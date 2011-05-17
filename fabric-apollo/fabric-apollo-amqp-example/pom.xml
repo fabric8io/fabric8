@@ -78,6 +78,7 @@
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Send</mainClass>
                   <arguments>
                     <argument>--count=${count}</argument>
+                    <argument>--batch_size=${batch_size}</argument>
                     <argument>--address=${address}</argument>
                     <argument>--port=${port}</argument>
                     <argument>--hostname=${hostname}</argument>
@@ -141,6 +142,7 @@
                   <mainClass>org.fusesource.fabric.apollo.amqp.example.simple.Receive</mainClass>
                   <arguments>
                     <argument>--count=${count}</argument>
+                    <argument>--batch_size=${batch_size}</argument>
                     <argument>--address=${address}</argument>
                     <argument>--port=${port}</argument>
                     <argument>--hostname=${hostname}</argument>

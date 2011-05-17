@@ -46,11 +46,15 @@ public class Receive extends Client implements MessageListener {
                 });
             }
         });
+
+        // TODO - fix marshalling of this when the corresponding attach comes from the broker
+        //receiver.getSourceOptionsMap().put(createAmqpSymbol("batch-size"), createAmqpLong(batch_size));
+
         receiver.setAddress(address);
         receiver.setListener(this);
         receiver.attach(new Runnable() {
             public void run() {
-                System.out.println("Attached receiver...");
+                println("Attached receiver...");
             }
         });
     }
@@ -64,7 +68,7 @@ public class Receive extends Client implements MessageListener {
     public boolean offer(Receiver receiver, Message message) {
         received++;
         Buffer msg = (Buffer)message.getBodyPart(0);
-        System.out.println("Received message #" + received + " : " + msg.ascii());
+        println("Received message #%s : %s", received, msg.ascii());
         if (!message.getSettled()) {
             receiver.settle(message, Outcome.ACCEPTED);
         }

@@ -28,6 +28,8 @@ public abstract class Client {
     protected int count = 1;
     protected boolean settled = true;
 
+    protected long batch_size = 10;
+
     protected String address = "queue:test";
     protected String message_prefix = "message number ";
 
@@ -51,6 +53,8 @@ public abstract class Client {
                 address = arg.split("=")[1];
             } else if (arg.startsWith("--message_prefix")) {
                 message_prefix = arg.split("=")[1];
+            } else if (arg.startsWith("--batch_size")) {
+                batch_size = Long.parseLong(arg.split("=")[1]);
             } else if (arg.startsWith("--help")) {
                 usage();
             }

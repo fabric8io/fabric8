@@ -10,11 +10,14 @@
 
 package org.fusesource.fabric.apollo.amqp.example.simple;
 
-import org.fusesource.fabric.apollo.amqp.api.*;
+import org.fusesource.fabric.apollo.amqp.api.Connection;
+import org.fusesource.fabric.apollo.amqp.api.Message;
+import org.fusesource.fabric.apollo.amqp.api.Sender;
+import org.fusesource.fabric.apollo.amqp.api.Session;
 import org.fusesource.hawtbuf.Buffer;
 
 /**
- * Simple AMQP sender that sends a message and waits for message 
+ * Simple AMQP sender that sends a message and waits for message
  * acknowledgement before sending the next message
  */
 public class Send extends Client {
@@ -29,9 +32,13 @@ public class Send extends Client {
 
     @Override
     public void onConnect(final Connection connection) {
-        System.out.println("Connected, sending messages");
+        println("Connected, sending %s messages", count);
         final Session session = connection.createSession();
         final Sender sender = session.createSender();
+
+        // TODO - fix marshalling of this when the corresponding attach comes from the broker
+        //sender.getSourceOptionsMap().put(createAmqpSymbol("batch-size"), createAmqpLong(batch_size));
+
         sender.setOnDetach(new Runnable() {
             public void run() {
                 session.end(new Runnable() {
@@ -59,7 +66,7 @@ public class Send extends Client {
 
         configureMessageTasks(session, sender, current_count, message);
 
-        System.out.println("Sending message " + current_count);
+        println("Sending message %s : %s", current_count, message);
         sender.put(message);
     }
 

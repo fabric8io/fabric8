@@ -14,6 +14,7 @@ import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
 import org.fusesource.hawtbuf.AsciiBuffer.ascii
+import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import org.fusesource.fabric.apollo.amqp.protocol._
 import org.fusesource.fabric.apollo.amqp.api._
@@ -27,6 +28,16 @@ import scala.math._
  * An AMQP message listener that produces message deliveries
  */
 class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, val destination:Array[DestinationDTO]) extends MessageListener with Logging {
+
+  val batch_size = {
+    val options = link.getTargetOptionsMap
+    Option[AmqpType[_, _]](options.get(createAmqpSymbol("batch-size"))) match {
+      case Some(size) =>
+        size.asInstanceOf[AmqpLong].getValue.longValue
+      case None =>
+        10L
+    }
+  }
 
   // TODO - check if null, if so check dynamic
   val addr = ascii(link.getAddress)
@@ -43,12 +54,11 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
 
   handler.connectDeliveryProducer(this)
 
-  // TODO - Allow producer to configure how much credit to give via link capabilities
   def needLinkCredit(available:Long) : Long = {
     if (producer.full) {
       0L
     } else {
-      available.max(20)
+      available.max(batch_size)
     }
   }
 
@@ -90,7 +100,7 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
     } else {
       val available = link.getAvailableLinkCredit
       if (available != null && available.longValue < 5) {
-        link.addLinkCredit(20 - available.longValue)
+        link.addLinkCredit(batch_size - available.longValue)
       }
       true
     }

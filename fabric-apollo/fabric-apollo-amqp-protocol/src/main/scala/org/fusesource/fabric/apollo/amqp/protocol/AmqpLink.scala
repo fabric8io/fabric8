@@ -201,7 +201,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     }
   }
 
-  def getTargetOptionsMap = {
+  def getTargetOptionsMap:AmqpOptions = {
     Option(target.getOptions) match {
       case Some(options) =>
         options
@@ -211,7 +211,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     }
   }
 
-  def getSourceOptionsMap = {
+  def getSourceOptionsMap:AmqpOptions = {
     Option(source.getOptions) match {
       case Some(options) =>
         options

@@ -10,9 +10,9 @@
 
 package org.fusesource.fabric.apollo.amqp.example.simple;
 
-import java.util.concurrent.TimeUnit;
-import org.fusesource.fabric.apollo.amqp.api.*;
-import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.fabric.apollo.amqp.api.Message;
+import org.fusesource.fabric.apollo.amqp.api.Sender;
+import org.fusesource.fabric.apollo.amqp.api.Session;
 
 /**
  * Simple AMQP sender that submits a batch of messages and waits
@@ -21,9 +21,7 @@ import org.fusesource.hawtbuf.Buffer;
  */
 public class BatchSend extends Send {
 
-    protected int batch_size;
-
-    private int current_batch;
+    private long current_batch;
 
     //private long enqueue_delay = 0;
 
@@ -35,17 +33,6 @@ public class BatchSend extends Send {
         super(args);
         current_batch = batch_size;
         println("Using batch_size : %s and count : %s", batch_size, count);
-    }
-
-    @Override
-    public void parseArgs(String ... args) {
-        super.parseArgs(args);
-        batch_size = 10;
-        for(String arg : args) {
-            if (arg.startsWith("--batch_size")) {
-                batch_size = Integer.parseInt(arg.split("=")[1]);
-            }
-        }
     }
 
     @Override
