@@ -71,7 +71,6 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
   def is_persistent = link.getSourceDurable
 
   override def connection = Some(handler.connection)
-  var deliverySession:AmqpDeliverySession = null
 
   def matches(delivery:Delivery) : Boolean = {
     if (delivery.message.protocol eq AmqpProtocol) {
@@ -141,15 +140,15 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
           if (delivery.ack != null) {
             if (message.settled) {
               trace("acknowledging message delivery for message %s", message)
-              delivery.ack(true, null)
+              delivery.ack(true, delivery.uow)
             } else {
               message.outcome match {
                 case Outcome.ACCEPTED =>
                 trace("acknowledging message delivery for message %s", message)
-                delivery.ack(true, null)
+                delivery.ack(true, delivery.uow)
                 case _ =>
                 trace("acknowledging message delivery for message %s", message)
-                delivery.ack(false, null)
+                delivery.ack(false, delivery.uow)
               }
             }
             if (current_batch < 1) {

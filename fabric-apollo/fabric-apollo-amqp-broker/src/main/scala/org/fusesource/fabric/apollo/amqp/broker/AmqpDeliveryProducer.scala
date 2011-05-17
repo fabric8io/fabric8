@@ -65,14 +65,17 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
     // TODO - when transactions are supported
     delivery.uow = null;
 
-    if (!protoMessage.settled) {
-      delivery.ack = { (consumed, uow) =>
-        if (consumed) {
-          //trace("Ack'ing message id %s", protoMessage.transfer_id);
-          link.settle(message, Outcome.ACCEPTED)
-        } else {
-          //trace("Rejecting message id %s", protoMessage.transfer_id);
-          link.settle(message, Outcome.REJECTED)
+    // TODO - Fix up API so a message can be settled by delivery tag so this runnable doesn't have a reference to the message
+    delivery.ack = { (consumed, uow) => {
+        if (!message.getSettled) {
+          if (consumed) {
+            link.settle(message, Outcome.ACCEPTED)
+          } else {
+            link.settle(message, Outcome.REJECTED)
+          }
+        }
+        if (uow != null) {
+          uow.complete_asap
         }
       }
     }
