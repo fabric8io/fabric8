@@ -112,24 +112,11 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       }
     }
 
-    def full() : Boolean = {
-        // TODO
-      val out = link.asInstanceOf[OutgoingLink]
-      val rc = out.canSend && out.session.asInstanceOf[Session].sufficientSessionCredit
-      trace("checking state of outgoing link, able to send : %s", rc)
-      trace("session : %s producer : %s", session, producer)
-      if (!out.canSend) {
-        try {
-          // TODO - Figure out how many deliveries are available and let the client know
-          val flow = out.flowstate
-          flow.setAvailable(100L)
-          out.send_updated_flow_state(flow)
-        } catch {
-          case _ =>
-        }
-      }
-      !rc
-    }
+    // TODO - make this configurable somehow...
+    var batch_size = 1000
+    var current_batch = batch_size
+
+    var full = false
 
     def offer(delivery:Delivery) : Boolean = {
       trace("received message offer : %s", delivery);
@@ -143,27 +130,34 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
         case _ =>
           message_transfer.message
       }
-      if (message.settled) {
-        if (delivery.ack != null) {
-          trace("acknowledging message delivery for message %s", message)
-          delivery.ack(true, null)
-        }
-      } else {
-        message.onAck(^{
-          message.outcome match {
-            case Outcome.ACCEPTED =>
-              if (delivery.ack != null) {
+
+      current_batch = current_batch - 1
+
+      if (current_batch < 1) {
+        full = true
+      }
+
+      message.onAck(^{
+          if (delivery.ack != null) {
+            if (message.settled) {
+              trace("acknowledging message delivery for message %s", message)
+              delivery.ack(true, null)
+            } else {
+              message.outcome match {
+                case Outcome.ACCEPTED =>
                 trace("acknowledging message delivery for message %s", message)
                 delivery.ack(true, null)
-              }
-            case _ =>
-              if (delivery.ack != null) {
+                case _ =>
                 trace("acknowledging message delivery for message %s", message)
                 delivery.ack(false, null)
               }
+            }
+            if (current_batch < 1) {
+              current_batch = batch_size
+              full = false
+            }
           }
         })
-      }
 
       link.put(message)
     }
