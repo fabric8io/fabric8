@@ -110,7 +110,7 @@
     </feature>
 
     <feature name="fabric-activemq" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <feature>fabric-groups</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-activemq/${project.version}</bundle>
     </feature>
 
