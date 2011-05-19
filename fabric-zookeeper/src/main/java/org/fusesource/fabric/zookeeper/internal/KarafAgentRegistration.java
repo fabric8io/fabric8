@@ -205,9 +205,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             String name = System.getProperty("karaf.name");
             String domainsPath = AGENT_DOMAINS.getPath(name);
             if (zooKeeper.exists(domainsPath) != null) {
-                for (String child : zooKeeper.getChildren(domainsPath)) {
-                    zooKeeper.delete(domainsPath + "/" + child);
-                }
+                zooKeeper.deleteWithChildren(domainsPath);
             }
         }
     }
@@ -225,11 +223,14 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
                         zooKeeper.create(path, "", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                     }
                 } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (Arrays.binarySearch(mbeanServer.getDomains(), domain) == -1) {
+                    if (Arrays.binarySearch(mbeanServer.getDomains(), domain) < 0) {
                         // domain is no present any more
                         zooKeeper.delete(path);
                     }
                 }
+            } catch (KeeperException.SessionExpiredException e) {
+                logger.debug("Session expiry detected. Handling notification once again", e);
+                handleNotification(notif, o);
             } catch (Exception e) {
                 logger.warn("Exception while jmx domain synchronization", e);
             }
