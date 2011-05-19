@@ -124,6 +124,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             throws MalformedURLException {
         final List<MavenRepositoryURL> repositories = new ArrayList<MavenRepositoryURL>();
         repositories.addAll(configuration.getRepositories());
+        repositories.add(configuration.getLocalRepository());
         // if the url contains a prefered repository add that repository as the first repository to be searched
         if (parser.getRepositoryURL() != null) {
             repositories.add(

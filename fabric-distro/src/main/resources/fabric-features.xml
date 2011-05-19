@@ -109,6 +109,11 @@
         <bundle>mvn:org.fusesource.fabric/fabric-camel/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-activemq" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-activemq/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
         <!-- TODO - replace with 2.9.0 version when available
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>
