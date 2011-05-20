@@ -23,6 +23,7 @@ import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.ChangeListener;
@@ -54,6 +55,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private int maxReconnectAttempts = 0;
     private final Object sleepMutex = new Object();
     private long minConnectTime = 5000;
+    private String serviceName;
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
@@ -74,7 +76,10 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     }
 
     public void registerService(String service) throws IOException {
-        group.join(service, service.getBytes("UTF-8"));
+        this.serviceName = service;
+        if (startCounter.get() == 1) {
+            group.join(serviceName, serviceName.getBytes("UTF-8"));
+        }
     }
 
     public void serviceFailed(DiscoveryEvent devent) throws IOException {
@@ -153,6 +158,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             if (zkClient == null) {
                 ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
                 client.start();
+                client.waitForStart();
                 zkClient = client;
             }
 
@@ -162,6 +168,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
                     update(members);
                 }
             });
+            if (serviceName != null) {
+                group.join(serviceName, serviceName.getBytes("UTF-8"));
+            }
         }
     }
 
