@@ -1,0 +1,27 @@
+fabric:create-profile --parents karaf dosgi
+zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/1.0-SNAPSHOT/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi
+
+
+fabric:create-profile --parents dosgi dosgi-provider
+zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/1.0-SNAPSHOT/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider/org.fusesource.fabric.agent/feature.dosgi fabric-example-dosgi
+
+
+fabric:create-profile --parents dosgi dosgi-camel
+zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/1.0-SNAPSHOT/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/feature.dosgi fabric-example-camel-dosgi
+
+shell:echo Creating agents
+
+shell:echo 1. Create provider node
+fabric:create-agent --profile dosgi-provider --parent root dosgi-provider
+shell:echo Wait 10s.. be patient
+shell:sleep 10000
+
+shell:echo 2. Create camel consumer node
+fabric:create-agent --profile dosgi-provider --parent root dosgi-camel
+shell:echo Wait 10s.. be patient
+shell:sleep 10000
+
+shell:echo done.
