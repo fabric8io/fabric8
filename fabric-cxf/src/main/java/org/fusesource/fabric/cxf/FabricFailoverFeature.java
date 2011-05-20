@@ -15,8 +15,8 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FabricFailOverFeature extends FabricLoadBalancerFeature {
-    private static final transient Log LOG = LogFactory.getLog(FabricFailOverFeature.class);
+public class FabricFailoverFeature extends FabricLoadBalancerFeature {
+    private static final transient Log LOG = LogFactory.getLog(FabricFailoverFeature.class);
     protected String exceptions;
     protected List<Class> exceptionList = new ArrayList<Class>();
 
@@ -26,7 +26,7 @@ public class FabricFailOverFeature extends FabricLoadBalancerFeature {
     }
 
     protected LoadBalanceTargetSelector getDefaultLoadBalanceTargetSelector() {
-        return new FailOverTargetSelector(exceptionList);
+        return new FailoverTargetSelector(exceptionList);
     }
 
     public void setExceptions(String exceptions) {
@@ -41,7 +41,7 @@ public class FabricFailOverFeature extends FabricLoadBalancerFeature {
                     Class<?> clazz = ClassLoaderUtils.loadClass(exception, this.getClass());
                     exceptionList.add(clazz);
                 } catch (ClassNotFoundException ex) {
-                    LOG.warn("Can't load the exception " + exception + " for the FabricFailOverFeature.");
+                    LOG.warn("Can't load the exception " + exception + " for the FabricFailoverFeature.");
                 }
             }
         }

@@ -27,20 +27,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class FailOverTargetSelector extends LoadBalanceTargetSelector {
+public class FailoverTargetSelector extends LoadBalanceTargetSelector {
 
     private static final Logger LOG =
-            LogUtils.getL7dLogger(FailOverTargetSelector.class);
+            LogUtils.getL7dLogger(FailoverTargetSelector.class);
 
     protected Map<InvocationKey, InvocationContext> inProgress;
 
     protected List<Class> exceptionClasses;
 
-    public FailOverTargetSelector(List<Class> exceptions) {
+    public FailoverTargetSelector(List<Class> exceptions) {
         this(null, exceptions);
     }
 
-    public FailOverTargetSelector(Conduit c, List<Class> exceptions) {
+    public FailoverTargetSelector(Conduit c, List<Class> exceptions) {
         super(c);
         inProgress = new ConcurrentHashMap<InvocationKey, InvocationContext>();
         if (exceptions != null) {
@@ -48,7 +48,7 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
         } else {
             exceptionClasses = new ArrayList<Class>();
         }
-        // FailOver the IOException by default
+        // Failover the IOException by default
         if (!exceptionClasses.contains(IOException.class)) {
             exceptionClasses.add(IOException.class);
         }
@@ -85,8 +85,8 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
         invocation = inProgress.get(key);
 
         boolean failOver = false;
-        if (requiresFailOver(exchange)) {
-            Endpoint failOverTarget = getFailOverTarget(exchange, invocation);
+        if (requiresFailover(exchange)) {
+            Endpoint failOverTarget = getFailoverTarget(exchange, invocation);
             if (failOverTarget != null) {
                 setEndpoint(failOverTarget);
                 selectedConduit.close();
@@ -122,7 +122,7 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
             }
         }
         if (!failOver) {
-            getLogger().info("FailOver is not required.");
+            getLogger().info("Failover is not required.");
 
             inProgress.remove(key);
 
@@ -131,7 +131,7 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
     }
 
     // Now we just fail over with the IOException
-    protected boolean requiresFailOver(Exchange exchange) {
+    protected boolean requiresFailover(Exchange exchange) {
         Message outMessage = exchange.getOutMessage();
         Exception ex = outMessage.get(Exception.class) != null
                        ? outMessage.get(Exception.class)
@@ -157,8 +157,8 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
         return false;
     }
 
-    protected Endpoint getFailOverTarget(Exchange exchange,
-                                       InvocationContext invocation) {
+    protected Endpoint getFailoverTarget(Exchange exchange,
+                                         InvocationContext invocation) {
 
         Endpoint failOverTarget = null;
         if (invocation.getAlternateAddresses() == null) {
