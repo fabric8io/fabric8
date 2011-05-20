@@ -27,7 +27,7 @@
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
-  <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricFailOverFeature">
+  <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricFailoverFeature">
       <property name="fabricPath" value="simple" />
   </bean>
   <!-- configure the feature on the bus -->

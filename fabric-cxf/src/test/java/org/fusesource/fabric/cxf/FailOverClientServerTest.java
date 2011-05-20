@@ -10,7 +10,6 @@
 package org.fusesource.fabric.cxf;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -27,8 +26,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@ContextConfiguration(locations = {"FailOverContext.xml"})
-public class FailOverClientServerTest extends AbstractJUnit4SpringContextTests {
+@ContextConfiguration(locations = {"FailoverContext.xml"})
+public class FailoverClientServerTest extends AbstractJUnit4SpringContextTests {
     @Autowired
     protected Bus bus;
     @Autowired
