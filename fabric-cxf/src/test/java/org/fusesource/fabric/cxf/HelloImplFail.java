@@ -6,14 +6,21 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
+
 package org.fusesource.fabric.cxf;
 
-import org.fusesource.fabric.groups.Group;
+import org.apache.cxf.interceptor.Fault;
 
-import java.util.List;
+import java.io.IOException;
 
-public interface LoadBalanceStrategy {
-    void setGroup(Group group);
-    List<String> getAlternateAddressList();
-    String getNextAlternateAddress();
+public class HelloImplFail implements Hello {
+
+    public String sayHello() {
+        throw new Fault(new IOException("It's an IOException."));
+    }
+
+    public void ping() {
+        System.out.println("Call ping method");
+    }
+
 }

@@ -8,12 +8,43 @@
  */
 package org.fusesource.fabric.cxf;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Client;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 
-public class FabricFailoverFeature extends FabricLoadBalancerFeature {
+import java.util.ArrayList;
+import java.util.List;
 
-    public void initialize(Client client, Bus bus) {
-         // setup the Failover conduit selector for it
+public class FabricFailOverFeature extends FabricLoadBalancerFeature {
+    private static final transient Log LOG = LogFactory.getLog(FabricFailOverFeature.class);
+    protected String exceptions;
+    protected List<Class> exceptionList = new ArrayList<Class>();
+
+    protected LoadBalanceStrategy getDefaultLoadBalanceStrategy() {
+        // This strategy always return the first physical address from the locator
+        return new FirstOneLoadBalanceStrategy();
+    }
+
+    protected LoadBalanceTargetSelector getDefaultLoadBalanceTargetSelector() {
+        return new FailOverTargetSelector(exceptionList);
+    }
+
+    public void setExceptions(String exceptions) {
+        this.exceptions = exceptions;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        if (exceptions != null) {
+            String[] exceptionArray =  exceptions.split(";");
+            for (String exception: exceptionArray) {
+                try {
+                    Class<?> clazz = ClassLoaderUtils.loadClass(exception, this.getClass());
+                    exceptionList.add(clazz);
+                } catch (ClassNotFoundException ex) {
+                    LOG.warn("Can't load the exception " + exception + " for the FabricFailOverFeature.");
+                }
+            }
+        }
+        super.afterPropertiesSet();
     }
 }

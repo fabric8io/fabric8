@@ -72,7 +72,12 @@
 
     <build>
         <plugins>
-
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>perTest</forkMode>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

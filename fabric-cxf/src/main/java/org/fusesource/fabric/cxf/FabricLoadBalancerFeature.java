@@ -38,8 +38,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
     private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
     public void initialize(Client client, Bus bus) {
-        LoadBalanceTargetSelector selector =
-            new LoadBalanceTargetSelector();
+        LoadBalanceTargetSelector selector = getDefaultLoadBalanceTargetSelector();
         selector.setEndpoint(client.getEndpoint());
         selector.setLoadBalanceStrategy(getLoadBalanceStrategy());
         client.setConduitSelector(selector);
@@ -62,6 +61,14 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
         }
     }
 
+    protected LoadBalanceStrategy getDefaultLoadBalanceStrategy() {
+        return new RandomLoadBalanceStrategy();
+    }
+
+    protected LoadBalanceTargetSelector getDefaultLoadBalanceTargetSelector() {
+        return new LoadBalanceTargetSelector();
+    }
+
     public void afterPropertiesSet() throws Exception {
         if (zkClient == null) {
             zkClient = new ZKClientFactoryBean().getObject();
@@ -69,7 +76,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
         checkZkConnected();
         group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath, accessControlList);
         if (loadBalanceStrategy == null) {
-            loadBalanceStrategy = new RandomLoadBalanceStrategy();
+            loadBalanceStrategy = getDefaultLoadBalanceStrategy();
         }
         loadBalanceStrategy.setGroup(group);
     }

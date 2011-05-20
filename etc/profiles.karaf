@@ -1,0 +1,48 @@
+echo Add fabric features
+features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
+
+echo Install fabric commands
+features:install fabric-commands
+
+shell:echo Waiting 4 seconds for the fabric-commands to start
+shell:sleep 4000
+
+echo Create default profile node
+zk:create -r /fabric/configs/versions/base/profiles/default base
+
+echo Creating cluster
+fabric:zk-cluster --clean
+fabric:zk-cluster root
+
+shell:echo Waiting 4 seconds to let zookeeper start and form cluster
+shell:sleep 2000
+
+echo Create dummy karaf profile
+fabric:create-profile --parents default karaf
+zk:create -r /fabric/configs/versions/base/profiles/karaf/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
+
+echo Create camel 2.7.0 profile
+fabric:create-profile --parents karaf camel
+zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/2.7.0/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel camel-core/2.7.0
+zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint/2.7.0
+
+echo Create activemq 5.5.0 profile
+fabric:create-profile --parents karaf activemq
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/repository.activemq mvn:org.apache.activemq/activemq-karaf/5.5.0/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq activemq/5.5.0
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq-blueprint activemq-blueprint/5.5.0
+
+echo Create nmr 1.4.0 profile
+fabric:create-profile --parents karaf nmr
+zk:create -r /fabric/configs/versions/base/profiles/nmr/org.fusesource.fabric.agent/repository.nmr mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/1.4.0/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/nmr/org.fusesource.fabric.agent/feature.nmr nmr/1.4.0
+
+echo Create ServiceMix 4.3.0 profile
+fabric:create-profile --parents activemq --parents nmr --parents camel servicemix
+zk:create -r /fabric/configs/versions/base/profiles/servicemix/org.fusesource.fabric.agent/repository.servicemix mvn:org.apache.servicemix/apache-servicemix/4.3.0/xml/features
+
+echo Create Apache Ode profile
+fabric:create-profile --parents servicemix ode
+zk:create -r /fabric/configs/versions/base/profiles/ode/org.fusesource.fabric.agent/repository.ode mvn:org.apache.ode/ode-jbi-karaf/1.3.5/xml/features
+
