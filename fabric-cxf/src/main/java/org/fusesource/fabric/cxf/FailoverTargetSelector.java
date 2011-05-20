@@ -18,6 +18,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.transport.Conduit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,13 +34,25 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
 
     protected Map<InvocationKey, InvocationContext> inProgress;
 
-    public FailOverTargetSelector() {
-        super(null);
+    protected List<Class> exceptionClasses;
+
+    public FailOverTargetSelector(List<Class> exceptions) {
+        this(null, exceptions);
     }
 
-    public FailOverTargetSelector(Conduit c) {
+    public FailOverTargetSelector(Conduit c, List<Class> exceptions) {
         super(c);
         inProgress = new ConcurrentHashMap<InvocationKey, InvocationContext>();
+        if (exceptions != null) {
+            exceptionClasses = exceptions;
+        } else {
+            exceptionClasses = new ArrayList<Class>();
+        }
+        // FailOver the IOException by default
+        if (!exceptionClasses.contains(IOException.class)) {
+            exceptionClasses.add(IOException.class);
+        }
+
     }
 
     @Override
@@ -108,7 +122,7 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
             }
         }
         if (!failOver) {
-            getLogger().info("FAILOVER_NOT_REQUIRED");
+            getLogger().info("FailOver is not required.");
 
             inProgress.remove(key);
 
@@ -123,18 +137,24 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
                        ? outMessage.get(Exception.class)
                        : exchange.get(Exception.class);
         getLogger().log(Level.FINE,
-                        "CHECK_LAST_INVOKE_FAILED",
-                        new Object[] {ex != null});
+                        "Check last invoke failed " + ex);
         Throwable curr = ex;
         boolean failOver = false;
-        while (curr != null) {
-            failOver = curr instanceof java.io.IOException;
+        while (curr != null && !failOver) {
+            failOver = checkExceptionClasses(curr);
             curr = curr.getCause();
         }
-        getLogger().log(Level.INFO,
-                        "CHECK_FAILURE_IN_TRANSPORT",
-                        new Object[] {ex, failOver});
+        getLogger().log(Level.INFO, "Check failure in transport " + ex + ", failOver is " + failOver);
         return failOver;
+    }
+
+    protected boolean checkExceptionClasses(Throwable current) {
+        for (Class<?> exceptionClass : exceptionClasses) {
+            if (exceptionClass.isInstance(current)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected Endpoint getFailOverTarget(Exchange exchange,
@@ -214,13 +234,13 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
         Endpoint retrieveOriginalEndpoint(Endpoint endpoint) {
             if (endpoint != originalEndpoint) {
                 getLogger().log(Level.INFO,
-                                "REVERT_TO_ORIGINAL_TARGET",
+                                "Revert to original target " +
                                 endpoint.getEndpointInfo().getName());
             }
             if (!endpoint.getEndpointInfo().getAddress().equals(originalAddress)) {
                 endpoint.getEndpointInfo().setAddress(originalAddress);
                 getLogger().log(Level.INFO,
-                                "REVERT_TO_ORIGINAL_ADDRESS",
+                                "Revert to original address ",
                                 endpoint.getEndpointInfo().getAddress());
             }
             return originalEndpoint;
