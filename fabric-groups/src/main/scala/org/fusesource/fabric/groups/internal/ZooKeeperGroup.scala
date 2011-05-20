@@ -148,17 +148,25 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
     }
   }
 
-  private def create(path: String): Unit = {
-    if (zk.exists(path, false) != null) {
-      return
-    }
-    var cur: String = ""
-    for (node <- path.stripPrefix("/").split("/")) {
-      cur += "/" + node
+  private def create(path: String, count : java.lang.Integer = 0): Unit = {
+    try {
+      if (zk.exists(path, false) != null) {
+        return
+      }
       try {
-        val p = zk.create(cur, new Array[Byte](0), acl, CreateMode.PERSISTENT)
+        // try create given path in persistent mode
+        zk.createOrSetWithParents(path, "", acl, CreateMode.PERSISTENT)
       } catch {
         case ignore: KeeperException.NodeExistsException =>
+      }
+    } catch {
+      case ignore : KeeperException.SessionExpiredException => {
+        if (count > 20) {
+          // we tried enought number of times
+          throw new IllegalStateException("Cannot create path " + path, ignore)
+        }
+        // try to create path with increased counter value
+        create(path, count + 1)
       }
     }
   }
