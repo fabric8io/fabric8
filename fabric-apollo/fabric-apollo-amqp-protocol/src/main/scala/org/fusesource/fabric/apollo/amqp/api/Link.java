@@ -87,6 +87,18 @@ public interface Link {
     public String getAddress();
 
     /**
+     * Gets the options map for the target
+     * @return
+     */
+    public AmqpOptions getTargetOptionsMap();
+
+    /**
+     * Gets the options map for the source on this link
+     * @return
+     */
+    public AmqpOptions getSourceOptionsMap();
+
+    /**
      * Sets whether or not the target of this link should be durably retained
      * @param durable
      */

@@ -10,11 +10,18 @@
 
 package org.fusesource.fabric.apollo.amqp.example.simple;
 
-import org.fusesource.fabric.apollo.amqp.api.*;
+import org.fusesource.fabric.apollo.amqp.api.Connection;
+import org.fusesource.fabric.apollo.amqp.api.Message;
+import org.fusesource.fabric.apollo.amqp.api.Sender;
+import org.fusesource.fabric.apollo.amqp.api.Session;
 import org.fusesource.hawtbuf.Buffer;
 
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpLong;
+import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.createAmqpSymbol;
+
 /**
- *
+ * Simple AMQP sender that sends a message and waits for message
+ * acknowledgement before sending the next message
  */
 public class Send extends Client {
 
@@ -28,9 +35,12 @@ public class Send extends Client {
 
     @Override
     public void onConnect(final Connection connection) {
-        System.out.println("Connected, sending messages");
+        println("Connected, sending %s messages", count);
         final Session session = connection.createSession();
         final Sender sender = session.createSender();
+
+        sender.getSourceOptionsMap().put(createAmqpSymbol("batch-size"), createAmqpLong(batch_size));
+
         sender.setOnDetach(new Runnable() {
             public void run() {
                 session.end(new Runnable() {
@@ -56,6 +66,13 @@ public class Send extends Client {
         Message message = session.createMessage();
         message.addBodyPart(Buffer.ascii(message_prefix + current_count));
 
+        configureMessageTasks(session, sender, current_count, message);
+
+        println("Sending message %s : %s", current_count, message.getBodyPart(0));
+        sender.put(message);
+    }
+
+    public void configureMessageTasks(final Session session, final Sender sender, final int current_count, final Message message) {
         if (current_count >= count) {
             message.onAck(new Runnable() {
                 public void run() {
@@ -69,8 +86,6 @@ public class Send extends Client {
                 }
             });
         }
-        System.out.println("Sending message " + current_count);
-        sender.put(message);
     }
 
     @Override

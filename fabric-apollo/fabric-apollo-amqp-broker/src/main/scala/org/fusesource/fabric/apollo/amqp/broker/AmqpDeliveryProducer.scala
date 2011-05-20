@@ -14,6 +14,7 @@ import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.v1_0_0.AmqpMarshaller
 import org.fusesource.hawtbuf.AsciiBuffer.ascii
+import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import org.fusesource.fabric.apollo.amqp.protocol._
 import org.fusesource.fabric.apollo.amqp.api._
@@ -27,6 +28,16 @@ import scala.math._
  * An AMQP message listener that produces message deliveries
  */
 class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, val destination:Array[DestinationDTO]) extends MessageListener with Logging {
+
+  val batch_size = {
+    val options = link.getTargetOptionsMap
+    Option[AmqpType[_, _]](options.get(createAmqpSymbol("batch-size"))) match {
+      case Some(size) =>
+        size.asInstanceOf[AmqpLong].getValue.longValue
+      case None =>
+        10L
+    }
+  }
 
   // TODO - check if null, if so check dynamic
   val addr = ascii(link.getAddress)
@@ -43,12 +54,11 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
 
   handler.connectDeliveryProducer(this)
 
-  // TODO - should calculate how much credit to supply to get maximum throughput
   def needLinkCredit(available:Long) : Long = {
     if (producer.full) {
       0L
     } else {
-      available.max(20)
+      available.max(batch_size)
     }
   }
 
@@ -65,14 +75,17 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
     // TODO - when transactions are supported
     delivery.uow = null;
 
-    if (!protoMessage.settled) {
-      delivery.ack = { (consumed, uow) =>
-        if (consumed) {
-          //trace("Ack'ing message id %s", protoMessage.transfer_id);
-          link.settle(message, Outcome.ACCEPTED)
-        } else {
-          //trace("Rejecting message id %s", protoMessage.transfer_id);
-          link.settle(message, Outcome.REJECTED)
+    // TODO - Fix up API so a message can be settled by delivery tag so this runnable doesn't have a reference to the message
+    delivery.ack = { (consumed, uow) => {
+        if (!message.getSettled) {
+          if (consumed) {
+            link.settle(message, Outcome.ACCEPTED)
+          } else {
+            link.settle(message, Outcome.REJECTED)
+          }
+        }
+        if (uow != null) {
+          uow.complete_asap
         }
       }
     }
@@ -87,7 +100,7 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
     } else {
       val available = link.getAvailableLinkCredit
       if (available != null && available.longValue < 5) {
-        link.addLinkCredit(20 - available.longValue)
+        link.addLinkCredit(batch_size - available.longValue)
       }
       true
     }

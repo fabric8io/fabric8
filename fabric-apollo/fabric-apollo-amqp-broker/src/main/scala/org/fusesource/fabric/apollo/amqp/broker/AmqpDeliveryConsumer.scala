@@ -19,10 +19,11 @@ import org.fusesource.fabric.apollo.amqp.api.DistributionMode._
 import org.fusesource.fabric.apollo.amqp.protocol.AmqpConversions._
 import org.apache.activemq.apollo.dto.{DestinationDTO, DurableSubscriptionDestinationDTO, TopicDestinationDTO}
 import org.apache.activemq.apollo.filter.BooleanExpression
-import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpString, AmqpSymbol, AmqpFilter}
 import org.apache.activemq.apollo.selector.SelectorParser
 import collection.mutable.ListBuffer
 import org.fusesource.fabric.apollo.amqp.api.{Session, Outcome, Sender}
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 
 /**
  * An AMQP sender that consumes message deliveries
@@ -40,7 +41,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
             val entry = iter.next
             val key:AmqpSymbol = entry.getKey.asInstanceOf[AmqpSymbol]
             val value:AmqpFilter = entry.getValue.asInstanceOf[AmqpFilter]
-            //trace("Adding filter \"%s\" : \"%s\"", key, value)
+            trace("Adding filter \"%s\" : \"%s\"", key, value)
             val expr = SelectorParser.parse(value.getPredicate.asInstanceOf[AmqpString].getValue)
             _filters.append((key.getValue, expr))
           }
@@ -71,7 +72,6 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
   def is_persistent = link.getSourceDurable
 
   override def connection = Some(handler.connection)
-  var deliverySession:AmqpDeliverySession = null
 
   def matches(delivery:Delivery) : Boolean = {
     if (delivery.message.protocol eq AmqpProtocol) {
@@ -80,7 +80,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       while (iter.hasNext && rc) {
         val (key, filter) = iter.next
         rc = filter.matches(delivery.message)
-        //trace("Filter \"%s\" evaluated to %s for message %s", key, rc, delivery.message)
+        trace("Filter \"%s\" evaluated to %s for message %s", key, rc, delivery.message)
       }
       rc
     } else {
@@ -107,30 +107,28 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       if ( !closed ) {
         closed = true
         consumer.handler.outbound_sessions.close(session)
-        //trace("Closed delivery consumer and releasing")
+        trace("Closed delivery consumer and releasing")
         release
       }
     }
 
-    def full() : Boolean = {
-        // TODO
-      val out = link.asInstanceOf[OutgoingLink]
-      val rc = out.canSend && out.session.asInstanceOf[Session].sufficientSessionCredit
-      //trace("checking state of outgoing link, able to send : %s", rc)
-      if (!rc) {
-        try {
-          out.send_updated_flow_state(out.flowstate)
-        } catch {
-          case _ =>
-        }
+    val batch_size = {
+      val options = link.getSourceOptionsMap
+      Option[AmqpType[_, _]](options.get(createAmqpSymbol("batch-size"))) match {
+        case Some(size) =>
+          size.asInstanceOf[AmqpLong].getValue.longValue
+        case None =>
+          10L
       }
-      !rc
     }
+    var current_batch = batch_size
+
+    var full = false
 
     def offer(delivery:Delivery) : Boolean = {
-      //trace("received message offer : %s", delivery);
+      trace("received message offer : %s", delivery);
       val message_transfer = delivery.message.asInstanceOf[AmqpMessageTransfer]
-      //trace("putting message : %s", message_transfer.message);
+      trace("putting message : %s", message_transfer.message);
       val message = link.getDistributionMode match {
         case MOVE =>
           message_transfer.message
@@ -139,24 +137,34 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
         case _ =>
           message_transfer.message
       }
-      if (message.settled) {
-        if (delivery.ack != null) {
-          delivery.ack(true, null)
-        }
-      } else {
-        message.onAck(^{
-          message.outcome match {
-            case Outcome.ACCEPTED =>
-              if (delivery.ack != null) {
-                delivery.ack(true, null)
+
+      current_batch = current_batch - 1
+
+      if (current_batch < 1) {
+        full = true
+      }
+
+      message.onAck(^{
+          if (delivery.ack != null) {
+            if (message.settled) {
+              trace("acknowledging message delivery for message %s", message)
+              delivery.ack(true, delivery.uow)
+            } else {
+              message.outcome match {
+                case Outcome.ACCEPTED =>
+                trace("acknowledging message delivery for message %s", message)
+                delivery.ack(true, delivery.uow)
+                case _ =>
+                trace("acknowledging message delivery for message %s", message)
+                delivery.ack(false, delivery.uow)
               }
-            case _ =>
-              if (delivery.ack != null) {
-                delivery.ack(false, null)
-              }
+            }
+            if (current_batch < 1) {
+              current_batch = batch_size
+              full = false
+            }
           }
         })
-      }
 
       link.put(message)
     }

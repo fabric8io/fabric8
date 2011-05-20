@@ -28,12 +28,18 @@ public abstract class Client {
     protected int count = 1;
     protected boolean settled = true;
 
+    protected long batch_size = 10;
+
     protected String address = "queue:test";
     protected String message_prefix = "message number ";
 
     protected CountDownLatch exit_latch = new CountDownLatch(1);
 
     public Client(String ... args) {
+        parseArgs(args);
+    }
+
+    public void parseArgs(String ... args) {
         for(String arg : args) {
             if (arg.startsWith("--port")) {
                 port = Integer.parseInt(arg.split("=")[1]);
@@ -47,6 +53,8 @@ public abstract class Client {
                 address = arg.split("=")[1];
             } else if (arg.startsWith("--message_prefix")) {
                 message_prefix = arg.split("=")[1];
+            } else if (arg.startsWith("--batch_size")) {
+                batch_size = Long.parseLong(arg.split("=")[1]);
             } else if (arg.startsWith("--help")) {
                 usage();
             }
@@ -75,6 +83,11 @@ public abstract class Client {
             e.printStackTrace();
         }
     }
+
+    public void println(String formatStr, Object ... args) {
+        System.out.println(String.format(formatStr, args));
+    }
+
     public abstract void printHelp();
 
     public void usage() {

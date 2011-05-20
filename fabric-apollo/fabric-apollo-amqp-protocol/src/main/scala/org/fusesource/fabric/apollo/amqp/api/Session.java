@@ -70,6 +70,12 @@ public interface Session {
     public Receiver createReceiver();
 
     /**
+     * Returns the connection that created this session
+     * @return
+     */
+    public Connection getConnection();
+
+    /**
      * Creates a new message
      * @param tag the delivery tag to be used when creating the message
      * @return an empty AMQP message
@@ -88,7 +94,6 @@ public interface Session {
      * @return an empty AMQP message
      */
     public Message createMessage();
-
 
     /**
      * Returns whether or not this session is associated with a connection and attached to a peer session

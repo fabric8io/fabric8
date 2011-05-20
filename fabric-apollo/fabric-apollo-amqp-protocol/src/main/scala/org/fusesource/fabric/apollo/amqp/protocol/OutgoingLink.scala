@@ -71,9 +71,10 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
   }
 
   def put(message:Message):Boolean  = {
+    // TODO - Could buffer messages in case the link gets detached and then eventually re-attached
+    require(remoteHandle != None, "Link not established")
+
     def add = {
-      // TODO - Could buffer messages in case the link gets detached and then eventually re-attached
-      //require(established == true, "Link not established to createSession")
       trace("Adding new outgoing message %s", message)
       available = available + 1
       val protoMessage = message.asInstanceOf[AmqpProtoMessage]

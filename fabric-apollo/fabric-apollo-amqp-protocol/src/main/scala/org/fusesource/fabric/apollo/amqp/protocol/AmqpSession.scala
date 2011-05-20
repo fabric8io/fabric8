@@ -57,8 +57,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var on_begin:Option[Runnable] = None
   var on_end:Option[Runnable] = None
 
-  var incoming_window_max = 10L
-  var outgoing_window_max = 10L
+  var incoming_window_max = 50L
+  var outgoing_window_max = 50L
 
   var incoming_window = incoming_window_max
   var outgoing_window = outgoing_window_max
@@ -67,12 +67,6 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   var remote_outgoing_window = 0L
 
   var next_incoming_transfer_id:Option[Long] = None
-
-  val outstandingAcks = new LinkedBlockingQueue[Tuple4[Long, AmqpType[_,AmqpBuffer[_]], Boolean, Boolean]]
-  val service:ExecutorService = Executors.newSingleThreadExecutor
-  val startAckThread:AtomicBoolean = new AtomicBoolean(true)
-  // TODO - add accessors for this
-  val ackTime = 500
 
   var refiller:Runnable = null
 
@@ -356,6 +350,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
       val transfer = message.transfer(current_transfer_id.getAndIncrement)
       transfer.setHandle(link.handle.get)
+      transfer.setMessageFormat(0L)
 
       if (!Option(transfer.getSettled).getOrElse(false).asInstanceOf[Boolean]) {
         trace("Adding outgoing transfer ID %s to unsettled map for link handle %s", transfer.getTransferId, transfer.getHandle)
@@ -582,7 +577,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def setLinkListener(listener: LinkListener) = this.listener = Option(listener)
   def setRemoteChannel(channel: Short) = remote_channel = channel
-  def getConnection = connection
+  def getConnection = connection.asInstanceOf[Connection]
   def getChannel = channel
   def dispatch_queue = connection.getDispatchQueue
 

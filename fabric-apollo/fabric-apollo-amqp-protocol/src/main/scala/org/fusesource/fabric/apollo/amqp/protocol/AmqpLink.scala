@@ -38,7 +38,9 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   var onDetach:Option[Runnable] = None
 
   var source = createAmqpSource
+  source.setOptions(createAmqpOptions)
   var target = createAmqpTarget
+  target.setOptions(createAmqpOptions)
 
   source.setDistributionMode(DistributionMode.MOVE)
 
@@ -198,6 +200,26 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
         } else {
           source.setAddress(createAmqpString(address))
         }
+    }
+  }
+
+  def getTargetOptionsMap:AmqpOptions = {
+    Option(target.getOptions) match {
+      case Some(options) =>
+        options
+      case None =>
+        target.setOptions(createAmqpOptions)
+        getTargetOptionsMap
+    }
+  }
+
+  def getSourceOptionsMap:AmqpOptions = {
+    Option(source.getOptions) match {
+      case Some(options) =>
+        options
+      case None =>
+        source.setOptions(createAmqpOptions)
+        getSourceOptionsMap
     }
   }
 
