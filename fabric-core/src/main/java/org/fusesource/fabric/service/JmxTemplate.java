@@ -30,7 +30,7 @@ public class JmxTemplate extends JmxTemplateSupport {
     }
 
     public <T> T execute(JmxConnectorCallback<T> callback) {
-        JMXConnector connector = createConnector();
+        JMXConnector connector = getConnector();
         try {
             return callback.doWithJmxConnector(getConnector());
         } catch (FabricException e) {
