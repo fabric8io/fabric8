@@ -6,23 +6,21 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
+
 package org.fusesource.fabric.cxf;
 
-import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.interceptor.Fault;
 
+import java.io.IOException;
 
-public class FailoverTargetSelector extends LoadBalanceTargetSelector {
+public class HelloImplFail implements Hello {
 
-    public FailoverTargetSelector() {
-        super(null);
+    public String sayHello() {
+        throw new Fault(new IOException("It's an IOException."));
     }
 
-    public FailoverTargetSelector(Conduit c) {
-        super(c);
+    public void ping() {
+        System.out.println("Call ping method");
     }
-
-
-
-
 
 }

@@ -29,7 +29,7 @@ public class LoadBalanceTargetSelector extends AbstractConduitSelector {
     protected LoadBalanceStrategy loadBalanceStrategy;
 
     private static final Logger LOG =
-            LogUtils.getL7dLogger(FailoverTargetSelector.class);
+            LogUtils.getL7dLogger(FailOverTargetSelector.class);
 
     public LoadBalanceTargetSelector() {
         super(null);
