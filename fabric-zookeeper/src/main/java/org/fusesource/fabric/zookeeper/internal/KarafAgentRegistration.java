@@ -16,6 +16,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
 import javax.management.Notification;
@@ -45,6 +47,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private BundleContext bundleContext;
+    private Set<String> domains = new CopyOnWriteArraySet<String>();
 
     private volatile MBeanServer mbeanServer;
     private volatile boolean connected;
@@ -194,6 +197,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
     protected void registerDomains() throws InterruptedException, KeeperException {
         if (connected && mbeanServer != null) {
             String name = System.getProperty("karaf.name");
+            domains.addAll(Arrays.asList(mbeanServer.getDomains()));
             for (String domain : mbeanServer.getDomains()) {
                 zooKeeper.createOrSetWithParents(AGENT_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
@@ -219,11 +223,13 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             String path = AGENT_DOMAIN.getPath((String) o, domain);
             try {
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (zooKeeper.exists(path) == null) {
+                    if (domains.add(domain) && zooKeeper.exists(path) == null) {
                         zooKeeper.create(path, "", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                     }
                 } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (Arrays.binarySearch(mbeanServer.getDomains(), domain) < 0) {
+                    domains.clear();
+                    domains.addAll(Arrays.asList(mbeanServer.getDomains()));
+                    if (!domains.contains(domain)) {
                         // domain is no present any more
                         zooKeeper.delete(path);
                     }
