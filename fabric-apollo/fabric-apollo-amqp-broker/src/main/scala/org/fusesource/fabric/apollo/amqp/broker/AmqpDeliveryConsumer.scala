@@ -58,7 +58,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
   if( is_persistent ) {
     destination = destination.map { _ match {
       case x:TopicDestinationDTO=>
-        val rc = new DurableSubscriptionDestinationDTO(x.name)
+        val rc = new DurableSubscriptionDestinationDTO(x.parts)
         rc.subscription_id = link.getName
         rc.filter = null
         rc
