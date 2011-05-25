@@ -76,6 +76,11 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
+        <command name="fabric/display-profile">
+            <action class="org.fusesource.fabric.commands.DisplayProfile">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
     </command-bundle>
 
     <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">
