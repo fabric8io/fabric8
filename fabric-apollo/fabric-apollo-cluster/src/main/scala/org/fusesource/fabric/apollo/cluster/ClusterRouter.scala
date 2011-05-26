@@ -119,7 +119,7 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
 
     var master:DomainDestination = local
 
-    def id: Long = local.id
+    def id = local.id
 
     var producers = HashMap[BindableDeliveryProducer, DestinationDTO]()
     var consumers = HashMap[DeliveryConsumer, DestinationDTO]()
@@ -165,7 +165,7 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
     }
 
     def on_cluster_change {
-      var next_master_id = hash_ring.get(name)
+      var next_master_id = hash_ring.get(id)
       if( next_master_id!=master_id ) {
 
         // Disconnect the clients from the old master..
@@ -181,10 +181,10 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
         val old_master_id = master_id
         master_id = next_master_id
         master = if( is_master ) {
-          info("I am the master of: %s", name)
+          info("I am the master of: %s", id)
           local
         } else {
-          info("Master moved from %s to %s for destination %s", old_master_id, master_id, name)
+          info("Master moved from %s to %s for destination %s", old_master_id, master_id, id)
           new PeerDestination(local, broker.get_or_create_peer(master_id))
         }
 
