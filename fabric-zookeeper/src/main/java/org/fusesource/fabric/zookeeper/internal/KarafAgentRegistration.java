@@ -148,7 +148,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
     }
 
     private static String getLocalHostAddress() throws UnknownHostException {
-        return InetAddress.getByName(InetAddress.getLocalHost().getCanonicalHostName()).getHostAddress();
+        return InetAddress.getLocalHost().getHostName();
     }
 
     private static String getExternalAddresses(String host, String port) throws UnknownHostException {
@@ -156,7 +156,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         if (ip.isAnyLocalAddress()) {
             return getLocalHostAddress() + ":" + port;
         } else if (!ip.isLoopbackAddress()) {
-            return ip.getHostAddress() + ":" + port;
+            return ip.getHostName() + ":" + port;
         }
         return null;
     }
