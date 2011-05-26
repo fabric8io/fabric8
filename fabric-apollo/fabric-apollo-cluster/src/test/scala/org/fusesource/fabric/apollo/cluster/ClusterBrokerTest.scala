@@ -107,8 +107,8 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO("test"), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO("test"), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_master) ^ access(router_b)(dest_b.is_master)) should be === true
 
@@ -181,8 +181,8 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO("test"), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO("test"), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_master) ^ access(router_b)(dest_b.is_master)) should be === true
 

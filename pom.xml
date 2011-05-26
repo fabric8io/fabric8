@@ -379,6 +379,13 @@
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
+        
+        <!-- for the bdb je dependency -->
+        <repository>
+          <id>oracleReleases</id>
+          <url>http://download.oracle.com/maven</url>
+          <layout>default</layout>
+        </repository>
             
     </repositories>
 

@@ -41,7 +41,7 @@ class AmqpMessageTransfer(val message:AmqpProtoMessage, val name:AmqpString, val
 
   import AmqpMessageTransfer._
 
-  lazy val dest = parser.parse(new AsciiBuffer(address.getValue))
+  lazy val dest = parser.decode_destination(address.getValue)
 
   def header = message.header
 

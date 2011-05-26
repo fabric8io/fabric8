@@ -140,22 +140,22 @@ class AmqpProtocolHandler extends AmqpConnection with ProtocolHandler with Sessi
   import org.apache.activemq.apollo.util.Success
 
   def get_destination[T <: Link](link:T) = {
-    val addr = ascii(link.getAddress)
+    val addr = link.getAddress
     if (addr.startsWith(parser.queue_prefix)) {
-      parser.parse(addr)
+      parser.decode_destination(addr)
     } else if (addr.startsWith(parser.topic_prefix)) {
-      parser.parse(addr)
+      parser.decode_destination(addr)
       // TODO - handle "dynamic" linkage and set prefix based on distribution mode
     } else {
       Option(link.getDistributionMode) match {
         case Some(mode) =>
           mode match {
             case DistributionMode.MOVE =>
-              val new_addr = ascii(parser.queue_prefix + addr.toString)
-              parser.parse(new_addr)
+              val new_addr = parser.queue_prefix + addr.toString
+              parser.decode_destination(new_addr)
             case DistributionMode.COPY =>
-              val new_addr = ascii(parser.topic_prefix + addr.toString)
-              parser.parse(new_addr)
+              val new_addr = parser.topic_prefix + addr.toString
+              parser.decode_destination(new_addr)
           }
         case None =>
           throw new IllegalArgumentException("Address (" + addr + ") has no prefix and no distribution mode specified")
