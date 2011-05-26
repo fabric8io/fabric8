@@ -25,7 +25,6 @@
     <description>FuseSource Fabric :: CXF Component</description>
 
     <properties>
-        <fabric.osgi.activator>org.fusesource.fabric.camel.Activator</fabric.osgi.activator>
     </properties>
 
     <dependencies>
