@@ -356,7 +356,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
         val host = broker.get_virtual_host(consumer.info.getVirtualHost)
         if( host!=null ) {
           val router = host.router.asInstanceOf[ClusterRouter]
-          router.unbind(consumer.destinations, consumer, false)
+          router.unbind(consumer.destinations, consumer, false, null)
         }
       }
     }

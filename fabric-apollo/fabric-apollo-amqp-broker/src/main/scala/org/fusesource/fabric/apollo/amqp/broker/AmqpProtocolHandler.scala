@@ -109,7 +109,7 @@ class AmqpProtocolHandler extends AmqpConnection with ProtocolHandler with Sessi
         case Some(deliveryConsumer) =>
           // TODO - set persistent flag if link is durable
           info("Unbinding delivery consumer from destination %s", deliveryConsumer.destination)
-          host.router.unbind(deliveryConsumer.destination, deliveryConsumer)
+          host.router.unbind(deliveryConsumer.destination, deliveryConsumer, false , null)
           deliveryConsumers -= name
         case None =>
           info("No delivery consumer found for link name %s", name)
@@ -175,9 +175,9 @@ class AmqpProtocolHandler extends AmqpConnection with ProtocolHandler with Sessi
       val x = host.router.bind(deliveryConsumer.destination, deliveryConsumer, null)
       deliveryConsumer.release
       x match {
-        case Success(_) =>
+        case None =>
 
-        case Failure(reason) =>
+        case Some(reason) =>
           deliveryConsumers -= sender.getName
           sender.detach(reason)
       }
@@ -190,13 +190,14 @@ class AmqpProtocolHandler extends AmqpConnection with ProtocolHandler with Sessi
     deliveryProducers += (listener.link.getName -> listener)
     reset {
       val rc = host.router.connect(listener.destination, listener.producer, null);
-      if( rc.failed ) {
-        deliveryProducers -= listener.link.getName
-        close(rc.failure)
-      } else {
-        if (!connection.stopped) {
-          resumeRead
-        }
+      rc match {
+        case Some(failure) =>
+          deliveryProducers -= listener.link.getName
+          close(failure)
+        case None =>
+          if (!connection.stopped) {
+            resumeRead
+          }
       }
     }
   }
