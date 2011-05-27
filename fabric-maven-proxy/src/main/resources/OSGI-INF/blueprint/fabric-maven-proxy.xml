@@ -1,0 +1,33 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <cm:property-placeholder persistent-id="org.fusesource.fabric.maven" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="port" value="8040"/>
+            <cm:property name="localRepository" value="system" />
+            <cm:property name="remoteRepositories" value="file://${user.home}/.m2/repository,http://repo1.maven.org/maven2"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <bean id="mavenProxy" class="org.fusesource.fabric.maven.impl.MavenProxyImpl" init-method="start" destroy-method="stop">
+        <property name="port" value="${port}" />
+        <property name="localRepository" value="${localRepository}"/>
+        <property name="remoteRepositories" value="${remoteRepositories}"/>
+    </bean>
+
+    <service ref="mavenProxy" interface="org.fusesource.fabric.maven.MavenProxy">
+        <service-properties>
+            <entry key="port" value="${port}" />
+        </service-properties>
+    </service>
+
+</blueprint>

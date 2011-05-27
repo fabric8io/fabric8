@@ -108,6 +108,7 @@
         <jackson-version>1.8.0</jackson-version>
         <jersey-version>1.5</jersey-version>
         <jetty-version>7.1.6.v20100715</jetty-version>
+        <jsch-smx-version>0.1.44_2</jsch-smx-version>
 
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
@@ -172,6 +173,8 @@
         <module>fabric-core</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-commands</module>
+        <module>fabric-maven-proxy</module>
+        <module>fabric-core-agent-ssh</module>
         <module>fabric-commands</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>
@@ -471,6 +474,11 @@
                 <artifactId>fabric-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-maven-proxy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -606,6 +614,13 @@
               <artifactId>easymock</artifactId>
               <version>2.4</version>
           </dependency>
+          <!-- JSCH -->
+          <dependency>
+              <groupId>org.apache.servicemix.bundles</groupId>
+              <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
+              <version>${jsch-smx-version}</version>
+          </dependency>
+
         </dependencies>
     </dependencyManagement>
 

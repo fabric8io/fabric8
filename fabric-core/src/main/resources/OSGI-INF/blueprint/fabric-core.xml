@@ -19,6 +19,10 @@
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
+    <reference-list interface="org.fusesource.fabric.api.AgentProvider" availability="optional">
+        <reference-listener ref="fabricService" bind-method="registerProvider" unbind-method="unregisterProvider"/>
+    </reference-list>
+
     <service ref="fabricService" auto-export="interfaces" />
 
     <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl">

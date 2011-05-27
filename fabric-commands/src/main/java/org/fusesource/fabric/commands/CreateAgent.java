@@ -26,8 +26,11 @@ public class CreateAgent extends FabricCommand {
     @Option(name = "--profile", multiValued = true, required = false)
     private List<String> profiles;
 
-    @Option(name = "--parent", multiValued = false, required = true)
+    @Option(name = "--parent", multiValued = false, required = false)
     private String parent;
+
+    @Option(name = "--url", multiValued = false, required = false)
+    private String url;
 
     @Argument(index = 0)
     private String name;
@@ -35,16 +38,18 @@ public class CreateAgent extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        Agent agent = fabricService.getAgent( parent );
-        if (agent == null) {
-            throw new Exception("Unknown agent: " + parent);
+        if (url == null && parent == null) {
+            throw new Exception("Either an url or a parent must be specified");
+        }
+        if (url == null && parent != null) {
+            url = "child:" + parent;
         }
         List<String> names = this.profiles;
         if (names == null || names.isEmpty()) {
             names = Collections.singletonList("default");
         }
         Profile[] profiles = getProfiles(version, names);
-        Agent child = fabricService.createAgent( agent, name );
+        Agent child = fabricService.createAgent( url, name );
         child.setProfiles(profiles);
         return null;
     }

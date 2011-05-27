@@ -65,6 +65,13 @@
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.42</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

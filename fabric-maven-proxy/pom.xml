@@ -1,0 +1,122 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-project</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fabric-maven-proxy</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: Maven Proxy</description>
+
+    <properties>
+        <fabric.osgi.export>
+            org.fusesource.fabric.maven;version=${project.version},
+        </fabric.osgi.export>
+        <fabric.osgi.import>
+            !org.cyberneko.html*,
+            !junit*,
+            !org.apache.xerces.xni*,
+            !org.codehaus.classworlds*,
+            !org.apache.xbean*,
+            !org.apache.commons.logging,
+            !org.slf4j,
+            *
+        </fabric.osgi.import>
+        <fabric.osgi.private.pkg>
+            com.google.common.collect,
+            com.google.common.base,
+            org.fusesource.fabric.maven.impl,
+            org.apache.commons.codec*,
+            org.apache.commons.httpclient*,
+            org.apache.maven.*,
+            org.sonatype.aether*,
+            org.codehaus.plexus*,
+        </fabric.osgi.private.pkg>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-impl</artifactId>
+            <version>1.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-connector-wagon</artifactId>
+            <version>1.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-spi</artifactId>
+            <version>1.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-file</artifactId>
+            <version>1.0-beta-7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-http-lightweight</artifactId>
+            <version>1.0-beta-7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>nekohtml</groupId>
+                    <artifactId>nekohtml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>nekohtml</groupId>
+                    <artifactId>xercesMinimal</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+        </plugins>
+    </build>
+
+</project>
