@@ -89,7 +89,7 @@
         <logback-version>0.9.28</logback-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <osgi-version>4.2.0</osgi-version>
-        <scala-version>2.9.0</scala-version>
+        <scala-version>2.9.0-1</scala-version>
         <scala-osgi-version>2.9.0</scala-osgi-version>
         <scala-plugin-version>2.15.0</scala-plugin-version>
         <scalate-version>1.5.0-SNAPSHOT</scalate-version>
