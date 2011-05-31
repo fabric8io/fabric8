@@ -45,8 +45,8 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
    */
   object cluster_connector extends Connector {
 
-    val connections = new HashMap[Long, BrokerConnection]
-    val connection_counter = new LongCounter()
+    val connected = new LongCounter()
+    val accepted = new LongCounter()
 
     def broker = ClusterBroker.this
     def id = "cluster"
@@ -58,7 +58,9 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
     }
 
     def stopped(connection: BrokerConnection) = dispatch_queue {
-      connections.remove(connection.id)
+      if( broker.connections.remove(connection.id).isDefined ) {
+        connected.decrementAndGet()
+      }
     }
 
     protected def _stop(on_completed: Runnable) = dispatch_queue {
@@ -68,6 +70,7 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
     def connect(location:String)(on_complete: Result[BrokerConnection, IOException]=>Unit) = {
       try {
 
+        connected.incrementAndGet()
         val outbound_connection = new BrokerConnection(cluster_connector, connection_id_counter.incrementAndGet)
         outbound_connection.protocol_handler = new ProtocolHandler() {
           def protocol: String = "outbound"
@@ -77,11 +80,8 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
           }
 
           override def on_transport_failure(error: IOException) = {
-            broker.dispatch_queue {
-              connections.remove(outbound_connection.id)
-              outbound_connection.stop
-            }
             on_complete(Failure(error))
+            outbound_connection.stop
           }
         }
         init_dispatch_queue(outbound_connection.dispatch_queue)
@@ -89,6 +89,7 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
         outbound_connection.transport = TransportFactory.connect(location)
         connections.put(outbound_connection.id, outbound_connection)
         outbound_connection.start
+
       } catch {
         case error:IOException => on_complete(Failure(error))
       }
