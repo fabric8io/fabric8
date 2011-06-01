@@ -24,7 +24,7 @@ import org.apache.activemq.apollo.web.resources.BrokerResource
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-object FuseMQIDERunner  {
+object FabricIDERunner  {
   def main(args:Array[String]) = {
 
     // Let the user know where he configure logging at.
@@ -32,7 +32,7 @@ object FuseMQIDERunner  {
 
     // Setups where the broker base directory is...
     if( System.getProperty("apollo.base") == null ) {
-      val apollo_base = new File(getClass.getClassLoader.getResource("example-fabric.apollo/etc/apollo.xml").toURI.resolve("..").toURL.getFile)
+      val apollo_base = new File(getClass.getClassLoader.getResource("example-fabric/etc/apollo.xml").toURI.resolve("..").toURL.getFile)
       System.setProperty("apollo.base", apollo_base.getCanonicalPath)
     }
     println("apollo.base=%s".format(System.getProperty("apollo.base")));
