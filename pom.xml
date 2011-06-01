@@ -92,7 +92,7 @@
         <scala-version>2.9.0-1</scala-version>
         <scala-osgi-version>2.9.0</scala-osgi-version>
         <scala-plugin-version>2.15.0</scala-plugin-version>
-        <scalate-version>1.5.0-SNAPSHOT</scalate-version>
+        <scalate-version>1.5.0</scalate-version>
         <scalatest-version>1.4.1</scalatest-version>
         <servlet-api-version>2.5</servlet-api-version>
         <slf4j-version>1.6.1</slf4j-version>
@@ -101,8 +101,8 @@
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
         <junit-version>4.8.1</junit-version>
-        <hawtbuf-version>1.4</hawtbuf-version>
-        <hawtdispatch-version>1.3-SNAPSHOT</hawtdispatch-version>
+        <hawtbuf-version>1.5</hawtbuf-version>
+        <hawtdispatch-version>1.3</hawtdispatch-version>
         <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
         <sigar-version>1.6.4</sigar-version>
         <jackson-version>1.8.0</jackson-version>
