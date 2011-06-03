@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.cluster
 
-import dto.{ChannelStatusDTO, ClusterConnectionStatusDTO, ClusterBrokerDTO, ClusterRouterDTO}
+import dto._
 import org.fusesource.hawtdispatch._
 import java.lang.String
 import org.apache.activemq.apollo.broker._
@@ -51,7 +51,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
   var outbound:Queue = _
   var joined_cluster_at = System.currentTimeMillis
   var left_cluster_at = 0L
-  var peer_info:PeerInfo.Buffer = _
+  var peer_info:ClusterNodeDTO = _
 
   ///////////////////////////////////////////////////////////////////////////////
   //
@@ -179,9 +179,9 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
   //
   def check() = dispatch_queue {
     // Should we try to connect to the peer?
-    if( !connecting  && handlers.isEmpty && peer_info.hasClusterAddress ) {
+    if( !connecting  && handlers.isEmpty && peer_info.cluster_address!=null ) {
       connecting = true
-      broker.cluster_connector.connect(peer_info.getClusterAddress) {
+      broker.cluster_connector.connect(peer_info.cluster_address) {
         case Success(connection) =>
           connection.transport.setProtocolCodec(new ClusterProtocolCodec)
           connection.protocol_handler = new ClusterProtocolHandler(this)

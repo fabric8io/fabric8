@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit
 import java.util.{Arrays, Properties}
 import org.apache.activemq.apollo.dto.{BrokerDTO, XmlCodec}
 import org.apache.activemq.apollo.broker.osgi.BrokerService
+import org.fusesource.fabric.groups.{ZooKeeperGroupFactory, Group}
 
 object ClusterBrokerService extends Log {
 
@@ -50,7 +51,7 @@ class ClusterBrokerService extends Dispatched {
 
   var started_counter = 0
 
-  var cluster:ZkCluster = _
+  var cluster:Group = _
 
   var started = false
 
@@ -101,7 +102,7 @@ class ClusterBrokerService extends Dispatched {
     if( started ) {
       started = false
       if( cluster != null ) {
-        cluster.leave
+        cluster.leave(id)
       }
       if( broker!=null ) {
         ServiceControl.stop(broker, "stopping broker")
@@ -115,8 +116,7 @@ class ClusterBrokerService extends Dispatched {
 
       def start_broker: Unit = if( config_data!=null ) {
         if( cluster==null ) {
-          cluster = new ZkCluster(zk_client, zk_root+"/online")
-          cluster.start
+          cluster = ZooKeeperGroupFactory.create(zk_client, zk_root+"/online")
         }
 
         val props: Properties = config_props
