@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:foo="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.01"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+    ">
+
+  <!-- START SNIPPET: example -->
+  <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+    <route>
+      <from uri="file:src/test/data?noop=true"/>
+      <unmarshal>
+        <c24io contentType="Xml" elementTypeName="iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01.DocumentElement"/>
+      </unmarshal>
+      <filter>
+        <xquery>//foo:MsgId = 'PFSM1234'</xquery>
+        <to uri="mock:result"/>
+      </filter>
+    </route>
+  </camelContext>
+  <!-- END SNIPPET: example -->
+
+</beans>
