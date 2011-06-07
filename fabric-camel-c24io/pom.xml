@@ -15,7 +15,7 @@
   <description>FuseSource Fabric :: Camel C24IO support</description>
 
   <properties>
-    <c24.test.version>4.0.0</c24.test.version>
+    <c24.test.version>4.0.1</c24.test.version>
   </properties>
 
   <dependencies>
