@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import static org.junit.Assert.assertNotNull;
 
-public class DataFormatTestTest {
+public class DataFormatTest {
 
     @Test
     public void testParseDataObjectDirectly() throws Exception {
@@ -35,6 +35,7 @@ public class DataFormatTestTest {
         System.out.println("Parsed: " + transactions);
     }
 
+    @Test
     public void testDataFormat() throws Exception {
         C24IOFormat format = new C24IOFormat();
         format.setElementType(Transactions.class);

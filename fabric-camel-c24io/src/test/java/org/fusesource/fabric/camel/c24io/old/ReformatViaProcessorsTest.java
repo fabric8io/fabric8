@@ -41,11 +41,8 @@ public class ReformatViaProcessorsTest extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() {
                 from("file:src/test/data?noop=true").
-
-                        process(C24IOSource.c24Source(Transactions.class).xmlSource()).
-
+                        process(C24IOSource.c24Source(Transactions.class)).
                         process(C24IOSink.c24Sink().tagValuePair()).
-
                         to("mock:result");
             }
         };

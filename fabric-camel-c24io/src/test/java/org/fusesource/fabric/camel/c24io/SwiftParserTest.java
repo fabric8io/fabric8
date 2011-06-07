@@ -6,22 +6,27 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
+
 package org.fusesource.fabric.camel.c24io;
 
-import java.util.List;
-
 import biz.c24.io.api.data.ComplexDataObject;
-import org.apache.camel.test.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.test.CamelTestSupport;
+
+import java.util.List;
 
 /**
- * @version $Revision$
+ * Tests the use of the {@link SwiftFormat}
  */
-public class NoSourceTest extends CamelTestSupport {
-    public void testParsingMessage() throws Exception {
+public class SwiftParserTest extends CamelTestSupport {
+
+    public void test_TODO() throws Exception {
+    }
+
+    public void TODO_testParsingMessage() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         MockEndpoint marshalledEndpoint = getMockEndpoint("mock:marshalled");
 

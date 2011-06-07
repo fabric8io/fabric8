@@ -11,8 +11,10 @@ package org.fusesource.fabric.camel.c24io;
 import java.lang.reflect.InvocationTargetException;
 
 import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.DataModel;
 import biz.c24.io.api.data.Element;
 import org.apache.camel.RuntimeCamelException;
+import org.apache.camel.util.ObjectHelper;
 
 /**
  * @version $Revision$
@@ -32,17 +34,34 @@ public final class C24IOHelper {
         }
     }
 
+    public static Element getMandatoryElement(Class<?> type) {
+        Element element = getElement(type);
+        if (element == null) {
+            throw new TypeNotElementRuntimeException(type);
+        }
+        return element;
+    }
+
     public static Element getElement(Class<?> elementType) {
-        if (elementType.isAssignableFrom(ComplexDataObject.class) && !elementType.equals(ComplexDataObject.class)) {
+        if (Element.class.isAssignableFrom(elementType)) {
             try {
-                return (Element) elementType.getMethod("getInstance").invoke(null);
+                Object value = elementType.getMethod("getInstance").invoke(null);
+                if (value instanceof Element) {
+                    return (Element) value;
+                }
             } catch (InvocationTargetException e) {
                 throw new RuntimeCamelException(e.getTargetException());
             } catch (Exception e) {
                 throw new RuntimeCamelException(e);
             }
-        } else {
-            return null;
         }
+        Object object = ObjectHelper.newInstance(elementType, Object.class);
+        if (object instanceof Element) {
+            return (Element) object;
+        } else if (object instanceof ComplexDataObject) {
+            ComplexDataObject dataObject = (ComplexDataObject) object;
+            return dataObject.getDefiningElementDecl();
+        }
+        return null;
     }
 }

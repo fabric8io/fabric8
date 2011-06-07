@@ -8,11 +8,6 @@
  */
 package org.fusesource.fabric.camel.c24io;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.lang.reflect.InvocationTargetException;
-
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.presentation.BinarySource;
@@ -21,7 +16,6 @@ import biz.c24.io.api.presentation.SAXSource;
 import biz.c24.io.api.presentation.Source;
 import biz.c24.io.api.presentation.TextualSource;
 import biz.c24.io.api.presentation.XMLSource;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.Message;
@@ -29,6 +23,11 @@ import org.apache.camel.Processor;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.util.ExchangeHelper;
 import org.apache.camel.util.ObjectHelper;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * A parser of objects using the C24 IO
@@ -38,7 +37,7 @@ import org.apache.camel.util.ObjectHelper;
 public class C24IOSource<T extends C24IOSource> implements Processor {
     private Element element;
     private Source source;
-    
+
     public C24IOSource() {
     }
 
@@ -49,7 +48,7 @@ public class C24IOSource<T extends C24IOSource> implements Processor {
     @SuppressWarnings("unchecked")
     public static C24IOSource c24Source(String modelClassName) {
         try {
-            Class<Element> elementType = (Class<Element>) ObjectHelper.loadClass(modelClassName); 
+            Class<Element> elementType = (Class<Element>) ObjectHelper.loadClass(modelClassName);
             return c24Source(elementType);
         } catch (RuntimeCamelException e) {
             throw e;
@@ -59,19 +58,13 @@ public class C24IOSource<T extends C24IOSource> implements Processor {
     }
 
     public static C24IOSource c24Source(Class<?> elementType) {
-        try {
-            Element element = (Element)elementType.getMethod("getInstance").invoke(null);
-            return c24Source(element);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeCamelException(e.getTargetException());
-        } catch (Exception e) {
-            throw new RuntimeCamelException(e);
-        }
+        Element element = C24IOHelper.getMandatoryElement(elementType);
+        return c24Source(element);
     }
 
     public static C24IOSource c24Source(Element element) {
         return new C24IOSource(element);
-    }    
+    }
 
     public void process(Exchange exchange) throws Exception {
         ComplexDataObject object = parseDataObject(exchange);
@@ -110,13 +103,7 @@ public class C24IOSource<T extends C24IOSource> implements Processor {
     }
 
     public static Element element(Class<?> elementType) {
-        try {
-            return (Element)elementType.getMethod("getInstance").invoke(null);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeCamelException(e.getTargetException());
-        } catch (Exception e) {
-            throw new RuntimeCamelException(e);
-        }
+        return C24IOHelper.getMandatoryElement(elementType);
     }
 
     // Properties
