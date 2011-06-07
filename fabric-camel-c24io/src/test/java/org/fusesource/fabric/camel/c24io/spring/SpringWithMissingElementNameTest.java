@@ -7,9 +7,10 @@
  * in the license.txt file.
  */
 package org.fusesource.fabric.camel.c24io.spring;
+
 import java.util.List;
 
-import iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01.Document;
+import biz.c24.testtransactions.Transactions;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
@@ -33,8 +34,8 @@ public class SpringWithMissingElementNameTest extends AbstractJUnit38SpringConte
         assertEquals("list size", 1, list.size());
         Exchange exchange = list.get(0);
         Object body = exchange.getIn().getBody();
-        assertTrue("The body should be instance of Document", body instanceof Document);
-        Document document = (Document) body;
+        assertTrue("The body should be instance of Transactions", body instanceof Transactions);
+        Transactions document = (Transactions) body;
         System.out.println("Found: " + document);
     }
 }

@@ -6,24 +6,25 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.camel.c24io.old;
+package org.fusesource.fabric.camel.c24io;
 
 import java.util.List;
 
-import iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01.DocumentElement;
+import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.testtransactions.Transactions;
+
 import org.apache.camel.test.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.fusesource.fabric.camel.c24io.C24IOSink;
-import org.fusesource.fabric.camel.c24io.C24IOSource;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.model.dataformat.C24IOContentType;
 
 /**
  * @version $Revision$
  */
-public class ReformatViaProcessorsTest extends CamelTestSupport {
-    public void testC24() throws Exception {
+public class UnmarshalTest extends CamelTestSupport {
+    public void testParsingMessage() throws Exception {
         MockEndpoint resultEndpoint = resolveMandatoryEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.expectedMessageCount(1);
 
@@ -32,20 +33,16 @@ public class ReformatViaProcessorsTest extends CamelTestSupport {
         List<Exchange> list = resultEndpoint.getReceivedExchanges();
         Exchange exchange = list.get(0);
         Message in = exchange.getIn();
-
-        String text = in.getBody(String.class);
-        log.info("Received: " + text);
+        ComplexDataObject object = assertIsInstanceOf(ComplexDataObject.class, in.getBody());
+        log.info("Received: " + object);
     }
 
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             public void configure() {
+
                 from("file:src/test/data?noop=true").
-
-                        process(C24IOSource.c24Source(DocumentElement.class).xmlSource()).
-
-                        process(C24IOSink.c24Sink().tagValuePair()).
-
+                        unmarshal().c24io(Transactions.class, C24IOContentType.Xml).
                         to("mock:result");
             }
         };

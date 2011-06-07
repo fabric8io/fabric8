@@ -8,7 +8,7 @@
  */
 package org.fusesource.fabric.camel.c24io;
 
-import nonamespace.Mx2MtTransform;
+import biz.c24.testtransform.StatGenTransform;
 import org.apache.camel.builder.RouteBuilder;
 
 /**
@@ -20,7 +20,7 @@ public class TransformUsingBeanClassTest extends TransformUsingBeanTest {
         return new RouteBuilder() {
             public void configure() {
                 from("file:src/test/data?noop=true").
-                        bean(Mx2MtTransform.class).
+                        bean(StatGenTransform.class).
                         to("mock:result");
             }
         };

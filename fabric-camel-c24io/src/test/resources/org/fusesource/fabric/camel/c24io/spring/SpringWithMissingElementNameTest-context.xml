@@ -21,7 +21,7 @@
     <route>
       <from uri="file:src/test/data?noop=true"/>
       <unmarshal>
-        <c24io elementType="iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01.DocumentElement"/>
+        <c24io elementType="biz.c24.testtransactions.Transactions"/>
       </unmarshal>
       <to uri="mock:result"/>
     </route>

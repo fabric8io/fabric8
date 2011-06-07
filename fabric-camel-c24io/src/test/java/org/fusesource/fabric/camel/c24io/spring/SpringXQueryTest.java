@@ -10,7 +10,6 @@ package org.fusesource.fabric.camel.c24io.spring;
 
 import org.apache.camel.CamelContext;
 import org.fusesource.fabric.camel.c24io.XPathTest;
-import static org.apache.camel.spring.processor.SpringTestHelper.createSpringCamelContext;
 
 /**
  * @version $Revision$
@@ -18,7 +17,7 @@ import static org.apache.camel.spring.processor.SpringTestHelper.createSpringCam
 public class SpringXQueryTest extends XPathTest {
     @Override
     protected CamelContext createCamelContext() throws Exception {
-        return createSpringCamelContext(this, "org/fusesource/fabric/camel/c24io/spring/xqueryFilter.xml");
+        return SpringTestHelper.createSpringCamelContext(this, "org/fusesource/fabric/camel/c24io/spring/xqueryFilter.xml");
     }
 
 }

@@ -19,7 +19,7 @@
     <route>
       <from uri="file:src/test/data?noop=true"/>
       <unmarshal>
-        <c24io contentType="Xml" elementTypeName="iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01.DocumentElement"/>
+        <c24io elementTypeName="biz.c24.testtransactions.Transactions"/>
       </unmarshal>
       <marshal>
         <c24io contentType="TagValuePair"/>

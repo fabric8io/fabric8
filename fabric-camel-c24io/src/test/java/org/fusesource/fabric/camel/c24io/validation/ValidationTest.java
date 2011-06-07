@@ -8,28 +8,27 @@
  */
 package org.fusesource.fabric.camel.c24io.validation;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import biz.c24.io.api.presentation.Source;
-import biz.c24.io.api.presentation.XMLSource;
-import iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01.Document;
-import iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01.DocumentElement;
-import org.apache.camel.test.CamelTestSupport;
-import org.apache.camel.Processor;
+import biz.c24.io.api.presentation.TextualSource;
+import biz.c24.testtransactions.Transactions;
+
 import org.apache.camel.ValidationException;
-import org.fusesource.fabric.camel.c24io.C24IOValidator;
 import org.apache.camel.builder.Builder;
 import org.apache.camel.builder.ProcessorBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.processor.MyValidator;
+import org.apache.camel.test.CamelTestSupport;
+
+import org.fusesource.fabric.camel.c24io.C24IOValidator;
+import org.fusesource.fabric.camel.c24io.SampleDataFiles;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @version $Revision$
  */
 public class ValidationTest extends CamelTestSupport {
-    protected Processor validator = new MyValidator();
     protected MockEndpoint validEndpoint;
     protected MockEndpoint invalidEndpoint;
 
@@ -37,7 +36,7 @@ public class ValidationTest extends CamelTestSupport {
         validEndpoint.expectedMessageCount(1);
         invalidEndpoint.expectedMessageCount(0);
 
-        Document body = createValidBody();
+        Transactions body = createValidBody();
         Object result = template.requestBody("direct:start", body);
 
         MockEndpoint.assertIsSatisfied(validEndpoint, invalidEndpoint);
@@ -48,7 +47,7 @@ public class ValidationTest extends CamelTestSupport {
         invalidEndpoint.expectedMessageCount(1);
         validEndpoint.expectedMessageCount(0);
 
-        Document body = new Document();
+        Transactions body = new Transactions();
         Object result = template.requestBody("direct:start", body);
 
         MockEndpoint.assertIsSatisfied(validEndpoint, invalidEndpoint);
@@ -61,7 +60,7 @@ public class ValidationTest extends CamelTestSupport {
 
         Object result;
 
-        Document body = new Document();
+        Transactions body = new Transactions();
         result = template.requestBody("direct:start", body);
         assertEquals("invalidResult", result);
 
@@ -100,11 +99,14 @@ public class ValidationTest extends CamelTestSupport {
         };
     }
 
-    protected Document createValidBody() throws IOException {
-        InputStream in = getClass().getClassLoader().getResourceAsStream("org/fusesource/fabric/camel/c24io/validation/pacs.008.001.01-valid.xml");
-        assertNotNull("Should have found valid XML!", in);
+    protected Transactions createValidBody() throws IOException {
+        InputStream in = SampleDataFiles.sampleTransactionsFile();
+        Source src = new TextualSource(in);
 
-        Source src = new XMLSource(in);
-        return (Document) src.readObject(DocumentElement.getInstance());
+        // TODO how to do this now?
+        //return (Transactions) src.readObject(Transactions.getInstance());
+        Transactions instance = new Transactions();
+        src.readObject(instance);
+        return instance;
     }
 }

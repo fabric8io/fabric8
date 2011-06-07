@@ -8,16 +8,16 @@
  */
 package org.fusesource.fabric.camel.c24io.spring;
 import org.apache.camel.CamelContext;
+
 import org.fusesource.fabric.camel.c24io.ReformatTest;
-import static org.apache.camel.spring.processor.SpringTestHelper.createSpringCamelContext;
-          
+
 /**
  * @version $Revision$
  */
 public class SpringReformatTest extends ReformatTest {
     @Override
     protected CamelContext createCamelContext() throws Exception {
-        return createSpringCamelContext(this, "org/fusesource/fabric/camel/c24io/spring/reformat.xml");
+        return SpringTestHelper.createSpringCamelContext(this, "org/fusesource/fabric/camel/c24io/spring/reformat.xml");
     }
 
 }

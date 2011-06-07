@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.DataModel;
+import biz.c24.io.api.data.DocumentRoot;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.presentation.BinarySink;
 import biz.c24.io.api.presentation.BinarySource;
@@ -121,7 +123,19 @@ public class C24IOFormat implements DataFormat {
         if (element == null) {
             Class type = getElementType();
             if (type != null) {
-                element = ObjectHelper.newInstance(type, Element.class);
+                Object object = ObjectHelper.newInstance(type, Object.class);
+                if (object instanceof Element) {
+                    element = (Element) object;
+                } else if (object instanceof ComplexDataObject) {
+                    ComplexDataObject dataObject = (ComplexDataObject) object;
+                    element = dataObject.getDefiningElementDecl();
+/*
+                } else if (object instanceof DataModel) {
+                    DataModel dataModel = (DataModel) object;
+*/
+                } else {
+                    throw new UnsupportedOperationException("The data type " + type.getCanonicalName() + " does not implement " + Element.class.getCanonicalName());
+                }
             }
         }
         return element;
