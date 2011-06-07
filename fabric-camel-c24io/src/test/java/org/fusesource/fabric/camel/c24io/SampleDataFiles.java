@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 public class SampleDataFiles {
     
     public static InputStream sampleTransactionsFile() {
-        return resourceAsStream("Transactions.windows");
+        return resourceAsStream("Transactions.dat");
     }
 
     public static InputStream resourceAsStream(String uri) {
