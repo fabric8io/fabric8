@@ -15,25 +15,6 @@ package org.fusesource.fabric.apollo.cluster.model;
 option java_multiple_files = true;
 
 //
-// This record is use by the ZkCluster to do
-// generic cluster membership discovery/registration.
-//
-message MemberRecord {
-   required string id = 1;
-   optional bytes data = 2;
-}
-
-//
-// Cluster brokers put PeerInfo records into the data field
-// of the MemberRecord when they register.
-//
-message PeerInfo {
-   optional int32 weight = 1;
-   optional string cluster_address = 2;
-   optional string client_address = 3;
-}
-
-//
 // This is the first message exchanged between peers
 // when they first connect.
 //

@@ -10,23 +10,22 @@
 
 package org.fusesource.fabric.apollo.cluster
 
+import dto.{ClusterNodeDTO, ClusterBrokerDTO}
 import org.fusesource.hawtdispatch._
 import java.lang.String
-import org.fusesource.fabric.apollo.cluster.dto.ClusterBrokerDTO
 import org.apache.activemq.apollo.broker._
 import java.io.IOException
-import org.apache.activemq.apollo.transport.{DefaultTransportListener, TransportFactory}
+import org.apache.activemq.apollo.transport.TransportFactory
 import org.apache.activemq.apollo.util._
 import org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocol
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fabric.apollo.cluster.model._
 import collection.mutable.HashMap
 import org.apache.activemq.apollo.broker.protocol.{ProtocolHandler, AnyProtocol}
 import org.fusesource.fabric.apollo.cluster.util.{HashRing, Hasher}
+import org.fusesource.fabric.groups.{ChangeListener, Group}
+import org.apache.activemq.apollo.dto.JsonCodec
 
 object ClusterBroker extends Log {
-  implicit def encode_peer_info(value:PeerInfo.Buffer):Buffer = value.toFramedBuffer
-  implicit def decode_peer_info(value:Buffer):PeerInfo.Buffer = PeerInfo.FACTORY.parseFramed(value)
 }
 
 /**
@@ -35,7 +34,7 @@ object ClusterBroker extends Log {
  *
  * This class in responsible for tracking the peers of the cluster.
  */
-class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broker {
+class ClusterBroker(override val id:String, val cluster:Group) extends Broker {
   import ClusterBroker._
 
   var hash_ring:HashRing[String, String] = _
@@ -116,7 +115,7 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
 
   override def _stop(on_completed: Runnable): Unit = {
     cluster.remove(cluster_listener)
-    cluster.leave
+    cluster.leave(id)
     cluster_connector.stop(^{
       connectors = connectors.filterNot(_ == cluster_connector)
       super._stop(on_completed)
@@ -124,38 +123,39 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
   }
 
   def update_cluster_state: Unit = {
-    val my_info = new PeerInfo.Bean
-    my_info.setWeight(cluster_weight)
+    val my_info = new ClusterNodeDTO
+    my_info.id = id
+    my_info.weight = cluster_weight
     config match {
       case c: ClusterBrokerDTO =>
         if (c.cluster_address != null)
-          my_info.setClusterAddress(c.cluster_address)
+          my_info.cluster_address = c.cluster_address
       case _ =>
     }
 
     // We can infer the cluster address if it's not set...
-    if (!my_info.hasClusterAddress) {
+    if ( my_info.cluster_address==null ) {
       connectors.foreach { connector =>
         connector match {
           case connector: AcceptingConnector =>
             connector.protocol match {
               case ClusterProtocol =>
-                my_info.setClusterAddress(connector.transport_server.getConnectAddress)
+                 my_info.cluster_address = connector.transport_server.getConnectAddress
               case x: AnyProtocol =>
-                my_info.setClusterAddress(connector.transport_server.getConnectAddress)
+                 my_info.cluster_address = connector.transport_server.getConnectAddress
               case _ => // Ignore other protocols..
             }
           case _ => // Ignore the outbound connector
         }
       }
-      if (my_info.hasClusterAddress) {
-        info("Cluster address infered to be: %s", my_info.getClusterAddress)
+      if (my_info.cluster_address!=null) {
+        info("Cluster address infered to be: %s", my_info.cluster_address)
       } else {
         warn("Cluster address not set and it could not be infered.  Peer nodes may have problems connecting to us.")
       }
     }
 
-    cluster.join(id, my_info.freeze)
+    cluster.join(id, JsonCodec.encode(my_info).toByteArray)
   }
 
   def set_cluster_weight(value:Int): Unit = dispatch_queue {
@@ -186,16 +186,25 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
     }
   }
 
-  val cluster_listener = new ClusterListener(){
-    def on_cluster_change(members: List[(String, Option[Buffer])]) = dispatch_queue {
+  val cluster_listener = new ChangeListener(){
+    def changed(members: Array[Array[Byte]]) {
+      on_cluster_change(members.toList.flatMap{ data=>
+        try {
+          Some(JsonCodec.decode(new Buffer(data), classOf[ClusterNodeDTO]))
+        } catch {
+          case _ => None
+        }
+      })
+    }
+
+    def on_cluster_change(members: List[ClusterNodeDTO]) = dispatch_queue {
       val now = System.currentTimeMillis
       peers.values.foreach(x=> x.left_cluster_at = now )
-      members.foreach { case (peer_id, data) =>
-        if( peer_id != id ) {
-          assert( data.isDefined )
-          val peer = get_or_create_peer(peer_id)
+      members.foreach { case node_dto =>
+        if( node_dto.id != id ) {
+          val peer = get_or_create_peer(node_dto.id)
           peer.left_cluster_at = 0
-          peer.peer_info = data.get
+          peer.peer_info = node_dto
         }
       }
       peers.foreach{ case (id, peer) =>
@@ -229,8 +238,8 @@ class ClusterBroker(override val id:String, val cluster:ZkCluster) extends Broke
       rc.add(id, cluster_weight)
     }
     peers.values.foreach{ x=>
-      if( x.peer_info.getWeight > 0 ) {
-        rc.add(x.id, x.peer_info.getWeight)
+      if( x.peer_info.weight > 0 ) {
+        rc.add(x.id, x.peer_info.weight)
       }
     }
     rc

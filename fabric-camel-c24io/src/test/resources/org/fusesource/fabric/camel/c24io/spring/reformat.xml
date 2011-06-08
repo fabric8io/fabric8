@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+    ">
+
+  <!-- START SNIPPET: example -->
+  <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+    <route>
+      <from uri="file:src/test/data?noop=true"/>
+      <unmarshal>
+        <c24io elementTypeName="biz.c24.testtransactions.Transactions"/>
+      </unmarshal>
+      <marshal>
+        <c24io contentType="TagValuePair"/>
+      </marshal>
+      <to uri="mock:result"/>
+    </route>
+  </camelContext>
+  <!-- END SNIPPET: example -->
+
+</beans>

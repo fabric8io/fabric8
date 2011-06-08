@@ -15,12 +15,13 @@
     <notes>
       A default configuration
     </notes>
+
     <virtual_host id="default"  auto_create_queues="true">
         <host_name>localhost</host_name>
         <bdb_store directory="${apollo.base}/data" flush_delay="100"/>
     </virtual_host>
 
-    <connector protocol="multi" bind="tcp://0.0.0.0:61613" id="stomp-port"/>
-    <connector protocol="multi" bind="tcp://0.0.0.0:5672"  id="amqp-port"/>
+    <connector id="stomp-port" bind="tcp://0.0.0.0:61613"/>
+    <connector id="amqp-port"  bind="tcp://0.0.0.0:5672" />
 
 </broker>

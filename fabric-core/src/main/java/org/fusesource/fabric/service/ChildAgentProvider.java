@@ -24,7 +24,7 @@ public class ChildAgentProvider implements AgentProvider {
 
     @Override
     public void create(final URI agentUri, final String name, final String zooKeeperUrl) {
-        final Agent parent = service.getAgent(agentUri.getPath());
+        final Agent parent = service.getAgent(agentUri.getSchemeSpecificPart());
         service.getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
