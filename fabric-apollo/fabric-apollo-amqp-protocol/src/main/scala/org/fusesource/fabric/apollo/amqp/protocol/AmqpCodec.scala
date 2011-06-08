@@ -247,5 +247,9 @@ class AmqpCodec extends ProtocolCodec with Logging {
     rc
   }
 
+  def getLastWriteSize = 0
+
+  def getLastReadSize = 0
+
 }
 

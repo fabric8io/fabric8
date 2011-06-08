@@ -200,4 +200,8 @@ class ClusterProtocolCodec extends ProtocolCodec {
     next_action = read_header
     rc
   }
+
+  def getLastWriteSize = 0
+
+  def getLastReadSize = 0
 }
