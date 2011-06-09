@@ -137,7 +137,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
     val hello = new ProtocolHello.Bean
     hello.setVersion(PROTOCOL_VERSION)
     hello.setId(broker.id)
-    hello.setAddress(handler.connection.transport.getRemoteAddress)
+    hello.setAddress(handler.connection.transport.getRemoteAddress.toString)
 
     broker.config match {
       case config:ClusterBrokerDTO =>
