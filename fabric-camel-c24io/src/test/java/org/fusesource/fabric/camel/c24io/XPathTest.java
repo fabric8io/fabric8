@@ -42,12 +42,11 @@ public class XPathTest extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() {
 
-                Namespaces ns = new Namespaces("foo", "urn:iso:std:iso:20022:tech:xsd:pacs.008.001.01");
+                Namespaces ns = new Namespaces("foo", "http://www.c24.biz/testTransactions");
 
                 from("file:src/test/data?noop=true").
-                        unmarshal().c24io(Transactions.class, C24IOContentType.Xml).
-                        //setHeader("foo", ns.xquery("//foo:MsgId", String.class)).
-                        filter(ns.xquery("//foo:MsgId = 'PFSM1234'")).
+                        unmarshal().c24io(Transactions.class).
+                        filter(ns.xquery("//foo:Currency = 'GBP'")).
                         to("mock:result");
             }
         };
