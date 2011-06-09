@@ -98,7 +98,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
     def producer = p
     def consumer = AmqpDeliveryConsumer.this
     var closed = false
-    val session = handler.outbound_sessions.open(producer.dispatch_queue)
+    val session = handler.session_manager.open(producer.dispatch_queue)
 
     def remaining_capacity = session.remaining_capacity
 
@@ -107,7 +107,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
       assert( getCurrentQueue == producer.dispatch_queue )
       if ( !closed ) {
         closed = true
-        consumer.handler.outbound_sessions.close(session)
+        consumer.handler.session_manager.close(session)
         trace("Closed delivery consumer and releasing")
         release
       }
