@@ -133,7 +133,7 @@
         For any given programming language there may not be a direct equivalence between the
         available native language types and the AMQP types. The list of mappings between AMQP types
         and programming language types can be found here:
-        <xref type="amqp" name="../contrib/mapped-languages"/>
+        <xref type="extern" name="http://www.amqp.org/specification/1.0/type-language-mappings"/>
       </p>
     </doc>
 
@@ -429,6 +429,8 @@ Subcategory     n
     </type>
 
     <type class="primitive" name="boolean" label="represents a true or false value">
+      <encoding code="0x56" category="fixed" width="1"
+                label="boolean with the octet 0x00 being false and octet 0x01 being true"/>
       <encoding name="true" code="0x41" category="fixed" width="0" label="the boolean value true"/>
       <encoding name="false" code="0x42" category="fixed" width="0"
                 label="the boolean value false"/>
@@ -448,6 +450,7 @@ Subcategory     n
                 label="32-bit unsigned integer in network byte order"/>
       <encoding name="smalluint" code="0x52" category="fixed" width="1"
                 label="unsigned integer value in the range 0-255"/>
+      <encoding name="uint0" code="0x43" category="fixed" width="0" label="the uint value 0"/>
     </type>
 
     <type class="primitive" name="ulong" label="integer in the range 0 to 2^64 - 1">
@@ -455,6 +458,7 @@ Subcategory     n
                 label="64-bit unsigned integer in network byte order"/>
       <encoding name="smallulong" code="0x53" category="fixed" width="1"
                 label="unsigned long value in the range 0-255"/>
+      <encoding name="ulong0" code="0x44" category="fixed" width="0" label="the ulong value 0"/>
     </type>
 
     <type class="primitive" name="byte" label="integer in the range -(2^7) to 2^7 - 1">
@@ -573,14 +577,8 @@ Subcategory     n
       <encoding name="str8-utf8" code="0xa1" category="variable" width="1"
                 label="up to 2^8 - 1 octets worth of UTF-8 unicode (with no byte order mark)"/>
 
-      <encoding name="str8-utf16" code="0xa2" category="variable" width="1"
-                label="up to 2^8 - 1 octets worth of UTF-16BE unicode (with no byte order mark)"/>
-
       <encoding name="str32-utf8" code="0xb1" category="variable" width="4"
                 label="up to 2^32 - 1 octets worth of UTF-8 unicode (with no byte order mark)"/>
-
-      <encoding name="str32-utf16" code="0xb2" category="variable" width="4"
-                label="up to 2^32 - 1 octets worth of UTF-16BE unicode (with no byte order mark)"/>
     </type>
 
     <type class="primitive" name="symbol" label="symbolic values from a constrained domain">
@@ -633,19 +631,11 @@ Subcategory     n
                 label="up to 2^8 - 1 list elements with total size less than 2^8 octets"/>
       <encoding name="list32" code="0xd0" category="compound" width="4"
                 label="up to 2^32 - 1 list elements with total size less than 2^32 octets"/>
-      <encoding name="array8" code="0xe0" category="array" width="1"
-                label="up to 2^8 - 1 array elements with total size less than 2^8 octets"/>
-      <encoding name="array32" code="0xf0" category="array" width="4"
-                label="up to 2^32 - 1 array elements with total size less than 2^32 octets"/>
     </type>
 
     <type class="primitive" name="map"
           label="a polymorphic mapping from distinct keys to values">
-      <encoding name="map8" code="0xc1" category="compound" width="1"
-                label="up to 2^8 - 1 octets of encoded map data">
-        <doc>
-          <p>Up to 2^8 - 1 octets of encoded map data.</p>
-
+      <doc>
           <p>
             A map is encoded as a compound value where the constituent elements form alternating key
             value pairs.
@@ -658,17 +648,18 @@ Subcategory     n
 +-------+-------+----+---------+---------+
 ]]>
           </picture>
-        </doc>
-      </encoding>
+        <p>
+          Map encodings must contain an even number of items (i.e. an equal number of keys and
+          values). A map in which there exist two identical key values is invalid. Unless known to
+          be otherwise, maps must be considered to be ordered - that is the order of the key-value
+          pairs is semantically important and two maps which are different only in the order in
+          which their key-value pairs are encoded are not equal.
+        </p>
+      </doc>
+      <encoding name="map8" code="0xc1" category="compound" width="1"
+                label="up to 2^8 - 1 octets of encoded map data"/>
       <encoding name="map32" code="0xd1" category="compound" width="4"
-                label="up to 2^32 - 1 octets of encoded map data">
-        <doc>
-          <p>
-            Up to 2^32 - 1 octets of encoded map data. See map8 above for a definition of encoded
-            map data.
-          </p>
-        </doc>
-      </encoding>
+                label="up to 2^32 - 1 octets of encoded map data"/>
     </type>
 
     <doc title="Array">
@@ -693,6 +684,13 @@ Subcategory     n
 ]]>
       </picture>
     </doc>
+
+    <type class="primitive" name="array" label="a sequence of values of a single type">
+      <encoding name="array8" code="0xe0" category="array" width="1"
+                label="up to 2^8 - 1 array elements with total size less than 2^8 octets"/>
+      <encoding name="array32" code="0xf0" category="array" width="4"
+                label="up to 2^32 - 1 array elements with total size less than 2^32 octets"/>
+    </type>
 
     <doc title="List of Encodings">
       <!--EncodingListTable-->
@@ -741,15 +739,12 @@ Subcategory     n
         is permitted in the representation. The <i>multiple</i> attribute of a field description
         controls whether multiple element values are permitted in the representation. A single
         element of the type specified in the field description is always permitted, as is a null
-        element value. Multiple values are represented by the use of a described list (of any valid
-        encoding of the list type). The descriptor for the list MUST be the boolean value
-        <i>true</i>, and every element in the list MUST be of the type matching the field
-        description. Note that a null value and a described list (with descriptor true) of zero
-        elements both describe an absence of a value and should be treated as semantically
-        identical. Lists described with the value true (i.e. the Multiple type) MUST NOT contain
-        null entries. A field which is defined as both multiple and mandatory MUST contain at least
-        one value (i.e. for such a field both <i>null</i> and a Multiple list with zero entries are
-        invalid).
+        element value. Multiple values are represented by the use of an array where the type of the
+        elements in the array is the type defined in the field definition.  Note that a null value
+        and a zero-length array (with a correct type for its elements) both describe an absence of a
+        value and should be treated as semantically identical. A field which is defined as both
+        multiple and mandatory MUST contain at least one value (i.e. for such a field both
+        <i>null</i> and an array with no entries are invalid).
       </p>
 
       <p>
@@ -782,7 +777,7 @@ Subcategory     n
                   |                                   |
 +-----------------+-------------------+ +-------------+---------------+
 |                                     | |                             |
-0x00 0xA3 0x11 "example:book:list" 0xC0 0x42 0x03  title  authors  isbn
+0x00 0xA3 0x11 "example:book:list" 0xC0 0x40 0x03  title  authors  isbn
       |                 |                            |       |       |
       |      identifies composite type               |       |       |
       |                                              |       |     0x40
@@ -794,13 +789,13 @@ Subcategory     n
                                                              |
 +------------------------------------------------------------+-----+
 |                                                                  |
-0x00 0x41 0xE0 0x25 0x02 0xA1 0x0E "Rob J. Godfrey" 0x13 "Rafael H. Schloming"
-      |         |    |    |   |                   | |                        |
-      |       size   |    |   +---------+---------+ +-----------+------------+
-      |              |    |             |                       |
-    true           count  |        first element          second element
-(Multiple type)           |
-                  element constructor
+0xE0 0x25 0x02 0xA1 0x0E "Rob J. Godfrey" 0x13 "Rafael H. Schloming"
+      |    |    |   |                   | |                        |
+    size   |    |   +---------+---------+ +-----------+------------+
+           |    |             |                       |
+         count  |        first element          second element
+                |
+        element constructor
 ]]>
       </picture>
     </doc>

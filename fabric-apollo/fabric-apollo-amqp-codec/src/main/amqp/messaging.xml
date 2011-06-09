@@ -186,154 +186,309 @@
       </p>
 
       <p>
-        An <i>annotated message</i> consists of the bare message plus areas for annotation at the
-        head and foot of the bare message. There are two classes of annotations: annotations that
+        An <i>annotated message</i> consists of the bare message plus sections for annotation at the
+        head of the bare message. There are two classes of annotations: annotations that
         travel with the message indefinitely, and annotations that are consumed by the next node.
       </p>
 
       <p>
-        The <i>bare message</i> is divided between standard properties and application data. The
-        standard properties have a defined format and semantics and are visible to the messaging
-        infrastructure. Application data may be AMQP formatted, opaque binary, or a combination of
-        both. AMQP formatted application data is visible to the messaging infrastructure for
-        additional services such as querying by filters.
+        The <i>bare message</i> consists of sections standard properties, application-properties,
+        and application-data (the body).
       </p>
 
       <picture><![CDATA[
-                 Bare Message
-                      |
-           .----------+----------.
-           |                     |
- +--------+ +------------+------+ +--------+
- | header | | properties | body | | footer |
- +--------+ +------------+------+ +--------+
-|                                           |
-'---------------------+---------------------'
-                      |
-              Annotated Message
+                                                      Bare Message
+                                                            |
+                                      .---------------------+--------------------.
+                                      |                                          |
+ +--------+-------------+-------------+------------+--------------+--------------+--------+
+ | header | delivery-   | message-    | properties | application- | application- | footer |
+ |        | annotations | annotations |            | properties   | data         |        |
+ +--------+-------------+-------------+------------+--------------+--------------+--------+
+ |                                                                                        |
+ '-------------------------------------------+--------------------------------------------'
+                                             |
+                                      Annotated Message
 ]]>
       </picture>
 
       <p>
-        The bare message is immutable within the AMQP network. That is neither the opaque body, nor
-        the properties can be changed by any node acting as an AMQP intermediary.
+        The bare message is immutable within the AMQP network. That is none of the sections can be
+        changed by any node acting as an AMQP intermediary. If a section of the bare message is
+        omitted, one may not be inserted by an intermediary. The exact encoding of sections of the
+        bare message MUST NOT be modified. This preserves message hashes, HMACs and signatures based
+        on the binary encoding of the bare message.
       </p>
 
       <p>
-        Information which may be modified by the network, or information which is directed at the
-        infrastructure and does not form part of the bare message, is placed in a <i>header</i> and
-        <i>footer</i>. The <i>header</i> and <i>footer</i> are transferred with the message but may
-        be updated en-route from its origin to its destination.
+        The exact structure of a message, together with its encoding, is defined by the
+        <xref name="MESSAGE-FORMAT"/>. This document defines the structure and semantics of message
+        format <i>0</i>. Altogether a message consists of the following sections:
       </p>
 
-      <p>
-        Altogether the message consists of the following sections:
-      </p>
+      <ul>
+        <li>
+          <p>
+            Zero or one <xref name="header-sections">header sections</xref>.
+          </p>
+        </li>
+        <li>
+          <p>
+            Zero or one <xref name="delivery-annotation-sections">delivery-annotation
+            sections</xref>.
+          </p>
+        </li>
+        <li>
+          <p>
+            Zero or one <xref name="message-annotation-sections">message-annotation sections</xref>.
+          </p>
+        </li>
+        <li>
+          <p>
+            Zero or one <xref name="properties-sections">properties sections</xref>.
+          </p>
+        </li>
+        <li>
+          <p>
+            Zero or one <xref name="application-properties-sections">application-properties
+            sections</xref>.
+          </p>
+        </li>
+        <li>
+          <p>
+            Zero or one <xref name="application-data-sections">application-data sections</xref>.
+          </p>
+        </li>
+        <li>
+          <p>
+            Zero or one <xref name="footer-sections">footer sections</xref>.
+          </p>
+        </li>
+      </ul>
+     </doc>
 
-      <ol>
-        <li>
-          <p>
-            Zero or one <xref name="header"/> sections for annotations at the head of the message.
-          </p>
-        </li>
-        <li>
-          <p>
-            Zero or one <xref name="properties"/> sections for standard properties in the bare
-            message.
-          </p>
-        </li>
-        <li>
-          <p>
-            Zero or one application data sections of type amqp-map.  Where the first section of the
-            application data is an amqp-map the section is taken to contain "application properties"
-            which may be used for purposes such as routing and filtering.
-          </p>
-        </li>
-        <li>
-          <p>Zero or more application data sections (of any valid section type).</p>
-        </li>
-        <li>
-          <p>
-            Zero or one <xref name="footer"/> sections for annotations at the tail of the message.
-          </p>
-        </li>
-      </ol>
+     <doc name="header-sections" title="Header Section">
+       <p>
+         The header section is used for standard delivery details at the head of the message. The
+         header section MUST be identified with the <xref name="section-codes" choice="header"/>
+         section-code. The header section is encoded as single instance of the <xref name="header"/>
+         type. If the header section is omitted the receiver MUST assume the appropriate default
+         values for the fields within the  <xref name="header"/>.
+       </p>
+     </doc>
 
-      <picture><![CDATA[
-  Section 0   Section 1    Section 2         Section n-2   Section n-1
-+-----------+------------+-----------+-----+-------------+-------------+
-|  header   | properties | app-data  | ... |  app-data   |   footer    |
-+-----------+------------+-----------+-----+-------------+-------------+
-]]>
-      </picture>
+     <doc name="delivery-annotation-sections" title="Delivery Annotation Section">
+       <p>
+         The delivery-annotations section is used for delivery-specific non-standard properties at
+         the head of the message. The delivery-annotations section MUST be identified with the
+         <xref name="section-codes" choice="delivery-annotations"/> section-code. The
+         delivery-annotations section is encoded as a single instance of the
+         <xref name="annotations"/> type, that is a <xref type="type" name="map"/> restricted to
+         keys of type <xref type="type" name="symbol"/> with key names not beginning with "x-"
+         reserved for use by AMQP.
+       </p>
+       <p>
+         Delivery annotations convey information from the sending peer to the receiving peer. If the
+         recipient does not understand the annotation it cannot be acted upon and its effects (such
+         as any implied propagation) cannot be acted upon. Annotations may be specific to one
+         implementation, or common to multiple implementations. The capabilities negotiated on link
+         <xref name="attach"/> and on the <xref name="source"/> and <xref name="target"/> should be
+         used to establish which annotations a peer supports.  A registry of defined annotations and
+         their meanings can be found here:
+         <xref type="extern" name="http://www.amqp.org/specification/1.0/delivery-annotations"/>.
+       </p>
+       <p>
+         If the delivery-annotations section is omitted, it is equivalent to a delivery-annotations
+         section containing an empty map of annotations.
+       </p>
+     </doc>
 
-      <p>
-        Each message section MUST be distinguished and identified with a section-code as per the
-        Message Fragmentation definition in the <xref name="links"/> section of Book III. The
-        section codes are assigned according to <xref name="section-codes"/>.
-      </p>
-    </doc>
+     <doc name="message-annotation-sections" title="Message Annotation Section">
+       <p>
+         The message-annotations section is used for properties of the message which are aimed at
+         the infrastructure and should be propagated across every delivery step. The
+         message-annotations section MUST be identified with the
+         <xref name="section-codes" choice="message-annotations"/> section-code. The
+         message-annotations section is encoded as a single instance of the
+         <xref name="annotations"/> type, that is a <xref type="type" name="map"/> restricted to
+         keys of type <xref type="type" name="symbol"/> with key names not beginning with "x-"
+         reserved for use by AMQP.
+       </p>
+       <p>
+         Message annotations convey information about the message. Intermediaries MUST propagate
+         the annotations unless the annotations are explicitly augmented or modified (e.g. by the
+         use of the <xref name="modified"/> outcome).
+       </p>
+       <p>
+         The capabilities negotiated on link <xref name="attach"/> and on the <xref name="source"/>
+         and <xref name="target"/> may be used to establish which annotations a peer understands,
+         however it a network of AMQP intermediaries it may not be possible to know if every
+         intermediary will understand the annotation. Note that for some annotation it may not be
+         necessary for the intermediary to understand their purpose - they may be being used purely
+         as an attribute which can be filtered on.
+       </p>
+       <p>
+         A registry of defined annotations and their meanings can be found here:
+         <xref type="extern" name="http://www.amqp.org/specification/1.0/message-annotations"/>.
+       </p>
+       <p>
+         If the message-annotations section is omitted, it is equivalent to a message-annotations
+         section containing an empty map of annotations.
+       </p>
+     </doc>
+
+     <doc name="properties-sections" title="Properties Section">
+       <p>
+         The properties section is used for a defined set of standard properties of the message.
+         The properties section is part of the bare message and thus must, if retransmitted by an
+         intermediary, remain completely unaltered.  The properties section MUST be identified with
+         the <xref name="section-codes" choice="properties"/> section-code. The properties section
+         is encoded as a single instance of the the <xref type="type" name="properties"/> type.
+       </p>
+     </doc>
+
+     <doc name="application-properties-sections" title="Application Properties Section">
+       <p>
+         The application-properties section is a part of the bare message used for structured
+         application data. Intermediaries may use the data within this structure for the purposes of
+         filtering or routing. The application-properties section MUST be identified with the
+         <xref name="section-codes" choice="application-properties"/> section-code. The
+         application-properties section is encoded as a single instance of the
+         <xref name="application-properties"/> type, that is a <xref type="type" name="map"/>
+         restricted to keys of type <xref type="type" name="string"/> and with values restricted to
+         primitive types (excluding <xref type="type" name="map"/> and
+         <xref type="type" name="list"/> types).
+       </p>
+     </doc>
+
+     <doc name="application-data-sections" title="Application Data Section">
+       <p>
+         The application-data section provides the body of the bare message. The body may be one of
+         four different types.
+       </p>
+       <dl>
+         <dt>data</dt>
+         <dd><p>A section of type data MUST be identified with the <xref name="section-codes"
+             choice="data"/> section-code. The data section contains opaque binary data
+             (<b>not</b> an instance of the AMQP <xref type="type" name="binary"/> type) which may
+             be of arbitrary length (fragmentation allows for lengths beyond those which could be
+             held within one of the AMQP data type encodings).
+           </p>
+         </dd>
+         <dt>amqp-data</dt>
+         <dd><p>A section of type amqp-data MUST be identified with the <xref name="section-codes"
+             choice="amqp-data"/> section-code. Sections of this type consist of zero or more
+             encoded AMQP values (note there is no preceding count identifying how many encoded
+             values are stored within the section).
+           </p>
+         </dd>
+         <dt>amqp-map</dt>
+         <dd><p>A section of type amqp-map MUST be identified with the <xref name="section-codes"
+             choice="amqp-map"/> section-code. Sections of this type consist of exactly one instance
+             of an encoded primitive <xref type="type" name="map"/> value (that is a described type
+             whose described value is a map cannot be encoded as the value of an amqp-map section)
+           </p>
+         </dd>
+         <dt>amqp-list</dt>
+         <dd><p>A section of type amqp-list MUST be identified with the <xref name="section-codes"
+             choice="amqp-list"/> section-code. Sections of this type consist of exactly one
+             instance of an encoded primitive <xref type="type" name="list"/> value (that is a
+             described type whose described value is a list cannot be encoded as the value of an
+             amqp-list section)
+           </p>
+         </dd>
+       </dl>
+     </doc>
+
+     <doc name="footer-sections" title="Footer Section">
+       <p>
+         The footer section is used for details about the message or delivery which can only be
+         calculated or evaluated once the whole bare message has been constructed or seen (for
+         example message hashes, HMACs, signatures and encryption details). The footer section MUST
+         be identified with the <xref name="section-codes" choice="footer"/> section-code. The
+         footer section is encoded as single instance of the <xref name="footer"/> type.
+       </p>
+     </doc>
 
     <type class="restricted" name="section-codes" source="uint">
       <choice name="header" value="0">
         <doc>
           <p>
-            Section-code indicating a header section (one of which MUST form the first section of a
-            Message).  Sections of this type MUST be of zero length or consist of a single encoded
-            instance of the <xref name="header"/> type.
+            Sections of this type MUST consist of a single encoded instance of the
+            <xref name="header"/> type.
           </p>
         </doc>
       </choice>
-      <choice name="properties" value="1">
+      <choice name="delivery-annotations" value="1">
         <doc>
           <p>
-            Section-code indicating a properties section (one of which MUST form the second section
-            of a Message).  Sections of this type MUST be of zero length or consist of a single
-            encoded instance of the <xref name="properties"/> type.
+            Sections of this type MUST consist of a single encoded instance of a
+            <xref type="type" name="annotations"/> type.
           </p>
         </doc>
       </choice>
-      <choice name="footer" value="2">
+      <choice name="message-annotations" value="2">
         <doc>
           <p>
-            Section-code indicating a footer section (one of which MUST form the last section of a
-            Message).  Sections of this type MUST be of zero length or consist of a single encoded
-            instance of the <xref name="footer"/> type.
+            Sections of this type MUST consist of a single encoded instance of a
+            <xref type="type" name="annotations"/> type.
           </p>
         </doc>
       </choice>
-      <choice name="data" value="3">
+      <choice name="properties" value="3">
         <doc>
           <p>
-            Section-code indicating a application data section. Sections of this type consist of
-            opaque binary data (note, in particular, that the section is <b>not</b> an instance of
-            the AMQP <xref type="type" name="binary"/> type).
+            Sections of this type MUST consist of a single encoded instance of the
+            <xref type="type" name="properties"/> type.
           </p>
         </doc>
       </choice>
-      <choice name="amqp-data" value="4">
+      <choice name="application-properties" value="4">
         <doc>
           <p>
-            Section-code indicating an application data section. Sections of this type MUST consist
-            of zero or more encoded AMQP values.
+            Sections of this type MUST consist of a single encoded instance of a
+            <xref type="type" name="application-properties"/> type.
           </p>
         </doc>
       </choice>
-      <choice name="amqp-map" value="5">
+      <choice name="data" value="5">
         <doc>
           <p>
-            Section-code indicating an application data section. Sections of this type MUST be of
-            zero length or consist of a single encoded instance of an AMQP <xref type="type"
-            name="map"/>.
+            Sections of this type consist of opaque binary data (note, in particular, that the
+            section is <b>not</b> an instance of the AMQP <xref type="type" name="binary"/> type).
           </p>
         </doc>
       </choice>
-      <choice name="amqp-list" value="6">
+      <choice name="amqp-data" value="6">
         <doc>
           <p>
-            Section-code indicating an application data section. Sections of this type MUST be of
-            zero length or consist of a single encoded instance of an AMQP <xref type="type"
-            name="list"/>.
+            Sections of this type MUST consist of zero or more encoded AMQP values.
+          </p>
+        </doc>
+      </choice>
+      <choice name="amqp-map" value="7">
+        <doc>
+          <p>
+            Sections of this type MUST consist of a single encoded instance of an AMQP
+            <xref type="type" name="map"/> type. For the avoidance of doubt, a described map is NOT
+            allowed as the encoded instance value of this section.
+          </p>
+        </doc>
+      </choice>
+      <choice name="amqp-list" value="8">
+        <doc>
+          <p>
+            Sections of this type MUST consist of a single encoded instance of an AMQP
+            <xref type="type" name="list"/>. For the avoidance of doubt, a described list is NOT
+            allowed for this section.
+          </p>
+        </doc>
+      </choice>
+      <choice name="footer" value="9">
+        <doc>
+          <p>
+            Sections of this type MUST consist of a single encoded instance of the
+            <xref name="footer"/> type.
           </p>
         </doc>
       </choice>
@@ -407,73 +562,39 @@
         </doc>
       </field>
 
-      <field name="transmit-time" type="timestamp" label="the time of Message transmit">
-        <doc>
-          <p>
-            The point in time at which the sender considers the Message to be transmitted. The ttl
-            field, if set by the sender, is relative to this point in time.
-          </p>
-        </doc>
-      </field>
-
-      <field name="ttl" type="ulong" label="time to live in ms">
+      <field name="ttl" type="milliseconds" label="time to live in ms">
         <doc>
           <p>
             Duration in milliseconds for which the Message should be considered "live". If this is
-            set then a Message expiration time will be computed based on the transmit-time plus this
-            value. Messages that live longer than their expiration time will be discarded (or dead
-            lettered). If the transmit-time is not set, then the expiration is computed relative to
-            the Message arrival time.
+            set then a message expiration time will be computed based on the time of arrival at an
+            intermediary. Messages that live longer than their expiration time will be discarded
+            (or dead lettered). When a message is transmitted by an intermediary that was received
+            with a ttl, the transmitted message's header should contain a ttl that is computed as
+            the difference between the current time and the formerly computed message expiration
+            time, ie the reduced ttl, so that messages will eventually die if they end up in a
+            delivery loop.
           </p>
         </doc>
       </field>
 
-      <field name="former-acquirers" type="uint" label="">
+      <field name="first-acquirer" type="boolean" label="">
         <doc>
           <p>
-            The number of other Links that have acquired but failed to process the Message as
-            indicated by the rejected or modified outcome (see the delivery-failed flag). This does
-            not include the current Link even if delivery to the current Link has been previously
-            attempted.
+            If this value is true, then this message has not been acquired by any other Link. If
+            this value is false, then this message may have previously been acquired by another Link
+            or Links.
           </p>
         </doc>
       </field>
 
-      <field name="delivery-failures" type="uint"
+      <field name="delivery-count" type="uint"
              label="the number of prior unsuccessful delivery attempts">
         <doc>
           <p>
             The number of unsuccessful previous attempts to deliver this message. If this value is
-            non-zero it may be taken as an indication that the Message may be a duplicate. The
-            delivery-failures value is initially set to the same value as the Message has when it
-            arrived at the source. It is incremented upon an outcome being settled at the sender,
-            according to rules defined for each outcome.
-          </p>
-        </doc>
-      </field>
-
-      <field name="message-attrs" type="message-attributes" label="message attributes">
-        <doc>
-          <p>
-            The message-attrs map provides an extension point where domain or vendor specific
-            end-to-end attributes can be added to the Message header. As the Message (and therefore
-            the header) passes through a node, the values in the message-attrs map MUST be retained,
-            unless augmented or updated at the node. Further the message-attrs value can be
-            augmented or updated at each node either through node configuration, or when indicated
-            by the <xref name="modified"/> outcome of a message transfer.
-          </p>
-        </doc>
-      </field>
-
-      <field name="delivery-attrs" type="message-attributes" label="delivery attributes">
-        <doc>
-          <p>
-            The delivery-attrs map provides an extension point where domain or vendor specific
-            attributes related only to the current state of the Message at the source, or relating
-            to the current transfer to the target can be added to the Message header. The
-            delivery-attrs value can be augmented or updated at the node either through node
-            configuration, or when indicated by the <xref name="modified"/> outcome of a message
-            transfer.
+            non-zero it may be taken as an indication that the delivery may be a duplicate. On first
+            delivery, the value is zero. It is incremented upon an outcome being settled at the
+            sender, according to rules defined for each outcome.
           </p>
         </doc>
       </field>
@@ -488,12 +609,13 @@
 
       <descriptor name="amqp:properties:list" code="0x00000000:0x00000021"/>
 
-      <field name="message-id" type="binary" label="application Message identifier">
+      <field name="message-id" type="*" requires="message-id"
+             label="application Message identifier">
         <doc>
           <p>
             Message-id is an optional property which uniquely identifies a Message within the
             Message system. The Message producer is usually responsible for setting the message-id
-            in such a way that it is assured to be globally unique. The server MAY discard a Message
+            in such a way that it is assured to be globally unique. A broker MAY discard a Message
             as a duplicate if the value of the message-id matches that of a previously received
             Message sent to the same Node.
           </p>
@@ -533,20 +655,12 @@
         </doc>
       </field>
 
-      <field name="correlation-id" type="binary" label="application correlation identifier">
+      <field name="correlation-id" type="*" requires="message-id"
+             label="application correlation identifier">
         <doc>
           <p>
             This is a client-specific id that may be used to mark or identify Messages between
-            clients. The server ignores this field.
-          </p>
-        </doc>
-      </field>
-
-      <field name="content-length" type="ulong" label="length of the combined payload in bytes">
-        <doc>
-          <p>
-            The total size in octets of the combined payload of all
-            <xref name="fragment">fragments</xref> that together make the Message.
+            clients.
           </p>
         </doc>
       </field>
@@ -554,9 +668,98 @@
       <field name="content-type" type="symbol" label="MIME content type">
         <doc>
           <p>
-            The RFC-2046 MIME type for the Message content (such as "text/plain"). This is set by
-            the originating client. As per RFC-2046 this may contain a charset parameter defining
-            the character encoding used: e.g. 'text/plain; charset="utf-8"'.
+            The RFC-2046 MIME type for the Message's application-data section (body).
+          </p>
+          <p>
+            As per RFC-2046 this may contain a charset parameter defining
+            the character encoding used: e.g. 'text/plain; charset="utf-8"'. For clarity, the
+            correct MIME type for a truly opaque binary section is application/octet-stream.
+          </p>
+          <p>
+            When using an application-data section with a section code other than <i>data</i>,
+            a client MAY omit the content-type, but, if it does not, it should specify an
+            appropriate MIME type of message/x-amqp+?, where '?' is either data,
+            map or list.
+          </p>
+        </doc>
+      </field>
+
+      <field name="content-encoding" type="symbol" label="MIME content type">
+        <doc>
+          <p>
+            The Content-Encoding property is used as a modifier to the content-type.
+            When present, its value indicates what additional content encodings have been applied
+            to the application-data, and thus what decoding mechanisms must be applied in order to
+            obtain the media-type referenced by the content-type header field.
+          </p>
+          <p>
+            Content-Encoding is primarily used to allow a document to be compressed without
+            losing the identity of its underlying content type.
+          </p>
+          <p>
+            Content Encodings are to be interpreted as per Section 3.5 of RFC 2616. Valid Content
+            Encodings are registered at IANA as "Hypertext Transfer Protocol (HTTP) Parameters"
+            (http://www.iana.org/assignments/http-parameters/http-parameters.xml).
+          </p>
+          <p>
+            Content-Encoding MUST not be set when the application-data section is other than
+            <i>data</i>.
+          </p>
+          <p>
+            Implementations MUST NOT use the <i>identity</i> encoding. Instead, implementations
+            should not set this property. Implementations SHOULD NOT
+            use the <i>compress</i> encoding, except as to remain compatible with messages
+            originally sent with other protocols, eg HTTP or SMTP.
+          </p>
+          <p>
+            Implementations SHOULD NOT specify multiple content encoding values except as to
+            be compatible with messages originally sent with other protocols, eg HTTP or SMTP.
+          </p>
+        </doc>
+      </field>
+
+      <field name="absolute-expiry-time" type="timestamp"
+             label="the time when this message is considered expired">
+        <doc>
+          <p>
+            An absolute time when this message is considered to be expired.
+          </p>
+        </doc>
+      </field>
+
+      <field name="creation-time" type="timestamp"
+             label="the time when this message was created">
+        <doc>
+          <p>
+            An absolute time when this message was created.
+          </p>
+        </doc>
+      </field>
+
+      <field name="group-id" type="string"
+             label="the group this message belongs to">
+        <doc>
+          <p>
+            Identifies the group the message belongs to.
+          </p>
+        </doc>
+      </field>
+
+      <field name="group-sequence" type="sequence-no"
+             label="the sequence-no of this message within its group">
+        <doc>
+          <p>
+            The relative position of this message within its group.
+          </p>
+        </doc>
+      </field>
+
+      <field name="reply-to-group-id" type="string"
+             label="the group the reply message belongs to">
+        <doc>
+          <p>
+            This is a client-specific id that is used so that client can send replies to this
+            message to a specific group.
           </p>
         </doc>
       </field>
@@ -568,20 +771,20 @@
 
       <descriptor name="amqp:footer:list" code="0x00000000:0x00000022"/>
 
-      <field name="message-attrs" type="message-attributes" label="message attributes">
+      <field name="message-attrs" type="map" label="message attributes">
         <doc>
           <p>
             The message-attrs map provides an extension point where domain or vendor specific
             end-to-end attributes can be added to the Message footer. As the Message (and therefore
             the header) passes through a node, the values in the message-attrs map MUST be retained,
-            unless augmented or updated at the node. Further the message-attrs value can be
-            augmented or updated at each node either through node configuration, or when indicated
-            with the <xref name="modified"/> outcome of a message transfer.
+            unless augmented or updated at the node. The message-attrs value can be augmented or
+            updated at each node either through node configuration, or when indicated with the
+            <xref name="modified"/> outcome of a message transfer.
           </p>
         </doc>
       </field>
 
-      <field name="delivery-attrs" type="message-attributes" label="delivery attributes">
+      <field name="delivery-attrs" type="map" label="delivery attributes">
         <doc>
           <p>
             The delivery-attrs map provides an extension point where domain or vendor specific
@@ -595,13 +798,32 @@
       </field>
     </type>
 
-    <type class="restricted" name="message-attributes" source="map" label="message annotations">
+    <type class="restricted" name="message-id-ulong" source="ulong" provides="message-id"/>
+    <type class="restricted" name="message-id-uuid" source="uuid" provides="message-id"/>
+    <type class="restricted" name="message-id-binary" source="binary" provides="message-id"/>
+    <type class="restricted" name="message-id-string" source="string" provides="message-id"/>
+
+    <type class="restricted" name="address-string" source="string" provides="address"
+          label="address of a Node"/>
+
+    <type class="restricted" name="annotations" source="fields">
       <doc>
         <p>
-          A map providing an extension point for annotations on message deliveries. All values used
-          as keys in the map MUST be of type symbol. Further if a key begins with the string
-          "x-req-" then the target MUST reject the message unless it understands how to process the
-          supplied key/value.
+          The <i>annotations</i> type is a map where the keys are restricted to be of type <xref
+          type="type" name="symbol"/>.  All keys except those beginning with the string "x-" are
+          reserved. On receiving an annotations map containing keys or values which it does not
+          recognise, and for which the key does not begin with the string "x-opt-" an AMQP container
+          MUST detach the link with the not-implemented <xref name="amqp-error"/>.
+        </p>
+      </doc>
+    </type>
+
+    <type class="restricted" name="application-properties" source="map">
+      <doc>
+        <p>
+          The <i>application-properties</i> type is a map where the keys are restricted to be of
+          <xref type="type" name="string"/> and the values are restricted to be of primitive types
+          (excluding <xref type="type" name="map"/> and <xref type="type" name="list"/>).
         </p>
       </doc>
     </type>
@@ -623,21 +845,19 @@
       <p>
         The Messaging layer defines a concrete set of delivery states which can be used (via the
         <xref type="type" name="disposition"/> frame) to indicate the state of the message at the
-        receiver. The delivery state includes the number of <i>bytes-transferred</i>,
-        the <i>outcome</i> of processing at the receiver, and a <i>txn-id</i>.
+        receiver.
       </p>
 
       <p>
-        When the outcome is set, this indicates that the state at the receiver is either globally
+        When the outcome is set, this indicates that the state at the terminus is either globally
         terminal (if no transaction is specified) or provisionally terminal within the specified
-        transaction.
+        transaction. When no outcome is set, a delivery-state is considered non-terminal.
       </p>
 
       <p>
-        When no outcome is set, a delivery-state is considered non-terminal. In this case the
-        bytes-transferred field may be used to indicate partial progress. Use of this field during
-        link recovery allows the sender to resume the transfer of a large message without
-        retransmitting all the message data.
+        The section-number and section-offset fields, if set, indicate how much of the message has
+        been transferred. Use of these fields during link recovery allows the sender to resume the
+        transfer of a large message without retransmitting all the message data.
       </p>
 
       <p>
@@ -666,8 +886,32 @@
           label="the state of a message transfer">
       <descriptor name="amqp:delivery-state:list" code="0x00000000:0x00000023"/>
       <field name="options" type="options" label="options map"/>
-      <field name="bytes-transferred" type="ulong"/>
-      <field name="outcome" type="*" requires="outcome"/>
+      <field name="section-number" type="uint">
+        <doc>
+          <p>
+            If set, the terminus considers the delivery only partially transferred. The value
+            indicates the furthest section within the message for which data has been transferred.
+          </p>
+        </doc>
+      </field>
+      <field name="section-offset" type="ulong">
+        <doc>
+          <p>
+            If set, the terminus considers the delivery only partially transferred. The value
+            indicates the furthest offset within the given section-number for which data has been
+            transferred.
+          </p>
+        </doc>
+      </field>
+      <field name="outcome" type="*" requires="outcome">
+        <doc>
+          <p>
+            If set, this indicates the outcome at the terminus. This outcome is either globally
+            terminal (if no transaction is specified) or provisionally terminal within the specified
+            transaction.
+          </p>
+        </doc>
+      </field>
       <field name="txn-id" type="*" requires="txn-id"/>
     </type>
 
@@ -676,8 +920,8 @@
       <doc>
         <p>
           The accepted outcome is used to indicate that an incoming Message has been successfully
-          processed. The accepted outcome does not increment the <i>delivery-failures</i> count in
-          the header of the accepted Message.
+          processed. The accepted outcome does not increment the <i>delivery-count</i> in the
+          header of the accepted Message.
         </p>
       </doc>
 
@@ -691,7 +935,7 @@
         <p>
           The rejected outcome is used to indicate that an incoming Message is invalid and therefore
           unprocessable. The rejected outcome when applied to a Message will cause the
-          <i>delivery-failures</i> count to be incremented in the header of the rejected Message.
+          <i>delivery-count</i> to be incremented in the header of the rejected Message.
         </p>
       </doc>
 
@@ -713,8 +957,8 @@
       <doc>
         <p>
           The released outcome is used to indicate that a given transfer was not and will not be
-          acted upon.  An outcome of released MUST NOT cause the <i>delivery-failures</i> count of
-          the header of the released Message to be incremented.
+          acted upon.  An outcome of released MUST NOT cause the <i>delivery-count</i> of the
+          header of the released Message to be incremented.
         </p>
       </doc>
 
@@ -732,40 +976,31 @@
         <doc>
           <p>
             If the delivery-failed flag is set, any Messages modified MUST have their
-            delivery-failures count incremented.
+            delivery-count incremented.
           </p>
         </doc>
       </field>
 
-      <field name="deliver-elsewhere" type="boolean" label="prevent redelivery">
+      <field name="undeliverable-here" type="boolean" label="prevent redelivery">
         <doc>
           <p>
-            If the deliver-elsewhere is set, then any Messages released MUST NOT be redelivered to
-            the releasing Link Endpoint.
+            If the undeliverable-here is set, then any Messages released MUST NOT be redelivered to
+            the modifying Link Endpoint.
           </p>
         </doc>
       </field>
 
-      <field name="message-attrs" type="message-attributes" label="message attributes">
+      <field name="message-attrs" type="map" label="message attributes">
         <doc>
           <p>
-            Map containing attributes to combine with the existing <i>message-attrs</i> held in the
-            Message's header section.  Where the existing message-attrs of the Message contain an
-            entry with the same key as an entry in this field, the value in this field associated
-            with that key replaces the one in the existing headers; where the existing message-attrs
-            has no such value, the value in this map is added.
-          </p>
-        </doc>
-      </field>
-
-      <field name="delivery-attrs" type="message-attributes" label="delivery attributes">
-        <doc>
-          <p>
-            Map containing attributes to combine with the existing <i>delivery-attrs</i> held in the
-            Message's header section.  Where the existing delivery-attrs of the Message contain an
+            Map containing attributes to combine with the existing <i>message-annotations</i> held
+            in the
+            Message's header section.  Where the existing message-annotations of the Message
+            contain an
             entry with the same key as an entry in this field, the value in this field associated
             with that key replaces the one in the existing headers; where the existing
-            delivery-attrs has no such value, the value in this map is added.
+            message-annotations
+            has no such value, the value in this map is added.
           </p>
         </doc>
       </field>
@@ -942,26 +1177,33 @@ settled with outcome: |        |
         </doc>
       </field>
 
-      <field name="dynamic" type="*" requires="lifetime-policy"
-             label="request dynamic creation of a remote Node">
+      <field name="dynamic" type="boolean" label="request dynamic creation of a remote Node">
         <doc>
           <p>
-            When set by the receiving Link endpoint, this field constitutes a request for the
-            sending peer to dynamically create a Node at the source. In this case the address field
-            MUST NOT be set.
+            When set to true by the receiving Link endpoint, this field constitutes a request for
+            the sending peer to dynamically create a Node at the source. In this case the address
+            field MUST NOT be set.
           </p>
           <p>
-            When set by the sending Link Endpoint this field indicates the lifetime policy in use
-            for the Node which has been dynamically created at the time of the attach. In this case
-            the address field will contain the address of the created Node. The generated address
-            SHOULD include the Link name and Session-name or client-id in some recognizable form for
-            ease of traceability.
+            When set to true by the sending Link Endpoint this field indicates creation of a
+            dynamically created Node. In this case the address field will contain the address of the
+            created Node. The generated address SHOULD include the Link name and Session-name or
+            client-id in some recognizable form for ease of traceability.
+          </p>
+        </doc>
+      </field>
+
+      <field name="dynamic-node-properties" type="node-properties"
+             label="properties of the dynamically created Node">
+        <doc>
+          <p>
+            If the dynamic field is not set to true this field must be left unset.
           </p>
           <p>
-            The lifetime of the generated node is controlled by the policy specified in the dynamic
-            field in the Source of the sending Link Endpoint. Definitionally, the lifetime will
-            never be less than the lifetime of the link which caused its creation.
-           </p>
+            When set by the receiving Link endpoint, this field contains the desired properties of
+            the Node the receiver wishes to be created.  When set by the sending Link endpoint this
+            field contains the actual properties of the dynamically created node.
+          </p>
         </doc>
       </field>
 
@@ -984,9 +1226,8 @@ settled with outcome: |        |
         <doc>
           <p>
             Indicates the outcome to be used for transfers that have not reached a terminal state at
-            the receiver when the transfer is settled, including when the Link Endpoint is
-            destroyed. The value MUST be a valid outcome (e.g. <xref name="released"/>, or
-            <xref name="rejected"/>).
+            the receiver when the transfer is settled, including when the Source is destroyed. The
+            value MUST be a valid outcome (e.g. <xref name="released"/> or <xref name="rejected"/>).
           </p>
         </doc>
       </field>
@@ -1043,26 +1284,33 @@ settled with outcome: |        |
         </doc>
       </field>
 
-      <field name="dynamic" type="*" requires="lifetime-policy"
-             label="request dynamic creation of a remote Node">
+      <field name="dynamic" type="boolean" label="request dynamic creation of a remote Node">
         <doc>
           <p>
-            When set by the sending Link endpoint, this field constitutes a request for the
-            receiving peer to dynamically create a Node at the target. In this case the address
+            When set to true by the sending Link endpoint, this field constitutes a request for
+            the receiving peer to dynamically create a Node at the target. In this case the address
             field MUST NOT be set.
           </p>
           <p>
-            When set by the receiving Link Endpoint this field indicates the lifetime policy in use
-            for the Node which has been dynamically created at the time of the attach. In this case
-            the address field will contain the address of the created Node. The generated address
-            SHOULD include the Link name and Session-name or client-id in some recognizable form for
-            ease of traceability.
+            When set to true by the receiving Link Endpoint this field indicates creation of a
+            dynamically created Node. In this case the address field will contain the address of the
+            created Node. The generated address SHOULD include the Link name and Session-name or
+            client-id in some recognizable form for ease of traceability.
+          </p>
+        </doc>
+      </field>
+
+      <field name="dynamic-node-properties" type="node-properties"
+             label="properties of the dynamically created Node">
+        <doc>
+          <p>
+            If the dynamic field is not set to true this field must be left unset.
           </p>
           <p>
-            The lifetime of the generated node is controlled by the policy specified in the dynamic
-            field in the Target of the receiving Link Endpoint. Definitionally, the lifetime will
-            never be less than the lifetime of the link which caused its creation.
-           </p>
+            When set by the sending Link endpoint, this field contains the desired properties of
+            the Node the sender wishes to be created.  When set by the receiving Link endpoint this
+            field contains the actual properties of the dynamically created node.
+          </p>
         </doc>
       </field>
 
@@ -1078,17 +1326,24 @@ settled with outcome: |        |
           value.
         </p>
       </doc>
-      <choice name="session" value="session">
+      <choice name="link-detach" value="link-detach">
         <doc>
           <p>
-            The expiry timer starts when the last associated session is ended.
+            The expiry timer starts when Terminus is detached.
           </p>
         </doc>
       </choice>
-      <choice name="connection" value="connection">
+      <choice name="session-end" value="session-end">
         <doc>
           <p>
-            The expiry timer starts when last associated connection is closed.
+            The expiry timer starts when the most recently associated session is ended.
+          </p>
+        </doc>
+      </choice>
+      <choice name="connection-end" value="connection-end">
+        <doc>
+          <p>
+            The expiry timer starts when most recently associated connection is closed.
           </p>
         </doc>
       </choice>
@@ -1146,6 +1401,48 @@ settled with outcome: |        |
           <xref type="type" name="filter"/>.  A message will pass through a filter-set if and only
           if it passes through each of the named filters
         </p>
+      </doc>
+    </type>
+
+    <type class="restricted" name="node-properties" source="fields" label="properties of a Node">
+      <doc>
+        <p>
+          A symbol-keyed map containing properties of a Node - used when requesting creation or
+          reporting the creation of a dynamic Node.
+        </p>
+        <p>
+          The following common properties are defined:
+        </p>
+        <dl>
+          <dt>lifetime-policy</dt>
+          <dd>
+            <p>
+              The lifetime of a dynamically generated node.
+            </p>
+            <p>
+              Definitionally, the lifetime will never be less than the lifetime of the link which
+              caused its creation, however it is possible to extend the lifetime of dynamically
+              created node using a lifetime policy.  The value of this entry must be one of the
+              defined <i>lifetime-policies</i>: <xref name="delete-on-close"/>,
+              <xref name="delete-on-no-links"/>, <xref name="delete-on-no-messages"/> or
+              <xref name="delete-on-no-links-or-messages"/>.
+            </p>
+          </dd>
+          <dt>supported-dist-modes</dt>
+          <dd>
+            <p>
+              The distribution modes that the node supports.
+            </p>
+            <p>
+              The value of this entry must be one or more symbols which are valid
+              <i>distribution-mode</i>s. That is the value must be of the same type as would be
+              valid in a field defined as with the following attributes:
+            </p>
+            <p>
+              <i>type="symbol" multiple="true" requires="distribution-mode"</i>
+            </p>
+          </dd>
+        </dl>
       </doc>
     </type>
 

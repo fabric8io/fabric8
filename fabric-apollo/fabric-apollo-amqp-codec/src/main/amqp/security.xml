@@ -315,7 +315,7 @@ AMQP%d0.1.0.0  --------->                (over SASL secured connection)
         The maximum size of a SASL frame is defined by <xref name="MIN-MAX-FRAME-SIZE"/>. There is
         no mechanism within the SASL negotiation to negotiate a different size. The frame body of a
         SASL frame may contain exactly one AMQP type, whose type encoding must have
-        <![CDATA[ provides="frame" ]]>. Receipt of an empty frame is an irrecoverable error.
+        <![CDATA[ provides="sasl-frame" ]]>. Receipt of an empty frame is an irrecoverable error.
       </p>
     </doc>
 
@@ -367,7 +367,7 @@ SASL-RESPONSE -->
 
       <field name="options" type="options" label="options map"/>
 
-      <field name="sasl-server-mechanisms" type="string" multiple="true" mandatory="true"
+      <field name="sasl-server-mechanisms" type="symbol" multiple="true" mandatory="true"
              label="supported sasl mechanisms">
         <doc>
           <p>
@@ -393,7 +393,7 @@ SASL-RESPONSE -->
 
       <field name="options" type="options" label="options map"/>
 
-      <field name="mechanism" type="string" label="selected security mechanism" mandatory="true">
+      <field name="mechanism" type="symbol" label="selected security mechanism" mandatory="true">
         <doc>
           <p>
             The name of the SASL mechanism used for the SASL exchange. If the selected mechanism is

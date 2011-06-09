@@ -691,11 +691,13 @@ proceed           <--+   +--> proceed
         Prior to closing a Connection, each peer must write a <xref type="type" name="close"/> frame
         with a code indicating the reason for closing. This frame MUST be the last thing ever
         written onto a Connection. After writing this frame the peer SHOULD continue to read from
-        the Connection until it receives the partner's <xref type="type" name="close"/> frame.
-        A <xref type="type" name="close"/> frame may be received on any channel up to the maximum
-        channel number negotiated in open.
-        However, implementations SHOULD send it on channel 0, and MUST send it on channel 0 if
-        performing a pipelined open.
+        the Connection until it receives the partner's <xref type="type" name="close"/> frame (in
+        order to guard against erroneously or maliciously implemented partners, a peer SHOULD
+        implement a timeout to give its partner a reasonable time to receive and process the close
+        before giving up and simply closing the underlying transport mechanism). A <xref type="type"
+        name="close"/> frame may be received on any channel up to the maximum channel number
+        negotiated in open. However, implementations SHOULD send it on channel 0, and MUST send it
+        on channel 0 if performing a pipelined open.
       </p>
 
       <picture><![CDATA[
@@ -961,10 +963,10 @@ Link C------>*        (detached)        *------>Link C
         Messages transferred on a link are sequentially identified within the Session. A session may
         be viewed as multiplexing link traffic, much like a connection multiplexes session traffic.
         However, unlike the sessions on a connection, links on a session are not entirely
-        independent since they share a common sequence scoped to the session. This common sequence
-        allows endpoints to efficiently refer to sets of message transfers regardless of the
+        independent since they share a common delivery sequence scoped to the session. This common
+        sequence allows endpoints to efficiently refer to sets of deliveries regardless of the
         originating link. This is of particular benefit when a single application is receiving
-        transfers along a large number of different links. In this case the session
+        messages along a large number of different links. In this case the session
         provides <i>aggregation</i> of otherwise independent links into a single stream that can be
         efficiently acknowledged by the receiving application.
       </p>
@@ -1177,14 +1179,14 @@ S:END(error) |       S:END |             | R:END    |
 
     <doc name="session-flow-control" title="Session Flow Control">
       <p>
-        The Session Endpoint assigns each outgoing <xref name="transfer"/> frame a
+        The Session Endpoint assigns each outgoing <xref name="transfer"/> frame an implicit
         <i>transfer-id</i> from a session scoped sequence. Each session endpoint maintains the
         following state to manage incoming and outgoing <xref name="transfer"/> frames:
       </p>
 
       <dl>
         <dt>next-incoming-id</dt>
-        <dd><p>The <i>next-incoming-id</i> identifies the expected transfer-id of the next incoming
+        <dd><p>The <i>next-incoming-id</i> identifies the implicit transfer-id of the next incoming
             <xref name="transfer"/> frame.</p></dd>
 
         <dt>incoming-window</dt>
@@ -1232,9 +1234,9 @@ S:END(error) |       S:END |             | R:END    |
             outgoing-window.</p></dd>
 
         <dt>receiving a transfer</dt>
-        <dd><p>Upon receiving a transfer, the receiving endpoint will update the next-incoming-id to
-            match the transfer-id of the incoming transfer plus one, as well as decrementing the
-            remote-outgoing-window, and may (depending on policy) decrement its
+        <dd><p>Upon receiving a transfer, the receiving endpoint will increment the next-incoming-id
+            to match the implicit transfer-id of the incoming transfer plus one, as well as
+            decrementing the remote-outgoing-window, and may (depending on policy) decrement its
             incoming-window.</p></dd>
 
         <dt>receiving a flow</dt>
@@ -1274,7 +1276,7 @@ S:END(error) |       S:END |             | R:END    |
         A Link provides a unidirectional transport for Messages between a Source and a Target. The
         primary responsibility of a Source or Target (a Terminus) is to maintain a record of the
         status of each active delivery attempt until such a time as it is safe to forget. These are
-        referred to as <term>unsettled</term> transfers. When a Terminus forgets the state
+        referred to as <term>unsettled</term> deliveries. When a Terminus forgets the state
         associated with a delivery-tag, it is considered <term>settled</term>. Each delivery attempt
         is assigned a unique <term>delivery-tag</term> at the Source. The status of an active
         delivery attempt is known as the <term>Delivery State</term> of the delivery.
@@ -1286,8 +1288,8 @@ S:END(error) |       S:END |             | R:END    |
         therefore come in two flavors: <term>Senders</term> and <term>Receivers</term>. When the
         sending application submits a Message to the Sender for transport, it also supplies the
         delivery-tag used by the Source to track the Delivery State. The Link Endpoint assigns the
-        Message data unique <term>transfer-ids</term> from a Session scoped sequence. These
-        transfer-ids are used to efficiently reference subsets of the outstanding deliveries on a
+        Message data unique <term>delivery-ids</term> from a Session scoped sequence. These
+        delivery-ids are used to efficiently reference subsets of the outstanding deliveries on a
         Session.
       </p>
 
@@ -1537,8 +1539,8 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
         endpoint MUST send a <xref name="detach"/> frame to inform the remote peer that the handle
         is no longer attached to the Link Endpoint. Should both endpoints do this, the Link may
         return to a fully detached state. Note that in this case the Link Endpoints may still
-        indirectly communicate via the Session, as there may be active transfers on the link
-        referenced via transfer-id.
+        indirectly communicate via the Session, as there may be active deliveries on the link
+        referenced via delivery-id.
       </p>
 
       <picture><![CDATA[
@@ -1611,7 +1613,7 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
         When an error occurs at a Link Endpoint, the endpoint MUST be detached with appropriate
         error information supplied in the error field of the <xref name="detach"/> frame. The Link
         Endpoint MUST then be destroyed. Should any input (other than a detach) related to the
-        endpoint either via the input handle or transfer-ids be received, the session MUST be
+        endpoint either via the input handle or delivery-ids be received, the session MUST be
         terminated with an errant-link <xref name="session-error"/>. Since the Link Endpoint has
         been destroyed, the peer cannot reattach, and MUST resume the link in order to restore
         communication.
@@ -1660,13 +1662,13 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
         Once attached, a Link is subject to flow control of Message transfers. Link Endpoints
         maintain the following flow control state. This state defines when it is legal to send
         transfers on an attached Link, as well as indicating when certain interesting conditions,
-        such as insufficient transfers to consume the currently available <i>link-credit</i>, or
-        insufficient <i>link-credit</i> to send available transfers:
+        such as insufficient messages to consume the currently available <i>link-credit</i>, or
+        insufficient <i>link-credit</i> to send available messages:
       </p>
 
       <dl>
-        <dt>transfer-count</dt>
-        <dd><p>The <i>transfer-count</i> is initialized by the Sender when a Link Endpoint is
+        <dt>delivery-count</dt>
+        <dd><p>The <i>delivery-count</i> is initialized by the Sender when a Link Endpoint is
             created, and is incremented whenever a Message is sent (at the Sender) or received (at
             the Receiver).  Only the Sender may independently modify this field. The Receiver's
             value is calculated based on the last known value from the Sender and any subsequent
@@ -1674,31 +1676,31 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
 
         <dt>link-credit</dt>
         <dd><p>The <i>link-credit</i> variable defines the current maximum legal amount that the
-            <i>transfer-count</i> may be increased. This identifies a <i>transfer-limit</i> that may
-            be computed by adding the <i>link-credit</i> to the <i>transfer-count</i>.</p>
+            <i>delivery-count</i> may be increased. This identifies a <i>delivery-limit</i> that may
+            be computed by adding the <i>link-credit</i> to the <i>delivery-count</i>.</p>
 
             <p>Only the Receiver can independently choose a value for this field. The Sender's value
-            MUST always be maintained in such a way as to match the <i>transfer-limit</i> identified
+            MUST always be maintained in such a way as to match the <i>delivery-limit</i> identified
             by the Receiver. This means that the Sender's link-credit variable MUST be set according
             to this formula when flow information is given by the receiver:</p>
 
             <p>
-              <i>link-credit</i><sub>snd</sub> := <i>transfer-count</i><sub>rcv</sub> +
-              <i>link-credit</i><sub>rcv</sub> - <i>transfer-count</i><sub>snd</sub>.
+              <i>link-credit</i><sub>snd</sub> := <i>delivery-count</i><sub>rcv</sub> +
+              <i>link-credit</i><sub>rcv</sub> - <i>delivery-count</i><sub>snd</sub>.
             </p>
 
             <p>
-              In the event that the receiver does not yet know the <i>transfer-count</i>, i.e.
-              <i>transfer-count</i><sub>rcv</sub> is unspecified, the Sender MUST assume that
-              the <i>transfer-count</i><sub>rcv</sub> is the
-              first <i>transfer-count</i><sub>snd</sub> sent from Sender to Receiver, i.e.
-              the <i>transfer-count</i><sub>snd</sub> specified in the flow state carried by the
-              initial <xref name="attach"/> frame from the Sender to the Receiver.
+              In the event that the receiver does not yet know the <i>delivery-count</i>, i.e.
+              <i>delivery-count</i><sub>rcv</sub> is unspecified, the Sender MUST assume that
+              the <i>delivery-count</i><sub>rcv</sub> is the first
+              <i>delivery-count</i><sub>snd</sub> sent from Sender to Receiver, i.e. the
+              <i>delivery-count</i><sub>snd</sub> specified in the flow state carried by the initial
+              <xref name="attach"/> frame from the Sender to the Receiver.
             </p>
 
             <p>
-              Additionally, whenever the Sender increases <i>transfer-count</i>, it MUST decrease
-              <i>link-credit</i> by the same amount in order to maintain the <i>transfer-limit</i>
+              Additionally, whenever the Sender increases <i>delivery-count</i>, it MUST decrease
+              <i>link-credit</i> by the same amount in order to maintain the <i>delivery-limit</i>
               identified by the Receiver.
             </p>
         </dd>
@@ -1713,19 +1715,19 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
             the value of available.</p></dd>
 
         <dt>drain</dt>
-        <dd><p>The drain flag indicates how the Sender should behave when insufficient transfers are
+        <dd><p>The drain flag indicates how the Sender should behave when insufficient messages are
             available to consume the current link-credit. If set, the Sender will (after sending all
-            available transfers) advance the transfer-count as much as possible, consuming all
+            available messages) advance the delivery-count as much as possible, consuming all
             link-credit, and send the flow state to the Receiver. Only the Receiver can
             independently modify this field. The Sender's value is always the last known value
             indicated by the Receiver.</p></dd>
       </dl>
 
       <p>
-        If the link-credit is less than or equal to zero, i.e. the transfer-count is the same as or
-        greater than the transfer-limit, it is illegal to send more transfers. If the link-credit is
+        If the link-credit is less than or equal to zero, i.e. the delivery-count is the same as or
+        greater than the delivery-limit, it is illegal to send more messages. If the link-credit is
         reduced by the Receiver when transfers are in-flight, the Receiver MAY either handle the
-        excess transfers normally or detach the Link with a transfer-limit-exceeded error code.
+        excess messages normally or detach the Link with a transfer-limit-exceeded error code.
       </p>
 
       <picture><![CDATA[
@@ -1742,13 +1744,13 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
       </picture>
 
       <p>
-        If the Sender's drain flag is set and there are no available transfers, the Sender MUST
-        advance its transfer-count until link-credit is zero, and send its updated
+        If the Sender's drain flag is set and there are no available messages, the Sender MUST
+        advance its delivery-count until link-credit is zero, and send its updated
         <xref name="flow"/> state to the Receiver.
       </p>
 
       <p>
-        The transfer-count is an absolute value. While the value itself is conceptually unbounded,
+        The delivery-count is an absolute value. While the value itself is conceptually unbounded,
         it is encoded as a 32-bit integer that wraps around and compares according to RFC-1982
         serial number arithmetic.
       </p>
@@ -1756,9 +1758,9 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
       <p>
         The initial flow state of a Link Endpoint is determined as follows. The <i>link-credit</i>
         and <i>available</i> variables are initialized to zero. The <i>drain</i> flag is initialized
-        to False. The Sender may choose an arbitrary point to initialize the <i>transfer-count</i>.
+        to False. The Sender may choose an arbitrary point to initialize the <i>delivery-count</i>.
         This value is communicated in the initial <xref name="attach"/> frame. The Receiver
-        initializes its <i>transfer-count</i> upon receiving the Sender's <xref name="attach"/>.
+        initializes its <i>delivery-count</i> upon receiving the Sender's <xref name="attach"/>.
       </p>
 
       <picture><![CDATA[
@@ -1768,7 +1770,7 @@ ATTACH(name=N, handle=1,    ----------> *create link endpoint*
 +------------------+                |               +------------------+
 |      Sender      |    .----------------------.    |     Receiver     |
 +------------------+     attach, transfer, flow     +------------------+
-| transfer-count   |------------------------------->| transfer-count   |
+| delivery-count   |------------------------------->| delivery-count   |
 | link-credit      |                                | link-credit      |
 | available        |<-------------------------------| available        |
 | drain            |              flow              | drain            |
@@ -1809,7 +1811,7 @@ async-notify: flow(link-credit=delta, ...)  ---->
 
     <doc title="Synchronous Get">
       <p>
-        A synchronous get of a transfer from a Link is accomplished by incrementing the link-credit,
+        A synchronous get of a message from a Link is accomplished by incrementing the link-credit,
         sending the updated <xref name="flow"/> state, and waiting indefinitely for a
         <xref name="transfer"/> to arrive.
       </p>
@@ -1832,9 +1834,9 @@ flow(link-credit=1)               ---------->
         updated <xref name="flow"/> state and waiting for the link-credit to be consumed. When the
         desired time has elapsed the Receiver then sets the drain flag and sends the newly updated
         <xref name="flow"/> state again, while continuing to wait for the link-credit to be
-        consumed. Even if no transfers are available, this condition will be met promptly because of
+        consumed. Even if no messages are available, this condition will be met promptly because of
         the drain flag. Once the link-credit is consumed, the Receiver can unambiguously determine
-        whether a transfer has arrived or whether the operation has timed out.
+        whether a message has arrived or whether the operation has timed out.
       </p>
 
       <picture><![CDATA[
@@ -1851,11 +1853,11 @@ flow(link-credit=1)               ---------->
 (2)                                   <---------- flow(...)
                                           ...
     -----------------------------------------------------------------
-      (1) If a transfer is available within the timeout, it will
+      (1) If a message is available within the timeout, it will
           arrive at this point.
-      (2) If a transfer is not available within the timeout, the
+      (2) If a message is not available within the timeout, the
           drain flag will ensure that the Sender promptly advances the
-          transfer-count until link-credit is consumed.
+          delivery-count until link-credit is consumed.
 ]]>
       </picture>
     </doc>
@@ -1864,7 +1866,7 @@ flow(link-credit=1)               ---------->
       <p>
         Asynchronous notification can be accomplished as follows. The receiver maintains a target
         amount of link-credit for that Link. As <xref name="transfer">transfers</xref> arrive on the
-        Link, the Sender's link-credit decreases as the transfer-count increases. When the Sender's
+        Link, the Sender's link-credit decreases as the delivery-count increases. When the Sender's
         link-credit falls below a threshold, the <xref name="flow"/> state may be sent to increase
         the Sender's link-credit back to the desired target.
       </p>
@@ -1889,8 +1891,8 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
                                   <--+   +-->
                                       ...
 ---------------------------------------------------------------------
-  The incoming transfer rate for the Link is limited by the
-  rate at which the Receiver updates the transfer-limit by
+  The incoming message rate for the Link is limited by the
+  rate at which the Receiver updates the delivery-limit by
   issuing link-credit.
 ]]>
       </picture>
@@ -1989,9 +1991,9 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
         <p>
           Additionally, each <xref name="fragment"/> carries a <i>section-number</i> and
           <i>section-offset</i>. The former identifies which section the fragment belongs to, the
-          latter indicates the offset of the fragment data within the section. These values aid
-          in the efficient resumption of large messages where transfer has been interrupted by
-          link detachment.  Within a single delivery attempt for a Message, Sections (and their
+          latter indicates the offset of the fragment data within the section. These values aid in
+          the efficient resumption of large messages where delivery has been interrupted by link
+          detachment. Within a single delivery attempt for a Message, Sections (and their
           constituent fragments) MUST be sent in order.
         </p>
       </doc>
@@ -2000,11 +2002,11 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
     <doc title="Transferring a Message">
       <p>
         When an application initiates a message transfer, it assigns a delivery-tag used to track
-        the state of the transfer while the message is in transit. A transfer is considered
+        the state of the delivery while the message is in transit. A delivery is considered
         <i>unsettled</i> from the point at which it was sent or received until it has been
-        <i>settled</i> by the sending/receiving application. Each transfer MUST be identified by a
+        <i>settled</i> by the sending/receiving application. Each delivery MUST be identified by a
         delivery-tag chosen by the sending application. The delivery-tag MUST be unique amongst all
-        transfers that could be considered unsettled by either end of the Link.
+        deliveries that could be considered unsettled by either end of the Link.
       </p>
 
       <p>
@@ -2012,9 +2014,9 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
         with the message data and its associated delivery-tag. The Sender will create an entry in
         its unsettled map, and send a transfer frame that includes the delivery-tag, its initial
         state, and its associated message data. For brevity on the wire, the delivery-tag is also
-        associated with a transfer-id assigned by the session. The transfer-id is then used to refer
+        associated with a delivery-id assigned by the session. The delivery-id is then used to refer
         to the delivery-tag in all subsequent interactions on that session. For simplicity the
-        transfer-id is omitted in the following diagrams and the delivery-tag is itself used
+        delivery-id is omitted in the following diagrams and the delivery-tag is itself used
         directly. These diagrams also assume that this interaction takes place in the context of a
         single established link, and as such omit other details that would be present on the wire in
         practice such as the channel number, link handle, fragmentation flags, etc, focusing only on
@@ -2116,14 +2118,14 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
 
       <p>
         The sending application will then typically perform some action based on this terminal state
-        and then settle the transfer, causing the Sender to remove the delivery-tag from its
+        and then settle the delivery, causing the Sender to remove the delivery-tag from its
         unsettled map. The Sender will then send its final delivery state along with an indication
-        that the transfer is settled at the Sender. Note that this amounts to the Sender announcing
+        that the delivery is settled at the Sender. Note that this amounts to the Sender announcing
         that it is forever forgetting everything about the delivery-tag in question, and as such it
         is only possible to make such an announcement once, since after the Sender forgets, it has
         no way of remembering to make the announcement again. Should this frame get lost due to an
         interruption in communication, the Receiver will find out that the Sender has settled the
-        transfer upon link recovery at which point the Receiver can derive this fact by examining
+        delivery upon link recovery at which point the Receiver can derive this fact by examining
         the unsettled state of the Sender (i.e. what has <b>not</b> been forgotten) that is
         exchanged when the link is reattached.
       </p>
@@ -2141,7 +2143,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
       </picture>
 
       <p>
-        When the Receiver finds out that the Sender has settled the transfer, the Receiver will
+        When the Receiver finds out that the Sender has settled the delivery, the Receiver will
         update its view of the remote state to indicate this, and then notify the receiving
         application.
       </p>
@@ -2161,10 +2163,10 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
 
       <p>
         The application may then perform some final action, e.g. remove the delivery-tag from a set
-        kept for de-duplication, and then notify the Receiver that the transfer is settled. The
+        kept for de-duplication, and then notify the Receiver that the delivery is settled. The
         Receiver will then remove the delivery-tag from its unsettled map. Note that because the
-        Receiver knows that the transfer is already settled at the Sender, it makes no effort to
-        notify the other endpoint that it is settling the transfer.
+        Receiver knows that the delivery is already settled at the Sender, it makes no effort to
+        notify the other endpoint that it is settling the delivery.
       </p>
 
       <picture title="Final Settlement"><![CDATA[
@@ -2180,19 +2182,19 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
       </picture>
 
       <p>
-        This set of exchanges illustrates the basic principals of message transfer. While a transfer
-        is unsettled the endpoints exchange the current state of the transfer. Eventually both
+        This set of exchanges illustrates the basic principals of message transfer. While a delivery
+        is unsettled the endpoints exchange the current state of the delivery. Eventually both
         endpoints reach a terminal state as indicated by the application. This triggers the other
-        application to take some final action and settle the transfer, and once one endpoint
+        application to take some final action and settle the delivery, and once one endpoint
         settles, this usually triggers the application at the other endpoint to settle.
       </p>
 
       <p>
         This basic pattern can be modified in a variety of ways to achieve different guarantees, for
-        example if the sending application settles the transfer <i>before</i> sending it, this
+        example if the sending application settles the delivery <i>before</i> sending it, this
         results in an <i>at-most-once</i> guarantee. The Sender has indicated up front with his
-        initial transmission that he has forgotten everything about this transfer and will therefore
-        make no further attempts to send it. Should this transfer make it to the Receiver, the
+        initial transmission that he has forgotten everything about this delivery and will therefore
+        make no further attempts to send it. Should this delivery make it to the Receiver, the
         Receiver clearly has no obligation to respond with updates of the Receiver's delivery state,
         as they would be meaningless and ignored by the Sender.
       </p>
@@ -2214,7 +2216,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
         settle immediately upon processing the message rather than waiting for the sender to settle
         first, we get an <i>at-least-once</i> guarantee. If the disposition frame indicated below is
         lost, then upon link recovery the Sender will not see the delivery-tag in the Receiver's
-        unsettled map and will therefore assume the transfer is lost and resend it, resulting in
+        unsettled map and will therefore assume the delivery was lost and resend it, resulting in
         duplicate processing of the message at the Receiver.
       </p>
 
@@ -2244,50 +2246,51 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
       <p>
         The Sender and Receiver policy regarding settling may either be pre-configured for the
         entire link, thereby allowing for optimized endpoint choices, or may be determined on an
-        ad-hoc basis for each transfer. An application may also choose to settle an endpoint
+        ad-hoc basis for each delivery. An application may also choose to settle an endpoint
         independently of its delivery state, for example the sending application may choose to
-        settle a message due to the ttl expiring regardless of whether the Receiver has reached a
-        terminal state.
+        settle a delivery due to the message ttl expiring regardless of whether the Receiver has
+        reached a terminal state.
       </p>
 
     </doc>
 
-    <doc name="resuming-transfers" title="Resuming Transfers">
+    <doc name="resuming-deliveries" title="Resuming Deliveries">
       <p>
-        When a suspended link having unsettled transfers is resumed, the <i>unsettled</i> field from
-        the <xref name="attach"/> frame will carry the delivery-tags and delivery state of all
-        transfers considered unsettled by the issuing link endpoint. The set of delivery tags and
+        When a suspended link having unsettled deliveries is resumed, the <i>unsettled</i> field
+        from the <xref name="attach"/> frame will carry the delivery-tags and delivery state of all
+        deliveries considered unsettled by the issuing link endpoint. The set of delivery tags and
         delivery states contained in the unsettled maps from both endpoints can be divided into
         three categories:
       </p>
 
       <dl>
-        <dt>Transfers that only the Source considers unsettled</dt>
-        <dd><p>Transfers in this category MAY be resumed at the discretion of the sending
+        <dt>Deliveries that only the Source considers unsettled</dt>
+        <dd><p>Deliveries in this category MAY be resumed at the discretion of the sending
             application.</p></dd>
 
-        <dt>Transfers that only the Target considers unsettled</dt>
-        <dd><p>Transfers in this category MUST be ignored by the Sender, and MUST be considered
+        <dt>Deliveries that only the Target considers unsettled</dt>
+        <dd><p>Deliveries in this category MUST be ignored by the Sender, and MUST be considered
             settled by the Receiver.</p></dd>
 
-        <dt>Transfers that both the Source and Target consider unsettled</dt>
-        <dd><p>Transfers in this category MUST be resumed by the Sender.</p></dd>
+        <dt>Deliveries that both the Source and Target consider unsettled</dt>
+        <dd><p>Deliveries in this category MUST be resumed by the Sender.</p></dd>
       </dl>
 
       <p>
-        A transfer is resumed much the same way it is initially transferred with the following
+        A delivery is resumed much the same way it is initially transferred with the following
         exceptions:
       </p>
 
       <ul>
-        <li><p>The resume flag MUST be set to true when resuming a transfer.</p></li>
+        <li><p>The resume flag of the <xref name="transfer"/> frame MUST be set to true when
+            resuming a delivery.</p></li>
         <li><p>The Sender MAY omit message data when the Delivery State of the Receiver indicates
             retransmission is unnecessary.</p></li>
       </ul>
 
       <p>
-        Note that unsettled delivery-tags do NOT have any valid transfer-ids associated until they
-        are resumed, as the transfer-ids from their original link endpoints are meaningless to the
+        Note that unsettled delivery-tags do NOT have any valid delivery-ids associated until they
+        are resumed, as the delivery-ids from their original link endpoints are meaningless to the
         new link endpoints.
       </p>
     </doc>
@@ -2305,8 +2308,8 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
       </p>
 
       <p>
-        The sender may indicate an aborted attempt to transfer a Message by setting the abort flag
-        on the last <xref type="type" name="transfer"/>. In this case the receiver MUST discard the
+        The sender may indicate an aborted attempt to deliver a Message by setting the abort flag on
+        the last <xref type="type" name="transfer"/>. In this case the receiver MUST discard the
         Message fragments that were transferred prior to the abort.
       </p>
 
@@ -2457,7 +2460,7 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="outgoing-locales" type="string" multiple="true"
+      <field name="outgoing-locales" type="symbol" multiple="true"
              label="locales available for outgoing text">
         <doc>
           <p>
@@ -2469,7 +2472,7 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="incoming-locales" type="string" multiple="true"
+      <field name="incoming-locales" type="symbol" multiple="true"
              label="desired locales for incoming text in decreasing level of preference">
         <doc>
           <p>
@@ -2514,6 +2517,10 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
           <p>
             The properties map contains a set of fields intended to indicate information about the
             connection and its container.
+          </p>
+          <p>
+            A list of commonly defined connection properties and their meanings can be found here:
+            <xref type="extern" name="http://www.amqp.org/specification/1.0/connection-properties"/>
           </p>
         </doc>
       </field>
@@ -2573,6 +2580,10 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
             The properties map contains a set of fields intended to indicate information about the
             session and its container.
           </p>
+          <p>
+            A list of commonly defined session properties and their meanings can be found here:
+            <xref type="extern" name="http://www.amqp.org/specification/1.0/session-properties"/>
+          </p>
         </doc>
       </field>
     </type>
@@ -2598,8 +2609,8 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
           <p>
             This name uniquely identifies the link from the container of the source to the container
             of the target node, e.g. if the container of the source node is A, and the container of
-            the target node is B, the link may be globally identified by the compound
-            name <i>A</i>:<i>B</i>:<i>name</i>.
+            the target node is B, the link may be globally identified by the (ordered) tuple
+            <i>(A,B,&lt;name&gt;)</i>.
           </p>
         </doc>
       </field>
@@ -2640,17 +2651,23 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
             This is used to indicate any unsettled delivery states when a suspended link is resumed.
             The map is keyed by delivery-tag with values indicating the delivery state. The local
             and remote delivery states for a given delivery-tag MUST be compared to resolve any
-            in-doubt transfers. If necessary, transfers MAY be resent, or resumed based on the
-            outcome of this comparison. See <xref name="resuming-transfers"/>.
+            in-doubt deliveries. If necessary, deliveries MAY be resent, or resumed based on the
+            outcome of this comparison. See <xref name="resuming-deliveries"/>.
           </p>
 
           <p>
-            When reattaching, the unsettled map MUST be null.
+            If the local unsettled map is too large to be encoded within a frame of the agreed
+            maximum frame size then the session must be ended with the frame-size-too-small
+            error (see <xref name="amqp-error"/>);
+          </p>
+
+          <p>
+            When reattaching (as opposed to resuming), the unsettled map MUST be null.
           </p>
         </doc>
       </field>
 
-      <field name="initial-transfer-count" type="sequence-no">
+      <field name="initial-delivery-count" type="sequence-no">
         <doc>
           <p>
             This MUST NOT be null if role is sender, and it is ignored if the role is receiver.
@@ -2664,7 +2681,7 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         <doc>
           <p>
             This field indicates the maximum message size supported by the link endpoint. Any
-            attempt to transfer a message larger than this results in a message-size-exceeded
+            attempt to deliver a message larger than this results in a message-size-exceeded
             <xref name="link-error"/>. If this field is zero or unset, there is no maximum size
             imposed by the link endpoint.
           </p>
@@ -2682,6 +2699,10 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
           <p>
             The properties map contains a set of fields intended to indicate information about the
             link and its container.
+          </p>
+          <p>
+            A list of commonly defined link properties and their meanings can be found here:
+            <xref type="extern" name="http://www.amqp.org/specification/1.0/link-properties"/>
           </p>
         </doc>
       </field>
@@ -2754,14 +2775,14 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="transfer-count" type="sequence-no" label="the endpoint's transfer-count">
+      <field name="delivery-count" type="sequence-no" label="the endpoint's delivery-count">
         <doc>
           <p>
             When the handle field is not set, this field MUST NOT be set.
           </p>
           <p>
             When the handle identifies that the flow state is being sent from the Sender Link
-            Endpoint to Receiver Link Endpoint this field MUST be set to the current transfer-count
+            Endpoint to Receiver Link Endpoint this field MUST be set to the current delivery-count
             of the Link Endpoint.
           </p>
           <p>
@@ -2850,19 +2871,19 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="transfer-id" type="transfer-number" mandatory="true"
+      <field name="delivery-id" type="delivery-number" mandatory="true"
              label="alias for delivery-tag"/>
 
       <field name="settled" type="boolean" default="false"/>
 
       <field name="state" type="*" requires="delivery-state"/>
 
-      <field name="resume" type="boolean" default="false" label="indicates a resumed transfer">
+      <field name="resume" type="boolean" default="false" label="indicates a resumed delivery">
         <doc>
           <p>
             If true, the resume flag indicates that the transfer is being used to reassociate an
-            unsettled transfer from a dissociated link endpoint. See
-            <xref name="resuming-transfers"/> for more details.
+            unsettled delivery from a dissociated link endpoint. See
+            <xref name="resuming-deliveries"/> for more details.
           </p>
         </doc>
       </field>
@@ -2901,7 +2922,7 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       <doc>
         <p>
           The disposition frame is used to inform the remote peer of local changes in the state of
-          message transfers. The disposition frame may reference transfers from many different links
+          deliveries. The disposition frame may reference deliveries from many different links
           associated with a session, although all links MUST have the directionality indicated by
           the specified <i>role</i>.
         </p>
@@ -2931,36 +2952,36 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="first" type="transfer-number" mandatory="true" label="lower bound of transfers">
+      <field name="first" type="delivery-number" mandatory="true" label="lower bound of deliveries">
         <doc>
           <p>
-            Identifies the lower bound of transfer-ids for the transfers in this set.
+            Identifies the lower bound of delivery-ids for the deliveries in this set.
           </p>
         </doc>
       </field>
 
-      <field name="last" type="transfer-number" label="upper bound of transfers">
+      <field name="last" type="delivery-number" label="upper bound of deliveries">
         <doc>
           <p>
-            Identifies the upper bound of transfer-ids for the transfers in this set. If not set,
+            Identifies the upper bound of delivery-ids for the deliveries in this set. If not set,
             this is taken to be the same as <i>first</i>.
           </p>
         </doc>
       </field>
 
-      <field name="settled" type="boolean" default="false" label="indicates transfers are settled">
+      <field name="settled" type="boolean" default="false" label="indicates deliveries are settled">
         <doc>
           <p>
-            If true, indicates that the referenced transfers are considered settled by the issuing
+            If true, indicates that the referenced deliveries are considered settled by the issuing
             endpoint.
           </p>
         </doc>
       </field>
 
-      <field name="state" type="*" requires="delivery-state" label="indicates state of transfers">
+      <field name="state" type="*" requires="delivery-state" label="indicates state of deliveries">
         <doc>
           <p>
-            Communicates the delivery state of all the transfers referenced by this disposition.
+            Communicates the state of all the deliveries referenced by this disposition.
           </p>
         </doc>
       </field>
@@ -3069,6 +3090,8 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
           label="a duration measured in milliseconds"/>
 
     <type class="restricted" name="delivery-tag" source="binary"/>
+
+    <type class="restricted" name="delivery-number" source="sequence-no"/>
 
     <type class="restricted" name="transfer-number" source="sequence-no"/>
 
@@ -3295,6 +3318,19 @@ msb                        lsb
           </p>
         </doc>
       </choice>
+
+      <choice name="frame-size-too-small" value="amqp:frame-size-too-small">
+        <doc>
+          <p>
+            The peer cannot send a frame because the smallest encoding of the frame body with the
+            currently valid values would be too large to fit within a frame of the agreed maximum
+            frame size. (Note when transferring a message the message sections can be broken into
+            small enough fragments such that they can be transmitted. An example where this error
+            may occur is if the unsettled map on an attach is too large to  be encoded within the
+            frame).
+          </p>
+        </doc>
+      </choice>
     </type>
 
     <type class="restricted" name="connection-error" source="symbol" provides="error-condition"
@@ -3314,6 +3350,38 @@ msb                        lsb
           <p>A valid frame header cannot be formed from the incoming byte stream.</p>
         </doc>
       </choice>
+
+      <choice name="redirect" value="amqp:connection:redirect">
+        <doc>
+          <p>
+            The container is no longer available on the current connection. The peer should
+            attempt reconnection to the container using the details provided in the info map.
+          </p>
+          <dl>
+            <dt>hostname</dt>
+            <dd>
+              <p>
+                 the hostname of the container. This is the value that should be supplied in the
+                 <i>hostname</i> field of the <xref name="open"/> frame, and suring the SASL and
+                 TLS negotiation (if used).
+              </p>
+            </dd>
+            <dt>network-host</dt>
+            <dd>
+              <p>
+                the DNS hostname or IP address of the machine hosting the container.
+              </p>
+            </dd>
+            <dt>port</dt>
+            <dd>
+              <p>
+                the port number on the machine hosting the container.
+              </p>
+            </dd>
+          </dl>
+        </doc>
+      </choice>
+
     </type>
 
     <type class="restricted" name="session-error" source="symbol" provides="error-condition"
@@ -3375,6 +3443,44 @@ msb                        lsb
           <p>The peer sent a larger message than is supported on the link.</p>
         </doc>
       </choice>
+
+      <choice name="redirect" value="amqp:link:redirect">
+        <doc>
+          <p>The address provided cannot be resolved to a terminus at the current container.
+             The info map may contain the following information to allow the client to locate
+             the attach to the terminus.
+          </p>
+          <dl>
+            <dt>hostname</dt>
+            <dd>
+              <p>
+                 the hostname of the container hosting the terminus. This is the value that should
+                 be supplied in the <i>hostname</i> field of the <xref name="open"/> frame, and
+                 during SASL and TLS negotiation (if used).
+              </p>
+            </dd>
+            <dt>network-host</dt>
+            <dd>
+              <p>
+                the DNS hostname or IP address of the machine hosting the container.
+              </p>
+            </dd>
+            <dt>port</dt>
+            <dd>
+              <p>
+                the port number on the machine hosting the container.
+              </p>
+            </dd>
+            <dt>address</dt>
+            <dd>
+              <p>
+                the address of the terminus at the container.
+              </p>
+            </dd>
+          </dl>
+        </doc>
+      </choice>
+
     </type>
 
     <definition name="PORT" value="5672" label="the IANA assigned port number for AMQP">
@@ -3412,7 +3518,7 @@ msb                        lsb
     <definition name="MINOR" value="0" label="minor protocol version" />
     <definition name="REVISION" value="0" label="protocol revision" />
 
-    <definition name="MIN-MAX-FRAME-SIZE" value="4096"
+    <definition name="MIN-MAX-FRAME-SIZE" value="512"
                 label="the minimum size (in bytes) of the maximum frame size">
       <doc>
         <p>
