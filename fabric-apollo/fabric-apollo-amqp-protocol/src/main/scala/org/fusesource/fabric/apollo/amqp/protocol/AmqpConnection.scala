@@ -436,18 +436,10 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   }
 
   def doSend(frame:AnyRef) = {
-    if (getCurrentQueue == null) {
-      // TODO - figure out a better solution...
-      var rc = false
-      val latch = new CountDownLatch(1)
-      dispatchQueue << ^{
-        rc = connection_sink.offer(frame)
-        latch.countDown
-      }
-      latch.await(5, TimeUnit.SECONDS) && rc
-    } else {
+    dispatchQueue << ^{
       connection_sink.offer(frame)
     }
+    true
   }
 
   def getContainerId = containerId
