@@ -175,14 +175,36 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 properties.put(key.toString(), val.toString());
             }
         }
-        // Update framework if needed
+        // Update framework, system and config props
+        boolean restart = false;
+        Properties configProps = new Properties(new File(System.getProperty("karaf.base") + File.separator + "etc" + File.separator + "config.properties"));
+        Properties systemProps = new Properties(new File(System.getProperty("karaf.base") + File.separator + "etc" + File.separator + "system.properties"));
         for (String key : properties.keySet()) {
             if (key.equals("framework")) {
                 String url = properties.get(key);
-                if (updateFramework(url)) {
-                    return;
+                restart |= updateFramework(configProps, url);
+            } else if (key.startsWith("config.")) {
+                String k = key.substring("config.".length());
+                String v = properties.get(key);
+                if (!v.equals(configProps.get(k))) {
+                    configProps.put(k, v);
+                    restart = true;
+                }
+            } else if (key.startsWith("system.")) {
+                String k = key.substring("system.".length());
+                String v = properties.get(key);
+                if (!v.equals(systemProps.get(k))) {
+                    systemProps.put(k, v);
+                    restart = true;
                 }
             }
+        }
+        if (restart) {
+            configProps.save();
+            systemProps.save();
+            System.setProperty("karaf.restart", "true");
+            bundleContext.getBundle(0).stop();
+            return;
         }
         // Compute deployment
         Map<URI, Repository> repositories = new HashMap<URI, Repository>();
@@ -553,7 +575,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             if (importsList.isEmpty()) {
                 it.remove();
 //            } else {
-//                LOGGER.debug("Refeshing bundle {} ({}) to solve the following optional imports", b.getSymbolicName(), b.getBundleId());
+//                LOGGER.debug("Refreshing bundle {} ({}) to solve the following optional imports", b.getSymbolicName(), b.getBundleId());
 //                for (Clause p : importsList) {
 //                    LOGGER.debug("    {}", p);
 //                }
@@ -575,7 +597,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return result;
     }
 
-    protected boolean updateFramework(String url) throws Exception {
+    protected boolean updateFramework(Properties properties, String url) throws Exception {
         if (!url.startsWith("mvn:")) {
             throw new IllegalArgumentException("Framework url must use the mvn: protocol");
         }
@@ -584,13 +606,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         if (path.startsWith(System.getProperty("karaf.home"))) {
             path = path.substring(System.getProperty("karaf.home").length() + 1);
         }
-        Properties properties = new Properties(new File(System.getProperty("karaf.base") + File.separator + "etc" + File.separator + "config.properties"));
         if (!path.equals(properties.get("karaf.framework.felix"))) {
             properties.put("karaf.framework", "felix");
             properties.put("karaf.framework.felix", path);
-            properties.save();
-            System.setProperty("karaf.restart", "true");
-            bundleContext.getBundle(0).stop();
             return true;
         }
         return false;
