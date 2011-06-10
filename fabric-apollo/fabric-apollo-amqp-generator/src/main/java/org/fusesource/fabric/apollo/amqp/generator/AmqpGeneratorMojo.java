@@ -53,6 +53,14 @@ public class AmqpGeneratorMojo extends AbstractMojo {
     private File mainSourceDirectory;
 
     /**
+     * The name of the XML file containing the AMQP type system and
+     * encodings
+     *
+     * @parameter default-value="types.xml"
+     */
+    private String typesDescriptor;
+
+    /**
      * The directory where the output files will be located.
      *
      * @parameter default-value="${project.build.directory}/generated-sources/amqp"
