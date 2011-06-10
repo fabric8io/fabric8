@@ -117,20 +117,20 @@ public class AmqpMojo extends AbstractMojo {
     private void processFiles(File[] mainFiles, File outputDir) throws MojoExecutionException {
         List<File> recFiles = Arrays.asList(mainFiles);
         for (File file : recFiles) {
-            try {
-                getLog().info("Compiling: "+file.getPath());
-                Utils.LOG = getLog();
+            getLog().info("Compiling: "+file.getPath());
+        }
+        try {
+            Utils.LOG = getLog();
 
-                Generator gen = new Generator();
-                gen.setInputFiles(mainFiles);
-                gen.setOutputDirectory(outputDir);
-                gen.setSourceDirectory(sourceDirectory);
-                gen.setPackagePrefix(packagePrefix);
-                gen.generate();
-            } catch (Exception e) {
-                getLog().error("Error generating code : " + e + " - " + e.getMessage(), e);
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
+            Generator gen = new Generator();
+            gen.setInputFiles(mainFiles);
+            gen.setOutputDirectory(outputDir);
+            gen.setSourceDirectory(sourceDirectory);
+            gen.setPackagePrefix(packagePrefix);
+            gen.generate();
+        } catch (Exception e) {
+            getLog().error("Error generating code : " + e + " - " + e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
