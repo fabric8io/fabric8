@@ -34,6 +34,18 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.fusesource.hawtbuf</groupId>
+      <artifactId>hawtbuf</artifactId>
+      <version>${hawtbuf-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.codemodel</groupId>
+      <artifactId>codemodel</artifactId>
+      <version>2.4</version>
+    </dependency>
+
+    <dependency>
     	<groupId>javax.xml.bind</groupId>
     	<artifactId>jaxb-api</artifactId>
     	<version>${jaxb-api-version}</version>
@@ -45,6 +57,7 @@
       <version>2.0</version>
       <optional>true</optional>
     </dependency>
+
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>

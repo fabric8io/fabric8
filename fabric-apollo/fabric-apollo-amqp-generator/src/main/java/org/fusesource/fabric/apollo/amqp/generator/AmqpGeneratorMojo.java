@@ -142,25 +142,18 @@ public class AmqpGeneratorMojo extends AbstractMojo {
             Log.info("\t%s", file);
         }
 
-        /*
-        for (File file : recFiles) {
-            try {
-                getLog().info("Compiling: "+file.getPath());
-                Utils.LOG = getLog();
-
-                Generator gen = new Generator();
-                gen.setInputFiles(mainFiles);
-                gen.setOutputDirectory(outputDir);
-                gen.setSourceDirectory(sourceDirectory);
-                gen.setPackagePrefix(packagePrefix);
-                gen.generate();
-            } catch (Exception e) {
-                getLog().error("Error generating code : " + e + " - " + e.getMessage(), e);
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
+        try {
+            Generator gen = new Generator();
+            gen.setInputFiles(mainFiles);
+            gen.setOutputDirectory(outputDir);
+            gen.setSourceDirectory(sourceDirectory);
+            gen.setPackagePrefix(packagePrefix);
+            gen.generate();
+        } catch (Exception e) {
+            Log.error("Error generating code : " + e + " - " + e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage(), e);
         }
 
-        */
     }
 
 }
