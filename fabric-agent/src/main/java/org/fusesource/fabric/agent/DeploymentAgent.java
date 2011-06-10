@@ -340,7 +340,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         List<Resource> toDeploy = new ArrayList<Resource>(allResources);
         List<Resource> toInstall = new ArrayList<Resource>();
         List<Bundle> toDelete = new ArrayList<Bundle>();
-        List<Bundle> toIgnore = new ArrayList<Bundle>();
         Map<Bundle, Resource> toUpdate = new HashMap<Bundle, Resource>();
 
         // First pass: go through all installed bundles and mark them
@@ -357,7 +356,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     }
                 }
                 if (resource != null) {
-                    toIgnore.add(bundle);
                     toDeploy.remove(resource);
                     resToBnd.put(resource, bundle);
                 } else {
@@ -392,10 +390,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Bundle bundle : toDelete) {
             LOGGER.info("    " + bundle.getSymbolicName() + " / " + bundle.getVersion());
         }
-//        System.out.println("  Bundles to ignore:");
-//        for (Bundle bundle : toIgnore) {
-//            System.out.println("    " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-//        }
         LOGGER.info("  Bundles to update:");
         for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
             LOGGER.info("    " + entry.getKey().getSymbolicName() + " / " + entry.getKey().getVersion() + " with " + entry.getValue().getURI());
@@ -406,7 +400,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
 
         Set<Bundle> toRefresh = new HashSet<Bundle>();
-        Set<Bundle> toStart = new HashSet<Bundle>();
 
         // Execute
         for (Bundle bundle : toDelete) {
@@ -427,7 +420,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             bundle.stop(Bundle.STOP_TRANSIENT);
             bundle.update(is);
             toRefresh.add(bundle);
-            toStart.add(bundle);
         }
         for (Resource resource : toInstall) {
             InputStream is;
@@ -440,7 +432,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             }
             Bundle bundle = bundleContext.installBundle(resource.getURI(), is);
             toRefresh.add(bundle);
-            toStart.add(bundle);
             resToBnd.put(resource, bundle);
         }
 
