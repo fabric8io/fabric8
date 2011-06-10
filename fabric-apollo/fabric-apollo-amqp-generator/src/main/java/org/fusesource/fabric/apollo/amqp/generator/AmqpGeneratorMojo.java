@@ -82,6 +82,12 @@ public class AmqpGeneratorMojo extends AbstractMojo {
     private String packagePrefix;
 
     public void execute() throws MojoExecutionException {
+        Log.LOG = getLog();
+
+        Log.info("\tmain source directory at %s", mainSourceDirectory);
+        Log.info("\tmain output directory at %s", mainOutputDirectory);
+        Log.info("\ttest source directory at %s", testSourceDirectory);
+        Log.info("\ttest output directory at %s", testOutputDirectory);
 
         File[] mainFiles = null;
         if ( mainSourceDirectory.exists() ) {
@@ -91,11 +97,13 @@ public class AmqpGeneratorMojo extends AbstractMojo {
             }
         });
             if (mainFiles==null || mainFiles.length==0) {
-                getLog().warn("No amqp spec files found in directory: " + mainSourceDirectory.getPath());
+                Log.warn("No AMQP XML definitions found in directory : %s", mainSourceDirectory.getPath());
             } else {
                 processFiles(mainFiles, mainOutputDirectory);
                 this.project.addCompileSourceRoot(mainOutputDirectory.getAbsolutePath());
             }
+        } else {
+            Log.warn("Configured main source directory at %s does not exist", mainSourceDirectory);
         }
 
         File[] testFiles = null;
@@ -106,17 +114,25 @@ public class AmqpGeneratorMojo extends AbstractMojo {
                 }
             });
             if (testFiles==null || testFiles.length==0) {
-                getLog().warn("No amqp spec files found in directory: " + testSourceDirectory.getPath());
+                Log.warn("No AMQP XML definitions found in directory : %s", testSourceDirectory.getPath());
             } else {
                 processFiles(testFiles, testOutputDirectory);
                 this.project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
             }
+        } else {
+            Log.warn("Configured test source directory at %s does not exist", testSourceDirectory);
         }
     }
 
     private void processFiles(File[] mainFiles, File outputDir) throws MojoExecutionException {
 
+        Log.info("Processing files : ");
+
         List<File> recFiles = Arrays.asList(mainFiles);
+
+        for (File file : recFiles) {
+            Log.info("\t%s", file);
+        }
 
         /*
         for (File file : recFiles) {
