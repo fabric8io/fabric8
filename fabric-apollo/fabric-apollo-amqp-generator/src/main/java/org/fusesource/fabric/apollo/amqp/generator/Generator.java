@@ -48,7 +48,7 @@ public class Generator {
     private HashSet<Type> primitives = new HashSet<Type>();
     private HashSet<Type> composites = new HashSet<Type>();
     private HashSet<Type> restricted = new HashSet<Type>();
-    private HashMap<String, HashSet<String>> provides = new HashMap<String, HashSet<String>>();
+    private HashSet<String> provides = new HashSet<String>();
     private HashSet<String> classes = new HashSet<String>();
     private HashMap<String, String> restrictedMapping = new HashMap<String, String>();
     private HashMap<String, String> compositeMapping = new HashMap<String, String>();
@@ -122,7 +122,7 @@ public class Generator {
             }
 
             if (type.getProvides() != null && !type.getProvides().equals(type.getName())) {
-                cls._implements(cm.ref(packagePrefix + "." + sectionPackage + "." + toJavaClassName(type.getProvides())));
+                cls._implements(cm.ref(packagePrefix + ".common." + toJavaClassName(type.getProvides())));
             }
 
             Log.info("");
@@ -136,7 +136,7 @@ public class Generator {
                     String fieldName = sanitize(field.getName());
 
                     if (fieldType.equals("*") && field.getRequires() != null) {
-                        fieldType = getPackagePrefix() + "." + sectionPackage + "." + toJavaClassName(field.getRequires());
+                        fieldType = packagePrefix + ".common." + toJavaClassName(field.getRequires());
                         Log.info("Trying required type %s", fieldType);
                     } else {
                         while (!mapping.containsKey(fieldType)) {
@@ -153,18 +153,27 @@ public class Generator {
                     }
 
                     if (fieldType != null) {
+
+                        boolean array = false;
+                        if (field.getMultiple() != null && field.getMultiple().equals("true")) {
+                            array = true;
+                        }
+
                         Class clazz = mapping.get(fieldType);
+                        JClass c = null;
                         if (clazz == null) {
-                            Log.info("%s %s", fieldType, fieldName);
-                            JDefinedClass c = cm._getClass(fieldType);
+                            c = cm._getClass(fieldType);
                             if (c == null) {
                                 c = cm._class(fieldType);
                             }
-                            cls.field(0, c, fieldName);
                         } else {
-                            Log.info("%s %s", mapping.get(fieldType).getSimpleName(), fieldName);
-                            cls.field(0, mapping.get(fieldType), fieldName);
+                            c = cm.ref(clazz.getName());
                         }
+                        if (array) {
+                            c = c.array();
+                        }
+                        Log.info("%s %s", c.binaryName(), fieldName);
+                        cls.field(0, c, fieldName);
                     } else {
                         Log.info("Skipping field %s, type not found", field.getName());
                     }
@@ -218,10 +227,7 @@ public class Generator {
                             sections.put(type.getName(), section.getName());
 
                             if (type.getProvides() != null) {
-                                if (!provides.containsKey(section.getName())) {
-                                    provides.put(section.getName(), new HashSet<String>());
-                                }
-                                provides.get(section.getName()).add(type.getProvides());
+                                provides.add(type.getProvides());
                             }
 
                             if (type.getClazz().startsWith("primitive")) {
@@ -276,31 +282,14 @@ public class Generator {
         }
 
         Log.info("");
-        Log.info("Provides : ");
-        for (String section : provides.keySet()) {
-            Log.info("Section : %s has provides : %s", section, provides.get(section));
-        }
+        Log.info("Provides : %s", provides);
     }
 
     private void generateAbstractBases() throws JClassAlreadyExistsException, IOException {
-        for (String section : provides.keySet()) {
-            for (String base : provides.get(section)) {
-                boolean found = false;
-                for (Type type : composites) {
-                    if (sections.get(type.getName()).equals(section)) {
-                        if (type.getName().equals(base)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                if (found) {
-                    continue;
-                }
-                String sectionPackage = sanitize(section);
-                String name = toJavaClassName(base);
-                JDefinedClass cls = cm._class(packagePrefix + "." + sectionPackage + "." + name, ClassType.INTERFACE);
-            }
+        for (String base : provides) {
+            String pkg = packagePrefix + ".common.";
+            String name = pkg + toJavaClassName(base);
+            JDefinedClass cls = cm._class(name, ClassType.INTERFACE);
         }
     }
 
