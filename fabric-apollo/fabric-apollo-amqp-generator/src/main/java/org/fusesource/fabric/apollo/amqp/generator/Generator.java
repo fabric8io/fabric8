@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.generator;
 
 import com.sun.codemodel.*;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Choice;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Definition;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
 import org.fusesource.hawtbuf.Buffer;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassName;
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toStaticName;
 
 /**
@@ -89,6 +91,8 @@ public class Generator {
         try {
             interfaceGenerator.generateAbstractBases();
 
+            generateEnumTypes();
+
             compositeTypeGenerator.generateDescribedTypes();
 
             generateDefinitions();
@@ -100,6 +104,47 @@ public class Generator {
                 Log.error("\tat %s.%s(%s:%s)", s.getClassName(), s.getMethodName(), s.getFileName(), s.getLineNumber());
             }
             throw e;
+        }
+    }
+
+    private void generateEnumTypes() throws JClassAlreadyExistsException {
+        for(Type type : restricted) {
+            List<Object> children = type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc();
+            boolean isEnum = false;
+            for (Object child : children) {
+                if (child instanceof Choice) {
+                    isEnum = true;
+                    break;
+                }
+            }
+            if (!isEnum) {
+                continue;
+            }
+            String enumType = type.getSource();
+            while (enumType != null && !mapping.containsKey(enumType)) {
+                enumType = restrictedMapping.get(enumType);
+            }
+            if (enumType == null) {
+                Log.info("Skipping generation of enum %s, unknown type", type.getName());
+                continue;
+            }
+
+            String name = toJavaClassName(type.getName());
+            name = packagePrefix + "." + types + "." + name;
+            JDefinedClass cls = cm._class(name, ClassType.ENUM);
+
+            JMethod constructor = cls.constructor(JMod.PRIVATE);
+            constructor.param(mapping.get(enumType), "value");
+
+            enumType = mapping.get(enumType).getName();
+
+            for (Object child : children) {
+                if (child instanceof Choice) {
+                    Choice choice = (Choice)child;
+                    JEnumConstant constant = cls.enumConstant(Utilities.toStaticName(choice.getName()));
+                    constant.arg(JExpr._new(cm.ref(enumType)).arg(choice.getValue()));
+                }
+            }
         }
     }
 
