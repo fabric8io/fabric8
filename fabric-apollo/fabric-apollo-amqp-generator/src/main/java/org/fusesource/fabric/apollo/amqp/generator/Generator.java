@@ -10,29 +10,16 @@
 
 package org.fusesource.fabric.apollo.amqp.generator;
 
-import com.sun.codemodel.internal.*;
-import org.fusesource.fabric.apollo.amqp.jaxb.schema.*;
+import com.sun.codemodel.*;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Definition;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
 import org.fusesource.hawtbuf.Buffer;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static org.fusesource.fabric.apollo.amqp.generator.Utilities.*;
+import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toStaticName;
 
 /**
  *
@@ -53,12 +40,15 @@ public class Generator {
     private HashMap<String, String> restrictedMapping = new HashMap<String, String>();
     private HashMap<String, String> compositeMapping = new HashMap<String, String>();
     private HashMap<String, String> sections = new HashMap<String, String>();
-
     private HashMap<String, Class> mapping = new HashMap<String, Class>();
 
     JCodeModel cm = new JCodeModel();
     private String interfaces = "interfaces";
     private String types = "types";
+
+    private final XmlDefinitionParser xmlDefinitionParser = new XmlDefinitionParser(this);
+    private final CompositeTypeGenerator compositeTypeGenerator = new CompositeTypeGenerator(this);
+    private final InterfaceGenerator interfaceGenerator = new InterfaceGenerator(this);
 
     public Generator() {
         mapping.put("null", null);
@@ -90,190 +80,26 @@ public class Generator {
 
     public void generate() throws Exception {
 
-        parseXML();
+        xmlDefinitionParser.parseXML();
 
         log();
 
         outputDirectory.mkdirs();
 
         try {
-            generateAbstractBases();
-            generateDescribedTypes();
+            interfaceGenerator.generateAbstractBases();
+
+            compositeTypeGenerator.generateDescribedTypes();
+
             generateDefinitions();
 
             cm.build(outputDirectory);
-
         } catch (Exception e) {
             Log.error("Error generating code : %s", e);
             for (StackTraceElement s : e.getStackTrace()) {
                 Log.error("\tat %s.%s(%s:%s)", s.getClassName(), s.getMethodName(), s.getFileName(), s.getLineNumber());
             }
             throw e;
-        }
-    }
-
-    private void generateDescribedTypes() throws Exception {
-        for(Type type : composites) {
-            //String sectionPackage = sanitize(sections.get(type.getName()));
-            String name = toJavaClassName(type.getName());
-            //name = packagePrefix + "." + sectionPackage + "." + name;
-            name = packagePrefix + "." + types + "." + name;
-
-            JDefinedClass cls = cm._getClass(name);
-            if (cls == null) {
-               cls = cm._class(name);
-            }
-
-            if (type.getProvides() != null && !type.getProvides().equals(type.getName())) {
-                cls._implements(cm.ref(packagePrefix + "." + interfaces + "." + toJavaClassName(type.getProvides())));
-            }
-
-            Log.info("");
-            Log.info("Generating %s", cls.binaryName());
-
-            for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
-                if (obj instanceof Descriptor) {
-                    Descriptor desc = (Descriptor)obj;
-                    int mods = JMod.PUBLIC | JMod.STATIC | JMod.FINAL;
-                    cls.field(mods, String.class, "SYMBOLIC_ID", JExpr.lit(desc.getName()));
-
-                    String code = desc.getCode();
-                    String category = code.split(":")[0];
-                    String descriptorId = code.split(":")[1];
-
-                    cls.field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
-                    cls.field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
-                    cls.field(mods, long.class, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
-
-                } else if (obj instanceof Field ) {
-                    Field field = (Field)obj;
-                    Log.info("Field name=%s type=%s", field.getName(), field.getType());
-                    String fieldType = field.getType();
-                    String fieldName = sanitize(field.getName());
-
-                    if (fieldType.equals("*") && field.getRequires() != null) {
-                        fieldType = packagePrefix + "." + interfaces + "." + toJavaClassName(field.getRequires());
-                        Log.info("Trying required type %s", fieldType);
-                    } else {
-                        while (!mapping.containsKey(fieldType)) {
-                            fieldType = restrictedMapping.get(fieldType);
-                            if (fieldType == null) {
-                                break;
-                            }
-                            Log.info("Trying field type %s for field %s", fieldType, fieldName);
-                        }
-                    }
-
-                    if (fieldType == null) {
-                        fieldType = compositeMapping.get(field.getType());
-                    }
-
-                    if (fieldType != null) {
-
-                        boolean array = false;
-                        if (field.getMultiple() != null && field.getMultiple().equals("true")) {
-                            array = true;
-                        }
-
-                        Class clazz = mapping.get(fieldType);
-                        JClass c = null;
-                        if (clazz == null) {
-                            c = cm._getClass(fieldType);
-                            if (c == null) {
-                                c = cm._class(fieldType);
-                            }
-                        } else {
-                            c = cm.ref(clazz.getName());
-                        }
-                        if (array) {
-                            c = c.array();
-                        }
-                        Log.info("%s %s", c.binaryName(), fieldName);
-                        JFieldVar fieldVar = cls.field(JMod.PROTECTED, c, fieldName);
-
-                        String doc = field.getName() + ":" + field.getType();
-
-                        if (field.getLabel() != null) {
-                            doc += " - " + field.getLabel();
-                        }
-                        fieldVar.javadoc().add(doc);
-
-                    } else {
-                        Log.info("Skipping field %s, type not found", field.getName());
-                    }
-                }
-            }
-        }
-    }
-
-
-    private void parseXML() throws JAXBException, SAXException, ParserConfigurationException, IOException {
-        JAXBContext jc = JAXBContext.newInstance(Amqp.class.getPackage().getName());
-        for (File inputFile : inputFiles) {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-
-            // JAXB has some namespace handling problems:
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            SAXParserFactory parserFactory;
-            parserFactory = SAXParserFactory.newInstance();
-            parserFactory.setNamespaceAware(false);
-            XMLReader xmlreader = parserFactory.newSAXParser().getXMLReader();
-            xmlreader.setEntityResolver(new EntityResolver(){
-                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                    InputSource is = null;
-                    if( systemId!=null && systemId.endsWith("amqp.dtd") ) {
-                        is = new InputSource();
-                        is.setPublicId(publicId);
-                        is.setSystemId(Generator.class.getResource("amqp.dtd").toExternalForm());
-                    }
-                    return is;
-                }
-            });
-
-            Source er = new SAXSource(xmlreader, new InputSource(reader));
-
-            // Amqp amqp = (Amqp) unmarshaller.unmarshal(new StreamSource(new
-            // File(inputFile)), Amqp.class).getValue();
-            Amqp amqp = (Amqp) unmarshaller.unmarshal(er);
-
-            // Scan document:
-            for (Object docOrSection : amqp.getDocOrSection()) {
-                if (docOrSection instanceof Section ) {
-                    Section section = (Section) docOrSection;
-
-                    for (Object docOrDefinitionOrType : section.getDocOrDefinitionOrType()) {
-                        if (docOrDefinitionOrType instanceof Type ) {
-                            Type type = (Type)docOrDefinitionOrType;
-
-                            Log.info("Section : %s - Type name=%s class=%s provides=%s source=%s", section.getName(),  type.getName(), type.getClazz(), type.getProvides(), type.getSource());
-
-                            classes.add(type.getClazz());
-                            sections.put(type.getName(), section.getName());
-
-                            if (type.getProvides() != null) {
-                                provides.add(type.getProvides());
-                            }
-
-                            if (type.getClazz().startsWith("primitive")) {
-                                primitives.add(type);
-                            } else if (type.getClazz().startsWith("restricted")) {
-                                restricted.add(type);
-                                restrictedMapping.put(type.getName(), type.getSource());
-                            } else if (type.getClazz().startsWith("composite")) {
-                                compositeMapping.put(type.getName(), packagePrefix + "." + types + "." + toJavaClassName(type.getName()));
-                                composites.add(type);
-                            }
-
-                        } else if (docOrDefinitionOrType instanceof Definition ) {
-
-                            Definition def = (Definition) docOrDefinitionOrType;
-                            definitions.add(def);
-                            //DEFINITIONS.put(def.getName(), new AmqpDefinition(def));
-                        }
-                    }
-                }
-            }
-            reader.close();
         }
     }
 
@@ -307,14 +133,6 @@ public class Generator {
 
         Log.info("");
         Log.info("Provides : %s", provides);
-    }
-
-    private void generateAbstractBases() throws JClassAlreadyExistsException, IOException {
-        for (String base : provides) {
-            String pkg = packagePrefix + "." + interfaces + ".";
-            String name = pkg + toJavaClassName(base);
-            JDefinedClass cls = cm._class(name, ClassType.INTERFACE);
-        }
     }
 
     private void generateDefinitions() throws Exception {
@@ -355,6 +173,58 @@ public class Generator {
 
     public void setPackagePrefix(String packagePrefix) {
         this.packagePrefix = packagePrefix;
+    }
+
+    public JCodeModel getCm() {
+        return cm;
+    }
+
+    public String getInterfaces() {
+        return interfaces;
+    }
+
+    public String getTypes() {
+        return types;
+    }
+
+    public HashSet<Definition> getDefinitions() {
+        return definitions;
+    }
+
+    public HashSet<Type> getPrimitives() {
+        return primitives;
+    }
+
+    public HashSet<Type> getComposites() {
+        return composites;
+    }
+
+    public HashSet<Type> getRestricted() {
+        return restricted;
+    }
+
+    public HashSet<String> getProvides() {
+        return provides;
+    }
+
+    public HashSet<String> getClasses() {
+        return classes;
+    }
+
+    public HashMap<String, String> getRestrictedMapping() {
+        return restrictedMapping;
+    }
+
+    public HashMap<String, String> getCompositeMapping() {
+        return compositeMapping;
+    }
+
+    public HashMap<String, String> getSections() {
+        return sections;
+    }
+
+    public HashMap<String, Class> getMapping() {
+        return mapping;
     }
 
 }
