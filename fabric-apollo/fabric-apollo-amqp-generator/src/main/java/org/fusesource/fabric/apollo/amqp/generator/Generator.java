@@ -57,6 +57,8 @@ public class Generator {
     private HashMap<String, Class> mapping = new HashMap<String, Class>();
 
     JCodeModel cm = new JCodeModel();
+    private String interfaces = "interfaces";
+    private String types = "types";
 
     public Generator() {
         mapping.put("null", null);
@@ -112,9 +114,10 @@ public class Generator {
 
     private void generateDescribedTypes() throws Exception {
         for(Type type : composites) {
-            String sectionPackage = sanitize(sections.get(type.getName()));
+            //String sectionPackage = sanitize(sections.get(type.getName()));
             String name = toJavaClassName(type.getName());
-            name = packagePrefix + "." + sectionPackage + "." + name;
+            //name = packagePrefix + "." + sectionPackage + "." + name;
+            name = packagePrefix + "." + types + "." + name;
 
             JDefinedClass cls = cm._getClass(name);
             if (cls == null) {
@@ -122,21 +125,34 @@ public class Generator {
             }
 
             if (type.getProvides() != null && !type.getProvides().equals(type.getName())) {
-                cls._implements(cm.ref(packagePrefix + ".common." + toJavaClassName(type.getProvides())));
+                cls._implements(cm.ref(packagePrefix + "." + interfaces + "." + toJavaClassName(type.getProvides())));
             }
 
             Log.info("");
             Log.info("Generating %s", cls.binaryName());
 
             for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
-                if (obj instanceof Field ) {
+                if (obj instanceof Descriptor) {
+                    Descriptor desc = (Descriptor)obj;
+                    int mods = JMod.PUBLIC | JMod.STATIC | JMod.FINAL;
+                    cls.field(mods, String.class, "SYMBOLIC_ID", JExpr.lit(desc.getName()));
+
+                    String code = desc.getCode();
+                    String category = code.split(":")[0];
+                    String descriptorId = code.split(":")[1];
+
+                    cls.field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
+                    cls.field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
+                    cls.field(mods, long.class, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
+
+                } else if (obj instanceof Field ) {
                     Field field = (Field)obj;
                     Log.info("Field name=%s type=%s", field.getName(), field.getType());
                     String fieldType = field.getType();
                     String fieldName = sanitize(field.getName());
 
                     if (fieldType.equals("*") && field.getRequires() != null) {
-                        fieldType = packagePrefix + ".common." + toJavaClassName(field.getRequires());
+                        fieldType = packagePrefix + "." + interfaces + "." + toJavaClassName(field.getRequires());
                         Log.info("Trying required type %s", fieldType);
                     } else {
                         while (!mapping.containsKey(fieldType)) {
@@ -173,7 +189,15 @@ public class Generator {
                             c = c.array();
                         }
                         Log.info("%s %s", c.binaryName(), fieldName);
-                        cls.field(0, c, fieldName);
+                        JFieldVar fieldVar = cls.field(JMod.PROTECTED, c, fieldName);
+
+                        String doc = field.getName() + ":" + field.getType();
+
+                        if (field.getLabel() != null) {
+                            doc += " - " + field.getLabel();
+                        }
+                        fieldVar.javadoc().add(doc);
+
                     } else {
                         Log.info("Skipping field %s, type not found", field.getName());
                     }
@@ -236,7 +260,7 @@ public class Generator {
                                 restricted.add(type);
                                 restrictedMapping.put(type.getName(), type.getSource());
                             } else if (type.getClazz().startsWith("composite")) {
-                                compositeMapping.put(type.getName(), packagePrefix + "." + sanitize(section.getName() + "." + toJavaClassName(type.getName())));
+                                compositeMapping.put(type.getName(), packagePrefix + "." + types + "." + toJavaClassName(type.getName()));
                                 composites.add(type);
                             }
 
@@ -287,7 +311,7 @@ public class Generator {
 
     private void generateAbstractBases() throws JClassAlreadyExistsException, IOException {
         for (String base : provides) {
-            String pkg = packagePrefix + ".common.";
+            String pkg = packagePrefix + "." + interfaces + ".";
             String name = pkg + toJavaClassName(base);
             JDefinedClass cls = cm._class(name, ClassType.INTERFACE);
         }
@@ -300,7 +324,7 @@ public class Generator {
         for(Definition def : definitions) {
             Log.info("Adding field %s with value %s", def.getName(), def.getValue());
             JFieldVar field = defs.field(JMod.PUBLIC | JMod.STATIC, java.lang.String.class, toStaticName(def.getName()), JExpr.lit(def.getValue()));
-            field.javadoc().addXdoclet(def.getLabel());
+            field.javadoc().add(def.getLabel());
         }
     }
 
