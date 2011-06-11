@@ -25,10 +25,10 @@ import org.fusesource.fabric.apollo.amqp.api._
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, Sink}
 import org.fusesource.fabric.apollo.amqp.codec._
 import java.net.URI
-import java.util.concurrent.TimeUnit
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import AmqpConversions._
 import org.apache.activemq.apollo.util.{URISupport, Logging}
+import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 /**
  *
@@ -56,9 +56,9 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
 
   var dispatchQueue: DispatchQueue =  Dispatch.createQueue
 
-  var outbound_sessions: SinkMux[AnyRef] = null
-  var connection_session: Sink[AnyRef] = null
-  var transport_sink:TransportSink = null
+  var session_manager: SinkMux[AnyRef] = null
+  var connection_sink: Sink[AnyRef] = null
+  var transport_sink: TransportSink = null
 
   var containerId: String = null
   var peerContainerId: String = null
@@ -331,7 +331,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
           heartbeat_monitor.on_keep_alive = () => {
             val frame = new AmqpFrame
             frame.setType(AmqpFrame.AMQP_FRAME_TYPE)
-            connection_session.offer(frame)
+            connection_sink.offer(frame)
           }
           heartbeat_monitor.start
         case None =>
@@ -436,15 +436,10 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   }
 
   def doSend(frame:AnyRef) = {
-    if ( getCurrentQueue != dispatchQueue ) {
-      var rc = false
-      dispatchQueue !! {
-        rc = connection_session.offer(frame)
-      }
-      rc
-    } else {
-      connection_session.offer(frame)
+    dispatchQueue << ^{
+      connection_sink.offer(frame)
     }
+    true
   }
 
   def getContainerId = containerId
@@ -476,12 +471,12 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
 
   def onTransportConnected: Unit = {
     trace("Connected to %s:/%s", transport.getTypeId, transport.getRemoteAddress)
-    outbound_sessions = new SinkMux[AnyRef](transport_sink.map {
+    session_manager = new SinkMux[AnyRef](transport_sink.map {
       x =>
         x
     }, dispatchQueue, AmqpCodec)
-    connection_session = new OverflowSink(outbound_sessions.open(dispatchQueue));
-    connection_session.refiller = NOOP
+    connection_sink = new OverflowSink(session_manager.open(dispatchQueue));
+    connection_sink.refiller = NOOP
     header(null)
     transport.resumeRead
   }
