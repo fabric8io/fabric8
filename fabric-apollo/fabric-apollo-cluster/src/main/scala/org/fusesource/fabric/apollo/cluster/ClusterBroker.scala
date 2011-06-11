@@ -23,7 +23,7 @@ import collection.mutable.HashMap
 import org.apache.activemq.apollo.broker.protocol.{ProtocolHandler, AnyProtocol}
 import org.fusesource.fabric.apollo.cluster.util.{HashRing, Hasher}
 import org.fusesource.fabric.groups.{ChangeListener, Group}
-import org.apache.activemq.apollo.dto.JsonCodec
+import org.apache.activemq.apollo.dto.{ConnectorDTO, JsonCodec}
 
 object ClusterBroker extends Log {
 }
@@ -93,6 +93,10 @@ class ClusterBroker(override val id:String, val cluster:Group) extends Broker {
         case error:IOException => on_complete(Failure(error))
       }
     }
+
+    def update(config: ConnectorDTO, on_complete: Runnable) = {
+      on_complete.run()
+    }
   }
 
   var cluster_weight = 16
@@ -106,7 +110,7 @@ class ClusterBroker(override val id:String, val cluster:Group) extends Broker {
     }
     hash_ring = create_hash_ring()
     super._start(^{
-      connectors ::= cluster_connector
+      connectors.put(cluster_connector.id, cluster_connector)
       update_cluster_state
       cluster.add(cluster_listener)
       cluster_connector.start(on_completed)
@@ -117,7 +121,7 @@ class ClusterBroker(override val id:String, val cluster:Group) extends Broker {
     cluster.remove(cluster_listener)
     cluster.leave(id)
     cluster_connector.stop(^{
-      connectors = connectors.filterNot(_ == cluster_connector)
+      connectors.remove(cluster_connector.id)
       super._stop(on_completed)
     })
   }
