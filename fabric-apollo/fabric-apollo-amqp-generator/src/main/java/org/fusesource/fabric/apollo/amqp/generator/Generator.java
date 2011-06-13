@@ -11,11 +11,13 @@
 package org.fusesource.fabric.apollo.amqp.generator;
 
 import com.sun.codemodel.*;
-import org.fusesource.fabric.apollo.amqp.jaxb.schema.Choice;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Definition;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.Encoding;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
 import org.fusesource.hawtbuf.Buffer;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
@@ -34,22 +36,34 @@ public class Generator {
     private String packagePrefix;
 
     private HashSet<Definition> definitions = new HashSet<Definition>();
-    private HashSet<Type> primitives = new HashSet<Type>();
-    private HashSet<Type> composites = new HashSet<Type>();
-    private HashSet<Type> restricted = new HashSet<Type>();
-    private HashSet<String> provides = new HashSet<String>();
-    private HashSet<String> classes = new HashSet<String>();
-    private HashMap<String, String> restrictedMapping = new HashMap<String, String>();
-    private HashMap<String, String> compositeMapping = new HashMap<String, String>();
-    private HashMap<String, String> sections = new HashMap<String, String>();
-    private HashMap<String, Class> mapping = new HashMap<String, Class>();
+
+    private TreeMap<String, Type> primitives = new TreeMap<String, Type>();
+    private TreeMap<String, Type> composites = new TreeMap<String, Type>();
+    private TreeMap<String, Type> restricted = new TreeMap<String, Type>();
+    private TreeMap<String, Type> described = new TreeMap<String, Type>();
+    private TreeMap<String, Type> enums = new TreeMap<String, Type>();
+
+    private TreeSet<String> provides = new TreeSet<String>();
+    private TreeSet<String> requires = new TreeSet<String>();
+    private TreeMap<String, String> requiresMapping = new TreeMap<String, String>();
+
+    private TreeMap<String, String> restrictedMapping = new TreeMap<String, String>();
+
+    private TreeMap<String, String> describedJavaClass = new TreeMap<String, String>();
+
+    private TreeSet<String> classes = new TreeSet<String>();
+
+    private TreeMap<String, String> sections = new TreeMap<String, String>();
+    private TreeMap<String, Class> mapping = new TreeMap<String, Class>();
 
     JCodeModel cm = new JCodeModel();
     private String interfaces = "interfaces";
     private String types = "types";
 
+    private String primitiveEncoder;
+
     private final XmlDefinitionParser xmlDefinitionParser = new XmlDefinitionParser(this);
-    private final CompositeTypeGenerator compositeTypeGenerator = new CompositeTypeGenerator(this);
+    private final DescribedTypeGenerator describedTypeGenerator = new DescribedTypeGenerator(this);
     private final InterfaceGenerator interfaceGenerator = new InterfaceGenerator(this);
 
     public Generator() {
@@ -80,20 +94,40 @@ public class Generator {
         mapping.put("array", Object[].class);
     }
 
+    public File getSourceDirectory() {
+        return sourceDirectory;
+    }
+
+    public TreeMap<String, String> getRequiresMapping() {
+        return requiresMapping;
+    }
+
+    public TreeMap<String, String> getDescribedJavaClass() {
+        return describedJavaClass;
+    }
+
     public void generate() throws Exception {
+
+        primitiveEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "PrimitiveEncoder";
 
         xmlDefinitionParser.parseXML();
 
-        log();
+        buildRestrictedTypeMapping();
+
+        generatePrimitiveEncoderDecoder();
+
+        Log.info("\n%s", this);
 
         outputDirectory.mkdirs();
 
         try {
             interfaceGenerator.generateAbstractBases();
+            describedTypeGenerator.createDescribedClasses(this);
 
-            generateEnumTypes();
 
-            compositeTypeGenerator.generateDescribedTypes();
+            //generateEnumTypes();
+
+            describedTypeGenerator.generateDescribedTypes();
 
             generateDefinitions();
 
@@ -107,6 +141,68 @@ public class Generator {
         }
     }
 
+    private void generatePrimitiveEncoderDecoder() throws JClassAlreadyExistsException {
+        JDefinedClass enc = cm._class(primitiveEncoder, ClassType.INTERFACE);
+
+        for (String key : primitives.keySet()) {
+            Log.info("Adding encoder methods for type %s", key);
+            Type type = primitives.get(key);
+
+            for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
+                if (obj instanceof Encoding ) {
+                    Encoding encoding = (Encoding) obj;
+
+                    String methodName = type.getName();
+                    if (encoding.getName() != null) {
+                        methodName += toJavaClassName(encoding.getName());
+                    }
+                    methodName = toJavaClassName(methodName);
+                    Log.info("Writing encode/decode methods for type %s encoding %s using method name %s", type.getName(), encoding.getName(), methodName);
+
+                    int mods = JMod.PUBLIC;
+
+                    if (!type.getName().equals("null")) {
+                        JMethod encMethod = enc.method(mods, cm.VOID, "encode" + methodName);
+                        encMethod.param(mapping.get(type.getName()), "value");
+                        encMethod.param(org.fusesource.hawtbuf.Buffer.class, "buffer");
+                        encMethod.param(java.lang.Integer.class, "offset");
+
+                        JMethod decMethod = enc.method(mods, mapping.get(type.getName()), "decode" + methodName);
+                        decMethod.param(org.fusesource.hawtbuf.Buffer.class, "buffer");
+                        decMethod.param(java.lang.Integer.class, "offset");
+
+                        JMethod readMethod = enc.method(mods, mapping.get(type.getName()), "read" + methodName);
+                        readMethod.param(DataInput.class, "in");
+
+                        JMethod writeMethod = enc.method(mods, cm.VOID, "write" + methodName);
+                        writeMethod.param(mapping.get(type.getName()), "value");
+                        writeMethod.param(DataOutput.class, "out");
+                    }
+
+                }
+            }
+        }
+    }
+
+    private void buildRestrictedTypeMapping() {
+        for (String key : restricted.keySet()) {
+            Type type = restricted.get(key);
+
+            String source = type.getSource();
+            while (!mapping.containsKey(source)) {
+                Type t = restricted.get(source);
+                if (t == null) {
+                    Log.info("Skipping restricted type %s with source %s, no primitive type found", t.getName(), source);
+                    source = "*";
+                    break;
+                }
+                source = t.getSource();
+            }
+            restrictedMapping.put(type.getName(), source);
+        }
+    }
+
+    /*
     private void generateEnumTypes() throws JClassAlreadyExistsException {
         for(Type type : restricted) {
             List<Object> children = type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc();
@@ -147,37 +243,42 @@ public class Generator {
             }
         }
     }
+*/
+    public String toString() {
+        StringBuilder rc = new StringBuilder();
 
-    private void log() {
-        Log.info("");
-        Log.info("Type classes : ");
-        for(String type : classes) {
-            Log.info("Type : %s", type);
+        rc.append(String.format("Type classes : %s", classes));
+        rc.append("\n");
+        rc.append("\n");
+        rc.append(String.format("Primitive types : %s", names(primitives)));
+        rc.append("\n");
+        rc.append("\n");
+        rc.append(String.format("Restricted types : %s", names(restricted)));
+        rc.append("\n");
+        rc.append("\n");
+        rc.append("Restricted mapping : \n");
+        for (String key : restrictedMapping.keySet()) {
+            String value = restrictedMapping.get(key);
+            rc.append(String.format("%s = %s\n", key, value));
         }
+        rc.append("\n");
+        rc.append("\n");
+        rc.append(String.format("Composite types : %s", names(composites)));
+        rc.append("\n");
+        rc.append("\n");
+        rc.append(String.format("Described types : %s", names(described)));
+        rc.append("\n");
+        rc.append("\n");
+        rc.append(String.format("Provides : %s", provides));
+        rc.append("\n");
+        rc.append("\n");
+        rc.append(String.format("Requires : %s", requires));
+        rc.append("\n");
+        return rc.toString();
+    }
 
-        Log.info("");
-        Log.info("Primitive types : ");
-        for(Type type : primitives) {
-            Log.info("Type : %s", type.getName());
-        }
-
-        Log.info("");
-        Log.info("Restricted types : ");
-        for(Type type : restricted) {
-            Log.info("Type : %s, source : %s", type.getName(), type.getSource());
-        }
-
-        Log.info("");
-        Log.info("Composite types : ");
-        for(Type type : composites) {
-            Log.info("Type : %s", type.getName());
-            if (type.getProvides() != null) {
-                Log.info("\tProvides : %s", type.getProvides());
-            }
-        }
-
-        Log.info("");
-        Log.info("Provides : %s", provides);
+    private String names(Map<String, Type> set) {
+        return set.keySet().toString();
     }
 
     private void generateDefinitions() throws Exception {
@@ -232,43 +333,51 @@ public class Generator {
         return types;
     }
 
-    public HashSet<Definition> getDefinitions() {
-        return definitions;
-    }
-
-    public HashSet<Type> getPrimitives() {
-        return primitives;
-    }
-
-    public HashSet<Type> getComposites() {
-        return composites;
-    }
-
-    public HashSet<Type> getRestricted() {
-        return restricted;
-    }
-
-    public HashSet<String> getProvides() {
-        return provides;
-    }
-
-    public HashSet<String> getClasses() {
-        return classes;
-    }
-
-    public HashMap<String, String> getRestrictedMapping() {
+    public Map<String, String> getRestrictedMapping() {
         return restrictedMapping;
     }
 
-    public HashMap<String, String> getCompositeMapping() {
-        return compositeMapping;
+    public Map<String, Type> getEnums() {
+        return enums;
     }
 
-    public HashMap<String, String> getSections() {
+    public Map<String, Type> getDescribed() {
+        return described;
+    }
+
+    public Set<String> getRequires() {
+        return requires;
+    }
+
+    public Set<Definition> getDefinitions() {
+        return definitions;
+    }
+
+    public Map<String, Type> getPrimitives() {
+        return primitives;
+    }
+
+    public Map<String, Type> getComposites() {
+        return composites;
+    }
+
+    public Map<String, Type> getRestricted() {
+        return restricted;
+    }
+
+    public Set<String> getProvides() {
+        return provides;
+    }
+
+    public Set<String> getClasses() {
+        return classes;
+    }
+
+    public Map<String, String> getSections() {
         return sections;
     }
 
-    public HashMap<String, Class> getMapping() {
+    public Map<String, Class> getMapping() {
         return mapping;
     }
 

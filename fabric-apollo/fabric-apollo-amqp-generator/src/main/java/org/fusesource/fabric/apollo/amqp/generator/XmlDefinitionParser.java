@@ -1,9 +1,6 @@
 package org.fusesource.fabric.apollo.amqp.generator;
 
-import org.fusesource.fabric.apollo.amqp.jaxb.schema.Amqp;
-import org.fusesource.fabric.apollo.amqp.jaxb.schema.Definition;
-import org.fusesource.fabric.apollo.amqp.jaxb.schema.Section;
-import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
+import org.fusesource.fabric.apollo.amqp.jaxb.schema.*;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -71,18 +68,33 @@ public class XmlDefinitionParser {
                             generator.getClasses().add(type.getClazz());
                             generator.getSections().put(type.getName(), section.getName());
 
+                            for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
+                                if (obj instanceof Descriptor ) {
+                                    generator.getDescribed().put(type.getName(), type);
+                                }
+                                if (obj instanceof Choice) {
+                                    generator.getEnums().put(type.getName(), type);
+                                }
+                                if (obj instanceof Field) {
+                                    Field field  = (Field)obj;
+                                    if (field.getRequires() != null) {
+                                        generator.getRequires().add(field.getRequires());
+                                    }
+                                }
+                            }
+
                             if ( type.getProvides() != null ) {
                                 generator.getProvides().add(type.getProvides());
                             }
 
                             if ( type.getClazz().startsWith("primitive") ) {
-                                generator.getPrimitives().add(type);
+                                generator.getPrimitives().put(type.getName(), type);
                             } else if ( type.getClazz().startsWith("restricted") ) {
-                                generator.getRestricted().add(type);
-                                generator.getRestrictedMapping().put(type.getName(), type.getSource());
+                                generator.getRestricted().put(type.getName(), type);
+                                //generator.getRestrictedMapping().put(type.getName(), type.getSource());
                             } else if ( type.getClazz().startsWith("composite") ) {
-                                generator.getCompositeMapping().put(type.getName(), generator.getPackagePrefix() + "." + generator.getTypes() + "." + Utilities.toJavaClassName(type.getName()));
-                                generator.getComposites().add(type);
+                                //generator.getCompositeMapping().put(type.getName(), generator.getPackagePrefix() + "." + generator.getTypes() + "." + Utilities.toJavaClassName(type.getName()));
+                                generator.getComposites().put(type.getName(), type);
                             }
 
                         } else if ( docOrDefinitionOrType instanceof Definition ) {
