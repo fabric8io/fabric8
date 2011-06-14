@@ -4,6 +4,7 @@ import com.sun.codemodel.*;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Descriptor;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Field;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
+import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
 
 import java.util.Set;
@@ -48,10 +49,16 @@ public class DescribedTypeGenerator {
             decodeFrom.param(generator.getCm().INT, "size");
             decodeFrom.param(generator.getCm().INT, "count");
 
+            write.body().add(JExpr.ref("out").invoke("writeByte").arg(generator.registry().cls().staticRef("DESCRIBED_FORMAT_CODE")));
+            write.body().add(generator.registry().cls().staticInvoke("encoder").invoke("writeSymbol").arg(JExpr.ref("SYMBOLIC_ID")).arg(JExpr.ref("out")));
+
+
             Type type = generator.getDescribed().get(key);
 
             Log.info("");
             Log.info("Generating %s", cls.binaryName());
+
+            int count = 0;
 
             for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
                 if ( obj instanceof Field ) {
@@ -106,12 +113,15 @@ public class DescribedTypeGenerator {
                         JMethod setter = cls.method(JMod.PUBLIC, generator.getCm().VOID, "set" + toJavaClassName(fieldName));
                         JVar param = setter.param(fieldVar.type(), fieldName);
                         setter.body().assign(JExpr._this().ref(fieldVar), param);
+                        count++;
 
                     } else {
                         Log.info("Skipping field %s, type not found", field.getName());
                     }
                 }
             }
+
+            cls.method(JMod.PUBLIC, generator.getCm().INT, "count").body()._return(JExpr.lit(count));
         }
 
     }
@@ -133,7 +143,7 @@ public class DescribedTypeGenerator {
                 if ( obj instanceof Descriptor ) {
                     Descriptor desc = (Descriptor) obj;
                     int mods = JMod.PUBLIC | JMod.STATIC | JMod.FINAL;
-                    cls.field(mods, String.class, "SYMBOLIC_ID", JExpr.lit(desc.getName()));
+                    cls.field(mods, Buffer.class, "SYMBOLIC_ID", JExpr._new(generator.getCm().ref(AsciiBuffer.class)).arg(desc.getName()));
 
                     String code = desc.getCode();
                     String category = code.split(":")[0];

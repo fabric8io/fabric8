@@ -58,18 +58,14 @@ public class Generator {
 
     JCodeModel cm = new JCodeModel();
 
-    JClass mapLongClass = cm.ref(Map.class).narrow(Long.class, Class.class);
-    JClass mapStringClass = cm.ref(Map.class).narrow(String.class, Class.class);
-    JClass hashMapLongClass = cm.ref(HashMap.class).narrow(Long.class, Class.class);
-    JClass hashMapStringClass = cm.ref(HashMap.class).narrow(String.class, Class.class);
-
     private String interfaces = "interfaces";
     private String types = "types";
     private String marshaller = "marshaller";
 
     private String primitiveEncoder;
     private String baseEncoder;
-    private String typeRegistry;
+
+    private TypeRegistry registry;
 
     private final XmlDefinitionParser xmlDefinitionParser = new XmlDefinitionParser(this);
     private final DescribedTypeGenerator describedTypeGenerator = new DescribedTypeGenerator(this);
@@ -119,19 +115,19 @@ public class Generator {
 
         primitiveEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "PrimitiveEncoder";
         baseEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "BaseEncoder";
-        typeRegistry = getPackagePrefix() + "." + getMarshaller() + "." + "TypeRegistry";
+        String typeRegistry = getPackagePrefix() + "." + getMarshaller() + "." + "TypeRegistry";
 
         xmlDefinitionParser.parseXML();
 
         buildRestrictedTypeMapping();
 
         generatePrimitiveEncoderDecoder();
-        JDefinedClass marshaller = generateTypeRegistry();
-        marshaller.field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cm._getClass(baseEncoder), "ENCODER", JExpr.direct("Encoder.instance()"));
-        JMethod singletonAccessor = marshaller.method(JMod.PUBLIC | JMod.STATIC, cm._getClass(baseEncoder), "encoder");
-        singletonAccessor.body()._return(JExpr.ref("ENCODER"));
 
-        JBlock marshallerInit = marshaller.init();
+        registry = new TypeRegistry(cm, typeRegistry);
+
+        registry.cls().field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cm._getClass(baseEncoder), "ENCODER", JExpr.direct("Encoder.instance()"));
+        JMethod singletonAccessor = registry.cls().method(JMod.PUBLIC | JMod.STATIC, cm._getClass(baseEncoder), "encoder");
+        singletonAccessor.body()._return(JExpr.ref("ENCODER"));
 
         Log.info("\n%s", this);
 
@@ -141,21 +137,20 @@ public class Generator {
             interfaceGenerator.generateAbstractBases();
             describedTypeGenerator.createDescribedClasses(this);
 
-
             //generateEnumTypes();
 
             describedTypeGenerator.generateDescribedTypes();
 
-            JMethod formatCodeMap = marshaller.getMethod("getFormatCodeMap", new JType[]{});
-            JMethod symbolicCodeMap = marshaller.getMethod("getSymbolicCodeMap", new JType[]{});
+            JMethod formatCodeMap = registry.cls().getMethod("getFormatCodeMap", new JType[]{});
+            JMethod symbolicCodeMap = registry.cls().getMethod("getSymbolicCodeMap", new JType[]{});
 
             for(String key : describedJavaClass.keySet()) {
                 String value = describedJavaClass.get(key);
                 JDefinedClass clazz = cm._getClass(value);
-                marshallerInit.add(JExpr._new(clazz));
+                registry.cls().init().add(JExpr._new(clazz));
 
-                clazz.init().add(marshaller.staticInvoke("instance").invoke("getFormatCodeMap").invoke("put").arg(clazz.fields().get("NUMERIC_ID")).arg(clazz.dotclass()));
-                clazz.init().add(marshaller.staticInvoke("instance").invoke("getSymbolicCodeMap").invoke("put").arg(clazz.fields().get("SYMBOLIC_ID")).arg(clazz.dotclass()));
+                clazz.init().add(registry.cls().staticInvoke("instance").invoke("getFormatCodeMap").invoke("put").arg(clazz.fields().get("NUMERIC_ID")).arg(clazz.dotclass()));
+                clazz.init().add(registry.cls().staticInvoke("instance").invoke("getSymbolicCodeMap").invoke("put").arg(clazz.fields().get("SYMBOLIC_ID")).arg(clazz.dotclass()));
             }
 
             generateDefinitions();
@@ -168,25 +163,6 @@ public class Generator {
             }
             throw e;
         }
-    }
-
-    private JDefinedClass generateTypeRegistry() throws JClassAlreadyExistsException, ClassNotFoundException {
-        JDefinedClass marshaller = cm._class(this.typeRegistry);
-
-        JFieldVar singleton = marshaller.field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, (JType) marshaller, "SINGLETON", JExpr._new(marshaller));
-        JFieldVar formatCodeMap = marshaller.field(JMod.PROTECTED | JMod.FINAL, mapLongClass, "formatCodeMap", JExpr._new(hashMapLongClass));
-        JFieldVar symbolicCodeMap = marshaller.field(JMod.PROTECTED | JMod.FINAL, mapStringClass, "symbolicCodeMap", JExpr._new(hashMapStringClass));
-
-        JMethod singletonAccessor = marshaller.method(JMod.PUBLIC | JMod.STATIC, marshaller, "instance");
-        singletonAccessor.body()._return(JExpr.ref("SINGLETON"));
-
-        JMethod formatCodeMapGetter = marshaller.method(JMod.PUBLIC, mapLongClass, "getFormatCodeMap");
-        formatCodeMapGetter.body()._return(JExpr.ref("formatCodeMap"));
-
-        JMethod symbolicCodeMapGetter = marshaller.method(JMod.PUBLIC, mapStringClass, "getSymbolicCodeMap");
-        symbolicCodeMapGetter.body()._return(JExpr.ref("symbolicCodeMap"));
-
-        return marshaller;
     }
 
     private void generatePrimitiveEncoderDecoder() throws JClassAlreadyExistsException {
@@ -203,10 +179,12 @@ public class Generator {
         encMethod.param(cm.INT, "offset");
 
         JMethod decMethod = baseEnc.method(mods, cm.ref("java.lang.Object"), "decodeAny");
+        decMethod.param(cm.BYTE, "formatCode");
         decMethod.param(Buffer.class, "buffer");
         decMethod.param(cm.INT, "offset");
 
         JMethod readMethod = baseEnc.method(mods, cm.ref("java.lang.Object"), "readAny");
+        readMethod.param(cm.BYTE, "formatCode");
         readMethod.param(DataInput.class, "in");
 
         JMethod writeMethod = baseEnc.method(mods, cm.VOID, "writeAny");
@@ -250,10 +228,12 @@ public class Generator {
         encMethod.param(cm.INT, "offset");
 
         JMethod decMethod = clazz.method(mods, mapping.get(type.getName()), "decode" + methodName);
+        decMethod.param(cm.BYTE, "formatCode");
         decMethod.param(Buffer.class, "buffer");
         decMethod.param(cm.INT, "offset");
 
         JMethod readMethod = clazz.method(mods, mapping.get(type.getName()), "read" + methodName);
+        readMethod.param(cm.BYTE, "formatCode");
         readMethod.param(DataInput.class, "in");
 
         JMethod writeMethod = clazz.method(mods, cm.VOID, "write" + methodName);
@@ -461,4 +441,9 @@ public class Generator {
     public String getMarshaller() {
         return marshaller;
     }
+
+    public TypeRegistry registry() {
+        return registry;
+    }
+
 }

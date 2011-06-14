@@ -37,11 +37,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object decodeAny(Buffer buffer, int offset) {
+    public Object decodeAny(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object readAny(DataInput in) {
+    public Object readAny(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -53,11 +53,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] decodeArray(Buffer buffer, int offset) {
+    public Object[] decodeArray(byte formatCode, Buffer buffer, int offset) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] readArray(DataInput in) {
+    public Object[] readArray(byte formatCode, DataInput in) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -69,11 +69,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeBinary(Buffer buffer, int offset) {
+    public Buffer decodeBinary(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readBinary(DataInput in) {
+    public Buffer readBinary(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -85,11 +85,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Boolean decodeBoolean(Buffer buffer, int offset) {
+    public Boolean decodeBoolean(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Boolean readBoolean(DataInput in) {
+    public Boolean readBoolean(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -101,11 +101,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte decodeByte(Buffer buffer, int offset) {
+    public Byte decodeByte(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte readByte(DataInput in) {
+    public Byte readByte(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -117,11 +117,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Character decodeChar(Buffer buffer, int offset) {
+    public Character decodeChar(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Character readChar(DataInput in) {
+    public Character readChar(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -133,11 +133,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal128(Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal128(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal128(DataInput in) {
+    public BigDecimal readDecimal128(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -149,11 +149,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal32(Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal32(DataInput in) {
+    public BigDecimal readDecimal32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -165,11 +165,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal64(Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal64(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal64(DataInput in) {
+    public BigDecimal readDecimal64(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -181,11 +181,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Double decodeDouble(Buffer buffer, int offset) {
+    public Double decodeDouble(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Double readDouble(DataInput in) {
+    public Double readDouble(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -197,11 +197,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Float decodeFloat(Buffer buffer, int offset) {
+    public Float decodeFloat(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Float readFloat(DataInput in) {
+    public Float readFloat(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -213,11 +213,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeInt(Buffer buffer, int offset) {
+    public Integer decodeInt(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readInt(DataInput in) {
+    public Integer readInt(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -229,11 +229,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List decodeList(Buffer buffer, int offset) {
+    public List decodeList(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List readList(DataInput in) {
+    public List readList(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -245,11 +245,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeLong(Buffer buffer, int offset) {
+    public Long decodeLong(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readLong(DataInput in) {
+    public Long readLong(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -261,11 +261,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map decodeMap(Buffer buffer, int offset) {
+    public Map decodeMap(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map readMap(DataInput in) {
+    public Map readMap(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -277,11 +277,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short decodeShort(Buffer buffer, int offset) {
+    public Short decodeShort(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short readShort(DataInput in) {
+    public Short readShort(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -293,11 +293,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String decodeString(Buffer buffer, int offset) {
+    public String decodeString(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String readString(DataInput in) {
+    public String readString(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -309,11 +309,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeSymbol(Buffer buffer, int offset) {
+    public Buffer decodeSymbol(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readSymbol(DataInput in) {
+    public Buffer readSymbol(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -325,11 +325,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Date decodeTimestamp(Buffer buffer, int offset) {
+    public Date decodeTimestamp(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Date readTimestamp(DataInput in) {
+    public Date readTimestamp(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -341,11 +341,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte decodeUbyte(Buffer buffer, int offset) {
+    public Byte decodeUbyte(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte readUbyte(DataInput in) {
+    public Byte readUbyte(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -357,11 +357,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeUint(Buffer buffer, int offset) {
+    public Integer decodeUint(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUint(DataInput in) {
+    public Integer readUint(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -373,11 +373,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeUlong(Buffer buffer, int offset) {
+    public Long decodeUlong(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readUlong(DataInput in) {
+    public Long readUlong(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -389,11 +389,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short decodeUshort(Buffer buffer, int offset) {
+    public Short decodeUshort(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short readUshort(DataInput in) {
+    public Short readUshort(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -405,11 +405,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public UUID decodeUuid(Buffer buffer, int offset) {
+    public UUID decodeUuid(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public UUID readUuid(DataInput in) {
+    public UUID readUuid(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -421,11 +421,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] decodeArrayArray8(Buffer buffer, int offset) {
+    public Object[] decodeArrayArray8(byte formatCode, Buffer buffer, int offset) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] readArrayArray8(DataInput in) {
+    public Object[] readArrayArray8(byte formatCode, DataInput in) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -437,11 +437,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] decodeArrayArray32(Buffer buffer, int offset) {
+    public Object[] decodeArrayArray32(byte formatCode, Buffer buffer, int offset) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] readArrayArray32(DataInput in) {
+    public Object[] readArrayArray32(byte formatCode, DataInput in) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -453,11 +453,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeBinaryVbin8(Buffer buffer, int offset) {
+    public Buffer decodeBinaryVbin8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readBinaryVbin8(DataInput in) {
+    public Buffer readBinaryVbin8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -469,11 +469,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeBinaryVbin32(Buffer buffer, int offset) {
+    public Buffer decodeBinaryVbin32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readBinaryVbin32(DataInput in) {
+    public Buffer readBinaryVbin32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -485,11 +485,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Boolean decodeBooleanTrue(Buffer buffer, int offset) {
+    public Boolean decodeBooleanTrue(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Boolean readBooleanTrue(DataInput in) {
+    public Boolean readBooleanTrue(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -501,11 +501,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Boolean decodeBooleanFalse(Buffer buffer, int offset) {
+    public Boolean decodeBooleanFalse(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Boolean readBooleanFalse(DataInput in) {
+    public Boolean readBooleanFalse(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -517,11 +517,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Character decodeCharUtf32(Buffer buffer, int offset) {
+    public Character decodeCharUtf32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Character readCharUtf32(DataInput in) {
+    public Character readCharUtf32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -533,11 +533,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal128Ieee754(Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal128Ieee754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal128Ieee754(DataInput in) {
+    public BigDecimal readDecimal128Ieee754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -549,11 +549,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal32Ieee754(Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal32Ieee754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal32Ieee754(DataInput in) {
+    public BigDecimal readDecimal32Ieee754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -565,11 +565,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal64Ieee754(Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal64Ieee754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal64Ieee754(DataInput in) {
+    public BigDecimal readDecimal64Ieee754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -581,11 +581,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Double decodeDoubleIeee754(Buffer buffer, int offset) {
+    public Double decodeDoubleIeee754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Double readDoubleIeee754(DataInput in) {
+    public Double readDoubleIeee754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -597,11 +597,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Float decodeFloatIeee754(Buffer buffer, int offset) {
+    public Float decodeFloatIeee754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Float readFloatIeee754(DataInput in) {
+    public Float readFloatIeee754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -613,11 +613,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeIntSmallint(Buffer buffer, int offset) {
+    public Integer decodeIntSmallint(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readIntSmallint(DataInput in) {
+    public Integer readIntSmallint(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -629,11 +629,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List decodeListList8(Buffer buffer, int offset) {
+    public List decodeListList8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List readListList8(DataInput in) {
+    public List readListList8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -645,11 +645,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List decodeListList32(Buffer buffer, int offset) {
+    public List decodeListList32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List readListList32(DataInput in) {
+    public List readListList32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -661,11 +661,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeLongSmalllong(Buffer buffer, int offset) {
+    public Long decodeLongSmalllong(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readLongSmalllong(DataInput in) {
+    public Long readLongSmalllong(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -677,11 +677,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map decodeMapMap8(Buffer buffer, int offset) {
+    public Map decodeMapMap8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map readMapMap8(DataInput in) {
+    public Map readMapMap8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -693,11 +693,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map decodeMapMap32(Buffer buffer, int offset) {
+    public Map decodeMapMap32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map readMapMap32(DataInput in) {
+    public Map readMapMap32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -709,11 +709,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String decodeStringStr8Utf8(Buffer buffer, int offset) {
+    public String decodeStringStr8Utf8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String readStringStr8Utf8(DataInput in) {
+    public String readStringStr8Utf8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -725,11 +725,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String decodeStringStr32Utf8(Buffer buffer, int offset) {
+    public String decodeStringStr32Utf8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String readStringStr32Utf8(DataInput in) {
+    public String readStringStr32Utf8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -741,11 +741,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeSymbolSym8(Buffer buffer, int offset) {
+    public Buffer decodeSymbolSym8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readSymbolSym8(DataInput in) {
+    public Buffer readSymbolSym8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -757,11 +757,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeSymbolSym32(Buffer buffer, int offset) {
+    public Buffer decodeSymbolSym32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readSymbolSym32(DataInput in) {
+    public Buffer readSymbolSym32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -773,11 +773,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Date decodeTimestampMs64(Buffer buffer, int offset) {
+    public Date decodeTimestampMs64(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Date readTimestampMs64(DataInput in) {
+    public Date readTimestampMs64(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -789,11 +789,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeUintSmalluint(Buffer buffer, int offset) {
+    public Integer decodeUintSmalluint(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUintSmalluint(DataInput in) {
+    public Integer readUintSmalluint(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -805,11 +805,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeUintUint0(Buffer buffer, int offset) {
+    public Integer decodeUintUint0(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUintUint0(DataInput in) {
+    public Integer readUintUint0(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -821,11 +821,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeUlongSmallulong(Buffer buffer, int offset) {
+    public Long decodeUlongSmallulong(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readUlongSmallulong(DataInput in) {
+    public Long readUlongSmallulong(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -837,11 +837,11 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeUlongUlong0(Buffer buffer, int offset) {
+    public Long decodeUlongUlong0(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readUlongUlong0(DataInput in) {
+    public Long readUlongUlong0(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

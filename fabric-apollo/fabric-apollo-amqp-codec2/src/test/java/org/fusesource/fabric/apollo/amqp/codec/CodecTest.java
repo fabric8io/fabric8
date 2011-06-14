@@ -5,6 +5,7 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeRegistry;
 import org.fusesource.fabric.apollo.amqp.codec.types.Accepted;
 import org.fusesource.fabric.apollo.amqp.codec.types.Header;
+import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
 
@@ -25,15 +26,15 @@ public class CodecTest {
             System.out.println(String.format("%s = %s", key, clazz.getName()));
         }
 
-        for (String key : registry.getSymbolicCodeMap().keySet()) {
+        for (Buffer key : registry.getSymbolicCodeMap().keySet()) {
             Class clazz = registry.getSymbolicCodeMap().get(key);
-            System.out.println(String.format("%s = %s", key, clazz.getName()));
+            System.out.println(String.format("%s = %s", key.ascii(), clazz.getName()));
         }
 
         assertTrue(registry.getFormatCodeMap().size() > 0);
         assertTrue(registry.getSymbolicCodeMap().size() > 0);
 
-        AmqpType type = (AmqpType) registry.getSymbolicCodeMap().get("amqp:header:list").newInstance();
+        AmqpType type = (AmqpType) registry.getSymbolicCodeMap().get(new AsciiBuffer("amqp:header:list")).newInstance();
 
         System.out.println(String.format("Got type : %s", type.getClass().getName()));
 
