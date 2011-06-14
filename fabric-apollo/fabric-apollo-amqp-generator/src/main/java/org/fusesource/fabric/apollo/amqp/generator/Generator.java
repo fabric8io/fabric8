@@ -57,10 +57,17 @@ public class Generator {
     private TreeMap<String, Class> mapping = new TreeMap<String, Class>();
 
     JCodeModel cm = new JCodeModel();
+
+    JClass mapLongClass = cm.ref(Map.class).narrow(Long.class, Class.class);
+    JClass mapStringClass = cm.ref(Map.class).narrow(String.class, Class.class);
+    JClass hashMapLongClass = cm.ref(HashMap.class).narrow(Long.class, Class.class);
+    JClass hashMapStringClass = cm.ref(HashMap.class).narrow(String.class, Class.class);
+
     private String interfaces = "interfaces";
     private String types = "types";
 
     private String primitiveEncoder;
+    private String marshaller;
 
     private final XmlDefinitionParser xmlDefinitionParser = new XmlDefinitionParser(this);
     private final DescribedTypeGenerator describedTypeGenerator = new DescribedTypeGenerator(this);
@@ -109,12 +116,15 @@ public class Generator {
     public void generate() throws Exception {
 
         primitiveEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "PrimitiveEncoder";
+        marshaller = getPackagePrefix() + "." + "AmqpMarshaller";
 
         xmlDefinitionParser.parseXML();
 
         buildRestrictedTypeMapping();
 
         generatePrimitiveEncoderDecoder();
+        JDefinedClass marshaller = generateMarshaller();
+        JBlock marshallerInit = marshaller.init();
 
         Log.info("\n%s", this);
 
@@ -129,6 +139,18 @@ public class Generator {
 
             describedTypeGenerator.generateDescribedTypes();
 
+            JMethod formatCodeMap = marshaller.getMethod("getFormatCodeMap", new JType[]{});
+            JMethod symbolicCodeMap = marshaller.getMethod("getSymbolicCodeMap", new JType[]{});
+
+            for(String key : describedJavaClass.keySet()) {
+                String value = describedJavaClass.get(key);
+                JDefinedClass clazz = cm._getClass(value);
+                marshallerInit.add(JExpr._new(clazz));
+
+                clazz.init().add(marshaller.staticInvoke("instance").invoke("getFormatCodeMap").invoke("put").arg(clazz.fields().get("NUMERIC_ID")).arg(clazz.dotclass()));
+                clazz.init().add(marshaller.staticInvoke("instance").invoke("getSymbolicCodeMap").invoke("put").arg(clazz.fields().get("SYMBOLIC_ID")).arg(clazz.dotclass()));
+            }
+
             generateDefinitions();
 
             cm.build(outputDirectory);
@@ -139,6 +161,25 @@ public class Generator {
             }
             throw e;
         }
+    }
+
+    private JDefinedClass generateMarshaller() throws JClassAlreadyExistsException, ClassNotFoundException {
+        JDefinedClass marshaller = cm._class(this.marshaller);
+
+        JFieldVar singleton = marshaller.field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, (JType) marshaller, "SINGLETON", JExpr._new(marshaller));
+        JFieldVar formatCodeMap = marshaller.field(JMod.PROTECTED | JMod.FINAL, mapLongClass, "formatCodeMap", JExpr._new(hashMapLongClass));
+        JFieldVar symbolicCodeMap = marshaller.field(JMod.PROTECTED | JMod.FINAL, mapStringClass, "symbolicCodeMap", JExpr._new(hashMapStringClass));
+
+        JMethod singletonAccessor = marshaller.method(JMod.PUBLIC | JMod.STATIC, marshaller, "instance");
+        singletonAccessor.body()._return(JExpr.ref("SINGLETON"));
+
+        JMethod formatCodeMapGetter = marshaller.method(JMod.PUBLIC, mapLongClass, "getFormatCodeMap");
+        formatCodeMapGetter.body()._return(JExpr.ref("formatCodeMap"));
+
+        JMethod symbolicCodeMapGetter = marshaller.method(JMod.PUBLIC, mapStringClass, "getSymbolicCodeMap");
+        symbolicCodeMapGetter.body()._return(JExpr.ref("symbolicCodeMap"));
+
+        return marshaller;
     }
 
     private void generatePrimitiveEncoderDecoder() throws JClassAlreadyExistsException {
