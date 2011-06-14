@@ -33,6 +33,8 @@ public class DescribedTypeGenerator {
             JMethod read = cls.method(JMod.PUBLIC, generator.getCm().VOID, "read");
             read._throws(java.lang.Exception.class);
             read.param(java.io.DataInput.class, "in");
+            read.param(generator.getCm().INT, "size");
+            read.param(generator.getCm().INT, "count");
 
             JMethod encodeTo = cls.method(JMod.PUBLIC, generator.getCm().VOID, "encodeTo");
             encodeTo._throws(java.lang.Exception.class);
@@ -43,6 +45,8 @@ public class DescribedTypeGenerator {
             decodeFrom._throws(java.lang.Exception.class);
             decodeFrom.param(Buffer.class, "buffer");
             decodeFrom.param(generator.getCm().INT, "offset");
+            decodeFrom.param(generator.getCm().INT, "size");
+            decodeFrom.param(generator.getCm().INT, "count");
 
             Type type = generator.getDescribed().get(key);
 

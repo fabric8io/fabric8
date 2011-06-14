@@ -65,9 +65,11 @@ public class Generator {
 
     private String interfaces = "interfaces";
     private String types = "types";
+    private String marshaller = "marshaller";
 
     private String primitiveEncoder;
-    private String marshaller;
+    private String baseEncoder;
+    private String typeRegistry;
 
     private final XmlDefinitionParser xmlDefinitionParser = new XmlDefinitionParser(this);
     private final DescribedTypeGenerator describedTypeGenerator = new DescribedTypeGenerator(this);
@@ -116,14 +118,19 @@ public class Generator {
     public void generate() throws Exception {
 
         primitiveEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "PrimitiveEncoder";
-        marshaller = getPackagePrefix() + "." + "AmqpMarshaller";
+        baseEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "BaseEncoder";
+        typeRegistry = getPackagePrefix() + "." + getMarshaller() + "." + "TypeRegistry";
 
         xmlDefinitionParser.parseXML();
 
         buildRestrictedTypeMapping();
 
         generatePrimitiveEncoderDecoder();
-        JDefinedClass marshaller = generateMarshaller();
+        JDefinedClass marshaller = generateTypeRegistry();
+        marshaller.field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cm._getClass(baseEncoder), "ENCODER", JExpr.direct("Encoder.instance()"));
+        JMethod singletonAccessor = marshaller.method(JMod.PUBLIC | JMod.STATIC, cm._getClass(baseEncoder), "encoder");
+        singletonAccessor.body()._return(JExpr.ref("ENCODER"));
+
         JBlock marshallerInit = marshaller.init();
 
         Log.info("\n%s", this);
@@ -163,8 +170,8 @@ public class Generator {
         }
     }
 
-    private JDefinedClass generateMarshaller() throws JClassAlreadyExistsException, ClassNotFoundException {
-        JDefinedClass marshaller = cm._class(this.marshaller);
+    private JDefinedClass generateTypeRegistry() throws JClassAlreadyExistsException, ClassNotFoundException {
+        JDefinedClass marshaller = cm._class(this.typeRegistry);
 
         JFieldVar singleton = marshaller.field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, (JType) marshaller, "SINGLETON", JExpr._new(marshaller));
         JFieldVar formatCodeMap = marshaller.field(JMod.PROTECTED | JMod.FINAL, mapLongClass, "formatCodeMap", JExpr._new(hashMapLongClass));
@@ -184,10 +191,38 @@ public class Generator {
 
     private void generatePrimitiveEncoderDecoder() throws JClassAlreadyExistsException {
         JDefinedClass enc = cm._class(primitiveEncoder, ClassType.INTERFACE);
+        JDefinedClass baseEnc = cm._class(baseEncoder, ClassType.INTERFACE);
+
+        List<String> filter = new ArrayList<String>();
+        filter.add("null");
+        int mods = JMod.PUBLIC;
+
+        JMethod encMethod = baseEnc.method(mods, cm.VOID, "encodeAny");
+        encMethod.param(cm.ref("java.lang.Object"), "value");
+        encMethod.param(Buffer.class, "buffer");
+        encMethod.param(cm.INT, "offset");
+
+        JMethod decMethod = baseEnc.method(mods, cm.ref("java.lang.Object"), "decodeAny");
+        decMethod.param(Buffer.class, "buffer");
+        decMethod.param(cm.INT, "offset");
+
+        JMethod readMethod = baseEnc.method(mods, cm.ref("java.lang.Object"), "readAny");
+        readMethod.param(DataInput.class, "in");
+
+        JMethod writeMethod = baseEnc.method(mods, cm.VOID, "writeAny");
+        writeMethod.param(cm.ref("java.lang.Object"), "value");
+        writeMethod.param(DataOutput.class, "out");
+
 
         for (String key : primitives.keySet()) {
             Log.info("Adding encoder methods for type %s", key);
             Type type = primitives.get(key);
+
+            if (filter.contains(type.getName())) {
+                continue;
+            }
+
+            createEncodeDecodeMethods(baseEnc, mods, type, toJavaClassName(type.getName()));
 
             for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
                 if (obj instanceof Encoding ) {
@@ -196,33 +231,34 @@ public class Generator {
                     String methodName = type.getName();
                     if (encoding.getName() != null) {
                         methodName += toJavaClassName(encoding.getName());
+                    } else {
+                        continue;
                     }
                     methodName = toJavaClassName(methodName);
                     Log.info("Writing encode/decode methods for type %s encoding %s using method name %s", type.getName(), encoding.getName(), methodName);
 
-                    int mods = JMod.PUBLIC;
-
-                    if (!type.getName().equals("null")) {
-                        JMethod encMethod = enc.method(mods, cm.VOID, "encode" + methodName);
-                        encMethod.param(mapping.get(type.getName()), "value");
-                        encMethod.param(org.fusesource.hawtbuf.Buffer.class, "buffer");
-                        encMethod.param(java.lang.Integer.class, "offset");
-
-                        JMethod decMethod = enc.method(mods, mapping.get(type.getName()), "decode" + methodName);
-                        decMethod.param(org.fusesource.hawtbuf.Buffer.class, "buffer");
-                        decMethod.param(java.lang.Integer.class, "offset");
-
-                        JMethod readMethod = enc.method(mods, mapping.get(type.getName()), "read" + methodName);
-                        readMethod.param(DataInput.class, "in");
-
-                        JMethod writeMethod = enc.method(mods, cm.VOID, "write" + methodName);
-                        writeMethod.param(mapping.get(type.getName()), "value");
-                        writeMethod.param(DataOutput.class, "out");
-                    }
-
+                    createEncodeDecodeMethods(enc, mods, type, methodName);
                 }
             }
         }
+    }
+
+    private void createEncodeDecodeMethods(JDefinedClass clazz, int mods, Type type, String methodName) {
+        JMethod encMethod = clazz.method(mods, cm.VOID, "encode" + methodName);
+        encMethod.param(mapping.get(type.getName()), "value");
+        encMethod.param(Buffer.class, "buffer");
+        encMethod.param(cm.INT, "offset");
+
+        JMethod decMethod = clazz.method(mods, mapping.get(type.getName()), "decode" + methodName);
+        decMethod.param(Buffer.class, "buffer");
+        decMethod.param(cm.INT, "offset");
+
+        JMethod readMethod = clazz.method(mods, mapping.get(type.getName()), "read" + methodName);
+        readMethod.param(DataInput.class, "in");
+
+        JMethod writeMethod = clazz.method(mods, cm.VOID, "write" + methodName);
+        writeMethod.param(mapping.get(type.getName()), "value");
+        writeMethod.param(DataOutput.class, "out");
     }
 
     private void buildRestrictedTypeMapping() {
@@ -422,4 +458,7 @@ public class Generator {
         return mapping;
     }
 
+    public String getMarshaller() {
+        return marshaller;
+    }
 }
