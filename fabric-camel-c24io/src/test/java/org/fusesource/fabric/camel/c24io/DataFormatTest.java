@@ -8,7 +8,9 @@
  */
 package org.fusesource.fabric.camel.c24io;
 
+import biz.c24.io.api.presentation.Sink;
 import biz.c24.io.api.presentation.Source;
+import biz.c24.io.api.presentation.XMLSink;
 import biz.c24.testtransactions.Transactions;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -23,7 +25,7 @@ import java.io.InputStream;
 
 import static org.junit.Assert.assertNotNull;
 
-public class DataFormatTestTest {
+public class DataFormatTest {
 
     @Test
     public void testParseDataObjectDirectly() throws Exception {
@@ -33,8 +35,12 @@ public class DataFormatTestTest {
         source.readObject(transactions);
 
         System.out.println("Parsed: " + transactions);
+
+        XMLSink sink = new XMLSink(System.out);
+        sink.writeObject(transactions);
     }
 
+    @Test
     public void testDataFormat() throws Exception {
         C24IOFormat format = new C24IOFormat();
         format.setElementType(Transactions.class);

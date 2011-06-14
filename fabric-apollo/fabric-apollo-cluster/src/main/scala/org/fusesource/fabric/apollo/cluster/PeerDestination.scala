@@ -117,6 +117,7 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     override def toString = "cluster destination %s on node %d".format(destination_dto.name("."), peer.id)
   }
 
+  def update(on_completed: Runnable) = local_destination.update(on_completed)
 }
 
 

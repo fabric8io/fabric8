@@ -73,7 +73,7 @@ class AmqpProtocolHandler extends AmqpConnection with ProtocolHandler with Sessi
 
   override def set_connection(brokerConnection:BrokerConnection) = {
     this.connection = brokerConnection
-    init(connection.transport.getRemoteAddress)
+    init(connection.transport.getTypeId + "://" + connection.transport.getRemoteAddress)
   }
 
   def sessionReleased(connection: Connection, session: Session) = {

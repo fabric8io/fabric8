@@ -123,19 +123,7 @@ public class C24IOFormat implements DataFormat {
         if (element == null) {
             Class type = getElementType();
             if (type != null) {
-                Object object = ObjectHelper.newInstance(type, Object.class);
-                if (object instanceof Element) {
-                    element = (Element) object;
-                } else if (object instanceof ComplexDataObject) {
-                    ComplexDataObject dataObject = (ComplexDataObject) object;
-                    element = dataObject.getDefiningElementDecl();
-/*
-                } else if (object instanceof DataModel) {
-                    DataModel dataModel = (DataModel) object;
-*/
-                } else {
-                    throw new UnsupportedOperationException("The data type " + type.getCanonicalName() + " does not implement " + Element.class.getCanonicalName());
-                }
+                element = C24IOHelper.getMandatoryElement(type);
             }
         }
         return element;

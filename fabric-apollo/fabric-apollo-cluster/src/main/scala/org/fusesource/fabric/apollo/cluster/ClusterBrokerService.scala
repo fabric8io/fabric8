@@ -128,7 +128,7 @@ class ClusterBrokerService extends Dispatched {
 
         debug("Starting broker");
         broker = new ClusterBroker(id, cluster)
-        broker.configure(config, LoggingReporter(ClusterBrokerService))
+        broker.config = config
         broker.tmp = basedir / "tmp"
         broker.tmp.mkdirs
         broker.start(dispatch_queue.runnable {

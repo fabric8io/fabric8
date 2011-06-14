@@ -12,6 +12,7 @@ import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.saxon.DocumentNode;
 import biz.c24.io.api.transform.Transform;
 import biz.c24.saxon.Configuration;
+import net.sf.saxon.om.Item;
 import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 
@@ -52,6 +53,19 @@ public final class C24IOConverter {
 
         return toDocumentNode(configuration, dataObject);
     }
+
+    /**
+     * Converts a data object into a Saxon document info so that it can be used in Saxon's
+     * XQuery processor
+     */
+
+    /* TODO - convert from ComplexDataObject to Saxon Item is required for XQuery support!
+    @Converter
+    public static Item toItem(ComplexDataObject dataObject, Exchange exchange) {
+        // TODO!!!
+        return null;
+    }
+    */
 
     /**
      * Converts a data object into a Saxon document info so that it can be used in Saxon's

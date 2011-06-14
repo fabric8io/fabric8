@@ -11,7 +11,6 @@
 package org.fusesource.fabric.apollo.cluster
 
 import org.apache.activemq.apollo.util._
-import ReporterLevel._
 import org.fusesource.fabric.apollo.cluster.dto.ClusterRouterDTO
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.broker.security.SecurityContext
@@ -29,20 +28,10 @@ import org.fusesource.fabric.apollo.cluster.util.HashRing
  */
 class ClusterRouterFactory extends RouterFactory.Provider {
 
-  def validate(config: RouterDTO, reporter: Reporter): ReporterLevel.ReporterLevel = {
-    config match {
-      case config:ClusterRouterDTO=>
-        INFO
-      case _ => null
-    }
-  }
-
-  def create(host: VirtualHost): Router = {
-    host.config.router match {
-      case config:ClusterRouterDTO=>
-        new ClusterRouter(host)
-      case _ => null
-    }
+  def create(host: VirtualHost): Router = host.config.router match {
+    case config:ClusterRouterDTO=>
+      new ClusterRouter(host)
+    case _ => null
   }
 }
 
@@ -205,6 +194,7 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
 
     def is_master = master_id == broker.id
 
+    def update(on_completed: Runnable) = local.update(on_completed)
   }
 
 

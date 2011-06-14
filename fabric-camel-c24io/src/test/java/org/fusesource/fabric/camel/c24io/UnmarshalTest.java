@@ -42,7 +42,7 @@ public class UnmarshalTest extends CamelTestSupport {
             public void configure() {
 
                 from("file:src/test/data?noop=true").
-                        unmarshal().c24io(Transactions.class, C24IOContentType.Xml).
+                        unmarshal().c24io(Transactions.class).
                         to("mock:result");
             }
         };

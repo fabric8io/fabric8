@@ -38,7 +38,8 @@ public class ConvertTest extends CamelTestSupport {
         log.info("Received: " + text);
     }
 
-    protected RouteBuilder createRouteBuilder() {
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
                 from("file:src/test/data?noop=true").                       

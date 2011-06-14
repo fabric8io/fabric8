@@ -15,6 +15,7 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.DataModel;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.presentation.Sink;
 import biz.c24.io.api.presentation.Source;
@@ -69,7 +70,7 @@ public class FallbackTypeConverter implements TypeConverter, TypeConverterAware 
     }
 
     protected <T> boolean isComplexDataObject(Class<T> type) {
-        return type.isAssignableFrom(ComplexDataObject.class);
+        return ComplexDataObject.class.isAssignableFrom(type);
     }
 
     /**
@@ -153,7 +154,8 @@ public class FallbackTypeConverter implements TypeConverter, TypeConverterAware 
             answer = exchange.getProperty("c24io.source", Source.class);
         }
         if (answer == null) {
-            answer = element.getModel().source();
+            DataModel model = element.getModel();
+            answer = model.source();
         }
         return answer;
     }

@@ -44,9 +44,7 @@ public class TransformUsingProcessorTest extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() {
                 from("file:src/test/data?noop=true").
-
-                        process(C24IOSource.c24Source(Transactions.class).xmlSource()).
-
+                        process(C24IOSource.c24Source(Transactions.class)).
                         process(transform(StatGenTransform.class)).
 
                         to("mock:result");
