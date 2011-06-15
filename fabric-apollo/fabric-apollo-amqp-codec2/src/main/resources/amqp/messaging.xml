@@ -1161,8 +1161,14 @@ settled with outcome: |        |
         </doc>
       </field>
 
-      <field name="durable" type="boolean"
-             label="indicates that the Source will be durably retained">
+      <field name="durable" type="terminus-durability" default="none"
+             label="indicates the durability of the terminus">
+        <doc>
+          <p>
+            Indicates what state of the terminus will be retained durably: the state of durable
+            messages, only existence and configuration of the terminus, or no state at all.
+          </p>
+        </doc>
       </field>
 
       <field name="expiry-policy" type="terminus-expiry-policy" default="session"
@@ -1268,8 +1274,14 @@ settled with outcome: |        |
         </doc>
       </field>
 
-      <field name="durable" type="boolean"
-             label="indicates that the Target will be durably retained">
+      <field name="durable" type="terminus-durability" default="none"
+             label="indicates the durability of the terminus">
+        <doc>
+          <p>
+            Indicates what state of the terminus will be retained durably: the state of durable
+            messages, only existence and configuration of the terminus, or not state at all.
+          </p>
+        </doc>
       </field>
 
       <field name="expiry-policy" type="terminus-expiry-policy" default="session"
@@ -1316,6 +1328,38 @@ settled with outcome: |        |
 
       <field name="capabilities" type="symbol" multiple="true"
                    label="the extension capabilities the sender supports/desires"/>
+    </type>
+
+    <type class="restricted" name="terminus-durability" source="uint"
+          label="durability policy for a Terminus">
+      <doc>
+        <p>
+          Determines which state of the Terminus is held durably
+          value.
+        </p>
+      </doc>
+      <choice name="none" value="0">
+        <doc>
+          <p>
+            No Terminus state is retained durably.
+          </p>
+        </doc>
+      </choice>
+      <choice name="configuration" value="1">
+        <doc>
+          <p>
+            Only the existence and configuration of the Terminus is retained durably.
+          </p>
+        </doc>
+      </choice>
+      <choice name="unsettled-state" value="2">
+        <doc>
+          <p>
+            In addition to the existence and configuration of the Terminus, the unsettled state for
+            durable messages is retained durably.
+          </p>
+        </doc>
+      </choice>
     </type>
 
     <type class="restricted" name="terminus-expiry-policy" source="symbol"
