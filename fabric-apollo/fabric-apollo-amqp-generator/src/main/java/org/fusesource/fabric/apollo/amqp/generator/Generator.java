@@ -68,7 +68,6 @@ public class Generator {
     private TypeRegistry registry;
 
     private final XmlDefinitionParser xmlDefinitionParser = new XmlDefinitionParser(this);
-    private final DescribedTypeGenerator describedTypeGenerator = new DescribedTypeGenerator(this);
     private final InterfaceGenerator interfaceGenerator = new InterfaceGenerator(this);
 
     public Generator() {
@@ -135,11 +134,24 @@ public class Generator {
 
         try {
             interfaceGenerator.generateAbstractBases();
-            describedTypeGenerator.createDescribedClasses(this);
+            ArrayList<DescribedType> describedTypes = new ArrayList<DescribedType>();
+            for (String key : getDescribed().keySet()) {
+                Type type = getDescribed().get(key);
+                String className = getPackagePrefix() + "." + getTypes() + "." + toJavaClassName(key);
+                getDescribedJavaClass().put(key, className);
+                describedTypes.add(new DescribedType(this, className, type));
+            }
+
+            for (DescribedType type : describedTypes) {
+                type.generateDescribedFields();
+            }
+
+
+            //describedTypeGenerator.createDescribedClasses(this);
 
             //generateEnumTypes();
 
-            describedTypeGenerator.generateDescribedTypes();
+            //describedTypeGenerator.generateDescribedTypes();
 
             JMethod formatCodeMap = registry.cls().getMethod("getFormatCodeMap", new JType[]{});
             JMethod symbolicCodeMap = registry.cls().getMethod("getSymbolicCodeMap", new JType[]{});
