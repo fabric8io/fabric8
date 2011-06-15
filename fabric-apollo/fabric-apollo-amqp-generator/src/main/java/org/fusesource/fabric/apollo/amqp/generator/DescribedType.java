@@ -26,7 +26,7 @@ import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassN
 /**
  *
  */
-public class DescribedType {
+public class DescribedType  extends AmqpDefinedType {
 
     class Attribute {
         public JFieldVar attribute;
@@ -48,46 +48,31 @@ public class DescribedType {
 
     private ArrayList<Attribute> amqpFields = new ArrayList<Attribute>();
 
-    private JDefinedClass describedType;
-
-    private JCodeModel cm;
-    private Type type;
-    private Generator generator;
-
     public DescribedType(Generator generator, String className, Type type) throws JClassAlreadyExistsException {
-        this.cm = generator.getCm();
-        this.generator = generator;
-        this.type = type;
-        describedType = this.cm._class(className);
-        init();
+        super(generator, className, type);
     }
 
-    private void init() {
-        if ( type.getProvides() != null )  {
-            cls()._implements(cm.ref(generator.getPackagePrefix() + "." + generator.getInterfaces() + "." + toJavaClassName(type.getProvides())));
-        }
-        cls()._implements(cm.ref("org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType"));
+    protected void createInitialFields() {
 
+    }
+
+    protected void createStaticBlock() {
         for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
             if ( obj instanceof Descriptor ) {
                 Descriptor desc = (Descriptor) obj;
                 int mods = JMod.PUBLIC | JMod.STATIC | JMod.FINAL;
 
-                SYMBOLIC_ID = describedType.field(mods, Buffer.class, "SYMBOLIC_ID", JExpr._new(cm.ref(AsciiBuffer.class)).arg(desc.getName()));
+                SYMBOLIC_ID = cls().field(mods, Buffer.class, "SYMBOLIC_ID", JExpr._new(cm.ref(AsciiBuffer.class)).arg(desc.getName()));
 
                 String code = desc.getCode();
                 String category = code.split(":")[0];
                 String descriptorId = code.split(":")[1];
 
-                CATEGORY = describedType.field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
-                DESCRIPTOR_ID = describedType.field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
-                NUMERIC_ID = describedType.field(mods, long.class, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
+                CATEGORY = cls().field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
+                DESCRIPTOR_ID = cls().field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
+                NUMERIC_ID = cls().field(mods, long.class, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
             }
         }
-        write();
-        read();
-        encodeTo();
-        decodeFrom();
     }
 
     public void generateDescribedFields() {
@@ -100,13 +85,14 @@ public class DescribedType {
                 String fieldType = field.getType();
                 String fieldName = sanitize(field.getName());
 
-                if (generator.getPrimitives().containsKey(fieldType)) {
-                    if ( fieldType.equals("*") && field.getRequires() != null ) {
+                Log.info("Field type for field %s : %s", fieldName, fieldType);
+
+                if ( fieldType.equals("*") ) {
+                    fieldType = generator.getAmqpBaseType();
+                    if ( field.getRequires() != null ) {
                         String requiredType = field.getRequires();
                         if (generator.getProvides().contains(requiredType)) {
                             fieldType = generator.getPackagePrefix() + "." + generator.getInterfaces() + "." + toJavaClassName(field.getRequires());
-                        } else {
-                            fieldType = "java.lang.Object";
                         }
                     }
                 } else if (generator.getDescribed().containsKey(fieldType)) {
@@ -125,7 +111,9 @@ public class DescribedType {
 
                     Class clazz = generator.getMapping().get(fieldType);
                     JClass c = null;
-                    if ( clazz == null ) {
+                    if (fieldType.equals(generator.getAmqpBaseType())) {
+                        c = cm.ref(fieldType);
+                    } else if ( clazz == null ) {
                         c = cm._getClass(fieldType);
                     } else {
                         c = cm.ref(clazz.getName());
@@ -176,7 +164,6 @@ public class DescribedType {
         return count;
     }
 
-
     public JFieldVar SYMBOLIC_ID() {
         return SYMBOLIC_ID;
     }
@@ -191,51 +178,5 @@ public class DescribedType {
 
     public JFieldVar NUMERIC_ID() {
         return NUMERIC_ID;
-    }
-
-    public JMethod write() {
-        if (write == null) {
-            write = cls().method(JMod.PUBLIC, cm.VOID, "write");
-            write._throws(java.lang.Exception.class);
-            write.param(java.io.DataOutput.class, "out");
-        }
-        return write;
-    }
-
-    public JMethod read() {
-        if (read == null ) {
-            read = cls().method(JMod.PUBLIC, cm.VOID, "read");
-            read._throws(java.lang.Exception.class);
-            read.param(java.io.DataInput.class, "in");
-            read.param(cm.INT, "size");
-            read.param(cm.INT, "count");
-        }
-        return read;
-    }
-
-    public JMethod encodeTo() {
-        if (encodeTo == null) {
-            encodeTo = cls().method(JMod.PUBLIC, cm.VOID, "encodeTo");
-            encodeTo._throws(java.lang.Exception.class);
-            encodeTo.param(Buffer.class, "buffer");
-            encodeTo.param(cm.INT, "offset");
-        }
-        return encodeTo;
-    }
-
-    public JMethod decodeFrom() {
-        if (decodeFrom == null) {
-            decodeFrom = cls().method(JMod.PUBLIC, cm.VOID, "decodeFrom");
-            decodeFrom._throws(java.lang.Exception.class);
-            decodeFrom.param(Buffer.class, "buffer");
-            decodeFrom.param(cm.INT, "offset");
-            decodeFrom.param(cm.INT, "size");
-            decodeFrom.param(cm.INT, "count");
-        }
-        return decodeFrom;
-    }
-
-    public JDefinedClass cls() {
-        return describedType;
     }
 }

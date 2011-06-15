@@ -50,6 +50,7 @@ public class Generator {
     private TreeMap<String, String> restrictedMapping = new TreeMap<String, String>();
 
     private TreeMap<String, String> describedJavaClass = new TreeMap<String, String>();
+    private TreeMap<String, String> primitiveJavaClass = new TreeMap<String, String>();
 
     private TreeSet<String> classes = new TreeSet<String>();
 
@@ -72,7 +73,6 @@ public class Generator {
 
     public Generator() {
         mapping.put("null", null);
-        mapping.put("*", Object.class);
         mapping.put("boolean", Boolean.class);
         mapping.put("ubyte", Byte.class);
         mapping.put("ushort", Short.class);
@@ -133,8 +133,29 @@ public class Generator {
         outputDirectory.mkdirs();
 
         try {
+
+            List<PrimitiveType> primitiveTypes = new ArrayList<PrimitiveType>();
+
+            List<String> filter = new ArrayList<String>();
+            filter.add("*");
+            filter.add("null");
+            filter.add("map");
+            filter.add("list");
+            filter.add("array");
+
+            for (String key : getPrimitives().keySet()) {
+                if (filter.contains(key)) {
+                    continue;
+                }
+                Type type = getPrimitives().get(key);
+                String className = getPackagePrefix() + "." + getTypes() + "." + "AMQP" + toJavaClassName(key);
+                getPrimitiveJavaClass().put(key, className);
+                primitiveTypes.add(new PrimitiveType(this, className, type));
+            }
+
             interfaceGenerator.generateAbstractBases();
-            ArrayList<DescribedType> describedTypes = new ArrayList<DescribedType>();
+
+            List<DescribedType> describedTypes = new ArrayList<DescribedType>();
             for (String key : getDescribed().keySet()) {
                 Type type = getDescribed().get(key);
                 String className = getPackagePrefix() + "." + getTypes() + "." + toJavaClassName(key);
@@ -458,4 +479,11 @@ public class Generator {
         return registry;
     }
 
+    public String getAmqpBaseType() {
+        return getPackagePrefix() + "." + getInterfaces() + "." + "AmqpType";
+    }
+
+    public Map<String,String> getPrimitiveJavaClass() {
+        return primitiveJavaClass;
+    }
 }

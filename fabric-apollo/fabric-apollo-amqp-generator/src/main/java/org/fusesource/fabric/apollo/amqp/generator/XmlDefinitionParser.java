@@ -84,6 +84,7 @@ public class XmlDefinitionParser {
                             }
 
                             if ( type.getProvides() != null ) {
+                                Log.info("Adding provides : %s", type.getProvides());
                                 generator.getProvides().add(type.getProvides());
                             }
 

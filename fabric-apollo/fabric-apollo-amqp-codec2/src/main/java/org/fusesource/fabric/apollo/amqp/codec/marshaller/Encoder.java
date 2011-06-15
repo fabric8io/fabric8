@@ -337,147 +337,147 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUbyte(Byte value, Buffer buffer, int offset) {
+    public void encodeUByte(Byte value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte decodeUbyte(byte formatCode, Buffer buffer, int offset) {
+    public Byte decodeUByte(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte readUbyte(byte formatCode, DataInput in) {
+    public Byte readUByte(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUbyte(Byte value, DataOutput out) {
+    public void writeUByte(Byte value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUint(Integer value, Buffer buffer, int offset) {
+    public void encodeUInt(Integer value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeUint(byte formatCode, Buffer buffer, int offset) {
+    public Integer decodeUInt(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUint(byte formatCode, DataInput in) {
+    public Integer readUInt(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUint(Integer value, DataOutput out) {
+    public void writeUInt(Integer value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUlong(Long value, Buffer buffer, int offset) {
+    public void encodeULong(Long value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeUlong(byte formatCode, Buffer buffer, int offset) {
+    public Long decodeULong(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readUlong(byte formatCode, DataInput in) {
+    public Long readULong(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUlong(Long value, DataOutput out) {
+    public void writeULong(Long value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUshort(Short value, Buffer buffer, int offset) {
+    public void encodeUShort(Short value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short decodeUshort(byte formatCode, Buffer buffer, int offset) {
+    public Short decodeUShort(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short readUshort(byte formatCode, DataInput in) {
+    public Short readUShort(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUshort(Short value, DataOutput out) {
+    public void writeUShort(Short value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUuid(UUID value, Buffer buffer, int offset) {
+    public void encodeUUID(UUID value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public UUID decodeUuid(byte formatCode, Buffer buffer, int offset) {
+    public UUID decodeUUID(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public UUID readUuid(byte formatCode, DataInput in) {
+    public UUID readUUID(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUuid(UUID value, DataOutput out) {
+    public void writeUUID(UUID value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeArrayArray8(Object[] value, Buffer buffer, int offset) {
+    public void encodeArray8(Object[] value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] decodeArrayArray8(byte formatCode, Buffer buffer, int offset) {
+    public Object[] decodeArray8(byte formatCode, Buffer buffer, int offset) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] readArrayArray8(byte formatCode, DataInput in) {
+    public Object[] readArray8(byte formatCode, DataInput in) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeArrayArray8(Object[] value, DataOutput out) {
+    public void writeArray8(Object[] value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeArrayArray32(Object[] value, Buffer buffer, int offset) {
+    public void encodeArray32(Object[] value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] decodeArrayArray32(byte formatCode, Buffer buffer, int offset) {
+    public Object[] decodeArray32(byte formatCode, Buffer buffer, int offset) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object[] readArrayArray32(byte formatCode, DataInput in) {
+    public Object[] readArray32(byte formatCode, DataInput in) {
         return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeArrayArray32(Object[] value, DataOutput out) {
+    public void writeArray32(Object[] value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeBinaryVbin8(Buffer value, Buffer buffer, int offset) {
+    public void encodeBinaryVBIN8(Buffer value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeBinaryVbin8(byte formatCode, Buffer buffer, int offset) {
+    public Buffer decodeBinaryVBIN8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readBinaryVbin8(byte formatCode, DataInput in) {
+    public Buffer readBinaryVBIN8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeBinaryVbin8(Buffer value, DataOutput out) {
+    public void writeBinaryVBIN8(Buffer value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeBinaryVbin32(Buffer value, Buffer buffer, int offset) {
+    public void encodeBinaryVBIN32(Buffer value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer decodeBinaryVbin32(byte formatCode, Buffer buffer, int offset) {
+    public Buffer decodeBinaryVBIN32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Buffer readBinaryVbin32(byte formatCode, DataInput in) {
+    public Buffer readBinaryVBIN32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeBinaryVbin32(Buffer value, DataOutput out) {
+    public void writeBinaryVBIN32(Buffer value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -513,227 +513,227 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeCharUtf32(Character value, Buffer buffer, int offset) {
+    public void encodeCharUTF32(Character value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Character decodeCharUtf32(byte formatCode, Buffer buffer, int offset) {
+    public Character decodeCharUTF32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Character readCharUtf32(byte formatCode, DataInput in) {
+    public Character readCharUTF32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeCharUtf32(Character value, DataOutput out) {
+    public void writeCharUTF32(Character value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeDecimal128Ieee754(BigDecimal value, Buffer buffer, int offset) {
+    public void encodeDecimal128IEEE754(BigDecimal value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal128Ieee754(byte formatCode, Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal128IEEE754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal128Ieee754(byte formatCode, DataInput in) {
+    public BigDecimal readDecimal128IEEE754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeDecimal128Ieee754(BigDecimal value, DataOutput out) {
+    public void writeDecimal128IEEE754(BigDecimal value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeDecimal32Ieee754(BigDecimal value, Buffer buffer, int offset) {
+    public void encodeDecimal32IEEE754(BigDecimal value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal32Ieee754(byte formatCode, Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal32IEEE754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal32Ieee754(byte formatCode, DataInput in) {
+    public BigDecimal readDecimal32IEEE754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeDecimal32Ieee754(BigDecimal value, DataOutput out) {
+    public void writeDecimal32IEEE754(BigDecimal value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeDecimal64Ieee754(BigDecimal value, Buffer buffer, int offset) {
+    public void encodeDecimal64IEEE754(BigDecimal value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal decodeDecimal64Ieee754(byte formatCode, Buffer buffer, int offset) {
+    public BigDecimal decodeDecimal64IEEE754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BigDecimal readDecimal64Ieee754(byte formatCode, DataInput in) {
+    public BigDecimal readDecimal64IEEE754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeDecimal64Ieee754(BigDecimal value, DataOutput out) {
+    public void writeDecimal64IEEE754(BigDecimal value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeDoubleIeee754(Double value, Buffer buffer, int offset) {
+    public void encodeDoubleIEEE754(Double value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Double decodeDoubleIeee754(byte formatCode, Buffer buffer, int offset) {
+    public Double decodeDoubleIEEE754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Double readDoubleIeee754(byte formatCode, DataInput in) {
+    public Double readDoubleIEEE754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeDoubleIeee754(Double value, DataOutput out) {
+    public void writeDoubleIEEE754(Double value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeFloatIeee754(Float value, Buffer buffer, int offset) {
+    public void encodeFloatIEEE754(Float value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Float decodeFloatIeee754(byte formatCode, Buffer buffer, int offset) {
+    public Float decodeFloatIEEE754(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Float readFloatIeee754(byte formatCode, DataInput in) {
+    public Float readFloatIEEE754(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeFloatIeee754(Float value, DataOutput out) {
+    public void writeFloatIEEE754(Float value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeIntSmallint(Integer value, Buffer buffer, int offset) {
+    public void encodeIntSmallInt(Integer value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeIntSmallint(byte formatCode, Buffer buffer, int offset) {
+    public Integer decodeIntSmallInt(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readIntSmallint(byte formatCode, DataInput in) {
+    public Integer readIntSmallInt(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeIntSmallint(Integer value, DataOutput out) {
+    public void writeIntSmallInt(Integer value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeListList8(List value, Buffer buffer, int offset) {
+    public void encodeList8(List value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List decodeListList8(byte formatCode, Buffer buffer, int offset) {
+    public List decodeList8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List readListList8(byte formatCode, DataInput in) {
+    public List readList8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeListList8(List value, DataOutput out) {
+    public void writeList8(List value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeListList32(List value, Buffer buffer, int offset) {
+    public void encodeList32(List value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List decodeListList32(byte formatCode, Buffer buffer, int offset) {
+    public List decodeList32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List readListList32(byte formatCode, DataInput in) {
+    public List readList32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeListList32(List value, DataOutput out) {
+    public void writeList32(List value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeLongSmalllong(Long value, Buffer buffer, int offset) {
+    public void encodeLongSmallLong(Long value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeLongSmalllong(byte formatCode, Buffer buffer, int offset) {
+    public Long decodeLongSmallLong(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readLongSmalllong(byte formatCode, DataInput in) {
+    public Long readLongSmallLong(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeLongSmalllong(Long value, DataOutput out) {
+    public void writeLongSmallLong(Long value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeMapMap8(Map value, Buffer buffer, int offset) {
+    public void encodeMap8(Map value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map decodeMapMap8(byte formatCode, Buffer buffer, int offset) {
+    public Map decodeMap8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map readMapMap8(byte formatCode, DataInput in) {
+    public Map readMap8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeMapMap8(Map value, DataOutput out) {
+    public void writeMap8(Map value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeMapMap32(Map value, Buffer buffer, int offset) {
+    public void encodeMap32(Map value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map decodeMapMap32(byte formatCode, Buffer buffer, int offset) {
+    public Map decodeMap32(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Map readMapMap32(byte formatCode, DataInput in) {
+    public Map readMap32(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeMapMap32(Map value, DataOutput out) {
+    public void writeMap32(Map value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeStringStr8Utf8(String value, Buffer buffer, int offset) {
+    public void encodeStringStr8UTF8(String value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String decodeStringStr8Utf8(byte formatCode, Buffer buffer, int offset) {
+    public String decodeStringStr8UTF8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String readStringStr8Utf8(byte formatCode, DataInput in) {
+    public String readStringStr8UTF8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeStringStr8Utf8(String value, DataOutput out) {
+    public void writeStringStr8UTF8(String value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeStringStr32Utf8(String value, Buffer buffer, int offset) {
+    public void encodeStringStr32UTF8(String value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String decodeStringStr32Utf8(byte formatCode, Buffer buffer, int offset) {
+    public String decodeStringStr32UTF8(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public String readStringStr32Utf8(byte formatCode, DataInput in) {
+    public String readStringStr32UTF8(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeStringStr32Utf8(String value, DataOutput out) {
+    public void writeStringStr32UTF8(String value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -769,83 +769,83 @@ public class Encoder implements BaseEncoder, PrimitiveEncoder {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeTimestampMs64(Date value, Buffer buffer, int offset) {
+    public void encodeTimestampMS64(Date value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Date decodeTimestampMs64(byte formatCode, Buffer buffer, int offset) {
+    public Date decodeTimestampMS64(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Date readTimestampMs64(byte formatCode, DataInput in) {
+    public Date readTimestampMS64(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeTimestampMs64(Date value, DataOutput out) {
+    public void writeTimestampMS64(Date value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUintSmalluint(Integer value, Buffer buffer, int offset) {
+    public void encodeUIntSmallUInt(Integer value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeUintSmalluint(byte formatCode, Buffer buffer, int offset) {
+    public Integer decodeUIntSmallUInt(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUintSmalluint(byte formatCode, DataInput in) {
+    public Integer readUIntSmallUInt(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUintSmalluint(Integer value, DataOutput out) {
+    public void writeUIntSmallUInt(Integer value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUintUint0(Integer value, Buffer buffer, int offset) {
+    public void encodeUIntUInt0(Integer value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeUintUint0(byte formatCode, Buffer buffer, int offset) {
+    public Integer decodeUIntUInt0(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUintUint0(byte formatCode, DataInput in) {
+    public Integer readUIntUInt0(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUintUint0(Integer value, DataOutput out) {
+    public void writeUIntUInt0(Integer value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUlongSmallulong(Long value, Buffer buffer, int offset) {
+    public void encodeULongSmallULong(Long value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeUlongSmallulong(byte formatCode, Buffer buffer, int offset) {
+    public Long decodeULongSmallULong(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readUlongSmallulong(byte formatCode, DataInput in) {
+    public Long readULongSmallULong(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUlongSmallulong(Long value, DataOutput out) {
+    public void writeULongSmallULong(Long value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void encodeUlongUlong0(Long value, Buffer buffer, int offset) {
+    public void encodeULongULong0(Long value, Buffer buffer, int offset) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeUlongUlong0(byte formatCode, Buffer buffer, int offset) {
+    public Long decodeULongULong0(byte formatCode, Buffer buffer, int offset) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readUlongUlong0(byte formatCode, DataInput in) {
+    public Long readULongULong0(byte formatCode, DataInput in) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void writeUlongUlong0(Long value, DataOutput out) {
+    public void writeULongULong0(Long value, DataOutput out) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }
