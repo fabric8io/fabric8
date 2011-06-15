@@ -49,6 +49,8 @@ public abstract class AmqpDefinedType {
         createInitialFields();
         createStaticBlock();
 
+        generator.registry().cls().init().add(JExpr._new(cls()));
+
         write();
         read();
         encodeTo();
@@ -72,9 +74,8 @@ public abstract class AmqpDefinedType {
         if (read == null ) {
             read = cls().method(JMod.PUBLIC, cm.VOID, "read");
             read._throws(java.lang.Exception.class);
+            read.param(cm.BYTE, "formatCode");
             read.param(java.io.DataInput.class, "in");
-            read.param(cm.INT, "size");
-            read.param(cm.INT, "count");
         }
         return read;
     }
@@ -93,10 +94,9 @@ public abstract class AmqpDefinedType {
         if (decodeFrom == null) {
             decodeFrom = cls().method(JMod.PUBLIC, cm.VOID, "decodeFrom");
             decodeFrom._throws(java.lang.Exception.class);
+            decodeFrom.param(cm.BYTE, "formatCode");
             decodeFrom.param(Buffer.class, "buffer");
             decodeFrom.param(cm.INT, "offset");
-            decodeFrom.param(cm.INT, "size");
-            decodeFrom.param(cm.INT, "count");
         }
         return decodeFrom;
     }

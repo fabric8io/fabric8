@@ -71,6 +71,22 @@ public class DescribedType  extends AmqpDefinedType {
                 CATEGORY = cls().field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
                 DESCRIPTOR_ID = cls().field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
                 NUMERIC_ID = cls().field(mods, long.class, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
+
+                cls().init().add(
+                        generator.registry().cls().staticInvoke("instance")
+                                .invoke("getFormatCodeMap")
+                                .invoke("put")
+                                .arg(JExpr.ref("NUMERIC_ID"))
+                                .arg(cls().dotclass())
+                );
+
+                cls().init().add(
+                        generator.registry().cls().staticInvoke("instance")
+                                .invoke("getSymbolicCodeMap")
+                                .invoke("put")
+                                .arg(JExpr.ref("SYMBOLIC_ID"))
+                                .arg(cls().dotclass())
+                );
             }
         }
     }

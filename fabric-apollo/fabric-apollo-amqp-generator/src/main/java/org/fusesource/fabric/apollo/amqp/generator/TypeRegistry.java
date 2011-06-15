@@ -26,6 +26,8 @@ public class TypeRegistry {
 
     private JDefinedClass typeRegistry;
 
+    JClass mapByteClass;
+    JClass hashMapByteClass;
     JClass mapLongClass;
     JClass mapBufferClass;
     JClass hashMapLongClass;
@@ -39,6 +41,8 @@ public class TypeRegistry {
         mapBufferClass = cm.ref(Map.class).narrow(Buffer.class, Class.class);
         hashMapLongClass = cm.ref(HashMap.class).narrow(Long.class, Class.class);
         hashMapBufferClass = cm.ref(HashMap.class).narrow(Buffer.class, Class.class);
+        mapByteClass = cm.ref(Map.class).narrow(Byte.class, Class.class);
+        hashMapByteClass = cm.ref(HashMap.class).narrow(Byte.class, Class.class);
 
         init();
     }
@@ -50,6 +54,8 @@ public class TypeRegistry {
         typeRegistry.field(JMod.PUBLIC | JMod.FINAL | JMod.STATIC, cm.BYTE, "NULL_FORMAT_CODE", JExpr.direct("0x40"));
 
         JFieldVar singleton = typeRegistry.field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, (JType) typeRegistry, "SINGLETON", JExpr._new(typeRegistry));
+
+        JFieldVar primitiveFormatCodeMap = typeRegistry.field(JMod.PROTECTED | JMod.FINAL, mapByteClass, "primitiveFormatCodeMap", JExpr._new(hashMapByteClass));
         JFieldVar formatCodeMap = typeRegistry.field(JMod.PROTECTED | JMod.FINAL, mapLongClass, "formatCodeMap", JExpr._new(hashMapLongClass));
         JFieldVar symbolicCodeMap = typeRegistry.field(JMod.PROTECTED | JMod.FINAL, mapBufferClass, "symbolicCodeMap", JExpr._new(hashMapBufferClass));
 
@@ -61,6 +67,9 @@ public class TypeRegistry {
 
         JMethod symbolicCodeMapGetter = typeRegistry.method(JMod.PUBLIC, mapBufferClass, "getSymbolicCodeMap");
         symbolicCodeMapGetter.body()._return(JExpr.ref("symbolicCodeMap"));
+
+        JMethod primitiveFormatCodeGetter = typeRegistry.method(JMod.PUBLIC, mapByteClass, "getPrimitiveFormatCodeMap");
+        primitiveFormatCodeGetter.body()._return(JExpr.ref("primitiveFormatCodeMap"));
     }
 
     public JDefinedClass cls() {

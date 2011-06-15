@@ -21,16 +21,22 @@ public class CodecTest {
 
         TypeRegistry registry = TypeRegistry.instance();
 
+        for (Byte key : registry.getPrimitiveFormatCodeMap().keySet()) {
+            Class clazz = registry.getPrimitiveFormatCodeMap().get(key);
+            System.out.printf("0x%x = %s\n", key, clazz.getName());
+        }
+
         for (Long key : registry.getFormatCodeMap().keySet()) {
             Class clazz = registry.getFormatCodeMap().get(key);
-            System.out.println(String.format("%s = %s", key, clazz.getName()));
+            System.out.printf("0x%x = %s\n", key, clazz.getName());
         }
 
         for (Buffer key : registry.getSymbolicCodeMap().keySet()) {
             Class clazz = registry.getSymbolicCodeMap().get(key);
-            System.out.println(String.format("%s = %s", key.ascii(), clazz.getName()));
+            System.out.printf("%s = %s\n", key.ascii(), clazz.getName());
         }
 
+        assertTrue(registry.getPrimitiveFormatCodeMap().size() > 0);
         assertTrue(registry.getFormatCodeMap().size() > 0);
         assertTrue(registry.getSymbolicCodeMap().size() > 0);
 
