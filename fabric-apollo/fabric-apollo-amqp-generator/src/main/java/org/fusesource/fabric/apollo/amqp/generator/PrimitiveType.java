@@ -28,9 +28,11 @@ public class PrimitiveType extends AmqpDefinedType {
     private JFieldVar value;
     private List<JFieldVar> formatCodes = new ArrayList<JFieldVar>();
 
-
     private JMethod getValue;
     private JMethod setValue;
+    private JMethod noArgConstructor;
+    private JMethod valueConstructor;
+    private JMethod encodingPicker;
 
     public PrimitiveType(Generator generator, String className, Type type) throws JClassAlreadyExistsException {
         super(generator, className, type);
@@ -40,13 +42,20 @@ public class PrimitiveType extends AmqpDefinedType {
 
         value = cls().field(JMod.PRIVATE, getJavaType(), "value");
 
+        noArgConstructor = cls().constructor(JMod.PUBLIC);
+        noArgConstructor.body().block().assign(JExpr._this().ref("value"), JExpr._null());
+
+        valueConstructor = cls().constructor(JMod.PUBLIC);
+        valueConstructor.param(getJavaType(), "value");
+        valueConstructor.body().block().assign(JExpr._this().ref("value"), JExpr.ref("value"));
+
         getValue = cls().method(JMod.PUBLIC, getJavaType(), "getValue");
         getValue.body()._return(JExpr._this().ref("value"));
         setValue = cls().method(JMod.PUBLIC, cm.VOID, "setValue");
         setValue.param(getJavaType(), "value");
         setValue.body().block().assign(JExpr._this().ref("value"), JExpr.ref("value"));
 
-        JMethod encodingPicker = generator.picker().cls().method(JMod.PUBLIC, cm.BYTE, "choose" + toJavaClassName(type.getName() + "Encoding"));
+        encodingPicker = generator.picker().cls().method(JMod.PUBLIC, cm.BYTE, "choose" + toJavaClassName(type.getName() + "Encoding"));
         encodingPicker.param(getJavaType(), "value");
 
     }
@@ -106,13 +115,14 @@ public class PrimitiveType extends AmqpDefinedType {
                         .invoke("encoder")
                         .invoke("write" + toJavaClassName(fieldName))
                             .arg(JExpr._this().ref("value"))
-                            .arg(JExpr.ref("out")));
+                            .arg(JExpr.ref("out")))
+                        ._break();
             }
         }
 
         // TODO - create proper exception type to be thrown here
-        readSwitchBlock._default().body()._throw(JExpr._new(cm.ref(Exception.class)).arg(JExpr.lit("Unknown format code for " + type.getName())));
-        writeSwitchBlock._default().body()._throw(JExpr._new(cm.ref(Exception.class)).arg(JExpr.lit("Unknown format code for " + type.getName())));
+        readSwitchBlock._default().body()._throw(JExpr._new(cm.ref(Exception.class)).arg(JExpr.lit("Unknown format code for " + type.getName() + " : 0x").plus(cm.ref("java.lang.String").staticInvoke("format").arg("%x").arg(JExpr.ref("formatCode")))));
+        writeSwitchBlock._default().body()._throw(JExpr._new(cm.ref(Exception.class)).arg(JExpr.lit("Unknown format code for " + type.getName() + " : 0x").plus(cm.ref("java.lang.String").staticInvoke("format").arg("%x").arg(JExpr.ref("formatCode")))));
     }
 
     public Class getJavaType() {

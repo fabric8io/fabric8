@@ -350,8 +350,11 @@ public class Generator {
         }
     }
 
-    public File[] getInputFiles() {
+    public JClass getBitUtils() {
+        return cm.ref(getPackagePrefix() + ".BitUtils");
+    }
 
+    public File[] getInputFiles() {
         return inputFiles;
     }
 

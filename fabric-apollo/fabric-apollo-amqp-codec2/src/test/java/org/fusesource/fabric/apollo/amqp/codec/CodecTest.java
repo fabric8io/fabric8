@@ -1,3 +1,12 @@
+/**
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ *
+ *     http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
 
 package org.fusesource.fabric.apollo.amqp.codec;
 
@@ -23,17 +32,17 @@ public class CodecTest {
 
         for (Byte key : registry.getPrimitiveFormatCodeMap().keySet()) {
             Class clazz = registry.getPrimitiveFormatCodeMap().get(key);
-            System.out.printf("0x%x = %s\n", key, clazz.getName());
+            //System.out.printf("0x%x = %s\n", key, clazz.getName());
         }
 
         for (Long key : registry.getFormatCodeMap().keySet()) {
             Class clazz = registry.getFormatCodeMap().get(key);
-            System.out.printf("0x%x = %s\n", key, clazz.getName());
+            //System.out.printf("0x%x = %s\n", key, clazz.getName());
         }
 
         for (Buffer key : registry.getSymbolicCodeMap().keySet()) {
             Class clazz = registry.getSymbolicCodeMap().get(key);
-            System.out.printf("%s = %s\n", key.ascii(), clazz.getName());
+            //System.out.printf("%s = %s\n", key.ascii(), clazz.getName());
         }
 
         assertTrue(registry.getPrimitiveFormatCodeMap().size() > 0);
@@ -42,7 +51,7 @@ public class CodecTest {
 
         AmqpType type = (AmqpType) registry.getSymbolicCodeMap().get(new AsciiBuffer("amqp:header:list")).newInstance();
 
-        System.out.println(String.format("Got type : %s", type.getClass().getName()));
+        //System.out.println(String.format("Got type : %s", type.getClass().getName()));
 
         assertSame("Received type does not match expected type!", type.getClass(), Header.class);
     }

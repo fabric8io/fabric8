@@ -14,6 +14,7 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.EncodingPicker;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -154,7 +155,13 @@ public class AmqpEncodingPicker implements EncodingPicker {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }
-        if (value.length() < 255) {
+        int size = 0;
+        try {
+            size = value.getBytes("UTF-8").length;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 encoding not available : " + e.getLocalizedMessage());
+        }
+        if (size < 255) {
             return AMQPString.STRING_STR8_UTF8_CODE;
         }
         return AMQPString.STRING_STR32_UTF8_CODE;

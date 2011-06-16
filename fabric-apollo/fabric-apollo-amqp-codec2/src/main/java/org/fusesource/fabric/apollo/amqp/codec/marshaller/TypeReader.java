@@ -21,7 +21,7 @@ import java.io.DataInput;
  */
 public class TypeReader {
 
-    static AmqpType read(DataInput in) throws Exception {
+    public static AmqpType read(DataInput in) throws Exception {
         byte formatCode = in.readByte();
 
         if (formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE) {
