@@ -320,7 +320,7 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public List readList8(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     public void writeList8(List value, DataOutput out) throws Exception {
@@ -415,6 +415,23 @@ public class Encoder implements PrimitiveEncoder {
 
     public Map decodeMap32(Buffer buffer, int offset) throws Exception {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Object readNull(DataInput in) throws Exception {
+        return null;
+    }
+
+    public void writeNull(DataOutput out) throws Exception {
+        out.writeByte(TypeRegistry.NULL_FORMAT_CODE);
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void encodeNull(Buffer buffer, int offset) throws Exception {
+
+    }
+
+    public Object decodeNull(Buffer buffer, int offset) throws Exception {
+        return null;
     }
 
     public Short readShort(DataInput in) throws Exception {

@@ -19,11 +19,20 @@ import java.util.UUID;
 import static org.fusesource.fabric.apollo.amqp.codec.BitUtils.unsigned;
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  *
  */
 public class FixedWidthTypeTest {
+
+    @Test
+    public void testNull() throws Exception {
+        Long in = null;
+        //we lose the fact that this was a long type when decoding
+        Object out = writeRead(new AMQPLong(in));
+        assertNull(out);
+    }
 
     @Test
     public void testBoolean() throws Exception {

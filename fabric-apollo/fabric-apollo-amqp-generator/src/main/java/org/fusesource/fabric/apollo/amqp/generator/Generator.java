@@ -93,6 +93,7 @@ public class Generator {
         mapping.put("binary", Buffer.class);
         mapping.put("string", String.class);
         mapping.put("symbol", Buffer.class);
+
         mapping.put("list", List.class);
         mapping.put("map", Map.class);
         mapping.put("array", Object[].class);
@@ -195,9 +196,6 @@ public class Generator {
         int mods = JMod.PUBLIC;
 
         for (String key : primitives.keySet()) {
-            if (key.equals("null")) {
-                continue;
-            }
             Log.info("Adding encoder methods for type %s", key);
             Type type = primitives.get(key);
 
@@ -220,26 +218,42 @@ public class Generator {
     }
 
     private void createEncodeDecodeMethods(JDefinedClass clazz, int mods, Type type, String methodName) {
-        JMethod readMethod = clazz.method(mods, mapping.get(type.getName()), "read" + methodName);
+        JMethod readMethod;
+
+        Class m = mapping.get(type.getName());
+
+        if (m == null) {
+            readMethod = clazz.method(mods, cm.ref("java.lang.Object"), "read" + methodName);
+        } else {
+            readMethod  = clazz.method(mods, m, "read" + methodName);
+        }
         readMethod._throws(java.lang.Exception.class);
         readMethod.param(DataInput.class, "in");
 
         JMethod writeMethod = clazz.method(mods, cm.VOID, "write" + methodName);
         writeMethod._throws(java.lang.Exception.class);
-        writeMethod.param(mapping.get(type.getName()), "value");
+        if (m != null) {
+            writeMethod.param(m, "value");
+        }
         writeMethod.param(DataOutput.class, "out");
 
         JMethod encMethod = clazz.method(mods, cm.VOID, "encode" + methodName);
         encMethod._throws(java.lang.Exception.class);
-        encMethod.param(mapping.get(type.getName()), "value");
+        if (m != null) {
+            encMethod.param(m, "value");
+        }
         encMethod.param(Buffer.class, "buffer");
         encMethod.param(cm.INT, "offset");
 
-        JMethod decMethod = clazz.method(mods, mapping.get(type.getName()), "decode" + methodName);
+        JMethod decMethod;
+        if (m == null) {
+            decMethod = clazz.method(mods, cm.ref("java.lang.Object"), "decode" + methodName);
+        } else {
+            decMethod = clazz.method(mods, m, "decode" + methodName);
+        }
         decMethod._throws(java.lang.Exception.class);
         decMethod.param(Buffer.class, "buffer");
         decMethod.param(cm.INT, "offset");
-
     }
 
     private void buildRestrictedTypeMapping() {
