@@ -21,6 +21,7 @@ import org.apache.activemq.apollo.util.Dispatched
 import org.apache.activemq.apollo.stomp.StompClient
 import org.apache.activemq.apollo.dto.QueueDestinationDTO
 import org.apache.activemq.apollo.broker.Queue
+import java.net.{InetSocketAddress, Inet4Address}
 
 /**
  */
@@ -60,7 +61,7 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
     super.afterEach
   }
 
-  def connect(broker:ClusterBrokerService):StompClient = connect(broker.broker.get_socket_address.getPort)
+  def connect(broker:ClusterBrokerService):StompClient = connect(broker.broker.get_socket_address.asInstanceOf[InetSocketAddress].getPort)
 
   def connect(port:Int):StompClient = {
     val c = new StompClient

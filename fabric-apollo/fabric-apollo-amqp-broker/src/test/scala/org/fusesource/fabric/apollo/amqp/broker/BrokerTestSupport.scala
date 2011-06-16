@@ -15,6 +15,7 @@ import org.apache.activemq.apollo.broker.BrokerFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{FunSuiteSupport, Logging, ServiceControl}
+import java.net.InetSocketAddress
 
 /**
  *
@@ -25,7 +26,7 @@ trait BrokerTestSupport extends FunSuiteSupport with BeforeAndAfterEach with Log
     debug("Starting broker")
     broker = BrokerFactory.createBroker(brokerConfigUri)
     ServiceControl.start(broker, "Starting broker")
-    port = broker.get_socket_address.getPort
+    port = broker.get_socket_address.asInstanceOf[InetSocketAddress].getPort
   }
 
   protected var host: String = "localhost"

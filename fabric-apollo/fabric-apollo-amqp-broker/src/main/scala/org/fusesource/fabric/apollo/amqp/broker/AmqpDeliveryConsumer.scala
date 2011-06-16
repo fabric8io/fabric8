@@ -61,7 +61,7 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
         val rc = new DurableSubscriptionDestinationDTO()
         rc.path = x.path
         rc.subscription_id = link.getName
-        rc.filter = null
+        rc.selector = null
         rc
       case _ =>
         h.close("A persistent subscription can only be used on a topic destination")

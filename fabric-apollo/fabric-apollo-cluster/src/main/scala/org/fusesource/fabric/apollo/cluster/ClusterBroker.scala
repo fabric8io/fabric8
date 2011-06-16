@@ -24,6 +24,7 @@ import org.apache.activemq.apollo.broker.protocol.{ProtocolHandler, AnyProtocol}
 import org.fusesource.fabric.apollo.cluster.util.{HashRing, Hasher}
 import org.fusesource.fabric.groups.{ChangeListener, Group}
 import org.apache.activemq.apollo.dto.{ConnectorDTO, JsonCodec}
+import java.net.SocketAddress
 
 object ClusterBroker extends Log {
 }
@@ -97,6 +98,8 @@ class ClusterBroker(override val id:String, val cluster:Group) extends Broker {
     def update(config: ConnectorDTO, on_complete: Runnable) = {
       on_complete.run()
     }
+
+    def socket_address: SocketAddress = null
   }
 
   var cluster_weight = 16
