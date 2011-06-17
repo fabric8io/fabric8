@@ -139,7 +139,7 @@ public class AmqpEncodingPicker implements EncodingPicker {
         int size = 0;
         for (Object obj : value) {
             size += ((AmqpType)obj).size();
-            if (size > 255) {
+            if (size > (255 - AMQPList.LIST_LIST8_WIDTH)) {
                 return AMQPList.LIST_LIST32_CODE;
             }
         }
@@ -160,7 +160,18 @@ public class AmqpEncodingPicker implements EncodingPicker {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }
-        return AMQPMap.MAP_MAP32_CODE;
+        if (value.keySet().size() + value.values().size() > 255) {
+            return AMQPMap.MAP_MAP32_CODE;
+        }
+        int size = 0;
+        for (Object key : value.keySet()) {
+            size += ((AmqpType)key).size();
+            size += ((AmqpType)value.get(key)).size();
+            if (size > (255 - AMQPMap.MAP_MAP8_WIDTH)) {
+                return AMQPMap.MAP_MAP32_CODE;
+            }
+        }
+        return AMQPMap.MAP_MAP8_CODE;
     }
 
     public byte chooseShortEncoding(Short value) {

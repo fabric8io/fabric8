@@ -150,7 +150,11 @@ public class AmqpSizer implements Sizer {
         }
 
         for (Object obj : value) {
-            size += ((AmqpType)obj).size();
+            if (obj == null) {
+                size += 1;
+            } else {
+                size += ((AmqpType)obj).size();
+            }
         }
         return size;
     }
@@ -170,7 +174,31 @@ public class AmqpSizer implements Sizer {
     }
 
     public long sizeOfMap(Map value) {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        int size = 1;
+        byte formatCode = TypeRegistry.instance().picker().chooseMapEncoding(value);
+        switch (formatCode) {
+            case TypeRegistry.NULL_FORMAT_CODE:
+                return size;
+            case AMQPMap.MAP_MAP8_CODE:
+                size += AMQPMap.MAP_MAP8_WIDTH * 2;
+                break;
+            case AMQPMap.MAP_MAP32_CODE:
+                size += AMQPMap.MAP_MAP32_WIDTH * 2;
+                break;
+            default:
+                throw new RuntimeException("Unknown format code 0x" + String.format("%x", formatCode));
+        }
+
+        for (Object key : value.keySet()) {
+            size += ((AmqpType)key).size();
+            Object obj = value.get(key);
+            if (obj == null) {
+                size += 1;
+            } else {
+                size += ((AmqpType)obj).size();
+            }
+        }
+        return size;
     }
 
     public long sizeOfShort(Short value) {

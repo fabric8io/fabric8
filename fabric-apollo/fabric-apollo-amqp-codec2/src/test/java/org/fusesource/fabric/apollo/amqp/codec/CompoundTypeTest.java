@@ -14,7 +14,9 @@ import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
 import static org.junit.Assert.assertEquals;
@@ -31,9 +33,7 @@ public class CompoundTypeTest {
         in.add(new AMQPShort((short)5));
         in.add(new AMQPInt(10));
         in.add(new AMQPString("hi"));
-
         List out = writeRead(new AMQPList(in)).getValue();
-
         assertEquals(in, out);
     }
 
@@ -59,6 +59,25 @@ public class CompoundTypeTest {
 
         List out = writeRead(new AMQPList(in)).getValue();
 
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testMap8() throws Exception {
+        Map in = new HashMap();
+        in.put(new AMQPString("key"), new AMQPString("value"));
+        in.put(new AMQPString("int"), new AMQPInt(23));
+        Map out = writeRead(new AMQPMap(in)).getValue();
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testMap32() throws Exception {
+        Map in = new HashMap();
+        for (int i=0; i < 2048; i++) {
+            in.put(new AMQPString("key" + i), new AMQPString("value" + i));
+        }
+        Map out = writeRead(new AMQPMap(in)).getValue();
         assertEquals(in, out);
     }
 

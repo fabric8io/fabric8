@@ -320,16 +320,7 @@ public class Encoder implements PrimitiveEncoder {
     public List readList8(DataInput in) throws Exception {
         Long size = (long)in.readUnsignedByte();
         Long count = (long)in.readUnsignedByte();
-        List rc = new ArrayList();
-        while (count > 0) {
-            rc.add(TypeReader.read(in));
-            count--;
-        }
-        Long actualSize = TypeRegistry.instance().sizer().sizeOfList(rc) - 1 - AMQPList.LIST_LIST8_WIDTH;
-        if (size.longValue() != actualSize.longValue()) {
-            throw new RuntimeException(String.format("Encoded size of list (%s) doesn't match actual size of list (%s)", size, actualSize));
-        }
-        return rc;
+        return readListData(in, size, count, AMQPList.LIST_LIST8_WIDTH);
     }
 
     public void writeList8(List value, DataOutput out) throws Exception {
@@ -338,10 +329,7 @@ public class Encoder implements PrimitiveEncoder {
         Long count = (long)value.size();
         out.writeByte(size.byteValue());
         out.writeByte(count.byteValue());
-        for (Object obj : value) {
-            AmqpType element = (AmqpType)obj;
-            element.write(out);
-        }
+        writeListData(value, out);
     }
 
     public void encodeList8(List value, Buffer buffer, int offset) throws Exception {
@@ -355,12 +343,16 @@ public class Encoder implements PrimitiveEncoder {
     public List readList32(DataInput in) throws Exception {
         Long size = (long)in.readInt();
         Long count = (long)in.readInt();
+        return readListData(in, size, count, AMQPList.LIST_LIST32_WIDTH);
+    }
+
+    private List readListData(DataInput in, Long size, Long count, int width) throws Exception {
         List rc = new ArrayList();
         while (count > 0) {
             rc.add(TypeReader.read(in));
             count--;
         }
-        Long actualSize = TypeRegistry.instance().sizer().sizeOfList(rc) - 1 - AMQPList.LIST_LIST32_WIDTH;
+        Long actualSize = TypeRegistry.instance().sizer().sizeOfList(rc) - 1 - width;
         if (size.longValue() != actualSize.longValue()) {
             throw new RuntimeException(String.format("Encoded size of list (%s) doesn't match actual size of list (%s)", size, actualSize));
         }
@@ -373,9 +365,17 @@ public class Encoder implements PrimitiveEncoder {
         Long count = (long)value.size();
         out.writeInt(size.intValue());
         out.writeInt(count.intValue());
+        writeListData(value, out);
+    }
+
+    private void writeListData(List value, DataOutput out) throws Exception {
         for (Object obj : value) {
             AmqpType element = (AmqpType)obj;
-            element.write(out);
+            if (element == null) {
+                writeNull(out);
+            } else {
+                element.write(out);
+            }
         }
     }
 
@@ -422,11 +422,46 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Map readMap8(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Long size = (long)in.readUnsignedByte();
+        Long count = (long)in.readUnsignedByte();
+        return readMapData(in, size, count, AMQPMap.MAP_MAP8_WIDTH);
+    }
+
+    private Map readMapData(DataInput in, Long size, Long count, int width) throws Exception {
+        if (count % 2 != 0) {
+            throw new RuntimeException(String.format("Map count (%s) is not divisible by 2", count));
+        }
+        Map rc = new HashMap();
+        while (count > 0) {
+            rc.put(TypeReader.read(in), TypeReader.read(in));
+            count -= 2;
+        }
+        Long actualSize = TypeRegistry.instance().sizer().sizeOfMap(rc) - 1 - width;
+        if (size.longValue() != actualSize.longValue()) {
+            throw new RuntimeException(String.format("Encoded size of map (%s) does not match actual size of map (%s)", size, actualSize));
+        }
+        return rc;
     }
 
     public void writeMap8(Map value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        out.writeByte(AMQPMap.MAP_MAP8_CODE);
+        Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP8_WIDTH;
+        Long count = (long)(value.keySet().size() + value.values().size());
+        out.writeByte(size.byteValue());
+        out.writeByte(count.byteValue());
+        writeMapData(value, out);
+    }
+
+    private void writeMapData(Map value, DataOutput out) throws Exception {
+        for (Object key : value.keySet()) {
+            ((AmqpType)key).write(out);
+            Object v = value.get(key);
+            if (v == null) {
+                writeNull(out);
+            } else {
+                ((AmqpType)v).write(out);
+            }
+        }
     }
 
     public void encodeMap8(Map value, Buffer buffer, int offset) throws Exception {
@@ -438,11 +473,18 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Map readMap32(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Long size = (long)in.readInt();
+        Long count = (long)in.readInt();
+        return readMapData(in, size, count, AMQPMap.MAP_MAP32_WIDTH);
     }
 
     public void writeMap32(Map value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        out.writeByte(AMQPMap.MAP_MAP32_CODE);
+        Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP32_WIDTH;
+        Long count = (long)(value.keySet().size() + value.values().size());
+        out.writeInt(size.intValue());
+        out.writeInt(count.intValue());
+        writeMapData(value, out);
     }
 
     public void encodeMap32(Map value, Buffer buffer, int offset) throws Exception {
@@ -459,7 +501,6 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeNull(DataOutput out) throws Exception {
         out.writeByte(TypeRegistry.NULL_FORMAT_CODE);
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void encodeNull(Buffer buffer, int offset) throws Exception {
