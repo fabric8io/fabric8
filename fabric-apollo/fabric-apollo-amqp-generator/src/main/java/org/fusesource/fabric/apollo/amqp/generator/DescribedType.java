@@ -101,11 +101,6 @@ public class DescribedType  extends AmqpDefinedType {
         Log.info("");
         Log.info("Generating %s", cls().binaryName());
 
-        size().body().decl(cm.LONG, "rc", JExpr.lit(1L));
-        size().body().block().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(generator.registry().cls().staticInvoke("instance")
-        .invoke("sizer")
-        .invoke("sizeOfULong").arg(JExpr.ref("NUMERIC_ID"))));
-
         for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
             if ( obj instanceof Field ) {
                 Field field = (Field) obj;
@@ -179,18 +174,50 @@ public class DescribedType  extends AmqpDefinedType {
             }
         }
 
+        fillInWriteMethod();
+        fillInSizeMethod();
+
+        count = cls().method(JMod.PUBLIC, cm.INT, "count");
+        count().body()._return(JExpr.lit(amqpFields.size()));
+    }
+
+    private void fillInWriteMethod() {
+        write().body().block().invoke(JExpr.ref("out"), "writeByte").arg(generator.registry().cls().staticRef("DESCRIBED_FORMAT_CODE"));
+        write().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get("ulong")), "write").arg(JExpr.ref("NUMERIC_ID")).arg(JExpr.ref("out"));
+
+        for (Attribute attribute : amqpFields) {
+            if (generator.getMapping().get(attribute.type) != null) {
+                if (attribute.attribute.type().isArray()) {
+
+                } else {
+                    write().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(JExpr._this().ref(attribute.attribute.name())).arg(JExpr.ref("out"));
+                }
+
+            }
+
+        }
+    }
+
+    private void fillInSizeMethod() {
+        size().body().decl(cm.LONG, "rc", JExpr.lit(1L));
+        size().body().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(generator.registry().cls().staticInvoke("instance")
+                .invoke("sizer")
+                .invoke("sizeOfULong").arg(JExpr.ref("NUMERIC_ID"))));
+
+        size().body().decl(cm.LONG, "fieldSize", JExpr.lit(0L));
+
         for (Attribute attribute : amqpFields) {
 
             if (generator.getMapping().get(attribute.type) != null) {
                 if (attribute.attribute.type().isArray()) {
-                    size().body().block().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(
+                    size().body().assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                             .invoke("sizer")
                             .invoke("sizeOfArray")
                                 .arg(JExpr.ref(attribute.attribute.name()))));
 
                 } else {
-                    size().body().block().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(
+                    size().body().assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                                     .invoke("sizer")
                                     .invoke("sizeOf" + toJavaClassName(attribute.type))
@@ -198,30 +225,28 @@ public class DescribedType  extends AmqpDefinedType {
                 }
             } else {
                 if (attribute.attribute.type().isArray()) {
-                    size().body().block().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(
+                    size().body().assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                                     .invoke("sizer")
                                     .invoke("sizeOfArray")
                                     .arg(JExpr.ref(attribute.attribute.name()))));
                 } else {
 
-                    JConditional conditional = size().body().block()
+                    JConditional conditional = size().body()
                             ._if(JExpr.ref(attribute.attribute.name()).ne(JExpr._null()));
 
                     conditional._then()
                             .assign(
-                                    JExpr.ref("rc"), JExpr.ref("rc").plus(
+                                    JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
                                     JExpr.ref(attribute.attribute.name()).invoke("size")));
 
                     conditional._else()
-                            .assign(JExpr.ref("rc"), JExpr.ref("rc").plus(JExpr.lit(1L)));
+                            .assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(JExpr.lit(1L)));
                 }
             }
         }
 
-        size().body().block()._return(JExpr.ref("rc"));
-        count = cls().method(JMod.PUBLIC, cm.INT, "count");
-        count().body()._return(JExpr.lit(amqpFields.size()));
+        size().body()._return(JExpr.ref("rc"));
     }
 
     public JMethod count() {
