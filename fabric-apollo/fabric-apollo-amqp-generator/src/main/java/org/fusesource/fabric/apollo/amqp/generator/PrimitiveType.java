@@ -35,6 +35,10 @@ public class PrimitiveType extends AmqpDefinedType {
     private JMethod noArgConstructor;
     private JMethod valueConstructor;
     private JMethod encodingPicker;
+    private JMethod equalsTypeSpecific;
+    private JMethod equalsGeneric;
+    private JMethod toString;
+    private JMethod hashCode;
 
     private JMethod staticRead;
     private JMethod staticWrite;
@@ -45,15 +49,9 @@ public class PrimitiveType extends AmqpDefinedType {
     }
 
     protected void createInitialFields() {
-
         value = cls().field(JMod.PRIVATE, getJavaType(), "value");
 
-        noArgConstructor = cls().constructor(JMod.PUBLIC);
-        noArgConstructor.body().block().assign(JExpr._this().ref("value"), JExpr._null());
-
-        valueConstructor = cls().constructor(JMod.PUBLIC);
-        valueConstructor.param(getJavaType(), "value");
-        valueConstructor.body().block().assign(JExpr._this().ref("value"), JExpr.ref("value"));
+        generateConstructors();
 
         getValue = cls().method(JMod.PUBLIC, getJavaType(), "getValue");
         getValue.body()._return(JExpr._this().ref("value"));
@@ -64,23 +62,76 @@ public class PrimitiveType extends AmqpDefinedType {
         encodingPicker = generator.picker().cls().method(JMod.PUBLIC, cm.BYTE, "choose" + toJavaClassName(type.getName() + "Encoding"));
         encodingPicker.param(getJavaType(), "value");
 
+        generateSize();
+        generateEquals();
+        generateHashCode();
+        generateToString();
+    }
+
+    private void generateHashCode() {
+        hashCode = cls().method(JMod.PUBLIC, cm.INT, "hashCode");
+        hashCode.body().block()._if(JExpr._this().ref("value").eq(JExpr._null()))
+                ._then()
+                ._return(JExpr.dotclass(cls()).invoke("hashCode"));
+        hashCode.body().block()._return(JExpr._this().ref("value").invoke("hashCode"));
+    }
+
+    private void generateSize() {
         sizer = generator.sizer().cls().method(JMod.PUBLIC, cm.LONG, "sizeOf" + toJavaClassName(type.getName()));
         sizer.param(getJavaType(), "value");
 
         size().body()._return(generator.registry().cls().staticInvoke("instance")
         .invoke("sizer").invoke("sizeOf" + toJavaClassName(type.getName())).arg(JExpr.ref("value")));
+    }
 
+    private void generateConstructors() {
+        noArgConstructor = cls().constructor(JMod.PUBLIC);
+        noArgConstructor.body().block().assign(JExpr._this().ref("value"), JExpr._null());
+
+        valueConstructor = cls().constructor(JMod.PUBLIC);
+        valueConstructor.param(getJavaType(), "value");
+        valueConstructor.body().block().assign(JExpr._this().ref("value"), JExpr.ref("value"));
+    }
+
+    private void generateToString() {
+        toString = cls().method(JMod.PUBLIC, cm.ref("java.lang.String"), "toString");
+        toString.body().block()._if(JExpr._this().ref("value").eq(JExpr._null()))._then().block()._return(JExpr.lit("null"));
+        toString.body().block()._return(JExpr._this().ref("value").invoke("toString"));
+    }
+
+    private void generateEquals() {
+        equalsGeneric = cls().method(JMod.PUBLIC, cm.BOOLEAN, "equals");
+        equalsGeneric.param(cm.ref("java.lang.Object"), "other");
+
+        equalsGeneric.body().block()._if(JExpr._this().eq(JExpr.ref("other")))
+                ._then()
+                ._return(JExpr.TRUE);
+
+        equalsGeneric.body().block()._if(
+                JExpr.ref("other").eq(JExpr._null())
+                        .cor( (JExpr.ref("other")._instanceof(cls()).not() )))
+                ._then()
+                ._return(JExpr.FALSE);
+
+        equalsGeneric.body().block()._return(JExpr._this().invoke("equals").arg(JExpr.cast(cls(), JExpr.ref("other"))));
+
+        equalsTypeSpecific = cls().method(JMod.PUBLIC, cm.BOOLEAN, "equals");
+        equalsTypeSpecific.param(cls(), "other");
+        equalsTypeSpecific.body().block()._if(JExpr.ref("other").eq(JExpr._null()))._then()._return(JExpr.FALSE);
+        JConditional test = equalsTypeSpecific.body().block()._if(JExpr._this().ref("value").eq(JExpr._null()).cand(JExpr.ref("other").invoke("getValue").ne(JExpr._null())));
+        test._then().block()._return(JExpr.FALSE);
+        JConditional test2 = test._elseif(JExpr._this().ref("value").ne(JExpr._null()).cand(JExpr.ref("other").invoke("getValue").eq(JExpr._null())));
+        test2._then().block()._return(JExpr.FALSE);
+        JConditional test3 = test2._elseif(JExpr._this().ref("value").eq(JExpr._null()).cand(JExpr.ref("other").invoke("getValue").eq(JExpr._null())));
+        test3._then().block()._return(JExpr.TRUE);
+        test3._else().block()._return(JExpr._this().ref("value").invoke("equals").arg(JExpr.ref("other").invoke("getValue")));
     }
 
     protected void createStaticBlock() {
 
-        staticRead = cls().method(JMod.PUBLIC | JMod.STATIC, getJavaType(), "read");
-        staticRead._throws(Exception.class);
-        staticRead.param(DataInput.class, "in");
+        staticRead().body().decl(cm.BYTE, "formatCode", JExpr.ref("in").invoke("readByte"));
 
-        JVar fmc = staticRead.body().decl(cm.BYTE, "formatCode", JExpr.ref("in").invoke("readByte"));
-
-        JSwitch staticReadSwitchBlock = staticRead.body().block()._switch(JExpr.ref("formatCode"));
+        JSwitch staticReadSwitchBlock = staticRead().body().block()._switch(JExpr.ref("formatCode"));
 
         staticReadSwitchBlock._case(generator.registry().cls().staticRef("NULL_FORMAT_CODE")).body()._return(JExpr.cast(cm._ref(getJavaType()), generator.registry().cls()
                 .staticInvoke("instance")
@@ -90,12 +141,7 @@ public class PrimitiveType extends AmqpDefinedType {
 
         JSwitch readSwitchBlock = read().body()._switch(JExpr.ref("formatCode"));
 
-        staticWrite = cls().method(JMod.PUBLIC | JMod.STATIC, cm.VOID, "write");
-        staticWrite._throws(Exception.class);
-        staticWrite.param(getJavaType(), "value");
-        staticWrite.param(DataOutput.class, "out");
-
-        staticWrite.body().decl(cm.BYTE, "formatCode", generator.registry().cls()
+        staticWrite().body().decl(cm.BYTE, "formatCode", generator.registry().cls()
                 .staticInvoke("instance")
                 .invoke("picker")
                 .invoke("choose" + toJavaClassName(type.getName() + "Encoding"))
@@ -107,7 +153,7 @@ public class PrimitiveType extends AmqpDefinedType {
                 .invoke("choose" + toJavaClassName(type.getName() + "Encoding"))
                 .arg(JExpr.ref("value")));
 
-        JSwitch staticWriteSwitchBlock = staticWrite.body()._switch(JExpr.ref("formatCode"));
+        JSwitch staticWriteSwitchBlock = staticWrite().body()._switch(JExpr.ref("formatCode"));
         JSwitch writeSwitchBlock = write().body()._switch(JExpr.ref("formatCode"));
 
         writeSwitchBlock._case(generator.registry().cls().staticRef("NULL_FORMAT_CODE")).body().add(generator.registry().cls()
@@ -189,6 +235,25 @@ public class PrimitiveType extends AmqpDefinedType {
         staticReadSwitchBlock._default().body()._throw(JExpr._new(cm.ref(Exception.class)).arg(JExpr.lit("Unknown format code for " + type.getName() + " : 0x").plus(cm.ref("java.lang.String").staticInvoke("format").arg("%x").arg(JExpr.ref("formatCode")))));
         writeSwitchBlock._default().body()._throw(JExpr._new(cm.ref(Exception.class)).arg(JExpr.lit("Unknown format code for " + type.getName() + " : 0x").plus(cm.ref("java.lang.String").staticInvoke("format").arg("%x").arg(JExpr.ref("formatCode")))));
         staticWriteSwitchBlock._default().body()._throw(JExpr._new(cm.ref(Exception.class)).arg(JExpr.lit("Unknown format code for " + type.getName() + " : 0x").plus(cm.ref("java.lang.String").staticInvoke("format").arg("%x").arg(JExpr.ref("formatCode")))));
+    }
+
+    private JMethod staticWrite() {
+        if (staticWrite == null) {
+            staticWrite = cls().method(JMod.PUBLIC | JMod.STATIC, cm.VOID, "write");
+            staticWrite._throws(Exception.class);
+            staticWrite.param(getJavaType(), "value");
+            staticWrite.param(DataOutput.class, "out");
+        }
+        return staticWrite;
+    }
+
+    private JMethod staticRead() {
+        if (staticRead == null) {
+            staticRead = cls().method(JMod.PUBLIC | JMod.STATIC, getJavaType(), "read");
+            staticRead._throws(Exception.class);
+            staticRead.param(DataInput.class, "in");
+        }
+        return staticRead;
     }
 
     public Class getJavaType() {

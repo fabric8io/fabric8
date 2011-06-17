@@ -133,7 +133,17 @@ public class AmqpEncodingPicker implements EncodingPicker {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }
-        return AMQPList.LIST_LIST32_CODE;
+        if (value.size() > 255) {
+            return AMQPList.LIST_LIST32_CODE;
+        }
+        int size = 0;
+        for (Object obj : value) {
+            size += ((AmqpType)obj).size();
+            if (size > 255) {
+                return AMQPList.LIST_LIST32_CODE;
+            }
+        }
+        return AMQPList.LIST_LIST8_CODE;
     }
 
     public byte chooseLongEncoding(Long value) {

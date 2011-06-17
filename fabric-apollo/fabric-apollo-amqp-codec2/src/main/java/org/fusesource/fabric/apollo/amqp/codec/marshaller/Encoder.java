@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.PrimitiveEncoder;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
@@ -18,10 +19,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  *
@@ -320,11 +318,30 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public List readList8(DataInput in) throws Exception {
-        return null;
+        Long size = (long)in.readUnsignedByte();
+        Long count = (long)in.readUnsignedByte();
+        List rc = new ArrayList();
+        while (count > 0) {
+            rc.add(TypeReader.read(in));
+            count--;
+        }
+        Long actualSize = TypeRegistry.instance().sizer().sizeOfList(rc) - 1 - AMQPList.LIST_LIST8_WIDTH;
+        if (size.longValue() != actualSize.longValue()) {
+            throw new RuntimeException(String.format("Encoded size of list (%s) doesn't match actual size of list (%s)", size, actualSize));
+        }
+        return rc;
     }
 
     public void writeList8(List value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        out.writeByte(AMQPList.LIST_LIST8_CODE);
+        Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST8_WIDTH;
+        Long count = (long)value.size();
+        out.writeByte(size.byteValue());
+        out.writeByte(count.byteValue());
+        for (Object obj : value) {
+            AmqpType element = (AmqpType)obj;
+            element.write(out);
+        }
     }
 
     public void encodeList8(List value, Buffer buffer, int offset) throws Exception {
@@ -336,11 +353,30 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public List readList32(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Long size = (long)in.readInt();
+        Long count = (long)in.readInt();
+        List rc = new ArrayList();
+        while (count > 0) {
+            rc.add(TypeReader.read(in));
+            count--;
+        }
+        Long actualSize = TypeRegistry.instance().sizer().sizeOfList(rc) - 1 - AMQPList.LIST_LIST32_WIDTH;
+        if (size.longValue() != actualSize.longValue()) {
+            throw new RuntimeException(String.format("Encoded size of list (%s) doesn't match actual size of list (%s)", size, actualSize));
+        }
+        return rc;
     }
 
     public void writeList32(List value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        out.writeByte(AMQPList.LIST_LIST32_CODE);
+        Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST32_WIDTH;
+        Long count = (long)value.size();
+        out.writeInt(size.intValue());
+        out.writeInt(count.intValue());
+        for (Object obj : value) {
+            AmqpType element = (AmqpType)obj;
+            element.write(out);
+        }
     }
 
     public void encodeList32(List value, Buffer buffer, int offset) throws Exception {

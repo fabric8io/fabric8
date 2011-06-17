@@ -37,8 +37,10 @@ public class TestSupport {
 
     public static <T extends AmqpType> T writeRead(T value) throws Exception {
         byte b[] = write(value);
-        System.out.printf("%s -> %s\n", value.getClass().getSimpleName(), string(b));
         T rc = (T)read(b);
+        if (value.size() < 128) {
+            System.out.printf("%s : %s -> %s -> %s\n", value.getClass().getSimpleName(), value, string(b), rc);
+        }
         return rc;
     }
 

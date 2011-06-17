@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.Sizer;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
@@ -133,10 +134,25 @@ public class AmqpSizer implements Sizer {
     }
 
     public long sizeOfList(List value) {
-        if (value == null) {
-            return 1;
+        int size = 1;
+        byte formatCode = TypeRegistry.instance().picker().chooseListEncoding(value);
+        switch (formatCode) {
+            case TypeRegistry.NULL_FORMAT_CODE:
+                return size;
+            case AMQPList.LIST_LIST8_CODE:
+                size += AMQPList.LIST_LIST8_WIDTH * 2;
+                break;
+            case AMQPList.LIST_LIST32_CODE:
+                size += AMQPList.LIST_LIST32_WIDTH * 2;
+                break;
+            default:
+                throw new RuntimeException("Unknown format code 0x" + String.format("%x", formatCode));
         }
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+
+        for (Object obj : value) {
+            size += ((AmqpType)obj).size();
+        }
+        return size;
     }
 
     public long sizeOfLong(Long value) {
