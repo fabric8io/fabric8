@@ -109,7 +109,7 @@ public class PrimitiveType extends AmqpDefinedType {
 
         equalsGeneric.body().block()._if(
                 JExpr.ref("other").eq(JExpr._null())
-                        .cor( (JExpr.ref("other")._instanceof(cls()).not() )))
+                        .cor((JExpr.ref("other")._instanceof(cls()).not())))
                 ._then()
                 ._return(JExpr.FALSE);
 

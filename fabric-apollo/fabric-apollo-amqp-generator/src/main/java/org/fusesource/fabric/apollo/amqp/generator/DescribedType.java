@@ -138,7 +138,11 @@ public class DescribedType  extends AmqpDefinedType {
                     } else if ( clazz == null ) {
                         c = cm._getClass(fieldType);
                     } else {
-                        c = cm.ref(clazz.getName());
+                        if (array) {
+                            c = cm.ref(generator.getPrimitiveJavaClass().get(fieldType));
+                        } else {
+                            c = cm.ref(clazz.getName());
+                        }
                     }
                     if ( array ) {
                         c = c.array();

@@ -18,6 +18,7 @@ import org.fusesource.hawtbuf.Buffer;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -202,27 +203,34 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public BigDecimal readDecimal128IEEE754(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        // TODO - support Decimal128
+        throw new RuntimeException("Decimal128 not supported");
     }
 
     public void writeDecimal128IEEE754(BigDecimal value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // TODO - support Decimal128
+        throw new RuntimeException("Decimal128 not supported");
     }
 
     public void encodeDecimal128IEEE754(BigDecimal value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // TODO - support Decimal128
+        throw new RuntimeException("Decimal128 not supported");
     }
 
     public BigDecimal decodeDecimal128IEEE754(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        // TODO - support Decimal128
+        throw new RuntimeException("Decimal128 not supported");
     }
 
     public BigDecimal readDecimal32IEEE754(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Float fl = in.readFloat();
+        return new BigDecimal(fl, MathContext.DECIMAL64).stripTrailingZeros();
     }
 
     public void writeDecimal32IEEE754(BigDecimal value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        out.writeByte(AMQPDecimal32.DECIMAL32_IEEE_754_CODE);
+        BigDecimal withContext = new BigDecimal(value.toPlainString(), MathContext.DECIMAL32);
+        out.writeInt(Float.floatToIntBits(withContext.floatValue()));
     }
 
     public void encodeDecimal32IEEE754(BigDecimal value, Buffer buffer, int offset) throws Exception {
@@ -234,11 +242,14 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public BigDecimal readDecimal64IEEE754(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Double dbl = in.readDouble();
+        return new BigDecimal(dbl, MathContext.DECIMAL64).stripTrailingZeros();
     }
 
     public void writeDecimal64IEEE754(BigDecimal value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        out.writeByte(AMQPDecimal64.DECIMAL64_IEEE_754_CODE);
+        BigDecimal withContext = new BigDecimal(value.toPlainString(), MathContext.DECIMAL64);
+        out.writeLong(Double.doubleToLongBits(withContext.doubleValue()));
     }
 
     public void encodeDecimal64IEEE754(BigDecimal value, Buffer buffer, int offset) throws Exception {
