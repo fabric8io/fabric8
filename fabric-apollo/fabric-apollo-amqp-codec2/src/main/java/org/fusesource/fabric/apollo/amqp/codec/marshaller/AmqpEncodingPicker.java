@@ -17,6 +17,7 @@ import org.fusesource.hawtbuf.Buffer;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -214,14 +215,14 @@ public class AmqpEncodingPicker implements EncodingPicker {
         return AMQPTimestamp.TIMESTAMP_MS64_CODE;
     }
 
-    public byte chooseUByteEncoding(Byte value) {
+    public byte chooseUByteEncoding(Short value) {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }
         return AMQPUByte.UBYTE_CODE;
     }
 
-    public byte chooseUIntEncoding(Integer value) {
+    public byte chooseUIntEncoding(Long value) {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }
@@ -234,20 +235,20 @@ public class AmqpEncodingPicker implements EncodingPicker {
         return AMQPUInt.UINT_CODE;
     }
 
-    public byte chooseULongEncoding(Long value) {
+    public byte chooseULongEncoding(BigInteger value) {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }
-        if (value == 0) {
+        if (value == BigInteger.ZERO) {
             return AMQPULong.ULONG_ULONG0_CODE;
         }
-        if (value < 255 && value > 0) {
+        if ( value.toByteArray().length == 1) {
             return AMQPULong.ULONG_SMALLULONG_CODE;
         }
         return AMQPULong.ULONG_CODE;
     }
 
-    public byte chooseUShortEncoding(Short value) {
+    public byte chooseUShortEncoding(Integer value) {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }

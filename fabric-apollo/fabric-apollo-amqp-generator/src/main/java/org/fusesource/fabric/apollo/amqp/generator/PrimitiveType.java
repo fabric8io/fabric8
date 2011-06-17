@@ -49,7 +49,7 @@ public class PrimitiveType extends AmqpDefinedType {
     }
 
     protected void createInitialFields() {
-        value = cls().field(JMod.PRIVATE, getJavaType(), "value");
+        value = cls().field(JMod.PROTECTED, getJavaType(), "value");
 
         generateConstructors();
 

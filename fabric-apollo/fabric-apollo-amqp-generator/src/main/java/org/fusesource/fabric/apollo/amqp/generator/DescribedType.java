@@ -17,7 +17,7 @@ import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
 import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
 
-
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.sanitize;
@@ -68,10 +68,15 @@ public class DescribedType  extends AmqpDefinedType {
                 String code = desc.getCode();
                 String category = code.split(":")[0];
                 String descriptorId = code.split(":")[1];
+                category = category.substring(2);
+                category = category.substring(4);
+                descriptorId = descriptorId.substring(2);
+                descriptorId = descriptorId.substring(4);
 
-                CATEGORY = cls().field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
-                DESCRIPTOR_ID = cls().field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
-                NUMERIC_ID = cls().field(mods, long.class, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
+                //CATEGORY = cls().field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
+                //DESCRIPTOR_ID = cls().field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
+                //NUMERIC_ID = cls().field(mods, cm.LONG, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
+                NUMERIC_ID = cls().field(mods, BigInteger.class, "NUMERIC_ID", JExpr._new(cm.ref("java.math.BigInteger")).arg(JExpr.lit(category + descriptorId)).arg(JExpr.lit(16)));
 
                 cls().init().add(
                         generator.registry().cls().staticInvoke("instance")
@@ -114,7 +119,7 @@ public class DescribedType  extends AmqpDefinedType {
                     if ( field.getRequires() != null ) {
                         String requiredType = field.getRequires();
                         if (generator.getProvides().contains(requiredType)) {
-                            fieldType = generator.getPackagePrefix() + "." + generator.getInterfaces() + "." + toJavaClassName(field.getRequires());
+                            fieldType = generator.getInterfaces() + "." + toJavaClassName(field.getRequires());
                         }
                     }
                 } else if (generator.getDescribed().containsKey(fieldType)) {

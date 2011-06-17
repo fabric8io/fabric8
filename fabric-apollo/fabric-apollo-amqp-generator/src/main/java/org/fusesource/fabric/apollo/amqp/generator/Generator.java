@@ -20,6 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassName;
@@ -75,10 +76,10 @@ public class Generator {
     public Generator() {
         mapping.put("null", null);
         mapping.put("boolean", Boolean.class);
-        mapping.put("ubyte", Byte.class);
-        mapping.put("ushort", Short.class);
-        mapping.put("uint", Integer.class);
-        mapping.put("ulong", Long.class);
+        mapping.put("ubyte", Short.class);
+        mapping.put("ushort", Integer.class);
+        mapping.put("uint", Long.class);
+        mapping.put("ulong", BigInteger.class);
         mapping.put("byte", Byte.class);
         mapping.put("short", Short.class);
         mapping.put("int", Integer.class);
@@ -114,10 +115,10 @@ public class Generator {
 
     public void generate() throws Exception {
 
-        primitiveEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "PrimitiveEncoder";
+        primitiveEncoder = getInterfaces() + "." + "PrimitiveEncoder";
         String typeRegistry = getPackagePrefix() + "." + getMarshaller() + "." + "TypeRegistry";
-        String encodingPicker = getPackagePrefix() + "." + getInterfaces() + "." + "EncodingPicker";
-        String encodingSizer = getPackagePrefix() + "." + getInterfaces() + "." + "Sizer";
+        String encodingPicker = getInterfaces() + "." + "EncodingPicker";
+        String encodingSizer = getInterfaces() + "." + "Sizer";
 
         xmlDefinitionParser.parseXML();
 
@@ -155,7 +156,7 @@ public class Generator {
                     continue;
                 }
                 Type type = getPrimitives().get(key);
-                String className = getPackagePrefix() + "." + getTypes() + "." + "AMQP" + toJavaClassName(key);
+                String className = getTypes() + "." + "AMQP" + toJavaClassName(key);
                 getPrimitiveJavaClass().put(key, className);
                 primitiveTypes.add(new PrimitiveType(this, className, type));
             }
@@ -165,13 +166,22 @@ public class Generator {
             List<DescribedType> describedTypes = new ArrayList<DescribedType>();
             for (String key : getDescribed().keySet()) {
                 Type type = getDescribed().get(key);
-                String className = getPackagePrefix() + "." + getTypes() + "." + toJavaClassName(key);
+                String className = getTypes() + "." + toJavaClassName(key);
                 getDescribedJavaClass().put(key, className);
                 describedTypes.add(new DescribedType(this, className, type));
             }
 
             for (DescribedType type : describedTypes) {
                 type.generateDescribedFields();
+            }
+
+            List<RestrictedType> restrictedTypes = new ArrayList<RestrictedType>();
+            for (String key : getRestricted().keySet()) {
+                Type type = getRestricted().get(key);
+                if (type.getProvides() != null) {
+                    String className = getTypes() + "." + toJavaClassName(key);
+                    restrictedTypes.add(new RestrictedType(this, className, type));
+                }
             }
 
 
@@ -404,11 +414,11 @@ public class Generator {
     }
 
     public String getInterfaces() {
-        return interfaces;
+        return getPackagePrefix() + "." + interfaces;
     }
 
     public String getTypes() {
-        return types;
+        return getPackagePrefix() + "." + types;
     }
 
     public Map<String, String> getRestrictedMapping() {
@@ -472,7 +482,7 @@ public class Generator {
     }
 
     public String getAmqpBaseType() {
-        return getPackagePrefix() + "." + getInterfaces() + "." + "AmqpType";
+        return getInterfaces() + "." + "AmqpType";
     }
 
     public Map<String,String> getPrimitiveJavaClass() {

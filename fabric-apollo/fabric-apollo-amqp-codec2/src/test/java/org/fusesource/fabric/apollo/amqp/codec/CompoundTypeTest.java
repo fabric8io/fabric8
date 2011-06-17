@@ -13,6 +13,7 @@ package org.fusesource.fabric.apollo.amqp.codec;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +52,7 @@ public class CompoundTypeTest {
             in.add(new AMQPLong((long)i));
         }
         for (int i = 0; i < 128; i++) {
-            in.add(new AMQPULong((long)i));
+            in.add(new AMQPULong(new BigInteger("" + i)));
         }
         for (int i = 0; i < 128; i++) {
             in.add(new AMQPString("String number " + i));

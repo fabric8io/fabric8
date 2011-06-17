@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
+import org.fusesource.fabric.apollo.amqp.codec.BitUtils;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.PrimitiveEncoder;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
@@ -18,6 +19,7 @@ import org.fusesource.hawtbuf.Buffer;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -633,138 +635,152 @@ public class Encoder implements PrimitiveEncoder {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte readUByte(DataInput in) throws Exception {
-        return in.readByte();
+    public Short readUByte(DataInput in) throws Exception {
+        return (short)in.readUnsignedByte();
     }
 
-    public void writeUByte(Byte value, DataOutput out) throws Exception {
+    public void writeUByte(Short value, DataOutput out) throws Exception {
         out.writeByte(AMQPUByte.UBYTE_CODE);
         out.writeByte(value);
     }
 
-    public void encodeUByte(Byte value, Buffer buffer, int offset) throws Exception {
+    public void encodeUByte(Short value, Buffer buffer, int offset) throws Exception {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Byte decodeUByte(Buffer buffer, int offset) throws Exception {
+    public Short decodeUByte(Buffer buffer, int offset) throws Exception {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUInt(DataInput in) throws Exception {
-        return in.readInt();
+    public Long readUInt(DataInput in) throws Exception {
+        long rc = 0;
+        rc = rc | (0xFFFFFFFFL & (((long) in.readByte()) << 24));
+        rc = rc | (0xFFFFFFFFL & (((long) in.readByte()) << 16));
+        rc = rc | (0xFFFFFFFFL & (((long) in.readByte()) << 8));
+        rc = rc | (0xFFFFFFFFL & (long) in.readByte());
+        return rc;
     }
 
-    public void writeUInt(Integer value, DataOutput out) throws Exception {
+    public void writeUInt(Long value, DataOutput out) throws Exception {
         out.writeByte(AMQPUInt.UINT_CODE);
-        out.writeInt(value);
+        out.writeInt(value.intValue());
     }
 
-    public void encodeUInt(Integer value, Buffer buffer, int offset) throws Exception {
+    public void encodeUInt(Long value, Buffer buffer, int offset) throws Exception {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer decodeUInt(Buffer buffer, int offset) throws Exception {
+    public Long decodeUInt(Buffer buffer, int offset) throws Exception {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Integer readUIntSmallUInt(DataInput in) throws Exception {
-        return (int)in.readUnsignedByte();
-    }
-
-    public void writeUIntSmallUInt(Integer value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUInt.UINT_SMALLUINT_CODE);
-        out.writeByte(value);
-    }
-
-    public void encodeUIntSmallUInt(Integer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Integer decodeUIntSmallUInt(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Integer readUIntUInt0(DataInput in) throws Exception {
-        return 0;
-    }
-
-    public void writeUIntUInt0(Integer value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUInt.UINT_UINT0_CODE);
-    }
-
-    public void encodeUIntUInt0(Integer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Integer decodeUIntUInt0(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long readULong(DataInput in) throws Exception {
-        return in.readLong();
-    }
-
-    public void writeULong(Long value, DataOutput out) throws Exception {
-        out.writeByte(AMQPULong.ULONG_CODE);
-        out.writeLong(value);
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void encodeULong(Long value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long decodeULong(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long readULongSmallULong(DataInput in) throws Exception {
+    public Long readUIntSmallUInt(DataInput in) throws Exception {
         return (long)in.readUnsignedByte();
     }
 
-    public void writeULongSmallULong(Long value, DataOutput out) throws Exception {
+    public void writeUIntSmallUInt(Long value, DataOutput out) throws Exception {
+        out.writeByte(AMQPUInt.UINT_SMALLUINT_CODE);
+        out.writeByte((short)value.intValue());
+    }
+
+    public void encodeUIntSmallUInt(Long value, Buffer buffer, int offset) throws Exception {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Long decodeUIntSmallUInt(Buffer buffer, int offset) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Long readUIntUInt0(DataInput in) throws Exception {
+        return (long)0;
+    }
+
+    public void writeUIntUInt0(Long value, DataOutput out) throws Exception {
+        out.writeByte(AMQPUInt.UINT_UINT0_CODE);
+    }
+
+    public void encodeUIntUInt0(Long value, Buffer buffer, int offset) throws Exception {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Long decodeUIntUInt0(Buffer buffer, int offset) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public BigInteger readULong(DataInput in) throws Exception {
+        byte[] rc = new byte[8];
+        in.readFully(rc);
+        return new BigInteger(1, rc);
+    }
+
+    public void writeULong(BigInteger value, DataOutput out) throws Exception {
+        out.writeByte(AMQPULong.ULONG_CODE);
+        byte[] toWrite = new byte[8];
+        Arrays.fill(toWrite, (byte)0x0);
+        BitUtils.setULong(toWrite, 0, value.abs());
+        out.write(toWrite);
+    }
+
+    public void encodeULong(BigInteger value, Buffer buffer, int offset) throws Exception {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public BigInteger decodeULong(Buffer buffer, int offset) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public BigInteger readULongSmallULong(DataInput in) throws Exception {
+        byte b[] = new byte[1];
+        in.readFully(b);
+        return new BigInteger(b);
+    }
+
+    public void writeULongSmallULong(BigInteger value, DataOutput out) throws Exception {
         out.writeByte(AMQPULong.ULONG_SMALLULONG_CODE);
         out.writeByte(value.byteValue());
     }
 
-    public void encodeULongSmallULong(Long value, Buffer buffer, int offset) throws Exception {
+    public void encodeULongSmallULong(BigInteger value, Buffer buffer, int offset) throws Exception {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeULongSmallULong(Buffer buffer, int offset) throws Exception {
+    public BigInteger decodeULongSmallULong(Buffer buffer, int offset) throws Exception {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long readULongULong0(DataInput in) throws Exception {
-        return 0L;
+    public BigInteger readULongULong0(DataInput in) throws Exception {
+        return BigInteger.ZERO;
     }
 
-    public void writeULongULong0(Long value, DataOutput out) throws Exception {
+    public void writeULongULong0(BigInteger value, DataOutput out) throws Exception {
         out.writeByte(AMQPULong.ULONG_ULONG0_CODE);
     }
 
-    public void encodeULongULong0(Long value, Buffer buffer, int offset) throws Exception {
+    public void encodeULongULong0(BigInteger value, Buffer buffer, int offset) throws Exception {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Long decodeULongULong0(Buffer buffer, int offset) throws Exception {
+    public BigInteger decodeULongULong0(Buffer buffer, int offset) throws Exception {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short readUShort(DataInput in) throws Exception {
-        return in.readShort();
+    public Integer readUShort(DataInput in) throws Exception {
+        int rc = 0;
+        rc = rc | (0xFFFF & (((int) in.readByte()) << 8));
+        rc = rc | (0xFFFF & (int) in.readByte());
+        return rc;
     }
 
-    public void writeUShort(Short value, DataOutput out) throws Exception {
+    public void writeUShort(Integer value, DataOutput out) throws Exception {
         out.writeByte(AMQPUShort.USHORT_CODE);
-        out.writeShort(value);
+        out.writeShort(value.shortValue());
     }
 
-    public void encodeUShort(Short value, Buffer buffer, int offset) throws Exception {
+    public void encodeUShort(Integer value, Buffer buffer, int offset) throws Exception {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Short decodeUShort(Buffer buffer, int offset) throws Exception {
+    public Integer decodeUShort(Buffer buffer, int offset) throws Exception {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

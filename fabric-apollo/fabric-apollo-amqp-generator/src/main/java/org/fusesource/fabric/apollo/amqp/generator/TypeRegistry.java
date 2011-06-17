@@ -13,6 +13,7 @@ package org.fusesource.fabric.apollo.amqp.generator;
 import com.sun.codemodel.*;
 import org.fusesource.hawtbuf.Buffer;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +38,9 @@ public class TypeRegistry {
         this.cm = cm;
         this.typeRegistryName = typeRegistry;
 
-        mapLongClass = cm.ref(Map.class).narrow(Long.class, Class.class);
+        mapLongClass = cm.ref(Map.class).narrow(BigInteger.class, Class.class);
         mapBufferClass = cm.ref(Map.class).narrow(Buffer.class, Class.class);
-        hashMapLongClass = cm.ref(HashMap.class).narrow(Long.class, Class.class);
+        hashMapLongClass = cm.ref(HashMap.class).narrow(BigInteger.class, Class.class);
         hashMapBufferClass = cm.ref(HashMap.class).narrow(Buffer.class, Class.class);
         mapByteClass = cm.ref(Map.class).narrow(Byte.class, Class.class);
         hashMapByteClass = cm.ref(HashMap.class).narrow(Byte.class, Class.class);

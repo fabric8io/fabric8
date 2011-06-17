@@ -17,6 +17,7 @@ import org.fusesource.hawtbuf.Buffer;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -247,14 +248,14 @@ public class AmqpSizer implements Sizer {
         return 1 + AMQPTimestamp.TIMESTAMP_MS64_WIDTH;
     }
 
-    public long sizeOfUByte(Byte value) {
+    public long sizeOfUByte(Short value) {
         if (value == null) {
             return 1;
         }
         return 1 + AMQPUByte.UBYTE_WIDTH;
     }
 
-    public long sizeOfUInt(Integer value) {
+    public long sizeOfUInt(Long value) {
         byte formatCode = TypeRegistry.instance().picker().chooseUIntEncoding(value);
         switch(formatCode) {
             case TypeRegistry.NULL_FORMAT_CODE:
@@ -270,7 +271,7 @@ public class AmqpSizer implements Sizer {
         }
     }
 
-    public long sizeOfULong(Long value) {
+    public long sizeOfULong(BigInteger value) {
         byte formatCode = TypeRegistry.instance().picker().chooseULongEncoding(value);
         switch (formatCode) {
             case TypeRegistry.NULL_FORMAT_CODE:
@@ -286,7 +287,7 @@ public class AmqpSizer implements Sizer {
         }
     }
 
-    public long sizeOfUShort(Short value) {
+    public long sizeOfUShort(Integer value) {
         if (value == null) {
             return 1;
         }

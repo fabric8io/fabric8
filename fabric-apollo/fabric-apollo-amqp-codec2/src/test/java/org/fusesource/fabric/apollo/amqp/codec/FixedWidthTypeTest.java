@@ -13,10 +13,10 @@ package org.fusesource.fabric.apollo.amqp.codec;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.UUID;
 
-import static org.fusesource.fabric.apollo.amqp.codec.BitUtils.unsigned;
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -98,13 +98,6 @@ public class FixedWidthTypeTest {
     }
 
     @Test
-    public void testUByte() throws Exception {
-        byte in = (byte)0xF4;
-        byte out = writeRead(new AMQPUByte(in)).getValue().byteValue();
-        assertEquals(unsigned(in), unsigned(out));
-    }
-
-    @Test
     public void testTimestamp() throws Exception {
         Date in = new Date();
         Date out = writeRead(new AMQPTimestamp(in)).getValue();
@@ -112,27 +105,46 @@ public class FixedWidthTypeTest {
     }
 
     @Test
-    public void testUUID() throws Exception {
-        UUID in = UUID.randomUUID();
-        UUID out = writeRead(new AMQPUUID(in)).getValue();
+    public void testUByte() throws Exception {
+        short in = (short)0xF4;
+        short out = writeRead(new AMQPUByte(in)).getValue().shortValue();
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testUShort() throws Exception {
+        int in = Short.MAX_VALUE + 1;
+        int out = writeRead(new AMQPUShort(in)).getValue().intValue();
         assertEquals(in, out);
     }
 
     @Test
     public void testUInt() throws Exception {
-        int values[] = new int[]{0, 5, 32, 1024, 8192};
-        for (int in : values) {
-            int out = writeRead(new AMQPUInt(in)).getValue().intValue();
+        long values[] = new long[]{0, 5, 32, 1024, 8192, (long)Integer.MAX_VALUE + 1L};
+        for (long in : values) {
+            long out = writeRead(new AMQPUInt(in)).getValue().longValue();
             assertEquals(in, out);
         }
     }
 
     @Test
     public void testULong() throws Exception {
-        long values[] = new long[]{0, 5, 32, 1024, 8192};
-        for (long in : values) {
-            long out = writeRead(new AMQPULong(in)).getValue().longValue();
+        BigInteger values[] = new BigInteger[] {
+                new BigInteger("0").abs(),
+                new BigInteger("5").abs(),
+                new BigInteger("512384").abs(),
+                new BigInteger("3423423521352353234").abs()
+        };
+        for (BigInteger in : values) {
+            BigInteger out = writeRead(new AMQPULong(in)).getValue();
             assertEquals(in, out);
         }
+    }
+
+    @Test
+    public void testUUID() throws Exception {
+        UUID in = UUID.randomUUID();
+        UUID out = writeRead(new AMQPUUID(in)).getValue();
+        assertEquals(in, out);
     }
 }

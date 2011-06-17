@@ -18,6 +18,7 @@ import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertSame;
@@ -35,7 +36,7 @@ public class CodecTest {
             //System.out.printf("0x%x = %s\n", key, clazz.getName());
         }
 
-        for (Long key : registry.getFormatCodeMap().keySet()) {
+        for (BigInteger key : registry.getFormatCodeMap().keySet()) {
             Class clazz = registry.getFormatCodeMap().get(key);
             //System.out.printf("0x%x = %s\n", key, clazz.getName());
         }

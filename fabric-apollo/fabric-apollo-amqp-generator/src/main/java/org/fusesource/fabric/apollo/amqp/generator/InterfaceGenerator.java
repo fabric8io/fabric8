@@ -16,7 +16,7 @@ public class InterfaceGenerator {
 
     void generateAbstractBases() throws JClassAlreadyExistsException, IOException {
         for ( String base : generator.getProvides() ) {
-            String pkg = generator.getPackagePrefix() + "." + generator.getInterfaces() + ".";
+            String pkg = generator.getInterfaces() + ".";
             String name = pkg + Utilities.toJavaClassName(base);
             JDefinedClass cls = generator.getCm()._class(name, INTERFACE);
             cls._implements(generator.getCm().ref(generator.getAmqpBaseType()));
