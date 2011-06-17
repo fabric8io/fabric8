@@ -67,6 +67,7 @@ public class Generator {
 
     private TypeRegistry registry;
     private EncodingPicker picker;
+    private Sizer sizer;
 
     private final XmlDefinitionParser xmlDefinitionParser = new XmlDefinitionParser(this);
     private final InterfaceGenerator interfaceGenerator = new InterfaceGenerator(this);
@@ -116,6 +117,7 @@ public class Generator {
         primitiveEncoder = getPackagePrefix() + "." + getInterfaces() + "." + "PrimitiveEncoder";
         String typeRegistry = getPackagePrefix() + "." + getMarshaller() + "." + "TypeRegistry";
         String encodingPicker = getPackagePrefix() + "." + getInterfaces() + "." + "EncodingPicker";
+        String encodingSizer = getPackagePrefix() + "." + getInterfaces() + "." + "Sizer";
 
         xmlDefinitionParser.parseXML();
 
@@ -125,6 +127,7 @@ public class Generator {
 
         registry = new TypeRegistry(cm, typeRegistry);
         picker = new EncodingPicker(this, encodingPicker);
+        sizer = new Sizer(this, encodingSizer);
 
         registry.cls().field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cm._getClass(primitiveEncoder), "ENCODER", JExpr.direct("Encoder.instance()"));
         JMethod singletonAccessor = registry.cls().method(JMod.PUBLIC, cm._getClass(primitiveEncoder), "encoder");
@@ -474,5 +477,9 @@ public class Generator {
 
     public Map<String,String> getPrimitiveJavaClass() {
         return primitiveJavaClass;
+    }
+
+    public Sizer sizer() {
+        return sizer;
     }
 }

@@ -30,6 +30,7 @@ public abstract class AmqpDefinedType {
     protected JMethod read;
     protected JMethod encodeTo;
     protected JMethod decodeFrom;
+    protected JMethod size;
 
     public AmqpDefinedType(Generator generator, String className, Type type) throws JClassAlreadyExistsException {
         this.cm = generator.getCm();
@@ -51,6 +52,7 @@ public abstract class AmqpDefinedType {
 
         generator.registry().cls().init().add(JExpr._new(cls()));
 
+        size();
         write();
         read();
         encodeTo();
@@ -60,6 +62,13 @@ public abstract class AmqpDefinedType {
     protected abstract void createStaticBlock();
 
     protected abstract void createInitialFields();
+
+    public JMethod size() {
+        if (size == null) {
+            size = cls().method(JMod.PUBLIC, cm.LONG, "size");
+        }
+        return size;
+    }
 
     public JMethod write() {
         if (write == null) {

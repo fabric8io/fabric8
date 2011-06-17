@@ -13,4 +13,6 @@ public interface AmqpType {
     public void encodeTo(Buffer buffer, int offset) throws Exception;
     public void decodeFrom(byte formatCode, Buffer buffer, int offset) throws Exception;
 
+    public long size();
+
 }

@@ -38,6 +38,7 @@ public class PrimitiveType extends AmqpDefinedType {
 
     private JMethod staticRead;
     private JMethod staticWrite;
+    private JMethod sizer;
 
     public PrimitiveType(Generator generator, String className, Type type) throws JClassAlreadyExistsException {
         super(generator, className, type);
@@ -62,6 +63,12 @@ public class PrimitiveType extends AmqpDefinedType {
 
         encodingPicker = generator.picker().cls().method(JMod.PUBLIC, cm.BYTE, "choose" + toJavaClassName(type.getName() + "Encoding"));
         encodingPicker.param(getJavaType(), "value");
+
+        sizer = generator.sizer().cls().method(JMod.PUBLIC, cm.LONG, "sizeOf" + toJavaClassName(type.getName()));
+        sizer.param(getJavaType(), "value");
+
+        size().body()._return(generator.registry().cls().staticInvoke("instance")
+        .invoke("sizer").invoke("sizeOf" + toJavaClassName(type.getName())).arg(JExpr.ref("value")));
 
     }
 

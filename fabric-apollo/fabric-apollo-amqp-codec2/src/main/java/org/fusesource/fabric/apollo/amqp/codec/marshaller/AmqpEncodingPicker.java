@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.EncodingPicker;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
@@ -36,7 +37,15 @@ public class AmqpEncodingPicker implements EncodingPicker {
         if (value == null) {
             return TypeRegistry.NULL_FORMAT_CODE;
         }
-        return AMQPArray.ARRAY_ARRAY32_CODE;
+        if (value.length > 255) {
+            return AMQPArray.ARRAY_ARRAY32_CODE;
+        }
+
+        int size = 0;
+        for (Object v : value) {
+            AmqpType t = (AmqpType)v;
+        }
+        return AMQPArray.ARRAY_ARRAY8_CODE;
     }
 
     public byte chooseBinaryEncoding(Buffer value) {
