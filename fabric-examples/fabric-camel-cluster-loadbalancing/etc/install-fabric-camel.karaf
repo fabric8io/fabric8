@@ -21,12 +21,11 @@ fabric:create-profile --parents default fabric-camel-cluster
 
 # Define nodes of for the profile fabric-camel-cluster
 shell:echo add repositories, features, ... to the fabric-camel-cluster profile
-zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/2.7.2/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/2.7.0/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel camel
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric-camel-test mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/1.0-SNAPSHOT/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.fabric-camel-test camel-server
-zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/bundle.jaxb-api mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/1.9-SNAPSHOT
 
 # Define a new profile extending fabric-camel-cluster to specify the property of the port number used by the server
 shell:echo Create fabric-camel-cluster-port-9090 profile
