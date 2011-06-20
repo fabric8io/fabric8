@@ -56,6 +56,12 @@ public class DescribedType  extends AmqpDefinedType {
         super(generator, className, type);
     }
 
+    @Override
+    protected void createGetArrayConstructor() {
+        getArrayConstructor = cls().method(JMod.PUBLIC, cm.ref("Object"), "getArrayConstructor");
+        getArrayConstructor.body()._return(_new(cm.ref(generator.getMarshaller() + ".DescribedConstructor")).arg(ref("NUMERIC_ID")));
+    }
+
     protected void createInitialFields() {
 
     }
@@ -194,18 +200,8 @@ public class DescribedType  extends AmqpDefinedType {
         write().body().invoke("writeBody").arg(cast(cm.BYTE, lit((byte)0))).arg(ref("out"));
 
         writeBody().body().decl(cm.LONG, "fieldSize", _this().invoke("sizeOfFields"));
-        writeBody().body().decl(cm.BYTE, "code", _this().invoke("getListEncoding").arg(ref("fieldSize")));
-        writeBody().body().assignPlus(ref("fieldSize"), _this().invoke("getListWidth").arg(ref("formatCode")));
 
-        writeBody().body().invoke(ref("out"), "writeByte").arg(ref("code"));
-
-        JConditional condition = writeBody().body()._if(ref("code").eq(cm.ref("AMQPList").staticRef("LIST_LIST8_CODE")));
-
-        condition._then().invoke(ref("out"), "writeByte").arg(cast(cm.BYTE, ref("fieldSize")));
-        condition._then().invoke(ref("out"), "writeByte").arg(cast(cm.BYTE, _this().invoke("count")));
-
-        condition._else().invoke(ref("out"), "writeInt").arg(cast(cm.INT, ref("fieldSize")));
-        condition._else().invoke(ref("out"), "writeInt").arg(cast(cm.INT, _this().invoke("count")));
+        writeBody().body().staticInvoke(cm.ref(generator.getMarshaller() + ".DescribedTypeSupport"), "writeListHeader").arg(ref("fieldSize")).arg(_this().invoke("count")).arg(ref("out"));
 
         for (Attribute attribute : amqpFields) {
             if (generator.getMapping().get(attribute.type) != null) {
@@ -222,21 +218,12 @@ public class DescribedType  extends AmqpDefinedType {
 
     private void fillInSizeMethod() {
         size().body()._return(invoke("sizeOfConstructor").plus(invoke("sizeOfBody")));
-
         sizeOfConstructor().body()._return(ref("NUMERIC_ID_SIZE"));
-
         JMethod sizeOfFields = cls().method(JMod.PRIVATE, cm.LONG, "sizeOfFields");
-
-        /*
-        sizeOfBody().body().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(generator.registry().cls().staticInvoke("instance")
-                .invoke("sizer")
-                .invoke("sizeOfULong").arg(JExpr.ref("NUMERIC_ID"))));
-                */
 
         sizeOfFields.body().decl(cm.LONG, "fieldSize", lit(0L));
 
         for (Attribute attribute : amqpFields) {
-
             if (generator.getMapping().get(attribute.type) != null) {
                 if (attribute.attribute.type().isArray()) {
                     sizeOfFields.body().assign(ref("fieldSize"), ref("fieldSize").plus(
@@ -276,26 +263,7 @@ public class DescribedType  extends AmqpDefinedType {
         }
 
         sizeOfFields.body()._return(ref("fieldSize"));
-
-        JMethod getListEncoding = cls().method(JMod.PRIVATE, cm.BYTE, "getListEncoding");
-        getListEncoding.param(cm.LONG, "fieldSize");
-
-        JMethod getListWidth = cls().method(JMod.PRIVATE, cm.INT, "getListWidth");
-        getListWidth.param(cm.BYTE, "formatCode");
-        getListWidth.body()._if(ref("formatCode").eq(cm.ref("AMQPList").staticRef("LIST_LIST8_CODE")))._then()._return(cm.ref("AMQPList").staticRef("LIST_LIST8_WIDTH"));
-        getListWidth.body()._return(cm.ref("AMQPList").staticRef("LIST_LIST32_WIDTH"));
-
-        getListEncoding.body()
-                ._if(ref("fieldSize").lte(lit(255).minus(cm.ref("AMQPList").staticRef("LIST_LIST8_WIDTH"))))
-                    ._then()
-                        ._return(cm.ref("AMQPList").staticRef("LIST_LIST8_CODE"));
-
-        getListEncoding.body()._return(cm.ref("AMQPList").staticRef("LIST_LIST32_CODE"));
-
-
-        sizeOfBody().body().decl(cm.LONG, "fieldSize", invoke("sizeOfFields"));
-        sizeOfBody().body().decl(cm.LONG, "width", invoke("getListWidth").arg(invoke("getListEncoding").arg(ref("fieldSize"))).mul(lit(2)));
-        sizeOfBody().body()._return(lit(1).plus(ref("width").plus(ref("fieldSize"))));
+        sizeOfBody().body()._return(cm.ref(generator.getMarshaller()+ ".DescribedTypeSupport").staticInvoke("fullSizeOfList").arg(_this().invoke("sizeOfFields")).arg(_this().invoke("count")));
     }
 
     public JMethod count() {

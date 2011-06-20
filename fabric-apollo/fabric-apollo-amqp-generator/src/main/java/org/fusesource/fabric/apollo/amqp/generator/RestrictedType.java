@@ -62,6 +62,11 @@ public class RestrictedType extends AmqpDefinedType {
 
     }
 
+    @Override
+    protected void createGetArrayConstructor() {
+
+    }
+
     private void generateConstants() {
 
         for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {

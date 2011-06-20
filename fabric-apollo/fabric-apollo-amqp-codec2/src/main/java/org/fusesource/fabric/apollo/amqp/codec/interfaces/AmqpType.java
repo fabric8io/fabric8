@@ -5,7 +5,12 @@ import java.io.DataOutput;
 
 public interface AmqpType {
 
+    public Object getArrayConstructor();
+
     public void write(DataOutput out) throws Exception;
+    public byte writeConstructor(DataOutput out) throws Exception;
+    public void writeBody(byte formatCode, DataOutput out) throws Exception;
+
     public void read(byte formatCode, DataInput in) throws Exception;
 
     /*
@@ -14,5 +19,7 @@ public interface AmqpType {
     */
 
     public long size();
+    public long sizeOfConstructor();
+    public long sizeOfBody();
 
 }

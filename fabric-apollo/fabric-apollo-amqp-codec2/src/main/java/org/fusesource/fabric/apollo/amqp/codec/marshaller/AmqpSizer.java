@@ -18,10 +18,10 @@ import org.fusesource.hawtbuf.Buffer;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.ArraySupport.getArrayBodySize;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.ArraySupport.getArrayConstructorSize;
 
 /**
  *
@@ -35,10 +35,22 @@ public class AmqpSizer implements Sizer {
     }
 
     public long sizeOfArray(Object[] value) {
-        if (value == null) {
-            return 1;
+        int size = 1;
+        byte formatCode = TypeRegistry.instance().picker().chooseArrayEncoding(value);
+        switch (formatCode) {
+            case TypeRegistry.NULL_FORMAT_CODE:
+                return size;
+            case AMQPArray.ARRAY_ARRAY8_CODE:
+                size += AMQPArray.ARRAY_ARRAY8_WIDTH * 2;
+                break;
+            case AMQPArray.ARRAY_ARRAY32_WIDTH:
+                size += AMQPArray.ARRAY_ARRAY32_WIDTH * 2;
         }
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+
+        size += getArrayConstructorSize(value);
+        size += getArrayBodySize(value);
+
+        return size;
     }
 
     public long sizeOfBinary(Buffer value) {

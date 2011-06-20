@@ -32,6 +32,7 @@ public abstract class AmqpDefinedType {
     protected JMethod read;
     protected JMethod encodeTo;
     protected JMethod decodeFrom;
+    protected JMethod getArrayConstructor;
     protected JMethod size;
     protected JMethod sizeOfConstructor;
     protected JMethod sizeOfBody;
@@ -53,6 +54,7 @@ public abstract class AmqpDefinedType {
 
         createInitialFields();
         createStaticBlock();
+        createGetArrayConstructor();
 
         generator.registry().cls().init().add(JExpr._new(cls()));
 
@@ -68,6 +70,8 @@ public abstract class AmqpDefinedType {
         decodeFrom();
         */
     }
+
+    protected abstract void createGetArrayConstructor();
 
     protected abstract void createStaticBlock();
 

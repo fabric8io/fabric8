@@ -13,16 +13,22 @@ package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 import org.fusesource.fabric.apollo.amqp.codec.BitUtils;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.PrimitiveEncoder;
-import org.fusesource.fabric.apollo.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPArray;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPList;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPMap;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong;
 import org.fusesource.hawtbuf.Buffer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.nio.charset.Charset;
 import java.util.*;
+
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.ArraySupport.*;
 
 /**
  *
@@ -35,40 +41,67 @@ public class Encoder implements PrimitiveEncoder {
         return SINGLETON;
     }
 
-    public void writeAny(Object value, DataInput in) throws Exception {
-
+    public Object[] readArray8(DataInput in) throws Exception {
+        int size = in.readUnsignedByte();
+        int count = in.readUnsignedByte();
+        byte formatCode = (byte)in.readUnsignedByte();
+        return readArray(in, count, formatCode);
     }
 
-    public Object[] readArray8(DataInput in) throws Exception {
-        return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
+    private Object[] readArray(DataInput in, int count, byte formatCode) throws Exception {
+        Object[] rc;
+        if (formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE) {
+            BigInteger descriptor = AMQPULong.read(in);
+            Class clazz = TypeRegistry.instance().getFormatCodeMap().get(descriptor);
+            rc = (Object[])Array.newInstance(clazz, count);
+            for (int i = 0; i < rc.length; i++) {
+                rc[i] = clazz.newInstance();
+                ((AmqpType)rc[i]).read((byte)0x0, in);
+            }
+        } else {
+            Class clazz = TypeRegistry.instance().getPrimitiveFormatCodeMap().get(formatCode);
+            rc = (Object[])Array.newInstance(clazz, count);
+            for (int i=0; i < rc.length; i++) {
+                rc[i] = clazz.newInstance();
+                ((AmqpType)rc[i]).read(formatCode, in);
+            }
+        }
+        return rc;
     }
 
     public void writeArray8(Object[] value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        long size = AMQPArray.ARRAY_ARRAY8_WIDTH + getArrayConstructorSize(value) + getArrayBodySize(value);
+        long count = value.length;
+        out.writeByte((byte)size);
+        out.writeByte((byte)count);
+        writeArrayBody(value, out);
     }
 
-    public void encodeArray8(Object[] value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Object[] decodeArray8(Buffer buffer, int offset) throws Exception {
-        return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
+    private void writeArrayBody(Object[] value, DataOutput out) throws Exception {
+        writeArrayConstructor(value, out);
+        for (Object obj : value) {
+            Object constructor = getArrayConstructor(value);
+            if (constructor instanceof Byte) {
+                ((AmqpType)obj).writeBody((Byte)constructor, out);
+            } else {
+                ((AmqpType)obj).writeBody((byte)0x0, out);
+            }
+        }
     }
 
     public Object[] readArray32(DataInput in) throws Exception {
-        return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
+        int size = in.readInt();
+        int count = in.readInt();
+        byte formatCode = (byte)in.readUnsignedByte();
+        return readArray(in, count, formatCode);
     }
 
     public void writeArray32(Object[] value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void encodeArray32(Object[] value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Object[] decodeArray32(Buffer buffer, int offset) throws Exception {
-        return new Object[0];  //To change body of implemented methods use File | Settings | File Templates.
+        long size = AMQPArray.ARRAY_ARRAY32_WIDTH + getArrayConstructorSize(value) + getArrayBodySize(value);
+        long count = value.length;
+        out.writeInt((int)size);
+        out.writeInt((int)count);
+        writeArrayBody(value, out);
     }
 
     public Buffer readBinaryVBIN8(DataInput in) throws Exception {
@@ -83,14 +116,6 @@ public class Encoder implements PrimitiveEncoder {
         value.writeTo(out);
     }
 
-    public void encodeBinaryVBIN8(Buffer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Buffer decodeBinaryVBIN8(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Buffer readBinaryVBIN32(DataInput in) throws Exception {
         int size = in.readInt();
         Buffer rc = new Buffer(size);
@@ -101,14 +126,6 @@ public class Encoder implements PrimitiveEncoder {
     public void writeBinaryVBIN32(Buffer value, DataOutput out) throws Exception {
         out.writeInt(value.length());
         value.writeTo(out);
-    }
-
-    public void encodeBinaryVBIN32(Buffer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Buffer decodeBinaryVBIN32(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Boolean readBoolean(DataInput in) throws Exception {
@@ -127,14 +144,6 @@ public class Encoder implements PrimitiveEncoder {
         }
     }
 
-    public void encodeBoolean(Boolean value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Boolean decodeBoolean(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Boolean readBooleanTrue(DataInput in) throws Exception {
         return Boolean.TRUE;
     }
@@ -142,27 +151,11 @@ public class Encoder implements PrimitiveEncoder {
     public void writeBooleanTrue(Boolean value, DataOutput out) throws Exception {
     }
 
-    public void encodeBooleanTrue(Boolean value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Boolean decodeBooleanTrue(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Boolean readBooleanFalse(DataInput in) throws Exception {
         return Boolean.FALSE;
     }
 
     public void writeBooleanFalse(Boolean value, DataOutput out) throws Exception {
-    }
-
-    public void encodeBooleanFalse(Boolean value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Boolean decodeBooleanFalse(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Byte readByte(DataInput in) throws Exception {
@@ -173,14 +166,6 @@ public class Encoder implements PrimitiveEncoder {
         out.writeByte(value);
     }
 
-    public void encodeByte(Byte value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Byte decodeByte(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Character readCharUTF32(DataInput in) throws Exception {
         return in.readChar();
     }
@@ -189,30 +174,12 @@ public class Encoder implements PrimitiveEncoder {
         out.writeChar(value);
     }
 
-    public void encodeCharUTF32(Character value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Character decodeCharUTF32(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public BigDecimal readDecimal128IEEE754(DataInput in) throws Exception {
         // TODO - support Decimal128
         throw new RuntimeException("Decimal128 not supported");
     }
 
     public void writeDecimal128IEEE754(BigDecimal value, DataOutput out) throws Exception {
-        // TODO - support Decimal128
-        throw new RuntimeException("Decimal128 not supported");
-    }
-
-    public void encodeDecimal128IEEE754(BigDecimal value, Buffer buffer, int offset) throws Exception {
-        // TODO - support Decimal128
-        throw new RuntimeException("Decimal128 not supported");
-    }
-
-    public BigDecimal decodeDecimal128IEEE754(Buffer buffer, int offset) throws Exception {
         // TODO - support Decimal128
         throw new RuntimeException("Decimal128 not supported");
     }
@@ -227,14 +194,6 @@ public class Encoder implements PrimitiveEncoder {
         out.writeInt(Float.floatToIntBits(withContext.floatValue()));
     }
 
-    public void encodeDecimal32IEEE754(BigDecimal value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public BigDecimal decodeDecimal32IEEE754(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public BigDecimal readDecimal64IEEE754(DataInput in) throws Exception {
         Double dbl = in.readDouble();
         return new BigDecimal(dbl, MathContext.DECIMAL64).stripTrailingZeros();
@@ -245,28 +204,12 @@ public class Encoder implements PrimitiveEncoder {
         out.writeLong(Double.doubleToLongBits(withContext.doubleValue()));
     }
 
-    public void encodeDecimal64IEEE754(BigDecimal value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public BigDecimal decodeDecimal64IEEE754(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Double readDoubleIEEE754(DataInput in) throws Exception {
         return in.readDouble();
     }
 
     public void writeDoubleIEEE754(Double value, DataOutput out) throws Exception {
         out.writeDouble(value);
-    }
-
-    public void encodeDoubleIEEE754(Double value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Double decodeDoubleIEEE754(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Float readFloatIEEE754(DataInput in) throws Exception {
@@ -277,14 +220,6 @@ public class Encoder implements PrimitiveEncoder {
         out.writeFloat(value);
     }
 
-    public void encodeFloatIEEE754(Float value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Float decodeFloatIEEE754(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Integer readInt(DataInput in) throws Exception {
         return in.readInt();
     }
@@ -293,28 +228,12 @@ public class Encoder implements PrimitiveEncoder {
         out.writeInt(value);
     }
 
-    public void encodeInt(Integer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Integer decodeInt(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Integer readIntSmallInt(DataInput in) throws Exception {
         return (int)in.readByte();
     }
 
     public void writeIntSmallInt(Integer value, DataOutput out) throws Exception {
         out.writeByte(value.byteValue());
-    }
-
-    public void encodeIntSmallInt(Integer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Integer decodeIntSmallInt(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public List readList8(DataInput in) throws Exception {
@@ -329,14 +248,6 @@ public class Encoder implements PrimitiveEncoder {
         out.writeByte(size.byteValue());
         out.writeByte(count.byteValue());
         writeListData(value, out);
-    }
-
-    public void encodeList8(List value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public List decodeList8(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public List readList32(DataInput in) throws Exception {
@@ -377,14 +288,6 @@ public class Encoder implements PrimitiveEncoder {
         }
     }
 
-    public void encodeList32(List value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public List decodeList32(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Long readLong(DataInput in) throws Exception {
         return in.readLong();
     }
@@ -393,28 +296,12 @@ public class Encoder implements PrimitiveEncoder {
         out.writeLong(value);
     }
 
-    public void encodeLong(Long value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long decodeLong(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Long readLongSmallLong(DataInput in) throws Exception {
         return (long)in.readByte();
     }
 
     public void writeLongSmallLong(Long value, DataOutput out) throws Exception {
         out.writeByte(value.byteValue());
-    }
-
-    public void encodeLongSmallLong(Long value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long decodeLongSmallLong(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Map readMap8(DataInput in) throws Exception {
@@ -459,14 +346,6 @@ public class Encoder implements PrimitiveEncoder {
         }
     }
 
-    public void encodeMap8(Map value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Map decodeMap8(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Map readMap32(DataInput in) throws Exception {
         Long size = (long)in.readInt();
         Long count = (long)in.readInt();
@@ -481,28 +360,12 @@ public class Encoder implements PrimitiveEncoder {
         writeMapData(value, out);
     }
 
-    public void encodeMap32(Map value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Map decodeMap32(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Object readNull(DataInput in) throws Exception {
         return null;
     }
 
     public void writeNull(DataOutput out) throws Exception {
-        out.writeByte(TypeRegistry.NULL_FORMAT_CODE);
-    }
 
-    public void encodeNull(Buffer buffer, int offset) throws Exception {
-
-    }
-
-    public Object decodeNull(Buffer buffer, int offset) throws Exception {
-        return null;
     }
 
     public Short readShort(DataInput in) throws Exception {
@@ -511,14 +374,6 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeShort(Short value, DataOutput out) throws Exception {
         out.writeShort(value);
-    }
-
-    public void encodeShort(Short value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Short decodeShort(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public String readStringStr8UTF8(DataInput in) throws Exception {
@@ -534,14 +389,6 @@ public class Encoder implements PrimitiveEncoder {
         s.writeTo(out);
     }
 
-    public void encodeStringStr8UTF8(String value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public String decodeStringStr8UTF8(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public String readStringStr32UTF8(DataInput in) throws Exception {
         int size = in.readInt();
         Buffer s = new Buffer(size);
@@ -555,44 +402,28 @@ public class Encoder implements PrimitiveEncoder {
         s.writeTo(out);
     }
 
-    public void encodeStringStr32UTF8(String value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public String decodeStringStr32UTF8(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Buffer readSymbolSym8(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        int size = in.readUnsignedByte();
+        Buffer rc = new Buffer(size);
+        rc.readFrom(in);
+        return rc;
     }
 
     public void writeSymbolSym8(Buffer value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void encodeSymbolSym8(Buffer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Buffer decodeSymbolSym8(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        out.writeByte(value.length());
+        value.writeTo(out);
     }
 
     public Buffer readSymbolSym32(DataInput in) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        int size = in.readInt();
+        Buffer rc = new Buffer(size);
+        rc.readFrom(in);
+        return rc;
     }
 
     public void writeSymbolSym32(Buffer value, DataOutput out) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void encodeSymbolSym32(Buffer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Buffer decodeSymbolSym32(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        out.writeInt(value.length());
+        value.writeTo(out);
     }
 
     public Date readTimestampMS64(DataInput in) throws Exception {
@@ -604,28 +435,12 @@ public class Encoder implements PrimitiveEncoder {
         out.writeLong(value.getTime());
     }
 
-    public void encodeTimestampMS64(Date value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Date decodeTimestampMS64(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Short readUByte(DataInput in) throws Exception {
         return (short)in.readUnsignedByte();
     }
 
     public void writeUByte(Short value, DataOutput out) throws Exception {
         out.writeByte(value);
-    }
-
-    public void encodeUByte(Short value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Short decodeUByte(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Long readUInt(DataInput in) throws Exception {
@@ -641,14 +456,6 @@ public class Encoder implements PrimitiveEncoder {
         out.writeInt(value.intValue());
     }
 
-    public void encodeUInt(Long value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long decodeUInt(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Long readUIntSmallUInt(DataInput in) throws Exception {
         return (long)in.readUnsignedByte();
     }
@@ -657,28 +464,12 @@ public class Encoder implements PrimitiveEncoder {
         out.writeByte((short)value.intValue());
     }
 
-    public void encodeUIntSmallUInt(Long value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long decodeUIntSmallUInt(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Long readUIntUInt0(DataInput in) throws Exception {
         return (long)0;
     }
 
     public void writeUIntUInt0(Long value, DataOutput out) throws Exception {
 
-    }
-
-    public void encodeUIntUInt0(Long value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Long decodeUIntUInt0(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public BigInteger readULong(DataInput in) throws Exception {
@@ -694,14 +485,6 @@ public class Encoder implements PrimitiveEncoder {
         out.write(toWrite);
     }
 
-    public void encodeULong(BigInteger value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public BigInteger decodeULong(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public BigInteger readULongSmallULong(DataInput in) throws Exception {
         byte b[] = new byte[1];
         in.readFully(b);
@@ -712,27 +495,11 @@ public class Encoder implements PrimitiveEncoder {
         out.writeByte(value.byteValue());
     }
 
-    public void encodeULongSmallULong(BigInteger value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public BigInteger decodeULongSmallULong(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public BigInteger readULongULong0(DataInput in) throws Exception {
         return BigInteger.ZERO;
     }
 
     public void writeULongULong0(BigInteger value, DataOutput out) throws Exception {
-    }
-
-    public void encodeULongULong0(BigInteger value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public BigInteger decodeULongULong0(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Integer readUShort(DataInput in) throws Exception {
@@ -746,14 +513,6 @@ public class Encoder implements PrimitiveEncoder {
         out.writeShort(value.shortValue());
     }
 
-    public void encodeUShort(Integer value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Integer decodeUShort(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public UUID readUUID(DataInput in) throws Exception {
         return new UUID(in.readLong(), in.readLong());
     }
@@ -763,11 +522,4 @@ public class Encoder implements PrimitiveEncoder {
         out.writeLong(value.getLeastSignificantBits());
     }
 
-    public void encodeUUID(UUID value, Buffer buffer, int offset) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public UUID decodeUUID(Buffer buffer, int offset) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 }

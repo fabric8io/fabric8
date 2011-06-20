@@ -48,9 +48,16 @@ public class PrimitiveType extends AmqpDefinedType {
     private JMethod staticWriteBody;
     private JMethod staticWriteConstructor;
     private JMethod sizer;
+    private String highestWidthField;
 
     public PrimitiveType(Generator generator, String className, Type type) throws JClassAlreadyExistsException {
         super(generator, className, type);
+    }
+
+    @Override
+    protected void createGetArrayConstructor() {
+        getArrayConstructor = cls().method(JMod.PUBLIC, cm.ref("Object"), "getArrayConstructor");
+        getArrayConstructor.body()._return(ref(highestWidthField));
     }
 
     protected void createInitialFields() {
@@ -103,8 +110,12 @@ public class PrimitiveType extends AmqpDefinedType {
 
     private void generateToString() {
         toString = cls().method(JMod.PUBLIC, cm.ref("java.lang.String"), "toString");
-        toString.body().block()._if(_this().ref("value").eq(_null()))._then().block()._return(lit("null"));
-        toString.body().block()._return(_this().ref("value").invoke("toString"));
+        toString.body()._if(_this().ref("value").eq(_null()))._then().block()._return(lit("null"));
+        if (type.getName().equals("array")) {
+            toString.body()._return(cm.ref("java.util.Arrays").staticInvoke("toString").arg(_this().ref("value")));
+        } else {
+            toString.body()._return(_this().ref("value").invoke("toString"));
+        }
     }
 
     private void generateEquals() {
@@ -160,6 +171,8 @@ public class PrimitiveType extends AmqpDefinedType {
                 .arg(ref("out")))
                     ._break();
 
+        int highestWidth = 0;
+
         for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
             if (obj instanceof Encoding ) {
                 Encoding encoding = (Encoding)obj;
@@ -184,7 +197,13 @@ public class PrimitiveType extends AmqpDefinedType {
                                     .arg(cls().dotclass())
                 );
 
-                cls().field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, cm.INT, toStaticName(fieldName + "_WIDTH"), lit(Integer.parseInt(encoding.getWidth())));
+                int width = Integer.parseInt(encoding.getWidth());
+                if ( width > highestWidth ) {
+                    highestWidth = width;
+                    highestWidthField = staticCodeFieldName;
+                }
+
+                cls().field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, cm.INT, toStaticName(fieldName + "_WIDTH"), lit(width));
 
                 readSwitchBlock._case(ref(staticCodeFieldName)).body()
                         .assign(_this().ref("value"),

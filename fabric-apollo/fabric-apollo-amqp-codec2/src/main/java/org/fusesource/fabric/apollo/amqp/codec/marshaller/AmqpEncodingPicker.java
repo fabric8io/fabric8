@@ -23,6 +23,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.ArraySupport.getArrayConstructorSize;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeRegistry.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPArray.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBinary.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBoolean.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPByte.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPChar.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal128.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal32.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal64.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDouble.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPFloat.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPInt.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPList.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPLong.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPMap.MAP_MAP32_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPShort.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPString.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPTimestamp.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUByte.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUInt.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUShort.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUUID.*;
+
 /**
  *
  */
@@ -36,140 +62,145 @@ public class AmqpEncodingPicker implements EncodingPicker {
 
     public byte chooseArrayEncoding(Object[] value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value.length > 255) {
-            return AMQPArray.ARRAY_ARRAY32_CODE;
+            return ARRAY_ARRAY32_CODE;
         }
 
         int size = 0;
+        size += getArrayConstructorSize(value);
         for (Object v : value) {
             AmqpType t = (AmqpType)v;
+            size += t.sizeOfBody();
+            if (size > 255 - ARRAY_ARRAY8_WIDTH) {
+                return ARRAY_ARRAY32_CODE;
+            }
         }
-        return AMQPArray.ARRAY_ARRAY8_CODE;
+        return ARRAY_ARRAY8_CODE;
     }
 
     public byte chooseBinaryEncoding(Buffer value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value.length() > 255) {
-            return AMQPBinary.BINARY_VBIN32_CODE;
+            return BINARY_VBIN32_CODE;
         } else {
-            return AMQPBinary.BINARY_VBIN8_CODE;
+            return BINARY_VBIN8_CODE;
         }
     }
 
     public byte chooseBooleanEncoding(Boolean value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value == Boolean.TRUE) {
-            return AMQPBoolean.BOOLEAN_TRUE_CODE;
+            return BOOLEAN_TRUE_CODE;
         } else {
-            return AMQPBoolean.BOOLEAN_FALSE_CODE;
+            return BOOLEAN_FALSE_CODE;
         }
     }
 
     public byte chooseByteEncoding(Byte value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPByte.BYTE_CODE;
+        return BYTE_CODE;
     }
 
     public byte chooseCharEncoding(Character value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPChar.CHAR_UTF32_CODE;
+        return CHAR_UTF32_CODE;
     }
 
     public byte chooseDecimal128Encoding(BigDecimal value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPDecimal128.DECIMAL128_IEEE_754_CODE;
+        return DECIMAL128_IEEE_754_CODE;
     }
 
     public byte chooseDecimal32Encoding(BigDecimal value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPDecimal32.DECIMAL32_IEEE_754_CODE;
+        return DECIMAL32_IEEE_754_CODE;
     }
 
     public byte chooseDecimal64Encoding(BigDecimal value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPDecimal64.DECIMAL64_IEEE_754_CODE;
+        return DECIMAL64_IEEE_754_CODE;
     }
 
     public byte chooseDoubleEncoding(Double value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPDouble.DOUBLE_IEEE_754_CODE;
+        return DOUBLE_IEEE_754_CODE;
     }
 
     public byte chooseFloatEncoding(Float value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPFloat.FLOAT_IEEE_754_CODE;
+        return FLOAT_IEEE_754_CODE;
     }
 
     public byte chooseIntEncoding(Integer value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value < 128 && value > -127) {
-            return AMQPInt.INT_SMALLINT_CODE;
+            return INT_SMALLINT_CODE;
         }
-        return AMQPInt.INT_CODE;
+        return INT_CODE;
     }
 
     public byte chooseListEncoding(List value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value.size() > 255) {
-            return AMQPList.LIST_LIST32_CODE;
+            return LIST_LIST32_CODE;
         }
         int size = 0;
         for (Object obj : value) {
             size += ((AmqpType)obj).size();
-            if (size > (255 - AMQPList.LIST_LIST8_WIDTH)) {
-                return AMQPList.LIST_LIST32_CODE;
+            if (size > (255 - LIST_LIST8_WIDTH)) {
+                return LIST_LIST32_CODE;
             }
         }
-        return AMQPList.LIST_LIST8_CODE;
+        return LIST_LIST8_CODE;
     }
 
     public byte chooseLongEncoding(Long value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value < 128 && value > -127) {
-            return AMQPLong.LONG_SMALLLONG_CODE;
+            return LONG_SMALLLONG_CODE;
         }
-        return AMQPLong.LONG_CODE;
+        return LONG_CODE;
     }
 
     public byte chooseMapEncoding(Map value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value.keySet().size() + value.values().size() > 255) {
-            return AMQPMap.MAP_MAP32_CODE;
+            return MAP_MAP32_CODE;
         }
         int size = 0;
         for (Object key : value.keySet()) {
             size += ((AmqpType)key).size();
             size += ((AmqpType)value.get(key)).size();
             if (size > (255 - AMQPMap.MAP_MAP8_WIDTH)) {
-                return AMQPMap.MAP_MAP32_CODE;
+                return MAP_MAP32_CODE;
             }
         }
         return AMQPMap.MAP_MAP8_CODE;
@@ -177,14 +208,14 @@ public class AmqpEncodingPicker implements EncodingPicker {
 
     public byte chooseShortEncoding(Short value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPShort.SHORT_CODE;
+        return SHORT_CODE;
     }
 
     public byte chooseStringEncoding(String value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         int size = 0;
         try {
@@ -193,72 +224,72 @@ public class AmqpEncodingPicker implements EncodingPicker {
             throw new RuntimeException("UTF-8 encoding not available : " + e.getLocalizedMessage());
         }
         if (size < 255) {
-            return AMQPString.STRING_STR8_UTF8_CODE;
+            return STRING_STR8_UTF8_CODE;
         }
-        return AMQPString.STRING_STR32_UTF8_CODE;
+        return STRING_STR32_UTF8_CODE;
     }
 
     public byte chooseSymbolEncoding(Buffer value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        if (value.length()  < 255) {
-            return AMQPSymbol.SYMBOL_SYM8_CODE;
+        if (value.length() <= 255) {
+            return SYMBOL_SYM8_CODE;
         }
-        return AMQPSymbol.SYMBOL_SYM32_CODE;
+        return SYMBOL_SYM32_CODE;
     }
 
     public byte chooseTimestampEncoding(Date value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPTimestamp.TIMESTAMP_MS64_CODE;
+        return TIMESTAMP_MS64_CODE;
     }
 
     public byte chooseUByteEncoding(Short value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPUByte.UBYTE_CODE;
+        return UBYTE_CODE;
     }
 
     public byte chooseUIntEncoding(Long value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value == 0) {
-            return AMQPUInt.UINT_UINT0_CODE;
+            return UINT_UINT0_CODE;
         }
         if (value < 255 && value > 0) {
-            return AMQPUInt.UINT_SMALLUINT_CODE;
+            return UINT_SMALLUINT_CODE;
         }
-        return AMQPUInt.UINT_CODE;
+        return UINT_CODE;
     }
 
     public byte chooseULongEncoding(BigInteger value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
         if (value == BigInteger.ZERO) {
-            return AMQPULong.ULONG_ULONG0_CODE;
+            return ULONG_ULONG0_CODE;
         }
         if ( value.toByteArray().length == 1) {
-            return AMQPULong.ULONG_SMALLULONG_CODE;
+            return ULONG_SMALLULONG_CODE;
         }
-        return AMQPULong.ULONG_CODE;
+        return ULONG_CODE;
     }
 
     public byte chooseUShortEncoding(Integer value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPUShort.USHORT_CODE;
+        return USHORT_CODE;
     }
 
     public byte chooseUUIDEncoding(UUID value) {
         if (value == null) {
-            return TypeRegistry.NULL_FORMAT_CODE;
+            return NULL_FORMAT_CODE;
         }
-        return AMQPUUID.UUID_CODE;
+        return UUID_CODE;
     }
 }

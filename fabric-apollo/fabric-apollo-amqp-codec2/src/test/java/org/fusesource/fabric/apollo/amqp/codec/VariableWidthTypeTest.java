@@ -12,6 +12,7 @@ package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPBinary;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPString;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
 
@@ -51,6 +52,20 @@ public class VariableWidthTypeTest {
         }
         String in = builder.toString();
         String out = writeRead(new AMQPString(in)).getValue();
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testSym8() throws Exception {
+        Buffer in = new Buffer("Hello world!".getBytes());
+        Buffer out = writeRead(new AMQPSymbol(in)).getValue();
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testSym32() throws Exception {
+        Buffer in = new Buffer(2048);
+        Buffer out = writeRead(new AMQPSymbol(in)).getValue();
         assertEquals(in, out);
     }
 }

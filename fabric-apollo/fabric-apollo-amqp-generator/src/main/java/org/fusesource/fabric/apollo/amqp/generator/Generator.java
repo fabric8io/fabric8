@@ -116,7 +116,7 @@ public class Generator {
     public void generate() throws Exception {
 
         primitiveEncoder = getInterfaces() + "." + "PrimitiveEncoder";
-        String typeRegistry = getPackagePrefix() + "." + getMarshaller() + "." + "TypeRegistry";
+        String typeRegistry = getMarshaller() + "." + "TypeRegistry";
         String encodingPicker = getInterfaces() + "." + "EncodingPicker";
         String encodingSizer = getInterfaces() + "." + "Sizer";
 
@@ -428,7 +428,7 @@ public class Generator {
     }
 
     public String getMarshaller() {
-        return marshaller;
+        return getPackagePrefix()  + "." + marshaller;
     }
 
     public TypeRegistry registry() {

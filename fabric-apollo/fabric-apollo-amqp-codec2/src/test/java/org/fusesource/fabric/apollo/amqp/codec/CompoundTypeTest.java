@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -80,6 +81,23 @@ public class CompoundTypeTest {
         }
         Map out = writeRead(new AMQPMap(in)).getValue();
         assertEquals(in, out);
+    }
+
+    @Test
+    public void testArray8() throws Exception {
+        AMQPLong in[] = new AMQPLong[]{new AMQPLong(0L), new AMQPLong(1L), new AMQPLong(8192L)};
+        AMQPLong out[] = (AMQPLong[])writeRead(new AMQPArray(in)).getValue();
+        assertArrayEquals(in, out);
+    }
+
+    @Test
+    public void testArray32() throws Exception {
+        AMQPString in[] = new AMQPString[512];
+        for (int i=0; i < in.length; i++) {
+            in[i] = new AMQPString("some kinda string with " + i + " in it");
+        }
+        AMQPString out[] = (AMQPString[])writeRead(new AMQPArray(in)).getValue();
+        assertArrayEquals(in, out);
     }
 
 }
