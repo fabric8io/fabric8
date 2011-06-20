@@ -79,7 +79,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeBinaryVBIN8(Buffer value, DataOutput out) throws Exception {
-        out.writeByte(AMQPBinary.BINARY_VBIN8_CODE);
         out.writeByte(value.length());
         value.writeTo(out);
     }
@@ -100,7 +99,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeBinaryVBIN32(Buffer value, DataOutput out) throws Exception {
-        out.writeByte(AMQPBinary.BINARY_VBIN32_CODE);
         out.writeInt(value.length());
         value.writeTo(out);
     }
@@ -122,7 +120,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeBoolean(Boolean value, DataOutput out) throws Exception {
-        out.writeByte(AMQPBoolean.BOOLEAN_CODE);
         if (value) {
             out.writeByte(1);
         } else {
@@ -143,7 +140,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeBooleanTrue(Boolean value, DataOutput out) throws Exception {
-        out.writeByte(AMQPBoolean.BOOLEAN_TRUE_CODE);
     }
 
     public void encodeBooleanTrue(Boolean value, Buffer buffer, int offset) throws Exception {
@@ -159,7 +155,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeBooleanFalse(Boolean value, DataOutput out) throws Exception {
-        out.writeByte(AMQPBoolean.BOOLEAN_FALSE_CODE);
     }
 
     public void encodeBooleanFalse(Boolean value, Buffer buffer, int offset) throws Exception {
@@ -175,7 +170,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeByte(Byte value, DataOutput out) throws Exception {
-        out.writeByte(AMQPByte.BYTE_CODE);
         out.writeByte(value);
     }
 
@@ -192,7 +186,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeCharUTF32(Character value, DataOutput out) throws Exception {
-        out.writeByte(AMQPChar.CHAR_UTF32_CODE);
         out.writeChar(value);
     }
 
@@ -230,7 +223,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeDecimal32IEEE754(BigDecimal value, DataOutput out) throws Exception {
-        out.writeByte(AMQPDecimal32.DECIMAL32_IEEE_754_CODE);
         BigDecimal withContext = new BigDecimal(value.toPlainString(), MathContext.DECIMAL32);
         out.writeInt(Float.floatToIntBits(withContext.floatValue()));
     }
@@ -249,7 +241,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeDecimal64IEEE754(BigDecimal value, DataOutput out) throws Exception {
-        out.writeByte(AMQPDecimal64.DECIMAL64_IEEE_754_CODE);
         BigDecimal withContext = new BigDecimal(value.toPlainString(), MathContext.DECIMAL64);
         out.writeLong(Double.doubleToLongBits(withContext.doubleValue()));
     }
@@ -267,7 +258,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeDoubleIEEE754(Double value, DataOutput out) throws Exception {
-        out.writeByte(AMQPDouble.DOUBLE_IEEE_754_CODE);
         out.writeDouble(value);
     }
 
@@ -284,7 +274,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeFloatIEEE754(Float value, DataOutput out) throws Exception {
-        out.writeByte(AMQPFloat.FLOAT_IEEE_754_CODE);
         out.writeFloat(value);
     }
 
@@ -301,7 +290,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeInt(Integer value, DataOutput out) throws Exception {
-        out.writeByte(AMQPInt.INT_CODE);
         out.writeInt(value);
     }
 
@@ -318,7 +306,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeIntSmallInt(Integer value, DataOutput out) throws Exception {
-        out.writeByte(AMQPInt.INT_SMALLINT_CODE);
         out.writeByte(value.byteValue());
     }
 
@@ -337,7 +324,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeList8(List value, DataOutput out) throws Exception {
-        out.writeByte(AMQPList.LIST_LIST8_CODE);
         Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST8_WIDTH;
         Long count = (long)value.size();
         out.writeByte(size.byteValue());
@@ -373,7 +359,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeList32(List value, DataOutput out) throws Exception {
-        out.writeByte(AMQPList.LIST_LIST32_CODE);
         Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST32_WIDTH;
         Long count = (long)value.size();
         out.writeInt(size.intValue());
@@ -405,7 +390,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeLong(Long value, DataOutput out) throws Exception {
-        out.writeByte(AMQPLong.LONG_CODE);
         out.writeLong(value);
     }
 
@@ -422,7 +406,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeLongSmallLong(Long value, DataOutput out) throws Exception {
-        out.writeByte(AMQPLong.LONG_SMALLLONG_CODE);
         out.writeByte(value.byteValue());
     }
 
@@ -457,7 +440,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeMap8(Map value, DataOutput out) throws Exception {
-        out.writeByte(AMQPMap.MAP_MAP8_CODE);
         Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP8_WIDTH;
         Long count = (long)(value.keySet().size() + value.values().size());
         out.writeByte(size.byteValue());
@@ -492,7 +474,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeMap32(Map value, DataOutput out) throws Exception {
-        out.writeByte(AMQPMap.MAP_MAP32_CODE);
         Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP32_WIDTH;
         Long count = (long)(value.keySet().size() + value.values().size());
         out.writeInt(size.intValue());
@@ -529,7 +510,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeShort(Short value, DataOutput out) throws Exception {
-        out.writeByte(AMQPShort.SHORT_CODE);
         out.writeShort(value);
     }
 
@@ -550,7 +530,6 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeStringStr8UTF8(String value, DataOutput out) throws Exception {
         Buffer s = new Buffer(value.getBytes("UTF-8"));
-        out.writeByte(AMQPString.STRING_STR8_UTF8_CODE);
         out.writeByte(s.length());
         s.writeTo(out);
     }
@@ -572,7 +551,6 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeStringStr32UTF8(String value, DataOutput out) throws Exception {
         Buffer s = new Buffer(value.getBytes("UTF-8"));
-        out.writeByte(AMQPString.STRING_STR32_UTF8_CODE);
         out.writeInt(s.length());
         s.writeTo(out);
     }
@@ -623,7 +601,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeTimestampMS64(Date value, DataOutput out) throws Exception {
-        out.writeByte(AMQPTimestamp.TIMESTAMP_MS64_CODE);
         out.writeLong(value.getTime());
     }
 
@@ -640,7 +617,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeUByte(Short value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUByte.UBYTE_CODE);
         out.writeByte(value);
     }
 
@@ -662,7 +638,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeUInt(Long value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUInt.UINT_CODE);
         out.writeInt(value.intValue());
     }
 
@@ -679,7 +654,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeUIntSmallUInt(Long value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUInt.UINT_SMALLUINT_CODE);
         out.writeByte((short)value.intValue());
     }
 
@@ -696,7 +670,7 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeUIntUInt0(Long value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUInt.UINT_UINT0_CODE);
+
     }
 
     public void encodeUIntUInt0(Long value, Buffer buffer, int offset) throws Exception {
@@ -714,7 +688,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeULong(BigInteger value, DataOutput out) throws Exception {
-        out.writeByte(AMQPULong.ULONG_CODE);
         byte[] toWrite = new byte[8];
         Arrays.fill(toWrite, (byte)0x0);
         BitUtils.setULong(toWrite, 0, value.abs());
@@ -736,7 +709,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeULongSmallULong(BigInteger value, DataOutput out) throws Exception {
-        out.writeByte(AMQPULong.ULONG_SMALLULONG_CODE);
         out.writeByte(value.byteValue());
     }
 
@@ -753,7 +725,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeULongULong0(BigInteger value, DataOutput out) throws Exception {
-        out.writeByte(AMQPULong.ULONG_ULONG0_CODE);
     }
 
     public void encodeULongULong0(BigInteger value, Buffer buffer, int offset) throws Exception {
@@ -772,7 +743,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeUShort(Integer value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUShort.USHORT_CODE);
         out.writeShort(value.shortValue());
     }
 
@@ -789,7 +759,6 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeUUID(UUID value, DataOutput out) throws Exception {
-        out.writeByte(AMQPUUID.UUID_CODE);
         out.writeLong(value.getMostSignificantBits());
         out.writeLong(value.getLeastSignificantBits());
     }

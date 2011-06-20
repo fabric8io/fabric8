@@ -27,10 +27,14 @@ public abstract class AmqpDefinedType {
     protected JDefinedClass definedClass;
 
     protected JMethod write;
+    protected JMethod writeConstructor;
+    protected JMethod writeBody;
     protected JMethod read;
     protected JMethod encodeTo;
     protected JMethod decodeFrom;
     protected JMethod size;
+    protected JMethod sizeOfConstructor;
+    protected JMethod sizeOfBody;
 
     public AmqpDefinedType(Generator generator, String className, Type type) throws JClassAlreadyExistsException {
         this.cm = generator.getCm();
@@ -52,11 +56,17 @@ public abstract class AmqpDefinedType {
 
         generator.registry().cls().init().add(JExpr._new(cls()));
 
+        sizeOfConstructor();
+        sizeOfBody();
         size();
         write();
+        writeConstructor();
+        writeBody();
         read();
+        /*
         encodeTo();
         decodeFrom();
+        */
     }
 
     protected abstract void createStaticBlock();
@@ -69,6 +79,40 @@ public abstract class AmqpDefinedType {
         }
         return size;
     }
+
+    public JMethod writeConstructor() {
+        if (writeConstructor == null) {
+            writeConstructor = cls().method(JMod.PUBLIC, cm.BYTE, "writeConstructor");
+            writeConstructor._throws(java.lang.Exception.class);
+            writeConstructor.param(java.io.DataOutput.class, "out");
+        }
+        return writeConstructor;
+    }
+
+    public JMethod writeBody() {
+        if (writeBody == null) {
+            writeBody = cls().method(JMod.PUBLIC, cm.VOID, "writeBody");
+            writeBody._throws(java.lang.Exception.class);
+            writeBody.param(cm.BYTE, "formatCode");
+            writeBody.param(java.io.DataOutput.class, "out");
+        }
+        return writeBody;
+    }
+
+    public JMethod sizeOfConstructor() {
+        if (sizeOfConstructor == null) {
+            sizeOfConstructor = cls().method(JMod.PUBLIC, cm.LONG, "sizeOfConstructor");
+        }
+        return sizeOfConstructor;
+    }
+
+    public JMethod sizeOfBody() {
+        if (sizeOfBody == null) {
+            sizeOfBody = cls().method(JMod.PUBLIC, cm.LONG, "sizeOfBody");
+        }
+        return sizeOfBody;
+    }
+
 
     public JMethod write() {
         if (write == null) {

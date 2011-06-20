@@ -20,6 +20,7 @@ import org.fusesource.hawtbuf.Buffer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
+import static com.sun.codemodel.JExpr.*;
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.sanitize;
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassName;
 
@@ -27,6 +28,8 @@ import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassN
  *
  */
 public class DescribedType  extends AmqpDefinedType {
+
+
 
     class Attribute {
         public String type;
@@ -36,9 +39,9 @@ public class DescribedType  extends AmqpDefinedType {
     }
 
     private JFieldVar SYMBOLIC_ID;
-    private JFieldVar CATEGORY;
-    private JFieldVar DESCRIPTOR_ID;
+    private JFieldVar SYMBOLIC_ID_SIZE;
     private JFieldVar NUMERIC_ID;
+    private JFieldVar NUMERIC_ID_SIZE;
 
     private JMethod write;
     private JMethod read;
@@ -63,7 +66,8 @@ public class DescribedType  extends AmqpDefinedType {
                 Descriptor desc = (Descriptor) obj;
                 int mods = JMod.PUBLIC | JMod.STATIC | JMod.FINAL;
 
-                SYMBOLIC_ID = cls().field(mods, Buffer.class, "SYMBOLIC_ID", JExpr._new(cm.ref(AsciiBuffer.class)).arg(desc.getName()));
+                SYMBOLIC_ID = cls().field(mods, Buffer.class, "SYMBOLIC_ID", _new(cm.ref(AsciiBuffer.class)).arg(desc.getName()));
+                SYMBOLIC_ID_SIZE = cls().field(mods, Long.class, "SYMBOLIC_ID_SIZE", generator.registry().cls().staticInvoke("instance").invoke("sizer").invoke("sizeOfSymbol").arg(ref("SYMBOLIC_ID")));
 
                 String code = desc.getCode();
                 String category = code.split(":")[0];
@@ -76,13 +80,13 @@ public class DescribedType  extends AmqpDefinedType {
                 //CATEGORY = cls().field(mods, long.class, "CATEGORY", JExpr.lit(Integer.parseInt(category.substring(2), 16)));
                 //DESCRIPTOR_ID = cls().field(mods, long.class, "DESCRIPTOR_ID", JExpr.lit(Integer.parseInt(descriptorId.substring(2), 16)));
                 //NUMERIC_ID = cls().field(mods, cm.LONG, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
-                NUMERIC_ID = cls().field(mods, BigInteger.class, "NUMERIC_ID", JExpr._new(cm.ref("java.math.BigInteger")).arg(JExpr.lit(category + descriptorId)).arg(JExpr.lit(16)));
-
+                NUMERIC_ID = cls().field(mods, BigInteger.class, "NUMERIC_ID", _new(cm.ref("java.math.BigInteger")).arg(lit(category + descriptorId)).arg(lit(16)));
+                NUMERIC_ID_SIZE = cls().field(mods, Long.class, "NUMERIC_ID_SIZE", generator.registry().cls().staticInvoke("instance").invoke("sizer").invoke("sizeOfULong").arg(ref("NUMERIC_ID")));
                 cls().init().add(
                         generator.registry().cls().staticInvoke("instance")
                                 .invoke("getFormatCodeMap")
                                 .invoke("put")
-                                .arg(JExpr.ref("NUMERIC_ID"))
+                                .arg(ref("NUMERIC_ID"))
                                 .arg(cls().dotclass())
                 );
 
@@ -90,7 +94,7 @@ public class DescribedType  extends AmqpDefinedType {
                         generator.registry().cls().staticInvoke("instance")
                                 .invoke("getSymbolicCodeMap")
                                 .invoke("put")
-                                .arg(JExpr.ref("SYMBOLIC_ID"))
+                                .arg(ref("SYMBOLIC_ID"))
                                 .arg(cls().dotclass())
                 );
             }
@@ -161,11 +165,11 @@ public class DescribedType  extends AmqpDefinedType {
                     attribute.attribute.javadoc().add(doc);
 
                     attribute.getter = cls().method(JMod.PUBLIC, attribute.attribute.type(), "get" + toJavaClassName(fieldName));
-                    attribute.getter.body()._return(JExpr._this().ref(attribute.attribute));
+                    attribute.getter.body()._return(_this().ref(attribute.attribute));
 
                     attribute.setter = cls().method(JMod.PUBLIC, cm.VOID, "set" + toJavaClassName(fieldName));
                     JVar param = attribute.setter.param(attribute.attribute.type(), fieldName);
-                    attribute.setter.body().assign(JExpr._this().ref(attribute.attribute), param);
+                    attribute.setter.body().assign(_this().ref(attribute.attribute), param);
 
                     amqpFields.add(attribute);
                 } else {
@@ -178,19 +182,37 @@ public class DescribedType  extends AmqpDefinedType {
         fillInSizeMethod();
 
         count = cls().method(JMod.PUBLIC, cm.INT, "count");
-        count().body()._return(JExpr.lit(amqpFields.size()));
+        count().body()._return(lit(amqpFields.size()));
     }
 
     private void fillInWriteMethod() {
-        write().body().block().invoke(JExpr.ref("out"), "writeByte").arg(generator.registry().cls().staticRef("DESCRIBED_FORMAT_CODE"));
-        write().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get("ulong")), "write").arg(JExpr.ref("NUMERIC_ID")).arg(JExpr.ref("out"));
+        writeConstructor().body().block().invoke(ref("out"), "writeByte").arg(generator.registry().cls().staticRef("DESCRIBED_FORMAT_CODE"));
+        writeConstructor().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get("ulong")), "write").arg(ref("NUMERIC_ID")).arg(ref("out"));
+        writeConstructor().body()._return(cast(cm.BYTE, lit(0)));
+
+        write().body().invoke("writeConstructor").arg(ref("out"));
+        write().body().invoke("writeBody").arg(cast(cm.BYTE, lit((byte)0))).arg(ref("out"));
+
+        writeBody().body().decl(cm.LONG, "fieldSize", _this().invoke("sizeOfFields"));
+        writeBody().body().decl(cm.BYTE, "code", _this().invoke("getListEncoding").arg(ref("fieldSize")));
+        writeBody().body().assignPlus(ref("fieldSize"), _this().invoke("getListWidth").arg(ref("formatCode")));
+
+        writeBody().body().invoke(ref("out"), "writeByte").arg(ref("code"));
+
+        JConditional condition = writeBody().body()._if(ref("code").eq(cm.ref("AMQPList").staticRef("LIST_LIST8_CODE")));
+
+        condition._then().invoke(ref("out"), "writeByte").arg(cast(cm.BYTE, ref("fieldSize")));
+        condition._then().invoke(ref("out"), "writeByte").arg(cast(cm.BYTE, _this().invoke("count")));
+
+        condition._else().invoke(ref("out"), "writeInt").arg(cast(cm.INT, ref("fieldSize")));
+        condition._else().invoke(ref("out"), "writeInt").arg(cast(cm.INT, _this().invoke("count")));
 
         for (Attribute attribute : amqpFields) {
             if (generator.getMapping().get(attribute.type) != null) {
                 if (attribute.attribute.type().isArray()) {
 
                 } else {
-                    write().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(JExpr._this().ref(attribute.attribute.name())).arg(JExpr.ref("out"));
+                    writeBody().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
                 }
 
             }
@@ -199,73 +221,84 @@ public class DescribedType  extends AmqpDefinedType {
     }
 
     private void fillInSizeMethod() {
-        size().body().decl(cm.LONG, "rc", JExpr.lit(1L));
-        size().body().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(generator.registry().cls().staticInvoke("instance")
+        size().body()._return(invoke("sizeOfConstructor").plus(invoke("sizeOfBody")));
+
+        sizeOfConstructor().body()._return(ref("NUMERIC_ID_SIZE"));
+
+        JMethod sizeOfFields = cls().method(JMod.PRIVATE, cm.LONG, "sizeOfFields");
+
+        /*
+        sizeOfBody().body().assign(JExpr.ref("rc"), JExpr.ref("rc").plus(generator.registry().cls().staticInvoke("instance")
                 .invoke("sizer")
                 .invoke("sizeOfULong").arg(JExpr.ref("NUMERIC_ID"))));
+                */
 
-        size().body().decl(cm.LONG, "fieldSize", JExpr.lit(0L));
+        sizeOfFields.body().decl(cm.LONG, "fieldSize", lit(0L));
 
         for (Attribute attribute : amqpFields) {
 
             if (generator.getMapping().get(attribute.type) != null) {
                 if (attribute.attribute.type().isArray()) {
-                    size().body().assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
+                    sizeOfFields.body().assign(ref("fieldSize"), ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                             .invoke("sizer")
                             .invoke("sizeOfArray")
-                                .arg(JExpr.ref(attribute.attribute.name()))));
+                                .arg(ref(attribute.attribute.name()))));
 
                 } else {
-                    size().body().assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
+                    sizeOfFields.body().assign(ref("fieldSize"), ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                                     .invoke("sizer")
                                     .invoke("sizeOf" + toJavaClassName(attribute.type))
-                                        .arg(JExpr.ref(attribute.attribute.name()))));
+                                        .arg(ref(attribute.attribute.name()))));
                 }
             } else {
                 if (attribute.attribute.type().isArray()) {
-                    size().body().assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
+                    sizeOfFields.body().assign(ref("fieldSize"), ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                                     .invoke("sizer")
                                     .invoke("sizeOfArray")
-                                    .arg(JExpr.ref(attribute.attribute.name()))));
+                                    .arg(ref(attribute.attribute.name()))));
                 } else {
 
-                    JConditional conditional = size().body()
-                            ._if(JExpr.ref(attribute.attribute.name()).ne(JExpr._null()));
+                    JConditional conditional = sizeOfFields.body()
+                            ._if(ref(attribute.attribute.name()).ne(_null()));
 
                     conditional._then()
                             .assign(
-                                    JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(
-                                    JExpr.ref(attribute.attribute.name()).invoke("size")));
+                                    ref("fieldSize"), ref("fieldSize").plus(
+                                    ref(attribute.attribute.name()).invoke("size")));
 
                     conditional._else()
-                            .assign(JExpr.ref("fieldSize"), JExpr.ref("fieldSize").plus(JExpr.lit(1L)));
+                            .assign(ref("fieldSize"), ref("fieldSize").plus(lit(1L)));
                 }
             }
         }
 
-        size().body()._return(JExpr.ref("rc"));
+        sizeOfFields.body()._return(ref("fieldSize"));
+
+        JMethod getListEncoding = cls().method(JMod.PRIVATE, cm.BYTE, "getListEncoding");
+        getListEncoding.param(cm.LONG, "fieldSize");
+
+        JMethod getListWidth = cls().method(JMod.PRIVATE, cm.INT, "getListWidth");
+        getListWidth.param(cm.BYTE, "formatCode");
+        getListWidth.body()._if(ref("formatCode").eq(cm.ref("AMQPList").staticRef("LIST_LIST8_CODE")))._then()._return(cm.ref("AMQPList").staticRef("LIST_LIST8_WIDTH"));
+        getListWidth.body()._return(cm.ref("AMQPList").staticRef("LIST_LIST32_WIDTH"));
+
+        getListEncoding.body()
+                ._if(ref("fieldSize").lte(lit(255).minus(cm.ref("AMQPList").staticRef("LIST_LIST8_WIDTH"))))
+                    ._then()
+                        ._return(cm.ref("AMQPList").staticRef("LIST_LIST8_CODE"));
+
+        getListEncoding.body()._return(cm.ref("AMQPList").staticRef("LIST_LIST32_CODE"));
+
+
+        sizeOfBody().body().decl(cm.LONG, "fieldSize", invoke("sizeOfFields"));
+        sizeOfBody().body().decl(cm.LONG, "width", invoke("getListWidth").arg(invoke("getListEncoding").arg(ref("fieldSize"))).mul(lit(2)));
+        sizeOfBody().body()._return(lit(1).plus(ref("width").plus(ref("fieldSize"))));
     }
 
     public JMethod count() {
         return count;
-    }
-
-    public JFieldVar SYMBOLIC_ID() {
-        return SYMBOLIC_ID;
-    }
-
-    public JFieldVar CATEGORY() {
-        return CATEGORY;
-    }
-
-    public JFieldVar DESCRIPTOR_ID() {
-        return DESCRIPTOR_ID;
-    }
-
-    public JFieldVar NUMERIC_ID() {
-        return NUMERIC_ID;
     }
 }

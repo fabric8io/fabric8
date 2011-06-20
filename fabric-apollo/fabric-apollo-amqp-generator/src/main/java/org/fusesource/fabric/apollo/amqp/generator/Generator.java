@@ -176,12 +176,10 @@ public class Generator {
             }
 
             List<RestrictedType> restrictedTypes = new ArrayList<RestrictedType>();
-            for (String key : getRestricted().keySet()) {
+            for (String key : getEnums().keySet()) {
                 Type type = getRestricted().get(key);
-                if (type.getProvides() != null) {
-                    String className = getTypes() + "." + toJavaClassName(key);
-                    restrictedTypes.add(new RestrictedType(this, className, type));
-                }
+                String className = getTypes() + "." + toJavaClassName(key);
+                restrictedTypes.add(new RestrictedType(this, className, type));
             }
 
 
@@ -250,6 +248,7 @@ public class Generator {
         }
         writeMethod.param(DataOutput.class, "out");
 
+        /*
         JMethod encMethod = clazz.method(mods, cm.VOID, "encode" + methodName);
         encMethod._throws(java.lang.Exception.class);
         if (m != null) {
@@ -267,6 +266,7 @@ public class Generator {
         decMethod._throws(java.lang.Exception.class);
         decMethod.param(Buffer.class, "buffer");
         decMethod.param(cm.INT, "offset");
+        */
     }
 
     private void buildRestrictedTypeMapping() {
@@ -287,48 +287,6 @@ public class Generator {
         }
     }
 
-    /*
-    private void generateEnumTypes() throws JClassAlreadyExistsException {
-        for(Type type : restricted) {
-            List<Object> children = type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc();
-            boolean isEnum = false;
-            for (Object child : children) {
-                if (child instanceof Choice) {
-                    isEnum = true;
-                    break;
-                }
-            }
-            if (!isEnum) {
-                continue;
-            }
-            String enumType = type.getSource();
-            while (enumType != null && !mapping.containsKey(enumType)) {
-                enumType = restrictedMapping.get(enumType);
-            }
-            if (enumType == null) {
-                Log.info("Skipping generation of enum %s, unknown type", type.getName());
-                continue;
-            }
-
-            String name = toJavaClassName(type.getName());
-            name = packagePrefix + "." + types + "." + name;
-            JDefinedClass cls = cm._class(name, ClassType.ENUM);
-
-            JMethod constructor = cls.constructor(JMod.PRIVATE);
-            constructor.param(mapping.get(enumType), "value");
-
-            enumType = mapping.get(enumType).getName();
-
-            for (Object child : children) {
-                if (child instanceof Choice) {
-                    Choice choice = (Choice)child;
-                    JEnumConstant constant = cls.enumConstant(Utilities.toStaticName(choice.getName()));
-                    constant.arg(JExpr._new(cm.ref(enumType)).arg(choice.getValue()));
-                }
-            }
-        }
-    }
-*/
     public String toString() {
         StringBuilder rc = new StringBuilder();
 
