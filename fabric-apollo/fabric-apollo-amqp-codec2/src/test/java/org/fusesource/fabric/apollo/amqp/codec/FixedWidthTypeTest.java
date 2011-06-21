@@ -106,21 +106,21 @@ public class FixedWidthTypeTest {
 
     @Test
     public void testUByte() throws Exception {
-        short in = (short)0xF4;
+        short in = (short)0xFF;
         short out = writeRead(new AMQPUByte(in)).getValue().shortValue();
         assertEquals(in, out);
     }
 
     @Test
     public void testUShort() throws Exception {
-        int in = Short.MAX_VALUE + 1;
+        int in = 0xFFFF;
         int out = writeRead(new AMQPUShort(in)).getValue().intValue();
         assertEquals(in, out);
     }
 
     @Test
     public void testUInt() throws Exception {
-        long values[] = new long[]{0, 5, 32, 1024, 8192, (long)Integer.MAX_VALUE + 1L};
+        long values[] = new long[]{0, 5, 32, 1024, 8192, ((long)0xFFFFFFFF)};
         for (long in : values) {
             long out = writeRead(new AMQPUInt(in)).getValue().longValue();
             assertEquals(in, out);

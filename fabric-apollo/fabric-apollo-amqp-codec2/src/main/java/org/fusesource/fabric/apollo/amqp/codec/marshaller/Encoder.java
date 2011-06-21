@@ -444,16 +444,18 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Long readUInt(DataInput in) throws Exception {
-        long rc = 0;
-        rc = rc | (0xFFFFFFFFL & (((long) in.readByte()) << 24));
-        rc = rc | (0xFFFFFFFFL & (((long) in.readByte()) << 16));
-        rc = rc | (0xFFFFFFFFL & (((long) in.readByte()) << 8));
-        rc = rc | (0xFFFFFFFFL & (long) in.readByte());
-        return rc;
+        return (long)
+               ((in.readUnsignedByte() << 24 |
+                in.readUnsignedByte() << 16 |
+                in.readUnsignedByte() <<  8 |
+                in.readUnsignedByte() <<  0) & 0xFFFFFFFF);
     }
 
     public void writeUInt(Long value, DataOutput out) throws Exception {
-        out.writeInt(value.intValue());
+        out.writeByte((byte)(value >> 24 & 0xFF));
+        out.writeByte((byte)(value >> 16 & 0xFF));
+        out.writeByte((byte)(value >>  8 & 0xFF));
+        out.writeByte((byte)(value >>  0 & 0xFF));
     }
 
     public Long readUIntSmallUInt(DataInput in) throws Exception {
@@ -503,14 +505,13 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Integer readUShort(DataInput in) throws Exception {
-        int rc = 0;
-        rc = rc | (0xFFFF & (((int) in.readByte()) << 8));
-        rc = rc | (0xFFFF & (int) in.readByte());
-        return rc;
+        return (in.readUnsignedByte() << 8 |
+                in.readUnsignedByte() << 0);
     }
 
     public void writeUShort(Integer value, DataOutput out) throws Exception {
-        out.writeShort(value.shortValue());
+        out.writeByte((byte)((value >> 8) & 0xFF));
+        out.writeByte((byte)((value >> 0) & 0xFF));
     }
 
     public UUID readUUID(DataInput in) throws Exception {
