@@ -48,19 +48,19 @@ public class Encoder implements PrimitiveEncoder {
         return readArray(in, count, formatCode);
     }
 
-    private Object[] readArray(DataInput in, int count, byte formatCode) throws Exception {
+    private Object[] readArray(DataInput in, long count, byte formatCode) throws Exception {
         Object[] rc;
         if (formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE) {
             BigInteger descriptor = AMQPULong.read(in);
             Class clazz = TypeRegistry.instance().getFormatCodeMap().get(descriptor);
-            rc = (Object[])Array.newInstance(clazz, count);
+            rc = (Object[])Array.newInstance(clazz, (int)count);
             for (int i = 0; i < rc.length; i++) {
                 rc[i] = clazz.newInstance();
                 ((AmqpType)rc[i]).read((byte)0x0, in);
             }
         } else {
             Class clazz = TypeRegistry.instance().getPrimitiveFormatCodeMap().get(formatCode);
-            rc = (Object[])Array.newInstance(clazz, count);
+            rc = (Object[])Array.newInstance(clazz, (int)count);
             for (int i=0; i < rc.length; i++) {
                 rc[i] = clazz.newInstance();
                 ((AmqpType)rc[i]).read(formatCode, in);
@@ -70,10 +70,10 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeArray8(Object[] value, DataOutput out) throws Exception {
-        long size = AMQPArray.ARRAY_ARRAY8_WIDTH + getArrayConstructorSize(value) + getArrayBodySize(value);
-        long count = value.length;
-        out.writeByte((byte)size);
-        out.writeByte((byte)count);
+        Long size = AMQPArray.ARRAY_ARRAY8_WIDTH + getArrayConstructorSize(value) + getArrayBodySize(value);
+        Long count = (long)value.length;
+        writeUByte(size.shortValue(), out);
+        writeUByte(count.shortValue(), out);
         writeArrayBody(value, out);
     }
 
@@ -90,8 +90,8 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Object[] readArray32(DataInput in) throws Exception {
-        int size = in.readInt();
-        int count = in.readInt();
+        long size = readUInt(in);
+        long count = readUInt(in);
         byte formatCode = (byte)in.readUnsignedByte();
         return readArray(in, count, formatCode);
     }
@@ -99,8 +99,8 @@ public class Encoder implements PrimitiveEncoder {
     public void writeArray32(Object[] value, DataOutput out) throws Exception {
         long size = AMQPArray.ARRAY_ARRAY32_WIDTH + getArrayConstructorSize(value) + getArrayBodySize(value);
         long count = value.length;
-        out.writeInt((int)size);
-        out.writeInt((int)count);
+        writeUInt(size, out);
+        writeUInt(count, out);
         writeArrayBody(value, out);
     }
 
@@ -245,14 +245,14 @@ public class Encoder implements PrimitiveEncoder {
     public void writeList8(List value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST8_WIDTH;
         Long count = (long)value.size();
-        out.writeByte(size.byteValue());
-        out.writeByte(count.byteValue());
+        writeUByte(size.shortValue(), out);
+        writeUByte(count.shortValue(), out);
         writeListData(value, out);
     }
 
     public List readList32(DataInput in) throws Exception {
-        Long size = (long)in.readInt();
-        Long count = (long)in.readInt();
+        Long size = readUInt(in);
+        Long count = readUInt(in);
         return readListData(in, size, count, AMQPList.LIST_LIST32_WIDTH);
     }
 
@@ -272,8 +272,8 @@ public class Encoder implements PrimitiveEncoder {
     public void writeList32(List value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST32_WIDTH;
         Long count = (long)value.size();
-        out.writeInt(size.intValue());
-        out.writeInt(count.intValue());
+        writeUInt(size, out);
+        writeUInt(count, out);
         writeListData(value, out);
     }
 
@@ -329,8 +329,8 @@ public class Encoder implements PrimitiveEncoder {
     public void writeMap8(Map value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP8_WIDTH;
         Long count = (long)(value.keySet().size() + value.values().size());
-        out.writeByte(size.byteValue());
-        out.writeByte(count.byteValue());
+        writeUByte(size.shortValue(), out);
+        writeUByte(count.shortValue(), out);
         writeMapData(value, out);
     }
 
@@ -347,16 +347,16 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Map readMap32(DataInput in) throws Exception {
-        Long size = (long)in.readInt();
-        Long count = (long)in.readInt();
+        Long size = readUInt(in);
+        Long count = readUInt(in);
         return readMapData(in, size, count, AMQPMap.MAP_MAP32_WIDTH);
     }
 
     public void writeMap32(Map value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP32_WIDTH;
         Long count = (long)(value.keySet().size() + value.values().size());
-        out.writeInt(size.intValue());
-        out.writeInt(count.intValue());
+        writeUInt(size, out);
+        writeUInt(count, out);
         writeMapData(value, out);
     }
 

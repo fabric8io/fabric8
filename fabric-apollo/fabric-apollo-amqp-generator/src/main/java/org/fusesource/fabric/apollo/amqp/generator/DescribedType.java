@@ -113,7 +113,11 @@ public class DescribedType  extends AmqpDefinedType {
         toString.body().decl(cm.ref("java.lang.String"), "rc", lit(toJavaClassName(type.getName()) + "{"));
 
         for (Attribute attr : amqpFields) {
-            toString.body()._if(_this().ref(attr.attribute).ne(_null()))._then().assignPlus(ref("rc"), lit(attr.attribute.name() + "=").plus(_this().ref(attr.attribute)).plus(lit(" ")));
+            if (attr.attribute.type().isArray()) {
+                toString.body()._if(_this().ref(attr.attribute).ne(_null()))._then().assignPlus(ref("rc"), lit(attr.attribute.name() + "=").plus(cm.ref("java.util.Arrays").staticInvoke("toString").arg(_this().ref(attr.attribute))).plus(lit(" ")));
+            } else {
+                toString.body()._if(_this().ref(attr.attribute).ne(_null()))._then().assignPlus(ref("rc"), lit(attr.attribute.name() + "=").plus(_this().ref(attr.attribute)).plus(lit(" ")));
+            }
         }
         toString.body().assign(ref("rc"), ref("rc").invoke("trim"));
         toString.body().assignPlus(ref("rc"), lit("}"));
@@ -209,7 +213,7 @@ public class DescribedType  extends AmqpDefinedType {
     }
 
     private void fillInReadMethod() {
-        read().body().decl(cm.INT, "count", cm.ref(generator.getMarshaller() + ".DescribedTypeSupport").staticInvoke("readListHeader").arg(ref("in")));
+        read().body().decl(cm.LONG, "count", cm.ref(generator.getMarshaller() + ".DescribedTypeSupport").staticInvoke("readListHeader").arg(ref("in")));
 
         Log.info("Filling in read method for %s", type.getName());
 

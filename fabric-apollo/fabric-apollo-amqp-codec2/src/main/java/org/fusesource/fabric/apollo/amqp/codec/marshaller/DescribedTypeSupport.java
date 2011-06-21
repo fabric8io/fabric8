@@ -20,7 +20,7 @@ import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPList.*;
  */
 public class DescribedTypeSupport {
 
-    public static byte getListEncoding(long fieldSize, int count) {
+    public static byte getListEncoding(long fieldSize, long count) {
         if (fieldSize <= (255 - LIST_LIST8_WIDTH)) {
             return LIST_LIST8_CODE;
         }
@@ -34,35 +34,35 @@ public class DescribedTypeSupport {
         return LIST_LIST32_CODE;
     }
 
-    public static long fullSizeOfList(long size, int count) {
+    public static long fullSizeOfList(long size, long count) {
         return 1 + getListWidth(getListEncoding(size, count)) * 2 + size;
     }
 
-    public static long encodedListSize(long size, int count) {
+    public static long encodedListSize(long size, long count) {
         return getListWidth(getListEncoding(size, count)) + size;
     }
 
-    public static void writeListHeader(long size, int count, DataOutput out) throws Exception {
+    public static void writeListHeader(long size, long count, DataOutput out) throws Exception {
         byte formatCode = getListEncoding(size, count);
         out.writeByte(formatCode);
         if (formatCode == LIST_LIST8_CODE) {
             out.writeByte((byte)encodedListSize(size, count));
             out.writeByte((byte)count);
         } else {
-            out.writeInt((byte)encodedListSize(size, count));
-            out.writeInt(count);
+            TypeRegistry.instance().encoder().writeUInt(encodedListSize(size, count), out);
+            TypeRegistry.instance().encoder().writeUInt((long)count, out);
         }
     }
 
-    public static int readListHeader(DataInput in) throws Exception {
+    public static long readListHeader(DataInput in) throws Exception {
         byte formatCode = (byte)in.readUnsignedByte();
 
         if (formatCode == LIST_LIST8_CODE) {
             in.readUnsignedByte();
             return in.readUnsignedByte();
         } else if (formatCode == LIST_LIST32_CODE) {
-            in.readInt();
-            return in.readInt();
+            TypeRegistry.instance().encoder().readUInt(in);
+            return TypeRegistry.instance().encoder().readUInt(in);
         } else if (formatCode == TypeRegistry.NULL_FORMAT_CODE) {
             return 0;
         } else {
