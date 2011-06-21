@@ -145,11 +145,6 @@ public class Generator {
             List<String> filter = new ArrayList<String>();
             filter.add("*");
             filter.add("null");
-            /*
-            filter.add("map");
-            filter.add("list");
-            filter.add("array");
-            */
 
             for (String key : getPrimitives().keySet()) {
                 if (filter.contains(key)) {
@@ -180,6 +175,14 @@ public class Generator {
                 Type type = getRestricted().get(key);
                 String className = getTypes() + "." + toJavaClassName(key);
                 restrictedTypes.add(new RestrictedType(this, className, type));
+            }
+
+            for (String key : getRestricted().keySet()) {
+                Type type = getRestricted().get(key);
+                if (type.getProvides() != null && !getEnums().containsKey(key)) {
+                    String className = getTypes() + "." + toJavaClassName(key);
+                    restrictedTypes.add(new RestrictedType(this, className, type));
+                }
             }
 
 

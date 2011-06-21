@@ -66,7 +66,7 @@ public class DescribedTypeSupport {
         } else if (formatCode == TypeRegistry.NULL_FORMAT_CODE) {
             return 0;
         } else {
-            throw new RuntimeException(String.format("Unknown format code (%x) for list type", formatCode));
+            throw new RuntimeException(String.format("Unknown format code (0x%x) for list type", formatCode));
         }
 
     }

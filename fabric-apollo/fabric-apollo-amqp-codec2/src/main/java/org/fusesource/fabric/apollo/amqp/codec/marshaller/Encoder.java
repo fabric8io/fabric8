@@ -365,7 +365,7 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeNull(DataOutput out) throws Exception {
-
+        out.writeByte(TypeRegistry.NULL_FORMAT_CODE);
     }
 
     public Short readShort(DataInput in) throws Exception {

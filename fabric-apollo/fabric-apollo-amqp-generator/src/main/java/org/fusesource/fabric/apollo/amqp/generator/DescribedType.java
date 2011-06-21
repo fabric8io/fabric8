@@ -107,6 +107,19 @@ public class DescribedType  extends AmqpDefinedType {
         }
     }
 
+    public void generateToString() {
+        JMethod toString = cls().method(JMod.PUBLIC, cm.ref("java.lang.String"), "toString");
+
+        toString.body().decl(cm.ref("java.lang.String"), "rc", lit(toJavaClassName(type.getName()) + "{"));
+
+        for (Attribute attr : amqpFields) {
+            toString.body()._if(_this().ref(attr.attribute).ne(_null()))._then().assignPlus(ref("rc"), lit(attr.attribute.name() + "=").plus(_this().ref(attr.attribute)).plus(lit(" ")));
+        }
+        toString.body().assign(ref("rc"), ref("rc").invoke("trim"));
+        toString.body().assignPlus(ref("rc"), lit("}"));
+        toString.body()._return(ref("rc"));
+    }
+
     public void generateDescribedFields() {
         Log.info("");
         Log.info("Generating %s", cls().binaryName());
@@ -121,12 +134,14 @@ public class DescribedType  extends AmqpDefinedType {
 
                 if ( fieldType.equals("*") ) {
                     fieldType = generator.getAmqpBaseType();
+                    /*
                     if ( field.getRequires() != null ) {
                         String requiredType = field.getRequires();
                         if (generator.getProvides().contains(requiredType)) {
                             fieldType = generator.getInterfaces() + "." + toJavaClassName(field.getRequires());
                         }
                     }
+                    */
                 } else if (generator.getDescribed().containsKey(fieldType)) {
                     fieldType = generator.getDescribedJavaClass().get(field.getType());
                 } else if (generator.getRestricted().containsKey(fieldType)) {
@@ -184,11 +199,34 @@ public class DescribedType  extends AmqpDefinedType {
             }
         }
 
+        fillInReadMethod();
         fillInWriteMethod();
         fillInSizeMethod();
+        generateToString();
 
         count = cls().method(JMod.PUBLIC, cm.INT, "count");
         count().body()._return(lit(amqpFields.size()));
+    }
+
+    private void fillInReadMethod() {
+        read().body().decl(cm.INT, "count", cm.ref(generator.getMarshaller() + ".DescribedTypeSupport").staticInvoke("readListHeader").arg(ref("in")));
+
+        Log.info("Filling in read method for %s", type.getName());
+
+        for (Attribute attribute : amqpFields) {
+            Log.info("%s %s", attribute.type, attribute.attribute.name());
+            read().body().assign(ref("count"), ref("count").minus(lit(1)));
+            JBlock ifBody = read().body()._if(ref("count").gte(lit(0)))._then();
+            if (attribute.attribute.type().isArray()) {
+                ifBody.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref("AMQPArray").staticInvoke("read").arg(ref("in"))));
+            } else if (generator.getMapping().get(attribute.type) != null) {
+                ifBody.assign(attribute.attribute, cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)).staticInvoke("read").arg(ref("in")));
+            } else if (generator.getProvides().contains(attribute.type)) {
+            } else {
+                //ifBody.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref(generator.getMarshaller() + ".TypeReader").staticInvoke("read").arg(ref("in"))));
+                ifBody.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref(generator.getMarshaller() + ".TypeReader").staticInvoke("read").arg(ref("in"))));
+            }
+        }
     }
 
     private void fillInWriteMethod() {
@@ -197,22 +235,24 @@ public class DescribedType  extends AmqpDefinedType {
         writeConstructor().body()._return(cast(cm.BYTE, lit(0)));
 
         write().body().invoke("writeConstructor").arg(ref("out"));
-        write().body().invoke("writeBody").arg(cast(cm.BYTE, lit((byte)0))).arg(ref("out"));
+        write().body().invoke("writeBody").arg(cast(cm.BYTE, lit((byte) 0))).arg(ref("out"));
 
         writeBody().body().decl(cm.LONG, "fieldSize", _this().invoke("sizeOfFields"));
 
         writeBody().body().staticInvoke(cm.ref(generator.getMarshaller() + ".DescribedTypeSupport"), "writeListHeader").arg(ref("fieldSize")).arg(_this().invoke("count")).arg(ref("out"));
 
         for (Attribute attribute : amqpFields) {
-            if (generator.getMapping().get(attribute.type) != null) {
-                if (attribute.attribute.type().isArray()) {
-
-                } else {
-                    writeBody().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
-                }
-
+            if (attribute.attribute.type().isArray()) {
+                writeBody().body().block().staticInvoke(cm.ref("AMQPArray"), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
+            } else if (generator.getMapping().get(attribute.type) != null) {
+                writeBody().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
+            } else {
+                JConditional conditional = writeBody.body()
+                        ._if(ref(attribute.attribute.name()).ne(_null()));
+                conditional._then()
+                        .invoke(ref(attribute.attribute.name()), "write").arg(ref("out"));
+                conditional._else().invoke(ref("out"), "writeByte").arg(generator.registry().cls().staticRef("NULL_FORMAT_CODE"));
             }
-
         }
     }
 

@@ -164,12 +164,7 @@ public class PrimitiveType extends AmqpDefinedType {
 
         JSwitch readSwitchBlock = read().body()._switch(ref("formatCode"));
 
-        writeBodySwitchBlock._case(generator.registry().cls().staticRef("NULL_FORMAT_CODE")).body().add(generator.registry().cls()
-                .staticInvoke("instance")
-                .invoke("encoder")
-                .invoke("writeNull")
-                .arg(ref("out")))
-                    ._break();
+        writeBodySwitchBlock._case(generator.registry().cls().staticRef("NULL_FORMAT_CODE")).body()._break();
 
         int highestWidth = 0;
 

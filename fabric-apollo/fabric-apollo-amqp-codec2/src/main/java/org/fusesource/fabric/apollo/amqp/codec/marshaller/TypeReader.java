@@ -11,8 +11,8 @@
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPLong;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong;
 
 import java.io.DataInput;
 
@@ -29,15 +29,14 @@ public class TypeReader {
 
             AmqpType rc = null;
 
-            if (descriptor instanceof AMQPLong) {
-                rc = (AmqpType) TypeRegistry.instance().getFormatCodeMap().get(((AMQPLong) descriptor).getValue()).newInstance();
+            if (descriptor instanceof AMQPULong ) {
+                rc = (AmqpType) TypeRegistry.instance().getFormatCodeMap().get(((AMQPULong) descriptor).getValue()).newInstance();
             } else if (descriptor instanceof AMQPSymbol) {
                 rc = (AmqpType) TypeRegistry.instance().getSymbolicCodeMap().get(((AMQPSymbol) descriptor).getValue()).newInstance();
             } else {
                 throw new IllegalArgumentException("Unknown AMQP descriptor type");
             }
             if (rc != null) {
-                formatCode = in.readByte();
                 rc.read(formatCode, in);
             }
             return rc;
