@@ -365,8 +365,6 @@ SASL-RESPONSE -->
 
       <descriptor name="amqp:sasl-mechanisms:list" code="0x00000000:0x00000040"/>
 
-      <field name="options" type="options" label="options map"/>
-
       <field name="sasl-server-mechanisms" type="symbol" multiple="true" mandatory="true"
              label="supported sasl mechanisms">
         <doc>
@@ -390,8 +388,6 @@ SASL-RESPONSE -->
       </doc>
 
       <descriptor name="amqp:sasl-init:list" code="0x00000000:0x00000041"/>
-
-      <field name="options" type="options" label="options map"/>
 
       <field name="mechanism" type="symbol" label="selected security mechanism" mandatory="true">
         <doc>
@@ -447,8 +443,6 @@ SASL-RESPONSE -->
 
       <descriptor name="amqp:sasl-challenge:list" code="0x00000000:0x00000042"/>
 
-      <field name="options" type="options" label="options map"/>
-
       <field name="challenge" type="binary" label="security challenge data" mandatory="true">
         <doc>
           <p>
@@ -468,8 +462,6 @@ SASL-RESPONSE -->
       </doc>
 
       <descriptor name="amqp:sasl-response:list" code="0x00000000:0x00000043"/>
-
-      <field name="options" type="options" label="options map"/>
 
       <field name="response" type="binary" label="security response data" mandatory="true">
         <doc>
@@ -494,8 +486,6 @@ SASL-RESPONSE -->
       </doc>
 
       <descriptor name="amqp:sasl-outcome:list" code="0x00000000:0x00000044"/>
-
-      <field name="options" type="options" label="options map"/>
 
       <field name="code" type="sasl-code" mandatory="true"
              label="indicates the outcome of the sasl dialog">

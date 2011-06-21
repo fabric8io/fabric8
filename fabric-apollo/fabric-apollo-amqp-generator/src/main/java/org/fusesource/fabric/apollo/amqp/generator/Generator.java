@@ -280,7 +280,7 @@ public class Generator {
             while (!mapping.containsKey(source)) {
                 Type t = restricted.get(source);
                 if (t == null) {
-                    Log.info("Skipping restricted type %s with source %s, no primitive type found", t.getName(), source);
+                    Log.info("Skipping restricted type %s with source %s, no primitive type found", type.getName(), source);
                     source = "*";
                     break;
                 }

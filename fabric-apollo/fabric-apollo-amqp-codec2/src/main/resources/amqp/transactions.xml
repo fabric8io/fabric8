@@ -124,20 +124,19 @@
       <p>
         The container acting as the transactional resource defines a special target that functions
         as a <xref name="coordinator">transaction coordinator</xref>. The <i>transaction
-        controller</i> establishes a link to this target and allocates a container scoped
-        transaction id (txn-id) by sending a message whose body consists of the
-        <xref name="declare"/> type. This txn-id is then used by the controller to associate work
-        with the transaction. The controller will subsequently end the transaction by sending a
-        <xref name="discharge"/> message to the coordinator. Should the coordinator fail to perform
-        the <xref name="declare"/> or <xref name="discharge"/> as specified in the message, the
-        message will be <xref name="rejected"/> with a <xref name="transaction-errors"/> indicating
-        the failure condition that occurred.
+        controller</i> establishes a link to this target and is allocated a transaction id (txn-id)
+        by sending a message whose body consists of the <xref name="declare"/> type. If this
+        declaration is successful, the coordinator responds with a disposition outcome of <xref
+        name="declared"/> which carries the allocated txn-id. The controller will subsequently end
+        the transaction by sending a <xref name="discharge"/> message to the coordinator. Should
+        the coordinator fail to perform the <xref name="declare"/> or <xref name="discharge"/> as
+        specified in the message, the message will be <xref name="rejected"/> with a <xref
+        name="transaction-errors"/> indicating the failure condition that occurred.
       </p>
 
       <p>
         The <xref name="declare"/> and <xref name="discharge"/> message bodies MUST be encoded as a
-        single section with a <xref name="section-codes">section-code</xref> of <i>amqp-data</i>
-        containing exactly one encoded AMQP value of the appropriate described type.
+        single <xref name="amqp-value"/> section.
       </p>
 
       <p>
@@ -200,8 +199,7 @@
         and the txn-ids included MUST correctly indicate with which (if any) transaction this work
         is associated. In the case of the <xref name="flow"/> frame traveling from resource to
         controller, the txn-id does not indicate work that has been performed, but indicates with
-        which transaction future transfers from that link will be
-        performed.
+        which transaction future transfers from that link will be performed.
       </p>
     </doc>
 
@@ -213,8 +211,8 @@
         by the controller. To accomodate this, the resource associates an additional piece of state
         with outgoing link endpoints, an optional <i>txn-id</i> that identifies the transaction with
         which <i>acquired</i> messages will be associated. This state is determined by the
-        controller by specifying a <i>txn-id</i> entry in the <i>options</i> map of the flow frame.
-        When a transaction is discharged, the <i>txn-id</i> of any link endpoints will be
+        controller by specifying a <i>txn-id</i> entry in the <i>properties</i> map of the flow
+        frame.  When a transaction is discharged, the <i>txn-id</i> of any link endpoints will be
         cleared.
       </p>
 
@@ -257,7 +255,7 @@
 
       <field name="options" type="options" label="options map"/>
 
-      <field name="capabilities" type="symbol" requires="txn-capabilities" multiple="true"/>
+      <field name="capabilities" type="symbol" requires="txn-capability" multiple="true"/>
 
     </type>
 
@@ -301,6 +299,9 @@
 
       <field name="options" type="options" label="options map"/>
 
+      <field name="txn-id" type="*" requires="txn-id" mandatory="true"
+        label="identifies the transaction to be discharged"/>
+
       <field name="fail" type="boolean" label="indicates the transaction should be rolled back">
         <doc>
           <p>
@@ -314,7 +315,31 @@
       </field>
     </type>
 
-    <type class="restricted" name="txn-capabilities" source="symbol" provides="txn-capabilities"
+    <type class="restricted" name="transaction-id" source="binary" provides="txn-id">
+      <doc>
+        <p>
+          A transaction-id may be up to 32 octets of binary data.
+        </p>
+      </doc>
+    </type>
+
+    <type class="composite" name="declared" source="list" provides="outcome">
+      <doc>
+        <p>
+          Indicates that a transaction identifier has successfully been allocated in response to a
+          declare message sent to a transaction coordinator.
+        </p>
+      </doc>
+
+      <descriptor name="amqp:declared:list" code="0x00000000:0x00000033"/>
+
+      <field name="options" type="options" label="options map"/>
+
+      <field name="txn-id" type="*" requires="txn-id" mandatory="true"
+             label="the allocated transaction id"/>
+    </type>
+
+    <type class="restricted" name="txn-capability" source="symbol" provides="txn-capability"
           label="symbols indicating (desired/available) capabilities of a transaction coordinator">
 
       <choice name="local-txn" value="amqp:local-transactions">
@@ -353,14 +378,6 @@
         <doc>
           <p>
               Support transactions whose txn-id is used across sessions on one connection.
-          </p>
-        </doc>
-      </choice>
-
-      <choice name="multi-conns-per-txn" value="amqp:multi-conns-per-txn">
-        <doc>
-          <p>
-              Support transactions whose txn-id is used across different connections.
           </p>
         </doc>
       </choice>

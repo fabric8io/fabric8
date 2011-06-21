@@ -38,6 +38,7 @@ public abstract class AmqpDefinedType {
     protected JMethod sizeOfBody;
 
     public AmqpDefinedType(Generator generator, String className, Type type) throws JClassAlreadyExistsException {
+        Log.info("Creating new class %s for type %s", className, type.getName());
         this.cm = generator.getCm();
         this.generator = generator;
         this.type = type;
