@@ -562,7 +562,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
         l.foreach { seq =>
           val delivery = waiting_for_ack.remove(seq.longValue)
           assert(delivery.isDefined)
-          delivery.get.ack(true, null)
+          delivery.get.ack(Delivered, null)
         }
       }
     }

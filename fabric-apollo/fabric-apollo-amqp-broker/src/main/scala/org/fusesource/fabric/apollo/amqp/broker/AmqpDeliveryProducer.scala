@@ -78,10 +78,15 @@ class AmqpDeliveryProducer(val handler:AmqpProtocolHandler, val link:Receiver, v
     // TODO - Fix up API so a message can be settled by delivery tag so this runnable doesn't have a reference to the message
     delivery.ack = { (consumed, uow) => {
         if (!message.getSettled) {
-          if (consumed) {
-            link.settle(message, Outcome.ACCEPTED)
-          } else {
-            link.settle(message, Outcome.REJECTED)
+          consumed match {
+            case Delivered=>
+              link.settle(message, Outcome.ACCEPTED)
+            case Expired=>
+              link.settle(message, Outcome.ACCEPTED)
+            case Undelivered=>
+              link.settle(message, Outcome.REJECTED)
+            case Poisoned=>
+              link.settle(message, Outcome.REJECTED)
           }
         }
         if (uow != null) {

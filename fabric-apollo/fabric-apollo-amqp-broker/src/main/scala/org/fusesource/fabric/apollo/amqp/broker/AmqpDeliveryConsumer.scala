@@ -10,7 +10,6 @@
 
 package org.fusesource.fabric.apollo.amqp.broker
 
-import org.apache.activemq.apollo.broker.{DeliverySession, DeliveryProducer, Delivery, DeliveryConsumer}
 import org.fusesource.hawtbuf.AsciiBuffer
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtdispatch._
@@ -24,6 +23,7 @@ import collection.mutable.ListBuffer
 import org.fusesource.fabric.apollo.amqp.api.{Session, Outcome, Sender}
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
+import org.apache.activemq.apollo.broker._
 
 /**
  * An AMQP sender that consumes message deliveries
@@ -149,15 +149,15 @@ class AmqpDeliveryConsumer(h:AmqpProtocolHandler, l:Sender, var destination:Arra
           if (delivery.ack != null) {
             if (message.settled) {
               trace("acknowledging message delivery for message %s", message)
-              delivery.ack(true, delivery.uow)
+              delivery.ack(Delivered, delivery.uow)
             } else {
               message.outcome match {
                 case Outcome.ACCEPTED =>
                 trace("acknowledging message delivery for message %s", message)
-                delivery.ack(true, delivery.uow)
+                delivery.ack(Delivered, delivery.uow)
                 case _ =>
                 trace("acknowledging message delivery for message %s", message)
-                delivery.ack(false, delivery.uow)
+                delivery.ack(Undelivered, delivery.uow)
               }
             }
             if (current_batch < 1) {
