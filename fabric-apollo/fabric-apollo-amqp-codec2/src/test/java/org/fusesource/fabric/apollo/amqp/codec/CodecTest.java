@@ -52,7 +52,7 @@ public class CodecTest {
 
         AmqpType type = (AmqpType) registry.getSymbolicCodeMap().get(new AsciiBuffer("amqp:header:list")).newInstance();
 
-        //System.out.println(String.format("Got type : %s", type.getClass().getName()));
+        //System.out.printf("Got type : %s", type.getClass().getName());
 
         assertSame("Received type does not match expected type!", type.getClass(), Header.class);
     }

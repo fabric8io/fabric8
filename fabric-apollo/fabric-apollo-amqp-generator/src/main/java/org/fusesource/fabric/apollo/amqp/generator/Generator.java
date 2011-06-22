@@ -179,7 +179,7 @@ public class Generator {
 
             for (String key : getRestricted().keySet()) {
                 Type type = getRestricted().get(key);
-                if (type.getProvides() != null && !getEnums().containsKey(key)) {
+                if (type.getProvides() != null && !getEnums().containsKey(key) && !getDescribed().containsKey(key)) {
                     String className = getTypes() + "." + toJavaClassName(key);
                     restrictedTypes.add(new RestrictedType(this, className, type));
                 }
