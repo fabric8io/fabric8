@@ -1,0 +1,7 @@
+<?xml version="1.0"?> 
+<!DOCTYPE amqp SYSTEM "amqp.dtd">
+
+<amqp xmlns="http://www.amqp.org/schema/amqp.xsd"
+      name="transport" label="working version">
+
+    </amqp> 
