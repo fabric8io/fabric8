@@ -13,7 +13,7 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-      <reference id="org.linkedin.zookeeper.client.IZKClient" interface="org.linkedin.zookeeper.client.IZKClient" />
+  <reference id="org.linkedin.zookeeper.client.IZKClient" interface="org.linkedin.zookeeper.client.IZKClient"/>
 
   <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
 

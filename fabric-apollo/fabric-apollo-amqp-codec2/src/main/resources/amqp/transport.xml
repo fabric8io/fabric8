@@ -442,7 +442,7 @@ HTTP                ------------->
             including size and type information.</p></dd>
 
         <dt>extended header</dt>
-        <dd><p>The extended header is a variable width area preceeding the frame body. This is an
+        <dd><p>The extended header is a variable width area preceding the frame body. This is an
             extension point defined for future expansion. The treatment of this area depends on the
             frame type.</p></dd>
 
@@ -510,9 +510,11 @@ HTTP                ------------->
 
     <doc title="AMQP Frames">
       <p>
-        The AMQP frame type defines header bytes 6 and 7 to contain a Channel number
-        (see the <xref name="transport"/> section). The AMQP frame type
-        defines bodies encoded as described types in the AMQP type system.
+        The AMQP frame type defines header bytes 6 and 7 to contain a Channel number (see the <xref
+        name="transport"/> section). The AMQP frame type defines frame bodies as a performative
+        followed by an opaque payload. The performative is encoded as a described type in the AMQP
+        type system. The remaining bytes in the frame body form the payload for that frame. The
+        presence and format of the payload is defined by the semantics of the given performative.
       </p>
 
       <picture><![CDATA[
@@ -531,13 +533,14 @@ HTTP                ------------->
        |                ...                |  |
        +-----------------------------------+ -'
        +-----------------------------------+ -.
-4*DOFF |                                   |  |
-       .                                   .  |
-       .                                   .  |
+4*DOFF |           PERFORMATIVE:           |  |
        .      Open / Begin / Attach        .  |
-       .   Flow / Transfer / Disposition   .  |---> Frame Body
-       .      Detach / End / Close         .  |  (SIZE - DOFF * 4) bytes
-       .                                   .  |
+       .   Flow / Transfer / Disposition   .  |
+       .      Detach / End / Close         .  |
+       |-----------------------------------|  |
+       .                                   .  |---> Frame Body
+       .                                   .  |  (SIZE - DOFF * 4) bytes
+       .             PAYLOAD               .  |
        .                                   .  |
        .                           ________|  |
        |                ...       |           |
@@ -853,6 +856,12 @@ TCP-CLOSE <--+   +--> TCP-CLOSE
             incoming frames. If desired, an implementation could do a TCP half-close at this point
             to shutdown the write side of the Connection.</p></dd>
 
+        <dt>DISCARDING</dt>
+        <dd><p>The DISCARDING state is a variant of the CLOSE_SENT state where the
+            <xref name="close"/> is triggered by an error. In this case any incoming frames on
+            the connection MUST be silently discarded until the peer's <xref name="close"/> frame
+            is received.</p></dd>
+
         <dt>END</dt>
         <dd><p>In this state it is illegal for either endpoint to write anything more onto the
             Connection. The Connection may be safely closed and discarded.</p></dd>
@@ -893,9 +902,9 @@ TCP-CLOSE <--+   +--> TCP-CLOSE
 |           R:CLOSE |    | S:CLOSE              | R:OPEN               |
 |         +---------+    +-------+              |                      |
 |        \|/                    \|/             |                      |
-|   @============@            @============@    |                      |
-|   | CLOSE_RCVD |            | CLOSE_SENT |<---+                      |
-|   @============@            @============@                           |
+|   @============@          @=============@     |                      |
+|   | CLOSE_RCVD |          | CLOSE_SENT* |<----+                      |
+|   @============@          @=============@                            |
 | S:CLOSE |                      | R:CLOSE                             |
 |         |         @=====@      |                                     |
 |         +-------->| END |<-----+                                     |
@@ -906,6 +915,8 @@ TCP-CLOSE <--+   +--> TCP-CLOSE
 
                      R:<CTRL> = Received <CTRL>
                      S:<CTRL> = Sent <CTRL>
+                     * Also could be DISCARDING if an error condition
+                       triggered the CLOSE
 ]]>
       </picture>
 
@@ -924,6 +935,7 @@ OC_PIPE      -               HDR               TCP Close for Write
 OPENED       *               *
 CLOSE_RCVD   *               -                 TCP Close for Read
 CLOSE_SENT   -               *                 TCP Close for Write
+DISCARDING   -               *                 TCP Close for Write
 END          -               -                 TCP Close
 
 *  = any frames
@@ -983,6 +995,11 @@ Link C------>*        (detached)        *------>Link C
         therefore allocate an unused outgoing channel for the remotely initiated Session and
         indicate this by sending its own <xref type="type" name="begin"/> setting the
         remote-channel field to the incoming channel of the remotely initiated Session.
+      </p>
+
+      <p>
+        To make it easier to monitor AMQP sessions, it is recommended that implementations always
+        assign the lowest available unused channel number.
       </p>
 
       <p>
@@ -1297,7 +1314,7 @@ S:END(error) |       S:END |             | R:END    |
         Termini may exist beyond their associated Link Endpoints, so it is possible for a Session to
         terminate and the Termini to remain. A Link is said to be <term>suspended</term> if the
         Termini exist, but have no associated Link Endpoints. The process of associating new Link
-        Endpoints with existing Termini and reestablishing communication is referred to
+        Endpoints with existing Termini and re-establishing communication is referred to
         as <term>resuming</term> a Link.
       </p>
 
@@ -1317,6 +1334,20 @@ S:END(error) |       S:END |             | R:END    |
         MUST uniquely identify the link amongst all links of the same direction between the two
         participating containers. Link names are only used when attaching a Link, so they may be
         arbitrarily long without a significant penalty.
+      </p>
+      <p>
+        A link's name uniquely identifies the link from the container of the source to the
+        container of the target node, e.g. if the container of the source node is A, and the
+        container of the target node is B, the link may be globally identified by the (ordered)
+        tuple <i>(A,B,&lt;name&gt;)</i>.
+      </p>
+      <p>
+        Consequently, a link may only be active in one connection at a time. If an attempt is made
+        to attach the link subsequently when it is not suspended, then the link can be 'stolen', ie
+        the second attach succeeds and the first attach must then be closed with a link error of
+        <xref name="link-error" choice="stolen"/>. This behaviour ensures that in the event of a
+        connection failure occurring and being noticed by one party, that re-establishment has the
+        desired effect.
       </p>
     </doc>
 
@@ -1931,72 +1962,11 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
     <doc title="Messages">
       <p>
         The transport layer assumes as little as possible about Messages and allows alternative
-        Message representations to be layered above. The transport defines Messages as a sequence of
-        Sections. The number and meaning of Sections in a given Message is not defined at the
-        transport layer. Sections may be used by layered Message representations to expose their
-        internal structure to the transport if desired. Sections may also be used by a layered
-        Message representation to encode boundaries that would otherwise require internal Message
-        framing, e.g. demarcating a footer where the size of the body is not known up front.
+        Message representations to be layered above. Message data is carried as the payload in the
+        <xref name="transfer"/> frame. Messages can be fragmented across several <xref
+        name="transfer"/> frames as indicated by the more flag of the <xref name="transfer"/>
+        performative.
       </p>
-
-      <picture title="Example"><![CDATA[
-    Section 1            Section 2             Section 3
-  +-----------+------------------------------+-----------+
-  |  header   |             body             |  footer   |
-  +-----------+------------------------------+-----------+
-  ]]>
-      </picture>
-
-      <doc title="Sections">
-        <p>
-          Each Message Section has an associated format code that describes the data comprising that
-          Section. The format code indicates the format and purpose of the section data. Format
-          codes are carried by the transport along with the section data. Specific format codes are
-          defined outside the transport.
-        </p>
-
-        <p>
-          Sections may be arbitrarily large, and Messages may have an arbitrarily large number of
-          Sections.
-        </p>
-      </doc>
-
-      <doc title="Fragments">
-        <p>
-          Messages are transferred as a list of fragments. Each fragment is a contiguous part of a
-          <b>single</b> section, possibly being a whole section. Each fragment includes a first
-          flag, last flag, and section-code code that identify section boundaries and formatting
-          within the Message. For example if Messages are divided into a separate header and body
-          with distinct formats, the first, last, and section-code fields could be used to indicate
-          the boundary between the header and body, and to indicate the distinct formatting of each.
-        </p>
-
-        <picture><![CDATA[
-  Section 0            Section 1
-+-----------+------------------------------+
-|  header   |             body             |
-+-----------+-------+-----------+----------+
-|    F1     |  F2   |    F3     |    F4    |
-+-----------+-------+-----------+----------+
-
-   Fragment | first | last  | section-code
- ===========|=======|=======|==============
-      F1    | true  | true  |     0xDB
-      F2    | true  | false |     0xCA
-      F3    | false | false |     0xCA
-      F4    | false | true  |     0xCA
-]]>
-        </picture>
-
-        <p>
-          Additionally, each <xref name="fragment"/> carries a <i>section-number</i> and
-          <i>section-offset</i>. The former identifies which section the fragment belongs to, the
-          latter indicates the offset of the fragment data within the section. These values aid in
-          the efficient resumption of large messages where delivery has been interrupted by link
-          detachment. Within a single delivery attempt for a Message, Sections (and their
-          constituent fragments) MUST be sent in order.
-        </p>
-      </doc>
     </doc>
 
     <doc title="Transferring a Message">
@@ -2028,7 +1998,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
  /       Sender       \
 +----------------------+
 | unsettled:           |    transfer(delivery-tag=DT, settled=False,
-|   ...                |             state=S_0, ..., fragments=...)
+|   ...                |             state=S_0, ...)
 |   DT -> (local: S_0, |----------------------------------------------->
 |          remote: ?)  |
 |   ...                |
@@ -2047,7 +2017,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
                                                  /      Receiver      \
                                                 +----------------------+
     transfer(delivery-tag=DT, settled=False,    | unsettled:           |
-             state=S_0, ..., fragments=...)     |   ...                |
+             state=S_0, ...)                    |   ...                |
 ----------------------------------------------->|   DT -> (local: S_1, |
                                                 |          remote: S_0)|
                                                 |   ...                |
@@ -2204,7 +2174,7 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
  /       Sender       \
 +----------------------+
 | unsettled:           |    transfer(delivery-tag=DT, settled=True,
-|   ...                |             state=T_0, ..., fragments=...)
+|   ...                |             state=T_0, ...)
 |   - -> -             |----------------------------------------------->
 |   ...                |
 +----------------------+
@@ -2297,25 +2267,19 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
 
     <doc title="Transferring Large Messages">
       <p>
-        Each <xref name="transfer"/> frame may carry an arbitrary number of fragments up to the
+        Each <xref name="transfer"/> frame may carry an arbitrary amount of message data up to the
         limit imposed by the maximum frame size. For Messages that are too large to fit within the
-        maximum frame size, additional fragments may be transferred in additional
-        <xref name="transfer"/> frames by setting the more flag on all but the last
-        <xref name="transfer"/> frame. When a message is split up into multiple
-        <xref name="transfer"/> frames in this manner, messages being transferred along different
-        links MAY be interleaved. However, messages transferred along a single link MUST NOT be
-        interleaved.
+        maximum frame size, additional data may be transferred in additional <xref name="transfer"/>
+        frames by setting the more flag on all but the last <xref name="transfer"/> frame. When a
+        message is split up into multiple <xref name="transfer"/> frames in this manner, messages
+        being transferred along different links MAY be interleaved. However, messages transferred
+        along a single link MUST NOT be interleaved.
       </p>
 
       <p>
         The sender may indicate an aborted attempt to deliver a Message by setting the abort flag on
         the last <xref type="type" name="transfer"/>. In this case the receiver MUST discard the
-        Message fragments that were transferred prior to the abort.
-      </p>
-
-      <p>
-        Messages may be arbitrarily fragmented so long as the section boundaries and formatting are
-        still recoverable from the first, last, and section-code fields.
+        Message data that was transferred prior to the abort.
       </p>
 
       <picture title="Outgoing Fragmentation State Diagram"><![CDATA[
@@ -2389,8 +2353,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
 
       <descriptor name="amqp:open:list" code="0x00000000:0x00000010"/>
 
-      <field name="options" type="options" label="options map"/>
-
       <field name="container-id" type="string" mandatory="true"
              label="the id of the source container"/>
 
@@ -2460,30 +2422,31 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="outgoing-locales" type="symbol" multiple="true"
+      <field name="outgoing-locales" type="ietf-language-tag" multiple="true"
              label="locales available for outgoing text">
         <doc>
           <p>
             A list of the locales that the peer supports for sending informational text. This
             includes Connection, Session and Link error descriptions. A peer MUST support at least
-            the en_US locale. Since this value is always supported, it need not be supplied in the
-            outgoing-locales. A null value or an empty list implies that only en_US is supported.
+            the <i>en-US</i> locale. Since this value is always supported, it need not be supplied
+            in the outgoing-locales. A null value or an empty list implies that only <i>en-US</i>
+            is supported.
           </p>
         </doc>
       </field>
 
-      <field name="incoming-locales" type="symbol" multiple="true"
+      <field name="incoming-locales" type="ietf-language-tag" multiple="true"
              label="desired locales for incoming text in decreasing level of preference">
         <doc>
           <p>
             A list of locales that the sending peer permits for incoming informational text. This
             list is ordered in decreasing level of preference. The receiving partner will chose the
             first (most preferred) incoming locale from those which it supports. If none of the
-            requested locales are supported, en_US will be chosen. Note that en_US need not be
-            supplied in this list as it is always the fallback. A peer may determine which of the
-            permitted incoming locales is chosen by examining the partner's supported locales as
-            specified in the outgoing-locales field. A null value or an empty list implies that only
-            en_US is supported.
+            requested locales are supported, <i>en-US</i> will be chosen. Note that <i>en-US</i>
+            need not be supplied in this list as it is always the fallback. A peer may determine
+            which of the permitted incoming locales is chosen by examining the partner's supported
+            locales as specified in the outgoing-locales field. A null value or an empty list
+            implies that only <i>en-US</i> is supported.
           </p>
         </doc>
       </field>
@@ -2537,8 +2500,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       </doc>
 
       <descriptor name="amqp:begin:list" code="0x00000000:0x00000011"/>
-
-      <field name="options" type="options" label="options map"/>
 
       <field name="remote-channel" type="ushort" label="the remote channel for this Session">
         <doc>
@@ -2602,8 +2563,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
 
       <descriptor name="amqp:attach:list" code="0x00000000:0x00000012"/>
 
-      <field name="options" type="options" label="options map"/>
-
       <field name="name" type="string" mandatory="true" label="the name of the link">
         <doc>
           <p>
@@ -2622,10 +2581,37 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
             which is already associated with a Link MUST be responded to with an immediate
             <xref name="close"/> carrying a Handle-in-use <xref name="session-error"/>.
            </p>
+           <p>
+             To make it easier to monitor AMQP link attach frames, it is recommended that
+             implementations always assign the lowest available handle to this field.
+           </p>
         </doc>
       </field>
 
       <field name="role" type="role" mandatory="true" label="role of the link endpoint"/>
+
+      <field name="snd-settle-mode" type="sender-settle-mode" default="mixed"
+             label="settlement mode for the Sender">
+
+        <doc>
+          <p>
+            Determines the settlement policy for deliveries sent at the Sender. When set at the
+            Receiver this indicates the desired value for the settlement mode at the Sender.  When
+            set at the Sender this indicates the actual settlement mode in use.
+          </p>
+        </doc>
+      </field>
+
+      <field name="rcv-settle-mode" type="receiver-settle-mode" default="first"
+             label="the settlement mode of the Receiver">
+        <doc>
+          <p>
+            Determines the settlement policy for unsettled deliveries received at the Receiver. When
+            set at the Sender this indicates the desired value for the settlement mode at the
+            Receiver. When set at the Receiver this indicates the actual settlement mode in use.
+          </p>
+        </doc>
+      </field>
 
       <field name="source" type="*" requires="source" label="the source for Messages">
         <doc>
@@ -2716,8 +2702,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       </doc>
 
       <descriptor name="amqp:flow:list" code="0x00000000:0x00000013"/>
-
-      <field name="options" type="options" label="options map"/>
 
       <field name="next-incoming-id" type="transfer-number">
         <doc>
@@ -2841,6 +2825,8 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
 
       <field name="echo" type="boolean" default="false"
              label="request link state from other endpoint"/>
+
+      <field name="properties" type="fields" label="link state properties"/>
     </type>
 
     <!-- - Frame: transfer - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -2857,24 +2843,75 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
 
       <descriptor name="amqp:transfer:list" code="0x00000000:0x00000014"/>
 
-      <field name="options" type="options" label="options map"/>
-
       <field name="handle" type="handle" mandatory="true">
         <doc>
           <p>Specifies the Link on which the Message is transferred.</p>
         </doc>
       </field>
 
-      <field name="delivery-tag" type="delivery-tag" mandatory="true">
-        <doc>
-          <p>Uniquely identifies the delivery attempt for a given Message on this Link.</p>
-        </doc>
-      </field>
-
       <field name="delivery-id" type="delivery-number" mandatory="true"
              label="alias for delivery-tag"/>
 
-      <field name="settled" type="boolean" default="false"/>
+      <field name="delivery-tag" type="delivery-tag">
+        <doc>
+          <p>
+            Uniquely identifies the delivery attempt for a given Message on this Link. This field
+            MUST be specified for the first transfer of a multi transfer message and may only be
+            omitted for continuation transfers.
+          </p>
+        </doc>
+      </field>
+
+      <field name="message-format" type="message-format" label="indicates the message format">
+        <doc>
+          <p>
+            This field MUST be specified for the first transfer of a multi transfer message and may
+            only be omitted for continuation transfers.
+          </p>
+        </doc>
+      </field>
+
+      <field name="settled" type="boolean" default="false">
+        <doc>
+          <p>
+             If the negotiated value for snd-settle-mode at attachment is <xref
+             name="sender-settle-mode" choice="settled"/>, then this field MUST be true on the
+             last transfer frame for a delivery (i.e. the delivery must be settled at the Sender at
+             the point the delivery has been completely transferred).
+          </p>
+          <p>
+             If the negotiated value for snd-settle-mode at attachment is <xref
+             name="sender-settle-mode" choice="unsettled"/>, then this field MUST be false on the
+             every transfer frame for a delivery (unless the delivery is aborted).
+          </p>
+        </doc>
+      </field>
+
+      <field name="rcv-settle-mode" type="receiver-settle-mode">
+        <doc>
+          <p>
+            If <xref name="receiver-settle-mode" choice="first"/>, this indicates that the
+            Receiver MUST settle the delivery once it has arrived without waiting for the Sender to
+            settle first.
+          </p>
+          <p>
+            If <xref name="receiver-settle-mode" choice="second"/>, this indicates that the
+            Receiver MUST NOT settle until sending its disposition to the Sender and receiving a
+            settled disposition from the sender.
+          </p>
+          <p>
+            If not set, this value is defaulted to the value negotiated on link attach.
+          </p>
+          <p>
+            If the negotiated link value is <xref name="receiver-settle-mode" choice="first"/>,
+            then it is illegal to set this field to <xref name="receiver-settle-mode"
+            choice="second"/>.
+          </p>
+          <p>
+            If the message is being sent settled by the Sender, the value of this field is ignored.
+          </p>
+        </doc>
+      </field>
 
       <field name="state" type="*" requires="delivery-state"/>
 
@@ -2908,11 +2945,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
           </p>
         </doc>
       </field>
-
-      <field name="message-format" type="message-format" mandatory="true"
-             label="indicates the message format"/>
-
-      <field name="fragments" type="fragment" multiple="true"/>
     </type>
 
     <!-- - Frame: disposition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -2929,8 +2961,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       </doc>
 
       <descriptor name="amqp:disposition:list" code="0x00000000:0x00000015"/>
-
-      <field name="options" type="options"/>
 
       <field name="role" type="role" mandatory="true" label="directionality of disposition">
         <doc>
@@ -3000,8 +3030,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
 
       <descriptor name="amqp:detach:list" code="0x00000000:0x00000016"/>
 
-      <field name="options" type="options" label="options map" />
-
       <field name="handle" type="handle" mandatory="true"/>
 
       <field name="closed" type="boolean" default="false"/>
@@ -3024,8 +3052,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       </doc>
 
       <descriptor name="amqp:end:list" code="0x00000000:0x00000017"/>
-
-      <field name="options" type="options" label="options map"/>
 
       <field name="error" type="error" label="error causing the end">
         <doc>
@@ -3052,8 +3078,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
 
       <descriptor name="amqp:close:list" code="0x00000000:0x00000018"/>
 
-      <field name="options" type="options" label="options map"/>
-
       <field name="error" type="error" label="error causing the close">
         <doc>
           <p>
@@ -3073,6 +3097,51 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
       <choice name="receiver" value="true" />
     </type>
 
+    <type class="restricted" name="sender-settle-mode" source="ubyte"
+          label="settlement policy for a Sender">
+      <choice name="unsettled" value="0">
+        <doc>
+          <p>
+            The Sender will send all deliveries initially unsettled to the Receiver.
+          </p>
+        </doc>
+      </choice>
+      <choice name="settled" value="1">
+        <doc>
+          <p>
+            The Sender will send all deliveries settled to the Receiver.
+          </p>
+        </doc>
+      </choice>
+      <choice name="mixed" value="2">
+        <doc>
+          <p>
+            The Sender may send a mixture of settled and unsettled deliveries to the Receiver.
+          </p>
+        </doc>
+      </choice>
+    </type>
+
+    <type class="restricted" name="receiver-settle-mode" source="ubyte"
+          label="settlement policy for a Receiver">
+      <choice name="first" value="0">
+        <doc>
+          <p>
+            The Receiver will spontaneously settle all incoming transfers.
+          </p>
+        </doc>
+      </choice>
+      <choice name="second" value="1">
+        <doc>
+          <p>
+            The Receiver will only settle after sending the <xref name="disposition"/> to the Sender
+            and receiving a <xref name="disposition"/> indicating settlement of the delivery from
+            the sender.
+          </p>
+        </doc>
+      </choice>
+    </type>
+
     <type class="restricted" name="handle" source="uint" label="the handle of a Link">
       <doc>
         <p>
@@ -3089,7 +3158,13 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
     <type class="restricted" name="milliseconds" source="uint"
           label="a duration measured in milliseconds"/>
 
-    <type class="restricted" name="delivery-tag" source="binary"/>
+    <type class="restricted" name="delivery-tag" source="binary">
+       <doc>
+         <p>
+           A delivery-tag may be up to 32 octets of binary data.
+         </p>
+      </doc>
+    </type>
 
     <type class="restricted" name="delivery-number" source="sequence-no"/>
 
@@ -3124,56 +3199,22 @@ msb                        lsb
       </doc>
     </type>
 
-    <type class="composite" name="fragment" source="list" label="a Message fragment">
+    <type class="restricted" name="ietf-language-tag" source="symbol"
+          label="an IETF language tag as defined by BCP 47">
       <doc>
         <p>
-          A Message fragment may contain an entire single section Message, an entire section, or an
-          arbitrary fragment of a single section. A fragment cannot contain data from more than one
-          section.
+          IETF language tags are abbreviated language codes as defined in BCP 47:
+          <xref type="extern" name="http://www.amqp.org/specification/1.0/connection-properties"/>,
+          which incorporates RFC 5646 (<xref type="extern"
+          name="http://www.rfc-editor.org/rfc/rfc5646.txt"/>).
+          A list of registered subtags is maintained in the IANA Language Subtag Registry at:
+          <xref type="extern" name="http://www.iana.org/assignments/language-subtag-registry"/>.
+        </p>
+        <p>
+          All AMQP implementations should understand at the least the IETF language tag
+          <i>en-US</i> (note that this uses a hyphen separator, not an underscore).
         </p>
       </doc>
-
-      <descriptor name="amqp:fragment:list" code="0x00000000:0x0000001c"/>
-
-      <field name="first" type="boolean" mandatory="true"
-             label="indicates the fragment is the first in the Section">
-        <doc>
-          <p>
-            If this flag is true, then the beginning of the payload corresponds with a section
-            boundary within the Message.
-          </p>
-        </doc>
-      </field>
-
-      <field name="last" type="boolean" mandatory="true"
-             label="indicates the fragment is the last in the Section">
-        <doc>
-          <p>
-            If this flag is true, then the end of the payload corresponds with a section boundary
-            within the Message.
-          </p>
-        </doc>
-      </field>
-
-      <field name="section-code" type="uint" mandatory="true"
-             label="indicates the format of the Message section">
-        <doc>
-          <p>
-            The section code indicates the format of the current Section of the Message. A Message
-            may have multiple sections, and therefore multiple section codes, however the section
-            code is only permitted to change at section boundaries (i.e. all fragments of the same
-            Section MUST have the same section-code).
-          </p>
-        </doc>
-      </field>
-
-      <field name="section-number" type="uint" mandatory="true"
-             label="the current section number, the first section having section-number 0"/>
-
-      <field name="section-offset" type="ulong" default="0"
-             label="the offset of the payload within the specified message section"/>
-
-      <field name="payload" type="binary" label="Message data"/>
     </type>
 
     <type class="restricted" name="fields" source="map" label="a mapping from field name to value">
@@ -3190,8 +3231,8 @@ msb                        lsb
       <doc>
         <p>
           The options map is used to convey domain or vendor specific optional modifiers on defined
-          AMQP types, e.g. frame bodies. Each key in the map must be of the type <xref type="type"
-          name="symbol"/> and all keys except those beginning with the string "x-" are reserved.
+          AMQP types. Each key in the map must be of the type <xref type="type" name="symbol"/> and
+          all keys except those beginning with the string "x-" are reserved.
         </p>
       </doc>
       <doc>
@@ -3232,7 +3273,7 @@ msb                        lsb
       <choice name="internal-error" value="amqp:internal-error">
         <doc>
           <p>
-            An internal error ocurred. Operator intervention may be required to resume normal
+            An internal error occurred. Operator intervention may be required to resume normal
             operation.
           </p>
         </doc>
@@ -3322,11 +3363,11 @@ msb                        lsb
       <choice name="frame-size-too-small" value="amqp:frame-size-too-small">
         <doc>
           <p>
-            The peer cannot send a frame because the smallest encoding of the frame body with the
+            The peer cannot send a frame because the smallest encoding of the performative with the
             currently valid values would be too large to fit within a frame of the agreed maximum
-            frame size. (Note when transferring a message the message sections can be broken into
-            small enough fragments such that they can be transmitted. An example where this error
-            may occur is if the unsettled map on an attach is too large to  be encoded within the
+            frame size. (Note when transferring a message the message data can be sent in multiple
+            <xref name="transfer"/> frames thereby avoiding this error. An example where this error
+            may occur is if the unsettled map on an attach is too large to be encoded within the
             frame).
           </p>
         </doc>
@@ -3478,6 +3519,15 @@ msb                        lsb
               </p>
             </dd>
           </dl>
+        </doc>
+      </choice>
+
+      <choice name="stolen" value="amqp:link:stolen">
+        <doc>
+          <p>
+            The link has been attached elsewhere, causing the existing attachment to be forcibly
+            closed.
+          </p>
         </doc>
       </choice>
 

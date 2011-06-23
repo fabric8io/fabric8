@@ -262,7 +262,7 @@ for the str8-utf8 encoding
 
       <picture title="Constructor BNF"><![CDATA[
   constructor = format-code
-              / %x00 descriptor format-code
+              / %x00 descriptor constructor
 
   format-code = fixed / variable / compound / array
         fixed = empty / fixed-one / fixed-two / fixed-four
@@ -798,17 +798,6 @@ Subcategory     n
         element constructor
 ]]>
       </picture>
-    </doc>
-
-    <doc title="Map Encoding">
-      <p>
-        When encoding AMQP composite values as a described map, the set of valid keys is restricted
-        to symbols identifying the field names in the composite type definition. The value
-        associated with a given key MUST match the type specification and multiplicity from the
-        field definition. If there is no value associated with a given field, the key MAY be omitted
-        from the map. This is the same as supplying a null value for the given key. The descriptor
-        of the map indicates the specific composite type being represented.
-      </p>
     </doc>
   </section>
 

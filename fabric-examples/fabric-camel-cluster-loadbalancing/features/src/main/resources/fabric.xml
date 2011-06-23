@@ -20,7 +20,7 @@
 
     <feature name="camel-client" version="${pom.version}">
         <feature>fusesource-fabric-camel</feature>
-        <bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/camel-client/${pom.version}</bundle>
+        <bundle>mvn:${pom.groupId}/camel-client/${pom.version}</bundle>
     </feature>
 
     <feature name="camel-server" version="${pom.version}">

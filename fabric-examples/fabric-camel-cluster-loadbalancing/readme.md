@@ -43,8 +43,16 @@ RUNNING
     export JAVA_PERM_MEM=64m
     export JAVA_MAX_PERM_MEM=512m
 
-In an install of Karaf 2.2.1 or later such as from https://repository.apache.org/content/groups/snapshots-group/org/apache/karaf/apache-karaf/2.2.1-SNAPSHOT/
-run the following command...
+In an install of Karaf 2.2.1 (https://repository.apache.org/content/repositories/releases/org/apache/karaf/apache-karaf/2.2.1/) or later
+
+edit the file etc/org.ops4j.pax.url.mvn.cfg and add the following mvn repositories :
+
+org.ops4j.pax.url.mvn.repositories = http://repo1.maven.org/maven2, \
+                                     http://repo.fusesource.com/nexus/content/repositories/releases, \
+                                     http://scala-tools.org/repo-releases/
+
+Next start karaf : bin/karaf or bin/karaf.bat
+And run the following command in the console
 
     shell:source mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/1.0-SNAPSHOT/karaf/installer
 
