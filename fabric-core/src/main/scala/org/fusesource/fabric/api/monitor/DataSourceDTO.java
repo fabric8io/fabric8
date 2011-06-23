@@ -8,14 +8,10 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.monitor.api;
+package org.fusesource.fabric.api.monitor;
 
 
 import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Represents a kind of value which is to be polled along with its polling mechanism (such as a Process/System/JMX value etc)

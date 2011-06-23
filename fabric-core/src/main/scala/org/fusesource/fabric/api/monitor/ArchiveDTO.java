@@ -8,28 +8,20 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.monitor.api;
+package org.fusesource.fabric.api.monitor;
 
 
 import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
+ * Represents how a monitored value is archived in RRD tool databases
+ *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
+@XmlRootElement(name="archive")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class DataSourceViewDTO {
+public class ArchiveDTO {
 
-    @XmlAttribute
-    public String id;
-
-    @XmlAttribute
-    public String label;
-
-    @XmlAttribute
-    public String description;
 
     /**
      * AVERAGE: The average of the data points is stored.
@@ -42,24 +34,40 @@ public class DataSourceViewDTO {
     @XmlAttribute
     public String consolidation;
 
-    @XmlElement(name="data")
-    public double data[] = new double[]{};
+    /**
+     *
+     */
+    @XmlAttribute
+    public double xff = 0.5;
 
+    @XmlAttribute
+    public String step;
+
+    @XmlAttribute
+    public String window;
+
+    public ArchiveDTO() {
+    }
+
+    public ArchiveDTO(String consolidation, String step, String window) {
+        this.consolidation = consolidation;
+        this.step = step;
+        this.window = window;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DataSourceViewDTO that = (DataSourceViewDTO) o;
+        ArchiveDTO that = (ArchiveDTO) o;
 
+        if (Double.compare(that.xff, xff) != 0) return false;
         if (consolidation != null ? !consolidation.equals(that.consolidation) : that.consolidation != null)
             return false;
-        if (!Arrays.equals(data, that.data)) return false;
-        if (description != null ? !description.equals(that.description) : that.description != null)
+        if (step != null ? !step.equals(that.step) : that.step != null)
             return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (label != null ? !label.equals(that.label) : that.label != null)
+        if (window != null ? !window.equals(that.window) : that.window != null)
             return false;
 
         return true;
@@ -67,21 +75,23 @@ public class DataSourceViewDTO {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (label != null ? label.hashCode() : 0);
-        result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (consolidation != null ? consolidation.hashCode() : 0);
-        result = 31 * result + (data != null ? Arrays.hashCode(data) : 0);
+        int result;
+        long temp;
+        result = consolidation != null ? consolidation.hashCode() : 0;
+        temp = xff != +0.0d ? Double.doubleToLongBits(xff) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (step != null ? step.hashCode() : 0);
+        result = 31 * result + (window != null ? window.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "DataSourceViewDTO{" +
+        return "ArchiveDTO{" +
                 "consolidation='" + consolidation + '\'' +
-                ", id='" + id + '\'' +
-                ", label='" + label + '\'' +
-                ", description='" + description + '\'' +
+                ", xff=" + xff +
+                ", step=" + step +
+                ", total=" + window +
                 '}';
     }
 }

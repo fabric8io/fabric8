@@ -1,4 +1,4 @@
-package org.fusesource.fabric.monitor.internal
+package org.fusesource.fabric.internal
 
 /**
  * Helper methods for working with numbers

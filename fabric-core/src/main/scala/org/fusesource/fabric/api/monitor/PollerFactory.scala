@@ -1,3 +1,5 @@
+package org.fusesource.fabric.api.monitor
+
 /**
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
@@ -7,8 +9,6 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-
-package org.fusesource.fabric.monitor.api
 
 /**
  * Creates a Poller for a given DataSourceDTO

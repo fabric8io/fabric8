@@ -11,7 +11,7 @@
 package org.fusesource.fabric.launcher.api;
 
 
-import org.fusesource.fabric.monitor.api.MonitoredSetDTO;
+import org.fusesource.fabric.api.monitor.MonitoredSetDTO;
 
 import javax.xml.bind.annotation.*;
 

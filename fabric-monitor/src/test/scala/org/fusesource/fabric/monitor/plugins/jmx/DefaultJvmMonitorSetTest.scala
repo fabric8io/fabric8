@@ -2,7 +2,8 @@ package org.fusesource.fabric.monitor.plugins
 package jmx
 
 import collection.JavaConversions._
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import org.fusesource.fabric.api.monitor.DataSourceDTO
+import org.fusesource.fabric.api.monitor.DataSourceDTO
 
 class DefaultJvmMonitorSetTest extends FunSuiteSupport {
 

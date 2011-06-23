@@ -21,7 +21,7 @@ import FileSupport._
 import ProcessSupport._
 import org.fusesource.fabric.launcher.api.{ServiceStatusDTO, LaunchManager, ServiceDTO}
 import org.fusesource.fabric.monitor.internal.{DefaultMonitor, ClassFinder}
-import org.fusesource.fabric.monitor.api._
+import org.fusesource.fabric.api.monitor._
 import org.fusesource.fabric.monitor.plugins.{ProcessPollDTO, ProcessPollerFactory}
 
 object DefaultLaunchManager {

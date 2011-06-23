@@ -8,12 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.monitor.api;
-
-
-import org.rrd4j.core.ArcDef;
-import org.rrd4j.core.DsDef;
-import org.rrd4j.core.XmlWriter;
+package org.fusesource.fabric.api.monitor;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;

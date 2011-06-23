@@ -29,7 +29,7 @@ public class JmxTemplate extends JmxTemplateSupport {
         this.connector = connector;
     }
 
-    public <T> T execute(JmxConnectorCallback<T> callback) {
+    public <T> T execute(JmxTemplateSupport.JmxConnectorCallback<T> callback) {
         JMXConnector connector = getConnector();
         try {
             return callback.doWithJmxConnector(getConnector());

@@ -14,14 +14,15 @@ import scala.collection.mutable.HashMap
 import org.rrd4j.ConsolFun._
 import org.rrd4j.core._
 import org.rrd4j.DsType._
-import org.fusesource.fabric.monitor.api._
+import org.fusesource.fabric.api.monitor._
 import java.util.concurrent.atomic.AtomicBoolean
 import org.rrd4j.core.Util
 import org.linkedin.util.clock.Timespan
 import java.io.File
 import java.{util => ju}
 import FileSupport._
-import org.fusesource.fabric.monitor.api.ArchiveDTO._
+import org.fusesource.fabric.api.monitor._
+import org.fusesource.fabric.api.monitor.ArchiveDTO._
 import java.util
 import collection.JavaConversions._
 import org.fusesource.scalate.util.Log

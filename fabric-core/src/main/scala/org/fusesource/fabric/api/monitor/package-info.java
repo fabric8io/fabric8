@@ -16,5 +16,5 @@
 @javax.xml.bind.annotation.XmlSchema(
         namespace = "http://fusesource.org/schema/fabric/monitor",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.fusesource.fabric.monitor.api;
+package org.fusesource.fabric.api.monitor;
 

@@ -1,10 +1,20 @@
-package org.fusesource.fabric.monitor.api
+package org.fusesource.fabric.monitor.internal
+
+/*
+ * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
 
 import javax.management.ObjectName
 import org.fusesource.scalate.util.Measurements._
-import org.fusesource.fabric.monitor.internal.Numbers
+import org.fusesource.fabric.internal.Numbers
 import org.fusesource.fabric.monitor.plugins.jmx.{JmxConstants, JmxDataSourceRegistry}
 import org.fusesource.fabric.monitor.MonitorDeamon
+import org.fusesource.fabric.api.monitor.DataSourceDTO
 
 object Value {
   val jmxFactory = new JmxDataSourceRegistry()

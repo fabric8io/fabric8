@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.monitor.api;
+package org.fusesource.fabric.api.monitor;
 
 
 import javax.xml.bind.annotation.*;

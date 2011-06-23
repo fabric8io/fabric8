@@ -25,7 +25,8 @@ import java.net.URI
 import Response.Status._
 import java.util.concurrent.TimeUnit
 import org.fusesource.scalate.{NoValueSetException, RenderContext}
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import org.fusesource.fabric.api.monitor.DataSourceDTO
+import org.fusesource.fabric.api.monitor.DataSourceDTO
 import java.awt.Color
 import org.rrd4j.graph.{RrdGraphDef, RrdGraph}
 import org.rrd4j.core.Util
