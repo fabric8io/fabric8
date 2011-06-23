@@ -10,11 +10,11 @@
 package org.fusesource.fabric.api.monitor
 
 import javax.management.remote.JMXConnector
-import org.fusesource.fabric.service.{JmxTemplate, JmxTemplateSupport}
+import org.fusesource.fabric.service.JmxTemplateSupport
 
 object MonitorFacade {
 
-  def fetch(jmxTemplate: JmxTemplate, fetch: FetchMonitoredViewDTO): MonitoredViewDTO = {
+  def fetch(jmxTemplate: JmxTemplateSupport, fetch: FetchMonitoredViewDTO): MonitoredViewDTO = {
     jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback[MonitoredViewDTO] {
       def doWithJmxConnector(connector: JMXConnector) = {
         val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "org.fusesource.fabric", "type", "Monitor")
