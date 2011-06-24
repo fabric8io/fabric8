@@ -69,7 +69,8 @@ class MonitorService extends MonitorServiceMBean {
       return null;
     }
     val request = JsonCodec.decode(classOf[FetchMonitoredViewDTO], fetch)
-    val rc = m.fetch(request).map(JsonCodec.encode(_)).getOrElse(null)
+    val result = m.fetch(request)
+    val rc = result.map(JsonCodec.encode(_)).getOrElse(null)
     rc
   }
 
