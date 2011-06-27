@@ -10,5 +10,7 @@
 package org.fusesource.fabric.api.monitor
 
 trait MonitorServiceFacade {
+
+  def list:Array[Byte]
   def fetch(fetch: Array[Byte]): Array[Byte]
 }

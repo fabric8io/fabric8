@@ -14,7 +14,6 @@ import scala.collection.mutable.HashMap
 import org.rrd4j.ConsolFun._
 import org.rrd4j.core._
 import org.rrd4j.DsType._
-import org.fusesource.fabric.api.monitor._
 import java.util.concurrent.atomic.AtomicBoolean
 import org.rrd4j.core.Util
 import org.linkedin.util.clock.Timespan
@@ -22,8 +21,6 @@ import java.io.File
 import java.{util => ju}
 import FileSupport._
 import org.fusesource.fabric.api.monitor._
-import org.fusesource.fabric.api.monitor.ArchiveDTO._
-import java.util
 import collection.JavaConversions._
 import org.fusesource.scalate.util.Log
 
@@ -207,7 +204,7 @@ class DefaultMonitor (
   // data sources that we can gather data for.
   var poller_factories:Seq[PollerFactory] = Nil
 
-  def configure(value: Traversable[MonitoredSetDTO]): Unit = {
+  def configure(value: Traversable[MonitoredSetDTO]): Unit = this.synchronized {
 
     val next_services = Map[String, MonitoredSet]( value.map { dto=>
       dto.name -> MonitoredSet(dto)
@@ -250,7 +247,7 @@ class DefaultMonitor (
 
   }
 
-  def fetch(fetch: FetchMonitoredViewDTO):Option[MonitoredViewDTO] = {
+  def fetch(fetch: FetchMonitoredViewDTO):Option[MonitoredViewDTO] = this.synchronized {
     val monitored_set_id = fetch.monitored_set
     val ids = fetch.data_sources
     val consolidations = fetch.consolidations
@@ -336,5 +333,9 @@ class DefaultMonitor (
       rrd_db.close()
     }
 
+  }
+
+  def list: Array[MonitoredSetDTO] = this.synchronized {
+    current_monitored_sets.values.map(_.dto).toArray
   }
 }

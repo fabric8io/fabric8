@@ -9,6 +9,8 @@
 
 package org.fusesource.fabric.api.monitor
 
+import org.fusesource.fabric.service.JmxTemplateSupport
+
 /**
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
@@ -36,6 +38,8 @@ trait Monitor {
   def close:Unit
 
   def fetch( fetch:FetchMonitoredViewDTO ):Option[MonitoredViewDTO]
+
+  def list: Array[MonitoredSetDTO]
 
   var poller_factories:Seq[PollerFactory]
 }
