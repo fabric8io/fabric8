@@ -10,14 +10,13 @@
 
 package org.fusesource.fabric.monitor
 
-import api.{FetchMonitoredViewDTO, JsonCodec, Monitor}
 import internal.DefaultMonitor
 import java.io.File
 import plugins.DefaultJvmMonitorSetBuilder
 import plugins.jmx.JmxDataSourceRegistry
+import org.fusesource.fabric.api.monitor._
 
-trait MonitorServiceMBean {
-  def fetch( fetch:Array[Byte] ):Array[Byte]
+trait MonitorServiceMBean extends MonitorServiceFacade {
 }
 
 /**
@@ -70,7 +69,8 @@ class MonitorService extends MonitorServiceMBean {
       return null;
     }
     val request = JsonCodec.decode(classOf[FetchMonitoredViewDTO], fetch)
-    val rc = m.fetch(request).map(JsonCodec.encode(_)).getOrElse(null)
+    val result = m.fetch(request)
+    val rc = result.map(JsonCodec.encode(_)).getOrElse(null)
     rc
   }
 

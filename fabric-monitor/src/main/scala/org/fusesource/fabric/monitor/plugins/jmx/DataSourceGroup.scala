@@ -8,9 +8,10 @@
  */
 package org.fusesource.fabric.monitor.plugins.jmx
 
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import org.fusesource.fabric.api.monitor.DataSourceDTO
 import java.util.ArrayList
 import java.util.List
+import org.fusesource.fabric.api.monitor.DataSourceDTO
 
 /**
  * Represents a tree of data source values

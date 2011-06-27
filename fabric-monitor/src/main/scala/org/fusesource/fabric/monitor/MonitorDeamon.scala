@@ -11,14 +11,15 @@
 package org.fusesource.fabric.monitor
 
 
-import api.{Monitor, PollerFactory, MonitoredSetDTO}
+import org.fusesource.fabric.api.monitor.{Monitor, PollerFactory, MonitoredSetDTO}
 import internal.IOSupport._
 import internal.{ClassFinder, DefaultMonitor}
 import java.net.URLClassLoader
 import java.util.zip.ZipFile
 import java.io._
-import org.fusesource.fabric.monitor.api.{XmlCodec, JsonCodec}
+import org.fusesource.fabric.api.monitor.{XmlCodec, JsonCodec}
 import collection.mutable.HashMap
+import org.fusesource.fabric.api.monitor.MonitoredSetDTO
 
 /**
  * <p>
@@ -86,11 +87,13 @@ object MonitorDeamon {
           // we support both xml and json formats..
           if( file.getName.endsWith(".json") ) {
             using( new FileInputStream(file)) { is =>
-                Some(JsonCodec.decode(classOf[MonitoredSetDTO], is, System.getProperties))
+                //Some(JsonCodec.decode(classOf[MonitoredSetDTO], is, System.getProperties))
+                Some(JsonCodec.decode(classOf[MonitoredSetDTO], is))
             }
           } else if( file.getName.endsWith(".xml") ) {
             using( new FileInputStream(file)) { is =>
-                Some(XmlCodec.decode(classOf[MonitoredSetDTO], is, System.getProperties))
+                //Some(XmlCodec.decode(classOf[MonitoredSetDTO], is, System.getProperties))
+                Some(XmlCodec.decode(classOf[MonitoredSetDTO], is))
             }
           } else {
             None

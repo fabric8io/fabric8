@@ -10,11 +10,12 @@
 
 package org.fusesource.fabric.monitor.plugins
 
-import org.fusesource.fabric.monitor.api.{Poller, DataSourceDTO, PollerFactory}
+import org.fusesource.fabric.api.monitor.{Poller, DataSourceDTO, PollerFactory}
 import collection.mutable.ListBuffer
 import org.hyperic.sigar.{SigarNotImplementedException, Sigar}
 
 import ProcessConstants._
+import org.fusesource.fabric.api.monitor.DataSourceDTO
 
 /**
  * <p>

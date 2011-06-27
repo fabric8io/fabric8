@@ -9,7 +9,7 @@
 
 package org.fusesource.fabric.monitor.plugins.jmx;
 
-import org.fusesource.fabric.monitor.api.PollDTO;
+import org.fusesource.fabric.api.monitor.PollDTO;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

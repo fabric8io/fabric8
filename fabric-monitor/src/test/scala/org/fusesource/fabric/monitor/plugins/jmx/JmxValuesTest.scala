@@ -3,7 +3,7 @@ package plugins
 package jmx
 
 import org.fusesource.scalate.util.Measurements._
-import api.Value
+import internal.Value
 
 /**
  * Test the Values API
