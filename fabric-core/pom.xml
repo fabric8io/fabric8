@@ -37,10 +37,10 @@
             !org.xml.*,
             !javax.xml.parsers
         </fabric.osgi.import.before.defaults>
-        <fabric.osgi.import.additional>
-            org.apache.log4j*;version="[1.2,2)"
-        </fabric.osgi.import.additional>
 -->
+      <fabric.osgi.import.additional>
+          org.codehaus.jackson.annotate;resolution:=optional
+      </fabric.osgi.import.additional>
         <fabric.osgi.private.pkg>
             org.fusesource.fabric.internal
         </fabric.osgi.private.pkg>
