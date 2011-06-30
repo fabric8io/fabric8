@@ -16,6 +16,10 @@
 
   <properties>
     <c24.test.version>4.0.1</c24.test.version>
+    <c24.version>4.0.0-20110518.162254-5</c24.version>
+<!--
+    <c24.version>4.0.0-SNAPSHOT</c24.version>
+-->
   </properties>
 
   <dependencies>
@@ -27,7 +31,7 @@
     <dependency>
       <groupId>biz.c24.io</groupId>
       <artifactId>c24-io-api</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
+      <version>${c24.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -40,16 +44,19 @@
       <groupId>biz.c24.io.test</groupId>
       <artifactId>test-statements</artifactId>
       <version>${c24.test.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>biz.c24.io.test</groupId>
       <artifactId>test-transform</artifactId>
       <version>${c24.test.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>biz.c24.io.test</groupId>
       <artifactId>test-transactions</artifactId>
       <version>${c24.test.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -136,6 +143,12 @@
       <id>servicemix</id>
       <name>Apache ServiceMix Repository</name>
       <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+    </repository>
+    <!-- for saxon -->
+    <repository>
+      <id>fusesource-3rd-party</id>
+      <name>FuseSource Third Party Repository</name>
+      <url>http://repo.fusesource.com/nexus/content/repositories/releases-3rd-party/</url>
     </repository>
   </repositories>
 
