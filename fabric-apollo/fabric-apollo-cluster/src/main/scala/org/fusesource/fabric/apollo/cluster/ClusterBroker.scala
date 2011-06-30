@@ -142,7 +142,7 @@ class ClusterBroker(override val id:String, val cluster:Group) extends Broker {
 
     // We can infer the cluster address if it's not set...
     if ( my_info.cluster_address==null ) {
-      connectors.foreach { connector =>
+      connectors.foreach { case (id, connector) =>
         connector match {
           case connector: AcceptingConnector =>
             connector.protocol match {
