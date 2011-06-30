@@ -42,7 +42,7 @@
     </licenses>
 
     <prerequisites>
-        <maven>2.0.9</maven>
+        <maven>2.2.1</maven>
     </prerequisites>
 
     <properties>
@@ -80,11 +80,11 @@
         <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
         <fabric.osgi.services.export></fabric.osgi.services.export>
 
-        <activemq-version>5.4.2-fuse-03-09</activemq-version>
-        <cxf-version>2.3.3-fuse-01-09</cxf-version>
-        <camel-version>2.7.x-fuse-SNAPSHOT</camel-version>
+        <activemq-version>5.5.0-fuse-00-39</activemq-version>
+        <cxf-version>2.4.0-fuse-00-39</cxf-version>
+        <camel-version>2.7.1-fuse-00-39</camel-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
-        <karaf-version>2.2.0-fuse-00-10</karaf-version>
+        <karaf-version>2.2.0-fuse-00-39</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
         <logback-version>0.9.28</logback-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
