@@ -37,10 +37,10 @@
             !org.xml.*,
             !javax.xml.parsers
         </fabric.osgi.import.before.defaults>
--->
       <fabric.osgi.import.additional>
           org.codehaus.jackson.annotate;resolution:=optional
       </fabric.osgi.import.additional>
+-->
         <fabric.osgi.private.pkg>
             org.fusesource.fabric.internal
         </fabric.osgi.private.pkg>
@@ -85,8 +85,8 @@
           <groupId>org.codehaus.jackson</groupId>
           <artifactId>jackson-mapper-asl</artifactId>
           <version>${jackson-version}</version>
+          <optional>true</optional>
         </dependency>
-
     </dependencies>
 
     <build>
