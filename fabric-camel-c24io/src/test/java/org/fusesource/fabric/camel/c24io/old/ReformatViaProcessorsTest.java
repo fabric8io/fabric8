@@ -27,7 +27,7 @@ public class ReformatViaProcessorsTest extends CamelTestSupport {
         MockEndpoint resultEndpoint = resolveMandatoryEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.expectedMessageCount(1);
 
-        resultEndpoint.assertIsSatisfied();
+        resultEndpoint.assertIsSatisfied(10000L);
 
         List<Exchange> list = resultEndpoint.getReceivedExchanges();
         Exchange exchange = list.get(0);

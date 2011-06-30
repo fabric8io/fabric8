@@ -131,22 +131,12 @@
         <enabled>true</enabled>
       </releases>
     </repository>
+    <!-- for saxon -->
+    <repository>
+      <id>servicemix</id>
+      <name>Apache ServiceMix Repository</name>
+      <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+    </repository>
   </repositories>
-
-  <build>
-    <plugins>
-      <!-- TODO FIXME when c24 supports native saxon support.... -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/XPathTest.*</exclude>
-            <exclude>**/SpringXQueryTest.*</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>
