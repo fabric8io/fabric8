@@ -97,6 +97,11 @@
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-maven-proxy</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
+
+        <!-- TODO - replace with 2.9.0 version when available
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>
+        -->
+        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-commands/${project.version}</bundle>
@@ -122,10 +127,6 @@
     </feature>
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
-        <!-- TODO - replace with 2.9.0 version when available
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.8.1_1</bundle>
-        -->
-        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle dependency="true">mvn:org.fusesource.fabric/fabric-groups/${project.version}</bundle>
     </feature>
 
