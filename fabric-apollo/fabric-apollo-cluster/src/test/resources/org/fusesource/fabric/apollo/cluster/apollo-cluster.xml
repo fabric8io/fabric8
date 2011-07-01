@@ -22,6 +22,6 @@
     <host_name>localhost</host_name>
   </virtual_host>
 
-  <connector id="tcp" bind="tcp://[::]:0"/>
+  <connector id="tcp" bind="tcp://0.0.0.0:0"/>
 
 </cluster_broker>

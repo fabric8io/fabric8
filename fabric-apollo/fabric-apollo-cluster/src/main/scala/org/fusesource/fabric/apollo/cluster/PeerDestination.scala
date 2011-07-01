@@ -54,7 +54,7 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     XmlCodec.encode(destination_dto, os, false)
 
     val bean = new ConsumerInfo.Bean
-    bean.setVirtualHost(ascii(virtual_host.id))
+    bean.setVirtualHost(ascii(virtual_host.config.host_names.get(0)))
     bean.addDestination(os.toBuffer)
 
     reset[Unit,Unit] {
@@ -82,7 +82,7 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
       val os = new ByteArrayOutputStream()
       XmlCodec.encode(destination_dto, os, false)
       val bean = new ChannelOpen.Bean
-      bean.setVirtualHost(ascii(virtual_host.id))
+      bean.setVirtualHost(ascii(virtual_host.config.host_names.get(0)))
       bean.addDestination(os.toBuffer)
       bean
 
