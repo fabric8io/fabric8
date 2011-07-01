@@ -49,16 +49,16 @@ This should go in your classpath.  Then in your activemq.xml configuration you n
 
 The plugin authorizes stuff with OpenAM based on URLs, for example:
 
-Login          `http://localhost:61616/activemq/login`
-Add Consumer	 `http://localhost:61616/activemq/addConsumer*`
-Add Producer	 `http://localhost:61616/activemq/addProducer*`
-Send	         `http://localhost:61616/activemq/send*`
-Advisories	   `http://localhost:61616/activemq/addConsumer/Topic/Activemq.Advisory*`
-               `http://localhost:61616/activemq/addProducer/Topic/ActiveMQ.Advisory*`
+* Login          `http://localhost:61616/activemq/login`
+* Add Consumer	 `http://localhost:61616/activemq/addConsumer*`
+* Add Producer	 `http://localhost:61616/activemq/addProducer*`
+* Send	         `http://localhost:61616/activemq/send*`
+* Advisories	   `http://localhost:61616/activemq/addConsumer/Topic/Activemq.Advisory*`
+*                `http://localhost:61616/activemq/addProducer/Topic/ActiveMQ.Advisory*`
 
 So you create URL policies in OpenAM for the above base URLs, in all cases the plugin will be checking for "GET" access.  For addConsumer, addProducer and send the plugin checks the destination type and name, so for a queue called FOO.BAR the full URL would look like:
 
-http://localhost:61616/activemq/addProducer/Queue/FOO.BAR
+`http://localhost:61616/activemq/addProducer/Queue/FOO.BAR`
 
 composite destinations are also supported, however the producer or consumer must be authorized for every destination in the composite.
 
