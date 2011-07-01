@@ -16,9 +16,9 @@
 
   <properties>
     <c24.test.version>4.0.1</c24.test.version>
-    <c24.version>4.0.0-20110518.162254-5</c24.version>
-<!--
     <c24.version>4.0.0-SNAPSHOT</c24.version>
+<!--
+<c24.version>4.0.0-20110524.150749-8</c24.version>
 -->
   </properties>
 
