@@ -1,0 +1,424 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="amqp.xsl"?>
+
+<!--
+  Copyright Notice
+  ================
+  (c) Copyright Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche
+  Boerse Systems, Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica
+  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress
+  Software, Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST
+  Process Innovations Ltd, VMware Inc. and WS02 Inc. 2006-2011. All rights reserved.
+
+  License
+  =======
+
+  Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche Boerse Systems,
+  Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica Corporation, JPMorgan
+  Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
+  Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process Innovations Ltd,
+  VMware Inc. and WS02 Inc. (collectively, the "Authors") each hereby grants to you a worldwide,
+  perpetual, royalty-free, nontransferable, nonexclusive license to (i) copy, display, distribute
+  and implement the Advanced Message Queuing Protocol ("AMQP") Specification and (ii) the Licensed
+  Claims that are held by the Authors, all for the purpose of implementing the Advanced Message
+  Queuing Protocol Specification. Your license and any rights under this Agreement will terminate
+  immediately without notice from any Author if you bring any claim, suit, demand, or action related
+  to the Advanced Message Queuing Protocol Specification against any Author. Upon termination, you
+  shall destroy all copies of the Advanced Message Queuing Protocol Specification in your possession
+  or control.
+
+  As used hereunder, "Licensed Claims" means those claims of a patent or patent application,
+  throughout the world, excluding design patents and design registrations, owned or controlled, or
+  that can be sublicensed without fee and in compliance with the requirements of this Agreement, by
+  an Author or its affiliates now or at any future time and which would necessarily be infringed by
+  implementation of the Advanced Message Queuing Protocol Specification. A claim is necessarily
+  infringed hereunder only when it is not possible to avoid infringing it because there is no
+  plausible non-infringing alternative for implementing the required portions of the Advanced
+  Message Queuing Protocol Specification. Notwithstanding the foregoing, Licensed Claims shall not
+  include any claims other than as set forth above even if contained in the same patent as Licensed
+  Claims; or that read solely on any implementations of any portion of the Advanced Message Queuing
+  Protocol Specification that are not required by the Advanced Message Queuing Protocol
+  Specification, or that, if licensed, would require a payment of royalties by the licensor to
+  unaffiliated third parties. Moreover, Licensed Claims shall not include (i) any enabling
+  technologies that may be necessary to make or use any Licensed Product but are not themselves
+  expressly set forth in the Advanced Message Queuing Protocol Specification (e.g., semiconductor
+  manufacturing technology, compiler technology, object oriented technology, networking technology,
+  operating system technology, and the like); or (ii) the implementation of other published
+  standards developed elsewhere and merely referred to in the body of the Advanced Message Queuing
+  Protocol Specification, or (iii) any Licensed Product and any combinations thereof the purpose or
+  function of which is not required for compliance with the Advanced Message Queuing Protocol
+  Specification. For purposes of this definition, the Advanced Message Queuing Protocol
+  Specification shall be deemed to include both architectural and interconnection requirements
+  essential for interoperability and may also include supporting source code artifacts where such
+  architectural, interconnection requirements and source code artifacts are expressly identified as
+  being required or documentation to achieve compliance with the Advanced Message Queuing Protocol
+  Specification.
+
+  As used hereunder, "Licensed Products" means only those specific portions of products (hardware,
+  software or combinations thereof) that implement and are compliant with all relevant portions of
+  the Advanced Message Queuing Protocol Specification.
+
+  The following disclaimers, which you hereby also acknowledge as to any use you may make of the
+  Advanced Message Queuing Protocol Specification:
+
+  THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION IS PROVIDED "AS IS," AND THE AUTHORS MAKE NO
+  REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR TITLE; THAT THE CONTENTS
+  OF THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION ARE SUITABLE FOR ANY PURPOSE; NOR THAT THE
+  IMPLEMENTATION OF THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION WILL NOT INFRINGE ANY THIRD
+  PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
+
+  THE AUTHORS WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL
+  DAMAGES ARISING OUT OF OR RELATING TO ANY USE, IMPLEMENTATION OR DISTRIBUTION OF THE ADVANCED
+  MESSAGE QUEUING PROTOCOL SPECIFICATION.
+
+  The name and trademarks of the Authors may NOT be used in any manner, including advertising or
+  publicity pertaining to the Advanced Message Queuing Protocol Specification or its contents
+  without specific, written prior permission. Title to copyright in the Advanced Message Queuing
+  Protocol Specification will at all times remain with the Authors.
+
+  No other rights are granted by implication, estoppel or otherwise.
+
+  Upon termination of your license or rights under this Agreement, you shall destroy all copies of
+  the Advanced Message Queuing Protocol Specification in your possession or control.
+
+  Trademarks
+  ==========
+  "JPMorgan", "JPMorgan Chase", "Chase", the JPMorgan Chase logo and the Octagon Symbol are
+  trademarks of JPMorgan Chase & Co.
+
+  RED HAT is a registered trademarks of Red Hat, Inc. in the US and other countries.
+
+  Java, all Java-based trademarks and OpenOffice.org are trademarks of Sun Microsystems, Inc. in the
+  United States, other countries, or both.
+
+  Other company, product, or service names may be trademarks or service marks of others.
+
+  Link to full AMQP specification:
+  =================================
+  http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
+-->
+
+<!DOCTYPE amqp SYSTEM "amqp.dtd">
+
+<amqp xmlns="http://www.amqp.org/schema/amqp.xsd"
+      name="transactions" label="working version">
+
+  <!-- == Section: transactions ================================================================ -->
+
+  <section name="transactions" label="transactional messaging">
+    <doc>
+      <p>
+        Transactional messaging allows for the coordinated outcome of otherwise independent
+        transfers. This extends to an arbitrary number of transfers spread across any number of
+        distinct links in either direction.
+      </p>
+
+      <p>
+        For every transactional interaction, one container acts as the <i>transactional
+        resource</i>, and the other container acts as the <i>transaction controller</i>.
+        The <i>transactional resource</i> performs <i>transactional work</i> as requested by
+        the <i>transaction controller</i>.
+      </p>
+
+      <p>
+        The container acting as the transactional resource defines a special target that functions
+        as a <xref name="coordinator">transaction coordinator</xref>. The <i>transaction
+        controller</i> establishes a link to this target and is allocated a transaction id (txn-id)
+        by sending a message whose body consists of the <xref name="declare"/> type. If this
+        declaration is successful, the coordinator responds with a disposition outcome of <xref
+        name="declared"/> which carries the allocated txn-id. The controller will subsequently end
+        the transaction by sending a <xref name="discharge"/> message to the coordinator. Should
+        the coordinator fail to perform the <xref name="declare"/> or <xref name="discharge"/> as
+        specified in the message, the message will be <xref name="rejected"/> with a <xref
+        name="transaction-errors"/> indicating the failure condition that occurred.
+      </p>
+
+      <p>
+        The <xref name="declare"/> and <xref name="discharge"/> message bodies MUST be encoded as a
+        single <xref name="amqp-value"/> section.
+      </p>
+
+      <p>
+        Transactional work is described in terms of the message states defined in the
+        <xref name="message-state"/> section of the <xref name="messaging"/> book. Transactional
+        work is formally defined to be composed of the following operations:
+      </p>
+
+      <ul>
+        <li>
+          <p><i>posting</i> a message at a node, i.e. making it <i>available</i></p>
+        </li>
+        <li>
+          <p><i>acquiring</i> a message at a node, i.e. transitioning it to <i>acquired</i></p>
+        </li>
+        <li>
+          <p><i>retiring</i> a message at a node, i.e. transitioning it to <i>archived</i></p>
+        </li>
+      </ul>
+
+      <p>
+        The transactional resource performs these operations when triggered by the transaction
+        controller:
+      </p>
+
+      <ul>
+        <li>
+          <p>
+            <i>posting</i> messages is initiated by incoming <xref name="transfer"/> frames
+          </p>
+        </li>
+        <li>
+          <p>
+            <i>acquiring</i> messages is initiated by incoming <xref name="flow"/> frames
+          </p>
+        </li>
+        <li>
+          <p>
+            <i>retiring</i> messages is initiated by incoming <xref name="disposition"/> frames
+          </p>
+        </li>
+      </ul>
+
+      <p>
+        In each case, it is the responsibility of the transaction controller to identify the
+        transaction with which the requested work is to be associated. This is done with the
+        transactional delivery state <xref name="transactional-state"/> that combines a txn-id
+        together with one of the terminal delivery states defined in the <xref
+        name="delivery-state"/> section of the messaging specification. The <xref
+        name="transactional-state"/> is carried by both the <xref name="transfer"/> and the <xref
+        name="disposition"/> frames allowing both the <i>posting</i> and <i>retiring</i> of messages
+        to be associated with a transaction.
+      </p>
+
+      <p>
+        The <xref name="transfer"/>, <xref name="disposition"/>, and <xref name="flow"/> frames may
+        travel in either direction, i.e. both from the controller to the resource and from the
+        resource to the controller. When these frames travel from the controller to the resource,
+        any embedded txn-ids are requesting that the resource assigns transactional work to the
+        indicated transaction. When traveling in the other direction, from resource to controller,
+        the <xref name="transfer"/> and <xref name="disposition"/> frames indicate work performed,
+        and the txn-ids included MUST correctly indicate with which (if any) transaction this work
+        is associated. In the case of the <xref name="flow"/> frame traveling from resource to
+        controller, the txn-id does not indicate work that has been performed, but indicates with
+        which transaction future transfers from that link will be performed.
+      </p>
+    </doc>
+
+    <doc title="Transactional Acquisition">
+      <p>
+        In the case of the <xref name="flow"/> frame, the transactional work is not necessarily
+        directly initiated or entirely determined when the <xref name="flow"/> frame arrives at the
+        resource, but may in fact occur at some later point and in ways not necessarily anticipated
+        by the controller. To accomodate this, the resource associates an additional piece of state
+        with outgoing link endpoints, an optional <i>txn-id</i> that identifies the transaction with
+        which <i>acquired</i> messages will be associated. This state is determined by the
+        controller by specifying a <i>txn-id</i> entry in the <i>properties</i> map of the flow
+        frame.  When a transaction is discharged, the <i>txn-id</i> of any link endpoints will be
+        cleared.
+      </p>
+
+      <p>
+        While the <i>txn-id</i> is cleared when the transaction is discharged, this does
+        not affect the level of outstanding credit. To prevent the sending link endpoint from
+        acquiring outside of any transaction, the <i>controller</i> SHOULD ensure there is no
+        outstanding credit at the sender before it discharges the transaction. The <i>controller</i>
+        may do this by either setting the drain mode of the sending link endpoint to <i>true</i>
+        before discharging the transaction, or by reducing the <i>link-credit</i> to zero, and
+        waiting to hear back that the sender has seen this state change.
+      </p>
+
+      <p>
+        If a transaction is discharged at a point where a message has been transactionally acquired,
+        but has not been fully sent (i.e. the delivery of the message will require more than one
+        <xref name="transfer"/> frame and at least one, but not all, such frames have been sent)
+        then the resource MUST interpret this to mean that the fate of the acquisition is fully
+        decided by the discharge. If the <xref name="discharge"/> unambiguously determines the
+        <i>outcome</i> of the transfer (e.g. the <xref name="discharge"/> indicates the failure of
+        the transaction, or the <xref name="transfer"/> has a single pre-determined outcome), the
+        resource MAY decide not to abort sending the remainder of the message.
+      </p>
+    </doc>
+  </section>
+
+  <section name="coordination" label="types used to interact with a coordinator node">
+    <type class="composite" name="coordinator" source="list" provides="target"
+          label="target for communicating with a transaction coordinator">
+      <doc>
+        <p>
+          The coordinator type defines a special target used for establishing a link with a
+          transaction coordinator. The transaction controller indicates the desired capabilities
+          using the fields specified in this type. The transaction coordinator will indicate the
+          actual capabilities using these same fields.
+        </p>
+      </doc>
+
+      <descriptor name="amqp:coordinator:list" code="0x00000000:0x00000030"/>
+
+      <field name="capabilities" type="symbol" requires="txn-capability" multiple="true"/>
+
+    </type>
+
+    <type class="composite" name="declare" source="list"
+          label="message body for declaring a transaction id">
+      <doc>
+        <p>
+          The declare type defines the message body sent to the coordinator to declare a
+          transaction. The txn-id allocated for this transaction is chosen by the transaction
+          controller and identified in the <xref name="delivery-state"/> associated with the
+          containing message.
+        </p>
+      </doc>
+
+      <descriptor name="amqp:declare:list" code="0x00000000:0x00000031"/>
+
+      <field name="global-id" type="*" requires="global-tx-id" label="global transaction id">
+        <doc>
+          <p>
+            Specifies that the txn-id allocated by this declare will associated work with the
+            indicated global transaction. If not set, the allocated txn-id will associated work with
+            a local transaction.
+          </p>
+        </doc>
+      </field>
+    </type>
+
+    <type class="composite" name="discharge" source="list"
+          label="message body for discharging a transaction">
+      <doc>
+        <p>
+          The discharge type defines the message body sent to the coordinator to indicate that the
+          txn-id is no longer in use. If the transaction is not associated with a global-id, then
+          this also indicates the disposition of the local transaction.
+        </p>
+      </doc>
+
+      <descriptor name="amqp:discharge:list" code="0x00000000:0x00000032"/>
+
+      <field name="txn-id" type="*" requires="txn-id" mandatory="true"
+        label="identifies the transaction to be discharged"/>
+
+      <field name="fail" type="boolean" label="indicates the transaction should be rolled back">
+        <doc>
+          <p>
+            If set, this flag indicates that the work associated with this transaction has failed,
+            and the controller wishes the transaction to be rolled back. If the transaction is
+            associated with a global-id this will render the global transaction rollback-only. If
+            the transaction is a local transaction, then this flag controls whether the transaction
+            is committed or aborted when it is discharged.
+          </p>
+        </doc>
+      </field>
+    </type>
+
+    <type class="restricted" name="transaction-id" source="binary" provides="txn-id">
+      <doc>
+        <p>
+          A transaction-id may be up to 32 octets of binary data.
+        </p>
+      </doc>
+    </type>
+
+    <type class="composite" name="declared" source="list" provides="delivery-state, outcome">
+      <doc>
+        <p>
+          Indicates that a transaction identifier has successfully been allocated in response to a
+          declare message sent to a transaction coordinator.
+        </p>
+      </doc>
+
+      <descriptor name="amqp:declared:list" code="0x00000000:0x00000033"/>
+
+      <field name="txn-id" type="*" requires="txn-id" mandatory="true"
+             label="the allocated transaction id"/>
+    </type>
+
+    <type class="composite" name="transactional-state" provides="delivery-state" source="list"
+          label="the state of a transactional message transfer">
+      <doc>
+        <p>
+          The transactional-state type defines a delivery-state that is used to associate a delivery
+          with a transaction as well as to indicate which outcome is to be applied if the
+          transaction commits.
+        </p>
+      </doc>
+
+      <descriptor name="amqp:transactional-state:list" code="0x00000000:0x00000034"/>
+
+      <field name="txn-id" type="*" mandatory="true" requires="txn-id"/>
+      <field name="outcome" type="*" requires="outcome" label="provisional outcome">
+        <doc>
+          <p>
+            This field indicates the provisional outcome to be applied if the transaction commits.
+          </p>
+        </doc>
+      </field>
+    </type>
+
+    <type class="restricted" name="txn-capability" source="symbol" provides="txn-capability"
+          label="symbols indicating (desired/available) capabilities of a transaction coordinator">
+
+      <choice name="local-txn" value="amqp:local-transactions">
+        <doc>
+          <p>
+              Support local transactions.
+          </p>
+        </doc>
+      </choice>
+
+      <choice name="distributed-txn" value="amqp:distributed-transactions">
+        <doc>
+          <p>
+              Support AMQP Distributed Transactions.
+          </p>
+        </doc>
+      </choice>
+
+      <choice name="promotable-txn" value="amqp:promotable-transactions">
+        <doc>
+          <p>
+              Support AMQP Promotable Transactions.
+          </p>
+        </doc>
+      </choice>
+
+      <choice name="multi-txns-per-ssn" value="amqp:multi-txns-per-ssn">
+        <doc>
+          <p>
+              Support multiple active transactions on a single session.
+          </p>
+        </doc>
+      </choice>
+
+      <choice name="multi-ssns-per-txn" value="amqp:multi-ssns-per-txn">
+        <doc>
+          <p>
+              Support transactions whose txn-id is used across sessions on one connection.
+          </p>
+        </doc>
+      </choice>
+    </type>
+
+    <type class="restricted" name="transaction-errors" source="symbol" provides="error-condition"
+          label="symbols used to indicate transaction errors">
+      <choice name="unknown-id" value="amqp:transaction:unknown-id">
+        <doc>
+          <p>The specified txn-id does not exist.</p>
+        </doc>
+      </choice>
+
+      <choice name="transaction-rollback" value="amqp:transaction:rollback">
+        <doc>
+          <p>The transaction was rolled back for an unspecified reason.</p>
+        </doc>
+      </choice>
+
+      <choice name="transaction-timeout" value="amqp:transaction:timeout">
+        <doc>
+          <p>The work represented by this transaction took too long.</p>
+        </doc>
+      </choice>
+    </type>
+  </section>
+
+</amqp>
