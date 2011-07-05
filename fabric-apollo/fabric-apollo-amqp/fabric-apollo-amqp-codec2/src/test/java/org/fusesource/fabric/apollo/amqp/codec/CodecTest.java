@@ -12,14 +12,12 @@ package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeRegistry;
-import org.fusesource.fabric.apollo.amqp.codec.types.Accepted;
 import org.fusesource.fabric.apollo.amqp.codec.types.Header;
 import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.HashMap;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -55,15 +53,6 @@ public class CodecTest {
         //System.out.printf("Got type : %s", type.getClass().getName());
 
         assertSame("Received type does not match expected type!", type.getClass(), Header.class);
-    }
-
-
-    @Test
-    public void testStuff() throws Exception {
-        Accepted accepted = new Accepted();
-        accepted.setOptions(new HashMap<Buffer, String>());
-        accepted.getOptions().put(new Buffer("blah".getBytes()), "blah");
-
     }
 
 }
