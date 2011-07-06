@@ -10,6 +10,7 @@
 package org.fusesource.fabric.pomegranate;
 
 import org.fusesource.fabric.pomegranate.util.Filter;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -23,11 +24,17 @@ import static org.junit.Assert.assertTrue;
 public class JarClassLoaderTest extends DependencyTestSupport {
 
     @Test
-    public void testJarClassLoader() throws Exception {
-        File file = assertResourceFile("jars/camel-core-2.1.0.jar");
-        System.out.println("Processing file: " + file);
+    public void testSlf4jSimpleJar() throws Exception {
+        File file = assertResourceFile("jars/slf4j-simple-1.6.1.jar");
+        DependencyTreeResult node = manager.collectDependenciesForJar(file, false);
+        assertVersions(node, "org.slf4j", "slf4j-api", "1.6.1");
+    }
 
-        DependencyTreeResult node = manager.collectDependenciesForJar(file, true);
+    @Ignore
+    public void testCamelJar() throws Exception {
+        File file = assertResourceFile("jars/camel-core-2.1.0.jar");
+
+        DependencyTreeResult node = manager.collectDependenciesForJar(file, false);
         assertVersions(node, "commons-logging", "commons-logging-api", "1.1.1", "1.1.1");
     }
 
@@ -36,6 +43,7 @@ public class JarClassLoaderTest extends DependencyTestSupport {
         String fileName = resource.getFile();
         File file = new File(fileName);
         assertTrue("file should exist: " + fileName, file.exists());
+        System.out.println("Processing file: " + file);
         return file;
     }
 
