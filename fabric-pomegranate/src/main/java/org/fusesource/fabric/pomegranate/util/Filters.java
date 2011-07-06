@@ -11,10 +11,19 @@ package org.fusesource.fabric.pomegranate.util;
 /**
  */
 public class Filters {
+
     public static <T> Filter<T> trueFilter() {
         return new Filter<T>() {
             public boolean matches(T t) {
                 return true;
+            }
+        };
+    }
+
+    public static <T> Filter<T> falseFilter() {
+        return new Filter<T>() {
+            public boolean matches(T t) {
+                return false;
             }
         };
     }

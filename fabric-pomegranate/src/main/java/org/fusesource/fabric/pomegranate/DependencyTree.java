@@ -289,6 +289,19 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return children;
     }
 
+    public List<DependencyTree> getDescendants() {
+        List<DependencyTree> answer = new ArrayList<DependencyTree>();
+        addDescendants(answer);
+        return answer;
+    }
+
+    public void addDescendants(List<DependencyTree> list) {
+        for (DependencyTree child : children) {
+            list.add(child);
+            child.addDescendants(list);
+        }
+    }
+
     public String getGroupId() {
         return dependencyId.getGroupId();
     }

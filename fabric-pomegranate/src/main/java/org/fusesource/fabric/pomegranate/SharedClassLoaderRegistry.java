@@ -54,7 +54,9 @@ public class SharedClassLoaderRegistry {
                     childClassLoaders.add(childClassLoader);
                 }
             } else {
+                // we now need to recursively flatten all non-shared dependencies...
                 nonSharedDependencies.add(child);
+                child.addDescendants(nonSharedDependencies);
             }
         }
         return DependencyClassLoader.newInstance(tree, nonSharedDependencies, childClassLoaders, null);
