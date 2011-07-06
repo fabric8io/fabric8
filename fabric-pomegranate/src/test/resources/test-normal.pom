@@ -1,0 +1,23 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.karaf</groupId>
+  <artifactId>org.apache.karaf.pomegranate.test.transitive</artifactId>
+  <version>2.1.99-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name>Apache Karaf :: Pomegranate :: Test :: Transitive</name>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+      <version>2.1.0</version>
+<!--
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+        </exclusion>
+      </exclusions>
+-->
+    </dependency>
+  </dependencies>
+</project>

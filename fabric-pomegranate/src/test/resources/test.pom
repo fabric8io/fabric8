@@ -1,0 +1,15 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.karaf</groupId>
+    <artifactId>org.apache.karaf.pomegranate</artifactId>
+    <packaging>bundle</packaging>
+    <name>Apache Karaf :: Pomegranate</name>
+    <version>2.1.99-SNAPSHOT</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+    </dependencies>
+</project>

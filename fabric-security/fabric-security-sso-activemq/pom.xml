@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.fusesource.fabric.security.sso.activemq</groupId>
+  <artifactId>fabric-security-sso-activemq</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+
+  <properties>
+    <xbean-version>3.7</xbean-version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.fusesource.fabric.security.sso.client</groupId>
+      <artifactId>fabric-security-sso-client</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
+      <version>${activemq-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit-version}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>maven-xbean-plugin</artifactId>
+        <version>${xbean-version}</version>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <configuration>
+              <namespace>http://activemq.apache.org/schema/core</namespace>
+              <schema>${basedir}/target/classes/activemq.xsd</schema>
+              <outputDir>${basedir}/target/classes</outputDir>
+              <generateSpringSchemasFile>false</generateSpringSchemasFile>
+              <excludedClasses>org.apache.activemq.broker.jmx.AnnotatedMBean,org.apache.activemq.broker.jmx.DestinationViewMBean</excludedClasses>
+            </configuration>
+            <goals>
+              <goal>mapping</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>

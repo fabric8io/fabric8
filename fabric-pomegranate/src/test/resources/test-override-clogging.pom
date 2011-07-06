@@ -1,0 +1,27 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.karaf</groupId>
+  <artifactId>org.apache.karaf.pomegranate.test.override.clogging</artifactId>
+  <name>Apache Karaf :: Pomegranate :: Test :: Override Clogging</name>
+  <version>2.1.99-SNAPSHOT</version>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+      <version>2.5.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- lets override a dependency -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging-api</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+  </dependencies>
+</project>
