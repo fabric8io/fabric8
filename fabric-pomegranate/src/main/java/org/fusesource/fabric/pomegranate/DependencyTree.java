@@ -176,6 +176,19 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return answer;
     }
 
+    public DependencyTree findDependency(String groupId, String artifactId) {
+        if (Objects.equal(groupId, getGroupId()) && Objects.equal(artifactId, getArtifactId())) {
+            return this;
+        }
+        for (DependencyTree child : children) {
+            DependencyTree dependency = child.findDependency(groupId, artifactId);
+            if (dependency != null) {
+                return dependency;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Marshals the tree to a String value so we can store it in OSGi properties to survive restarts

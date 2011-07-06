@@ -8,6 +8,10 @@
  */
 package org.fusesource.fabric.pomegranate.util;
 
+import org.fusesource.fabric.pomegranate.DependencyTree;
+
+import java.util.List;
+
 /**
  */
 public class Filters {
@@ -26,5 +30,15 @@ public class Filters {
                 return false;
             }
         };
+    }
+
+    public static <T> Filter<T> compositeFilter(List<Filter<T>> filters) {
+        if (filters.size() == 0) {
+            return falseFilter();
+        } else if (filters.size() == 1) {
+            return filters.get(0);
+        } else {
+            return new CompositeFilter<T>(filters);
+        }
     }
 }
