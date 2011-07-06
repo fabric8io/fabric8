@@ -136,13 +136,13 @@ public class DescribedType  extends AmqpDefinedType {
 
                 Log.info("Field type for field %s : %s", fieldName, fieldType);
 
-                if ( fieldType.equals("*") ) {
+                if (fieldType.equals("*")) {
                     fieldType = generator.getAmqpBaseType();
                     /*
                     if ( field.getRequires() != null ) {
                         String requiredType = field.getRequires();
                         if (generator.getProvides().contains(requiredType)) {
-                            fieldType = generator.getInterfaces() + "." + toJavaClassName(field.getRequires());
+                            fieldType = generator.getInterfaces() + "." + toJavaClassName(requiredType);
                         }
                     }
                     */

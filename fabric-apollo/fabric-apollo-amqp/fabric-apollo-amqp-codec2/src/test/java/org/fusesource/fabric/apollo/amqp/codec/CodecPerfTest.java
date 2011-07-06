@@ -13,7 +13,6 @@ package org.fusesource.fabric.apollo.amqp.codec;
 import org.fusesource.fabric.apollo.amqp.codec.types.Transfer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -29,39 +28,29 @@ import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
 public class CodecPerfTest {
 
     @Test
-    @Ignore
     public void transferPerfTest() throws Exception {
-        final int max = 1000000;
+        final int max = 100000000;
         final AtomicLong i = new AtomicLong(0);
         final CountDownLatch latch = new CountDownLatch(1);
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             public void run() {
+                System.out.println("Starting loop");
                 while (i.incrementAndGet() < max) {
                     Transfer in = new Transfer();
                     in.setDeliveryTag(new Buffer(("" + i.get()).getBytes()));
                     in.setDeliveryID(i.get() + 1);
                     in.setHandle(0L);
                     in.setMessageFormat(0L);
-                    /*
-                    Fragment fragment = new Fragment();
-                    fragment.setFirst(true);
-                    fragment.setLast(true);
-                    fragment.setSectionNumber(0L);
-                    fragment.setSectionCode(3L);
-                    fragment.setPayload(new Buffer(("Message : " + i).getBytes()));
-                    in.setFragments(new Fragment[]{fragment});
-                    */
-
                     try {
                         Transfer out = writeRead(in);
-                        in.toString().equals(out.toString());
                     } catch (Exception e) {
                         latch.countDown();
                         e.printStackTrace();
                         return;
                     }
                 }
+                System.out.println("Finished loop");
                 latch.countDown();
             }
         });
