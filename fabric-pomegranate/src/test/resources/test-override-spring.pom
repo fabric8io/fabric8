@@ -25,7 +25,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>3.0.0.RELEASE</version>
+      <version>3.0.5.RELEASE</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.ejb</groupId>
+          <artifactId>ejb-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- TODO not sure why this is required! -->

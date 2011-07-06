@@ -31,6 +31,8 @@ import org.fusesource.fabric.pomegranate.MavenResolver;
 import org.fusesource.fabric.pomegranate.MavenResolver;
 import org.fusesource.fabric.pomegranate.SharedClassLoaderRegistry;
 import org.fusesource.fabric.pomegranate.SharedClassLoaderRegistry;
+import org.fusesource.fabric.pomegranate.util.Filter;
+import org.fusesource.fabric.pomegranate.util.Filters;
 import org.junit.Assert;
 
 import java.io.File;
@@ -130,7 +132,10 @@ public abstract class DependencyTestSupport {
 
     protected DependencyClassLoader getClassLoaderForPom(String pomName) throws Exception {
         DependencyTree tree = collectDependencies(pomName).getTree();
-        return registry.getClassLoader(tree);
+        Filter<DependencyTree> trueFilter = Filters.<DependencyTree>trueFilter();
+        DependencyClassLoader classLoader = registry.getClassLoader(tree, trueFilter);
+        assertNotNull("Could not create a class loader for " + pomName, classLoader);
+        return classLoader;
     }
 
     protected void assertLoadClasses(DependencyClassLoader classLoader, String... names) throws ClassNotFoundException {

@@ -8,27 +8,43 @@
  */
 package org.fusesource.fabric.pomegranate;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.SecureClassLoader;
-import java.util.Enumeration;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A {@link ClassLoader} for a single {@link DependencyTree} instance which can
  * take a list of child dependency class loaders.
  */
-public class DependencyClassLoader extends SecureClassLoader {
-
+public class DependencyClassLoader extends URLClassLoader {
     private final DependencyTree tree;
-    private final List<DependencyClassLoader> childClassLoaders;
 
-    public DependencyClassLoader(DependencyTree tree, List<DependencyClassLoader> childClassLoaders) {
-        super(null);
-        this.tree = tree;
-        this.childClassLoaders = childClassLoaders;
+    public static DependencyClassLoader newInstance(DependencyTree tree, List<DependencyTree> nonSharedDependencies, List<DependencyClassLoader> childClassLoaders, ClassLoader parent) throws MalformedURLException {
+        ClassLoader parentClassLoader;
+        if (childClassLoaders == null || childClassLoaders.isEmpty()) {
+            parentClassLoader = parent;
+        } else {
+            parentClassLoader = new TreeClassLoader(childClassLoaders, parent);
+        }
+        List<DependencyTree> dependencies = new ArrayList<DependencyTree>();
+        // if we are a pom then don't add a jar...
+        if (!tree.getUrl().endsWith(".pom")) {
+            dependencies.add(tree);
+        }
+        dependencies.addAll(nonSharedDependencies);
+        List<URL> urlList = new ArrayList<URL>();
+        for (DependencyTree dependency : dependencies) {
+            URL u = getJarURL(dependency);
+            urlList.add(u);
+        }
+        URL[] urls = urlList.toArray(new URL[urlList.size()]);
+        return new DependencyClassLoader(tree, urls, parentClassLoader);
+    }
+
+    public static URL getJarURL(DependencyTree tree) throws MalformedURLException {
         String url = tree.getUrl();
         if (url == null) {
             throw new IllegalArgumentException("No Url supplied for " + tree);
@@ -36,19 +52,20 @@ public class DependencyClassLoader extends SecureClassLoader {
         if (url.startsWith("file:")) {
             url = url.substring("file:".length());
         }
-
-        // if we are a pom then don't add a jar...
-        if (!url.endsWith(".pom")) {
-            // TODO add a dependency....
-
-            /*
-            try {
-                contents.add(new JarContent(new JarFile(url, false)));
-            } catch (IOException e) {
-                throw new BundleException("Error opening jar file: " + url, e);
-            }
-            */
+        File file = new File(url);
+        URL u;
+        if (file.exists()) {
+            u = file.toURI().toURL();
+        } else {
+            u = new URL(url);
         }
+        return u;
+    }
+
+
+    public DependencyClassLoader(DependencyTree tree, URL[] urls, ClassLoader parent) {
+        super(urls, parent);
+        this.tree = tree;
     }
 
     @Override
@@ -56,163 +73,11 @@ public class DependencyClassLoader extends SecureClassLoader {
         return "ClassLoader[" + tree.getDependencyId() + ":" + tree.getVersion() + "]";
     }
 
+    // TODO make it public for now
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        Class c = findLoadedClass(name);
+    public Class<?> loadClass(String s, boolean b) throws ClassNotFoundException {
+        return super.loadClass(s, b);
 
-        /*
-        if (c == null && bootWire != null) {
-            c = bootWire.loadClass(name);
-        }
-        if (c == null && wires != null) {
-            for (Wire wire : wires) {
-                c = wire.loadClass(name);
-                if (c != null) {
-                    return c;
-                }
-            }
-        }
-        */
-        if (c == null) {
-            // lets try all our child dependencies next
-            for (DependencyClassLoader childClassLoader : childClassLoaders) {
-                try {
-                    c = childClassLoader.loadClass(name, false);
-                } catch (ClassNotFoundException e) {
-                    // ignore
-                }
-            }
-        }
-        if (c == null) {
-            try {
-                ClassLoader cl = ClassLoader.getSystemClassLoader();
-                c = cl.loadClass(name);
-            } catch (Throwable t) {
-                // ignore
-            }
-        }
-        if (c == null) {
-            c = findClass(name);
-        }
-        if (resolve) {
-            resolveClass(c);
-        }
-        return c;
     }
-
-    @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
-        String actual = name.replace('.', '/') + ".class";
-        byte[] bytes = null;
-        /*
-        for (Content content : contents) {
-            bytes = getContentEntry(content, actual);
-            if (bytes != null) {
-                break;
-            }
-        }
-        */
-        if (bytes != null) {
-            synchronized (this) {
-                Class clazz = findLoadedClass(name);
-                if (clazz == null) {
-                    clazz = defineClass(name, bytes, 0, bytes.length);
-                }
-                return clazz;
-            }
-        }
-        throw new ClassNotFoundException(name);
-    }
-
-    private byte[] getContentEntry(Content jar, String actual) {
-        InputStream is = null;
-        try {
-            URL url = jar.getURL(actual);
-            if (url != null) {
-                is = url.openStream();
-            }
-            if (is != null) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-                byte[] buf = new byte[4096];
-                int n = 0;
-                while ((n = is.read(buf, 0, buf.length)) >= 0) {
-                    baos.write(buf, 0, n);
-                }
-                return baos.toByteArray();
-            }
-        } catch (IOException e) {
-            // Ignore
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public URL getResource(String name) {
-            /*
-        try {
-            URL r;
-            if (bootWire != null) {
-                r = bootWire.getResource(name);
-                if (r != null) {
-                    return r;
-                }
-            }
-            if (wires != null) {
-                for (Wire wire : wires) {
-                    r = wire.getResource(name);
-                    if (r != null) {
-                        return r;
-                    }
-                }
-            }
-            for (Content content : contents) {
-                try {
-                    URL e = content.getURL(name);
-                    if (e != null) {
-                        return e;
-                    }
-                } catch (MalformedURLException e) {
-                    // Ignore
-                }
-
-            }
-        } catch (ResourceNotFoundException e) {
-            // Ignore
-        }
-    */
-        return null;
-    }
-
-    @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-        /*
-        try {
-            List<Enumeration<URL>> enums = new ArrayList<Enumeration<URL>>();
-            if (bootWire != null) {
-                enums.add(bootWire.getResources(name));
-            }
-            if (wires != null) {
-                for (Wire w : wires) {
-                    enums.add(w.getResources(name));
-                }
-            }
-            enums.add(new ContentResourceEnumeration(name, contents.iterator()));
-            return new CompoundEnumeration<URL>(enums.toArray(new Enumeration[enums.size()]));
-        } catch (ResourceNotFoundException e) {
-            return null;
-        }
-        */
-        return null;
-    }
-
-
 }
 

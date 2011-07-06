@@ -139,10 +139,8 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludes>
-                <exclude>**/DependencyClassLoaderTest.*</exclude>
+                <!-- TODO fix this when we've a sample... -->
                 <exclude>**/PomegranateSampleTest.*</exclude>
-                <exclude>**/DependencyClassLoaderSharingTest.*</exclude>
-                <exclude>**/DependencyTreeTest.*</exclude>
               </excludes>
             </configuration>
           </plugin>
