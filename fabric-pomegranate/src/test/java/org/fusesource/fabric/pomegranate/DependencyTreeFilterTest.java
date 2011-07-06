@@ -44,10 +44,4 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
         }
     }
 
-    protected DependencyTree assertFindDependencyTree(DependencyTreeResult result, String groupId, String artifactId) throws MalformedURLException {
-        DependencyTree tree = result.getTree();
-        DependencyTree answer = tree.findDependency(groupId, artifactId);
-        assertNotNull("Should have found a DpendencyTree for " + groupId + ":" + artifactId, answer);
-        return answer;
-    }
 }

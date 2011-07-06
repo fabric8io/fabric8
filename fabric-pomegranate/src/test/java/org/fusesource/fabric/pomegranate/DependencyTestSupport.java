@@ -36,6 +36,7 @@ import org.fusesource.fabric.pomegranate.util.Filters;
 import org.junit.Assert;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +64,7 @@ public abstract class DependencyTestSupport {
 
     DependencyTree camel250_clogging_man = newBuilder("org.apache.camel", "camel-core", "2.5.0", clogging11, commonman).build();
 
-    MavenResolver manager = new MavenResolver();
+    protected MavenResolver manager = new MavenResolver();
 
     protected DependencyTreeResult collectDependencies(String pomName) throws Exception {
         URL resource = getClass().getClassLoader().getResource(pomName);
@@ -161,5 +162,12 @@ public abstract class DependencyTestSupport {
             Assert.fail("Could not load: " + name + " in " + classLoader + ". " + e);
             return null;
         }
+    }
+
+    protected DependencyTree assertFindDependencyTree(DependencyTreeResult result, String groupId, String artifactId) throws MalformedURLException {
+        DependencyTree tree = result.getTree();
+        DependencyTree answer = tree.findDependency(groupId, artifactId);
+        assertNotNull("Should have found a DpendencyTree for " + groupId + ":" + artifactId, answer);
+        return answer;
     }
 }

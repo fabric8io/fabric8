@@ -12,6 +12,7 @@ package org.fusesource.fabric.pomegranate;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.pomegranate.util.IOHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
@@ -45,13 +46,18 @@ import org.sonatype.aether.util.version.GenericVersionScheme;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -167,7 +173,30 @@ public class MavenResolver {
         return repo.resolveDependencies(session, request, filter);
     }
 
+    /**
+     * Collects the dependency tree for the given file by extracting its pom.xml file
+     */
+    public DependencyTreeResult collectDependenciesForJar(File jarFile, boolean offline) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+        // lets find the pom file
+        PomDetails pomDetails = findPomFile(jarFile);
+        if (pomDetails == null) {
+            throw new IllegalArgumentException("No pom.xml file could be found inside the jar file: " + jarFile);
+        }
+        System.out.println("Processing pom file: " + pomDetails);
+        Model model = pomDetails.getModel();
+        return collectDependenciesFromPom(pomDetails.getFile(), offline, model);
+    }
+
     public DependencyTreeResult collectDependencies(File rootPom, boolean offline) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+        Model model = new MavenXpp3Reader().read(new FileInputStream(rootPom));
+
+        return collectDependenciesFromPom(rootPom, offline, model);
+    }
+
+    protected DependencyTreeResult collectDependenciesFromPom(File rootPom, boolean offline, Model model) throws RepositoryException, MalformedURLException {
+        Map<String, String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
+
+        // lets load the model so we can get the version which is required for the transformer...
         final MavenRepositorySystemSession session = new MavenRepositorySystemSession();
         LocalRepository localRepository = new LocalRepository(getLocalRepo());
         RepositorySystem repo = getRepositorySystem();
@@ -183,10 +212,6 @@ public class MavenResolver {
             repos.add(new RemoteRepository("repos" + i, "default", repositories[i]));
         }
 
-        Map<String, String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
-
-        // lets load the model so we can get the version which is required for the transformer...
-        Model model = new MavenXpp3Reader().read(new FileInputStream(rootPom));
 
         String groupId = model.getGroupId();
         String artifactId = model.getArtifactId();
@@ -247,6 +272,32 @@ public class MavenResolver {
             LOGGER.warn("Duplicate dependency: " + duplicate);
         }
         return result;
+    }
+
+
+    protected PomDetails findPomFile(File jar) throws IOException {
+        JarFile jarFile = new JarFile(jar);
+        File file = null;
+        Properties properties = null;
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            String name = entry.getName();
+            if (name.matches("META-INF/maven/.*/.*/pom.xml")) {
+                InputStream in = jarFile.getInputStream(entry);
+                // lets create a temporary file
+                file = File.createTempFile("fabric-pomegranate-", ".pom.xml");
+                IOHelpers.writeTo(file, in);
+            } else if (name.matches("META-INF/maven/.*/.*/pom.properties")) {
+                InputStream in = jarFile.getInputStream(entry);
+                properties = new Properties();
+                properties.load(in);
+            }
+            if (file != null && properties != null) {
+                break;
+            }
+        }
+        return new PomDetails(file, properties);
     }
 
 
