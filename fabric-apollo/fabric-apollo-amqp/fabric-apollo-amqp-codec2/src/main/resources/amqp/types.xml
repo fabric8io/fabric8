@@ -627,6 +627,8 @@ Subcategory     n
     </doc>
 
     <type class="primitive" name="list" label="a sequence of polymorphic values">
+      <encoding name="list0" code="0x45" category="fixed" width="0"
+                label="the empty list (i.e. the list with no elements)"/>
       <encoding name="list8" code="0xc0" category="compound" width="1"
                 label="up to 2^8 - 1 list elements with total size less than 2^8 octets"/>
       <encoding name="list32" code="0xd0" category="compound" width="4"

@@ -165,6 +165,9 @@ public class AmqpEncodingPicker implements EncodingPicker {
         if (value == null) {
             return NULL_FORMAT_CODE;
         }
+        if (value.size() == 0) {
+            return LIST_LIST0_CODE;
+        }
         if (value.size() > 255) {
             return LIST_LIST32_CODE;
         }

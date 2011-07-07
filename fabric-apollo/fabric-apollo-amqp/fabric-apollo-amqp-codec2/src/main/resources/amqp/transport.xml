@@ -2247,6 +2247,16 @@ flow(link-credit=delta)           ---+   +---     transfer(...)
       </dl>
 
       <p>
+        Note that in the case where an endpoint indicates that the unsettled map is incomplete, the
+        absence of an entry in the unsettled map is not an indication of settlement. In this case
+        the two endpoints must reduce the levels of unsettled state as much as they can by the
+        Sender resuming and/or settling transfers that it observes that the Receiver considers
+        unsettled.  Upon completion of this reduction of state, the two parties must suspend and
+        re-attempt to resume the link.  Only when both sides have complete unsettled maps may new
+        unsettled state be created by the sending of non-resuming transfers.
+      </p>
+
+      <p>
         A delivery is resumed much the same way it is initially transferred with the following
         exceptions:
       </p>
@@ -2657,6 +2667,20 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
+      <field name="incomplete-unsettled" type="boolean" default="false">
+        <doc>
+          <p>
+            If set to true this field indicates that the unsettled map provided is not complete.
+            When the map is incomplete the recipient of the map cannot take the absence of a
+            delivery tag from the map as evidence of settlement. On receipt of an incomplete
+            unsettled map a sending endpoint MUST NOT send any new deliveries (i.e. deliveries where
+            resume is not set to true) to its partner (and a receiving endpoint which sent an
+            incomplete unsettled map MUST detach with an error on receiving a transfer which is does
+            not have the resume flag set to true).
+          </p>
+        </doc>
+      </field>
+
       <field name="initial-delivery-count" type="sequence-no">
         <doc>
           <p>
@@ -2853,8 +2877,16 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="delivery-id" type="delivery-number" mandatory="true"
-             label="alias for delivery-tag"/>
+      <field name="delivery-id" type="delivery-number" label="alias for delivery-tag">
+        <doc>
+          <p>
+            The delivery-id MUST be supplied on the first transfer of a multi-transfer delivery. On
+            continuation transfers the delivery-id MAY be omitted. It is an error if the delivery-id
+            on a continuation transfer differs from the delivery-id on the first transfer of a
+            delivery.
+          </p>
+        </doc>
+      </field>
 
       <field name="delivery-tag" type="delivery-tag">
         <doc>
@@ -2875,21 +2907,31 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
         </doc>
       </field>
 
-      <field name="settled" type="boolean" default="false">
+      <field name="settled" type="boolean">
         <doc>
           <p>
+             If not set on the first (or only) transfer for a delivery, then the settled flag MUST
+             be interpreted as being false. For subsequent transfers if the settled flag is left
+             unset then it MUST be interpreted as true if and only if any the value of the settled
+             flag on any of the preceding transfers was true; if no preceding transfer was sent with
+             settled being true then the value when unset MUST be taken as false.
+          </p>
+          <p>
              If the negotiated value for snd-settle-mode at attachment is <xref
-             name="sender-settle-mode" choice="settled"/>, then this field MUST be true on the
-             last transfer frame for a delivery (i.e. the delivery must be settled at the Sender at
+             name="sender-settle-mode" choice="settled"/>, then this field MUST be true on at least
+             one transfer frame for a delivery (i.e. the delivery must be settled at the Sender at
              the point the delivery has been completely transferred).
           </p>
           <p>
              If the negotiated value for snd-settle-mode at attachment is <xref
-             name="sender-settle-mode" choice="unsettled"/>, then this field MUST be false on the
-             every transfer frame for a delivery (unless the delivery is aborted).
+             name="sender-settle-mode" choice="unsettled"/>, then this field MUST be false (or
+             unset) on every transfer frame for a delivery (unless the delivery is aborted).
           </p>
         </doc>
       </field>
+
+      <field name="more" type="boolean" default="false"
+             label="indicates that the Message has more content" />
 
       <field name="rcv-settle-mode" type="receiver-settle-mode">
         <doc>
@@ -2928,9 +2970,6 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
           </p>
         </doc>
       </field>
-
-      <field name="more" type="boolean" default="false"
-             label="indicates that the Message has more content" />
 
       <field name="aborted" type="boolean" default="false"
              label="indicates that the Message is aborted">
@@ -3207,12 +3246,13 @@ msb                        lsb
           label="an IETF language tag as defined by BCP 47">
       <doc>
         <p>
-          IETF language tags are abbreviated language codes as defined in BCP 47:
-          <xref type="extern" name="http://www.amqp.org/specification/1.0/connection-properties"/>,
-          which incorporates RFC 5646 (<xref type="extern"
-          name="http://www.rfc-editor.org/rfc/rfc5646.txt"/>).
-          A list of registered subtags is maintained in the IANA Language Subtag Registry at:
-          <xref type="extern" name="http://www.iana.org/assignments/language-subtag-registry"/>.
+          IETF language tags are abbreviated language codes as defined in the IETF Best Current
+          Practice <xref type="extern" name="http://www.rfc-editor.org/rfc/bcp/bcp47.txt">BCP-47
+          </xref> (incorporating <xref type="extern"
+          name="http://www.rfc-editor.org/rfc/rfc5646.txt">RFC-5646</xref>). A list of registered
+          subtags is maintained in the <xref type="extern"
+          name="http://www.iana.org/assignments/language-subtag-registry">IANA Language Subtag
+          Registry</xref>.
         </p>
         <p>
           All AMQP implementations should understand at the least the IETF language tag

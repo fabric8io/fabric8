@@ -236,6 +236,14 @@ public class Encoder implements PrimitiveEncoder {
         out.writeByte(value.byteValue());
     }
 
+    public List readList0(DataInput in) throws Exception {
+        return new ArrayList();
+    }
+
+    public void writeList0(List value, DataOutput out) throws Exception {
+        // Nothing to do
+    }
+
     public List readList8(DataInput in) throws Exception {
         Long size = (long)in.readUnsignedByte();
         Long count = (long)in.readUnsignedByte();

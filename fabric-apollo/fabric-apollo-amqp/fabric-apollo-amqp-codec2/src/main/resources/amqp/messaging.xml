@@ -650,7 +650,7 @@
       <descriptor name="amqp:amqp-value:*" code="0x00000000:0x00000077"/>
     </type>
 
-    <type class="composite" name="footer" source="list" provides="section"
+    <type class="restricted" name="footer" source="annotations" provides="section"
           label="transport footers for a Message">
       <doc>
         <p>
@@ -658,45 +658,25 @@
           calculated or evaluated once the whole bare message has been constructed or seen (for
           example message hashes, HMACs, signatures and encryption details).
         </p>
+
+        <p>
+          A registry of defined footers and their meanings can be found here: <xref type="extern"
+          name="http://www.amqp.org/specification/1.0/footer"/>.
+        </p>
       </doc>
 
-      <descriptor name="amqp:footer:list" code="0x00000000:0x00000078"/>
-
-      <field name="message-attrs" type="map" label="message attributes">
-        <doc>
-          <p>
-            The message-attrs map provides an extension point where domain or vendor specific
-            end-to-end attributes can be added to the Message footer. As the Message (and therefore
-            the header) passes through a node, the values in the message-attrs map MUST be retained,
-            unless augmented or updated at the node. The message-attrs value can be augmented or
-            updated at each node either through node configuration, or when indicated with the
-            <xref name="modified"/> outcome of a message transfer.
-          </p>
-        </doc>
-      </field>
-
-      <field name="delivery-attrs" type="map" label="delivery attributes">
-        <doc>
-          <p>
-            The delivery-attrs map provides an extension point where domain or vendor specific
-            attributes related only to the current state of the Message at the source, or relating
-            to the current transfer to the target can be added to the Message footer. The
-            delivery-attrs value can be augmented or updated at the node either through node
-            configuration, or when indicated with the <xref name="modified"/> outcome of a message
-            transfer.
-          </p>
-        </doc>
-      </field>
+      <descriptor name="amqp:footer:map" code="0x00000000:0x00000078"/>
     </type>
 
     <type class="restricted" name="annotations" source="map">
       <doc>
         <p>
           The <i>annotations</i> type is a map where the keys are restricted to be of type <xref
-          type="type" name="symbol"/>.  All keys except those beginning with the string "x-" are
-          reserved. On receiving an annotations map containing keys or values which it does not
-          recognise, and for which the key does not begin with the string "x-opt-" an AMQP container
-          MUST detach the link with the not-implemented <xref name="amqp-error"/>.
+          type="type" name="symbol"/> or of type <xref type="type" name="ulong"/>.  All ulong keys,
+          and all symbolic keys except those beginning with "x-" are reserved. On receiving an
+          annotations map containing keys or values which it does not recognise, and for which the
+          key does not begin with the string "x-opt-" an AMQP container MUST detach the link with
+          the not-implemented <xref name="amqp-error"/>.
         </p>
       </doc>
     </type>
@@ -817,8 +797,8 @@
       <field name="error" type="error" label="error that caused the message to be rejected">
         <doc>
           <p>
-            The value supplied in this field will be placed in the header of the rejected Message in
-            the message-attrs map under the key "rejected".
+            The value supplied in this field will be placed in the delivery-annotations of the
+            rejected Message associated with the symbolic key "rejected".
           </p>
         </doc>
       </field>
@@ -1040,7 +1020,7 @@ settled with outcome: |        |
         </doc>
       </field>
 
-      <field name="expiry-policy" type="terminus-expiry-policy" default="session"
+      <field name="expiry-policy" type="terminus-expiry-policy" default="session-end"
              label="the expiry policy of the Source"/>
 
       <field name="timeout" type="seconds" default="0"
@@ -1159,7 +1139,7 @@ settled with outcome: |        |
         </doc>
       </field>
 
-      <field name="expiry-policy" type="terminus-expiry-policy" default="session"
+      <field name="expiry-policy" type="terminus-expiry-policy" default="session-end"
              label="the expiry policy of the Target"/>
 
       <field name="timeout" type="seconds" default="0"
