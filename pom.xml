@@ -191,7 +191,7 @@
         <module>fabric-launcher</module>
         <module>fabric-dosgi</module>
         <module>fabric-examples</module>
-        <module>fabric-pomegranate</module>
+        <module>fab</module>
     </modules>
 
     <build>
