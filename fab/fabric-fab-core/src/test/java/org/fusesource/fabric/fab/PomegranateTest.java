@@ -44,7 +44,7 @@ public class PomegranateTest {
 
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManager(PathHelper.getUserMavenRepository()));
-        session.setOffline(true);
+        session.setOffline(false);
         session.setDependencySelector(
             new AndDependencySelector( new ScopeDependencySelector( "test", "provided" ),
                                        new OptionalDependencySelector(), new ExclusionDependencySelector() ) );
