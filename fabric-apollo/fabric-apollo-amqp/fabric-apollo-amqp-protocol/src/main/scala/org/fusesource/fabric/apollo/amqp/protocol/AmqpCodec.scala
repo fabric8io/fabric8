@@ -19,9 +19,9 @@ import java.io.{DataOutputStream, DataInputStream, EOFException}
 import org.fusesource.fabric.apollo.amqp.protocol.AmqpConstants._
 import org.apache.activemq.apollo.broker.Sizer
 import org.apache.activemq.apollo.util.Logging
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpType
 import java.net.SocketException
 import org.fusesource.fabric.apollo.amqp.codec._
+import org.apache.activemq.apollo.transport.ProtocolCodec.BufferState
 
 
 /*
@@ -83,7 +83,7 @@ class AmqpCodec extends ProtocolCodec with Logging {
 
   def getWriteCounter = write_counter
 
-  def write(command: Any):ProtocolCodec.BufferState =  {
+  def write(command: AnyRef):ProtocolCodec.BufferState =  {
     if ( full) {
       ProtocolCodec.BufferState.FULL
     } else {

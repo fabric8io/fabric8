@@ -178,13 +178,13 @@ public interface Link {
      * Sets the distribution mode of this link, defaults to MOVE
      * @param mode
      */
-    public void setDistributionMode(DistributionMode mode);
+    public void setDistributionMode(Buffer mode);
 
     /**
      * Gets the distribution mode of this link
      * @return
      */
-    public DistributionMode getDistributionMode();
+    public Buffer getDistributionMode();
 
     /**
      * Sets a filter on this link

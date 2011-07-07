@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import protocol._
 import org.fusesource.hawtdispatch._
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
@@ -26,7 +27,6 @@ import org.fusesource.fabric.apollo.amqp.codec._
 import interfaces.Frame
 import java.net.URI
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
-import AmqpConversions._
 import org.apache.activemq.apollo.util.{URISupport, Logging}
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
@@ -375,10 +375,11 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
 
   def close(error:Option[Error]):Unit = {
     if (!closeSent.getAndSet(true)) {
-      sessions.foreach(session => {
+      sessions.foreach {
+        case (handle, session) =>
           session.end(error)
           session.on_end.foreach((x) => dispatchQueue << x)
-      })
+      }
       val close = new Close
       error match {
         case Some(e) =>

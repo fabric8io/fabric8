@@ -13,8 +13,6 @@ package org.fusesource.fabric.apollo.amqp.protocol
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.Logging
-import AmqpConversions._
-import AmqpProtocolSupport._
 import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
 import scala.util.continuations._
 import org.fusesource.fabric.apollo.amqp.api.{Message, Sender}
@@ -24,9 +22,9 @@ import org.fusesource.fabric.apollo.amqp.api.{Message, Sender}
  */
 // TODO - Set default outcome/accepted outcomes, keep this list short for starters
 
-class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender with Sink[AmqpProtoMessage] with Logging {
+class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender with Sink[Message] with Logging {
 
-  def role = AmqpRole.SENDER
+  def role = Role.SENDER
 
   var link_credit:Option[Long] = Option(0L)
   var transfer_count = 0L
@@ -34,7 +32,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
   var flowControlListener:Option[FlowControlListener] = None
   var refiller:Runnable = null
 
-  val outgoing = new OverflowSink[AmqpProtoMessage](this)
+  val outgoing = new OverflowSink[Message](this)
   outgoing.refiller = NOOP
   val dispatch = session.dispatch_queue
 
@@ -42,7 +40,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
     val rc = super.flowstate
     link_credit.foreach((x) => rc.setLinkCredit(x))
     rc.setAvailable(available)
-    rc.setTransferCount(transfer_count)
+    rc.setDeliveryCount(transfer_count)
     rc
   }
 
@@ -66,7 +64,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
     }
   }
 
-  def transfer(message:AmqpProtoMessage) = {
+  def transfer(message:Message) = {
     throw new RuntimeException("Can't transfer a message to an outgoing link")
   }
 
@@ -77,9 +75,9 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
     def add = {
       trace("Adding new outgoing message %s", message)
       available = available + 1
-      val protoMessage = message.asInstanceOf[AmqpProtoMessage]
-      val rc = outgoing.offer(protoMessage)
-      protoMessage.onPut.foreach((x) => dispatch << x)
+      val rc = outgoing.offer(message)
+
+      //protoMessage.onPut.foreach((x) => dispatch << x)
     }
 
     if (Dispatch.getCurrentQueue == dispatch) {
@@ -92,7 +90,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
     true
   }
 
-  override def peer_flowstate(flowState: AmqpFlow): Unit = {
+  override def peer_flowstate(flowState: Flow): Unit = {
     Option(flowState.getLinkCredit) match {
       case Some(credit) =>
         link_credit match {
@@ -134,7 +132,7 @@ class OutgoingLink(session:LinkSession) extends AmqpLink(session) with Sender wi
 
   def empty = !outgoing.overflowed
 
-  def offer(message:AmqpProtoMessage) = {
+  def offer(message:Message) = {
     if (!established) {
       trace("received message offer but not established")
       false

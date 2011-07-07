@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import protocol._
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.Logging
@@ -17,10 +18,10 @@ import java.util._
 import org.fusesource.fabric.apollo.amqp.api._
 import Role.SENDER
 import Role.RECEIVER
-import AmqpConversions._
 import scala.util.continuations._
 import collection.mutable.ListBuffer
 import org.fusesource.hawtbuf.Buffer
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType
 
 /**
  *
@@ -40,7 +41,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   var source = new Source
   var target = new Target
 
-  source.setDistributionMode(DistributionMode.MOVE)
+  source.setDistributionMode(StdDistMode.MOVE)
 
   override def toString: String = {
     return getClass.getSimpleName + "{name=" + name + " handle=" + handle + " remoteHandle=" + remoteHandle + " flowState=" + flowstate + "}"
@@ -234,8 +235,8 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   def setFilter(filter:Map[_, _]) = source.setFilter(filter)
   def getFilter:Map[_, _] = source.getFilter
 
-  def setDefaultOutcome(outcome:Outcome) = source.setDefaultOutcome(outcome)
-  def getDefaultOutcome = source.getDefaultOutcome
+  def setDefaultOutcome(outcome:AmqpType) = source.setDefaultOutcome(outcome)
+  def getDefaultOutcome:AmqpType = source.getDefaultOutcome
 
   def setPossibleOutcomes(outcomes:Array[AMQPSymbol]) = source.setOutcomes(outcomes)
   def getPossibleOutcomes:Array[AMQPSymbol] = source.getOutcomes
@@ -255,7 +256,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
       case None =>
     }
   }
-  def transfer(message:AmqpProtoMessage) : Unit
+  def transfer(message:Message) : Unit
 
   def role:Role
 

@@ -11,8 +11,8 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.fabric.apollo.amqp.codec.types._
-import AmqpRole.SENDER
-import AmqpRole.RECEIVER
+import Role.SENDER
+import Role.RECEIVER
 import collection.mutable.HashMap
 import collection.SortedMap
 
@@ -21,8 +21,8 @@ class LinkStore {
   private val incoming_links = new HashMap[String, AmqpLink]()
   private val outgoing_links = new HashMap[String, AmqpLink]()
 
-  private val local_handles = new HashMap[Int, Tuple2[AmqpRole, String]]()
-  private val remote_handles = new HashMap[Int, Tuple2[AmqpRole, String]]()
+  private val local_handles = new HashMap[Int, Tuple2[Role, String]]()
+  private val remote_handles = new HashMap[Int, Tuple2[Role, String]]()
 
   implicit def short2Int(value:Short) = value.asInstanceOf[Int]
   implicit def int2Short(value:Int) = value.asInstanceOf[Short]
@@ -61,7 +61,7 @@ class LinkStore {
     remote_handles += handle -> (link.role, link.name)
   }
 
-  def add_remote(role:AmqpRole, handle:Int, name:String, if_exists:Option[AmqpLink] => AmqpLink) = {
+  def add_remote(role:Role, handle:Int, name:String, if_exists:Option[AmqpLink] => AmqpLink) = {
     if_exists(get_by_name(role, name))
   }
 
@@ -84,7 +84,7 @@ class LinkStore {
     }
   }
 
-  def get_by_name(role:AmqpRole, name:String) = {
+  def get_by_name(role:Role, name:String) = {
     role match {
       case SENDER =>
         outgoing_links.get(name)
@@ -93,7 +93,7 @@ class LinkStore {
     }
   }
 
-  def remove_by_name(role:AmqpRole, name:String) = {
+  def remove_by_name(role:Role, name:String) = {
     role match {
       case SENDER =>
         outgoing_links.remove(name)
@@ -102,7 +102,7 @@ class LinkStore {
     }
   }
 
-  private def get(handle:Int, map:HashMap[Int, Tuple2[AmqpRole, String]]) = {
+  private def get(handle:Int, map:HashMap[Int, Tuple2[Role, String]]) = {
     map.get(handle) match {
       case Some((role, name)) =>
         get_by_name(role, name)
@@ -111,7 +111,7 @@ class LinkStore {
     }
   }
 
-  private def remove(handle:Int, map:HashMap[Int, Tuple2[AmqpRole, String]]) = {
+  private def remove(handle:Int, map:HashMap[Int, Tuple2[Role, String]]) = {
     map.remove(handle) match {
       case Some((role, name)) =>
         remove_by_name(role, name)

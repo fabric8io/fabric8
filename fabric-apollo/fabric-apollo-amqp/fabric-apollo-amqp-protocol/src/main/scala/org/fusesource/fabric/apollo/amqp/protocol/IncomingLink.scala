@@ -10,17 +10,18 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import protocol._
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.hawtdispatch._
+import org.fusesource.hawtbuf.Buffer._
 import java.util.concurrent._
 import atomic.{AtomicLong, AtomicBoolean}
 import org.apache.activemq.apollo.util.Logging
 import collection.mutable.ListBuffer
 import org.fusesource.fabric.apollo.amqp.api.{Outcome, MessageListener, Message, Receiver}
-import AmqpConversions._
-import AmqpProtocolSupport._
 import scala.math._
 import org.apache.activemq.apollo.broker.{Sink, OverflowSink}
+import org.fusesource.hawtbuf.Buffer
 
 /**
  *
@@ -30,7 +31,7 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
   def role = Role.RECEIVER
 
   var _listener:Option[MessageListener] = None
-  var incoming:OverflowSink[AmqpProtoMessage] = null
+  var incoming:OverflowSink[Message] = null
 
   var link_credit:Option[Long] = Option(0L)
   var available:Option[Long] = None
@@ -58,10 +59,12 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
   enableFlowControl(true)
 
   def settle(message: Message, outcome:Outcome): Unit = {
+    /*
     val msg:AmqpProtoMessage = message
     // TODO - for now, the application should set this
     msg.settled = true
     session.settle_incoming(msg, outcome2AmqpType(outcome))
+    */
   }
 
   override def flowstate = {
@@ -88,20 +91,20 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
     val link = this
     _listener = Option(l)
     _listener.foreach((l) => {
-      incoming = new OverflowSink[AmqpProtoMessage](new Sink[AmqpProtoMessage] {
+      incoming = new OverflowSink[Message](new Sink[Message] {
         var refiller:Runnable = null
-        def offer(value: AmqpProtoMessage) = {
+        def offer(value: Message) = {
           try {
             l.offer(link, value)
           } catch {
             case t:Throwable =>
               info("Message listener threw exception %s, rejecting message", t.getStackTraceString)
               val error = new Error
-              error.setCondition("Application error")
+              error.setCondition(ascii("Application error"))
               error.setDescription(t.getLocalizedMessage)
               val rejected = new Rejected
               rejected.setError(error)
-              value.setSettled(true)
+              //value.setSettled(true)
               session.settle_incoming(value, rejected)
               true
           }
@@ -140,7 +143,7 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
     send_updated_flow_state(flow)
   }
 
-  def transfer(message:AmqpProtoMessage): Unit = {
+  def transfer(message:Message): Unit = {
     trace("Received incoming message : %s", message)
     available.foreach((x) => if (x > 0) {available = Option(x - 1)} else {available = Option(0L)})
     transfer_count.foreach((x) => transfer_count = Option(x + 1))

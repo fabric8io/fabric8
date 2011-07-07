@@ -10,7 +10,10 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.types.Error;
+import org.fusesource.fabric.apollo.amqp.codec.types.Footer;
+import org.fusesource.fabric.apollo.amqp.codec.types.Header;
+import org.fusesource.fabric.apollo.amqp.codec.types.Properties;
 import org.fusesource.hawtbuf.Buffer;
 
 /**
@@ -26,13 +29,13 @@ public interface Message {
      * Gets the delivery tag for this message
      * @return
      */
-    public AmqpDeliveryTag getDeliveryTag();
+    public Buffer getDeliveryTag();
 
     /**
      * Sets the delivery tag for this message
      * @param tag
      */
-    public void setDeliveryTag(AmqpDeliveryTag tag);
+    public void setDeliveryTag(Buffer tag);
 
     /**
      * Gets whether or not this message has been settled
@@ -63,19 +66,19 @@ public interface Message {
      * @param data
      * @param <T>
      */
-    public <T extends AmqpType<?, ?>> void addBodyPart(T data);
+    //public <T extends AmqpType<?, ?>> void addBodyPart(T data);
 
     /**
      * Add a new AmqpMap message section to this message
      * @param map
      */
-    public void addBodyPart(AmqpMap map);
+    //public void addBodyPart(AmqpMap map);
 
     /**
      * Add a new AmqpList message section to this message
      * @param list
      */
-    public void addBodyPart(AmqpList list);
+    //public void addBodyPart(AmqpList list);
 
     /**
      * Returns the number of message sections in the message body
@@ -94,19 +97,19 @@ public interface Message {
      * Gets the header of this message
      * @return
      */
-    public AmqpHeader getHeader();
+    public Header getHeader();
 
     /**
      * Gets the properties of this message
      * @return
      */
-    public AmqpProperties getProperties();
+    public Properties getProperties();
 
     /**
      * Gets the footer of this message
      * @return
      */
-    public AmqpFooter getFooter();
+    public Footer getFooter();
 
     /**
      * Task to be performed when the message is being transmitted
@@ -136,7 +139,7 @@ public interface Message {
      * Gets the error status of the message if the outcome has been REJECTED
      * @return
      */
-    public AmqpError getError();
+    public Error getError();
 
     /**
      * Sets whether or not message acknowledgement should be immediate or can be performed in a batch

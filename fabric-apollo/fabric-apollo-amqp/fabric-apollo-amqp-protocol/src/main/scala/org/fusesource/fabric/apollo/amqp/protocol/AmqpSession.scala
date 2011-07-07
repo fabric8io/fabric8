@@ -10,14 +10,13 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import protocol._
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.hawtdispatch._
 import Role.SENDER
 import Role.RECEIVER
 import org.apache.activemq.apollo.util.Logging
 import java.util.concurrent.atomic.{AtomicLong, AtomicInteger, AtomicBoolean}
-import AmqpConversions._
-import AmqpProtocolSupport._
 import org.fusesource.fabric.apollo.amqp.api._
 import collection.immutable.HashMap
 import collection.mutable.ListBuffer
@@ -32,9 +31,9 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.{AmqpType, Frame}
  */
 
 trait MessageFactory {
-  def createMessage(tag:String): Message = AmqpProtoMessage.create(tag)
-  def createMessage(tag: Buffer): Message = AmqpProtoMessage.create(tag)
-  def createMessage: Message = AmqpProtoMessage.create
+  def createMessage(tag:String): Message = null
+  def createMessage(tag: Buffer): Message = null
+  def createMessage: Message = null
 }
 
 class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[Runnable] with MessageFactory with Logging {
@@ -45,8 +44,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   val end_sent: AtomicBoolean = new AtomicBoolean(false)
 
   val store:LinkStore = new LinkStore
-  var unsettled_outgoing = HashMap[Buffer, AmqpProtoMessage]()
-  var unsettled_incoming = HashMap[Buffer, AmqpProtoMessage]()
+  var unsettled_outgoing = HashMap[Buffer, Message]()
+  var unsettled_incoming = HashMap[Buffer, Message]()
   var id_to_tag = HashMap[Long, Buffer]()
   var tag_to_id = HashMap[Buffer, Long]()
 
@@ -226,14 +225,16 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
           error match {
             case Some(e) =>
               message.setSettled(true)
+              /*
               message.outcome = Outcome.REJECTED
+              */
               // TODO
               //message.error = e
-              message.onAck.foreach((x) => dispatch_queue << x)
+              //message.onAck.foreach((x) => dispatch_queue << x)
             case None =>
               message.setSettled(true)
-              message.outcome = Outcome.RELEASED
-              message.onAck.foreach((x) => dispatch_queue << x)
+              //message.outcome = Outcome.RELEASED
+              //message.onAck.foreach((x) => dispatch_queue << x)
           }
       }
 
@@ -343,7 +344,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     next_incoming_transfer_id.foreach((x) => flowState.setNextIncomingID(x))
   }
 
-  def send(link:AmqpLink, message:AmqpProtoMessage):Unit = {
+  def send(link:AmqpLink, message:Message):Unit = {
 
     outgoing.offer(^{
       //message.getHeader.setTransmitTime(new Date)
@@ -446,12 +447,14 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     store.get_by_remote_handle(key) match {
       case Some(link) =>
         trace("Directing transfer id %s from remote handle %s to local handle %s", transfer.getDeliveryID, key, link.handle)
+        /*
         val msg = AmqpProtoMessage.create(transfer)
         if (!msg.settled) {
           unsettled_incoming = unsettled_incoming + (msg.tag -> msg)
           tag_to_id = tag_to_id + (msg.tag -> transfer.getDeliveryID)
         }
         link.transfer(msg)
+        */
       case None =>
         end(AmqpError.NOT_FOUND, new RuntimeException("Link for handle " + key + " not found"))
     }
@@ -536,9 +539,10 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
           id_to_tag = id_to_tag - i
           unsettled_outgoing.get(tag) match {
             case Some(message) =>
-              message.settled = settled
+              message.setSettled(settled)
               // TODO
               //message.outcome = outcome
+              /*
               message.outcome match {
                 case Outcome.ACCEPTED =>
                 case Outcome.REJECTED =>
@@ -551,10 +555,11 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
                 case Outcome.MODIFIED =>
                 // TODO
               }
-              if (message.settled) {
+              */
+              if (message.getSettled) {
                 unsettled_outgoing = unsettled_outgoing - tag
               }
-              message.onAck.foreach((r) => dispatch_queue << r)
+              //message.onAck.foreach((r) => dispatch_queue << r)
             case None =>
               debug("Delivery tag %s has already been released", tag)
           }
@@ -564,11 +569,11 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
   }
 
-  def settle_incoming(message:AmqpProtoMessage, outcome:Outcome): Unit = {
-    val id = tag_to_id.get(message.tag)
-    if (message.settled) {
-      unsettled_incoming = unsettled_incoming - message.tag
-      tag_to_id = tag_to_id - message.tag
+  def settle_incoming(message:Message, outcome:Outcome): Unit = {
+    val id = tag_to_id.get(message.getDeliveryTag)
+    if (message.getSettled) {
+      unsettled_incoming = unsettled_incoming - message.getDeliveryTag
+      tag_to_id = tag_to_id - message.getDeliveryTag
     }
     id match {
       case Some(id) =>
@@ -580,7 +585,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         disposition.setLast(id)
         disposition.setSettled(settled)
         disposition.setBatchable(batchable)
-        disposition.setState(outcome)
+        // TODO
+        //disposition.setState(outcome)
         trace("Sending ack for transfer id %s with outcome=%s and settled=%s, batchable=%s", id, outcome, settled, batchable)
         send(disposition)
       case None =>
