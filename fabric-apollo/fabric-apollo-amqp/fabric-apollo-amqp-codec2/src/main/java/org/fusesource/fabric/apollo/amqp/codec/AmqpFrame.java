@@ -129,19 +129,6 @@ public class AmqpFrame {
         }
     }
 
-    public void handle(AmqpHandler handler) throws Exception {
-        // TODO
-        /*
-        if ( body != null && body instanceof Frame ) {
-            ((AmqpCommand)body).handle(handler);
-        } else if ( body == null ) {
-            handler.handleEmpty();
-        } else if ( !(body instanceof AmqpCommand) ) {
-            handler.handleUnknown(body);
-        }
-        */
-    }
-
     public long getDataSize() {
         return getSize() - (header.length() + extHeader.length());
     }

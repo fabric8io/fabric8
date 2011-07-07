@@ -10,7 +10,11 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol;
+import org.fusesource.hawtbuf.Buffer;
+
+import java.util.Map;
 
 /**
  *
@@ -87,88 +91,76 @@ public interface Link {
     public String getAddress();
 
     /**
-     * Gets the options map for the target
-     * @return
-     */
-    public AmqpOptions getTargetOptionsMap();
-
-    /**
-     * Gets the options map for the source on this link
-     * @return
-     */
-    public AmqpOptions getSourceOptionsMap();
-
-    /**
      * Sets whether or not the target of this link should be durably retained
      * @param durable
      */
-    public void setTargetDurable(boolean durable);
+    public void setTargetDurable(long durable);
 
     /**
      * Gets whether or not the target of this link should be durably retained
      * @return
      */
-    public boolean getTargetDurable();
+    public long getTargetDurable();
 
     /**
      * Sets whether or not the source of this link should be durably retained
      * @param durable
      */
-    public void setSourceDurable(boolean durable);
+    public void setSourceDurable(long durable);
 
     /**
      * Gets whether or not the source of this link should be durably retained
      * @return
      */
-    public boolean getSourceDurable();
+    public long getSourceDurable();
 
     /**
      * Sets the expiry policy of the target of this link
      * @param policy
      */
-    public void setTargetExpiryPolicy(AmqpTerminusExpiryPolicy policy);
+    public void setTargetExpiryPolicy(Buffer policy);
 
     /**
      * Gets the expiry policy of the target of this link
      * @return
      */
-    public AmqpTerminusExpiryPolicy getTargetExpiryPolicy();
+    public Buffer getTargetExpiryPolicy();
 
     /**
      * Sets the expiry policy of the source of this link
      * @param policy
      */
-    public void setSourceExpiryPolicy(AmqpTerminusExpiryPolicy policy);
+    public void setSourceExpiryPolicy(Buffer policy);
 
     /**
      * Gets the expiry policy of the source of this link
      * @return
      */
-    public AmqpTerminusExpiryPolicy getSourceExpiryPolicy();
+    public Buffer getSourceExpiryPolicy();
 
     /**
      * Sets the timeout for when this link's target expires after being detached
      * @param timeout
      */
-    public void setTargetTimeout(AmqpSeconds timeout);
+    public void setTargetTimeout(long timeout);
 
     /**
      * Gets the timeout for when this link's target expires after being detached
      * @return
      */
-    public AmqpSeconds getTargetTimeout();
+    public long getTargetTimeout();
 
     /**
      * Sets the timeout for when this link's source expires after being detached
      * @param timeout
      */
-    public void setSourceTimeout(AmqpSeconds timeout);
+    public void setSourceTimeout(long timeout);
 
     /**
      * Gets the timeout for when this link's source expires after being detached
      * @return
      */
-    public AmqpSeconds getSourceTimeout();
+    public long getSourceTimeout();
 
     /**
      * Sets the lifetime policy of a dynamically created address
@@ -198,48 +190,48 @@ public interface Link {
      * Sets a filter on this link
      * @param filter
      */
-    public void setFilter(AmqpFilterSet filter);
+    public void setFilter(Map<?, ?> filter);
 
     /**
      * Gets whatever filter is set on this link
      * @return
      */
-    public AmqpFilterSet getFilter();
+    public Map<?, ?> getFilter();
 
     /**
      * Sets the default outcome to be used for unsettled transfers
      * @param outcome
      */
-    public void setDefaultOutcome(Outcome outcome);
+    public void setDefaultOutcome(AmqpType outcome);
 
     /**
      * Limits the possible outcomes that can be used for unsettled transfers
      * @param outcomes
      */
-    public void setPossibleOutcomes(Outcome outcomes[]);
+    public void setPossibleOutcomes(AMQPSymbol outcomes[]);
 
     /**
      * Sets the capabilities available on this link
      * @param capabilities
      */
-    public void setCapabilities(String capabilities[]);
+    public void setCapabilities(AMQPSymbol capabilities[]);
 
     /**
      * Gets the capabilities available on this link
      * @return
      */
-    public String[] getCapabilities();
+    public AMQPSymbol[] getCapabilities();
 
     /**
      * Sets the capabilities desired by the other end of this link
      * @param capabilities
      */
-    public void setDesiredCapabilities(String capabilities[]);
+    public void setDesiredCapabilities(AMQPSymbol capabilities[]);
 
     /**
      * Gets the capabilities desired by the other end of this link
      * @return
      */
-    public String[] getDesiredCapabilities();
+    public AMQPSymbol[] getDesiredCapabilities();
 
 }

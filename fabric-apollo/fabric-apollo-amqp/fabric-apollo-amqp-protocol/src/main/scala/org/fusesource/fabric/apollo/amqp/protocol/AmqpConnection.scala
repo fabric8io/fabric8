@@ -13,7 +13,6 @@ package org.fusesource.fabric.apollo.amqp.protocol
 import org.fusesource.hawtdispatch._
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
-import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import java.io.{EOFException, IOException}
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.apache.activemq.apollo.transport._
@@ -24,6 +23,7 @@ import collection.mutable.Map
 import org.fusesource.fabric.apollo.amqp.api._
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, Sink}
 import org.fusesource.fabric.apollo.amqp.codec._
+import interfaces.Frame
 import java.net.URI
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import AmqpConversions._
@@ -51,7 +51,7 @@ object AmqpConnection {
   }
 }
 
-class AmqpConnection extends Connection with ConnectionHandler with SessionConnection with TransportListener with Logging {
+class AmqpConnection extends Connection with SessionConnection with TransportListener with Logging {
   import AmqpConnection._
 
   var dispatchQueue: DispatchQueue =  Dispatch.createQueue
@@ -64,9 +64,8 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   var peerContainerId: String = null
   var transport: Transport = null
   var last_error: Throwable = null
-  val sessions: HashMap[Int, SessionHandler] = new HashMap[Int, SessionHandler]
+  val sessions: HashMap[Int, AmqpSession] = new HashMap[Int, AmqpSession]
   val channels: HashMap[Int, Int] = new HashMap[Int, Int]
-  val connectionHandler: AmqpCommandHandler = new AmqpCommandHandler(this, null)
   val headerSent: AtomicBoolean = new AtomicBoolean(false)
   val openSent: AtomicBoolean = new AtomicBoolean(false)
   val closeSent: AtomicBoolean = new AtomicBoolean(false)
@@ -134,7 +133,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
 
   def session(fromRemote:Boolean, remoteChannel:Int): Session = {
     def random_ushort = {
-      val bytes:Array[Byte] = Array(0, 0)
+      val bytes:Array[Byte] = Array(0x0, 0x0).asInstanceOf[Array[Byte]]
       Random.nextBytes(bytes)
       abs(BitUtils.getUShort(bytes, 0))
     }
@@ -144,23 +143,22 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       channel = random_ushort
     }
     val session = new AmqpSession(this, channel)
-    val handler = new SessionHandler(this, session)
-    sessions.put(channel, handler)
+    sessions.put(channel, session)
     if (fromRemote) {
       session.remote_channel = remoteChannel
       channels.put(remoteChannel,session.channel)
     }
-    trace("Session created : %s", handler.session);
+    trace("Session created : %s", session);
     sessionListener.foreach((x) => x.sessionCreated(this, session))
     session
   }
 
   def release(channel: Int): Unit = dispatchQueue {
     sessions.remove(channel) match {
-      case Some(handler) =>
-        val remote_channel = channels.remove(handler.session.remote_channel)
-        trace("Session released : %s", handler.session)
-        sessionListener.foreach((x) => x.sessionReleased(this, handler.session))
+      case Some(session) =>
+        val remote_channel = channels.remove(session.remote_channel)
+        trace("Session released : %s", session)
+        sessionListener.foreach((x) => x.sessionReleased(this, session))
       case None =>
     }
   }
@@ -168,19 +166,34 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   def handle_frame(frame:AmqpFrame) = {
     val channel = frame.getChannel
 
-    frame.getBody match {
-      case o:AmqpOpen =>
+    val body = frame.getBody
+
+    body match {
+      case o:Open =>
         open(o)
-      case c:AmqpClose =>
+      case c:Close =>
         close
       case _ =>
         get_session(channel, frame.getBody) match {
-          case Some(handler) =>
-            frame.handle(handler.handler)
+          case Some(session) =>
+            body match {
+              case b:Begin =>
+                session.begin(b)
+              case e:End =>
+                session.end(e)
+              case a:Attach =>
+                session.attach(a)
+              case d:Detach =>
+                session.detach(d)
+              case t:Transfer =>
+                session.transfer(t)
+              case f:Flow =>
+                session.flow(f)
+            }
           case None =>
-            frame.getBody match {
-              case e:AmqpEnd =>
-              case f:AmqpFlow =>
+            body match {
+              case e:End =>
+              case f:Flow =>
               case _ =>
                 val error = "Received frame for session that doesn't exist"
                 warn("%s : %s", error, frame)
@@ -199,17 +212,17 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     }
   }
 
-  def get_session(channel:Int, command:AnyRef):Option[SessionHandler] = {
+  def get_session(channel:Int, command:AnyRef):Option[AmqpSession] = {
     command match {
-      case b:AmqpBegin =>
+      case b:Begin =>
         Option(b.getRemoteChannel) match {
           case Some(local_channel) =>
             channels.put(channel, local_channel.intValue)
             trace("Received response to begin frame sent from local_channel=%s from remote_channel=%s", local_channel.intValue, channel)
             session_from_remote_channel(channel) match {
-              case Some(h) =>
-                h.session.remote_channel = channel
-                Option(h)
+              case Some(s) =>
+                s.remote_channel = channel
+                Option(s)
               case None =>
                 None
             }
@@ -234,9 +247,9 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
           }
           if (closeSent.get) {
             frame.getBody match {
-              case c:AmqpClose =>
+              case c:Close =>
                 handle_frame(frame)
-              case e:AmqpEnd =>
+              case e:End =>
                 handle_frame(frame)
               case _ =>
                 debug("disposing of frame : " + frame + ", connection is closed")
@@ -285,18 +298,18 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     open(null)
   }
 
-  def open(open: AmqpOpen): Unit = {
+  def open(open: Open): Unit = {
     Option(open).foreach((open) => {
       Option(open.getMaxFrameSize).foreach((x) => setMaxFrameSize(x.asInstanceOf[Long]))
-      peerContainerId = open.getContainerId
+      peerContainerId = open.getContainerID
       Option(open.getChannelMax).foreach((x) => channel_max = min(channel_max, x.intValue))
     })
     if ( !openSent.getAndSet(true) ) {
-      val response: AmqpOpen = createAmqpOpen
+      val response: Open = new Open
       response.setChannelMax(channel_max)
-      response.setIdleTimeOut(idle_timeout)
-      Option(containerId).foreach((x) => response.setContainerId(x.asInstanceOf[String]))
-      response.setContainerId(containerId)
+      response.setIdleTimeout(idle_timeout)
+      Option(containerId).foreach((x) => response.setContainerID(x.asInstanceOf[String]))
+      response.setContainerID(containerId)
       hostname.foreach((x) => response.setHostname(x))
       if ( getMaxFrameSize != 0 ) {
         response.setMaxFrameSize(getMaxFrameSize)
@@ -319,9 +332,9 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     }
     Option(open).foreach((o) => {
       connecting = false
-      Option(open.getIdleTimeOut) match {
+      Option(open.getIdleTimeout) match {
         case Some(timeout) =>
-          idle_timeout = idle_timeout.min(timeout.getValue.longValue)
+          idle_timeout = idle_timeout.min(timeout)
           heartbeat_monitor.read_interval = idle_timeout
           heartbeat_monitor.write_interval = heartbeat_interval
           heartbeat_monitor.transport = transport
@@ -345,7 +358,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   def close: Unit = close(None)
 
   def close(reason:String):Unit = {
-    val error = createAmqpError
+    val error = new Error
     error.setCondition(reason)
     error.setDescription(reason)
     last_error = new RuntimeException(reason)
@@ -353,21 +366,20 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
   }
 
   def close(t:Throwable):Unit = {
-    val error = createAmqpError
-    error.setCondition(t.getClass + " : " + t.getMessage)
+    val error = new Error
+    error.setCondition(t.getClass.getSimpleName + " : " + t.getMessage)
     error.setDescription(t.getStackTraceString)
     last_error = t
     close(Option(error))
   }
 
-  def close(error:Option[AmqpError]):Unit = {
+  def close(error:Option[Error]):Unit = {
     if (!closeSent.getAndSet(true)) {
-      sessions.foreach {
-        case (channel, handler) =>
-          handler.session.end(error)
-          handler.session.on_end.foreach((x) => dispatchQueue << x)
-      }
-      val close = createAmqpClose
+      sessions.foreach(session => {
+          session.end(error)
+          session.on_end.foreach((x) => dispatchQueue << x)
+      })
+      val close = new Close
       error match {
         case Some(e) =>
           close.setError(e)
@@ -387,11 +399,11 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
 
   def send(command:AnyRef):Boolean = send(0, command)
 
-  def send(channel:Int, command:AmqpCommand):Boolean = send(channel, command.asInstanceOf[AnyRef])
+  def send(channel:Int, command:Frame):Boolean = send(channel, command.asInstanceOf[AnyRef])
 
   def send(channel:Int, command:AnyRef, sasl:Boolean = false):Boolean = {
 
-    def createFrame(command:AmqpCommand, sasl:Boolean = false) = {
+    def createFrame(command:Frame, sasl:Boolean = false) = {
       val rc = new AmqpFrame(command)
       if (sasl) {
         rc.setType(AmqpFrame.AMQP_SASL_FRAME_TYPE)
@@ -406,17 +418,17 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     command match {
       case header:AmqpProtocolHeader =>
         doSend(header)
-      case open:AmqpOpen =>
+      case open:Open =>
         doSend(createFrame(open))
-      case close:AmqpClose =>
+      case close:Close =>
         doSend(createFrame(close))
-      case command:AmqpCommand =>
+      case command:Frame =>
         if ( closeSent.get ) {
           // can silently ignore detach/end frames
           command match {
-            case d:AmqpDetach =>
+            case d:Detach =>
               return true
-            case e:AmqpEnd =>
+            case e:End =>
               return true
             case _ =>
               warn("Transport is not connected, discarding outgoing frame body %s for channel %s", command, channel)
@@ -475,7 +487,7 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
       x =>
         x
     }, dispatchQueue, AmqpCodec)
-    connection_sink = new OverflowSink(session_manager.open(dispatchQueue));
+    connection_sink = new OverflowSink(session_manager.open(dispatchQueue)).asInstanceOf[Sink[AnyRef]]
     connection_sink.refiller = NOOP
     header(null)
     transport.resumeRead
@@ -512,13 +524,13 @@ class AmqpConnection extends Connection with ConnectionHandler with SessionConne
     rc.toString
   }
 
-  def sasl_outcome(saslOutcome: AmqpSaslOutcome) {}
+  def sasl_outcome(saslOutcome: SASLOutcome) {}
 
-  def sasl_init(saslInit: AmqpSaslInit) {}
+  def sasl_init(saslInit: SASLInit) {}
 
-  def sasl_mechanisms(saslMechanisms: AmqpSaslMechanisms) {}
+  def sasl_mechanisms(saslMechanisms: SASLMechanisms) {}
 
-  def sasl_response(saslResponse: AmqpSaslResponse) {}
+  def sasl_response(saslResponse: SASLResponse) {}
 
-  def sasl_challenge(saslChallenge: AmqpSaslChallenge) {}
+  def sasl_challenge(saslChallenge: SASLChallenge) {}
 }

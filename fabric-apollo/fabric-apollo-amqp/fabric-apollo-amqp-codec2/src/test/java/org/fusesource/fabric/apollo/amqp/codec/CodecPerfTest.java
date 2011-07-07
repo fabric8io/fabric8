@@ -29,7 +29,7 @@ public class CodecPerfTest {
 
     @Test
     public void transferPerfTest() throws Exception {
-        final int max = 100000000;
+        final int max = 5000000;
         final AtomicLong i = new AtomicLong(0);
         final CountDownLatch latch = new CountDownLatch(1);
 

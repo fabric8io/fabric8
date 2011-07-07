@@ -10,15 +10,15 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fabric.apollo.amqp.codec.AmqpCommand
 import org.fusesource.hawtdispatch.DispatchQueue
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.Frame
 
 /**
  *
  */
 trait SessionConnection {
   def getDispatchQueue: DispatchQueue
-  def send(channel: Int, frame: AmqpCommand): Boolean
+  def send(channel: Int, frame: Frame): Boolean
   def close(t:Throwable): Unit
   def close(reason:String): Unit
   def release(channel: Int): Unit

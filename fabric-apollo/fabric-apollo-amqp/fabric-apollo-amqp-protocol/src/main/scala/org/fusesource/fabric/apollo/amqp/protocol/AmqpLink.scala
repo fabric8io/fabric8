@@ -11,16 +11,16 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.fabric.apollo.amqp.codec.types._
-import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.Logging
 import java.util._
 import org.fusesource.fabric.apollo.amqp.api._
-import AmqpRole.SENDER
-import AmqpRole.RECEIVER
+import Role.SENDER
+import Role.RECEIVER
 import AmqpConversions._
 import scala.util.continuations._
 import collection.mutable.ListBuffer
+import org.fusesource.hawtbuf.Buffer
 
 /**
  *
@@ -37,10 +37,8 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   var onAttach:Option[Runnable] = None
   var onDetach:Option[Runnable] = None
 
-  var source = createAmqpSource
-  source.setOptions(createAmqpOptions)
-  var target = createAmqpTarget
-  target.setOptions(createAmqpOptions)
+  var source = new Source
+  var target = new Target
 
   source.setDistributionMode(DistributionMode.MOVE)
 
@@ -66,19 +64,19 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
       case Some(handle) =>
       case None =>
         session.attach(this)
-        val attach: AmqpAttach = createAmqpAttach
-        attach.setInitialTransferCount(0L)
+        val attach = new Attach
+        attach.setInitialDeliveryCount(0L)
         attach.setHandle(handle.get)
         attach.setName(name)
-        attach.setRole(role)
+        attach.setRole(role.getValue)
         attach.setSource(source)
         attach.setTarget(target)
         session.send(this, attach)
     }
   }
 
-  def attach(attach: AmqpAttach): Unit = {
-    remoteHandle = Some(attach.getHandle.getValue.shortValue)
+  def attach(attach: Attach): Unit = {
+    remoteHandle = Some(attach.getHandle.shortValue)
     handle match {
       case None =>
         this.attach
@@ -89,7 +87,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     }
   }
 
-  def send_updated_flow_state(flowstate:AmqpFlow): Unit = {
+  def send_updated_flow_state(flowstate:Flow): Unit = {
     handle.foreach((x) => {
       flowstate.setHandle(x)
       //trace("Updating peer with flow state : %s", flowstate)
@@ -98,26 +96,28 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   }
 
   def detach: Unit = detach(None)
-  def detach(description:String): Unit = detach(AmqpLinkError.DETACH_FORCED, description)
-  def detach(t:Throwable):Unit = detach(AmqpLinkError.DETACH_FORCED, t)
+  def detach(description:String): Unit = detach(LinkError.DETACH_FORCED, description)
+  def detach(t:Throwable):Unit = detach(LinkError.DETACH_FORCED, t)
+  def detach(l:LinkError, d:String) = detach(l.getValue.ascii.toString, d)
+  def detach(l:LinkError, t:Throwable) = detach(l.getValue.ascii.toString, t)
 
   def detach(condition:String, description:String):Unit = {
-    val error = createAmqpError
+    val error = new Error
     error.setCondition(condition)
     error.setDescription(description)
     detach(Option(error))
   }
 
   def detach(condition:String, t:Throwable):Unit = {
-    val error = createAmqpError
+    val error = new Error
     error.setCondition(condition)
     error.setDescription(t.toString + "\n" + t.getStackTraceString)
     detach(Option(error))
   }
 
-  def detach(error:Option[AmqpError]):Unit = {
+  def detach(error:Option[Error]):Unit = {
     if (established) {
-      val d = createAmqpDetach
+      val d = new Detach
       d.setHandle(handle.get)
       handle = None
       error match {
@@ -143,9 +143,9 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     }
   }
 
-  def detach(detach:AmqpDetach) : Unit = {
+  def detach(detach:Detach) : Unit = {
     remoteHandle = None
-    val response = createAmqpDetach
+    val response = new Detach
     handle.foreach((h) => {
       response.setHandle(h)
       session.detach(this)
@@ -155,7 +155,7 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     onDetach.foreach((x) => session.dispatch_queue << x)
   }
 
-  def flowstate = createAmqpFlow
+  def flowstate = new Flow
 
   def isFlowControlEnabled():Boolean
 
@@ -166,15 +166,15 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     role match {
       case SENDER =>
         if (remotely_created) {
-          source.getAddress.asInstanceOf[AmqpString].getValue
+          source.getAddress.asInstanceOf[AMQPString].getValue
         } else {
-          target.getAddress.asInstanceOf[AmqpString].getValue
+          target.getAddress.asInstanceOf[AMQPString].getValue
         }
       case RECEIVER =>
         if (remotely_created) {
-          target.getAddress.asInstanceOf[AmqpString].getValue
+          target.getAddress.asInstanceOf[AMQPString].getValue
         } else {
-          source.getAddress.asInstanceOf[AmqpString].getValue
+          source.getAddress.asInstanceOf[AMQPString].getValue
         }
     }
   }
@@ -190,149 +190,63 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
     role match {
       case SENDER =>
         if (remotely_created) {
-          source.setAddress(createAmqpString(address))
+          source.setAddress(new AMQPString(address))
         } else {
-          target.setAddress(createAmqpString(address))
+          target.setAddress(new AMQPString(address))
         }
       case RECEIVER =>
         if (remotely_created) {
-          target.setAddress(createAmqpString(address))
+          target.setAddress(new AMQPString(address))
         } else {
-          source.setAddress(createAmqpString(address))
+          source.setAddress(new AMQPString(address))
         }
-    }
-  }
-
-  def getTargetOptionsMap:AmqpOptions = {
-    Option(target.getOptions) match {
-      case Some(options) =>
-        options
-      case None =>
-        target.setOptions(createAmqpOptions)
-        getTargetOptionsMap
-    }
-  }
-
-  def getSourceOptionsMap:AmqpOptions = {
-    Option(source.getOptions) match {
-      case Some(options) =>
-        options
-      case None =>
-        source.setOptions(createAmqpOptions)
-        getSourceOptionsMap
     }
   }
 
   def setAddress(address:String) = this.address = address
   def getAddress = this.address
 
-  def getSourceTimeout = source.getTimeout
-  def setSourceTimeout(timeout: AmqpSeconds) = source.setTimeout(timeout)
+  def getSourceTimeout:Long = source.getTimeout
+  def setSourceTimeout(timeout: Long) = source.setTimeout(timeout)
 
-  def getTargetTimeout = target.getTimeout
-  def setTargetTimeout(timeout: AmqpSeconds) = target.setTimeout(timeout)
+  def getTargetTimeout:Long = target.getTimeout
+  def setTargetTimeout(timeout: Long) = target.setTimeout(timeout)
 
-  def getSourceExpiryPolicy = source.getExpiryPolicy
-  def setSourceExpiryPolicy(policy: AmqpTerminusExpiryPolicy) = source.setExpiryPolicy(policy)
+  def getSourceExpiryPolicy:Buffer = source.getExpiryPolicy
+  def setSourceExpiryPolicy(policy: Buffer) = source.setExpiryPolicy(policy)
 
-  def getTargetExpiryPolicy = target.getExpiryPolicy
-  def setTargetExpiryPolicy(policy: AmqpTerminusExpiryPolicy) = target.setExpiryPolicy(policy)
+  def getTargetExpiryPolicy:Buffer = target.getExpiryPolicy
+  def setTargetExpiryPolicy(policy: Buffer) = target.setExpiryPolicy(policy)
 
-  def getSourceDurable = Option(source.getDurable) match {
-    case Some(b) =>
-      b
-    case None =>
-      false
-  }
-  def setSourceDurable(durable: Boolean) = source.setDurable(durable)
+  def getSourceDurable:Long = source.getDurable
+  def setSourceDurable(durable: Long) = source.setDurable(durable)
 
-  def getTargetDurable = Option(target.getDurable) match {
-    case Some(b) =>
-      b
-    case None =>
-      false
-  }
-  def setTargetDurable(durable: Boolean) = target.setDurable(durable)
+  def getTargetDurable:Long = target.getDurable
+  def setTargetDurable(durable: Long) = target.setDurable(durable)
 
   // TODO - implement with tmp topic/queues
   def setDynamic(lifetime:Lifetime) = {}
   def getDynamic = null.asInstanceOf[Lifetime]
 
-  def setDistributionMode(mode:DistributionMode) = source.setDistributionMode(mode)
-  def getDistributionMode = source.getDistributionMode
+  def setDistributionMode(mode:Buffer) = source.setDistributionMode(mode)
+  def getDistributionMode:Buffer = source.getDistributionMode
 
-  def setFilter(filter:AmqpFilterSet) = source.setFilter(filter)
-  def getFilter = source.getFilter
+  def setFilter(filter:Map[_, _]) = source.setFilter(filter)
+  def getFilter:Map[_, _] = source.getFilter
 
   def setDefaultOutcome(outcome:Outcome) = source.setDefaultOutcome(outcome)
   def getDefaultOutcome = source.getDefaultOutcome
 
-  def array2Multiple[T <: AmqpType[_, _]](arr:Array[T]):Multiple = {
-    val rc = createMultiple
-    if (arr.size == 0) {
+  def setPossibleOutcomes(outcomes:Array[AMQPSymbol]) = source.setOutcomes(outcomes)
+  def getPossibleOutcomes:Array[AMQPSymbol] = source.getOutcomes
 
-    } else if (arr.size == 1) {
-      rc.setValue(arr(0))
-    } else {
-      val arrayList = new ArrayList[T]
-      arr.foreach((x) => arrayList.add(x))
-      rc.setValue(createAmqpList(new IAmqpList.AmqpWrapperList(arrayList.asInstanceOf[java.util.List[AmqpType[_, _]]])))
-    }
-    rc
-  }
+  def setCapabilities(capabilities:Array[AMQPSymbol]) = source.setCapabilities(capabilities)
+  def getCapabilities:Array[AMQPSymbol] = source.getCapabilities
 
-  def multiple2Array[T <: AmqpType[_, _] : ClassManifest](mult:Multiple):Array[T] = {
-    mult.getValue match {
-      case t:T =>
-        val rc = new ListBuffer[T]
-        rc.append(t)
-        rc.toArray
-      case list:AmqpList =>
-        val iter = list.iterator
-        val rc = ListBuffer[T]()
-        while (iter.hasNext) {
-          rc.append(iter.next.asInstanceOf[T])
-        }
-        rc.toArray
-      case _ =>
-        null
-    }
-  }
+  def setDesiredCapabilities(capabilities:Array[AMQPSymbol]) = source.setCapabilities(capabilities)
+  def getDesiredCapabilities:Array[AMQPSymbol] = source.getCapabilities
 
-  def array_string_2_array_symbol(arr:Array[String]) = {
-    val tmp = ListBuffer[AmqpSymbol]()
-    arr.foreach((x) => tmp.append(createAmqpSymbol(x)))
-    tmp.toArray
-  }
-
-  def array_symbol_2_array_string(arr:Array[AmqpSymbol]) = {
-    val tmp = ListBuffer[String]()
-    arr.foreach((x) => tmp.append(x.getValue))
-    tmp.toArray
-  }
-
-  def array_outcome_2_array_amqp_outcome(arr:Array[Outcome]) = {
-    val tmp = ListBuffer[AmqpType[_, _]]()
-    arr.foreach((x) => tmp.append(outcome2AmqpType(x)))
-    tmp.toArray
-  }
-
-  def array_amqp_outcome_2_array_outcome(arr:Array[AmqpType[_, _]]) = {
-    val tmp = ListBuffer[AmqpType[_, _]]()
-    arr.foreach((x) => tmp.append(amqpType2Outcome(x)))
-    tmp.toArray
-  }
-
-  def setPossibleOutcomes(outcomes:Array[Outcome]) = source.setOutcomes(array2Multiple(array_outcome_2_array_amqp_outcome(outcomes)))
-  def getPossibleOutcomes = array_amqp_outcome_2_array_outcome(multiple2Array(source.getOutcomes))
-
-  def setCapabilities(capabilities:Array[String]) = source.setCapabilities(array2Multiple(array_string_2_array_symbol(capabilities)))
-  def getCapabilities = array_symbol_2_array_string(multiple2Array(source.getCapabilities))
-
-  def setDesiredCapabilities(capabilities:Array[String]) = source.setCapabilities(array2Multiple(array_string_2_array_symbol(capabilities)))
-  def getDesiredCapabilities = array_symbol_2_array_string(multiple2Array(source.getCapabilities))
-
-  def peer_flowstate(flowState: AmqpFlow) = {
+  def peer_flowstate(flowState: Flow) = {
     Option(flowstate.getEcho) match {
       case Some(echo) =>
         if (echo.booleanValue) {
@@ -343,21 +257,13 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   }
   def transfer(message:AmqpProtoMessage) : Unit
 
-  def role:AmqpRole
+  def role:Role
 
   implicit def jlLong2OptionLong(value:java.lang.Long) = {
     if (value == null) {
       None
     } else {
       Option(value.longValue)
-    }
-  }
-
-  implicit def amqpSequenceNo2OptionLong(value:AmqpSequenceNo) = {
-    if (value == null) {
-      None
-    } else {
-      Option(value.getValue.longValue)
     }
   }
 }

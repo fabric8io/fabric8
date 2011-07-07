@@ -10,12 +10,10 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fabric.apollo.amqp.codec.AmqpCommand
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.hawtdispatch._
-import AmqpRole.SENDER
-import AmqpRole.RECEIVER
-import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
+import Role.SENDER
+import Role.RECEIVER
 import org.apache.activemq.apollo.util.Logging
 import java.util.concurrent.atomic.{AtomicLong, AtomicInteger, AtomicBoolean}
 import AmqpConversions._
@@ -27,6 +25,7 @@ import java.util.concurrent.{TimeUnit, Executors, ExecutorService, LinkedBlockin
 import java.util.Date
 import org.fusesource.hawtbuf.Buffer
 import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.{AmqpType, Frame}
 
 /**
  *
@@ -34,7 +33,7 @@ import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
 
 trait MessageFactory {
   def createMessage(tag:String): Message = AmqpProtoMessage.create(tag)
-  def createMessage(tag: AmqpDeliveryTag): Message = AmqpProtoMessage.create(tag)
+  def createMessage(tag: Buffer): Message = AmqpProtoMessage.create(tag)
   def createMessage: Message = AmqpProtoMessage.create
 }
 
@@ -46,10 +45,10 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   val end_sent: AtomicBoolean = new AtomicBoolean(false)
 
   val store:LinkStore = new LinkStore
-  var unsettled_outgoing = HashMap[AmqpDeliveryTag, AmqpProtoMessage]()
-  var unsettled_incoming = HashMap[AmqpDeliveryTag, AmqpProtoMessage]()
-  var id_to_tag = HashMap[Long, AmqpDeliveryTag]()
-  var tag_to_id = HashMap[AmqpDeliveryTag, Long]()
+  var unsettled_outgoing = HashMap[Buffer, AmqpProtoMessage]()
+  var unsettled_incoming = HashMap[Buffer, AmqpProtoMessage]()
+  var id_to_tag = HashMap[Long, Buffer]()
+  var tag_to_id = HashMap[Buffer, Long]()
 
   var remote_channel: Int = 0
   var listener:Option[LinkListener] = None
@@ -74,7 +73,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   outgoing.refiller = ^{
     if (!full) {
       store.foreach( (link) => {
-        if (link.role == AmqpRole.SENDER) {
+        if (link.role == SENDER) {
           val refiller = link.asInstanceOf[OutgoingLink].outgoing.refiller
           if (refiller != null && refiller != NOOP) {
             dispatch_queue << ^{
@@ -106,7 +105,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def established = begin_sent.get == true && end_sent.get == false
 
-  def create_link(role:AmqpRole):AmqpLink = {
+  def create_link(role:Role):AmqpLink = {
     role match {
       case SENDER =>
         new OutgoingLink(this)
@@ -115,15 +114,15 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
   }
 
-  def create_link(attach:AmqpAttach):AmqpLink = {
+  def create_link(attach:Attach):AmqpLink = {
     val rc = attach.getRole match {
       case SENDER =>
         create_link(RECEIVER)
       case RECEIVER =>
         create_link(SENDER)
     }
-    rc.source = attach.getSource.asInstanceOf[AmqpSource]
-    rc.target = attach.getTarget.asInstanceOf[AmqpTarget]
+    rc.source = attach.getSource.asInstanceOf[Source]
+    rc.target = attach.getTarget.asInstanceOf[Target]
     rc.name = attach.getName
     rc.remotely_created = true
     rc
@@ -140,18 +139,18 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   }
 
   def begin(setRemoteChannel: Boolean): Unit = {
-    val begin: AmqpBegin = createAmqpBegin
+    val begin: Begin = new Begin
     if ( setRemoteChannel ) {
       begin.setRemoteChannel(remote_channel)
     }
     begin.setOutgoingWindow(outgoing_window)
     begin.setIncomingWindow(incoming_window)
-    begin.setNextOutgoingId(current_transfer_id.get)
+    begin.setNextOutgoingID(current_transfer_id.get)
     trace("Sending begin from local channel %s for remote channel %s", channel, remote_channel)
     connection.send(channel, begin)
   }
 
-  def begin(peer_begin: AmqpBegin): Unit = {
+  def begin(peer_begin: Begin): Unit = {
     Option(peer_begin.getRemoteChannel) match {
       case Some(channel) =>
         remote_channel = channel.intValue
@@ -170,9 +169,9 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       case None =>
         throw new RuntimeException("Remote outgoing window not specified")
     }
-    next_incoming_transfer_id = Option(peer_begin.getNextOutgoingId) match {
+    next_incoming_transfer_id = Option(peer_begin.getNextOutgoingID) match {
       case Some(id) =>
-        Option(id.getValue.longValue)
+        Option(id.longValue)
       case None =>
         throw new RuntimeException("Next outgoing transfer ID not specified")
     }
@@ -185,23 +184,25 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     this.on_end = Option(onEnd)
     end
   }
-  def end(frame: AmqpEnd):Unit = {
+  def end(frame: End):Unit = {
     end(Option(frame.getError))
     on_end.foreach((x) => dispatch_queue << x)
   }
   def end:Unit = end(None)
 
   def end(condition:String, t:Throwable):Unit = {
-    val error = createAmqpError
+    val error = new Error
     error.setCondition(condition)
-    error.setDescription(t.getClass + " : " + t.getMessage + "\n" + t.getStackTraceString)
+    error.setDescription(String.format("%s : %s\n%s", t.getClass, t.getMessage, t.getStackTraceString))
     end(Option(error))
   }
+
+  def end(e:AmqpError, t:Throwable) = end(e.getValue.ascii.toString, t)
 
   def end(t:Throwable):Unit = end("link error", t)
 
   def end(condition:String, description:String):Unit = {
-    val error = createAmqpError
+    val error = new Error
     error.setCondition(condition)
     error.setDescription(description)
     end(Option(error))
@@ -209,9 +210,9 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def end(reason:String):Unit = end("link error", reason)
 
-  def end(error:Option[AmqpError]):Unit = {
+  def end(error:Option[Error]):Unit = {
     if (!end_sent.getAndSet(true)) {
-      val end = createAmqpEnd
+      val end = new End
       error match {
         case Some(e) =>
           warn("Ending session due to error %s", e)
@@ -226,7 +227,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
             case Some(e) =>
               message.setSettled(true)
               message.outcome = Outcome.REJECTED
-              message.error = e
+              // TODO
+              //message.error = e
               message.onAck.foreach((x) => dispatch_queue << x)
             case None =>
               message.setSettled(true)
@@ -273,22 +275,22 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     store.add(link)
   }
 
-  def attach(attach: AmqpAttach): Unit = {
+  def attach(attach: Attach): Unit = {
     val link = get_link(attach)
     listener.foreach((l) => {
       attach.getRole match {
-        case AmqpRole.SENDER =>
+        case SENDER =>
           l.senderAttaching(this, link.asInstanceOf[Receiver])
-        case AmqpRole.RECEIVER =>
+        case RECEIVER =>
           l.receiverAttaching(this, link.asInstanceOf[Sender])
       }
     })
     link.attach(attach)
-    trace("Attached remote handle %s to link %s", attach.getHandle.getValue, link)
+    trace("Attached remote handle %s to link %s", attach.getHandle, link)
   }
 
-  def detach(detach: AmqpDetach): Unit = {
-    val key: Short = detach.getHandle.getValue.shortValue
+  def detach(detach: Detach): Unit = {
+    val key: Short = detach.getHandle.shortValue
     store.remove_by_remote_handle(key) match {
       case Some(link) =>
         trace("Detaching link : %s", link)
@@ -309,8 +311,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   // TODO - maybe not take the link out of the store until the peer detach comes in
   def detach(link:AmqpLink) = link.handle.foreach((h) => store.remove_by_local_handle(h))
 
-  def get_link(attach: AmqpAttach): AmqpLink = {
-    val key = attach.getHandle.getValue.shortValue
+  def get_link(attach: Attach): AmqpLink = {
+    val key = attach.getHandle.shortValue
 
     def if_exists(maybe:Option[AmqpLink]): AmqpLink = {
       maybe match {
@@ -334,20 +336,27 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
   }
 
-  def update_flow_state(flowState:AmqpFlow) = {
-    // TODO - session-level flow control
-    flowState.setNextOutgoingId(current_transfer_id.get)
+  def update_flow_state(flowState:Flow) = {
+    flowState.setNextOutgoingID(current_transfer_id.get)
     flowState.setIncomingWindow(incoming_window)
     flowState.setOutgoingWindow(outgoing_window)
-    next_incoming_transfer_id.foreach((x) => flowState.setNextIncomingId(x))
+    next_incoming_transfer_id.foreach((x) => flowState.setNextIncomingID(x))
   }
 
   def send(link:AmqpLink, message:AmqpProtoMessage):Unit = {
 
     outgoing.offer(^{
-      message.getHeader.setTransmitTime(new Date)
-      Option(message.getProperties.getUserId).getOrElse(message.getProperties.setUserId(new Buffer(System.getProperty("user.name").getBytes)))
+      //message.getHeader.setTransmitTime(new Date)
+      //Option(message.getProperties.getUserId).getOrElse(message.getProperties.setUserId(new Buffer(System.getProperty("user.name").getBytes)))
 
+      // TODO - a lot of work...
+      val transfer = new Transfer
+      transfer.setHandle(link.handle.get)
+      transfer.setMessageFormat(0L)
+
+      send(link, transfer)
+
+      /*
       val transfer = message.transfer(current_transfer_id.getAndIncrement)
       transfer.setHandle(link.handle.get)
       transfer.setMessageFormat(0L)
@@ -364,52 +373,53 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
       message.onSend.foreach((x) => dispatch_queue << x)
       send(link, transfer)
+    */
     })
 
   }
 
-  def send(link:AmqpLink, command:AmqpCommand):Unit = {
+  def send(link:AmqpLink, command:Frame):Unit = {
     if (!begin_sent.getAndSet(true)) {
       begin(false)
     }
     if ( end_sent.get ) {
       command match {
-        case end:AmqpEnd =>
-        case detach:AmqpDetach =>
+        case end:End =>
+        case detach:Detach =>
         case _ =>
           throw new RuntimeException("Session is closed")
       }
     }
     command match {
-      case transfer:AmqpTransfer =>
+      case transfer:Transfer =>
         outgoing_window = outgoing_window - 1
         remote_incoming_window = remote_incoming_window - 1
         trace("Sending a transfer, state : %s", this)
         if (remote_incoming_window < 1) {
-          val flow = createAmqpFlow
+          val flow = new Flow
           update_flow_state(flow)
           flow.setEcho(true)
           send(flow)
         }
         if (outgoing_window < 1) {
-          val flow = createAmqpFlow
+          val flow = new Flow
           outgoing_window = outgoing_window_max
           update_flow_state(flow)
           send(flow)
         }
-      case flow:AmqpFlow =>
+      case flow:Flow =>
         update_flow_state(flow)
       case _ =>
     }
     send(command)
   }
 
-  def send(command: AmqpCommand): Unit = connection.send(channel, command)
+  def send(command: Frame): Unit = connection.send(channel, command)
 
-  def transfer(transfer: AmqpTransfer) = {
-    Option(transfer.getTransferId) match {
+  def transfer(transfer: Transfer) = {
+    Option(transfer.getDeliveryID) match {
       case Some(id) =>
-        next_incoming_transfer_id = Option(id.getValue.longValue + 1L)
+        next_incoming_transfer_id = Option(id + 1L)
       case None =>
         throw new RuntimeException("No transfer ID specified by peer")
     }
@@ -420,34 +430,34 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     trace("Received a transfer, state : %s", this);
 
     if (remote_outgoing_window < 1) {
-      val flow = createAmqpFlow
+      val flow = new Flow
       update_flow_state(flow)
       flow.setEcho(true)
       send(flow)
     }
     if (incoming_window < 1) {
       incoming_window = incoming_window_max
-      val flow = createAmqpFlow
+      val flow = new Flow
       update_flow_state(flow)
       send(flow)
     }
 
-    val key = transfer.getHandle.getValue.shortValue
+    val key = transfer.getHandle.shortValue
     store.get_by_remote_handle(key) match {
       case Some(link) =>
-        trace("Directing transfer id %s from remote handle %s to local handle %s", transfer.getTransferId, key, link.handle)
+        trace("Directing transfer id %s from remote handle %s to local handle %s", transfer.getDeliveryID, key, link.handle)
         val msg = AmqpProtoMessage.create(transfer)
         if (!msg.settled) {
           unsettled_incoming = unsettled_incoming + (msg.tag -> msg)
-          tag_to_id = tag_to_id + (msg.tag -> transfer.getTransferId.getValue.longValue)
+          tag_to_id = tag_to_id + (msg.tag -> transfer.getDeliveryID)
         }
         link.transfer(msg)
       case None =>
-        end(AmqpAmqpError.NOT_FOUND, new RuntimeException("Link for handle " + key + " not found"))
+        end(AmqpError.NOT_FOUND, new RuntimeException("Link for handle " + key + " not found"))
     }
   }
 
-  def flow(flow: AmqpFlow) = {
+  def flow(flow: Flow) = {
     val flow_outgoing_window = Option(flow.getOutgoingWindow) match {
       case Some(window) =>
         window.longValue
@@ -460,9 +470,9 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       case None =>
         throw new RuntimeException("No incoming window present in incoming flow")
     }
-    val next_incoming_transfer_id = Option(flow.getNextOutgoingId) match {
+    val next_incoming_transfer_id = Option(flow.getNextOutgoingID) match {
       case Some(id) =>
-        id.getValue.longValue
+        id.longValue
       case None =>
         throw new RuntimeException("Next incoming transfer ID not present in flow")
     }
@@ -470,9 +480,9 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     this.next_incoming_transfer_id = Option(next_incoming_transfer_id)
     remote_outgoing_window = flow_outgoing_window
 
-    Option(flow.getNextIncomingId) match {
+    Option(flow.getNextIncomingID) match {
       case Some(id) =>
-        val next_incoming_transfer_id = id.getValue.longValue
+        val next_incoming_transfer_id = id
         remote_incoming_window = next_incoming_transfer_id + flow_incoming_window - current_transfer_id.get.longValue
       case None =>
         remote_incoming_window = 1L + incoming_window - current_transfer_id.get.longValue
@@ -493,7 +503,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         Option(flow.getEcho) match {
           case Some(echo) =>
             if (echo.booleanValue) {
-              val flow = createAmqpFlow
+              val flow = new Flow
               update_flow_state(flow)
               send(flow)
             }
@@ -501,7 +511,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         }
 
       case Some(handle) =>
-        store.get_by_remote_handle(handle.getValue.shortValue) match {
+        store.get_by_remote_handle(handle.shortValue) match {
           case Some(link) =>
             link.peer_flowstate(flow)
           case None =>
@@ -510,7 +520,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
   }
 
-  def disposition(disposition: AmqpDisposition): Unit = {
+  def disposition(disposition: Disposition): Unit = {
     trace("Received incoming disposition : %s", disposition)
     settle_outgoing(disposition.getFirst,
       disposition.getLast,
@@ -519,7 +529,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       disposition.getRole)
   }
 
-  private def settle_outgoing(first:Long, last:Long, outcome:AmqpType[_, _], settled:Boolean, role: AmqpRole): Unit = {
+  private def settle_outgoing(first:Long, last:Long, outcome:AmqpType, settled:Boolean, role: Boolean): Unit = {
     for ( i <- (first to last) ) {
       id_to_tag.get(i) match {
         case Some(tag) =>
@@ -527,13 +537,15 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
           unsettled_outgoing.get(tag) match {
             case Some(message) =>
               message.settled = settled
-              message.outcome = outcome
+              // TODO
+              //message.outcome = outcome
               message.outcome match {
                 case Outcome.ACCEPTED =>
                 case Outcome.REJECTED =>
-                  val error = outcome.asInstanceOf[AmqpRejected]
+                  val error = outcome.asInstanceOf[Rejected]
                   info("Transfer ID %s rejected with error %s", i, error)
-                  message.error = error.getError
+                  // TODO
+                  // message.error = error.getError
                 case Outcome.RELEASED =>
                 // TODO
                 case Outcome.MODIFIED =>
@@ -552,7 +564,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
   }
 
-  def settle_incoming(message:AmqpProtoMessage, outcome:AmqpType[_, AmqpBuffer[_]]): Unit = {
+  def settle_incoming(message:AmqpProtoMessage, outcome:Outcome): Unit = {
     val id = tag_to_id.get(message.tag)
     if (message.settled) {
       unsettled_incoming = unsettled_incoming - message.tag
@@ -563,7 +575,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
         val settled = message.settled
         val batchable = message.batchable
 
-        val disposition = createAmqpDisposition
+        val disposition = new Disposition
         disposition.setFirst(id)
         disposition.setLast(id)
         disposition.setSettled(settled)
@@ -590,7 +602,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     val old = outgoing_window
     outgoing_window = outgoing_window + diff
     if (old != outgoing_window && established) {
-      val flow = createAmqpFlow
+      val flow = new Flow
       update_flow_state(flow)
       send(flow)
     }
@@ -602,7 +614,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     val old = incoming_window
     incoming_window = incoming_window + diff
     if (old != incoming_window && established) {
-      val flow = createAmqpFlow
+      val flow = new Flow
       update_flow_state(flow)
       send(flow)
     }

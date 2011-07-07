@@ -11,7 +11,6 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.fabric.apollo.amqp.codec.types._
-import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
 import org.fusesource.hawtdispatch._
 import java.util.concurrent._
 import atomic.{AtomicLong, AtomicBoolean}
@@ -28,7 +27,7 @@ import org.apache.activemq.apollo.broker.{Sink, OverflowSink}
  */
 class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver with Logging {
 
-  def role=AmqpRole.RECEIVER
+  def role = Role.RECEIVER
 
   var _listener:Option[MessageListener] = None
   var incoming:OverflowSink[AmqpProtoMessage] = null
@@ -39,11 +38,11 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
 
   def isFlowControlEnabled():Boolean = link_credit == None
 
-  override def attach(a:AmqpAttach) = {
+  override def attach(a:Attach) = {
     super.attach(a)
-    Option(a.getInitialTransferCount) match {
+    Option(a.getInitialDeliveryCount) match {
       case Some(c) =>
-        transfer_count = Option(c.getValue.longValue)
+        transfer_count = Option(c.longValue)
       case None =>
     }
   }
@@ -69,7 +68,7 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
     val rc = super.flowstate
     link_credit.foreach((x) => rc.setLinkCredit(x))
     available.foreach((x) => rc.setAvailable(x))
-    transfer_count.foreach((x) => rc.setTransferCount(x))
+    transfer_count.foreach((x) => rc.setDeliveryCount(x))
     rc
   }
 
@@ -97,10 +96,10 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
           } catch {
             case t:Throwable =>
               info("Message listener threw exception %s, rejecting message", t.getStackTraceString)
-              val error = createAmqpError
+              val error = new Error
               error.setCondition("Application error")
               error.setDescription(t.getLocalizedMessage)
-              val rejected = createAmqpRejected
+              val rejected = new Rejected
               rejected.setError(error)
               value.setSettled(true)
               session.settle_incoming(value, rejected)
@@ -109,6 +108,8 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
 
         }
         def full = l.full
+
+        def refiller_=(value: Runnable) = refiller = value
       })
       incoming.refiller = ^{
         addLinkCredit(l.needLinkCredit(available.getOrElse(0L)))
@@ -148,9 +149,9 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
     incoming.offer(message)
   }
 
-  override def peer_flowstate(flowState: AmqpFlow): Unit = {
+  override def peer_flowstate(flowState: Flow): Unit = {
     available = flowState.getAvailable
-    transfer_count = flowState.getTransferCount
+    transfer_count = flowState.getDeliveryCount
 
     def update_peer = send_updated_flow_state(flowstate)
 
