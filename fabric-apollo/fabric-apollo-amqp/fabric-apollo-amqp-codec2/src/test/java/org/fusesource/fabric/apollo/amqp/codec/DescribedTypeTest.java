@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
+import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
 
@@ -47,6 +48,24 @@ public class DescribedTypeTest {
     public void testEnd() throws Exception {
         End in = new End();
         End out = writeRead(in);
+        assertEquals(in.toString(), out.toString());
+    }
+
+    @Test
+    public void testTransfer() throws Exception {
+        Transfer in = new Transfer();
+        in.setHandle(0L);
+        in.setDeliveryTag(new AsciiBuffer("0").buffer());
+        in.setDeliveryID(0L);
+        in.setSettled(false);
+        in.setAborted(false);
+        in.setMessageFormat(0L);
+        in.setMore(false);
+        in.setResume(false);
+        in.setRcvSettleMode(ReceiverSettleMode.FIRST.getValue());
+        in.setState(new Accepted());
+        Transfer out = writeRead(in);
+        System.out.printf("\n\n%s\n%s\n\n", in, out);
         assertEquals(in.toString(), out.toString());
     }
 

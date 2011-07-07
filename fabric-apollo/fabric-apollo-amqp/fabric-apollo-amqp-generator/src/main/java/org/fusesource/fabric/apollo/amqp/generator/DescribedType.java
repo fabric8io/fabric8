@@ -203,13 +203,22 @@ public class DescribedType  extends AmqpDefinedType {
             }
         }
 
+        generateCount();
         fillInReadMethod();
         fillInWriteMethod();
         fillInSizeMethod();
         generateToString();
+    }
 
+    private void generateCount() {
         count = cls().method(JMod.PUBLIC, cm.INT, "count");
-        count().body()._return(lit(amqpFields.size()));
+        count().body().decl(cm.INT, "rc", lit(amqpFields.size()));
+        for(int i=amqpFields.size(); i > 0; i--) {
+            JConditional _if = count().body()._if(amqpFields.get(i - 1).attribute.eq(_null()));
+            _if._then().assign(ref("rc"), ref("rc").minus(lit(1)));
+            _if._else()._return(ref("rc"));
+        }
+        count().body()._return(ref("rc"));
     }
 
     private void fillInReadMethod() {
@@ -242,16 +251,19 @@ public class DescribedType  extends AmqpDefinedType {
         write().body().invoke("writeBody").arg(cast(cm.BYTE, lit((byte) 0))).arg(ref("out"));
 
         writeBody().body().decl(cm.LONG, "fieldSize", _this().invoke("sizeOfFields"));
+        writeBody().body().decl(cm.INT, "count", _this().invoke("count"));
 
-        writeBody().body().staticInvoke(cm.ref(generator.getMarshaller() + ".DescribedTypeSupport"), "writeListHeader").arg(ref("fieldSize")).arg(_this().invoke("count")).arg(ref("out"));
+        writeBody().body().staticInvoke(cm.ref(generator.getMarshaller() + ".DescribedTypeSupport"), "writeListHeader").arg(ref("fieldSize")).arg(ref("count")).arg(ref("out"));
 
         for (Attribute attribute : amqpFields) {
+            writeBody().body().assign(ref("count"), ref("count").minus(lit(1)));
+            JBlock ifBody = writeBody().body()._if(ref("count").gte(lit(0)))._then();
             if (attribute.attribute.type().isArray()) {
-                writeBody().body().block().staticInvoke(cm.ref("AMQPArray"), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
+                ifBody.staticInvoke(cm.ref("AMQPArray"), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
             } else if (generator.getMapping().get(attribute.type) != null) {
-                writeBody().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
+                ifBody.staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
             } else {
-                JConditional conditional = writeBody.body()
+                JConditional conditional = ifBody
                         ._if(ref(attribute.attribute.name()).ne(_null()));
                 conditional._then()
                         .invoke(ref(attribute.attribute.name()), "write").arg(ref("out"));
@@ -266,18 +278,21 @@ public class DescribedType  extends AmqpDefinedType {
         JMethod sizeOfFields = cls().method(JMod.PRIVATE, cm.LONG, "sizeOfFields");
 
         sizeOfFields.body().decl(cm.LONG, "fieldSize", lit(0L));
+        sizeOfFields.body().decl(cm.INT, "count", _this().invoke(count));
 
         for (Attribute attribute : amqpFields) {
+            sizeOfFields.body().assign(ref("count"), ref("count").minus(lit(1)));
+            JBlock ifBody = sizeOfFields.body()._if(ref("count").gte(lit(0)))._then();
             if (generator.getMapping().get(attribute.type) != null) {
                 if (attribute.attribute.type().isArray()) {
-                    sizeOfFields.body().assign(ref("fieldSize"), ref("fieldSize").plus(
+                    ifBody.assign(ref("fieldSize"), ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                             .invoke("sizer")
                             .invoke("sizeOfArray")
                                 .arg(ref(attribute.attribute.name()))));
 
                 } else {
-                    sizeOfFields.body().assign(ref("fieldSize"), ref("fieldSize").plus(
+                    ifBody.assign(ref("fieldSize"), ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                                     .invoke("sizer")
                                     .invoke("sizeOf" + toJavaClassName(attribute.type))
@@ -285,14 +300,14 @@ public class DescribedType  extends AmqpDefinedType {
                 }
             } else {
                 if (attribute.attribute.type().isArray()) {
-                    sizeOfFields.body().assign(ref("fieldSize"), ref("fieldSize").plus(
+                    ifBody.assign(ref("fieldSize"), ref("fieldSize").plus(
                             generator.registry().cls().staticInvoke("instance")
                                     .invoke("sizer")
                                     .invoke("sizeOfArray")
                                     .arg(ref(attribute.attribute.name()))));
                 } else {
 
-                    JConditional conditional = sizeOfFields.body()
+                    JConditional conditional = ifBody
                             ._if(ref(attribute.attribute.name()).ne(_null()));
 
                     conditional._then()

@@ -12,7 +12,6 @@ package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeReader;
-import org.fusesource.fabric.apollo.amqp.codec.types.Transfer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,13 +35,24 @@ public class TestSupport {
         return (T)TypeReader.read(in);
     }
 
-    public static <T extends AmqpType> T writeRead(T value) throws Exception {
+    public static <T extends AmqpType> T writeRead(T value, boolean display) throws Exception {
+        long size = value.size();
+        if (size < 80 && display) {
+            System.out.printf("%s -> ", value);
+        }
         byte b[] = write(value);
+        if (size < 80 && display) {
+        System.out.printf("%s -> ", string(b));
+        }
         T rc = (T)read(b);
-        if (value.size() < 32 && !(value instanceof Transfer)) {
-            System.out.printf("%s : %s -> %s -> %s\n", value.getClass().getSimpleName(), value, string(b), rc);
+        if (size < 80 && display) {
+            System.out.printf("%s\n", rc);
         }
         return rc;
+    }
+
+    public static <T extends AmqpType> T writeRead(T value) throws Exception {
+        return writeRead(value, true);
     }
 
     public static String string(byte[] b) {

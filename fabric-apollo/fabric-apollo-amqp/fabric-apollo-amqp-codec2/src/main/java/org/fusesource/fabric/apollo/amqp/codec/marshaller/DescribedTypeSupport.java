@@ -21,6 +21,9 @@ import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPList.*;
 public class DescribedTypeSupport {
 
     public static byte getListEncoding(long fieldSize, long count) {
+        if (count == 0) {
+            return LIST_LIST0_CODE;
+        }
         if (fieldSize <= (255 - LIST_LIST8_WIDTH)) {
             return LIST_LIST8_CODE;
         }
@@ -28,6 +31,9 @@ public class DescribedTypeSupport {
     }
 
     public static int getListWidth(byte formatCode) {
+        if (formatCode == LIST_LIST0_CODE) {
+            return LIST_LIST0_WIDTH;
+        }
         if (formatCode == LIST_LIST8_CODE) {
             return LIST_LIST8_WIDTH;
         }
@@ -45,7 +51,9 @@ public class DescribedTypeSupport {
     public static void writeListHeader(long size, long count, DataOutput out) throws Exception {
         byte formatCode = getListEncoding(size, count);
         out.writeByte(formatCode);
-        if (formatCode == LIST_LIST8_CODE) {
+        if (formatCode == LIST_LIST0_CODE) {
+            // do nothing...
+        } else if (formatCode == LIST_LIST8_CODE) {
             out.writeByte((byte)encodedListSize(size, count));
             out.writeByte((byte)count);
         } else {
@@ -57,7 +65,9 @@ public class DescribedTypeSupport {
     public static long readListHeader(DataInput in) throws Exception {
         byte formatCode = (byte)in.readUnsignedByte();
 
-        if (formatCode == LIST_LIST8_CODE) {
+        if (formatCode == LIST_LIST0_CODE) {
+            return 0;
+        } else if (formatCode == LIST_LIST8_CODE) {
             in.readUnsignedByte();
             return in.readUnsignedByte();
         } else if (formatCode == LIST_LIST32_CODE) {
