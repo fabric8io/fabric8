@@ -47,7 +47,7 @@ public class AgentImpl implements Agent {
         this.parent = parent;
         this.id = id;
         this.service = service;
-        this.agentTemplate = new AgentTemplate(parent, true);
+        this.agentTemplate = new AgentTemplate(this, true);
     }
 
     public Agent getParent() {
