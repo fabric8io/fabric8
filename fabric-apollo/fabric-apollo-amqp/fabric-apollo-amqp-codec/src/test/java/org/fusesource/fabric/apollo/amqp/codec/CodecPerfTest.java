@@ -10,20 +10,17 @@
 
 package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpFragment;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpTransfer;
+import org.fusesource.fabric.apollo.amqp.codec.types.Transfer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.fusesource.fabric.apollo.amqp.codec.CodecUtils.marshalUnmarshal;
-import static org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory.*;
+import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
 
 /**
  *
@@ -32,46 +29,43 @@ public class CodecPerfTest {
 
     @Test
     public void transferPerfTest() throws Exception {
-        final int max = 1000000;
+        final int max = 10000000;
         final AtomicLong i = new AtomicLong(0);
         final CountDownLatch latch = new CountDownLatch(1);
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             public void run() {
+                System.out.println("Starting loop");
                 while (i.incrementAndGet() < max) {
-                    AmqpTransfer in = createAmqpTransfer();
-                    in.setDeliveryTag(createAmqpDeliveryTag(new Buffer(UUID.randomUUID().toString().getBytes())));
-                    in.setTransferId(i.get() + 1);
-                    in.setHandle(0);
-                    in.setFragments(createMultiple());
-                    in.setMessageFormat(0);
-                    AmqpFragment fragment = createAmqpFragment();
-                    fragment.setFirst(true);
-                    fragment.setLast(true);
-                    fragment.setSectionNumber(0);
-                    fragment.setSectionCode(3);
-                    fragment.setPayload(new Buffer(("Message : " + i).getBytes()));
-                    in.getFragments().setValue(fragment);
-
+                    Transfer in = new Transfer();
+                    in.setDeliveryTag(new Buffer(("" + i.get()).getBytes()));
+                    in.setDeliveryID(i.get() + 1);
+                    in.setHandle(0L);
+                    in.setMessageFormat(0L);
                     try {
-                        AmqpTransfer out = marshalUnmarshal(in);
-                        in.equals(out);
+                        Transfer out = writeRead(in, false);
                     } catch (Exception e) {
                         latch.countDown();
                         e.printStackTrace();
                         return;
                     }
                 }
+                System.out.println("Finished loop");
                 latch.countDown();
             }
         });
 
         int last = 0;
-        while (latch.await(5, TimeUnit.SECONDS) == false) {
-            int sample = i.intValue() - last;
-            last = last + sample;
-            System.out.println("msgs/s : " + (sample / 5));
+        while (latch.await(1, TimeUnit.SECONDS) == false) {
+            last = printMsgsPerSec(i.intValue(), last);
         }
+        last = printMsgsPerSec(i.intValue(), last);
         Assert.assertTrue(i.get() == max);
+    }
+
+    public int printMsgsPerSec(int current, int last) {
+        int sample = current - last;
+        System.out.println("msgs/s : " + (sample));
+        return last + sample;
     }
 }

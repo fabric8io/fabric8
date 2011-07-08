@@ -12,7 +12,14 @@ package org.fusesource.fabric.apollo.amqp.codec;
 
 import java.math.BigInteger;
 
+/**
+ *
+ */
 public class BitUtils {
+
+    public static final short unsigned(byte value) {
+        return (short) (0xff & value);
+    }
 
     public static final byte[] getUByteArray(short[] array) {
         byte[] ret = new byte[array.length];
@@ -45,8 +52,8 @@ public class BitUtils {
 
     public static final int getUShort(final byte[] source, final int offset) {
         return
-        ((int)source[offset + 0] & 0xff) << 8 |
-        ((int)source[offset + 1] & 0xff);
+                ((int)source[offset + 0] & 0xff) << 8 |
+                        ((int)source[offset + 1] & 0xff);
     }
 
     public static final void setShort(final byte[] target, final int offset, final short value) {
@@ -69,10 +76,10 @@ public class BitUtils {
 
     public static final long getUInt(final byte[] source, final int offset) {
         return
-        ((long)(source[offset + 0] & 0xff) << 24 |
-        (source[offset + 1] & 0xff) << 16 |
-        (source[offset + 2] & 0xff) << 8 |
-        (source[offset + 3] & 0xff)) & 0xFFFFFFFFL;
+                ((long)(source[offset + 0] & 0xff) << 24 |
+                        (source[offset + 1] & 0xff) << 16 |
+                        (source[offset + 2] & 0xff) << 8 |
+                        (source[offset + 3] & 0xff)) & 0xFFFFFFFFL;
     }
 
     public static final void setInt(final byte[] target, final int offset, final int value) {
@@ -84,10 +91,10 @@ public class BitUtils {
 
     public static final int getInt(final byte[] source, final int offset) {
         return
-        (source[offset + 0] & 0xff) << 24 |
-        (source[offset + 1] & 0xff) << 16 |
-        (source[offset + 2] & 0xff) << 8 |
-        (source[offset + 3] & 0xff);
+                (source[offset + 0] & 0xff) << 24 |
+                        (source[offset + 1] & 0xff) << 16 |
+                        (source[offset + 2] & 0xff) << 8 |
+                        (source[offset + 3] & 0xff);
     }
 
     public static final void setLong(final byte[] target, final int offset, final long value) {
@@ -103,14 +110,14 @@ public class BitUtils {
 
     public static final long getLong(final byte[] source, final int offset) {
         return
-            ((long) (source[offset + 0] & 0xff) << 56) |
-            ((long) (source[offset + 1] & 0xff) << 48) |
-            ((long) (source[offset + 2] & 0xff) << 40) |
-            ((long) (source[offset + 3] & 0xff) << 32) |
-            ((long) (source[offset + 4] & 0xff) << 24) |
-            ((long) (source[offset + 5] & 0xff) << 16) |
-            ((long) (source[offset + 6] & 0xff) <<  8) |
-            ((long) (source[offset + 7] & 0xff));
+                ((long) (source[offset + 0] & 0xff) << 56) |
+                        ((long) (source[offset + 1] & 0xff) << 48) |
+                        ((long) (source[offset + 2] & 0xff) << 40) |
+                        ((long) (source[offset + 3] & 0xff) << 32) |
+                        ((long) (source[offset + 4] & 0xff) << 24) |
+                        ((long) (source[offset + 5] & 0xff) << 16) |
+                        ((long) (source[offset + 6] & 0xff) <<  8) |
+                        ((long) (source[offset + 7] & 0xff));
     }
 
     public static final BigInteger getULong(final byte[] source, final int offset) {
@@ -121,6 +128,6 @@ public class BitUtils {
 
     public static final void setULong(final byte[] target, final int offset, final BigInteger value) {
         byte[] b = value.toByteArray();
-        System.arraycopy(b, b.length - 8, target, offset, 8);
+        System.arraycopy(b, 0, target, offset + 8 - b.length, b.length);
     }
 }

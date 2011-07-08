@@ -18,7 +18,7 @@
     <version>1.0-SNAPSHOT</version>
     <relativePath>../../fabric-scala</relativePath>
   </parent>
-  
+
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.fusesource.fabric.apollo.amqp</groupId>
@@ -30,7 +30,7 @@
 
     <dependency>
       <groupId>org.fusesource.fabric.apollo.amqp</groupId>
-      <artifactId>fabric-apollo-amqp-codec2</artifactId>
+      <artifactId>fabric-apollo-amqp-codec</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -100,7 +100,7 @@
         </plugin>
       </plugins>
     </pluginManagement>
-      
+
     <plugins>
 
       <plugin>

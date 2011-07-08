@@ -10,7 +10,6 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
 import org.fusesource.fabric.apollo.amqp.codec.AmqpProtocolHeader;
 import org.fusesource.hawtbuf.codec.Codec;

@@ -40,8 +40,4 @@ public class AmqpProtocolHeader {
     public String toString() {
         return String.format("AmqpProtocolHeader : id=%s major=%s minor=%s revision=%s", protocolId, major, minor, revision);
     }
-
-    public void handle(AmqpHandler handler) throws Exception {
-        handler.handleProtocolHeader(this);
-    }
 }
