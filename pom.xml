@@ -181,7 +181,7 @@
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
         <module>fabric-camel</module>
-        <module>fabric-camel-c24io</module>
+        <!-- <module>fabric-camel-c24io</module> -->
         <module>fabric-camel-dslio</module>
         <module>fabric-cxf</module>
         <module>fabric-activemq</module>
