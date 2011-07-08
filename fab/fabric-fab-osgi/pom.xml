@@ -1,0 +1,209 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-project</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fabric-fab-osgi</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: Archive Bundles Core</description>
+
+    <properties>
+        <aetherVersion>1.7</aetherVersion>
+        <mavenVersion>3.0</mavenVersion>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-fab-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.fileinstall</artifactId>
+            <version>3.1.8</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- aether stuff -->
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-api</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-spi</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-util</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-impl</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-connector-wagon</artifactId>
+            <version>${aetherVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-provider-api</artifactId>
+            <version>1.0-beta-6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-file</artifactId>
+            <version>1.0-beta-6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-http-lightweight</artifactId>
+            <version>1.0-beta-6</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>nekohtml</groupId>
+                    <artifactId>nekohtml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>nekohtml</groupId>
+                    <artifactId>xercesMinimal</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>1.5.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+      <!--
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.karaf.tooling</groupId>
+            <artifactId>org.apache.karaf.tooling.testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        -->
+    </dependencies>
+    <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!-- TODO fix this when we've a sample... -->
+                <exclude>**/PomegranateSampleTest.*</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+
+          <!--
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Activator>org.apache.karaf.pomegranate.impl.Activator</Bundle-Activator>
+                        <Export-Package>org.apache.karaf.pomegranate;version${project.version}</Export-Package>
+                        <Import-Package>
+                            !org.codehaus.plexus*,
+                            !org.cyberneko*,
+                            !org.apache.commons.httpclient*,
+                            !org.apache.xerces*,
+                            !org.apache.karaf.pomegranate.impl,
+                            !org.apache.karaf.pomegranate.impl.util,
+                            !org.apache.maven*,
+                            !org.sonatype.aether*,
+                            org.apache.felix.service.command,
+                            org.apache.felix.gogo.commands,
+                            org.apache.karaf.shell.console,
+                            *
+                        </Import-Package>
+                        <Private-Package>
+                            org.apache.felix.utils.manifest,
+                            org.apache.karaf.pomegranate.impl,
+                            org.apache.karaf.pomegranate.impl.util,
+                            org.codehaus.plexus.util.*,
+                            org.sonatype.aether*,
+                            org.apache.maven*,
+                            hidden.org.codehaus.plexus.interpolation*,
+                            org.codehaus.plexus.interpolation*
+                        </Private-Package>
+                        <Provide-Capability>
+                            manager;class=org.apache.karaf.pomegranate.Manager
+                        </Provide-Capability>
+                        <_versionpolicy>${bnd.version.policy}</_versionpolicy>
+                    </instructions>
+                    <unpackBundle>true</unpackBundle>
+                </configuration>
+            </plugin>
+            -->
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+</project>

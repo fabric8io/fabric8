@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">
+
+    <service id="fabUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
+        <service-properties>
+            <entry key="url.handler.protocol" value="fab"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.fab.osgi.FabURLHandler"/>
+    </service>
+
+    <bean id="fabDeploymentListener" class="org.fusesource.fabric.fab.osgi.FabDeploymentListener"/>
+
+    <!-- Force a reference to the url handler above from the osgi registry to (try to) make sure
+         the url handler is registered inside the framework.  Else we can run into timing issues
+         where fileinstall will use the featureDeploymentListener before the url can be actually
+         used.  In order to not block the bundle, the blueprint.graceperiod=false flag must be
+         set on the SymbolicName osgi header -->
+    <reference id="fabUrlHandlerRef" interface="org.osgi.service.url.URLStreamHandlerService" filter="url.handler.protocol=fab" />
+
+    <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener" />
+
+</blueprint>
