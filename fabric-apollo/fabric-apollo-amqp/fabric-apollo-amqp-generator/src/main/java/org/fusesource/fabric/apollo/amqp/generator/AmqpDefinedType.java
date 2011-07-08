@@ -62,6 +62,7 @@ public abstract class AmqpDefinedType {
 
         generator.registry().cls().init().add(JExpr._new(cls()));
 
+        /*
         sizeOfConstructor();
         sizeOfBody();
         size();
@@ -69,7 +70,6 @@ public abstract class AmqpDefinedType {
         writeConstructor();
         writeBody();
         read();
-        /*
         encodeTo();
         decodeFrom();
         */

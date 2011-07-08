@@ -15,13 +15,46 @@ import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
+import static org.fusesource.hawtbuf.Buffer.*;
 import static org.junit.Assert.assertEquals;
 
 /**
  *
  */
 public class DescribedTypeTest {
+
+    @Test
+    public void testApplicationProperties() throws Exception {
+        ApplicationProperties in = new ApplicationProperties();
+        in.setValue(new HashMap());
+        in.getValue().put(new AMQPSymbol(ascii("one").buffer()), new AMQPString("two"));
+        in.getValue().put(new AMQPSymbol(ascii("three").buffer()), new AMQPString("four"));
+        ApplicationProperties out = writeRead(in);
+        assertEquals(in.toString(), out.toString());
+    }
+
+    @Test
+    public void testAmqpValue() throws Exception {
+        AmqpValue in = new AmqpValue();
+        in.setValue(new AMQPString("Hello world!"));
+        AmqpValue out = writeRead(in);
+        assertEquals(in.toString(), out.toString());
+    }
+
+    @Test
+    public void testAmqpSequence() throws Exception {
+        AmqpSequence in = new AmqpSequence();
+        in.setValue(new ArrayList());
+        in.getValue().add(new AMQPString("Hello world!"));
+        in.getValue().add(new AMQPString("and stuff"));
+        in.getValue().add(new AMQPLong(123L));
+        AmqpSequence out = writeRead(in);
+        assertEquals(in.toString(), out.toString());
+    }
 
     @Test
     public void testOpen() throws Exception {
@@ -37,7 +70,7 @@ public class DescribedTypeTest {
     @Test
     public void testBegin() throws Exception {
         Begin in = new Begin();
-        in.setHandleMax((long)Integer.MAX_VALUE);
+        in.setHandleMax((long) Integer.MAX_VALUE);
         in.setNextOutgoingID(0L);
         in.setIncomingWindow(10L);
         in.setOutgoingWindow(10L);
