@@ -10,17 +10,18 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fabric.apollo.amqp.codec.AmqpCommand
 import org.fusesource.hawtdispatch.DispatchQueue
-import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpBuffer, AmqpType, AmqpFlow, AmqpError}
+import org.fusesource.fabric.apollo.amqp.api.{Message}
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Outcome, Frame}
+import org.fusesource.fabric.apollo.amqp.codec.types.Error
 
 trait LinkSession {
   def established:Boolean
   def attach(link:AmqpLink)
   def detach(link:AmqpLink)
-  def send(link:AmqpLink, command:AmqpCommand)
-  def send(link:AmqpLink, message:AmqpProtoMessage):Unit
-  def settle_incoming(message:AmqpProtoMessage, outcome:AmqpType[_, AmqpBuffer[_]]);
-  def end(error:Option[AmqpError])
+  def send(link:AmqpLink, command:Frame)
+  def send(link:AmqpLink, message:Message):Unit
+  def settle_incoming(message:Message, outcome:Outcome);
+  def end(error:Option[Error])
   def dispatch_queue:DispatchQueue
 }

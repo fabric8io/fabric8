@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpDeliveryTag;
+import org.fusesource.hawtbuf.Buffer;
 
 /**
  *
@@ -87,7 +87,7 @@ public interface Session {
      * @param tag the delivery tag to be used when creating the message
      * @return an empty AMQP message
      */
-    public Message createMessage(AmqpDeliveryTag tag);
+    public Message createMessage(Buffer tag);
 
     /**
      * Creates a new message with a delivery tag generated via UUID.randomUUID()

@@ -18,10 +18,8 @@ import Role.RECEIVER
 import org.apache.activemq.apollo.util.Logging
 import java.util.concurrent.atomic.{AtomicLong, AtomicInteger, AtomicBoolean}
 import org.fusesource.fabric.apollo.amqp.api._
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.Outcome
 import collection.immutable.HashMap
-import collection.mutable.ListBuffer
-import java.util.concurrent.{TimeUnit, Executors, ExecutorService, LinkedBlockingQueue}
-import java.util.Date
 import org.fusesource.hawtbuf.Buffer
 import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{AmqpType, Frame}
@@ -196,7 +194,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     end(Option(error))
   }
 
-  def end(e:AmqpError, t:Throwable) = end(e.getValue.ascii.toString, t)
+  def end(e:AmqpError, t:Throwable):Unit = end(e.getValue.ascii.toString, t)
 
   def end(t:Throwable):Unit = end("link error", t)
 
@@ -577,17 +575,20 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     }
     id match {
       case Some(id) =>
+        /*
         val settled = message.settled
         val batchable = message.batchable
-
+        */
         val disposition = new Disposition
+        /*
         disposition.setFirst(id)
         disposition.setLast(id)
         disposition.setSettled(settled)
         disposition.setBatchable(batchable)
+        */
         // TODO
         //disposition.setState(outcome)
-        trace("Sending ack for transfer id %s with outcome=%s and settled=%s, batchable=%s", id, outcome, settled, batchable)
+        //trace("Sending ack for transfer id %s with outcome=%s and settled=%s, batchable=%s", id, outcome, settled, batchable)
         send(disposition)
       case None =>
     }

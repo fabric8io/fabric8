@@ -99,8 +99,8 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   def detach: Unit = detach(None)
   def detach(description:String): Unit = detach(LinkError.DETACH_FORCED, description)
   def detach(t:Throwable):Unit = detach(LinkError.DETACH_FORCED, t)
-  def detach(l:LinkError, d:String) = detach(l.getValue.ascii.toString, d)
-  def detach(l:LinkError, t:Throwable) = detach(l.getValue.ascii.toString, t)
+  def detach(l:LinkError, d:String):Unit = detach(l.getValue.ascii.toString, d)
+  def detach(l:LinkError, t:Throwable):Unit = detach(l.getValue.ascii.toString, t)
 
   def detach(condition:String, description:String):Unit = {
     val error = new Error
@@ -183,9 +183,9 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   def address_=(address:String) = {
     // TODO - maybe not the best place to set this
     if (address.startsWith("queue")) {
-      setDistributionMode(DistributionMode.MOVE)
+      setDistributionMode(StdDistMode.MOVE)
     } else if (address.startsWith("topic")) {
-      setDistributionMode(DistributionMode.COPY)
+      setDistributionMode(StdDistMode.COPY)
     }
 
     role match {

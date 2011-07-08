@@ -10,12 +10,12 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpFields;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpFooter;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpHeader;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpProperties;
+import org.fusesource.fabric.apollo.amqp.codec.types.Footer;
+import org.fusesource.fabric.apollo.amqp.codec.types.Header;
+import org.fusesource.fabric.apollo.amqp.codec.types.Properties;
 
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * The common sections for all message types in an AMQP system
@@ -26,37 +26,37 @@ public interface BaseMessage {
      * Returns the message header
      * @return
      */
-    public AmqpHeader getHeader();
+    public Header getHeader();
 
     /**
      * Returns a map of delivery annotations
      * @return
      */
-    public AmqpFields getDeliveryAnnotations();
+    public Map getDeliveryAnnotations();
 
     /**
      * Returns a map of message annotations
      * @return
      */
-    public AmqpFields getMessageAnnotations();
+    public Map getMessageAnnotations();
 
     /**
      * Returns the message properties
      * @return
      */
-    public AmqpProperties getProperties();
+    public Properties getProperties();
 
     /**
      * Returns the application properties of this message
      * @return
      */
-    public AmqpFields getApplicationProperties();
+    public Map getApplicationProperties();
 
     /**
      * Returns the message footer
      * @return
      */
-    public AmqpFooter getFooter();
+    public Footer getFooter();
 
     /**
      * Returns the list of tasks to be performed when this message is settled by the peer link

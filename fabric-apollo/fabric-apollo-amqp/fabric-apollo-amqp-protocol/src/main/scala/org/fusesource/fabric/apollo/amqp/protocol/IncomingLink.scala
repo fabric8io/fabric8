@@ -111,8 +111,6 @@ class IncomingLink(session:LinkSession) extends AmqpLink(session) with Receiver 
 
         }
         def full = l.full
-
-        def refiller_=(value: Runnable) = refiller = value
       })
       incoming.refiller = ^{
         addLinkCredit(l.needLinkCredit(available.getOrElse(0L)))
