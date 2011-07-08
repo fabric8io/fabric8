@@ -29,10 +29,10 @@ import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassN
  */
 public class DescribedType  extends AmqpDefinedType {
 
-
-
     class Attribute {
         public String type;
+        public Boolean required;
+        public String defaultValue;
         public JFieldVar attribute;
         public JMethod getter;
         public JMethod setter;
@@ -181,6 +181,12 @@ public class DescribedType  extends AmqpDefinedType {
                     attribute.attribute = cls().field(JMod.PROTECTED, c, fieldName);
 
                     attribute.type = fieldType;
+                    attribute.defaultValue = field.getDefault();
+                    if (field.getMandatory() != null) {
+                        attribute.required = Boolean.parseBoolean(field.getMandatory());
+                    } else {
+                        attribute.required = Boolean.FALSE;
+                    }
 
                     String doc = field.getName() + ":" + field.getType();
 
@@ -238,6 +244,12 @@ public class DescribedType  extends AmqpDefinedType {
             } else {
                 //ifBody.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref(generator.getMarshaller() + ".TypeReader").staticInvoke("read").arg(ref("in"))));
                 ifBody.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref(generator.getMarshaller() + ".TypeReader").staticInvoke("read").arg(ref("in"))));
+            }
+        }
+
+        for (Attribute attribute : amqpFields) {
+            if (attribute.required) {
+                read().body()._if(attribute.attribute.eq(_null()))._then()._throw(_new(cm.ref(RuntimeException.class)).arg("No value specified for mandatory attribute " + attribute.attribute.name()));
             }
         }
     }

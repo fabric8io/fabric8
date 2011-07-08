@@ -38,6 +38,7 @@ public class DescribedTypeTest {
     public void testBegin() throws Exception {
         Begin in = new Begin();
         in.setHandleMax((long)Integer.MAX_VALUE);
+        in.setNextOutgoingID(0L);
         in.setIncomingWindow(10L);
         in.setOutgoingWindow(10L);
         Begin out = writeRead(in);
@@ -89,6 +90,7 @@ public class DescribedTypeTest {
     @Test
     public void testDetach() throws Exception {
         Detach in = new Detach();
+        in.setHandle(0L);
         in.setClosed(true);
         Detach out = writeRead(in);
         assertEquals(in.toString(), out.toString());
