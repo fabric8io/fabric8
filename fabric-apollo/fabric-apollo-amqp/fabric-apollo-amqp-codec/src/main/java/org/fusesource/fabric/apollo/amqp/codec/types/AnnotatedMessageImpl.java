@@ -15,6 +15,8 @@ import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 
+import java.io.DataOutput;
+
 /**
  *
  */
@@ -32,6 +34,11 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
             return new Buffer(0);
         }
         DataByteArrayOutputStream out = new DataByteArrayOutputStream(size);
+        write(out);
+        return out.toBuffer();
+    }
+
+    public void write(DataOutput out) throws Exception {
         if (header != null) {
             header.write(out);
         }
@@ -47,7 +54,6 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
         if (footer != null) {
             footer.write(out);
         }
-        return out.toBuffer();
     }
 
     public long size() {

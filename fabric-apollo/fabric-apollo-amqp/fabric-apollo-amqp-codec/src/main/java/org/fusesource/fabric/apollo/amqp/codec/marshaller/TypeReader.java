@@ -23,6 +23,9 @@ public class TypeReader {
 
     public static AmqpType read(DataInput in) throws Exception {
         byte formatCode = in.readByte();
+        if (formatCode == -1) {
+            return null;
+        }
 
         if (formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE) {
             AmqpType descriptor = read(in);
