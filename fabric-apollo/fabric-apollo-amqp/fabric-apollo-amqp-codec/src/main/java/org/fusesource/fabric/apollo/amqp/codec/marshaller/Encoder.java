@@ -10,7 +10,6 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.BitUtils;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.PrimitiveEncoder;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPArray;

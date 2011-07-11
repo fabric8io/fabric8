@@ -8,7 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.types;
+
+import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
 
 /**
  * <p>

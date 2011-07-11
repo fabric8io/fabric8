@@ -14,12 +14,12 @@ package org.fusesource.fabric.apollo.amqp.protocol
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
+import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.codec.{AmqpFrame, AmqpProtocolHeader, AmqpCommand}
 import scala.math._
 import collection.mutable.ListBuffer
 import DispatchPriority.HIGH
 import java.util.concurrent.atomic.AtomicLong
-import org.fusesource.fabric.apollo.amqp.codec.types._
 import java.util.concurrent.{Future, Executors, CountDownLatch, TimeUnit}
 import org.fusesource.fabric.apollo.amqp.api._
 import org.fusesource.hawtbuf.Buffer

@@ -42,6 +42,7 @@ public class DescribedType  extends AmqpDefinedType {
     private JFieldVar SYMBOLIC_ID_SIZE;
     private JFieldVar NUMERIC_ID;
     private JFieldVar NUMERIC_ID_SIZE;
+    private JFieldVar CONSTRUCTOR;
 
     private JMethod write;
     private JMethod read;
@@ -88,6 +89,9 @@ public class DescribedType  extends AmqpDefinedType {
                 //NUMERIC_ID = cls().field(mods, cm.LONG, "NUMERIC_ID", JExpr.direct("CATEGORY << 32 | DESCRIPTOR_ID"));
                 NUMERIC_ID = cls().field(mods, BigInteger.class, "NUMERIC_ID", _new(cm.ref("java.math.BigInteger")).arg(lit(category + descriptorId)).arg(lit(16)));
                 NUMERIC_ID_SIZE = cls().field(mods, Long.class, "NUMERIC_ID_SIZE", generator.registry().cls().staticInvoke("instance").invoke("sizer").invoke("sizeOfULong").arg(ref("NUMERIC_ID")));
+
+                CONSTRUCTOR = cls().field(mods, cm.ref(generator.getMarshaller() + ".DescribedConstructor"), "CONSTRUCTOR", _new(cm.ref(generator.getMarshaller() + ".DescribedConstructor")).arg(ref("NUMERIC_ID")));
+
                 cls().init().add(
                         generator.registry().cls().staticInvoke("instance")
                                 .invoke("getFormatCodeMap")
@@ -289,8 +293,7 @@ public class DescribedType  extends AmqpDefinedType {
     }
 
     private void fillInWriteMethod() {
-        writeConstructor().body().block().invoke(ref("out"), "writeByte").arg(generator.registry().cls().staticRef("DESCRIBED_FORMAT_CODE"));
-        writeConstructor().body().block().staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get("ulong")), "write").arg(ref("NUMERIC_ID")).arg(ref("out"));
+        writeConstructor().body().block().invoke(ref("CONSTRUCTOR"), "write").arg(ref("out"));
         writeConstructor().body()._return(cast(cm.BYTE, lit(0)));
 
         write().body().invoke("writeConstructor").arg(ref("out"));
@@ -330,7 +333,7 @@ public class DescribedType  extends AmqpDefinedType {
 
     private void fillInSizeMethod() {
         size().body()._return(invoke("sizeOfConstructor").plus(invoke("sizeOfBody")));
-        sizeOfConstructor().body()._return(ref("NUMERIC_ID_SIZE"));
+        sizeOfConstructor().body()._return(ref("CONSTRUCTOR").invoke("size"));
         JMethod sizeOfFields = cls().method(JMod.PRIVATE, cm.LONG, "sizeOfFields");
 
         sizeOfFields.body().decl(cm.LONG, "fieldSize", lit(0L));

@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.*;
+import org.fusesource.fabric.apollo.amqp.codec.api.*;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
@@ -19,12 +19,35 @@ import org.fusesource.hawtbuf.DataByteArrayInputStream;
 /**
  *
  */
-public class MessageDecoder {
+public class MessageSupport {
+
+    public static ValueMessage createValueMessage() {
+        return new ValueMessageImpl();
+    }
+
+    public static SequenceMessage createSequenceMessage() {
+        return new SequenceMessageImpl();
+    }
+
+    public static DataMessage createDataMessage() {
+        return new DataMessageImpl();
+    }
+
+    public static AnnotatedMessage createAnnotatedMessage() {
+        return new AnnotatedMessageImpl();
+    }
+
+    public static Buffer encodeAnnotatedMessage(AnnotatedMessage message) throws Exception {
+        if (message == null || !(message instanceof AnnotatedMessageImpl)) {
+            return null;
+        }
+        return ((AnnotatedMessageImpl)message).encode();
+    }
 
     public static AnnotatedMessage decodeAnnotatedMessage(Buffer buffer) throws Exception {
         DataByteArrayInputStream in = new DataByteArrayInputStream(buffer);
 
-        AnnotatedMessage rc = new AnnotatedMessage();
+        AnnotatedMessage rc = new AnnotatedMessageImpl();
         BareMessage message = null;
         Properties properties = null;
         ApplicationProperties applicationProperties = null;
@@ -47,31 +70,31 @@ public class MessageDecoder {
                 }
                 rc.setMessageAnnotations((MessageAnnotations)type);
             } else if (type instanceof Data) {
-                if (message != null && !(message instanceof DataMessage)) {
+                if (message != null && !(message instanceof DataMessageImpl)) {
                     throw new RuntimeException("More than one type of application data section present in message");
                 }
                 if (message == null) {
-                    message = new DataMessage();
+                    message = new DataMessageImpl();
                 }
                 ((DataMessage)message).getData().add((Data)type);
             } else if (type instanceof AmqpSequence) {
-                if (message != null && !(message instanceof AmqpSequenceMessage)) {
+                if (message != null && !(message instanceof SequenceMessageImpl)) {
                     throw new RuntimeException("More than one type of application data section present in message");
                 }
                 if (message == null) {
-                    message = new AmqpSequenceMessage();
+                    message = new SequenceMessageImpl();
                 }
-                ((AmqpSequenceMessage)message).getData().add((AmqpSequence) type);
+                ((SequenceMessage)message).getData().add((AmqpSequence) type);
             } else if (type instanceof AmqpValue) {
-                if (message != null && !(message instanceof AmqpValueMessage)) {
+                if (message != null && !(message instanceof ValueMessageImpl)) {
                     throw new RuntimeException("More than one type of application data section present in message");
                 }
                 if (message == null) {
-                    message = new AmqpValueMessage();
+                    message = new ValueMessageImpl();
                 } else {
                     throw new RuntimeException("Only one instance of an AMQP value section can be present in a message");
                 }
-                ((AmqpValueMessage)message).getData().setValue(type);
+                ((ValueMessage)message).getData().setValue(type);
             } else if (type instanceof Properties) {
                 if (properties != null) {
                     throw new RuntimeException("More than one properties section present in message");

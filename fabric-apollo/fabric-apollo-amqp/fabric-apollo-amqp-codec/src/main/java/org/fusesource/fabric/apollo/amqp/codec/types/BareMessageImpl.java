@@ -8,17 +8,16 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.ApplicationProperties;
-import org.fusesource.fabric.apollo.amqp.codec.types.Properties;
+import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
 
 import java.io.DataOutput;
 
 /**
  *
  */
-public abstract class BareMessage<K> {
+public abstract class BareMessageImpl<K> implements BareMessage<K> {
 
     protected Properties properties;
     protected ApplicationProperties applicationProperties;

@@ -14,15 +14,15 @@ import org.apache.activemq.apollo.transport._
 import java.nio.channels._
 import java.nio.ByteBuffer
 import org.fusesource.hawtbuf.{DataByteArrayOutputStream, Buffer}
-import org.fusesource.fabric.apollo.amqp.codec.marshaller.AmqpProtocolHeaderCodec
 import java.io.{DataOutputStream, DataInputStream, EOFException}
 import org.fusesource.fabric.apollo.amqp.protocol.AmqpConstants._
 import org.apache.activemq.apollo.broker.Sizer
 import org.apache.activemq.apollo.util.Logging
 import java.net.SocketException
 import org.fusesource.fabric.apollo.amqp.codec._
+import marshaller.{BitUtils, AmqpProtocolHeaderCodec}
 import org.apache.activemq.apollo.transport.ProtocolCodec.BufferState
-
+import types.{AmqpProtocolHeader, AmqpFrame}
 
 /*
 *

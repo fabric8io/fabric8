@@ -8,18 +8,20 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
+import org.fusesource.fabric.apollo.amqp.codec.api.ValueMessage;
 import org.fusesource.fabric.apollo.amqp.codec.types.AmqpValue;
+import org.fusesource.fabric.apollo.amqp.codec.types.BareMessageImpl;
 
 import java.io.DataOutput;
 
 /**
  *
  */
-public class AmqpValueMessage extends BareMessage<AmqpValue> {
+public class ValueMessageImpl extends BareMessageImpl<AmqpValue> implements ValueMessage {
 
-    public AmqpValueMessage() {
+    public ValueMessageImpl() {
         data = new AmqpValue();
     }
 

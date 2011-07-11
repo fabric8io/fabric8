@@ -12,7 +12,7 @@ package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.junit.Test;
 
-import static org.fusesource.fabric.apollo.amqp.codec.BitUtils.unsigned;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.BitUtils.unsigned;
 import static org.junit.Assert.assertEquals;
 /**
  *

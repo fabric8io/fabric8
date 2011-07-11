@@ -8,9 +8,11 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
+import org.fusesource.fabric.apollo.amqp.codec.api.SequenceMessage;
 import org.fusesource.fabric.apollo.amqp.codec.types.AmqpSequence;
+import org.fusesource.fabric.apollo.amqp.codec.types.BareMessageImpl;
 
 import java.io.DataOutput;
 import java.util.ArrayList;
@@ -19,9 +21,9 @@ import java.util.List;
 /**
  *
  */
-public class AmqpSequenceMessage extends BareMessage<List<AmqpSequence>> {
+public class SequenceMessageImpl extends BareMessageImpl<List<AmqpSequence>> implements SequenceMessage {
 
-    public AmqpSequenceMessage() {
+    public SequenceMessageImpl() {
         data = new ArrayList<AmqpSequence>();
     }
 

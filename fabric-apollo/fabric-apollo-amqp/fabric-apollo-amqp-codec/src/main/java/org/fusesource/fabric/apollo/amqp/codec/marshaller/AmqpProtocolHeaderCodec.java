@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
-import org.fusesource.fabric.apollo.amqp.codec.AmqpProtocolHeader;
+import org.fusesource.fabric.apollo.amqp.codec.types.AmqpProtocolHeader;
 import org.fusesource.hawtbuf.codec.Codec;
 
 import java.io.DataInput;

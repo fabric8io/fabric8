@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.Data;
+import org.fusesource.fabric.apollo.amqp.codec.api.DataMessage;
 import org.fusesource.hawtbuf.Buffer;
 
 import java.io.DataOutput;
@@ -20,13 +20,13 @@ import java.util.List;
 /**
  *
  */
-public class DataMessage extends BareMessage<List<Data>> {
+public class DataMessageImpl extends BareMessageImpl<List<Data>> implements DataMessage {
 
-    public DataMessage() {
+    public DataMessageImpl() {
         data = new ArrayList<Data>();
     }
 
-    public DataMessage(Buffer data) {
+    public DataMessageImpl(Buffer data) {
         this.data = new ArrayList<Data>();
         Data d = new Data();
         d.setValue(data);

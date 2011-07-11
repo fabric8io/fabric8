@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 import java.math.BigInteger;
 

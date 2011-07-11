@@ -26,6 +26,7 @@ import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, 
 import org.fusesource.fabric.apollo.amqp.codec._
 import interfaces.Frame
 import java.net.URI
+import marshaller.BitUtils
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import org.apache.activemq.apollo.util.{URISupport, Logging}
 import java.util.concurrent.{CountDownLatch, TimeUnit}

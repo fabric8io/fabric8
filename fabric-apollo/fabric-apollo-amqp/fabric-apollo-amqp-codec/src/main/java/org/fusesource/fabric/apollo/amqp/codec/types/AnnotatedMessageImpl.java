@@ -8,24 +8,22 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.DeliveryAnnotations;
-import org.fusesource.fabric.apollo.amqp.codec.types.Footer;
-import org.fusesource.fabric.apollo.amqp.codec.types.Header;
-import org.fusesource.fabric.apollo.amqp.codec.types.MessageAnnotations;
+import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
+import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 
 /**
  *
  */
-public class AnnotatedMessage {
+public class AnnotatedMessageImpl implements AnnotatedMessage {
 
     protected Header header;
     protected DeliveryAnnotations deliveryAnnotations;
     protected MessageAnnotations messageAnnotations;
-    protected BareMessage message;
+    protected BareMessageImpl message;
     protected Footer footer;
 
     public Buffer encode() throws Exception {
@@ -127,7 +125,7 @@ public class AnnotatedMessage {
     }
 
     public void setMessage(BareMessage message) {
-        this.message = message;
+        this.message = (BareMessageImpl)message;
     }
 
     public Footer getFooter() {

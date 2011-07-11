@@ -10,18 +10,18 @@
 
 package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageDecoder;
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPString;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpSequence;
-import org.fusesource.fabric.apollo.amqp.codec.types.Header;
-import org.fusesource.fabric.apollo.amqp.codec.types.Properties;
-import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
+import org.fusesource.fabric.apollo.amqp.codec.api.DataMessage;
+import org.fusesource.fabric.apollo.amqp.codec.api.SequenceMessage;
+import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.string;
+import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.*;
+import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createAnnotatedMessage;
+import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createDataMessage;
 import static org.fusesource.hawtbuf.Buffer.ascii;
 import static org.junit.Assert.assertEquals;
 
@@ -32,32 +32,28 @@ public class MessageTest {
 
     @Test
     public void testEncodeDecodeEmptyMessage() throws Exception {
-        AnnotatedMessage in = new AnnotatedMessage();
-        Buffer encoded = in.encode();
-        AnnotatedMessage out = MessageDecoder.decodeAnnotatedMessage(encoded);
+        AnnotatedMessage in = createAnnotatedMessage();
+        AnnotatedMessage out = encodeDecode(in);
         assertEquals(in.toString(), out.toString());
     }
 
     @Test
     public void testEncodeDecodeSimpleMessage() throws Exception {
+        DataMessage message = createDataMessage();
+        message.getData().add(new Data());
+        message.getData().get(0).setValue(ascii("Hello world!").buffer());
 
-        AnnotatedMessage in = new AnnotatedMessage();
-        in.setMessage(new DataMessage(ascii("Hello world!").buffer()));
+        AnnotatedMessage in = createAnnotatedMessage();
+        in.setMessage(message);
 
-        System.out.printf("\n%s", in);
-
-        Buffer encoded = in.encode();
-        System.out.printf("\n%s", string(encoded.data));
-
-        AnnotatedMessage out = MessageDecoder.decodeAnnotatedMessage(encoded);
-        System.out.printf("\n%s\n", out);
+        AnnotatedMessage out = encodeDecode(in);
 
         assertEquals(in.toString(), out.toString());
     }
 
     @Test
     public void testEncodeDecodeLessSimpleMessage() throws Exception {
-        AmqpSequenceMessage msg = new AmqpSequenceMessage();
+        SequenceMessage msg = new SequenceMessageImpl();
 
         ArrayList<AMQPString> payload1 = new ArrayList<AMQPString>();
         ArrayList<AMQPString> payload2 = new ArrayList<AMQPString>();
@@ -78,19 +74,13 @@ public class MessageTest {
         msg.getProperties().setTo(new AMQPString("nowhere"));
         msg.getProperties().setCreationTime(new Date());
 
-        AnnotatedMessage in = new AnnotatedMessage();
+        AnnotatedMessage in = createAnnotatedMessage();
         in.setMessage(msg);
         in.setHeader(new Header());
         in.getHeader().setDurable(true);
         in.getHeader().setDeliveryCount(0L);
 
-        System.out.printf("\n%s", in);
-
-        Buffer encoded = in.encode();
-        System.out.printf("\n%s", string(encoded.data));
-
-        AnnotatedMessage out = MessageDecoder.decodeAnnotatedMessage(encoded);
-        System.out.printf("\n%s\n", out);
+        AnnotatedMessage out = encodeDecode(in);
 
         assertEquals(in.toString(), out.toString());
     }

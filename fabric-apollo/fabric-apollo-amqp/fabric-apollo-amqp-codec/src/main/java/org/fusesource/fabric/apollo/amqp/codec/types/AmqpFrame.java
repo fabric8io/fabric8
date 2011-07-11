@@ -8,9 +8,9 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec;
+package org.fusesource.fabric.apollo.amqp.codec.types;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.BitUtils;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.Frame;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeReader;
 import org.fusesource.hawtbuf.Buffer;

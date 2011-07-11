@@ -10,13 +10,16 @@
 
 package org.fusesource.fabric.apollo.amqp.codec;
 
+import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeReader;
+import org.fusesource.fabric.apollo.amqp.codec.types.AnnotatedMessageImpl;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.decodeAnnotatedMessage;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.encodeAnnotatedMessage;
 
 /**
  *
@@ -24,14 +27,13 @@ import java.io.DataOutputStream;
 public class TestSupport {
 
     public static <T extends AmqpType> byte[] write(T value) throws Exception {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(bos);
+        DataByteArrayOutputStream out = new DataByteArrayOutputStream((int)value.size());
         value.write(out);
-        return bos.toByteArray();
+        return out.getData();
     }
 
     public static <T extends AmqpType> T read(byte[] b) throws Exception {
-        DataInputStream in = new DataInputStream(new ByteArrayInputStream(b));
+        DataByteArrayInputStream in = new DataByteArrayInputStream(b);
         return (T)TypeReader.read(in);
     }
 
@@ -56,10 +58,33 @@ public class TestSupport {
     }
 
     public static String string(byte[] b) {
-        String rc = "";
+        String rc = "length=" + b.length + " : ";
         for (byte l : b) {
             rc += String.format("[0x%x]", l);
         }
         return rc;
+    }
+
+    static AnnotatedMessage encodeDecode(AnnotatedMessage in) throws Exception {
+        return encodeDecode(in, true);
+    }
+
+    static AnnotatedMessage encodeDecode(AnnotatedMessage in, boolean display) throws Exception {
+        long size = ((AnnotatedMessageImpl)in).size();
+
+        if (size < 80 && display) {
+            System.out.printf("\n%s", in);
+        }
+
+        Buffer encoded = encodeAnnotatedMessage(in);
+        if (size < 80 && display) {
+            System.out.printf("\n%s", string(encoded.data));
+        }
+
+        AnnotatedMessage out = decodeAnnotatedMessage(encoded);
+        if (size < 80 && display) {
+            System.out.printf("\n%s\n", out);
+        }
+        return out;
     }
 }
