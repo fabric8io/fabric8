@@ -23,18 +23,13 @@ public class AmqpValueMessage extends BareMessage<AmqpValue> {
         data = new AmqpValue();
     }
 
-    public long size() {
-        if (data != null) {
-            return data.size();
-        } else {
-            return 0;
-        }
+    @Override
+    public long dataSize() {
+        return data.size();
     }
 
     @Override
-    public void write(DataOutput out) throws Exception {
-        if (data != null) {
-            data.write(out);
-        }
+    public void dataWrite(DataOutput out) throws Exception {
+        data.write(out);
     }
 }

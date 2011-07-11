@@ -33,7 +33,8 @@ public class DataMessage extends BareMessage<List<Data>> {
         this.data.add(d);
     }
 
-    public long size() {
+    @Override
+    public long dataSize() {
         long rc = 0;
         for (Data d : data) {
             if (d != null) {
@@ -44,7 +45,7 @@ public class DataMessage extends BareMessage<List<Data>> {
     }
 
     @Override
-    public void write(DataOutput out) throws Exception {
+    public void dataWrite(DataOutput out) throws Exception {
         if (data != null) {
             for (Data d : data) {
                 if (d != null) {

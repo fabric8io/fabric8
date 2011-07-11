@@ -25,7 +25,7 @@ public class AmqpSequenceMessage extends BareMessage<List<AmqpSequence>> {
         data = new ArrayList<AmqpSequence>();
     }
 
-    public long size() {
+    public long dataSize() {
         long rc = 0;
         for (AmqpSequence s : data) {
             if (s != null) {
@@ -36,12 +36,10 @@ public class AmqpSequenceMessage extends BareMessage<List<AmqpSequence>> {
     }
 
     @Override
-    public void write(DataOutput out) throws Exception {
-        if (data != null) {
-            for (AmqpSequence s : data) {
-                if (s != null) {
-                    s.write(out);
-                }
+    public void dataWrite(DataOutput out) throws Exception {
+        for (AmqpSequence s : data) {
+            if (s != null) {
+                s.write(out);
             }
         }
     }

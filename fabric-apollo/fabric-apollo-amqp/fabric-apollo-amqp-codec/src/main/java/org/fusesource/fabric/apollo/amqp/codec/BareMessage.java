@@ -12,7 +12,6 @@ package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.types.ApplicationProperties;
 import org.fusesource.fabric.apollo.amqp.codec.types.Properties;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 
 import java.io.DataOutput;
 
@@ -49,8 +48,34 @@ public abstract class BareMessage<K> {
         this.applicationProperties = applicationProperties;
     }
 
-    public abstract long size();
-    public abstract void write(DataOutput out) throws Exception;
+    public long size() {
+        long rc = 0;
+        if (properties != null) {
+            rc += properties.size();
+        }
+        if (applicationProperties != null) {
+            rc += properties.size();
+        }
+        if (data != null) {
+            rc += dataSize();
+        }
+        return rc;
+    }
+
+    public void write(DataOutput out) throws Exception {
+        if (properties != null) {
+            properties.write(out);
+        }
+        if (applicationProperties != null) {
+            applicationProperties.write(out);
+        }
+        if (data != null) {
+            dataWrite(out);
+        }
+    }
+
+    public abstract long dataSize();
+    public abstract void dataWrite(DataOutput out) throws Exception;
 
     public String toString() {
         StringBuffer buf = new StringBuffer();
