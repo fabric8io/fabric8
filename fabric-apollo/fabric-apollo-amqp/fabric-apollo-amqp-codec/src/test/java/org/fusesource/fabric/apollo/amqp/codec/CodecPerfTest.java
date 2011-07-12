@@ -75,7 +75,7 @@ public class CodecPerfTest {
 
     }
 
-    public void execute(final int max, final TestLoop loop) throws Exception {
+    public void execute(final long max, final TestLoop loop) throws Exception {
         final AtomicLong i = new AtomicLong(0);
         final CountDownLatch latch = new CountDownLatch(1);
 

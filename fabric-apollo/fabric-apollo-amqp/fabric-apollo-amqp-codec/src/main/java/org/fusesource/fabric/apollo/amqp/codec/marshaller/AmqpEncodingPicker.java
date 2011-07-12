@@ -12,10 +12,10 @@ package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.EncodingPicker;
-import org.fusesource.fabric.apollo.amqp.codec.types.*;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPMap;
 import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.UTF8Buffer;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
@@ -24,30 +24,36 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.fusesource.fabric.apollo.amqp.codec.marshaller.ArraySupport.getArrayConstructorSize;
-import static org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeRegistry.*;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeRegistry.NULL_FORMAT_CODE;
 import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPArray.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBinary.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBoolean.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPByte.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPChar.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal128.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal32.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal64.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDouble.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPFloat.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPInt.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBinary.BINARY_VBIN32_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBinary.BINARY_VBIN8_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBoolean.BOOLEAN_FALSE_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPBoolean.BOOLEAN_TRUE_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPByte.BYTE_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPChar.CHAR_UTF32_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal128.DECIMAL128_IEEE_754_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal32.DECIMAL32_IEEE_754_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDecimal64.DECIMAL64_IEEE_754_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPDouble.DOUBLE_IEEE_754_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPFloat.FLOAT_IEEE_754_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPInt.INT_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPInt.INT_SMALLINT_CODE;
 import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPList.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPLong.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPLong.LONG_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPLong.LONG_SMALLLONG_CODE;
 import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPMap.MAP_MAP32_CODE;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPShort.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPString.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPTimestamp.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUByte.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPShort.SHORT_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPString.STRING_STR32_UTF8_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPString.STRING_STR8_UTF8_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol.SYMBOL_SYM32_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol.SYMBOL_SYM8_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPTimestamp.TIMESTAMP_MS64_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUByte.UBYTE_CODE;
 import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUInt.*;
 import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUShort.*;
-import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUUID.*;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUShort.USHORT_CODE;
+import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUUID.UUID_CODE;
 
 /**
  *
@@ -220,13 +226,8 @@ public class AmqpEncodingPicker implements EncodingPicker {
         if (value == null) {
             return NULL_FORMAT_CODE;
         }
-        int size = 0;
-        try {
-            size = value.getBytes("UTF-8").length;
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("UTF-8 encoding not available : " + e.getLocalizedMessage());
-        }
-        if (size < 255) {
+        int size = new UTF8Buffer(value).buffer().length();
+        if (size < 254) {
             return STRING_STR8_UTF8_CODE;
         }
         return STRING_STR32_UTF8_CODE;
