@@ -11,6 +11,8 @@
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 
 import java.io.DataOutput;
 import java.math.BigInteger;
@@ -20,18 +22,30 @@ import java.math.BigInteger;
  */
 public class DescribedConstructor {
 
-    protected BigInteger descriptor;
+    protected Buffer buffer;
 
     public DescribedConstructor(BigInteger descriptor) {
-        this.descriptor = descriptor;
+        int size = (int)(1 + TypeRegistry.instance().sizer().sizeOfULong(descriptor));
+        DataByteArrayOutputStream out = new DataByteArrayOutputStream(size);
+        try {
+            out.writeByte(0x0);
+            AMQPULong.write(descriptor, out);
+            buffer = out.toBuffer();
+        } catch (Exception e) {
+            throw new RuntimeException("Exception constructing DescribedConstructor instance for descriptor " + descriptor + " : " + e.getMessage());
+        }
+
+    }
+
+    public Buffer getBuffer() {
+        return buffer;
     }
 
     public void write(DataOutput out) throws Exception {
-        out.writeByte(0x0);
-        AMQPULong.write(descriptor, out);
+        buffer.writeTo(out);
     }
 
     public long size() {
-        return 1 + TypeRegistry.instance().sizer().sizeOfULong(descriptor);
+        return buffer.length();
     }
 }

@@ -13,17 +13,20 @@ package org.fusesource.fabric.apollo.amqp.codec;
 import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
 import org.fusesource.fabric.apollo.amqp.codec.api.DataMessage;
 import org.fusesource.fabric.apollo.amqp.codec.api.SequenceMessage;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
+import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
-import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.*;
+import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.encodeDecode;
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createAnnotatedMessage;
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createDataMessage;
 import static org.fusesource.hawtbuf.Buffer.ascii;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -38,7 +41,7 @@ public class MessageTest {
     }
 
     @Test
-    public void testEncodeDecodeSimpleMessage() throws Exception {
+    public void testEncodeDecodeSimpleDataMessage() throws Exception {
         DataMessage message = createDataMessage();
         message.getData().add(new Data());
         message.getData().get(0).setValue(ascii("Hello world!").buffer());
@@ -53,6 +56,21 @@ public class MessageTest {
 
     @Test
     public void testEncodeDecodeLessSimpleMessage() throws Exception {
+        AnnotatedMessage in = getMessage();
+        AnnotatedMessage out = encodeDecode(in);
+        assertEquals(in.toString(), out.toString());
+    }
+
+    @Test
+    public void testScanMessageForSection() throws Exception {
+        AnnotatedMessage in = getMessage();
+        Buffer buffer = MessageSupport.toBuffer(in);
+        Footer footer = MessageSupport.getSection(Footer.CONSTRUCTOR.getBuffer(), buffer);
+        System.out.printf("Got : %s\n", footer);
+        assertNotNull(footer);
+    }
+
+    private static AnnotatedMessage getMessage() {
         SequenceMessage msg = new SequenceMessageImpl();
 
         ArrayList<AMQPString> payload1 = new ArrayList<AMQPString>();
@@ -76,13 +94,16 @@ public class MessageTest {
 
         AnnotatedMessage in = createAnnotatedMessage();
         in.setMessage(msg);
+        in.setDeliveryAnnotations(new DeliveryAnnotations());
+        in.getDeliveryAnnotations().setValue(new HashMap<AMQPSymbol, AMQPString>());
+        in.getDeliveryAnnotations().getValue().put(new AMQPSymbol(Footer.CONSTRUCTOR.getBuffer()), new AMQPString("Hi!"));
         in.setHeader(new Header());
         in.getHeader().setDurable(true);
         in.getHeader().setDeliveryCount(0L);
-
-        AnnotatedMessage out = encodeDecode(in);
-
-        assertEquals(in.toString(), out.toString());
+        in.setFooter(new Footer());
+        in.getFooter().setValue(new HashMap<AMQPSymbol, AMQPString>());
+        in.getFooter().getValue().put(new AMQPSymbol(Buffer.ascii("test").buffer()), new AMQPString("value"));
+        return in;
     }
 
 

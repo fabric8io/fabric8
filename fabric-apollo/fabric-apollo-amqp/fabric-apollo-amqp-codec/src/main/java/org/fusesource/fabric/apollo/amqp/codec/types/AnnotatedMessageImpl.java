@@ -12,6 +12,7 @@ package org.fusesource.fabric.apollo.amqp.codec.types;
 
 import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
 import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
 
@@ -25,14 +26,15 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
     protected Header header;
     protected DeliveryAnnotations deliveryAnnotations;
     protected MessageAnnotations messageAnnotations;
-    protected BareMessageImpl message;
+    protected BareMessage message;
     protected Footer footer;
 
-    public Buffer encode() throws Exception {
+    public Buffer toBuffer() throws Exception {
         int size = (int)size();
         if (size == 0) {
             return new Buffer(0);
         }
+        Buffer buf = new Buffer(size);
         DataByteArrayOutputStream out = new DataByteArrayOutputStream(size);
         write(out);
         return out.toBuffer();
@@ -49,7 +51,7 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
             messageAnnotations.write(out);
         }
         if (message != null) {
-            message.write(out);
+            MessageSupport.write(message, out);
         }
         if (footer != null) {
             footer.write(out);
@@ -68,7 +70,7 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
             rc += messageAnnotations.size();
         }
         if (message != null) {
-            rc += message.size();
+            rc += MessageSupport.size(message);
         }
         if (footer != null) {
             rc += footer.size();
@@ -131,7 +133,7 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
     }
 
     public void setMessage(BareMessage message) {
-        this.message = (BareMessageImpl)message;
+        this.message = message;
     }
 
     public Footer getFooter() {

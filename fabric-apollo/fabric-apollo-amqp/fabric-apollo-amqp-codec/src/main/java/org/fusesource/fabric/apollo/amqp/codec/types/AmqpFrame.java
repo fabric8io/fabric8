@@ -11,11 +11,12 @@
 package org.fusesource.fabric.apollo.amqp.codec.types;
 
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.BitUtils;
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.Frame;
-import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeReader;
 import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
@@ -29,8 +30,7 @@ public class AmqpFrame {
 
     protected Buffer header = new Buffer(8);
     protected Buffer extHeader = new Buffer(0);
-    protected Buffer encodedBody = null;
-    Frame body = null;
+    protected Buffer body = null;
 
     protected int bytesRead = 0;
 
@@ -40,10 +40,10 @@ public class AmqpFrame {
     protected static final int CHANNEL_OFFSET = 6;
 
     public AmqpFrame() {
-        this.body = null;
+
     }
 
-    public AmqpFrame(Frame body) {
+    public AmqpFrame(Buffer body) {
         this.body = body;
     }
 
@@ -59,24 +59,16 @@ public class AmqpFrame {
         if ( other == null ) {
             return false;
         }
-
         if ( !header.equals(other.header) ) {
             return false;
         }
-
         if ( !extHeader.equals(other.extHeader) ) {
             return false;
         }
-
-        if ( this.body != null && other.body == null ) {
+        if (this.body == null && other.body != null) {
             return false;
         }
-
-        if ( body == null && other.body == null ) {
-            return true;
-        }
-
-        return body.toString().equals(other.body.toString());
+        return body.equals(other.body);
     }
 
     public int calculateDataOffset() {
@@ -88,8 +80,8 @@ public class AmqpFrame {
         rc += channel.read(header.toByteBuffer());
         initExtHeader();
         rc += channel.read(extHeader.toByteBuffer());
-        encodedBody = new Buffer((int)getDataSize());
-        rc += channel.read(encodedBody.toByteBuffer());
+        body = new Buffer((int)getDataSize());
+        rc += channel.read(body.toByteBuffer());
         return rc;
     }
 
@@ -99,13 +91,8 @@ public class AmqpFrame {
         setSize(getFrameSize());
         rc += channel.write(header.toByteBuffer());
         rc += channel.write(extHeader.toByteBuffer());
-        if ( body == null && encodedBody != null ) {
-            rc += channel.write(encodedBody.toByteBuffer());
-        } else if ( body != null ) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataOutputStream out = new DataOutputStream(bos);
-            encodedBody = new Buffer(bos.toByteArray());
-            rc += channel.write(encodedBody.toByteBuffer());
+        if ( body != null ) {
+            rc += channel.write(body.toByteBuffer());
         }
         return rc;
     }
@@ -115,10 +102,8 @@ public class AmqpFrame {
         initExtHeader();
         extHeader.readFrom(in);
         if ( getDataSize() > 0 ) {
-            body = (Frame)TypeReader.read(in);
-        }
-        if ( getDataSize() == 0 ) {
-            body = null;
+            body = new Buffer((int)getDataSize());
+            body.readFrom(in);
         }
     }
 
@@ -138,38 +123,26 @@ public class AmqpFrame {
         setSize(getFrameSize());
         header.writeTo(out);
         extHeader.writeTo(out);
-        if ( body != null ) {
-            body.write(out);
-        }
+        body.writeTo(out);
     }
 
     public long getFrameSize() {
         long ret = header.length + extHeader.length;
         if ( body != null ) {
-            ret += body.size();
+            ret += body.length();
         }
         return ret;
     }
 
-    public <T> T getBody(Class<T> type) throws Exception {
-        body = getBody();
-        if ( type.isInstance(body) ) {
-            return type.cast(body);
-        }
-        return null;
+    public DataInput dataInput() {
+        return new DataByteArrayInputStream(body);
     }
 
-    public Frame getBody() throws Exception {
-        if ( body == null && encodedBody != null ) {
-            DataInputStream in = new DataInputStream(new ByteArrayInputStream(encodedBody.data));
-            body = (Frame)TypeReader.read(in);
-            encodedBody = null;
-        }
+    public Buffer getBody() {
         return body;
     }
 
-    public void setBody(Frame body) {
-        this.encodedBody = null;
+    public void setBody(Buffer body) {
         this.body = body;
     }
 
@@ -210,12 +183,6 @@ public class AmqpFrame {
     }
 
     public String toString() {
-        Frame type = null;
-        try {
-            type = getBody();
-        } catch (Exception e) {
-            // type will just show up as null
-        }
-        return "AmqpFrame{size=" + getSize() + " dataOffset=" + getDoff() + " channel=" + getChannel() + " type=" + getType() + " body={" + type + "}}";
+        return "AmqpFrame{size=" + getSize() + " dataOffset=" + getDoff() + " channel=" + getChannel() + " type=" + getType() + " body={" + body + "}}";
     }
 }

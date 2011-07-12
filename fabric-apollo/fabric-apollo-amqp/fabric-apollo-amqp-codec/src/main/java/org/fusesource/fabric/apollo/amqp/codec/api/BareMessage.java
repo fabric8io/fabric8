@@ -17,15 +17,20 @@ import org.fusesource.fabric.apollo.amqp.codec.types.Properties;
  *
  */
 public interface BareMessage<K> {
+
     K getData();
 
     void setData(K data);
 
     Properties getProperties();
 
+    Properties getProperties(boolean create);
+
     void setProperties(Properties properties);
 
     ApplicationProperties getApplicationProperties();
+
+    ApplicationProperties getApplicationProperties(boolean create);
 
     void setApplicationProperties(ApplicationProperties applicationProperties);
 }

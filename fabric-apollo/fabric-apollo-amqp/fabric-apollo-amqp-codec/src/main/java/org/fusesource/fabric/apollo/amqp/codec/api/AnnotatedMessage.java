@@ -14,6 +14,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.DeliveryAnnotations;
 import org.fusesource.fabric.apollo.amqp.codec.types.Footer;
 import org.fusesource.fabric.apollo.amqp.codec.types.Header;
 import org.fusesource.fabric.apollo.amqp.codec.types.MessageAnnotations;
+import org.fusesource.hawtbuf.Buffer;
 
 /**
  *
