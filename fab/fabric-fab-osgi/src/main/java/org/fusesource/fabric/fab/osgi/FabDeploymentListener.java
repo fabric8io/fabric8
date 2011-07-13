@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.net.URL;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -41,14 +42,25 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
     public boolean canHandle(File artifact) {
         try {
             // only handle .jar files
-            if (!artifact.getPath().endsWith(".jar")) {
+            String path = artifact.getPath();
+            if (!path.endsWith(".jar") && !path.endsWith(".fab")) {
                 return false;
             }
             JarFile jar = new JarFile(artifact);
             try {
                 // only handle non OSGi jar
                 Manifest manifest = jar.getManifest();
-                return manifest != null && manifest.getMainAttributes().getValue(ServiceConstants.INSTR_FAB_DEPENDENCY_SHARED) != null;
+                boolean answer = false;
+                if (manifest != null) {
+                    Attributes attributes = manifest.getMainAttributes();
+                    for (String name : ServiceConstants.FAB_PROPERTY_NAMES) {
+                        if (attributes.getValue(name) != null) {
+                            answer = true;
+                            break;
+                        }
+                    }
+                }
+                return answer;
             } finally {
                 jar.close();
             }

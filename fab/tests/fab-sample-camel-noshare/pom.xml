@@ -58,6 +58,10 @@
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
               <Fabric-Dependency-Share></Fabric-Dependency-Share>
+              <Fabric-Dependency-Exclude>org.osgi:*</Fabric-Dependency-Exclude>
+
+              <!-- lets import the OSGi packages directly as the org.osgi bundle has unresolved exported packages -->
+              <Import-Package>org.osgi.framework</Import-Package>
             </manifestEntries>
           </archive>
         </configuration>

@@ -54,7 +54,7 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 		logger.debug("FAB jar URL is: [" + fabJarURL + "]");
         PropertiesPropertyResolver resolver = new PropertiesPropertyResolver(System.getProperties());
         Configuration config = new Configuration(resolver);
-        return new FabConnection(url, config);
+        return new FabConnection(fabJarURL, config);
 	}
 
 	public URL getFabJarURL() {

@@ -11,12 +11,14 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
-import org.fusesource.fabric.fab.util.IOHelpers;
+import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
 import org.ops4j.pax.swissbox.bnd.BndUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 
 import java.io.File;
@@ -27,12 +29,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * {@link URLConnection} for the "fab" protocol
  */
 public class FabConnection extends URLConnection {
+    private static final transient Logger LOG = LoggerFactory.getLogger(FabConnection.class);
 
     private Configuration configuration;
 
@@ -88,7 +93,9 @@ public class FabConnection extends URLConnection {
      */
     protected Properties getInstructions() throws IOException, RepositoryException, XmlPullParserException {
         Properties instructions = BndUtils.parseInstructions(getURL().getQuery());
-        instructions.setProperty(ServiceConstants.INSTR_FAB_URL, getURL().getPath());
+
+        String urlText = getURL().toExternalForm();
+        instructions.setProperty(ServiceConstants.INSTR_FAB_URL, urlText);
 
         configureInstructions(instructions);
         return instructions;
@@ -100,27 +107,17 @@ public class FabConnection extends URLConnection {
     protected void configureInstructions(Properties instructions) throws RepositoryException, IOException, XmlPullParserException {
         List<String> bundleClassPath = new ArrayList<String>();
         List<String> requireBundles = new ArrayList<String>();
-        bundleClassPath.addAll(Strings.splitAsList(instructions.getProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
-        requireBundles.addAll(Strings.splitAsList(instructions.getProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
+        List<String> importPackages = new ArrayList<String>();
 
-        FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, bundleClassPath, requireBundles);
+        FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, bundleClassPath, requireBundles, importPackages);
         resolver.resolve();
 
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
         instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
+        instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
     }
 
     public File getJarFile() throws IOException {
-        URL url = getURL();
-        String fileName = url.getFile();
-        File file = new File(fileName);
-        if (file.exists()) {
-            return file;
-        } else {
-            // we need to copy the URL to a new temp file for now...
-            file = File.createTempFile("fabric-tmp-fab-", ".fab");
-            IOHelpers.writeTo(file, url.openStream());
-            return file;
-        }
+        return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
     }
 }

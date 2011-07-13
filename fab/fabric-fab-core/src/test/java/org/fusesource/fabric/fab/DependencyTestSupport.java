@@ -121,16 +121,21 @@ public abstract class DependencyTestSupport {
 
     protected DependencyClassLoader getClassLoaderForPom(String pomName) throws Exception {
         Filter<DependencyTree> shareFilter = getShareFilter();
-        return getClassLoaderForPom(pomName, shareFilter);
+        Filter<DependencyTree> excludeFilter = getExcludeFilter();
+        return getClassLoaderForPom(pomName, shareFilter, excludeFilter);
     }
 
     protected Filter<DependencyTree> getShareFilter() {
         return Filters.<DependencyTree>trueFilter();
     }
 
-    protected DependencyClassLoader getClassLoaderForPom(String pomName, Filter<DependencyTree> shareFilter) throws Exception {
+    protected Filter<DependencyTree> getExcludeFilter() {
+        return DependencyTreeFilters.parseExcludeFilter("");
+    }
+
+    protected DependencyClassLoader getClassLoaderForPom(String pomName, Filter<DependencyTree> shareFilter, Filter<DependencyTree> excludeFilter) throws Exception {
         DependencyTree tree = collectDependencies(pomName).getTree();
-        DependencyClassLoader classLoader = registry.getClassLoader(tree, shareFilter);
+        DependencyClassLoader classLoader = registry.getClassLoader(tree, shareFilter, excludeFilter);
         assertNotNull("Could not create a class loader for " + pomName, classLoader);
         return classLoader;
     }

@@ -182,7 +182,6 @@ public class MavenResolver {
         if (pomDetails == null) {
             throw new IllegalArgumentException("No pom.xml file could be found inside the jar file: " + jarFile);
         }
-        System.out.println("Processing pom file: " + pomDetails);
         Model model = pomDetails.getModel();
         return collectDependenciesFromPom(pomDetails.getFile(), offline, model);
     }

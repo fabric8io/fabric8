@@ -33,11 +33,11 @@ public class Strings {
     }
 
     /**
-     * splits a string into a list of strings
+     * splits a string into a list of strings, ignoring the empty string
      */
     public static List<String> splitAsList(String text, String delimiter) {
         List<String> answer = new ArrayList<String>();
-        if (text != null) {
+        if (text != null && text.length() > 0) {
             answer.addAll(Arrays.asList(text.split(delimiter)));
         }
         return answer;
@@ -48,12 +48,15 @@ public class Strings {
      */
     public static String join(final Collection<?> collection, final String separator) {
         StringBuffer buffer = new StringBuffer();
+        boolean first = true;
         Iterator<?> iter = collection.iterator();
         while (iter.hasNext()) {
-            buffer.append(iter.next());
-            if (iter.hasNext()) {
+            if (first) {
+                first = false;
+            } else {
                 buffer.append(separator);
             }
+            buffer.append(iter.next());
         }
         return buffer.toString();
     }

@@ -23,45 +23,19 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 @RunWith(JUnit4TestRunner.class)
-public class IntegrationTest extends AbstractIntegrationTest {
+public class FabIntegrationTest extends IntegrationTestSupport {
 
     @Test
     public void testRun() throws Exception {
         Thread.sleep(10000);
 
-        Bundle b = getInstalledBundle("org.fusesource.fabric.fab.fabric-fab-osgi");
-
-        println("got bundle: " + b);
-        try {
-            b.start();
-        } catch (BundleException e) {
-            println("ERROR: " + e, e);
-            throw e;
-        }
-
-        Thread.sleep(1000);
-
-    }
-
-    protected void println(Object value, BundleException e) {
-        println(value);
-        e.printStackTrace();
-    }
-
-    protected void println(Object value) {
-        System.out.println("======================== " + value);
-    }
-
-    /*
-    @Test
-    public void testInstallCommand() throws Exception {
-        Thread.sleep(12000);
+        assertStartBundle("org.fusesource.fabric.fab.fabric-fab-osgi");
 
         CommandProcessor cp = getOsgiService(CommandProcessor.class);
         CommandSession cs = cp.createSession(System.in, System.out, System.err);
 
         try {
-            cs.execute("log:display");
+            cs.execute("osgi:install");
             fail("command should not exist");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().indexOf("Command not found") >= 0);
@@ -86,17 +60,17 @@ public class IntegrationTest extends AbstractIntegrationTest {
         }
 
         cs.close();
+
     }
-    */
 
     @Configuration
     public static Option[] configuration() throws Exception {
         Option[] options = combine(
             // Default karaf environment
             Helper.getDefaultOptions(
-                // this is how you set the default log level when using pax logging (logProfile)
-                //Helper.setLogLevel("TRACE")
-                Helper.setLogLevel("INFO")
+                    // this is how you set the default log level when using pax logging (logProfile)
+                    //Helper.setLogLevel("TRACE")
+                    Helper.setLogLevel("INFO")
             ),
 
             // add fab features

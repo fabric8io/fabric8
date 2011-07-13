@@ -33,7 +33,9 @@
          where fileinstall will use the featureDeploymentListener before the url can be actually
          used.  In order to not block the bundle, the blueprint.graceperiod=false flag must be
          set on the SymbolicName osgi header -->
+    <!--
     <reference id="fabUrlHandlerRef" interface="org.osgi.service.url.URLStreamHandlerService" filter="url.handler.protocol=fab" />
+    -->
 
     <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener" />
 

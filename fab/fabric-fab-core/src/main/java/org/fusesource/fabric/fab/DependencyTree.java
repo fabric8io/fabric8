@@ -17,8 +17,11 @@
  */
 package org.fusesource.fabric.fab;
 
+import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Objects;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,6 +50,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import static org.fusesource.fabric.fab.util.Objects.compare;
 import static org.fusesource.fabric.fab.util.Objects.equal;
@@ -65,6 +70,8 @@ public class DependencyTree implements Comparable<DependencyTree> {
     private String url;
     private final List<DependencyTree> children;
     private final int hashCode;
+    private String scope;
+    private File jarFile;
 
     public static Builder newBuilder() {
         return new Builder();
@@ -122,7 +129,8 @@ public class DependencyTree implements Comparable<DependencyTree> {
             children.add(child);
         }
         Artifact artifact = node.getDependency().getArtifact();
-        DependencyTree dependencyTree = new DependencyTree(DependencyId.newInstance(artifact), artifact.getVersion(), children);
+        //DependencyTree dependencyTree = new DependencyTree(DependencyId.newInstance(artifact), artifact.getVersion(), children);
+        DependencyTree dependencyTree = new DependencyTree(DependencyId.newInstance(artifact), node.getDependency(), children);
         File file = artifact.getFile();
         if (file != null) {
             String url = file.toURI().toURL().toExternalForm();
@@ -131,6 +139,12 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return dependencyTree;
     }
 
+
+
+    public DependencyTree(DependencyId dependencyId, Dependency dependency, List<DependencyTree> children) {
+        this(dependencyId, dependency.getArtifact().getVersion(), children);
+        this.scope = dependency.getScope();
+    }
 
     public DependencyTree(DependencyId dependencyId, String version, List<DependencyTree> children) {
         this.dependencyId = dependencyId;
@@ -366,6 +380,50 @@ public class DependencyTree implements Comparable<DependencyTree> {
         this.url = url;
     }
 
+    public String getScope() {
+        return scope;
+    }
+
+    public String getBundleId() {
+        String bundleId = getManfiestEntry(Constants.INSTR_BUNDLE_SYMBOLIC_NAME);
+        if (bundleId != null) {
+            return bundleId;
+        }
+        // lets make a guess - if a dot in the archetype id lets use that
+        String artifactId = getArtifactId();
+        if (artifactId.contains(".")) {
+            return artifactId;
+        } else {
+            return getGroupId() + "." + artifactId;
+        }
+    }
+
+    /**
+     * Returns the entry from the manifest for the given name
+     */
+    public String getManfiestEntry(String attributeName) {
+        try {
+            return Manifests.getManfiestEntry(getJarFile(), attributeName);
+        } catch (IOException e) {
+            // ignore...
+            return null;
+        }
+    }
+
+    /**
+     * Lazily creates a File for the dependency if there is not a local file available
+     */
+    public File getJarFile() throws IOException {
+        if (jarFile == null) {
+            URL url = getJarURL();
+            jarFile = Files.urlToFile(url, "fabric-tmp-fab-", ".jar");
+        }
+        return jarFile;
+    }
+
+    public void setJarFile(File jarFile) {
+        this.jarFile = jarFile;
+    }
 
     // Helper classes
     //-------------------------------------------------------------------------

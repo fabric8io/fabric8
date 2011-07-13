@@ -30,4 +30,8 @@ public class CompositeFilter<T> implements Filter<T> {
         }
         return false;
     }
+
+    public boolean isEmpty() {
+        return filters.isEmpty();
+    }
 }

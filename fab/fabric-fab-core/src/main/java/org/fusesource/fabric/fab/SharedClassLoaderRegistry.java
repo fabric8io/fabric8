@@ -27,29 +27,34 @@ public class SharedClassLoaderRegistry {
     /**
      * Returns the shared class loader for the given dependency tree
      */
-    public DependencyClassLoader getClassLoader(DependencyTree tree, Filter<DependencyTree> sharedFilter) throws MalformedURLException {
+    public DependencyClassLoader getClassLoader(DependencyTree tree, Filter<DependencyTree> sharedFilter, Filter<DependencyTree> excludeFilter) throws MalformedURLException {
         DependencyClassLoader answer = null;
-        if (sharedFilter != null && sharedFilter.matches(tree)) {
+        if (excludeFilter != null && excludeFilter.matches(tree)) {
+            // ignore
+        }
+        else if (sharedFilter != null && sharedFilter.matches(tree)) {
             synchronized (cache) {
                 answer = cache.get(tree);
                 if (answer == null) {
-                    answer = createClassLoader(tree, sharedFilter);
+                    answer = createClassLoader(tree, sharedFilter, excludeFilter);
                     cache.put(tree, answer);
                 }
             }
         } else {
-            answer = createClassLoader(tree, sharedFilter);
+            answer = createClassLoader(tree, sharedFilter, excludeFilter);
         }
         return answer;
     }
 
-    protected DependencyClassLoader createClassLoader(DependencyTree tree, Filter<DependencyTree> sharedFilter) throws MalformedURLException {
+    protected DependencyClassLoader createClassLoader(DependencyTree tree, Filter<DependencyTree> sharedFilter, Filter<DependencyTree> excludeFilter) throws MalformedURLException {
         List<DependencyClassLoader> childClassLoaders = new ArrayList<DependencyClassLoader>();
         List<DependencyTree> children = tree.getChildren();
         List<DependencyTree> nonSharedDependencies = new ArrayList<DependencyTree>();
         for (DependencyTree child : children) {
-            if (sharedFilter != null && sharedFilter.matches(child)) {
-                DependencyClassLoader childClassLoader = getClassLoader(child, sharedFilter);
+            if (excludeFilter != null && excludeFilter.matches(tree)) {
+                continue;
+            } else if (sharedFilter != null && sharedFilter.matches(child)) {
+                DependencyClassLoader childClassLoader = getClassLoader(child, sharedFilter, excludeFilter);
                 if (childClassLoader != null) {
                     childClassLoaders.add(childClassLoader);
                 }

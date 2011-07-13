@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.fab.util;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,5 +39,23 @@ public class Filters {
         } else {
             return new CompositeFilter<T>(filters);
         }
+    }
+
+    public static <T> Filter<T> or(final Filter<T>... filters) {
+        return new Filter<T>() {
+            public boolean matches(T t) {
+                for (Filter filter : filters) {
+                    if (filter != null && filter.matches(t)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public String toString() {
+                return "OrFilter" + Arrays.asList(filters);
+            }
+        };
     }
 }

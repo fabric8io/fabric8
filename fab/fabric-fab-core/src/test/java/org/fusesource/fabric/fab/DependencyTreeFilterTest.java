@@ -32,15 +32,25 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
                 "*", "org.springframework:*", "org.springframework:spring-core");
     }
 
-    protected void assertFilterMatches(DependencyTreeResult result, String groupId, String artifactId, boolean expected, String... filterTexts) throws MalformedURLException {
+    @Test
+    public void testSharedDependencies() throws Exception {
+        DependencyTreeResult node = collectDependencies("test-osgi-provided.pom");
+
+        DependencyTree osgi = assertFilterMatches(node, "org.osgi", "org.osgi.core", true, "");
+
+        assertEquals("getBundleId", "osgi.core", osgi.getBundleId());
+    }
+
+    protected DependencyTree assertFilterMatches(DependencyTreeResult result, String groupId, String artifactId, boolean expected, String... filterTexts) throws MalformedURLException {
         DependencyTree tree = assertFindDependencyTree(result, groupId, artifactId);
 
         for (String filterText : filterTexts) {
-            Filter<DependencyTree> filter = DependencyTreeFilters.parse(filterText);
+            Filter<DependencyTree> filter = DependencyTreeFilters.parseShareFilter(filterText);
             boolean actual = filter.matches(tree);
             assertEquals("Filter failed for " + filterText, expected, actual);
             //System.out.println("Testing " + tree + " for filter: " + filterText + " = " + actual);
         }
+        return tree;
     }
 
 }
