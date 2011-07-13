@@ -74,7 +74,7 @@
 				<version>${felix-plugin.version}</version>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+						<Bundle-SymbolicName>${project.version}</Bundle-SymbolicName>
 						<Import-Package>
                             ${osgi-import-pkg}
 					    </Import-Package>
