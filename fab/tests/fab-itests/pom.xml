@@ -78,9 +78,8 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
         <configuration>
           <excludes>
             <!-- TODO fix ASAP !!!
-            -->
-
             <exclude>**/IntegrationTest.*</exclude>
+            -->
           </excludes>
         </configuration>
       </plugin>
