@@ -10,10 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
-import org.fusesource.fabric.apollo.amqp.codec.api.DataMessage;
-import org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory;
-import org.fusesource.fabric.apollo.amqp.codec.api.SequenceMessage;
+import org.fusesource.fabric.apollo.amqp.codec.api.*;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
@@ -26,6 +24,8 @@ import java.util.List;
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.encodeDecode;
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createAnnotatedMessage;
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createDataMessage;
+import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createValueMessage;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.createSequenceMessage;
 import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.getFooter;
 import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.toBuffer;
 import static org.fusesource.hawtbuf.Buffer.ascii;
@@ -53,6 +53,55 @@ public class MessageTest {
     }
 
     @Test
+    public void testEncodeDecodeMultipartDataMessage() throws Exception {
+        BareMessage msg = createDataMessage(Buffer.ascii("Hello").buffer(),
+                                            ascii("World").buffer(),
+                                            ascii("!").buffer());
+        AnnotatedMessage in = createAnnotatedMessage(msg);
+        AnnotatedMessage out = encodeDecode(in);
+        assertEquals(in.toString(), out.toString());
+    }
+
+    @Test
+    public void testEncodeDecodeSimpleValueMessage() throws Exception {
+        BareMessage msg = createValueMessage(new AMQPString("Hello World!"));
+        AnnotatedMessage in = createAnnotatedMessage(msg);
+        AnnotatedMessage out = encodeDecode(in);
+        assertEquals(in.toString(), out.toString());
+    }
+
+    @Test
+    public void testEncodeDecodeSimpleSequenceMessage() throws Exception {
+        List<AmqpType> list = new ArrayList<AmqpType>();
+        list.add(new AMQPString("Hello"));
+        list.add(new AMQPString("World"));
+        list.add(new AMQPChar('!'));
+        BareMessage msg = createSequenceMessage(new AmqpSequence(list));
+        AnnotatedMessage in = createAnnotatedMessage(msg);
+        AnnotatedMessage out = encodeDecode(in);
+        assertEquals(in.toString(), out.toString());
+    }
+
+    @Test
+    public void testEncodeDecodeSequenceMessageWithList() throws Exception {
+        List<AmqpSequence> list = new ArrayList<AmqpSequence>();
+
+        for (int i=0; i < 10; i++) {
+            List<AMQPInt> inner = new ArrayList<AMQPInt>();
+            list.add(new AmqpSequence(inner));
+            for (int j=0; j < 10; j++) {
+                inner.add(new AMQPInt(i + j));
+            }
+        }
+
+        BareMessage msg = MessageFactory.createSequenceMessage(list);
+        AnnotatedMessage in = createAnnotatedMessage(msg);
+        AnnotatedMessage out = encodeDecode(in);
+        assertEquals(in.toString(), out.toString());
+
+    }
+
+    @Test
     public void testEncodeDecodeLessSimpleMessage() throws Exception {
         AnnotatedMessage in = getMessage();
         AnnotatedMessage out = encodeDecode(in);
@@ -77,14 +126,19 @@ public class MessageTest {
             payload1.add(new AMQPString("payload item " + i));
             payload2.add(new AMQPString("and payload item " + (i + 10)));
         }
-        AmqpSequence seq1 = new AmqpSequence();
-        seq1.setValue(payload1);
-        AmqpSequence seq2 = new AmqpSequence();
-        seq2.setValue(payload2);
-        List<AmqpSequence> list = new ArrayList<AmqpSequence>();
-        list.add(seq1);
-        list.add(seq2);
-        SequenceMessage msg = MessageFactory.createSequenceMessage(list, new Properties(null, ascii("foo").buffer(), new AMQPString("nowhere"), null, null, null, null, null, null, new Date()));
+        SequenceMessage msg = MessageFactory.createSequenceMessage(
+                new AmqpSequence(payload1),
+                new AmqpSequence(payload2),
+                new Properties(null,
+                        ascii("foo").buffer(),
+                        new AMQPString("nowhere"),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        new Date()));
 
         AnnotatedMessage in = createAnnotatedMessage(msg);
         in.setDeliveryAnnotations(new DeliveryAnnotations());
