@@ -17,19 +17,19 @@ import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport;
  */
 public class MessageFactory {
 
-    public static DataMessage createDataMessage() {
-        return MessageSupport.createDataMessage();
+    public static DataMessage createDataMessage(Object ... args) {
+        return MessageSupport.createDataMessage(args);
     }
 
-    public static SequenceMessage createSequenceMessage() {
-        return MessageSupport.createSequenceMessage();
+    public static SequenceMessage createSequenceMessage(Object ... args) {
+        return MessageSupport.createSequenceMessage(args);
     }
 
-    public static ValueMessage createValueMessage() {
-        return MessageSupport.createValueMessage();
+    public static ValueMessage createValueMessage(Object ... args) {
+        return MessageSupport.createValueMessage(args);
     }
 
-    public static AnnotatedMessage createAnnotatedMessage() {
-        return MessageSupport.createAnnotatedMessage();
+    public static AnnotatedMessage createAnnotatedMessage(Object ... args) {
+        return MessageSupport.createAnnotatedMessage(args);
     }
 }

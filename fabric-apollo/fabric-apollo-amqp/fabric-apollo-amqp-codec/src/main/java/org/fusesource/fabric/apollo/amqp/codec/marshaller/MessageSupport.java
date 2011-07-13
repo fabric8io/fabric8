@@ -18,6 +18,8 @@ import org.fusesource.hawtbuf.DataByteArrayInputStream;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -66,20 +68,97 @@ public class MessageSupport {
         ((BareMessageImpl)message).write(out);
     }
 
-    public static ValueMessage createValueMessage() {
-        return new ValueMessageImpl();
+    public static DataMessage createDataMessage(Object ... args) {
+        DataMessage rc = new DataMessageImpl();
+        for (Object arg : args) {
+            if (arg instanceof Properties) {
+                rc.setProperties((Properties)arg);
+            } else if (arg instanceof ApplicationProperties) {
+                rc.setApplicationProperties((ApplicationProperties)arg);
+            } else if (arg instanceof Buffer) {
+                if (rc.getData() == null) {
+                    rc.setData(new ArrayList<Data>());
+                }
+                rc.getData().add(new Data((Buffer)arg));
+            } else if (arg instanceof Data) {
+                if (rc.getData() == null) {
+                    rc.setData(new ArrayList<Data>());
+                }
+                rc.getData().add((Data)arg);
+            } else if (arg instanceof List) {
+                rc.setData((List)arg);
+            } else {
+                throw new RuntimeException("Unknown type for DataMessage");
+            }
+        }
+        return rc;
     }
 
-    public static SequenceMessage createSequenceMessage() {
-        return new SequenceMessageImpl();
+    public static SequenceMessage createSequenceMessage(Object ... args) {
+        SequenceMessage rc = new SequenceMessageImpl();
+        for (Object arg : args) {
+            if (arg instanceof Properties) {
+                rc.setProperties((Properties)arg);
+            } else if (arg instanceof ApplicationProperties) {
+                rc.setApplicationProperties((ApplicationProperties)arg);
+            } else if (arg instanceof AmqpSequence) {
+                if (rc.getData() == null) {
+                    List list = new ArrayList();
+                    list.add((AmqpSequence)arg);
+                    rc.setData(list);
+                } else {
+                    rc.getData().add((AmqpSequence)arg);
+                }
+            } else if (arg instanceof List) {
+                rc.setData((List)arg);
+            } else {
+                throw new RuntimeException("Unknown type for SequenceMessage");
+            }
+        }
+        if (rc == null) {
+            rc = new SequenceMessageImpl();
+        }
+        return rc;
     }
 
-    public static DataMessage createDataMessage() {
-        return new DataMessageImpl();
+    public static ValueMessage createValueMessage(Object ... args) {
+        ValueMessage rc = new ValueMessageImpl();
+
+        for (Object arg : args) {
+            if (arg instanceof Properties) {
+                rc.setProperties((Properties)arg);
+            } else if (arg instanceof ApplicationProperties) {
+                rc.setApplicationProperties((ApplicationProperties)arg);
+            } else if (arg instanceof AmqpValue) {
+                rc.setData((AmqpValue)arg);
+            } else if (arg instanceof AmqpType) {
+                ((ValueMessageImpl)rc).setData((AmqpType)arg);
+            } else {
+                throw new RuntimeException("Unknown type for ValueMessage");
+            }
+
+        }
+        return rc;
     }
 
-    public static AnnotatedMessage createAnnotatedMessage() {
-        return new AnnotatedMessageImpl();
+    public static AnnotatedMessage createAnnotatedMessage(Object ... args) {
+        AnnotatedMessage rc = new AnnotatedMessageImpl();
+
+        for (Object arg : args) {
+            if (arg instanceof Header) {
+                rc.setHeader((Header)arg);
+            } else if (arg instanceof DeliveryAnnotations) {
+                rc.setDeliveryAnnotations((DeliveryAnnotations)arg);
+            } else if (arg instanceof MessageAnnotations) {
+                rc.setMessageAnnotations((MessageAnnotations)arg);
+            } else if (arg instanceof BareMessage) {
+                rc.setMessage((BareMessage)arg);
+            } else if (arg instanceof Footer) {
+                rc.setFooter((Footer)arg);
+            }
+        }
+
+        return rc;
     }
 
     public static AnnotatedMessage readAnnotatedMessage(DataInput in) throws Exception {
@@ -114,27 +193,28 @@ public class MessageSupport {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = new DataMessageImpl();
+                        message = createDataMessage((Data)type);
+                    } else {
+                        ((DataMessage)message).getData().add((Data) type);
                     }
-                    ((DataMessage)message).getData().add((Data)type);
                 } else if (type instanceof AmqpSequence) {
                     if (message != null && !(message instanceof SequenceMessageImpl)) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = new SequenceMessageImpl();
+                        message = createSequenceMessage((AmqpSequence)type);
+                    } else {
+                        ((SequenceMessage)message).getData().add((AmqpSequence)type);
                     }
-                    ((SequenceMessage)message).getData().add((AmqpSequence) type);
                 } else if (type instanceof AmqpValue) {
                     if (message != null && !(message instanceof ValueMessageImpl)) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = new ValueMessageImpl();
+                        message = createValueMessage((AmqpValue)type);
                     } else {
                         throw new RuntimeException("Only one instance of an AMQP value section can be present in a message");
                     }
-                    ((ValueMessage)message).setData((AmqpValue)type);
                 } else if (type instanceof Properties) {
                     if (properties != null) {
                         throw new RuntimeException("More than one properties section present in message");

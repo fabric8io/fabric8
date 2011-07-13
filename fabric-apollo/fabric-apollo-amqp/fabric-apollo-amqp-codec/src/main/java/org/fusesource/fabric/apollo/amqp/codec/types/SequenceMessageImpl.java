@@ -11,11 +11,8 @@
 package org.fusesource.fabric.apollo.amqp.codec.types;
 
 import org.fusesource.fabric.apollo.amqp.codec.api.SequenceMessage;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpSequence;
-import org.fusesource.fabric.apollo.amqp.codec.types.BareMessageImpl;
 
 import java.io.DataOutput;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +21,11 @@ import java.util.List;
 public class SequenceMessageImpl extends BareMessageImpl<List<AmqpSequence>> implements SequenceMessage {
 
     public SequenceMessageImpl() {
-        data = new ArrayList<AmqpSequence>();
+
+    }
+
+    public SequenceMessageImpl(List sequence) {
+        data = sequence;
     }
 
     public long dataSize() {

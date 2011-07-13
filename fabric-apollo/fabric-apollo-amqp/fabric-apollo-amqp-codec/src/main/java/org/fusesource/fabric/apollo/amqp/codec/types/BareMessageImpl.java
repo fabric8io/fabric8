@@ -25,6 +25,10 @@ public abstract class BareMessageImpl<K> implements BareMessage<K> {
     protected ApplicationProperties applicationProperties;
     protected K data;
 
+    public BareMessageImpl() {
+
+    }
+
     public K getData() {
         return data;
     }

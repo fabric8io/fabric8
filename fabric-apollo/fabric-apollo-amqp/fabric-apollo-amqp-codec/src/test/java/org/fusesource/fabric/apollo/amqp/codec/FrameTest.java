@@ -44,16 +44,9 @@ public class FrameTest {
 
     @Test
     public void testTransferFrame() throws Exception {
-        ValueMessage message = MessageFactory.createValueMessage();
-        message.getData().setValue(new AMQPString("Hello world!"));
-
-        Transfer transfer = new Transfer();
-        transfer.setDeliveryTag(Buffer.ascii("" + 0).buffer());
-        transfer.setDeliveryID(0L);
-        transfer.setHandle(0L);
-
-        AnnotatedMessage annotatedMessage = MessageFactory.createAnnotatedMessage();
-        annotatedMessage.setMessage(message);
+        ValueMessage message = MessageFactory.createValueMessage(new AMQPString("HelloWorld!"));
+        Transfer transfer = new Transfer(0L, 0L, Buffer.ascii("0").buffer());
+        AnnotatedMessage annotatedMessage = MessageFactory.createAnnotatedMessage(message);
 
         AmqpFrame frame = FrameSupport.createFrame(transfer, annotatedMessage);
         DataInput in = frame.dataInput();

@@ -164,6 +164,8 @@ public class DescribedType  extends AmqpDefinedType {
             processField(field);
         }
 
+        generateConstructors();
+
         if (isComposite()) {
             generateCount();
         }
@@ -171,6 +173,21 @@ public class DescribedType  extends AmqpDefinedType {
         fillInWriteMethod();
         fillInSizeMethod();
         generateToString();
+    }
+
+    private void generateConstructors() {
+        int numFields = amqpFields.size();
+
+        for (int i = 0; i <= numFields; i++) {
+            JMethod constructor = cls().constructor(JMod.PUBLIC);
+            String log_message = "Adding constructor for : ";
+            for (int j = 0; j < i; j++) {
+                log_message += amqpFields.get(j).attribute.name() + " ";
+                constructor.param(amqpFields.get(j).attribute.type(),  amqpFields.get(j).attribute.name());
+                constructor.body().assign(_this().ref(amqpFields.get(j).attribute.name()), ref(amqpFields.get(j).attribute.name()));
+            }
+            Log.info(log_message.trim());
+        }
     }
 
     private void processField(Field field) {
