@@ -8,7 +8,6 @@
  */
 package org.fusesource.fabric.fab;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -30,36 +29,17 @@ public class DependencyClassLoader extends URLClassLoader {
             parentClassLoader = new TreeClassLoader(childClassLoaders, parent);
         }
         List<DependencyTree> dependencies = new ArrayList<DependencyTree>();
-        // if we are a pom then don't add a jar...
-        if (!tree.getUrl().endsWith(".pom")) {
+        if (tree.isValidLibrary()) {
             dependencies.add(tree);
         }
         dependencies.addAll(nonSharedDependencies);
         List<URL> urlList = new ArrayList<URL>();
         for (DependencyTree dependency : dependencies) {
-            URL u = getJarURL(dependency);
+            URL u = dependency.getJarURL();
             urlList.add(u);
         }
         URL[] urls = urlList.toArray(new URL[urlList.size()]);
         return new DependencyClassLoader(tree, urls, parentClassLoader);
-    }
-
-    public static URL getJarURL(DependencyTree tree) throws MalformedURLException {
-        String url = tree.getUrl();
-        if (url == null) {
-            throw new IllegalArgumentException("No Url supplied for " + tree);
-        }
-        if (url.startsWith("file:")) {
-            url = url.substring("file:".length());
-        }
-        File file = new File(url);
-        URL u;
-        if (file.exists()) {
-            u = file.toURI().toURL();
-        } else {
-            u = new URL(url);
-        }
-        return u;
     }
 
 

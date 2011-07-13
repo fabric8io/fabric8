@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -140,6 +141,25 @@ public class DependencyTree implements Comparable<DependencyTree> {
         this.hashCode = Objects.hashCode(dependencyId, version, this.children);
     }
 
+    public URL getJarURL() throws MalformedURLException {
+        String url = getUrl();
+        if (url == null) {
+            throw new IllegalArgumentException("No Url supplied for " + this);
+        }
+        if (url.startsWith("file:")) {
+            url = url.substring("file:".length());
+        }
+        File file = new File(url);
+        URL u;
+        if (file.exists()) {
+            u = file.toURI().toURL();
+        } else {
+            u = new URL(url);
+        }
+        return u;
+    }
+
+
     @Override
     public String toString() {
         String classifier = getClassifier();
@@ -174,6 +194,13 @@ public class DependencyTree implements Comparable<DependencyTree> {
         if (answer == 0) answer = compare(version, that.version);
         if (answer == 0) answer = compare(children, that.children);
         return answer;
+    }
+
+    /**
+     * Returns true if the dependency is a valid library (ie. pom files are ignored)
+     */
+    public boolean isValidLibrary() {
+        return !getUrl().endsWith(".pom");
     }
 
     public DependencyTree findDependency(String groupId, String artifactId) {

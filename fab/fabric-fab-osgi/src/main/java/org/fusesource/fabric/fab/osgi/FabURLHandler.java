@@ -17,17 +17,17 @@
  */
 package org.fusesource.fabric.fab.osgi;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-
+import org.fusesource.fabric.fab.osgi.url.internal.Configuration;
+import org.fusesource.fabric.fab.osgi.url.internal.FabConnection;
+import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class FabURLHandler extends AbstractURLStreamHandlerService {
 
@@ -52,36 +52,13 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 		fabJarURL = new URL(url.getPath());
 
 		logger.debug("FAB jar URL is: [" + fabJarURL + "]");
-		return new Connection(url);
+        PropertiesPropertyResolver resolver = new PropertiesPropertyResolver(System.getProperties());
+        Configuration config = new Configuration(resolver);
+        return new FabConnection(url, config);
 	}
 
 	public URL getFabJarURL() {
 		return fabJarURL;
 	}
-
-    public class Connection extends URLConnection {
-
-        public Connection(URL url) {
-            super(url);
-        }
-
-        @Override
-        public void connect() throws IOException {
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            try {
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                FabTransformer.transform(fabJarURL, os);
-                os.close();
-                return new ByteArrayInputStream(os.toByteArray());
-            } catch (Exception e) {
-                logger.error("Error opening fab jar url", e);
-                throw (IOException) new IOException("Error opening blueprint xml url").initCause(e);
-            }
-        }
-    }
-
 }
 

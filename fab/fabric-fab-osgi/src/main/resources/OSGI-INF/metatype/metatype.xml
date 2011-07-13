@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
+  <OCD id="org.fusesource.fabric.fab.osgi.url" name="%fab.name" description="%fab.description">
+    <AD id="org.fusesource.fabric.fab.osgi.url.certificateCheck" type="Boolean" default="false"
+        name="%certificateCheck.name" description="%certificateCheck.description"/>
+  </OCD>
+  <Designate pid="org.fusesource.fabric.fab.osgi.url">
+    <Object ocdref="org.fusesource.fabric.fab.osgi.url"/>
+  </Designate>
+</metatype:MetaData>

@@ -17,15 +17,16 @@
  */
 package org.fusesource.fabric.fab.osgi;
 
+import org.apache.felix.fileinstall.ArtifactUrlTransformer;
+import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.net.URL;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.felix.fileinstall.ArtifactUrlTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A deployment listener that listens for spring xml applications
@@ -47,7 +48,7 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
             try {
                 // only handle non OSGi jar
                 Manifest manifest = jar.getManifest();
-                return manifest != null && manifest.getMainAttributes().getValue("Fabric-Bundle") != null;
+                return manifest != null && manifest.getMainAttributes().getValue(ServiceConstants.INSTR_FAB_DEPENDENCY_SHARED) != null;
             } finally {
                 jar.close();
             }

@@ -79,6 +79,7 @@
         <fabric.osgi.exclude.dependencies>false</fabric.osgi.exclude.dependencies>
         <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
         <fabric.osgi.services.export></fabric.osgi.services.export>
+        <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <activemq-version>5.5.0-fuse-00-39</activemq-version>
         <cxf-version>2.4.0-fuse-00-39</cxf-version>
@@ -228,6 +229,7 @@
                             <_versionpolicy>${fabric.osgi.import.default.version}</_versionpolicy>
                             <_failok>${fabric.osgi.failok}</_failok>
                             <Export-Service>${fabric.osgi.services.export}</Export-Service>
+                            <Embed-Dependency>${fabric.embed.dependency}</Embed-Dependency>
                         </instructions>
                     </configuration>
                 </plugin>

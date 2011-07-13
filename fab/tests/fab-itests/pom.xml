@@ -1,0 +1,90 @@
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.fabric.fab.tests</groupId>
+    <artifactId>tests-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>fabric-itests</artifactId>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>FuseSource Fabric :: Archive Bundles :: Integration Tests</description>
+
+  <dependencies>
+    <!-- This is required to be first so that pax-exam classloader is not messed up with a newer version of felix
+which would lead to java.lang.NoSuchMethodError: org.apache.felix.framework.Logger.<init>(I)V -->
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.framework</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <!-- This is required to be first so that pax-exam classloader is not messed up with a newer version of felix
+which would lead to java.lang.RuntimeException: Could not create [service.obr] -->
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.bundlerepository</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.karaf.tooling</groupId>
+      <artifactId>org.apache.karaf.tooling.testing</artifactId>
+      <version>2.2.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-distro</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.servicemix.tooling</groupId>
+        <artifactId>depends-maven-plugin</artifactId>
+        <version>1.1</version>
+        <executions>
+          <execution>
+            <id>generate-depends-file</id>
+            <goals>
+              <goal>generate-depends-file</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- TODO fix ASAP !!!
+            -->
+
+            <exclude>**/IntegrationTest.*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

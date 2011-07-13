@@ -17,6 +17,12 @@
  */
 package org.fusesource.fabric.fab.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 public class Strings {
 
     /**
@@ -24,5 +30,31 @@ public class Strings {
      */
     public static boolean notEmpty(String text) {
         return text != null && text.length() > 0;
+    }
+
+    /**
+     * splits a string into a list of strings
+     */
+    public static List<String> splitAsList(String text, String delimiter) {
+        List<String> answer = new ArrayList<String>();
+        if (text != null) {
+            answer.addAll(Arrays.asList(text.split(delimiter)));
+        }
+        return answer;
+    }
+
+    /**
+     * joins a collection of objects together as a String using a separator
+     */
+    public static String join(final Collection<?> collection, final String separator) {
+        StringBuffer buffer = new StringBuffer();
+        Iterator<?> iter = collection.iterator();
+        while (iter.hasNext()) {
+            buffer.append(iter.next());
+            if (iter.hasNext()) {
+                buffer.append(separator);
+            }
+        }
+        return buffer.toString();
     }
 }
