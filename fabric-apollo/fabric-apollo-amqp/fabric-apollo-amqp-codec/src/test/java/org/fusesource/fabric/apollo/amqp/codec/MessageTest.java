@@ -13,7 +13,6 @@ package org.fusesource.fabric.apollo.amqp.codec;
 import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
 import org.fusesource.fabric.apollo.amqp.codec.api.DataMessage;
 import org.fusesource.fabric.apollo.amqp.codec.api.SequenceMessage;
-import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
@@ -25,8 +24,11 @@ import java.util.HashMap;
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.encodeDecode;
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createAnnotatedMessage;
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createDataMessage;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.getFooter;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.toBuffer;
 import static org.fusesource.hawtbuf.Buffer.ascii;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  *
@@ -64,8 +66,8 @@ public class MessageTest {
     @Test
     public void testScanMessageForSection() throws Exception {
         AnnotatedMessage in = getMessage();
-        Buffer buffer = MessageSupport.toBuffer(in);
-        Footer footer = MessageSupport.getSection(Footer.CONSTRUCTOR.getBuffer(), buffer);
+        Buffer buffer = toBuffer(in);
+        Footer footer = getFooter(buffer);
         System.out.printf("Got : %s\n", footer);
         assertNotNull(footer);
     }

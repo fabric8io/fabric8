@@ -168,7 +168,7 @@ public class MessageSupport {
         }
     }
 
-    public static <T extends AmqpType> T getSection(Buffer descriptor, Buffer buffer) throws Exception {
+    private static <T extends AmqpType> T getSection(Buffer descriptor, Buffer buffer) throws Exception {
         int position = buffer.indexOf(descriptor);
         if (position == -1) {
             return null;
@@ -186,7 +186,83 @@ public class MessageSupport {
         return null;
     }
 
+    public static Header getHeader(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        Header rc = null;
+        rc = getSection(Header.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(Header.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static MessageAnnotations getMessageAnnotations(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        MessageAnnotations rc = null;
+        rc = getSection(MessageAnnotations.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(MessageAnnotations.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static DeliveryAnnotations getDeliveryAnnotations(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        DeliveryAnnotations rc = null;
+        rc = getSection(DeliveryAnnotations.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(DeliveryAnnotations.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static Properties getProperties(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        Properties rc = null;
+        rc = getSection(Properties.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(Properties.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static ApplicationProperties getApplicationProperties(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        ApplicationProperties rc = null;
+        rc = getSection(ApplicationProperties.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(ApplicationProperties.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    //TODO - get body type scanners
+    //TODO - scanners for body values, Data, AmqpValue, AmqpSequence
+
+    public static Footer getFooter(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        Footer rc = null;
+        rc = getSection(Footer.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(Footer.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
     // TODO - need to have symbolic constructors in here as well...
+    /*
     private static final Buffer[] ANNOTATED_MESSAGE_PARTS = new Buffer[] {
             Header.CONSTRUCTOR.getBuffer(),
             DeliveryAnnotations.CONSTRUCTOR.getBuffer(),
@@ -206,6 +282,7 @@ public class MessageSupport {
             AmqpValue.CONSTRUCTOR.getBuffer(),
             AmqpSequence.CONSTRUCTOR.getBuffer()
     };
+    */
 
     public static AnnotatedMessage decodeAnnotatedMessage(Buffer buffer) throws Exception {
         return readAnnotatedMessage(new DataByteArrayInputStream(buffer));
