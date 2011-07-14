@@ -21,8 +21,8 @@ You'll need to make sure you have the Fuse repo on your "org.ops4j.pax.url.mvn.r
 Using a plain jar as a FAB
 --------------------------
 
-If you want to install a plain jar built using a maven-like tool so it includes a META-INF/services/maven/someGroup/someArtifact/pom.xml inside it with <dependency> for flat dependencies
-and <scope>provided</scope> for shared dependencies then just prefix the URL with **fab:**
+If you want to install a plain jar built using a maven-like tool so it includes a META-INF/services/maven/someGroup/someArtifact/pom.xml inside it with &lt;dependency&gt; for flat dependencies
+and &lt;scope&gt;provided&lt;/scope&gt; for shared dependencies then just prefix the URL with **fab:**
 
 The following example installs the [fab-sample-camel-blueprint-share sample jar|https://github.com/fusesource/fabric/tree/master/fab/tests/fab-sample-camel-blueprint-share]
 
