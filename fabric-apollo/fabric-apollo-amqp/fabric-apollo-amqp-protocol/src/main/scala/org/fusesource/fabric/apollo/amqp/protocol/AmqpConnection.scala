@@ -22,7 +22,7 @@ import scala.util.Random
 import collection.mutable.HashMap
 import collection.mutable.Map
 import org.fusesource.fabric.apollo.amqp.api._
-import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SinkMux, Sink}
+import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SessionSinkMux, Sink}
 import org.fusesource.fabric.apollo.amqp.codec._
 import interfaces.Frame
 import java.net.URI
@@ -57,7 +57,7 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
 
   var dispatchQueue: DispatchQueue =  Dispatch.createQueue
 
-  var session_manager: SinkMux[AnyRef] = null
+  var session_manager: SessionSinkMux[AnyRef] = null
   var connection_sink: Sink[AnyRef] = null
   var transport_sink: TransportSink = null
 
@@ -485,7 +485,7 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
 
   def onTransportConnected: Unit = {
     trace("Connected to %s:/%s", transport.getTypeId, transport.getRemoteAddress)
-    session_manager = new SinkMux[AnyRef](transport_sink.map {
+    session_manager = new SessionSinkMux[AnyRef](transport_sink.map {
       x =>
         x
     }, dispatchQueue, AmqpCodec)

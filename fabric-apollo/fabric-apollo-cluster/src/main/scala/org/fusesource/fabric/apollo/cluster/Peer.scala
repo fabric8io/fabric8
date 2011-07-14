@@ -62,7 +62,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
   var handlers = HashSet[ClusterProtocolHandler]()
 
   var primary:ClusterProtocolHandler = _
-  var session_manager:SinkMux[Frame] = _
+  var session_manager:SessionSinkMux[Frame] = _
   var connection_sink:Sink[Frame] = _
 
   private def connection_send(command:Int, data:MessageBuffer[_,_]):Unit = connection_send(command, data.toFramedBuffer)
@@ -162,7 +162,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
   def make_primary(handler: ClusterProtocolHandler): Unit = {
     assert_executing
     primary = handler
-    session_manager = new SinkMux[Frame](handler.connection.transport_sink.map(x => x), handler.dispatch_queue, Frame)
+    session_manager = new SessionSinkMux[Frame](handler.connection.transport_sink.map(x => x), handler.dispatch_queue, Frame)
     connection_sink = new OverflowSink(session_manager.open(dispatch_queue));
 
     // resend the consumer infos...
@@ -431,7 +431,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
     channel
   }
 
-  class OutboundChannelSink(val producer_queue:DispatchQueue, val open_command:ChannelOpen.Buffer) extends Sink[Delivery] with SinkFilter {
+  class OutboundChannelSink(val producer_queue:DispatchQueue, val open_command:ChannelOpen.Buffer) extends Sink[Delivery] with SinkFilter[Frame] {
 
     def id = open_command.getChannel.longValue
 
@@ -578,7 +578,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
 
   val inbound_channels = HashMap[Long, InboundChannelSink]()
 
-  class InboundChannelSink(val open_command:ChannelOpen.Buffer) extends Sink[ChannelDelivery.Buffer] with SinkFilter {
+  class InboundChannelSink(val open_command:ChannelOpen.Buffer) extends Sink[ChannelDelivery.Buffer] with SinkFilter[ChannelDelivery.Buffer] {
 
     def channel_id = open_command.getChannel.longValue
 
@@ -638,7 +638,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
     // violate his credit window.
     override def full = false
 
-    def downstream: Sink[_] = sink_switcher
+    def downstream = sink_switcher
 
     def offer(value: ChannelDelivery.Buffer): Boolean = {
       if( value.hasProtocol ) {

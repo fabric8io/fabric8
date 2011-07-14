@@ -23,8 +23,9 @@
 
   <groupId>org.fusesource.fabric.apollo.amqp</groupId>
   <artifactId>fabric-apollo-amqp-protocol</artifactId>
-  <name>${project.artifactId}</name>
   <version>1.0-SNAPSHOT</version>
+
+  <name>${project.artifactId}</name>
 
   <dependencies>
 
