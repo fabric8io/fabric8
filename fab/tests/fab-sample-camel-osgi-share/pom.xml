@@ -45,6 +45,11 @@
     </dependency>
   </dependencies>
 
+
+  <profiles>
+    <profile>
+      <id>fab</id>
+
   <build>
     <plugins>
       <plugin>
@@ -67,6 +72,6 @@
         </configuration>
       </plugin>
     </plugins>
-  </build>
-
+  </build>    </profile>
+  </profiles>
 </project>
