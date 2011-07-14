@@ -1,7 +1,7 @@
 Trying out FAB in Karaf
 =======================
 
-To try out FAB type the following into a Karaf shell in a vanilla 2.2.x Karaf...
+First you'll need a vanilla 2.2.x Karaf then install Fabric into it along with Camel for the shared-camel samples...
 
 Install Fabric and Camel
 ------------------------
