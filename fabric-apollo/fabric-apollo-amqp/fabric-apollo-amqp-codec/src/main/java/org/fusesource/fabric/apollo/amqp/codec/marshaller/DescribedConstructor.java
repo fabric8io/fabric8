@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
@@ -34,7 +35,18 @@ public class DescribedConstructor {
         } catch (Exception e) {
             throw new RuntimeException("Exception constructing DescribedConstructor instance for descriptor " + descriptor + " : " + e.getMessage());
         }
+    }
 
+    public DescribedConstructor(Buffer descriptor) {
+        int size = (int)(1 + TypeRegistry.instance().sizer().sizeOfSymbol(descriptor));
+        DataByteArrayOutputStream out = new DataByteArrayOutputStream(size);
+        try {
+            out.writeByte(0x0);
+            AMQPSymbol.write(descriptor, out);
+            buffer = out.toBuffer();
+        } catch (Exception e) {
+            throw new RuntimeException("Exception constructing DescribedConstructor instance for descriptor " + descriptor + " : " + e.getMessage());
+        }
     }
 
     public Buffer getBuffer() {

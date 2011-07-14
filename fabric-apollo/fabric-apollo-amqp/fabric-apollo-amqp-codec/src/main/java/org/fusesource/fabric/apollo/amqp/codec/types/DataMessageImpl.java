@@ -23,14 +23,28 @@ import java.util.List;
 public class DataMessageImpl extends BareMessageImpl<List<Data>> implements DataMessage {
 
     public DataMessageImpl() {
-        data = new ArrayList<Data>();
+
+    }
+
+    public DataMessageImpl(Data data) {
+        this.data = new ArrayList<Data>();
+        this.data.add(data);
     }
 
     public DataMessageImpl(Buffer data) {
         this.data = new ArrayList<Data>();
-        Data d = new Data();
-        d.setValue(data);
-        this.data.add(d);
+        this.data.add(new Data(data));
+    }
+
+    public DataMessageImpl(List data) {
+        this.data = new ArrayList<Data>();
+        for (Object obj : data) {
+            if (obj instanceof Buffer) {
+                this.data.add(new Data((Buffer)obj));
+            } else if (obj instanceof Data) {
+                this.data.add((Data)obj);
+            }
+        }
     }
 
     @Override

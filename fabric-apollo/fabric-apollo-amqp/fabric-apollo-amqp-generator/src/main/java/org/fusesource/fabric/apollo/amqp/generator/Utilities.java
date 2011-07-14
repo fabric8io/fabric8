@@ -31,6 +31,7 @@ public class Utilities {
         substitutions.put("Sasl", "SASL");
         substitutions.put("Id", "ID");
         substitutions.put("TimeOut", "Timeout");
+        substitutions.put("Ttl", "TTL");
         substitutions.put("Ieee", "IEEE");
         substitutions.put("Vbin", "VBIN");
         substitutions.put("Utf", "UTF");

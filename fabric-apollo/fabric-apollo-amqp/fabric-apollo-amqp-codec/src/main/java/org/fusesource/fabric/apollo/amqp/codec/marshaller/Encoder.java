@@ -17,6 +17,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.AMQPList;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPMap;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong;
 import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.UTF8Buffer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -387,26 +388,26 @@ public class Encoder implements PrimitiveEncoder {
         int size = in.readUnsignedByte();
         Buffer s = new Buffer(size);
         s.readFrom(in);
-        return new String(s.getData(), Charset.forName("UTF-8"));
+        return s.utf8().toString();
     }
 
     public void writeStringStr8UTF8(String value, DataOutput out) throws Exception {
-        Buffer s = new Buffer(value.getBytes("UTF-8"));
-        out.writeByte(s.length());
-        s.writeTo(out);
+        UTF8Buffer buf = new UTF8Buffer(value);
+        out.writeByte(buf.buffer().length());
+        buf.buffer().writeTo(out);
     }
 
     public String readStringStr32UTF8(DataInput in) throws Exception {
         int size = in.readInt();
         Buffer s = new Buffer(size);
         s.readFrom(in);
-        return new String(s.getData(), Charset.forName("UTF-8"));
+        return s.utf8().toString();
     }
 
     public void writeStringStr32UTF8(String value, DataOutput out) throws Exception {
-        Buffer s = new Buffer(value.getBytes("UTF-8"));
-        out.writeInt(s.length());
-        s.writeTo(out);
+        UTF8Buffer buf = new UTF8Buffer(value);
+        out.writeInt(buf.buffer().length());
+        buf.buffer().writeTo(out);
     }
 
     public Buffer readSymbolSym8(DataInput in) throws Exception {

@@ -11,8 +11,8 @@
 package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
+import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
 import org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory;
-import org.fusesource.fabric.apollo.amqp.codec.api.ValueMessage;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Assert;
@@ -33,26 +33,21 @@ import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
 public class CodecPerfTest {
 
     interface TestLoop {
-        public void loop(long iteration) throws Exception;
+        public void loop(Long iteration) throws Exception;
     }
 
     @Test
     public void messagePerfTest() throws Exception {
         execute(1000000, new TestLoop() {
 
-            public void loop(long iteration) throws Exception {
-                ValueMessage message = MessageFactory.createValueMessage();
-                message.setProperties(new Properties());
-                message.getProperties().setCreationTime(new Date());
-                message.getProperties().setUserID(Buffer.ascii("user1"));
-                message.getProperties().setMessageID(new MessageIDString("" + iteration));
-                message.getData().setValue(new AMQPString("This is message " + iteration));
+            public void loop(Long iteration) throws Exception {
+                BareMessage message = MessageFactory.createDataMessage(
+                        Buffer.ascii("Message iteration " + iteration),
+                        new Properties(new MessageIDString(iteration.toString()), Buffer.ascii("user1"), new AMQPString("foo"), null, null, null, null, null, null, new Date())
 
-                AnnotatedMessage annotatedMessage = MessageFactory.createAnnotatedMessage();
-                annotatedMessage.setMessage(message);
-                annotatedMessage.setHeader(new Header());
-                annotatedMessage.getHeader().setDurable(false);
-                annotatedMessage.getHeader().setDeliveryCount(0L);
+                );
+
+                AnnotatedMessage annotatedMessage = MessageFactory.createAnnotatedMessage(message, new Header(false, null, null, null, 0L));
 
                 AnnotatedMessage out = encodeDecode(annotatedMessage, false);
             }
@@ -63,19 +58,15 @@ public class CodecPerfTest {
     @Test
     public void transferPerfTest() throws Exception {
         execute(7000000, new TestLoop() {
-            public void loop(long iteration) throws Exception {
-                Transfer in = new Transfer();
-                in.setDeliveryTag(new Buffer(("" + iteration).getBytes()));
-                in.setDeliveryID(iteration + 1);
-                in.setHandle(0L);
-                in.setMessageFormat(0L);
+            public void loop(Long iteration) throws Exception {
+                Transfer in = new Transfer(0L, iteration + 1, Buffer.ascii(iteration.toString()), 0L);
                 Transfer out = writeRead(in, false);
             }
         });
 
     }
 
-    public void execute(final int max, final TestLoop loop) throws Exception {
+    public void execute(final long max, final TestLoop loop) throws Exception {
         final AtomicLong i = new AtomicLong(0);
         final CountDownLatch latch = new CountDownLatch(1);
 

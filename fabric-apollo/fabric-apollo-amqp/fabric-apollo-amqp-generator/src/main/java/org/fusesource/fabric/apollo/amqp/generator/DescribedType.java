@@ -42,6 +42,8 @@ public class DescribedType  extends AmqpDefinedType {
     private JFieldVar SYMBOLIC_ID_SIZE;
     private JFieldVar NUMERIC_ID;
     private JFieldVar NUMERIC_ID_SIZE;
+    private JFieldVar SYMBOLIC_CONSTRUCTOR;
+    private JFieldVar NUMERIC_CONSTRUCTOR;
     private JFieldVar CONSTRUCTOR;
 
     private JMethod write;
@@ -90,7 +92,11 @@ public class DescribedType  extends AmqpDefinedType {
                 NUMERIC_ID = cls().field(mods, BigInteger.class, "NUMERIC_ID", _new(cm.ref("java.math.BigInteger")).arg(lit(category + descriptorId)).arg(lit(16)));
                 NUMERIC_ID_SIZE = cls().field(mods, Long.class, "NUMERIC_ID_SIZE", generator.registry().cls().staticInvoke("instance").invoke("sizer").invoke("sizeOfULong").arg(ref("NUMERIC_ID")));
 
-                CONSTRUCTOR = cls().field(mods, cm.ref(generator.getMarshaller() + ".DescribedConstructor"), "CONSTRUCTOR", _new(cm.ref(generator.getMarshaller() + ".DescribedConstructor")).arg(ref("NUMERIC_ID")));
+                SYMBOLIC_CONSTRUCTOR = cls().field(mods, cm.ref(generator.getMarshaller() + ".DescribedConstructor"), "SYMBOLIC_CONSTRUCTOR", _new(cm.ref(generator.getMarshaller() + ".DescribedConstructor")).arg(ref("SYMBOLIC_ID")));
+
+                NUMERIC_CONSTRUCTOR = cls().field(mods, cm.ref(generator.getMarshaller() + ".DescribedConstructor"), "NUMERIC_CONSTRUCTOR", _new(cm.ref(generator.getMarshaller() + ".DescribedConstructor")).arg(ref("NUMERIC_ID")));
+
+                CONSTRUCTOR = cls().field(mods, cm.ref(generator.getMarshaller() + ".DescribedConstructor"), "CONSTRUCTOR");
 
                 cls().init().add(
                         generator.registry().cls().staticInvoke("instance")
@@ -107,6 +113,10 @@ public class DescribedType  extends AmqpDefinedType {
                                 .arg(ref("SYMBOLIC_ID"))
                                 .arg(cls().dotclass())
                 );
+
+                JConditional block = cls().init()._if(cm.ref("java.lang.Boolean").staticInvoke("parseBoolean").arg(cm.ref("java.lang.System").staticInvoke("getProperty").arg(lit(generator.getPackagePrefix() + ".UseSymbolicID"))));
+                block._then().assign(ref("CONSTRUCTOR"), ref("SYMBOLIC_CONSTRUCTOR"));
+                block._else().assign(ref("CONSTRUCTOR"), ref("NUMERIC_CONSTRUCTOR"));
             }
         }
     }
@@ -154,6 +164,8 @@ public class DescribedType  extends AmqpDefinedType {
             processField(field);
         }
 
+        generateConstructors();
+
         if (isComposite()) {
             generateCount();
         }
@@ -161,6 +173,21 @@ public class DescribedType  extends AmqpDefinedType {
         fillInWriteMethod();
         fillInSizeMethod();
         generateToString();
+    }
+
+    private void generateConstructors() {
+        int numFields = amqpFields.size();
+
+        for (int i = 0; i <= numFields; i++) {
+            JMethod constructor = cls().constructor(JMod.PUBLIC);
+            String log_message = "Adding constructor for : ";
+            for (int j = 0; j < i; j++) {
+                log_message += amqpFields.get(j).attribute.name() + " ";
+                constructor.param(amqpFields.get(j).attribute.type(),  amqpFields.get(j).attribute.name());
+                constructor.body().assign(_this().ref(amqpFields.get(j).attribute.name()), ref(amqpFields.get(j).attribute.name()));
+            }
+            Log.info(log_message.trim());
+        }
     }
 
     private void processField(Field field) {

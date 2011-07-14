@@ -18,6 +18,8 @@ import org.fusesource.hawtbuf.DataByteArrayInputStream;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -66,20 +68,97 @@ public class MessageSupport {
         ((BareMessageImpl)message).write(out);
     }
 
-    public static ValueMessage createValueMessage() {
-        return new ValueMessageImpl();
+    public static DataMessage createDataMessage(Object ... args) {
+        DataMessage rc = new DataMessageImpl();
+        for (Object arg : args) {
+            if (arg instanceof Properties) {
+                rc.setProperties((Properties)arg);
+            } else if (arg instanceof ApplicationProperties) {
+                rc.setApplicationProperties((ApplicationProperties)arg);
+            } else if (arg instanceof Buffer) {
+                if (rc.getData() == null) {
+                    rc.setData(new ArrayList<Data>());
+                }
+                rc.getData().add(new Data((Buffer)arg));
+            } else if (arg instanceof Data) {
+                if (rc.getData() == null) {
+                    rc.setData(new ArrayList<Data>());
+                }
+                rc.getData().add((Data)arg);
+            } else if (arg instanceof List) {
+                rc.setData((List)arg);
+            } else {
+                throw new RuntimeException("Unknown type for DataMessage");
+            }
+        }
+        return rc;
     }
 
-    public static SequenceMessage createSequenceMessage() {
-        return new SequenceMessageImpl();
+    public static SequenceMessage createSequenceMessage(Object ... args) {
+        SequenceMessage rc = new SequenceMessageImpl();
+        for (Object arg : args) {
+            if (arg instanceof Properties) {
+                rc.setProperties((Properties)arg);
+            } else if (arg instanceof ApplicationProperties) {
+                rc.setApplicationProperties((ApplicationProperties)arg);
+            } else if (arg instanceof AmqpSequence) {
+                if (rc.getData() == null) {
+                    List list = new ArrayList();
+                    list.add((AmqpSequence)arg);
+                    rc.setData(list);
+                } else {
+                    rc.getData().add((AmqpSequence)arg);
+                }
+            } else if (arg instanceof List) {
+                rc.setData((List)arg);
+            } else {
+                throw new RuntimeException("Unknown type for SequenceMessage");
+            }
+        }
+        if (rc == null) {
+            rc = new SequenceMessageImpl();
+        }
+        return rc;
     }
 
-    public static DataMessage createDataMessage() {
-        return new DataMessageImpl();
+    public static ValueMessage createValueMessage(Object ... args) {
+        ValueMessage rc = new ValueMessageImpl();
+
+        for (Object arg : args) {
+            if (arg instanceof Properties) {
+                rc.setProperties((Properties)arg);
+            } else if (arg instanceof ApplicationProperties) {
+                rc.setApplicationProperties((ApplicationProperties)arg);
+            } else if (arg instanceof AmqpValue) {
+                rc.setData((AmqpValue)arg);
+            } else if (arg instanceof AmqpType) {
+                ((ValueMessageImpl)rc).setData((AmqpType)arg);
+            } else {
+                throw new RuntimeException("Unknown type for ValueMessage");
+            }
+
+        }
+        return rc;
     }
 
-    public static AnnotatedMessage createAnnotatedMessage() {
-        return new AnnotatedMessageImpl();
+    public static AnnotatedMessage createAnnotatedMessage(Object ... args) {
+        AnnotatedMessage rc = new AnnotatedMessageImpl();
+
+        for (Object arg : args) {
+            if (arg instanceof Header) {
+                rc.setHeader((Header)arg);
+            } else if (arg instanceof DeliveryAnnotations) {
+                rc.setDeliveryAnnotations((DeliveryAnnotations)arg);
+            } else if (arg instanceof MessageAnnotations) {
+                rc.setMessageAnnotations((MessageAnnotations)arg);
+            } else if (arg instanceof BareMessage) {
+                rc.setMessage((BareMessage)arg);
+            } else if (arg instanceof Footer) {
+                rc.setFooter((Footer)arg);
+            }
+        }
+
+        return rc;
     }
 
     public static AnnotatedMessage readAnnotatedMessage(DataInput in) throws Exception {
@@ -114,27 +193,28 @@ public class MessageSupport {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = new DataMessageImpl();
+                        message = createDataMessage((Data)type);
+                    } else {
+                        ((DataMessage)message).getData().add((Data) type);
                     }
-                    ((DataMessage)message).getData().add((Data)type);
                 } else if (type instanceof AmqpSequence) {
                     if (message != null && !(message instanceof SequenceMessageImpl)) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = new SequenceMessageImpl();
+                        message = createSequenceMessage((AmqpSequence)type);
+                    } else {
+                        ((SequenceMessage)message).getData().add((AmqpSequence)type);
                     }
-                    ((SequenceMessage)message).getData().add((AmqpSequence) type);
                 } else if (type instanceof AmqpValue) {
                     if (message != null && !(message instanceof ValueMessageImpl)) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = new ValueMessageImpl();
+                        message = createValueMessage((AmqpValue)type);
                     } else {
                         throw new RuntimeException("Only one instance of an AMQP value section can be present in a message");
                     }
-                    ((ValueMessage)message).setData((AmqpValue)type);
                 } else if (type instanceof Properties) {
                     if (properties != null) {
                         throw new RuntimeException("More than one properties section present in message");
@@ -168,7 +248,7 @@ public class MessageSupport {
         }
     }
 
-    public static <T extends AmqpType> T getSection(Buffer descriptor, Buffer buffer) throws Exception {
+    private static <T extends AmqpType> T getSection(Buffer descriptor, Buffer buffer) throws Exception {
         int position = buffer.indexOf(descriptor);
         if (position == -1) {
             return null;
@@ -186,7 +266,83 @@ public class MessageSupport {
         return null;
     }
 
+    public static Header getHeader(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        Header rc = null;
+        rc = getSection(Header.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(Header.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static MessageAnnotations getMessageAnnotations(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        MessageAnnotations rc = null;
+        rc = getSection(MessageAnnotations.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(MessageAnnotations.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static DeliveryAnnotations getDeliveryAnnotations(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        DeliveryAnnotations rc = null;
+        rc = getSection(DeliveryAnnotations.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(DeliveryAnnotations.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static Properties getProperties(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        Properties rc = null;
+        rc = getSection(Properties.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(Properties.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    public static ApplicationProperties getApplicationProperties(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        ApplicationProperties rc = null;
+        rc = getSection(ApplicationProperties.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(ApplicationProperties.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
+    //TODO - get body type scanners
+    //TODO - scanners for body values, Data, AmqpValue, AmqpSequence
+
+    public static Footer getFooter(Buffer buffer) throws Exception {
+        if (buffer.length == 0) {
+            return null;
+        }
+        Footer rc = null;
+        rc = getSection(Footer.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
+        if (rc == null) {
+            rc = getSection(Footer.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
+        }
+        return rc;
+    }
+
     // TODO - need to have symbolic constructors in here as well...
+    /*
     private static final Buffer[] ANNOTATED_MESSAGE_PARTS = new Buffer[] {
             Header.CONSTRUCTOR.getBuffer(),
             DeliveryAnnotations.CONSTRUCTOR.getBuffer(),
@@ -206,6 +362,7 @@ public class MessageSupport {
             AmqpValue.CONSTRUCTOR.getBuffer(),
             AmqpSequence.CONSTRUCTOR.getBuffer()
     };
+    */
 
     public static AnnotatedMessage decodeAnnotatedMessage(Buffer buffer) throws Exception {
         return readAnnotatedMessage(new DataByteArrayInputStream(buffer));

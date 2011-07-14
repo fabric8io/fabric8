@@ -11,8 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.codec.types;
 
 import org.fusesource.fabric.apollo.amqp.codec.api.ValueMessage;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpValue;
-import org.fusesource.fabric.apollo.amqp.codec.types.BareMessageImpl;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
 
 import java.io.DataOutput;
 
@@ -22,7 +21,19 @@ import java.io.DataOutput;
 public class ValueMessageImpl extends BareMessageImpl<AmqpValue> implements ValueMessage {
 
     public ValueMessageImpl() {
-        data = new AmqpValue();
+
+    }
+
+    public ValueMessageImpl(AmqpType data) {
+        this.data = new AmqpValue(data);
+    }
+
+    public ValueMessageImpl(AmqpValue data) {
+        this.data = data;
+    }
+
+    public void setData(AmqpType data) {
+        this.data = new AmqpValue(data);
     }
 
     @Override
