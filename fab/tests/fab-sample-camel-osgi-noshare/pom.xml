@@ -18,11 +18,11 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fab-sample-camel-noshare</artifactId>
+  <artifactId>fab-sample-camel-osgi-noshare</artifactId>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FAB :: Sample :: Camel NoShare</description>
+  <description>FAB :: Sample :: Camel OSGi NoShare</description>
 
   <dependencies>
     <dependency>
@@ -36,12 +36,24 @@
       <artifactId>camel-core</artifactId>
       <version>${camel-version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core-osgi</artifactId>
+      <version>${camel-version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!--
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+    -->
+
   </dependencies>
 
   <build>
@@ -55,7 +67,6 @@
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
               <Fabric-Dependency-Share></Fabric-Dependency-Share>
-              <Private-Package>META-INF.services.org.apache.camel,META-INF.services.org.apache.camel.component,META-INF.services.org.apache.camel.language</Private-Package>
               <!--
               <Fabric-Dependency-Exclude>org.osgi:*</Fabric-Dependency-Exclude>
 

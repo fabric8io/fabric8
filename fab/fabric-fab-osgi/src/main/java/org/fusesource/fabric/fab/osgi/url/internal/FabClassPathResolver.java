@@ -26,8 +26,10 @@ import org.sonatype.aether.RepositoryException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -38,6 +40,7 @@ public class FabClassPathResolver {
 
     private final FabConnection connection;
     private final Properties instructions;
+    private final Map<String, Object> embeddedResources;
     private final List<String> bundleClassPath;
     private final List<String> requireBundles;
     private final List<String> importPackages;
@@ -49,13 +52,13 @@ public class FabClassPathResolver {
     private List<DependencyTree> sharedDependencies = new ArrayList<DependencyTree>();
     private DependencyTree rootTree;
 
-    public FabClassPathResolver(FabConnection connection, Properties instructions, List<String> bundleClassPath, List<String> requireBundles, List<String> importPackages) {
+    public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources, List<String> bundleClassPath, List<String> requireBundles, List<String> importPackages) {
         this.connection = connection;
         this.instructions = instructions;
+        this.embeddedResources = embeddedResources;
         this.bundleClassPath = bundleClassPath;
         this.requireBundles = requireBundles;
         this.importPackages = importPackages;
-
     }
 
     public void resolve() throws RepositoryException, IOException, XmlPullParserException {
@@ -67,10 +70,11 @@ public class FabClassPathResolver {
         String sharedFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_SHARED);
         String importPackageFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_IMPORT_PACKAGES);
         String excludeFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_EXCLUDE);
+        String optionalDependencyText = getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY);
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText);
         importPackageFilter = DependencyTreeFilters.parseImportPackageFilter(importPackageFilterText);
-        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText);
+        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText, optionalDependencyText);
 
         bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
         requireBundles.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
@@ -106,10 +110,19 @@ public class FabClassPathResolver {
             if (dependencyTree.isValidLibrary()) {
                 String url = dependencyTree.getUrl();
                 if (url != null) {
-                    // if its a URL then turn it into a file
-                    File file = Files.urlToFile(url, "fabric-tmp-dependency-", ".jar");
-                    String path = file.getAbsolutePath();
-                    if (file.exists() && path.length() > 0) {
+                    String path = dependencyTree.getGroupId() + "." + dependencyTree.getArtifactId() + ".jar";
+
+                    if (!bundleClassPath.contains(path)) {
+                        // try use a file if it exists
+                        File file = new File(url);
+                        if (file.exists()) {
+                            embeddedResources.put(path, file);
+                        } else {
+                            embeddedResources.put(path, new URL(url));
+                        }
+                        if (bundleClassPath.isEmpty()) {
+                            bundleClassPath.add(".");
+                        }
                         bundleClassPath.add(path);
                     }
                 }
@@ -151,7 +164,10 @@ public class FabClassPathResolver {
                 sharedDependencies.add(child);
                 List<DependencyTree> list = child.getDescendants();
                 for (DependencyTree grandChild : list) {
-                    if (excludePackageFilter != null && excludePackageFilter.matches(grandChild)) {
+                    if (excludePackageFilter != null && excludePackageFilter.matches(tree)) {
+                        LOG.debug("Excluded transitive dependency: " + child);
+                        continue;
+                    } else {
                         sharedDependencies.add(grandChild);
                     }
                 }

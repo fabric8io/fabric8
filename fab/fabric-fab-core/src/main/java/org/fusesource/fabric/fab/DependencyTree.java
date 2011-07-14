@@ -72,6 +72,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     private final int hashCode;
     private String scope;
     private File jarFile;
+    private boolean optional;
 
     public static Builder newBuilder() {
         return new Builder();
@@ -144,6 +145,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     public DependencyTree(DependencyId dependencyId, Dependency dependency, List<DependencyTree> children) {
         this(dependencyId, dependency.getArtifact().getVersion(), children);
         this.scope = dependency.getScope();
+        this.optional = dependency.isOptional();
     }
 
     public DependencyTree(DependencyId dependencyId, String version, List<DependencyTree> children) {
@@ -382,6 +384,10 @@ public class DependencyTree implements Comparable<DependencyTree> {
 
     public String getScope() {
         return scope;
+    }
+
+    public boolean isOptional() {
+        return optional;
     }
 
     public String getBundleId() {

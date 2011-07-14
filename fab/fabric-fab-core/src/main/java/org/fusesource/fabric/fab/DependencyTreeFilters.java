@@ -34,30 +34,59 @@ public class DependencyTreeFilters {
     /**
      * Parsers a shared dependency filter of the form "" for match none, "*" for all, or a space
      * separated list of "groupId:artifactId" allowing wildcards.
-     *
+     * <p/>
      * By default it shares all provided scoped dependencies.
      */
     public static Filter<DependencyTree> parseShareFilter(String dependencyFilterText) {
         Filter<DependencyTree> filter = parse(dependencyFilterText);
-        return Filters.or(providedScopeFilter, filter);
+        return filter;
+        //return Filters.or(providedScopeFilter, filter);
     }
 
     /**
      * Parsers the exclude dependency filter of the form "" for match none, "*" for all, or a space
      * separated list of "groupId:artifactId" allowing wildcards.
-     *
+     * <p/>
      * By default it excludes all test scoped dependencies.
      */
-    public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText) {
+    public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText, String includeOptionalDependencyFilterText) {
         Filter<DependencyTree> filter = parse(dependencyFilterText);
+        Filter<DependencyTree> filteredOptionals = createExcludeOptionalFilter(includeOptionalDependencyFilterText);
+        Filter<DependencyTree> filterScopes = Filters.or(testScopeFilter, providedScopeFilter, filteredOptionals);
+        // if no filter text then assume it matches nothing
+        if (isEmpty(filter)) {
+            return filterScopes;
+        }
+        return Filters.or(filterScopes, filter);
+    }
+
+    private static Filter<DependencyTree> createExcludeOptionalFilter(String includeOptionalDependencyFilterText) {
+        final Filter<DependencyTree> filter = parse(includeOptionalDependencyFilterText);
+        final boolean excludeAll = isEmpty(filter);
+        return new Filter<DependencyTree>() {
+            @Override
+            public boolean matches(DependencyTree tree) {
+                if (tree.isOptional()) {
+                    if (excludeAll) {
+                        return true;
+                    } else {
+                        // only exclude optional dependencies which don't match the include filter
+                        return !filter.matches(tree);
+                    }
+                }
+                return false;
+            }
+        };
+    }
+
+    protected static boolean isEmpty(Filter<DependencyTree> filter) {
+        boolean empty = false;
         if (filter instanceof CompositeFilter) {
             // lets treat empty filters as not matching anything
             CompositeFilter<DependencyTree> compositeFilter = (CompositeFilter<DependencyTree>) filter;
-            if (compositeFilter.isEmpty()) {
-                return testScopeFilter;
-            }
+            empty = compositeFilter.isEmpty();
         }
-        return Filters.or(testScopeFilter, filter);
+        return empty;
     }
 
     /**

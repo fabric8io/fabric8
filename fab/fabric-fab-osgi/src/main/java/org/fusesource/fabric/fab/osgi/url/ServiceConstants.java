@@ -47,6 +47,11 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_DEPENDENCY_EXCLUDE = "Fabric-Dependency-Exclude";
 
     /**
+     * The space separated list of optional dependencies to be included (by default none)
+     */
+    static final String INSTR_FAB_OPTIONAL_DEPENDENCY = "Fabric-Optional-Dependency";
+
+    /**
      * The space separated list of shared dependencies using wildcards such as "group:artifact group:* *:*"
      * which denote which dependencies should not be used directly via a Require-Bundle but instead should
      * Import-Package the various packages that are exported by the bundle.

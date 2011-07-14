@@ -72,19 +72,11 @@
     </feature>
 
     <feature name="fabric-fab" version="${project.version}" resolver="(obr)">
-        <!--
-        <bundle>mvn:org.fusesource.fabric.fab/fabric-fab-core/${project.version}</bundle>
-        -->
         <bundle>mvn:org.fusesource.fabric.fab/fabric-fab-osgi/${project.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
-      <!--
-        not bundles
-        <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-bnd/${ops4j-pax-swissbox-bnd.version}</bundle>
-        <bundle>mvn:org.ops4j.pax.url/pax-url-commons/${pax.url.version}</bundle>
-        -->
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${ops4j-pax-swissbox-optional-jcl.version}</bundle>
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
     </feature>

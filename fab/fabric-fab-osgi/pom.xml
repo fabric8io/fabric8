@@ -100,11 +100,13 @@
       <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!--
     <dependency>
       <groupId>org.ops4j.pax.swissbox</groupId>
       <artifactId>pax-swissbox-bnd</artifactId>
       <version>${ops4j-pax-swissbox-bnd.version}</version>
     </dependency>
+    -->
     <!-- transitive dependencies -->
     <dependency>
       <groupId>biz.aQute</groupId>

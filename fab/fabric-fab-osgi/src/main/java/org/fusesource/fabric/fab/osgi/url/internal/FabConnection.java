@@ -16,7 +16,6 @@ import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
-import org.ops4j.pax.swissbox.bnd.BndUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
@@ -28,10 +27,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * {@link URLConnection} for the "fab" protocol
@@ -64,7 +63,9 @@ public class FabConnection extends URLConnection {
     public InputStream getInputStream() throws IOException {
         connect();
         try {
-            Properties instructions = getInstructions();
+            Map<String, Object> embeddedResources = new HashMap<String, Object>();
+            Properties instructions = createInstructions(embeddedResources);
+
             PreConditionException.validateNotNull(instructions, "Instructions");
             String fabUri = instructions.getProperty(ServiceConstants.INSTR_FAB_URL);
             if (fabUri == null || fabUri.trim().length() == 0) {
@@ -75,7 +76,9 @@ public class FabConnection extends URLConnection {
             return BndUtils.createBundle(
                     URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
                     instructions,
-                    fabUri
+                    fabUri,
+                    OverwriteMode.MERGE,
+                    embeddedResources
             );
         } catch (RepositoryException e) {
             throw new IOException(e.getMessage(), e);
@@ -90,26 +93,27 @@ public class FabConnection extends URLConnection {
 
     /**
      * Returns the processing instructions
+     * @param embeddedResources
      */
-    protected Properties getInstructions() throws IOException, RepositoryException, XmlPullParserException {
+    protected Properties createInstructions(Map<String, Object> embeddedResources) throws IOException, RepositoryException, XmlPullParserException {
         Properties instructions = BndUtils.parseInstructions(getURL().getQuery());
 
         String urlText = getURL().toExternalForm();
         instructions.setProperty(ServiceConstants.INSTR_FAB_URL, urlText);
 
-        configureInstructions(instructions);
+        configureInstructions(instructions, embeddedResources);
         return instructions;
     }
 
     /**
      * Strategy method to allow the instructions to be processed by derived classes
      */
-    protected void configureInstructions(Properties instructions) throws RepositoryException, IOException, XmlPullParserException {
+    protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException {
         List<String> bundleClassPath = new ArrayList<String>();
         List<String> requireBundles = new ArrayList<String>();
         List<String> importPackages = new ArrayList<String>();
 
-        FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, bundleClassPath, requireBundles, importPackages);
+        FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, embeddedResources, bundleClassPath, requireBundles, importPackages);
         resolver.resolve();
 
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));

@@ -10,7 +10,7 @@ package org.fusesource.fabric.fab.sample.camel;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -19,21 +19,8 @@ public class Activator implements BundleActivator {
     private CamelContext camelContext;
 
     public void start(BundleContext context) throws Exception {
-        // inside OSGi the thread context class loader isn't set to the right class loader so lets try that now
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            ClassLoader classLoader = DefaultCamelContext.class.getClassLoader();
-            Thread.currentThread().setContextClassLoader(classLoader);
-            System.out.println("Setting the context class loader to: " + classLoader);
-            startCamel();
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-    }
-
-    public void startCamel() throws Exception {
         System.out.println("Starting my Sample CamelContext");
-        camelContext = new DefaultCamelContext();
+        camelContext = new OsgiDefaultCamelContext(context);
         camelContext.addRoutes(new RouteBuilder() {
             public void configure() throws Exception {
                 from("timer://foo?fixedRate=trueperiod=5000").to("log:myFooTimer");
@@ -43,10 +30,6 @@ public class Activator implements BundleActivator {
     }
 
     public void stop(BundleContext context) throws Exception {
-        stopCamel();
-    }
-
-    public void stopCamel() throws Exception {
         if (camelContext != null) {
             System.out.println("Shutting down my Sample CamelContext");
             camelContext.stop();

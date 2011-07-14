@@ -21,6 +21,13 @@
       <version>2.1.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring</artifactId>
+      <version>2.1.0</version>
+      <optional>true</optional>
+    </dependency>
+
     <!-- implicitly shared dependency -->
     <dependency>
       <groupId>org.osgi</groupId>

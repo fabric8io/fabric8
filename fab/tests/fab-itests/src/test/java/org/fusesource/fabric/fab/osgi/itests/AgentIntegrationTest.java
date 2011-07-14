@@ -15,8 +15,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -38,29 +36,29 @@ public class AgentIntegrationTest extends IntegrationTestSupport {
     @Configuration
     public static Option[] configuration() throws Exception {
         Option[] options = combine(
-            // Default karaf environment
-            Helper.getDefaultOptions(
-                    // this is how you set the default log level when using pax logging (logProfile)
-                    //Helper.setLogLevel("TRACE")
-                    Helper.setLogLevel("INFO")
-            ),
+                // Default karaf environment
+                Helper.getDefaultOptions(
+                        // this is how you set the default log level when using pax logging (logProfile)
+                        //Helper.setLogLevel("TRACE")
+                        Helper.setLogLevel("INFO")
+                ),
 
-            // add fab features
-            scanFeatures(
-                    maven().groupId("org.fusesource.fabric").artifactId("fabric-distro").type("xml").classifier("features").versionAsInProject(),
-                    "fabric-agent"
-            ),
+                // add fab features
+                scanFeatures(
+                        maven().groupId("org.fusesource.fabric").artifactId("fabric-distro").type("xml").classifier("features").versionAsInProject(),
+                        "fabric-agent"
+                ),
 
-            workingDirectory("target/paxrunner/core/"),
+                workingDirectory("target/paxrunner/core/"),
 
-            waitForFrameworkStartup(),
+                waitForFrameworkStartup(),
 
-            // TODO Test on both equinox and felix
-            // TODO: pax-exam does not support the latest felix version :-(
-            // TODO: so we use the higher supported which should be the same
-            // TODO: as the one specified in itests/dependencies/pom.xml
-            //equinox(), felix().version("3.0.2")
-            felix().version("3.0.2")
+                // TODO Test on both equinox and felix
+                // TODO: pax-exam does not support the latest felix version :-(
+                // TODO: so we use the higher supported which should be the same
+                // TODO: as the one specified in itests/dependencies/pom.xml
+                //equinox(), felix().version("3.0.2")
+                felix().version("3.0.2")
         );
         // Stop the shell log bundle
         //Helper.findMaven(options, "org.apache.karaf.shell", "org.apache.karaf.shell.log").noStart();
