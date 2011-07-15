@@ -15,7 +15,6 @@ import org.fusesource.fabric.fab.DependencyTreeFilters;
 import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
-import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Strings;
@@ -28,7 +27,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -72,9 +70,9 @@ public class FabClassPathResolver {
         DependencyTreeResult result = resolver.collectDependenciesForJar(fileJar, offline);
         this.rootTree = result.getTree();
 
-        String sharedFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_SHARED);
+        String sharedFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY);
         String importPackageFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_IMPORT_PACKAGES);
-        String excludeFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_EXCLUDE);
+        String excludeFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY);
         String optionalDependencyText = getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY);
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText);

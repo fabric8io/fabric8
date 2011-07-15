@@ -37,17 +37,23 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_URL = "FAB-URL";
 
     /**
-     * The space separated list of shared dependencies using wildcards such as "group:artifact group:* *:*"
+     * The space separated list of dependencies which should be provided - thats to say imported from the container.
+     *
+     * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_DEPENDENCY_SHARED = "Fabric-Dependency-Share";
+    static final String INSTR_FAB_PROVIDED_DEPENDENCY = "Fabric-Provided-Dependency";
 
     /**
-     * The space separated list of excluded dependencies using wildcards such as "group:artifact group:* *:*"
+     * The space separated list of dependencies to be excluded.
+     *
+     * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_DEPENDENCY_EXCLUDE = "Fabric-Dependency-Exclude";
+    static final String INSTR_FAB_EXCLUDE_DEPENDENCY = "Fabric-Exclude-Dependency";
 
     /**
-     * The space separated list of optional dependencies to be included (by default none)
+     * The space separated list of optional dependencies to be included. By default no optional dependencies are included.
+     *
+     * You can use wildcards such as "group:artifact group:* *:*"
      */
     static final String INSTR_FAB_OPTIONAL_DEPENDENCY = "Fabric-Optional-Dependency";
 
@@ -61,7 +67,7 @@ public interface ServiceConstants extends Constants {
     /**
      * All the possible FAB headers on a manfiest, used to detect a FAB
      */
-    static final String[] FAB_PROPERTY_NAMES = {INSTR_FAB_DEPENDENCY_SHARED, INSTR_FAB_DEPENDENCY_EXCLUDE, INSTR_FAB_DEPENDENCY_IMPORT_PACKAGES};
+    static final String[] FAB_PROPERTY_NAMES = {INSTR_FAB_PROVIDED_DEPENDENCY, INSTR_FAB_EXCLUDE_DEPENDENCY, INSTR_FAB_DEPENDENCY_IMPORT_PACKAGES};
 
 
     // OSGi headers

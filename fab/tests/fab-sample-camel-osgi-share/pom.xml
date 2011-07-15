@@ -60,7 +60,7 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <Fabric-Dependency-Share></Fabric-Dependency-Share>
+              <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
               <!--
               <Fabric-Dependency-Exclude>org.osgi:*</Fabric-Dependency-Exclude>
 

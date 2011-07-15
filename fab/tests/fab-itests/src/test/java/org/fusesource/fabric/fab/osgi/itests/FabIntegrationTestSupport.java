@@ -80,7 +80,7 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
                 // add fab features
                 scanFeatures(
                         maven().groupId("org.fusesource.fabric").artifactId("fabric-distro").type("xml").classifier("features").versionAsInProject(),
-                        "fabric-fab"
+                        "fabric-bundle"
                 ),
 
                 workingDirectory("target/paxrunner/core/"),

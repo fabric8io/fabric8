@@ -52,7 +52,7 @@
               <archive>
                 <index>true</index>
                 <manifestEntries>
-                  <Fabric-Dependency-Share></Fabric-Dependency-Share>
+                  <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
                 </manifestEntries>
               </archive>
             </configuration>

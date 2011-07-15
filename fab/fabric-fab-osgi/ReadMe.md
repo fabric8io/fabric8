@@ -7,7 +7,7 @@ Install Fabric and Camel
 ------------------------
 
     features:addUrl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
-    features:install fabric-fab
+    features:install fabric-bundle
 
 Install Camel for shared camel tests...
 

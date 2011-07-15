@@ -71,7 +71,7 @@
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.wrap/${karaf-version}</bundle>
     </feature>
 
-    <feature name="fabric-fab" version="${project.version}" resolver="(obr)">
+    <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric.fab/fabric-fab-osgi/${project.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
@@ -92,7 +92,7 @@
     </feature>
 
     <feature name="fabric-agent" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-fab</feature>
+        <feature version="${project.version}">fabric-bundle</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-agent/${project.version}</bundle>
