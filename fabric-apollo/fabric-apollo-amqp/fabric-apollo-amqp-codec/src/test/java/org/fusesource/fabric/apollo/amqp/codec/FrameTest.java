@@ -14,8 +14,8 @@ import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
 import org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory;
 import org.fusesource.fabric.apollo.amqp.codec.api.ValueMessage;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.FrameSupport;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPFrame;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPString;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpFrame;
 import org.fusesource.fabric.apollo.amqp.codec.types.Begin;
 import org.fusesource.fabric.apollo.amqp.codec.types.Transfer;
 import org.fusesource.hawtbuf.Buffer;
@@ -48,7 +48,7 @@ public class FrameTest {
         Transfer transfer = new Transfer(0L, 0L, Buffer.ascii("0").buffer());
         AnnotatedMessage annotatedMessage = MessageFactory.createAnnotatedMessage(message);
 
-        AmqpFrame frame = FrameSupport.createFrame(transfer, annotatedMessage);
+        AMQPFrame frame = FrameSupport.createFrame(transfer, annotatedMessage);
         DataInput in = frame.dataInput();
 
         Transfer outTransfer = (Transfer)FrameSupport.getPerformative(in);

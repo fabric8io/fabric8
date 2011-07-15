@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeRegistry;
 import org.fusesource.fabric.apollo.amqp.codec.types.Header;
 import org.fusesource.hawtbuf.AsciiBuffer;
@@ -48,7 +48,7 @@ public class CodecTest {
         assertTrue(registry.getFormatCodeMap().size() > 0);
         assertTrue(registry.getSymbolicCodeMap().size() > 0);
 
-        AmqpType type = (AmqpType) registry.getSymbolicCodeMap().get(new AsciiBuffer("amqp:header:list")).newInstance();
+        AMQPType type = (AMQPType) registry.getSymbolicCodeMap().get(new AsciiBuffer("amqp:header:list")).newInstance();
 
         //System.out.printf("Got type : %s", type.getClass().getName());
 

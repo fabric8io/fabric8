@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.api.*;
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
@@ -26,8 +26,7 @@ import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createA
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createDataMessage;
 import static org.fusesource.fabric.apollo.amqp.codec.api.MessageFactory.createValueMessage;
 import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.createSequenceMessage;
-import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.getFooter;
-import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.toBuffer;
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.*;
 import static org.fusesource.hawtbuf.Buffer.ascii;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -72,11 +71,11 @@ public class MessageTest {
 
     @Test
     public void testEncodeDecodeSimpleSequenceMessage() throws Exception {
-        List<AmqpType> list = new ArrayList<AmqpType>();
+        List<AMQPType> list = new ArrayList<AMQPType>();
         list.add(new AMQPString("Hello"));
         list.add(new AMQPString("World"));
         list.add(new AMQPChar('!'));
-        BareMessage msg = createSequenceMessage(new AmqpSequence(list));
+        BareMessage msg = createSequenceMessage(new AMQPSequence(list));
         AnnotatedMessage in = createAnnotatedMessage(msg);
         AnnotatedMessage out = encodeDecode(in);
         assertEquals(in.toString(), out.toString());
@@ -84,11 +83,11 @@ public class MessageTest {
 
     @Test
     public void testEncodeDecodeSequenceMessageWithList() throws Exception {
-        List<AmqpSequence> list = new ArrayList<AmqpSequence>();
+        List<AMQPSequence> list = new ArrayList<AMQPSequence>();
 
         for (int i=0; i < 10; i++) {
             List<AMQPInt> inner = new ArrayList<AMQPInt>();
-            list.add(new AmqpSequence(inner));
+            list.add(new AMQPSequence(inner));
             for (int j=0; j < 10; j++) {
                 inner.add(new AMQPInt(i + j));
             }
@@ -127,8 +126,8 @@ public class MessageTest {
             payload2.add(new AMQPString("and payload item " + (i + 10)));
         }
         SequenceMessage msg = MessageFactory.createSequenceMessage(
-                new AmqpSequence(payload1),
-                new AmqpSequence(payload2),
+                new AMQPSequence(payload1),
+                new AMQPSequence(payload2),
                 new Properties(null,
                         ascii("foo").buffer(),
                         new AMQPString("nowhere"),

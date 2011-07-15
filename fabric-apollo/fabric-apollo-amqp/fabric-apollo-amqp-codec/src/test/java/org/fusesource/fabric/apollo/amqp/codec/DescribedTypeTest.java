@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
-import static org.fusesource.hawtbuf.Buffer.*;
+import static org.fusesource.hawtbuf.Buffer.ascii;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -38,21 +38,21 @@ public class DescribedTypeTest {
     }
 
     @Test
-    public void testAmqpValue() throws Exception {
-        AmqpValue in = new AmqpValue();
+    public void testAMQPValue() throws Exception {
+        AMQPValue in = new AMQPValue();
         in.setValue(new AMQPString("Hello world!"));
-        AmqpValue out = writeRead(in);
+        AMQPValue out = writeRead(in);
         assertEquals(in.toString(), out.toString());
     }
 
     @Test
-    public void testAmqpSequence() throws Exception {
-        AmqpSequence in = new AmqpSequence();
+    public void testAMQPSequence() throws Exception {
+        AMQPSequence in = new AMQPSequence();
         in.setValue(new ArrayList());
         in.getValue().add(new AMQPString("Hello world!"));
         in.getValue().add(new AMQPString("and stuff"));
         in.getValue().add(new AMQPLong(123L));
-        AmqpSequence out = writeRead(in);
+        AMQPSequence out = writeRead(in);
         assertEquals(in.toString(), out.toString());
     }
 
