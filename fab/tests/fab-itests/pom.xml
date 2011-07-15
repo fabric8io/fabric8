@@ -63,6 +63,12 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric.fab.tests</groupId>
+      <artifactId>fab-sample-camel-velocity-noshare</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric.fab.tests</groupId>
       <artifactId>fab-sample-camel-blueprint-share</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
