@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
+import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
+
 /**
  *
  * A callback used to notify when new messages arrive at a receiver
@@ -31,7 +33,7 @@ public interface MessageListener {
      * @param message
      * @return whether or not more messages can be accepted by this listener
      */
-    public boolean offer(Receiver receiver, Message message);
+    public boolean offer(Receiver receiver, BareMessage message);
 
     /**
      * Called to supply a refiller task when this listener is ready to accept more messages

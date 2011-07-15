@@ -12,9 +12,7 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.apache.activemq.apollo.util.FunSuiteSupport
 import org.scalatest.matchers.ShouldMatchers
-import org.fusesource.hawtbuf._
 import org.fusesource.fabric.apollo.amqp.codec.types.TypeFactory._
-import java.util.UUID
 import org.fusesource.fabric.apollo.amqp.codec.CodecUtils
 import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpFragment, AmqpList}
 
@@ -23,6 +21,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.{AmqpFragment, AmqpList}
  */
 
 class MessageTest extends FunSuiteSupport with ShouldMatchers {
+  /*
 
   def create_message = {
     val message = new DataMessageImpl
@@ -85,5 +84,5 @@ class MessageTest extends FunSuiteSupport with ShouldMatchers {
       new_message.getBody.compareTo(message.getBody) should be (0)
     }
   }
-
+*/
 }

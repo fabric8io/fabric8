@@ -11,16 +11,13 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.scalatest.matchers.ShouldMatchers
-import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.fusesource.fabric.apollo.amqp.api.{AmqpConnectionFactory, Outcome}
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-
 /**
  *
  */
 
 class IncomingLinkBufferTest extends FunSuiteSupport with ShouldMatchers with Logging {
+  /*
 
   test("Buffer messages at incoming link") {
 
@@ -96,5 +93,5 @@ class IncomingLinkBufferTest extends FunSuiteSupport with ShouldMatchers with Lo
     received should be (max)
 
   }
-
+*/
 }

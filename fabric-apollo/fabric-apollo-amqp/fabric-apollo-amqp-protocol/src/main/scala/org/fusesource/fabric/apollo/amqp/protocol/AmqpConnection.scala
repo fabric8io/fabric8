@@ -26,10 +26,11 @@ import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SessionSi
 import org.fusesource.fabric.apollo.amqp.codec._
 import interfaces.Frame
 import java.net.URI
-import marshaller.BitUtils
+import marshaller.{TypeReader, BitUtils}
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import org.apache.activemq.apollo.util.{URISupport, Logging}
-import java.util.concurrent.{CountDownLatch, TimeUnit}
+import java.util.concurrent.TimeUnit
+import org.fusesource.hawtbuf.DataByteArrayInputStream
 
 /**
  *
@@ -164,10 +165,13 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
     }
   }
 
-  def handle_frame(frame:AmqpFrame) = {
+  val in = new DataByteArrayInputStream
+
+  def handle_frame(frame:AMQPFrame) = {
     val channel = frame.getChannel
 
-    val body = frame.getBody
+    in.restart(frame.getBody)
+    val body = TypeReader.read(in)
 
     body match {
       case o:Open =>
@@ -175,7 +179,7 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
       case c:Close =>
         close
       case _ =>
-        get_session(channel, frame.getBody) match {
+        get_session(channel, body) match {
           case Some(session) =>
             body match {
               case b:Begin =>
@@ -187,7 +191,7 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
               case d:Detach =>
                 session.detach(d)
               case t:Transfer =>
-                session.transfer(t)
+                session.transfer(t, in)
               case f:Flow =>
                 session.flow(f)
             }
@@ -240,9 +244,9 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
   def onTransportCommand(command:Object): Unit = {
     try {
       command match {
-        case a:AmqpProtocolHeader =>
+        case a:AMQPProtocolHeader =>
           header(a)
-        case frame:AmqpFrame =>
+        case frame:AMQPFrame =>
           if (frame.getBody == null) {
             return
           }
@@ -269,10 +273,10 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
     }
   }
 
-  def header(protocolHeader: AmqpProtocolHeader): Unit = {
+  def header(protocolHeader: AMQPProtocolHeader): Unit = {
     if ( !headerSent.getAndSet(true) ) {
       def send_response = {
-        val response = new AmqpProtocolHeader
+        val response = new AMQPProtocolHeader
         Option(protocolHeader) match {
           case Some(h) =>
             trace("Received header {%s}, responding with {%s}", h, response)
@@ -290,7 +294,7 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
     }
 
     if ( protocolHeader != null ) {
-      if ( protocolHeader.major != AmqpDefinitions.MAJOR && protocolHeader.minor != AmqpDefinitions.MINOR && protocolHeader.revision != AmqpDefinitions.REVISION ) {
+      if ( protocolHeader.major != AMQPDefinitions.MAJOR && protocolHeader.minor != AMQPDefinitions.MINOR && protocolHeader.revision != AMQPDefinitions.REVISION ) {
         val e = new RuntimeException("Unexpected protocol version received!")
         close(e)
         throw e
@@ -343,8 +347,8 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
             close("Idle timeout expired")
           }
           heartbeat_monitor.on_keep_alive = () => {
-            val frame = new AmqpFrame
-            frame.setType(AmqpFrame.AMQP_FRAME_TYPE)
+            val frame = new AMQPFrame
+            frame.setType(AMQPFrame.AMQP_FRAME_TYPE)
             connection_sink.offer(frame)
           }
           heartbeat_monitor.start
@@ -406,11 +410,11 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
   def send(channel:Int, command:AnyRef, sasl:Boolean = false):Boolean = {
 
     def createFrame(command:Frame, sasl:Boolean = false) = {
-      val rc = new AmqpFrame(command)
+      val rc = new AMQPFrame(command)
       if (sasl) {
-        rc.setType(AmqpFrame.AMQP_SASL_FRAME_TYPE)
+        rc.setType(AMQPFrame.AMQP_SASL_FRAME_TYPE)
       } else {
-        rc.setType(AmqpFrame.AMQP_FRAME_TYPE)
+        rc.setType(AMQPFrame.AMQP_FRAME_TYPE)
       }
       trace("Setting outgoing frame channel to %s" ,channel)
       rc.setChannel(channel)
@@ -418,7 +422,7 @@ class AmqpConnection extends Connection with SessionConnection with TransportLis
     }
 
     command match {
-      case header:AmqpProtocolHeader =>
+      case header:AMQPProtocolHeader =>
         doSend(header)
       case open:Open =>
         doSend(createFrame(open))

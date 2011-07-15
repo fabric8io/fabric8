@@ -10,10 +10,23 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
+import org.fusesource.fabric.apollo.amqp.codec.types.StdDistMode;
+import org.fusesource.hawtbuf.Buffer;
+
 /**
  *
  */
 public enum DistributionMode {
-    MOVE,
-    COPY
+    MOVE(StdDistMode.MOVE),
+    COPY(StdDistMode.COPY);
+
+    private StdDistMode mode = null;
+
+    DistributionMode(StdDistMode mode) {
+        this.mode = mode;
+    }
+
+    public Buffer mode() {
+        return mode.getValue();
+    }
 }

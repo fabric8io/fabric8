@@ -11,23 +11,14 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.fusesource.fabric.apollo.amqp.codec.types._
-import org.fusesource.fabric.apollo.amqp.codec.{AmqpFrame, AmqpProtocolHeader, AmqpCommand}
-import scala.math._
-import collection.mutable.ListBuffer
-import DispatchPriority.HIGH
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.{Future, Executors, CountDownLatch, TimeUnit}
-import org.fusesource.fabric.apollo.amqp.api._
-import org.fusesource.hawtbuf.Buffer
-
 /**
  *
  */
 class SessionTest extends FunSuiteSupport with ShouldMatchers with Logging {
+
+  /*
 
   def create_sessions = {
     val connection1 = new DummyConnection
@@ -320,4 +311,5 @@ class DummyConnection extends SessionConnection with ConnectionHandler with Logg
   def close = {}
   def close(s:String) = {}
   def close(t:Throwable) = {}
+  */
 }

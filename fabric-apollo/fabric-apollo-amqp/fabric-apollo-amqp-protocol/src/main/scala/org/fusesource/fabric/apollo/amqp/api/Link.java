@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol;
 import org.fusesource.hawtbuf.Buffer;
 
@@ -202,7 +202,7 @@ public interface Link {
      * Sets the default outcome to be used for unsettled transfers
      * @param outcome
      */
-    public void setDefaultOutcome(AmqpType outcome);
+    public void setDefaultOutcome(AMQPType outcome);
 
     /**
      * Limits the possible outcomes that can be used for unsettled transfers

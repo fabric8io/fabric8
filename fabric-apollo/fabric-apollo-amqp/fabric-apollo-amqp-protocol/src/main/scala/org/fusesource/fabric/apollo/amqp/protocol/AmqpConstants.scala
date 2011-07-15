@@ -14,7 +14,7 @@ package org.fusesource.fabric.apollo.amqp.protocol
  * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
  */
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions
+import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
 
 /**
  * <p>
@@ -25,7 +25,7 @@ import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions
 object AmqpConstants {
 
   val PROTOCOL = "amqp"
-  val MAGIC = new Buffer(AmqpDefinitions.MAGIC)
-  val MIN_MAX_FRAME_SIZE = AmqpDefinitions.MIN_MAX_FRAME_SIZE
+  val MAGIC = new Buffer(AMQPDefinitions.MAGIC)
+  val MIN_MAX_FRAME_SIZE = AMQPDefinitions.MIN_MAX_FRAME_SIZE
 
 }

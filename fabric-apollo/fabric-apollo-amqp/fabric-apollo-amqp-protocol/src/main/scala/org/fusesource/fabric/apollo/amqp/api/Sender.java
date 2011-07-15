@@ -10,6 +10,9 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
+import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
+import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
+
 /**
  *
  * A message source on an AMQP link
@@ -24,7 +27,9 @@ public interface Sender extends Link {
      * @param message
      * @return
      */
-    public boolean put(Message message);
+    public boolean put(BareMessage message);
+
+    public boolean put(AnnotatedMessage message);
 
     /**
      * Returns whether or not this sender has sufficient link credit to send a message

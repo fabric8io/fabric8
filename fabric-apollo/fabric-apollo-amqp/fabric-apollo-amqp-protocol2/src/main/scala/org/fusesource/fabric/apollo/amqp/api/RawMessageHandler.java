@@ -10,9 +10,11 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
+import org.fusesource.hawtbuf.Buffer;
+
 /**
- * An AMQP message containing 1 or more encoded AMQP types
+ *
  */
-public interface AmqpDataMessage extends DataMessage {
+public interface RawMessageHandler extends MessageHandler<Buffer> {
 
 }

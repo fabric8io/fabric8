@@ -18,10 +18,8 @@ import java.util._
 import org.fusesource.fabric.apollo.amqp.api._
 import Role.SENDER
 import Role.RECEIVER
-import scala.util.continuations._
-import collection.mutable.ListBuffer
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType
 
 /**
  *
@@ -235,8 +233,8 @@ abstract class AmqpLink(val session:LinkSession) extends Link with Logging {
   def setFilter(filter:Map[_, _]) = source.setFilter(filter)
   def getFilter:Map[_, _] = source.getFilter
 
-  def setDefaultOutcome(outcome:AmqpType) = source.setDefaultOutcome(outcome)
-  def getDefaultOutcome:AmqpType = source.getDefaultOutcome
+  def setDefaultOutcome(outcome:AMQPType) = source.setDefaultOutcome(outcome)
+  def getDefaultOutcome:AMQPType = source.getDefaultOutcome
 
   def setPossibleOutcomes(outcomes:Array[AMQPSymbol]) = source.setOutcomes(outcomes)
   def getPossibleOutcomes:Array[AMQPSymbol] = source.getOutcomes

@@ -10,11 +10,14 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
-import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.Outcome;
 
 /**
- * An AMQP message containing opaque binary data in it's application data section
+ *
  */
-public interface DataMessage extends GenericMessage<Buffer> {
+public interface AckHandler {
+
+    public void settled(long deliveryId, AnnotatedMessage message, Outcome outcome);
 
 }

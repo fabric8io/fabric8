@@ -20,21 +20,15 @@ import java.util.concurrent.atomic.{AtomicLong, AtomicInteger, AtomicBoolean}
 import org.fusesource.fabric.apollo.amqp.api._
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.Outcome
 import collection.immutable.HashMap
-import org.fusesource.hawtbuf.Buffer
 import org.apache.activemq.apollo.broker.{OverflowSink, Sink}
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.{AmqpType, Frame}
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.{AMQPType, Frame}
+import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage
+import org.fusesource.hawtbuf.{DataByteArrayInputStream, Buffer}
 
 /**
  *
  */
-
-trait MessageFactory {
-  def createMessage(tag:String): Message = null
-  def createMessage(tag: Buffer): Message = null
-  def createMessage: Message = null
-}
-
-class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[Runnable] with MessageFactory with Logging {
+class AmqpSession (connection:SessionConnection, val channel:Int) extends Session with LinkSession with Sink[Runnable] with Logging {
 
   val current_transfer_id = new AtomicLong(1)
   val current_handle: AtomicInteger = new AtomicInteger(0)
@@ -42,8 +36,8 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
   val end_sent: AtomicBoolean = new AtomicBoolean(false)
 
   val store:LinkStore = new LinkStore
-  var unsettled_outgoing = HashMap[Buffer, Message]()
-  var unsettled_incoming = HashMap[Buffer, Message]()
+  var unsettled_outgoing = HashMap[Buffer, AnnotatedMessage]()
+  var unsettled_incoming = HashMap[Buffer, AnnotatedMessage]()
   var id_to_tag = HashMap[Long, Buffer]()
   var tag_to_id = HashMap[Buffer, Long]()
 
@@ -415,7 +409,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
 
   def send(command: Frame): Unit = connection.send(channel, command)
 
-  def transfer(transfer: Transfer) = {
+  def transfer(transfer: Transfer, in:DataByteArrayInputStream) = {
     Option(transfer.getDeliveryID) match {
       case Some(id) =>
         next_incoming_transfer_id = Option(id + 1L)
@@ -445,6 +439,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
     store.get_by_remote_handle(key) match {
       case Some(link) =>
         trace("Directing transfer id %s from remote handle %s to local handle %s", transfer.getDeliveryID, key, link.handle)
+        link.transfer(transfer, in)
         /*
         val msg = AmqpProtoMessage.create(transfer)
         if (!msg.settled) {
@@ -530,7 +525,7 @@ class AmqpSession (connection:SessionConnection, val channel:Int) extends Sessio
       disposition.getRole)
   }
 
-  private def settle_outgoing(first:Long, last:Long, outcome:AmqpType, settled:Boolean, role: Boolean): Unit = {
+  private def settle_outgoing(first:Long, last:Long, outcome:AMQPType, settled:Boolean, role: Boolean): Unit = {
     for ( i <- (first to last) ) {
       id_to_tag.get(i) match {
         case Some(tag) =>

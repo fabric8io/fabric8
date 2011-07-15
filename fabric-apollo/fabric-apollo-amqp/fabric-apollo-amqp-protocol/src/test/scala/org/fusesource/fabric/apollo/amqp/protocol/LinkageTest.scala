@@ -10,17 +10,14 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import java.util.concurrent.{TimeUnit, CountDownLatch}
-import org.fusesource.fabric.apollo.amqp.api._
-
 /**
  *
  */
 
 class LinkageTest extends FunSuiteSupport with ShouldMatchers with Logging {
+  /*
 
   test("Create sender, set address, check address at receiver end") {
 
@@ -76,5 +73,5 @@ class LinkageTest extends FunSuiteSupport with ShouldMatchers with Logging {
     received_name should be (test_link_name)
 
   }
-
+*/
 }

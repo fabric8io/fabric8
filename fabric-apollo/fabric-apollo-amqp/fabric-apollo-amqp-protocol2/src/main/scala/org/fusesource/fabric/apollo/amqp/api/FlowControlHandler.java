@@ -11,21 +11,10 @@
 package org.fusesource.fabric.apollo.amqp.api;
 
 /**
- * Base generic type of all AMQP message types
+ *
  */
-public interface GenericMessage<E> extends BaseMessage {
+public interface FlowControlHandler {
 
-    /**
-     * Returns the message body
-     * @return
-     */
-    public E getBody();
-
-    /**
-     * Sets the message body
-     * @param body
-     */
-    public void setBody(E body);
-
+    public void needLinkCredit(int available);
 
 }

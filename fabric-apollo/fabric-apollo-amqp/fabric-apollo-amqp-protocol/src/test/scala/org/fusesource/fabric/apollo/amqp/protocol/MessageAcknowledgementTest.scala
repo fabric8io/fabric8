@@ -12,18 +12,13 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.fusesource.fabric.apollo.amqp.api._
-import org.fusesource.hawtdispatch._
-import java.util.concurrent.{CountDownLatch, TimeUnit}
 import org.fusesource.fabric.apollo.amqp.codec.types.AmqpError
-import util.Random
-import org.fusesource.hawtbuf.Buffer
-
 /**
  *
  */
 
 class MessageAcknowledgementTest extends FunSuiteSupport with ShouldMatchers with Logging {
+  /*
 
   def stop_client(sender:Sender, session:Session, client:Connection, latch:CountDownLatch) = {
     info("detaching...")
@@ -239,5 +234,5 @@ class MessageAcknowledgementTest extends FunSuiteSupport with ShouldMatchers wit
     recv_latch.await(1, TimeUnit.MINUTES) should be (true)
 
   }
-
+*/
 }

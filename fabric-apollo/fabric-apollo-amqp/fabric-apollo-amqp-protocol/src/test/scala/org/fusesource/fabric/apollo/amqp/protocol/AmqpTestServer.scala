@@ -73,7 +73,7 @@ class TestReceiver extends DefaultLinkListener {
     receiver.setListener(new MessageListener {
       def needLinkCredit(available: Long) = need_link_credit(available)
       def refiller(refiller: Runnable) = _refiller(refiller)
-      def offer(receiver: Receiver, message: Message) = _offer(receiver, message)
+      def offer(receiver: Receiver, message: BareMessage) = _offer(receiver, message)
       def full = _full()
     })
   }
@@ -82,7 +82,7 @@ class TestReceiver extends DefaultLinkListener {
 
   var need_link_credit = (available:Long) => max(available, 1)
   var _refiller = (refiller:Runnable) => {}
-  var _offer = (receiver:Receiver, message:Message) => {
+  var _offer = (receiver:Receiver, message:BareMessage) => {
     info("%s received message %s", receiver.getName, message)
     true
   }

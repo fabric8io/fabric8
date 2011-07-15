@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.api;
 
+import org.fusesource.fabric.apollo.amqp.codec.api.BareMessage;
+
 /**
  * A message target on an AMQP link
  *
@@ -66,6 +68,6 @@ public interface Receiver extends Link {
      * @param message
      * @param outcome
      */
-    void settle(Message message, Outcome outcome);
+    void settle(BareMessage message, Outcome outcome);
 
 }

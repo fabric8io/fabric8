@@ -26,7 +26,7 @@ import Outcome._
  */
 
 class ProtocolSoakTest extends FunSuiteSupport with ShouldMatchers with Logging {
-
+/*
   for (
     num_sessions <- List(1);
     num_senders <- List(1, 5, 10);
@@ -140,5 +140,5 @@ class ProtocolSoakTest extends FunSuiteSupport with ShouldMatchers with Logging 
 
     }
   }
-
+*/
 }
