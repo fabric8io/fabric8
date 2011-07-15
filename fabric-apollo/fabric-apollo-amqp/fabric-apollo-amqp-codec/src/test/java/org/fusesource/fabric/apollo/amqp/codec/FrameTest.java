@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -51,7 +51,7 @@ public class FrameTest {
         AMQPFrame frame = FrameSupport.createFrame(transfer, annotatedMessage);
         DataInput in = frame.dataInput();
 
-        Transfer outTransfer = (Transfer)FrameSupport.getPerformative(in);
+        Transfer outTransfer = (Transfer) FrameSupport.getPerformative(in);
         AnnotatedMessage out = FrameSupport.getPayload(in);
         assertEquals(transfer.toString(), outTransfer.toString());
         assertEquals(annotatedMessage.toString(), out.toString());

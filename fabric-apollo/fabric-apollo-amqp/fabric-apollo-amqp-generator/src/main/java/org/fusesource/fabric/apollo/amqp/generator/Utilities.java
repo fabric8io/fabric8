@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -55,9 +55,9 @@ public class Utilities {
 
     private static String filter(String word, Map<String, String> filters) {
         String rc = word;
-        for (String needle : filters.keySet()) {
+        for ( String needle : filters.keySet() ) {
             String substitute = filters.get(needle);
-            if (rc.contains(needle)) {
+            if ( rc.contains(needle) ) {
                 Log.info("Replacing \"%s\" in \'%s\" with \"%s\"", needle, rc, substitute);
                 rc = rc.replaceAll(needle, substitute);
             }
@@ -78,7 +78,7 @@ public class Utilities {
     public static String toJavaClassName(String name) {
         String rc = "";
         String strs[] = sanitize(name).split("_");
-        for (String str : strs) {
+        for ( String str : strs ) {
             rc += str.substring(0, 1).toUpperCase();
             rc += str.substring(1);
         }

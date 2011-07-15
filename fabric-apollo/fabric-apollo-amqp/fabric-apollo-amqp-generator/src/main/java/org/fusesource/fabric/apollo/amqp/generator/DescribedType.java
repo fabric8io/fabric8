@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -27,7 +27,7 @@ import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassN
 /**
  *
  */
-public class DescribedType  extends AmqpDefinedType {
+public class DescribedType extends AmqpDefinedType {
 
     class Attribute {
         public String type;
@@ -126,8 +126,8 @@ public class DescribedType  extends AmqpDefinedType {
 
         toString.body().decl(cm.ref("java.lang.String"), "rc", lit(toJavaClassName(type.getName()) + "{"));
 
-        for (Attribute attr : amqpFields) {
-            if (attr.attribute.type().isArray()) {
+        for ( Attribute attr : amqpFields ) {
+            if ( attr.attribute.type().isArray() ) {
                 toString.body()._if(_this().ref(attr.attribute).ne(_null()))._then().assignPlus(ref("rc"), lit(attr.attribute.name() + "=").plus(cm.ref("java.util.Arrays").staticInvoke("toString").arg(_this().ref(attr.attribute))).plus(lit(" ")));
             } else {
                 toString.body()._if(_this().ref(attr.attribute).ne(_null()))._then().assignPlus(ref("rc"), lit(attr.attribute.name() + "=").plus(_this().ref(attr.attribute)).plus(lit(" ")));
@@ -150,14 +150,14 @@ public class DescribedType  extends AmqpDefinedType {
         Log.info("");
         Log.info("Generating %s", cls().binaryName());
 
-        if (isComposite()) {
+        if ( isComposite() ) {
             for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
                 if ( obj instanceof Field ) {
                     Field field = (Field) obj;
                     processField(field);
                 }
             }
-        } else if (isRestricted()) {
+        } else if ( isRestricted() ) {
             Field field = new Field();
             field.setName("value");
             field.setType(type.getSource());
@@ -166,7 +166,7 @@ public class DescribedType  extends AmqpDefinedType {
 
         generateConstructors();
 
-        if (isComposite()) {
+        if ( isComposite() ) {
             generateCount();
         }
         fillInReadMethod();
@@ -178,12 +178,12 @@ public class DescribedType  extends AmqpDefinedType {
     private void generateConstructors() {
         int numFields = amqpFields.size();
 
-        for (int i = 0; i <= numFields; i++) {
+        for ( int i = 0; i <= numFields; i++ ) {
             JMethod constructor = cls().constructor(JMod.PUBLIC);
             String log_message = "Adding constructor for : ";
-            for (int j = 0; j < i; j++) {
+            for ( int j = 0; j < i; j++ ) {
                 log_message += amqpFields.get(j).attribute.name() + " ";
-                constructor.param(amqpFields.get(j).attribute.type(),  amqpFields.get(j).attribute.name());
+                constructor.param(amqpFields.get(j).attribute.type(), amqpFields.get(j).attribute.name());
                 constructor.body().assign(_this().ref(amqpFields.get(j).attribute.name()), ref(amqpFields.get(j).attribute.name()));
             }
             Log.info(log_message.trim());
@@ -196,7 +196,7 @@ public class DescribedType  extends AmqpDefinedType {
 
         Log.info("Field type for field %s : %s", fieldName, fieldType);
 
-        if (fieldType.equals("*")) {
+        if ( fieldType.equals("*") ) {
             fieldType = generator.getAmqpBaseType();
             /*
             if ( field.getRequires() != null ) {
@@ -206,9 +206,9 @@ public class DescribedType  extends AmqpDefinedType {
                 }
             }
             */
-        } else if (generator.getDescribed().containsKey(fieldType)) {
+        } else if ( generator.getDescribed().containsKey(fieldType) ) {
             fieldType = generator.getDescribedJavaClass().get(field.getType());
-        } else if (generator.getRestricted().containsKey(fieldType)) {
+        } else if ( generator.getRestricted().containsKey(fieldType) ) {
             fieldType = generator.getRestrictedMapping().get(field.getType());
         }
 
@@ -222,12 +222,12 @@ public class DescribedType  extends AmqpDefinedType {
 
             Class clazz = generator.getMapping().get(fieldType);
             JClass c = null;
-            if (fieldType.equals(generator.getAmqpBaseType())) {
+            if ( fieldType.equals(generator.getAmqpBaseType()) ) {
                 c = cm.ref(fieldType);
             } else if ( clazz == null ) {
                 c = cm._getClass(fieldType);
             } else {
-                if (array) {
+                if ( array ) {
                     c = cm.ref(generator.getPrimitiveJavaClass().get(fieldType));
                 } else {
                     c = cm.ref(clazz.getName());
@@ -242,7 +242,7 @@ public class DescribedType  extends AmqpDefinedType {
 
             attribute.type = fieldType;
             attribute.defaultValue = field.getDefault();
-            if (field.getMandatory() != null) {
+            if ( field.getMandatory() != null ) {
                 attribute.required = Boolean.parseBoolean(field.getMandatory());
             } else {
                 attribute.required = Boolean.FALSE;
@@ -271,7 +271,7 @@ public class DescribedType  extends AmqpDefinedType {
     private void generateCount() {
         count = cls().method(JMod.PUBLIC, cm.INT, "count");
         count().body().decl(cm.INT, "rc", lit(amqpFields.size()));
-        for(int i=amqpFields.size(); i > 0; i--) {
+        for ( int i = amqpFields.size(); i > 0; i-- ) {
             JConditional _if = count().body()._if(amqpFields.get(i - 1).attribute.eq(_null()));
             _if._then().assign(ref("rc"), ref("rc").minus(lit(1)));
             _if._else()._return(ref("rc"));
@@ -280,15 +280,15 @@ public class DescribedType  extends AmqpDefinedType {
     }
 
     private void fillInReadMethod() {
-        if (isComposite()) {
+        if ( isComposite() ) {
             read().body().decl(cm.LONG, "count", cm.ref(generator.getMarshaller() + ".DescribedTypeSupport").staticInvoke("readListHeader").arg(ref("in")));
         }
 
         Log.info("Filling in read method for %s", type.getName());
 
-        for (Attribute attribute : amqpFields) {
+        for ( Attribute attribute : amqpFields ) {
             Log.info("%s %s", attribute.type, attribute.attribute.name());
-            if (isComposite()) {
+            if ( isComposite() ) {
                 read().body().assign(ref("count"), ref("count").minus(lit(1)));
                 JBlock ifBody = read().body()._if(ref("count").gte(lit(0)))._then();
                 addFieldRead(attribute, ifBody);
@@ -298,9 +298,9 @@ public class DescribedType  extends AmqpDefinedType {
 
         }
 
-        if (isComposite()) {
-            for (Attribute attribute : amqpFields) {
-                if (attribute.required) {
+        if ( isComposite() ) {
+            for ( Attribute attribute : amqpFields ) {
+                if ( attribute.required ) {
                     read().body()._if(attribute.attribute.eq(_null()))._then()._throw(_new(cm.ref(RuntimeException.class)).arg("No value specified for mandatory attribute " + attribute.attribute.name()));
                 }
             }
@@ -308,11 +308,11 @@ public class DescribedType  extends AmqpDefinedType {
     }
 
     private void addFieldRead(Attribute attribute, JBlock body) {
-        if (attribute.attribute.type().isArray()) {
+        if ( attribute.attribute.type().isArray() ) {
             body.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref("AMQPArray").staticInvoke("read").arg(ref("in"))));
-        } else if (generator.getMapping().get(attribute.type) != null) {
+        } else if ( generator.getMapping().get(attribute.type) != null ) {
             body.assign(attribute.attribute, cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)).staticInvoke("read").arg(ref("in")));
-        } else if (generator.getProvides().contains(attribute.type)) {
+        } else if ( generator.getProvides().contains(attribute.type) ) {
         } else {
             //body.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref(generator.getMarshaller() + ".TypeReader").staticInvoke("read").arg(ref("in"))));
             body.assign(attribute.attribute, cast(attribute.attribute.type(), cm.ref(generator.getMarshaller() + ".TypeReader").staticInvoke("read").arg(ref("in"))));
@@ -326,15 +326,15 @@ public class DescribedType  extends AmqpDefinedType {
         write().body().invoke("writeConstructor").arg(ref("out"));
         write().body().invoke("writeBody").arg(cast(cm.BYTE, lit((byte) 0))).arg(ref("out"));
 
-        if (isComposite()) {
+        if ( isComposite() ) {
             writeBody().body().decl(cm.LONG, "fieldSize", _this().invoke("sizeOfFields"));
             writeBody().body().decl(cm.INT, "count", _this().invoke("count"));
 
             writeBody().body().staticInvoke(cm.ref(generator.getMarshaller() + ".DescribedTypeSupport"), "writeListHeader").arg(ref("fieldSize")).arg(ref("count")).arg(ref("out"));
         }
 
-        for (Attribute attribute : amqpFields) {
-            if (isComposite()) {
+        for ( Attribute attribute : amqpFields ) {
+            if ( isComposite() ) {
                 writeBody().body().assign(ref("count"), ref("count").minus(lit(1)));
                 JBlock ifBody = writeBody().body()._if(ref("count").gte(lit(0)))._then();
                 addFieldWrite(attribute, ifBody);
@@ -345,9 +345,9 @@ public class DescribedType  extends AmqpDefinedType {
     }
 
     private void addFieldWrite(Attribute attribute, JBlock body) {
-        if (attribute.attribute.type().isArray()) {
+        if ( attribute.attribute.type().isArray() ) {
             body.staticInvoke(cm.ref("AMQPArray"), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
-        } else if (generator.getMapping().get(attribute.type) != null) {
+        } else if ( generator.getMapping().get(attribute.type) != null ) {
             body.staticInvoke(cm.ref(generator.getPrimitiveJavaClass().get(attribute.type)), "write").arg(_this().ref(attribute.attribute.name())).arg(ref("out"));
         } else {
             JConditional conditional = body
@@ -365,12 +365,12 @@ public class DescribedType  extends AmqpDefinedType {
 
         sizeOfFields.body().decl(cm.LONG, "fieldSize", lit(0L));
 
-        if (isComposite()) {
+        if ( isComposite() ) {
             sizeOfFields.body().decl(cm.INT, "count", _this().invoke(count));
         }
 
-        for (Attribute attribute : amqpFields) {
-            if (isComposite()) {
+        for ( Attribute attribute : amqpFields ) {
+            if ( isComposite() ) {
                 sizeOfFields.body().assign(ref("count"), ref("count").minus(lit(1)));
                 JBlock ifBody = sizeOfFields.body()._if(ref("count").gte(lit(0)))._then();
                 addFieldSize(attribute, ifBody);
@@ -380,31 +380,31 @@ public class DescribedType  extends AmqpDefinedType {
         }
 
         sizeOfFields.body()._return(ref("fieldSize"));
-        if (isComposite()) {
-            sizeOfBody().body()._return(cm.ref(generator.getMarshaller()+ ".DescribedTypeSupport").staticInvoke("fullSizeOfList").arg(_this().invoke("sizeOfFields")).arg(_this().invoke("count")));
+        if ( isComposite() ) {
+            sizeOfBody().body()._return(cm.ref(generator.getMarshaller() + ".DescribedTypeSupport").staticInvoke("fullSizeOfList").arg(_this().invoke("sizeOfFields")).arg(_this().invoke("count")));
         } else {
             sizeOfBody().body()._return(_this().invoke("sizeOfFields"));
         }
     }
 
     private void addFieldSize(Attribute attribute, JBlock body) {
-        if (generator.getMapping().get(attribute.type) != null) {
-            if (attribute.attribute.type().isArray()) {
+        if ( generator.getMapping().get(attribute.type) != null ) {
+            if ( attribute.attribute.type().isArray() ) {
                 body.assign(ref("fieldSize"), ref("fieldSize").plus(
                         generator.registry().cls().staticInvoke("instance")
-                        .invoke("sizer")
-                        .invoke("sizeOfArray")
-                            .arg(ref(attribute.attribute.name()))));
+                                .invoke("sizer")
+                                .invoke("sizeOfArray")
+                                .arg(ref(attribute.attribute.name()))));
 
             } else {
                 body.assign(ref("fieldSize"), ref("fieldSize").plus(
                         generator.registry().cls().staticInvoke("instance")
                                 .invoke("sizer")
                                 .invoke("sizeOf" + toJavaClassName(attribute.type))
-                                    .arg(ref(attribute.attribute.name()))));
+                                .arg(ref(attribute.attribute.name()))));
             }
         } else {
-            if (attribute.attribute.type().isArray()) {
+            if ( attribute.attribute.type().isArray() ) {
                 body.assign(ref("fieldSize"), ref("fieldSize").plus(
                         generator.registry().cls().staticInvoke("instance")
                                 .invoke("sizer")

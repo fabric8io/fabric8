@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -40,7 +40,6 @@ public class AmqpGeneratorMojo extends AbstractMojo {
      * The directory containing the project source
      *
      * @parameter default=value="${basedir}/src/main/java"
-     *
      */
     private File sourceDirectory;
 
@@ -100,11 +99,11 @@ public class AmqpGeneratorMojo extends AbstractMojo {
         File[] mainFiles = null;
         if ( mainSourceDirectory.exists() ) {
             mainFiles = mainSourceDirectory.listFiles(new FileFilter() {
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".xml");
-            }
-        });
-            if (mainFiles==null || mainFiles.length==0) {
+                public boolean accept(File pathname) {
+                    return pathname.getName().endsWith(".xml");
+                }
+            });
+            if ( mainFiles == null || mainFiles.length == 0 ) {
                 Log.warn("No AMQP XML definitions found in directory : %s", mainSourceDirectory.getPath());
             } else {
                 processFiles(mainFiles, mainOutputDirectory);
@@ -121,7 +120,7 @@ public class AmqpGeneratorMojo extends AbstractMojo {
                     return pathname.getName().endsWith(".xml");
                 }
             });
-            if (testFiles==null || testFiles.length==0) {
+            if ( testFiles == null || testFiles.length == 0 ) {
                 Log.warn("No AMQP XML definitions found in directory : %s", testSourceDirectory.getPath());
             } else {
                 processFiles(testFiles, testOutputDirectory);
@@ -138,7 +137,7 @@ public class AmqpGeneratorMojo extends AbstractMojo {
 
         List<File> recFiles = Arrays.asList(mainFiles);
 
-        for (File file : recFiles) {
+        for ( File file : recFiles ) {
             Log.info("\t%s", file);
         }
 

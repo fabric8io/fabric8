@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -27,66 +27,66 @@ import java.util.List;
 public class MessageSupport {
 
     public static Buffer toBuffer(BareMessage message) throws Exception {
-        if (message == null || !(message instanceof BareMessageImpl)) {
+        if ( message == null || !(message instanceof BareMessageImpl) ) {
             return null;
         }
-        return ((BareMessageImpl)message).toBuffer();
+        return ((BareMessageImpl) message).toBuffer();
     }
 
     public static Buffer toBuffer(AnnotatedMessage message) throws Exception {
-        if (message == null || !(message instanceof AnnotatedMessageImpl)) {
+        if ( message == null || !(message instanceof AnnotatedMessageImpl) ) {
             return null;
         }
-        return ((AnnotatedMessageImpl)message).toBuffer();
+        return ((AnnotatedMessageImpl) message).toBuffer();
     }
 
     public static long size(BareMessage message) {
-        if (message == null) {
+        if ( message == null ) {
             return 0;
         }
-        return ((BareMessageImpl)message).size();
+        return ((BareMessageImpl) message).size();
     }
 
     public static long size(AnnotatedMessage message) {
-        if (message == null) {
+        if ( message == null ) {
             return 0;
         }
-        return ((AnnotatedMessageImpl)message).size();
+        return ((AnnotatedMessageImpl) message).size();
     }
 
     public static void write(AnnotatedMessage message, DataOutput out) throws Exception {
-        if (message == null) {
+        if ( message == null ) {
             return;
         }
-        ((AnnotatedMessageImpl)message).write(out);
+        ((AnnotatedMessageImpl) message).write(out);
     }
 
     public static void write(BareMessage message, DataOutput out) throws Exception {
-        if (message == null) {
+        if ( message == null ) {
             return;
         }
-        ((BareMessageImpl)message).write(out);
+        ((BareMessageImpl) message).write(out);
     }
 
-    public static DataMessage createDataMessage(Object ... args) {
+    public static DataMessage createDataMessage(Object... args) {
         DataMessage rc = new DataMessageImpl();
-        for (Object arg : args) {
-            if (arg instanceof Properties) {
-                rc.setProperties((Properties)arg);
-            } else if (arg instanceof ApplicationProperties) {
-                rc.setApplicationProperties((ApplicationProperties)arg);
-            } else if (arg instanceof Buffer) {
-                if (rc.getData() == null) {
+        for ( Object arg : args ) {
+            if ( arg instanceof Properties ) {
+                rc.setProperties((Properties) arg);
+            } else if ( arg instanceof ApplicationProperties ) {
+                rc.setApplicationProperties((ApplicationProperties) arg);
+            } else if ( arg instanceof Buffer ) {
+                if ( rc.getData() == null ) {
                     rc.setData(new ArrayList<Data>());
                 }
-                rc.getData().add(new Data((Buffer)arg));
-            } else if (arg instanceof Data) {
-                if (rc.getData() == null) {
+                rc.getData().add(new Data((Buffer) arg));
+            } else if ( arg instanceof Data ) {
+                if ( rc.getData() == null ) {
                     rc.setData(new ArrayList<Data>());
                 }
-                rc.getData().add((Data)arg);
-            } else if (arg instanceof List) {
-                rc.setData((List)arg);
+                rc.getData().add((Data) arg);
+            } else if ( arg instanceof List ) {
+                rc.setData((List) arg);
             } else {
                 throw new RuntimeException("Unknown type for DataMessage");
             }
@@ -94,45 +94,45 @@ public class MessageSupport {
         return rc;
     }
 
-    public static SequenceMessage createSequenceMessage(Object ... args) {
+    public static SequenceMessage createSequenceMessage(Object... args) {
         SequenceMessage rc = new SequenceMessageImpl();
-        for (Object arg : args) {
-            if (arg instanceof Properties) {
-                rc.setProperties((Properties)arg);
-            } else if (arg instanceof ApplicationProperties) {
-                rc.setApplicationProperties((ApplicationProperties)arg);
-            } else if (arg instanceof AMQPSequence) {
-                if (rc.getData() == null) {
+        for ( Object arg : args ) {
+            if ( arg instanceof Properties ) {
+                rc.setProperties((Properties) arg);
+            } else if ( arg instanceof ApplicationProperties ) {
+                rc.setApplicationProperties((ApplicationProperties) arg);
+            } else if ( arg instanceof AMQPSequence ) {
+                if ( rc.getData() == null ) {
                     List list = new ArrayList();
-                    list.add((AMQPSequence)arg);
+                    list.add((AMQPSequence) arg);
                     rc.setData(list);
                 } else {
-                    rc.getData().add((AMQPSequence)arg);
+                    rc.getData().add((AMQPSequence) arg);
                 }
-            } else if (arg instanceof List) {
-                rc.setData((List)arg);
+            } else if ( arg instanceof List ) {
+                rc.setData((List) arg);
             } else {
                 throw new RuntimeException("Unknown type for SequenceMessage");
             }
         }
-        if (rc == null) {
+        if ( rc == null ) {
             rc = new SequenceMessageImpl();
         }
         return rc;
     }
 
-    public static ValueMessage createValueMessage(Object ... args) {
+    public static ValueMessage createValueMessage(Object... args) {
         ValueMessage rc = new ValueMessageImpl();
 
-        for (Object arg : args) {
-            if (arg instanceof Properties) {
-                rc.setProperties((Properties)arg);
-            } else if (arg instanceof ApplicationProperties) {
-                rc.setApplicationProperties((ApplicationProperties)arg);
-            } else if (arg instanceof AMQPValue) {
-                rc.setData((AMQPValue)arg);
-            } else if (arg instanceof AMQPType ) {
-                ((ValueMessageImpl)rc).setData((AMQPType)arg);
+        for ( Object arg : args ) {
+            if ( arg instanceof Properties ) {
+                rc.setProperties((Properties) arg);
+            } else if ( arg instanceof ApplicationProperties ) {
+                rc.setApplicationProperties((ApplicationProperties) arg);
+            } else if ( arg instanceof AMQPValue ) {
+                rc.setData((AMQPValue) arg);
+            } else if ( arg instanceof AMQPType ) {
+                ((ValueMessageImpl) rc).setData((AMQPType) arg);
             } else {
                 throw new RuntimeException("Unknown type for ValueMessage");
             }
@@ -141,20 +141,20 @@ public class MessageSupport {
         return rc;
     }
 
-    public static AnnotatedMessage createAnnotatedMessage(Object ... args) {
+    public static AnnotatedMessage createAnnotatedMessage(Object... args) {
         AnnotatedMessage rc = new AnnotatedMessageImpl();
 
-        for (Object arg : args) {
-            if (arg instanceof Header) {
-                rc.setHeader((Header)arg);
-            } else if (arg instanceof DeliveryAnnotations) {
-                rc.setDeliveryAnnotations((DeliveryAnnotations)arg);
-            } else if (arg instanceof MessageAnnotations) {
-                rc.setMessageAnnotations((MessageAnnotations)arg);
-            } else if (arg instanceof BareMessage) {
-                rc.setMessage((BareMessage)arg);
-            } else if (arg instanceof Footer) {
-                rc.setFooter((Footer)arg);
+        for ( Object arg : args ) {
+            if ( arg instanceof Header ) {
+                rc.setHeader((Header) arg);
+            } else if ( arg instanceof DeliveryAnnotations ) {
+                rc.setDeliveryAnnotations((DeliveryAnnotations) arg);
+            } else if ( arg instanceof MessageAnnotations ) {
+                rc.setMessageAnnotations((MessageAnnotations) arg);
+            } else if ( arg instanceof BareMessage ) {
+                rc.setMessage((BareMessage) arg);
+            } else if ( arg instanceof Footer ) {
+                rc.setFooter((Footer) arg);
             }
         }
 
@@ -165,7 +165,7 @@ public class MessageSupport {
         try {
             AnnotatedMessage rc = new AnnotatedMessageImpl();
             AMQPType type = TypeReader.read(in);
-            if (type == null) {
+            if ( type == null ) {
                 return rc;
             }
             BareMessage message = null;
@@ -173,70 +173,70 @@ public class MessageSupport {
             ApplicationProperties applicationProperties = null;
 
             while (type != null) {
-                if (type instanceof Header) {
-                    if (rc.getHeader() != null) {
+                if ( type instanceof Header ) {
+                    if ( rc.getHeader() != null ) {
                         throw new RuntimeException("More than one header section present in message");
                     }
-                    rc.setHeader((Header)type);
-                } else if (type instanceof DeliveryAnnotations) {
-                    if (rc.getDeliveryAnnotations() != null) {
+                    rc.setHeader((Header) type);
+                } else if ( type instanceof DeliveryAnnotations ) {
+                    if ( rc.getDeliveryAnnotations() != null ) {
                         throw new RuntimeException("More than one delivery annotations section present in message");
                     }
-                    rc.setDeliveryAnnotations((DeliveryAnnotations)type);
-                } else if (type instanceof MessageAnnotations ) {
-                    if (rc.getMessageAnnotations() != null) {
+                    rc.setDeliveryAnnotations((DeliveryAnnotations) type);
+                } else if ( type instanceof MessageAnnotations ) {
+                    if ( rc.getMessageAnnotations() != null ) {
                         throw new RuntimeException("More than one message annotations section present in message");
                     }
-                    rc.setMessageAnnotations((MessageAnnotations)type);
-                } else if (type instanceof Data) {
-                    if (message != null && !(message instanceof DataMessageImpl)) {
+                    rc.setMessageAnnotations((MessageAnnotations) type);
+                } else if ( type instanceof Data ) {
+                    if ( message != null && !(message instanceof DataMessageImpl) ) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
-                    if (message == null) {
-                        message = createDataMessage((Data)type);
+                    if ( message == null ) {
+                        message = createDataMessage((Data) type);
                     } else {
-                        ((DataMessage)message).getData().add((Data) type);
+                        ((DataMessage) message).getData().add((Data) type);
                     }
-                } else if (type instanceof AMQPSequence) {
-                    if (message != null && !(message instanceof SequenceMessageImpl)) {
+                } else if ( type instanceof AMQPSequence ) {
+                    if ( message != null && !(message instanceof SequenceMessageImpl) ) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
-                    if (message == null) {
-                        message = createSequenceMessage((AMQPSequence)type);
+                    if ( message == null ) {
+                        message = createSequenceMessage((AMQPSequence) type);
                     } else {
-                        ((SequenceMessage)message).getData().add((AMQPSequence) type);
+                        ((SequenceMessage) message).getData().add((AMQPSequence) type);
                     }
-                } else if (type instanceof AMQPValue) {
-                    if (message != null && !(message instanceof ValueMessageImpl)) {
+                } else if ( type instanceof AMQPValue ) {
+                    if ( message != null && !(message instanceof ValueMessageImpl) ) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
-                    if (message == null) {
-                        message = createValueMessage((AMQPValue)type);
+                    if ( message == null ) {
+                        message = createValueMessage((AMQPValue) type);
                     } else {
                         throw new RuntimeException("Only one instance of an AMQP value section can be present in a message");
                     }
-                } else if (type instanceof Properties) {
-                    if (properties != null) {
+                } else if ( type instanceof Properties ) {
+                    if ( properties != null ) {
                         throw new RuntimeException("More than one properties section present in message");
                     }
-                    properties = (Properties)type;
-                } else if (type instanceof ApplicationProperties) {
-                    if (applicationProperties != null) {
+                    properties = (Properties) type;
+                } else if ( type instanceof ApplicationProperties ) {
+                    if ( applicationProperties != null ) {
                         throw new RuntimeException("More than one application properties section present in message");
                     }
-                    applicationProperties = (ApplicationProperties)type;
-                } else if (type instanceof Footer) {
-                    if (rc.getFooter() != null) {
+                    applicationProperties = (ApplicationProperties) type;
+                } else if ( type instanceof Footer ) {
+                    if ( rc.getFooter() != null ) {
                         throw new RuntimeException("More than one footer section present in message");
                     }
-                    rc.setFooter((Footer)type);
+                    rc.setFooter((Footer) type);
                 } else {
                     throw new RuntimeException("Unexpected section found in message : " + type);
                 }
 
                 type = TypeReader.read(in);
             }
-            if (message != null) {
+            if ( message != null ) {
                 message.setProperties(properties);
                 message.setApplicationProperties(applicationProperties);
             }
@@ -250,14 +250,14 @@ public class MessageSupport {
 
     private static <T extends AMQPType> T getSection(Buffer descriptor, Buffer buffer) throws Exception {
         int position = buffer.indexOf(descriptor);
-        if (position == -1) {
+        if ( position == -1 ) {
             return null;
         }
         DataByteArrayInputStream in = new DataByteArrayInputStream(buffer);
         while (position != -1) {
             try {
                 in.setPos(position);
-                return (T)TypeReader.read(in);
+                return (T) TypeReader.read(in);
             } catch (Exception e) {
 
             }
@@ -267,60 +267,60 @@ public class MessageSupport {
     }
 
     public static Header getHeader(Buffer buffer) throws Exception {
-        if (buffer.length == 0) {
+        if ( buffer.length == 0 ) {
             return null;
         }
         Header rc = null;
         rc = getSection(Header.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
-        if (rc == null) {
+        if ( rc == null ) {
             rc = getSection(Header.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
         }
         return rc;
     }
 
     public static MessageAnnotations getMessageAnnotations(Buffer buffer) throws Exception {
-        if (buffer.length == 0) {
+        if ( buffer.length == 0 ) {
             return null;
         }
         MessageAnnotations rc = null;
         rc = getSection(MessageAnnotations.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
-        if (rc == null) {
+        if ( rc == null ) {
             rc = getSection(MessageAnnotations.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
         }
         return rc;
     }
 
     public static DeliveryAnnotations getDeliveryAnnotations(Buffer buffer) throws Exception {
-        if (buffer.length == 0) {
+        if ( buffer.length == 0 ) {
             return null;
         }
         DeliveryAnnotations rc = null;
         rc = getSection(DeliveryAnnotations.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
-        if (rc == null) {
+        if ( rc == null ) {
             rc = getSection(DeliveryAnnotations.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
         }
         return rc;
     }
 
     public static Properties getProperties(Buffer buffer) throws Exception {
-        if (buffer.length == 0) {
+        if ( buffer.length == 0 ) {
             return null;
         }
         Properties rc = null;
         rc = getSection(Properties.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
-        if (rc == null) {
+        if ( rc == null ) {
             rc = getSection(Properties.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
         }
         return rc;
     }
 
     public static ApplicationProperties getApplicationProperties(Buffer buffer) throws Exception {
-        if (buffer.length == 0) {
+        if ( buffer.length == 0 ) {
             return null;
         }
         ApplicationProperties rc = null;
         rc = getSection(ApplicationProperties.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
-        if (rc == null) {
+        if ( rc == null ) {
             rc = getSection(ApplicationProperties.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
         }
         return rc;
@@ -330,12 +330,12 @@ public class MessageSupport {
     //TODO - scanners for body values, Data, AMQPValue, AMQPSequence
 
     public static Footer getFooter(Buffer buffer) throws Exception {
-        if (buffer.length == 0) {
+        if ( buffer.length == 0 ) {
             return null;
         }
         Footer rc = null;
         rc = getSection(Footer.NUMERIC_CONSTRUCTOR.getBuffer(), buffer);
-        if (rc == null) {
+        if ( rc == null ) {
             rc = getSection(Footer.SYMBOLIC_CONSTRUCTOR.getBuffer(), buffer);
         }
         return rc;

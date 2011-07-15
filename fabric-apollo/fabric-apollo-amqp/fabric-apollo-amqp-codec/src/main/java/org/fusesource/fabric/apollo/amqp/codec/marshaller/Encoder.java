@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -43,26 +43,26 @@ public class Encoder implements PrimitiveEncoder {
     public Object[] readArray8(DataInput in) throws Exception {
         int size = in.readUnsignedByte();
         int count = in.readUnsignedByte();
-        byte formatCode = (byte)in.readUnsignedByte();
+        byte formatCode = (byte) in.readUnsignedByte();
         return readArray(in, count, formatCode);
     }
 
     private Object[] readArray(DataInput in, long count, byte formatCode) throws Exception {
         Object[] rc;
-        if (formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE) {
+        if ( formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE ) {
             BigInteger descriptor = AMQPULong.read(in);
             Class clazz = TypeRegistry.instance().getFormatCodeMap().get(descriptor);
-            rc = (Object[])Array.newInstance(clazz, (int)count);
-            for (int i = 0; i < rc.length; i++) {
+            rc = (Object[]) Array.newInstance(clazz, (int) count);
+            for ( int i = 0; i < rc.length; i++ ) {
                 rc[i] = clazz.newInstance();
-                ((AMQPType)rc[i]).read((byte)0x0, in);
+                ((AMQPType) rc[i]).read((byte) 0x0, in);
             }
         } else {
             Class clazz = TypeRegistry.instance().getPrimitiveFormatCodeMap().get(formatCode);
-            rc = (Object[])Array.newInstance(clazz, (int)count);
-            for (int i=0; i < rc.length; i++) {
+            rc = (Object[]) Array.newInstance(clazz, (int) count);
+            for ( int i = 0; i < rc.length; i++ ) {
                 rc[i] = clazz.newInstance();
-                ((AMQPType)rc[i]).read(formatCode, in);
+                ((AMQPType) rc[i]).read(formatCode, in);
             }
         }
         return rc;
@@ -70,7 +70,7 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeArray8(Object[] value, DataOutput out) throws Exception {
         Long size = AMQPArray.ARRAY_ARRAY8_WIDTH + getArrayConstructorSize(value) + getArrayBodySize(value);
-        Long count = (long)value.length;
+        Long count = (long) value.length;
         writeUByte(size.shortValue(), out);
         writeUByte(count.shortValue(), out);
         writeArrayBody(value, out);
@@ -78,12 +78,12 @@ public class Encoder implements PrimitiveEncoder {
 
     private void writeArrayBody(Object[] value, DataOutput out) throws Exception {
         writeArrayConstructor(value, out);
-        for (Object obj : value) {
+        for ( Object obj : value ) {
             Object constructor = getArrayConstructor(value);
-            if (constructor instanceof Byte) {
-                ((AMQPType)obj).writeBody((Byte)constructor, out);
+            if ( constructor instanceof Byte ) {
+                ((AMQPType) obj).writeBody((Byte) constructor, out);
             } else {
-                ((AMQPType)obj).writeBody((byte)0x0, out);
+                ((AMQPType) obj).writeBody((byte) 0x0, out);
             }
         }
     }
@@ -91,7 +91,7 @@ public class Encoder implements PrimitiveEncoder {
     public Object[] readArray32(DataInput in) throws Exception {
         long size = readUInt(in);
         long count = readUInt(in);
-        byte formatCode = (byte)in.readUnsignedByte();
+        byte formatCode = (byte) in.readUnsignedByte();
         return readArray(in, count, formatCode);
     }
 
@@ -129,14 +129,14 @@ public class Encoder implements PrimitiveEncoder {
 
     public Boolean readBoolean(DataInput in) throws Exception {
         byte val = in.readByte();
-        if (val == 0) {
+        if ( val == 0 ) {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
     }
 
     public void writeBoolean(Boolean value, DataOutput out) throws Exception {
-        if (value) {
+        if ( value ) {
             out.writeByte(1);
         } else {
             out.writeByte(0);
@@ -228,7 +228,7 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Integer readIntSmallInt(DataInput in) throws Exception {
-        return (int)in.readByte();
+        return (int) in.readByte();
     }
 
     public void writeIntSmallInt(Integer value, DataOutput out) throws Exception {
@@ -244,14 +244,14 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public List readList8(DataInput in) throws Exception {
-        Long size = (long)in.readUnsignedByte();
-        Long count = (long)in.readUnsignedByte();
+        Long size = (long) in.readUnsignedByte();
+        Long count = (long) in.readUnsignedByte();
         return readListData(in, size, count, AMQPList.LIST_LIST8_WIDTH);
     }
 
     public void writeList8(List value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST8_WIDTH;
-        Long count = (long)value.size();
+        Long count = (long) value.size();
         writeUByte(size.shortValue(), out);
         writeUByte(count.shortValue(), out);
         writeListData(value, out);
@@ -270,7 +270,7 @@ public class Encoder implements PrimitiveEncoder {
             count--;
         }
         Long actualSize = TypeRegistry.instance().sizer().sizeOfList(rc) - 1 - width;
-        if (size.longValue() != actualSize.longValue()) {
+        if ( size.longValue() != actualSize.longValue() ) {
             throw new RuntimeException(String.format("Encoded size of list (%s) doesn't match actual size of list (%s)", size, actualSize));
         }
         return rc;
@@ -278,16 +278,16 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeList32(List value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfList(value) - 1 - AMQPList.LIST_LIST32_WIDTH;
-        Long count = (long)value.size();
+        Long count = (long) value.size();
         writeUInt(size, out);
         writeUInt(count, out);
         writeListData(value, out);
     }
 
     private void writeListData(List value, DataOutput out) throws Exception {
-        for (Object obj : value) {
-            AMQPType element = (AMQPType)obj;
-            if (element == null) {
+        for ( Object obj : value ) {
+            AMQPType element = (AMQPType) obj;
+            if ( element == null ) {
                 writeNull(out);
             } else {
                 element.write(out);
@@ -304,7 +304,7 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Long readLongSmallLong(DataInput in) throws Exception {
-        return (long)in.readByte();
+        return (long) in.readByte();
     }
 
     public void writeLongSmallLong(Long value, DataOutput out) throws Exception {
@@ -312,13 +312,13 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Map readMap8(DataInput in) throws Exception {
-        Long size = (long)in.readUnsignedByte();
-        Long count = (long)in.readUnsignedByte();
+        Long size = (long) in.readUnsignedByte();
+        Long count = (long) in.readUnsignedByte();
         return readMapData(in, size, count, AMQPMap.MAP_MAP8_WIDTH);
     }
 
     private Map readMapData(DataInput in, Long size, Long count, int width) throws Exception {
-        if (count % 2 != 0) {
+        if ( count % 2 != 0 ) {
             throw new RuntimeException(String.format("Map count (%s) is not divisible by 2", count));
         }
         Map rc = new HashMap();
@@ -327,7 +327,7 @@ public class Encoder implements PrimitiveEncoder {
             count -= 2;
         }
         Long actualSize = TypeRegistry.instance().sizer().sizeOfMap(rc) - 1 - width;
-        if (size.longValue() != actualSize.longValue()) {
+        if ( size.longValue() != actualSize.longValue() ) {
             throw new RuntimeException(String.format("Encoded size of map (%s) does not match actual size of map (%s)", size, actualSize));
         }
         return rc;
@@ -335,20 +335,20 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeMap8(Map value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP8_WIDTH;
-        Long count = (long)(value.keySet().size() + value.values().size());
+        Long count = (long) (value.keySet().size() + value.values().size());
         writeUByte(size.shortValue(), out);
         writeUByte(count.shortValue(), out);
         writeMapData(value, out);
     }
 
     private void writeMapData(Map value, DataOutput out) throws Exception {
-        for (Object key : value.keySet()) {
-            ((AMQPType)key).write(out);
+        for ( Object key : value.keySet() ) {
+            ((AMQPType) key).write(out);
             Object v = value.get(key);
-            if (v == null) {
+            if ( v == null ) {
                 writeNull(out);
             } else {
-                ((AMQPType)v).write(out);
+                ((AMQPType) v).write(out);
             }
         }
     }
@@ -361,7 +361,7 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeMap32(Map value, DataOutput out) throws Exception {
         Long size = TypeRegistry.instance().sizer().sizeOfMap(value) - 1 - AMQPMap.MAP_MAP32_WIDTH;
-        Long count = (long)(value.keySet().size() + value.values().size());
+        Long count = (long) (value.keySet().size() + value.values().size());
         writeUInt(size, out);
         writeUInt(count, out);
         writeMapData(value, out);
@@ -443,7 +443,7 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public Short readUByte(DataInput in) throws Exception {
-        return (short)in.readUnsignedByte();
+        return (short) in.readUnsignedByte();
     }
 
     public void writeUByte(Short value, DataOutput out) throws Exception {
@@ -452,29 +452,29 @@ public class Encoder implements PrimitiveEncoder {
 
     public Long readUInt(DataInput in) throws Exception {
         return (long)
-               ((in.readUnsignedByte() << 24 |
-                in.readUnsignedByte() << 16 |
-                in.readUnsignedByte() <<  8 |
-                in.readUnsignedByte() <<  0) & 0xFFFFFFFF);
+                ((in.readUnsignedByte() << 24 |
+                        in.readUnsignedByte() << 16 |
+                        in.readUnsignedByte() << 8 |
+                        in.readUnsignedByte() << 0) & 0xFFFFFFFF);
     }
 
     public void writeUInt(Long value, DataOutput out) throws Exception {
-        out.writeByte((byte)(value >> 24 & 0xFF));
-        out.writeByte((byte)(value >> 16 & 0xFF));
-        out.writeByte((byte)(value >>  8 & 0xFF));
-        out.writeByte((byte)(value >>  0 & 0xFF));
+        out.writeByte((byte) (value >> 24 & 0xFF));
+        out.writeByte((byte) (value >> 16 & 0xFF));
+        out.writeByte((byte) (value >> 8 & 0xFF));
+        out.writeByte((byte) (value >> 0 & 0xFF));
     }
 
     public Long readUIntSmallUInt(DataInput in) throws Exception {
-        return (long)in.readUnsignedByte();
+        return (long) in.readUnsignedByte();
     }
 
     public void writeUIntSmallUInt(Long value, DataOutput out) throws Exception {
-        out.writeByte((short)value.intValue());
+        out.writeByte((short) value.intValue());
     }
 
     public Long readUIntUInt0(DataInput in) throws Exception {
-        return (long)0;
+        return (long) 0;
     }
 
     public void writeUIntUInt0(Long value, DataOutput out) throws Exception {
@@ -489,7 +489,7 @@ public class Encoder implements PrimitiveEncoder {
 
     public void writeULong(BigInteger value, DataOutput out) throws Exception {
         byte[] toWrite = new byte[8];
-        Arrays.fill(toWrite, (byte)0x0);
+        Arrays.fill(toWrite, (byte) 0x0);
         BitUtils.setULong(toWrite, 0, value.abs());
         out.write(toWrite);
     }
@@ -517,8 +517,8 @@ public class Encoder implements PrimitiveEncoder {
     }
 
     public void writeUShort(Integer value, DataOutput out) throws Exception {
-        out.writeByte((byte)((value >> 8) & 0xFF));
-        out.writeByte((byte)((value >> 0) & 0xFF));
+        out.writeByte((byte) ((value >> 8) & 0xFF));
+        out.writeByte((byte) ((value >> 0) & 0xFF));
     }
 
     public UUID readUUID(DataInput in) throws Exception {

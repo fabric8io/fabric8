@@ -1,12 +1,13 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
+
 package org.fusesource.fabric.apollo.amqp.generator;
 
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.*;
@@ -77,16 +78,16 @@ public class XmlDefinitionParser {
                             generator.getClasses().add(type.getClazz());
                             generator.getSections().put(type.getName(), section.getName());
 
-                            for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
-                                if (obj instanceof Descriptor ) {
+                            for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
+                                if ( obj instanceof Descriptor ) {
                                     generator.getDescribed().put(type.getName(), type);
                                 }
-                                if (obj instanceof Choice) {
+                                if ( obj instanceof Choice ) {
                                     generator.getEnums().put(type.getName(), type);
                                 }
-                                if (obj instanceof Field) {
-                                    Field field  = (Field)obj;
-                                    if (field.getRequires() != null) {
+                                if ( obj instanceof Field ) {
+                                    Field field = (Field) obj;
+                                    if ( field.getRequires() != null ) {
                                         generator.getRequires().add(field.getRequires());
                                     }
                                 }
@@ -95,7 +96,7 @@ public class XmlDefinitionParser {
                             if ( type.getProvides() != null ) {
                                 Log.info("Adding provides : %s", type.getProvides());
                                 String types[] = type.getProvides().split(",");
-                                for(String t : types) {
+                                for ( String t : types ) {
                                     generator.getProvides().add(t.trim());
                                 }
                             }

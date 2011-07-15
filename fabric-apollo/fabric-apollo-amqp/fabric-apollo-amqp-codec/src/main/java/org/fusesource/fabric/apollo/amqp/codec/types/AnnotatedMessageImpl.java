@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -30,8 +30,8 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
     protected Footer footer;
 
     public Buffer toBuffer() throws Exception {
-        int size = (int)size();
-        if (size == 0) {
+        int size = (int) size();
+        if ( size == 0 ) {
             return new Buffer(0);
         }
         Buffer buf = new Buffer(size);
@@ -41,38 +41,38 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
     }
 
     public void write(DataOutput out) throws Exception {
-        if (header != null) {
+        if ( header != null ) {
             header.write(out);
         }
-        if (deliveryAnnotations != null) {
+        if ( deliveryAnnotations != null ) {
             deliveryAnnotations.write(out);
         }
-        if (messageAnnotations != null) {
+        if ( messageAnnotations != null ) {
             messageAnnotations.write(out);
         }
-        if (message != null) {
+        if ( message != null ) {
             MessageSupport.write(message, out);
         }
-        if (footer != null) {
+        if ( footer != null ) {
             footer.write(out);
         }
     }
 
     public long size() {
         long rc = 0;
-        if (header != null) {
+        if ( header != null ) {
             rc += header.size();
         }
-        if (deliveryAnnotations != null) {
+        if ( deliveryAnnotations != null ) {
             rc += deliveryAnnotations.size();
         }
-        if (messageAnnotations != null) {
+        if ( messageAnnotations != null ) {
             rc += messageAnnotations.size();
         }
-        if (message != null) {
+        if ( message != null ) {
             rc += MessageSupport.size(message);
         }
-        if (footer != null) {
+        if ( footer != null ) {
             rc += footer.size();
         }
         return rc;
@@ -80,23 +80,23 @@ public class AnnotatedMessageImpl implements AnnotatedMessage {
 
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        if (header != null) {
+        if ( header != null ) {
             buf.append("\n");
             buf.append(header.toString());
         }
-        if (deliveryAnnotations != null) {
+        if ( deliveryAnnotations != null ) {
             buf.append("\n");
             buf.append(deliveryAnnotations.toString());
         }
-        if (messageAnnotations != null) {
+        if ( messageAnnotations != null ) {
             buf.append("\n");
             buf.append(messageAnnotations.toString());
         }
-        if (message != null) {
+        if ( message != null ) {
             buf.append("\n");
             buf.append(message.toString());
         }
-        if (footer != null) {
+        if ( footer != null ) {
             buf.append("\n");
             buf.append(footer.toString());
         }

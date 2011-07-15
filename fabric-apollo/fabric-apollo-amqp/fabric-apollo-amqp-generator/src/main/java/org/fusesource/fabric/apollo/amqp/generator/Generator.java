@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -146,8 +146,8 @@ public class Generator {
             filter.add("*");
             filter.add("null");
 
-            for (String key : getPrimitives().keySet()) {
-                if (filter.contains(key)) {
+            for ( String key : getPrimitives().keySet() ) {
+                if ( filter.contains(key) ) {
                     continue;
                 }
                 Type type = getPrimitives().get(key);
@@ -159,27 +159,27 @@ public class Generator {
             interfaceGenerator.generateAbstractBases();
 
             List<DescribedType> describedTypes = new ArrayList<DescribedType>();
-            for (String key : getDescribed().keySet()) {
+            for ( String key : getDescribed().keySet() ) {
                 Type type = getDescribed().get(key);
                 String className = getTypes() + "." + toJavaClassName(key);
                 getDescribedJavaClass().put(key, className);
                 describedTypes.add(new DescribedType(this, className, type));
             }
 
-            for (DescribedType type : describedTypes) {
+            for ( DescribedType type : describedTypes ) {
                 type.generateDescribedFields();
             }
 
             List<RestrictedType> restrictedTypes = new ArrayList<RestrictedType>();
-            for (String key : getEnums().keySet()) {
+            for ( String key : getEnums().keySet() ) {
                 Type type = getRestricted().get(key);
                 String className = getTypes() + "." + toJavaClassName(key);
                 restrictedTypes.add(new RestrictedType(this, className, type));
             }
 
-            for (String key : getRestricted().keySet()) {
+            for ( String key : getRestricted().keySet() ) {
                 Type type = getRestricted().get(key);
-                if (type.getProvides() != null && !getEnums().containsKey(key) && !getDescribed().containsKey(key)) {
+                if ( type.getProvides() != null && !getEnums().containsKey(key) && !getDescribed().containsKey(key) ) {
                     String className = getTypes() + "." + toJavaClassName(key);
                     restrictedTypes.add(new RestrictedType(this, className, type));
                 }
@@ -197,7 +197,7 @@ public class Generator {
             cm.build(outputDirectory);
         } catch (Exception e) {
             Log.error("Error generating code : %s", e);
-            for (StackTraceElement s : e.getStackTrace()) {
+            for ( StackTraceElement s : e.getStackTrace() ) {
                 Log.error("\tat %s.%s(%s:%s)", s.getClassName(), s.getMethodName(), s.getFileName(), s.getLineNumber());
             }
             throw e;
@@ -209,16 +209,16 @@ public class Generator {
 
         int mods = JMod.PUBLIC;
 
-        for (String key : primitives.keySet()) {
+        for ( String key : primitives.keySet() ) {
             Log.info("Adding encoder methods for type %s", key);
             Type type = primitives.get(key);
 
-            for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
-                if (obj instanceof Encoding ) {
+            for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
+                if ( obj instanceof Encoding ) {
                     Encoding encoding = (Encoding) obj;
 
                     String methodName = type.getName();
-                    if (encoding.getName() != null) {
+                    if ( encoding.getName() != null ) {
                         methodName += "_" + encoding.getName();
                     }
 
@@ -236,17 +236,17 @@ public class Generator {
 
         Class m = mapping.get(type.getName());
 
-        if (m == null) {
+        if ( m == null ) {
             readMethod = clazz.method(mods, cm.ref("java.lang.Object"), "read" + methodName);
         } else {
-            readMethod  = clazz.method(mods, m, "read" + methodName);
+            readMethod = clazz.method(mods, m, "read" + methodName);
         }
         readMethod._throws(java.lang.Exception.class);
         readMethod.param(DataInput.class, "in");
 
         JMethod writeMethod = clazz.method(mods, cm.VOID, "write" + methodName);
         writeMethod._throws(java.lang.Exception.class);
-        if (m != null) {
+        if ( m != null ) {
             writeMethod.param(m, "value");
         }
         writeMethod.param(DataOutput.class, "out");
@@ -273,13 +273,13 @@ public class Generator {
     }
 
     private void buildRestrictedTypeMapping() {
-        for (String key : restricted.keySet()) {
+        for ( String key : restricted.keySet() ) {
             Type type = restricted.get(key);
 
             String source = type.getSource();
             while (!mapping.containsKey(source)) {
                 Type t = restricted.get(source);
-                if (t == null) {
+                if ( t == null ) {
                     Log.info("Skipping restricted type %s with source %s, no primitive type found", type.getName(), source);
                     source = "*";
                     break;
@@ -303,7 +303,7 @@ public class Generator {
         rc.append("\n");
         rc.append("\n");
         rc.append("Restricted mapping : \n");
-        for (String key : restrictedMapping.keySet()) {
+        for ( String key : restrictedMapping.keySet() ) {
             String value = restrictedMapping.get(key);
             rc.append(String.format("%s = %s\n", key, value));
         }
@@ -331,7 +331,7 @@ public class Generator {
         JDefinedClass defs = cm._class(packagePrefix + ".Definitions", ClassType.INTERFACE);
         Log.info("Creating %s", defs.binaryName());
 
-        for(Definition def : definitions) {
+        for ( Definition def : definitions ) {
             Log.info("Adding field %s with value %s", def.getName(), def.getValue());
             JFieldVar field = defs.field(JMod.PUBLIC | JMod.STATIC, java.lang.String.class, toStaticName(def.getName()), JExpr.lit(def.getValue()));
             field.javadoc().add(def.getLabel());
@@ -346,7 +346,7 @@ public class Generator {
         return inputFiles;
     }
 
-    public void setInputFiles(File ... inputFiles) {
+    public void setInputFiles(File... inputFiles) {
         this.inputFiles = inputFiles;
     }
 
@@ -431,7 +431,7 @@ public class Generator {
     }
 
     public String getMarshaller() {
-        return getPackagePrefix()  + "." + marshaller;
+        return getPackagePrefix() + "." + marshaller;
     }
 
     public TypeRegistry registry() {
@@ -446,7 +446,7 @@ public class Generator {
         return getInterfaces() + "." + "AMQPType";
     }
 
-    public Map<String,String> getPrimitiveJavaClass() {
+    public Map<String, String> getPrimitiveJavaClass() {
         return primitiveJavaClass;
     }
 

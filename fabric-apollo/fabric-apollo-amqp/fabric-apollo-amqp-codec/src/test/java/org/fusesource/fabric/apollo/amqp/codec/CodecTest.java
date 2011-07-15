@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -29,17 +29,17 @@ public class CodecTest {
 
         TypeRegistry registry = TypeRegistry.instance();
 
-        for (Byte key : registry.getPrimitiveFormatCodeMap().keySet()) {
+        for ( Byte key : registry.getPrimitiveFormatCodeMap().keySet() ) {
             Class clazz = registry.getPrimitiveFormatCodeMap().get(key);
             //System.out.printf("0x%x = %s\n", key, clazz.getName());
         }
 
-        for (BigInteger key : registry.getFormatCodeMap().keySet()) {
+        for ( BigInteger key : registry.getFormatCodeMap().keySet() ) {
             Class clazz = registry.getFormatCodeMap().get(key);
             //System.out.printf("0x%x = %s\n", key, clazz.getName());
         }
 
-        for (Buffer key : registry.getSymbolicCodeMap().keySet()) {
+        for ( Buffer key : registry.getSymbolicCodeMap().keySet() ) {
             Class clazz = registry.getSymbolicCodeMap().get(key);
             //System.out.printf("%s = %s\n", key.ascii(), clazz.getName());
         }

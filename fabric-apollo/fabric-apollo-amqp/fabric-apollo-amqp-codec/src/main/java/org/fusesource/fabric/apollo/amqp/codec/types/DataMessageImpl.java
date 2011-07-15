@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -38,11 +38,11 @@ public class DataMessageImpl extends BareMessageImpl<List<Data>> implements Data
 
     public DataMessageImpl(List data) {
         this.data = new ArrayList<Data>();
-        for (Object obj : data) {
-            if (obj instanceof Buffer) {
-                this.data.add(new Data((Buffer)obj));
-            } else if (obj instanceof Data) {
-                this.data.add((Data)obj);
+        for ( Object obj : data ) {
+            if ( obj instanceof Buffer ) {
+                this.data.add(new Data((Buffer) obj));
+            } else if ( obj instanceof Data ) {
+                this.data.add((Data) obj);
             }
         }
     }
@@ -50,8 +50,8 @@ public class DataMessageImpl extends BareMessageImpl<List<Data>> implements Data
     @Override
     public long dataSize() {
         long rc = 0;
-        for (Data d : data) {
-            if (d != null) {
+        for ( Data d : data ) {
+            if ( d != null ) {
                 rc += d.size();
             }
         }
@@ -60,9 +60,9 @@ public class DataMessageImpl extends BareMessageImpl<List<Data>> implements Data
 
     @Override
     public void dataWrite(DataOutput out) throws Exception {
-        if (data != null) {
-            for (Data d : data) {
-                if (d != null) {
+        if ( data != null ) {
+            for ( Data d : data ) {
+                if ( d != null ) {
                     d.write(out);
                 }
             }

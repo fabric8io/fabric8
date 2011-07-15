@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -47,9 +47,9 @@ public abstract class AmqpDefinedType {
     }
 
     protected void init() {
-        if ( type.getProvides() != null )  {
+        if ( type.getProvides() != null ) {
             String types[] = type.getProvides().split(",");
-            for (String t : types) {
+            for ( String t : types ) {
                 cls()._implements(cm.ref(generator.getInterfaces() + "." + toJavaClassName(t)));
             }
         } else {
@@ -82,14 +82,14 @@ public abstract class AmqpDefinedType {
     protected abstract void createInitialFields();
 
     public JMethod size() {
-        if (size == null) {
+        if ( size == null ) {
             size = cls().method(JMod.PUBLIC, cm.LONG, "size");
         }
         return size;
     }
 
     public JMethod writeConstructor() {
-        if (writeConstructor == null) {
+        if ( writeConstructor == null ) {
             writeConstructor = cls().method(JMod.PUBLIC, cm.BYTE, "writeConstructor");
             writeConstructor._throws(java.lang.Exception.class);
             writeConstructor.param(java.io.DataOutput.class, "out");
@@ -98,7 +98,7 @@ public abstract class AmqpDefinedType {
     }
 
     public JMethod writeBody() {
-        if (writeBody == null) {
+        if ( writeBody == null ) {
             writeBody = cls().method(JMod.PUBLIC, cm.VOID, "writeBody");
             writeBody._throws(java.lang.Exception.class);
             writeBody.param(cm.BYTE, "formatCode");
@@ -108,14 +108,14 @@ public abstract class AmqpDefinedType {
     }
 
     public JMethod sizeOfConstructor() {
-        if (sizeOfConstructor == null) {
+        if ( sizeOfConstructor == null ) {
             sizeOfConstructor = cls().method(JMod.PUBLIC, cm.LONG, "sizeOfConstructor");
         }
         return sizeOfConstructor;
     }
 
     public JMethod sizeOfBody() {
-        if (sizeOfBody == null) {
+        if ( sizeOfBody == null ) {
             sizeOfBody = cls().method(JMod.PUBLIC, cm.LONG, "sizeOfBody");
         }
         return sizeOfBody;
@@ -123,7 +123,7 @@ public abstract class AmqpDefinedType {
 
 
     public JMethod write() {
-        if (write == null) {
+        if ( write == null ) {
             write = cls().method(JMod.PUBLIC, cm.VOID, "write");
             write._throws(java.lang.Exception.class);
             write.param(java.io.DataOutput.class, "out");
@@ -132,7 +132,7 @@ public abstract class AmqpDefinedType {
     }
 
     public JMethod read() {
-        if (read == null ) {
+        if ( read == null ) {
             read = cls().method(JMod.PUBLIC, cm.VOID, "read");
             read._throws(java.lang.Exception.class);
             read.param(cm.BYTE, "formatCode");
@@ -142,7 +142,7 @@ public abstract class AmqpDefinedType {
     }
 
     public JMethod encodeTo() {
-        if (encodeTo == null) {
+        if ( encodeTo == null ) {
             encodeTo = cls().method(JMod.PUBLIC, cm.VOID, "encodeTo");
             encodeTo._throws(java.lang.Exception.class);
             encodeTo.param(Buffer.class, "buffer");
@@ -152,7 +152,7 @@ public abstract class AmqpDefinedType {
     }
 
     public JMethod decodeFrom() {
-        if (decodeFrom == null) {
+        if ( decodeFrom == null ) {
             decodeFrom = cls().method(JMod.PUBLIC, cm.VOID, "decodeFrom");
             decodeFrom._throws(java.lang.Exception.class);
             decodeFrom.param(cm.BYTE, "formatCode");

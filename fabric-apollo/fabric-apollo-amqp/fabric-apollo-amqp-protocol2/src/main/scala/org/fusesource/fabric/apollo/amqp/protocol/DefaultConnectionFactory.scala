@@ -10,16 +10,13 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fabric.apollo.amqp.api.Connection
-import org.fusesource.hawtbuf.Buffer
+import org.fusesource.fabric.apollo.amqp.api.ConnectionHandler
 
 /**
  *
  */
-abstract trait ProtocolConnection extends Connection {
-  def send(data: Buffer): Unit
+class DefaultConnectionFactory extends ConnectionFactory {
+  def createConnection() = new AMQPConnection
 
-  def send(data: Buffer, channel: Int): Unit
-
-  def release(session: ProtocolSession): Unit
+  def createServerConnection(handler: ConnectionHandler) = new AMQPServerConnection(handler)
 }

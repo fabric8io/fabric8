@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -31,32 +31,32 @@ public class TypeReader {
     }
 
     public static AMQPType readPrimitive(byte formatCode, DataInput in) throws Exception {
-        if ( checkEOS(formatCode)) {
+        if ( checkEOS(formatCode) ) {
             return null;
         }
         AMQPType primitive = (AMQPType) TypeRegistry.instance().getPrimitiveFormatCodeMap().get(formatCode).newInstance();
-        if (primitive != null) {
+        if ( primitive != null ) {
             primitive.read(formatCode, in);
         }
         return primitive;
     }
 
     private static boolean checkEOS(byte formatCode) {
-         return formatCode == -1;
+        return formatCode == -1;
     }
 
     public static AMQPType readDescribedType(AMQPType descriptor, DataInput in) throws Exception {
         AMQPType rc = null;
 
-        if (descriptor instanceof AMQPULong ) {
+        if ( descriptor instanceof AMQPULong ) {
             rc = (AMQPType) TypeRegistry.instance().getFormatCodeMap().get(((AMQPULong) descriptor).getValue()).newInstance();
-        } else if (descriptor instanceof AMQPSymbol) {
+        } else if ( descriptor instanceof AMQPSymbol ) {
             rc = (AMQPType) TypeRegistry.instance().getSymbolicCodeMap().get(((AMQPSymbol) descriptor).getValue()).newInstance();
         } else {
             throw new IllegalArgumentException("Unknown AMQP descriptor type");
         }
-        if (rc != null) {
-            rc.read((byte)0x0, in);
+        if ( rc != null ) {
+            rc.read((byte) 0x0, in);
         }
         return rc;
 
@@ -64,13 +64,13 @@ public class TypeReader {
 
     public static AMQPType read(DataInput in) throws Exception {
         byte formatCode = readFormatCode(in);
-        if ( checkEOS(formatCode)) {
+        if ( checkEOS(formatCode) ) {
             return null;
         }
-        if (formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE) {
+        if ( formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE ) {
             AMQPType descriptor = readDescriptor(in);
             return readDescribedType(descriptor, in);
-        } else if (formatCode == TypeRegistry.NULL_FORMAT_CODE) {
+        } else if ( formatCode == TypeRegistry.NULL_FORMAT_CODE ) {
             return null;
         } else {
             return readPrimitive(formatCode, in);

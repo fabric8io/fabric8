@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -14,7 +14,6 @@ import org.fusesource.fabric.apollo.amqp.codec.types.DeliveryAnnotations;
 import org.fusesource.fabric.apollo.amqp.codec.types.Footer;
 import org.fusesource.fabric.apollo.amqp.codec.types.Header;
 import org.fusesource.fabric.apollo.amqp.codec.types.MessageAnnotations;
-import org.fusesource.hawtbuf.Buffer;
 
 /**
  *

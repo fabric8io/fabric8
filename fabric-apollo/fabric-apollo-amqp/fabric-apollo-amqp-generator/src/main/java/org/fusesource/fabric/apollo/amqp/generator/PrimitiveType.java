@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -96,7 +96,7 @@ public class PrimitiveType extends AmqpDefinedType {
         sizer.param(getJavaType(), "value");
 
         size().body()._return(generator.registry().cls().staticInvoke("instance")
-        .invoke("sizer").invoke("sizeOf" + toJavaClassName(type.getName())).arg(ref("value")));
+                .invoke("sizer").invoke("sizeOf" + toJavaClassName(type.getName())).arg(ref("value")));
     }
 
     private void generateConstructors() {
@@ -111,7 +111,7 @@ public class PrimitiveType extends AmqpDefinedType {
     private void generateToString() {
         toString = cls().method(JMod.PUBLIC, cm.ref("java.lang.String"), "toString");
         toString.body()._if(_this().ref("value").eq(_null()))._then().block()._return(lit("null"));
-        if (type.getName().equals("array")) {
+        if ( type.getName().equals("array") ) {
             toString.body()._return(cm.ref("java.util.Arrays").staticInvoke("toString").arg(_this().ref("value")));
         } else {
             toString.body()._return(_this().ref("value").invoke("toString"));
@@ -168,13 +168,13 @@ public class PrimitiveType extends AmqpDefinedType {
 
         int highestWidth = 0;
 
-        for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
-            if (obj instanceof Encoding ) {
-                Encoding encoding = (Encoding)obj;
+        for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
+            if ( obj instanceof Encoding ) {
+                Encoding encoding = (Encoding) obj;
 
                 String fieldName = type.getName();
 
-                if (encoding.getName() != null) {
+                if ( encoding.getName() != null ) {
                     fieldName += "_" + encoding.getName();
                 }
 
@@ -188,8 +188,8 @@ public class PrimitiveType extends AmqpDefinedType {
                         generator.registry().cls().staticInvoke("instance")
                                 .invoke("getPrimitiveFormatCodeMap")
                                 .invoke("put")
-                                    .arg(ref(staticCodeFieldName))
-                                    .arg(cls().dotclass())
+                                .arg(ref(staticCodeFieldName))
+                                .arg(cls().dotclass())
                 );
 
                 int width = Integer.parseInt(encoding.getWidth());
@@ -203,11 +203,11 @@ public class PrimitiveType extends AmqpDefinedType {
                 readSwitchBlock._case(ref(staticCodeFieldName)).body()
                         .assign(_this().ref("value"),
                                 generator.registry().cls()
-                                .staticInvoke("instance")
-                                .invoke("encoder")
-                                .invoke("read" + toJavaClassName(fieldName))
-                                    .arg(ref("in")))
-                            ._break();
+                                        .staticInvoke("instance")
+                                        .invoke("encoder")
+                                        .invoke("read" + toJavaClassName(fieldName))
+                                        .arg(ref("in")))
+                        ._break();
 
                 staticReadSwitchBlock._case(ref(staticCodeFieldName)).body()
                         ._return(generator.registry().cls()
@@ -262,7 +262,7 @@ public class PrimitiveType extends AmqpDefinedType {
     }
 
     private JMethod staticWrite() {
-        if (staticWrite == null) {
+        if ( staticWrite == null ) {
             staticWrite = cls().method(JMod.PUBLIC | JMod.STATIC, cm.VOID, "write");
             staticWrite._throws(Exception.class);
             staticWrite.param(getJavaType(), "value");
@@ -272,7 +272,7 @@ public class PrimitiveType extends AmqpDefinedType {
     }
 
     private JMethod staticRead() {
-        if (staticRead == null) {
+        if ( staticRead == null ) {
             staticRead = cls().method(JMod.PUBLIC | JMod.STATIC, getJavaType(), "read");
             staticRead._throws(Exception.class);
             staticRead.param(DataInput.class, "in");

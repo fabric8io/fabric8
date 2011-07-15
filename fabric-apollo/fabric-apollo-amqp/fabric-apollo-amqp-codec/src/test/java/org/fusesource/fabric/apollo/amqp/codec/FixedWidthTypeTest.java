@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -37,7 +37,7 @@ public class FixedWidthTypeTest {
     @Test
     public void testBoolean() throws Exception {
         boolean values[] = new boolean[]{true, false};
-        for (boolean in : values) {
+        for ( boolean in : values ) {
             boolean out = writeRead(new AMQPBoolean(in)).getValue().booleanValue();
             assertEquals(in, out);
         }
@@ -46,7 +46,7 @@ public class FixedWidthTypeTest {
     @Test
     public void testByte() throws Exception {
         byte values[] = new byte[]{0, 1, 50, 127, -45};
-        for (byte in : values) {
+        for ( byte in : values ) {
             byte out = writeRead(new AMQPByte(in)).getValue().byteValue();
             assertEquals(in, out);
         }
@@ -55,7 +55,7 @@ public class FixedWidthTypeTest {
     @Test
     public void testCharacter() throws Exception {
         char values[] = new char[]{'A', 'b', '%', '|'};
-        for (char in : values) {
+        for ( char in : values ) {
             char out = writeRead(new AMQPChar(in)).getValue().charValue();
             assertEquals(in, out);
         }
@@ -64,7 +64,7 @@ public class FixedWidthTypeTest {
     @Test
     public void testInt() throws Exception {
         int values[] = new int[]{0, 53, 253, 62323};
-        for (int in : values) {
+        for ( int in : values ) {
             int out = writeRead(new AMQPInt(in)).getValue().intValue();
             assertEquals(in, out);
         }
@@ -73,7 +73,7 @@ public class FixedWidthTypeTest {
     @Test
     public void testLong() throws Exception {
         long values[] = new long[]{0, 53, 253, 62323};
-        for (long in : values) {
+        for ( long in : values ) {
             long out = writeRead(new AMQPLong(in)).getValue().longValue();
             assertEquals(in, out);
         }
@@ -81,8 +81,8 @@ public class FixedWidthTypeTest {
 
     @Test
     public void testFloat() throws Exception {
-        float values[] = new float[]{0, (float)0.53, (float)25.3, (float)623.23};
-        for (float in : values) {
+        float values[] = new float[]{0, (float) 0.53, (float) 25.3, (float) 623.23};
+        for ( float in : values ) {
             float out = writeRead(new AMQPFloat(in)).getValue().floatValue();
             assertEquals(in, out, 0);
         }
@@ -91,7 +91,7 @@ public class FixedWidthTypeTest {
     @Test
     public void testDouble() throws Exception {
         double values[] = new double[]{0, 0.53, 25.3, 623.23};
-        for (double in : values) {
+        for ( double in : values ) {
             double out = writeRead(new AMQPDouble(in)).getValue().doubleValue();
             assertEquals(in, out, 0);
         }
@@ -106,7 +106,7 @@ public class FixedWidthTypeTest {
 
     @Test
     public void testUByte() throws Exception {
-        short in = (short)0xFF;
+        short in = (short) 0xFF;
         short out = writeRead(new AMQPUByte(in)).getValue().shortValue();
         assertEquals(in, out);
     }
@@ -120,8 +120,8 @@ public class FixedWidthTypeTest {
 
     @Test
     public void testUInt() throws Exception {
-        long values[] = new long[]{0, 5, 32, 1024, 8192, ((long)0xFFFFFFFF)};
-        for (long in : values) {
+        long values[] = new long[]{0, 5, 32, 1024, 8192, ((long) 0xFFFFFFFF)};
+        for ( long in : values ) {
             long out = writeRead(new AMQPUInt(in)).getValue().longValue();
             assertEquals(in, out);
         }
@@ -129,13 +129,13 @@ public class FixedWidthTypeTest {
 
     @Test
     public void testULong() throws Exception {
-        BigInteger values[] = new BigInteger[] {
+        BigInteger values[] = new BigInteger[]{
                 new BigInteger("0").abs(),
                 new BigInteger("5").abs(),
                 new BigInteger("512384").abs(),
                 new BigInteger("3423423521352353234").abs()
         };
-        for (BigInteger in : values) {
+        for ( BigInteger in : values ) {
             BigInteger out = writeRead(new AMQPULong(in)).getValue();
             assertEquals(in, out);
         }

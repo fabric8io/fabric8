@@ -1,18 +1,18 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 /**
-*
-*/
+ *
+ */
 public enum FormatCategory {
     DESCRIBED(false, false), FIXED(false, false), VARIABLE(true, false), COMPOUND(true, true), ARRAY(true, true);
 
@@ -26,26 +26,26 @@ public enum FormatCategory {
 
     public static FormatCategory getCategory(byte formatCode) throws IllegalArgumentException {
         switch ((byte) (formatCode & 0xF0)) {
-        case (byte) 0x00:
-            return DESCRIBED;
-        case (byte) 0x40:
-        case (byte) 0x50:
-        case (byte) 0x60:
-        case (byte) 0x70:
-        case (byte) 0x80:
-        case (byte) 0x90:
-            return FIXED;
-        case (byte) 0xA0:
-        case (byte) 0xB0:
-            return VARIABLE;
-        case (byte) 0xC0:
-        case (byte) 0xD0:
-            return COMPOUND;
-        case (byte) 0xE0:
-        case (byte) 0xF0:
-            return ARRAY;
-        default:
-            throw new IllegalArgumentException("" + formatCode);
+            case (byte) 0x00:
+                return DESCRIBED;
+            case (byte) 0x40:
+            case (byte) 0x50:
+            case (byte) 0x60:
+            case (byte) 0x70:
+            case (byte) 0x80:
+            case (byte) 0x90:
+                return FIXED;
+            case (byte) 0xA0:
+            case (byte) 0xB0:
+                return VARIABLE;
+            case (byte) 0xC0:
+            case (byte) 0xD0:
+                return COMPOUND;
+            case (byte) 0xE0:
+            case (byte) 0xF0:
+                return ARRAY;
+            default:
+                throw new IllegalArgumentException("" + formatCode);
         }
     }
 

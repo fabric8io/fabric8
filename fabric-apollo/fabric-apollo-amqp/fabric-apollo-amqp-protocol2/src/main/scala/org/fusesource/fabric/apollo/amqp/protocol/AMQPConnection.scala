@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -13,7 +13,6 @@ package org.fusesource.fabric.apollo.amqp.protocol
 import org.fusesource.hawtdispatch._
 import org.fusesource.hawtbuf.Buffer
 import java.io.IOException
-import org.fusesource.fabric.apollo.amqp.api.{SessionHandler, Session}
 import org.fusesource.fabric.apollo.amqp.codec.Codec._
 import org.fusesource.hawtdispatch.DispatchQueue
 import java.net.URI
@@ -29,6 +28,7 @@ import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
 import java.lang.Long
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPFrame, Open, AMQPProtocolHeader}
 import org.fusesource.fabric.apollo.amqp.utilities.Slot
+import org.fusesource.fabric.apollo.amqp.api._
 
 /**
  *
@@ -39,52 +39,81 @@ object AMQPConnection {
   var die_delay = DEFAULT_DIE_DELAY
 
   val DEFAULT_HEARTBEAT = 10 * 1000L
+
+  var factory: ConnectionFactory = null
+
+  def createConnection: Connection = {
+    if ( factory == null ) {
+      factory = new DefaultConnectionFactory
+    }
+    factory.createConnection
+  }
+
+  def createServerConnection(handler: ConnectionHandler): ServerConnection = {
+    if ( factory == null ) {
+      factory = new DefaultConnectionFactory
+    }
+    factory.createServerConnection(handler)
+  }
+
 }
 
 /**
  *
  */
 class AMQPConnection extends ProtocolConnection with TransportListener with Logging {
+
   import AMQPConnection._
 
-  var dispatchQueue:DispatchQueue = null;
+  var dispatch_queue: DispatchQueue = null;
 
   var session_manager: SinkMux[AnyRef] = null
   var connection_sink: Sink[AnyRef] = null
   var transport_sink: TransportSink = null
 
-  var containerId: String = null
-  var peerContainerId: String = null
+  var container_id: String = null
+  var peer_container_id: String = null
   var transport: Transport = null
   var last_error: Throwable = null
   val sessions = new Slot[ProtocolSession]
   val channels: HashMap[Int, Int] = new HashMap[Int, Int]
-  val headerSent: AtomicBoolean = new AtomicBoolean(false)
-  val openSent: AtomicBoolean = new AtomicBoolean(false)
-  val closeSent: AtomicBoolean = new AtomicBoolean(false)
+  val header_sent: AtomicBoolean = new AtomicBoolean(false)
+  val open_sent: AtomicBoolean = new AtomicBoolean(false)
+  val close_sent: AtomicBoolean = new AtomicBoolean(false)
   val heartbeat_monitor = new HeartBeatMonitor
 
   var idle_timeout = DEFAULT_HEARTBEAT
+
   def heartbeat_interval = (idle_timeout - (idle_timeout * 0.05)).asInstanceOf[Long]
 
-  var uri:URI = null
-  var options:Map[String, String] = null
-  var hostname:Option[String] = None
-  var maxFrameSize: Long = 0
-  var sessionHandler:Option[SessionHandler] = None
-  var connectedTask:Option[Runnable] = None
-  var disconnectedTask:Option[Runnable] = None
+  var uri: URI = null
+  var options: Map[String, String] = null
+  var hostname: Option[String] = None
+  var max_frame_size: Long = 0
+  var session_handler: Option[SessionHandler] = None
+  var connected_task: Option[Runnable] = None
+  var disconnected_task: Option[Runnable] = None
   var channel_max = 32767
   var connecting = false
 
-  def onConnected(task:Runnable) = connectedTask = Option(task)
-  def onDisconnected(task:Runnable) = disconnectedTask = Option(task)
-  def setContainerID(id: String) = containerId = id
-  def getContainerID = containerId
+  var session_factory = new DefaultSessionFactory
+
+  def onConnected(task: Runnable) = connected_task = Option(task)
+
+  def onDisconnected(task: Runnable) = disconnected_task = Option(task)
+
+  def setContainerID(id: String) = container_id = id
+
+  def getContainerID = container_id
+
   def connected() = transport.isConnected
+
   def error() = last_error
-  def setSessionHandler(handler: SessionHandler) = this.sessionHandler = Option(handler)
-  def getPeerContainerID = peerContainerId
+
+  def setSessionHandler(handler: SessionHandler) = this.session_handler = Option(handler)
+
+  def getPeerContainerID = peer_container_id
+
   def send(data: Buffer) = send(data, 0)
 
   def init(uri: String) = {
@@ -98,14 +127,14 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     }
     options.get("containerId") match {
       case Some(id) =>
-        containerId = id
+        container_id = id
       case None =>
-        containerId = UUID.randomUUID.toString
+        container_id = UUID.randomUUID.toString
     }
     hostname = Option(this.uri.getHost)
   }
 
-  def connect(t:Option[Transport], uri:String) = {
+  def connect(t: Option[Transport], uri: String) = {
     init(uri)
     t match {
       case Some(t) =>
@@ -115,7 +144,7 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     }
     transport.setProtocolCodec(new AMQPCodec)
     transport.setTransportListener(this)
-    transport.setDispatchQueue(dispatchQueue)
+    transport.setDispatchQueue(dispatch_queue)
     transport_sink = new TransportSink(transport)
     transport.start
   }
@@ -126,7 +155,7 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
   }
 
   def header(protocolHeader: AMQPProtocolHeader): Unit = {
-    if ( !headerSent.getAndSet(true) ) {
+    if ( !header_sent.getAndSet(true) ) {
 
       def send_response = {
         val response = new AMQPProtocolHeader
@@ -139,8 +168,8 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
         }
         val rc = send(AMQPProtocolHeader.PROTOCOL_HEADER)
       }
-      if (dispatchQueue != getCurrentQueue) {
-        dispatchQueue.future[Unit](send_response).apply
+      if ( dispatch_queue != getCurrentQueue ) {
+        dispatch_queue.future[Unit](send_response).apply
       } else {
         send_response
       }
@@ -156,21 +185,22 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     open(null)
   }
 
-  def setMaxFrameSize(maxFrameSize: Long) = this.maxFrameSize = maxFrameSize
-  def getMaxFrameSize: Long = maxFrameSize
+  def setMaxFrameSize(maxFrameSize: Long) = this.max_frame_size = maxFrameSize
+
+  def getMaxFrameSize: Long = max_frame_size
 
   def open(open: Open): Unit = {
     Option(open).foreach((open) => {
       Option(open.getMaxFrameSize).foreach((x) => setMaxFrameSize(x))
-      this.peerContainerId = open.getContainerID
+      this.peer_container_id = open.getContainerID
       Option(open.getChannelMax).foreach((x) => channel_max = channel_max.min(x))
     })
-    if ( !openSent.getAndSet(true) ) {
+    if ( !open_sent.getAndSet(true) ) {
       val response: Open = new Open
       response.setChannelMax(channel_max)
       response.setIdleTimeout(idle_timeout)
-      Option(containerId).foreach((x) => response.setContainerID(x.asInstanceOf[String]))
-      response.setContainerID(containerId)
+      Option(container_id).foreach((x) => response.setContainerID(x.asInstanceOf[String]))
+      response.setContainerID(container_id)
       hostname.foreach((x) => response.setHostname(x))
       if ( getMaxFrameSize != 0 ) {
         response.setMaxFrameSize(getMaxFrameSize)
@@ -185,8 +215,8 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
         }
         val rc = send(toBuffer(response))
       }
-      if (dispatchQueue != getCurrentQueue) {
-        dispatchQueue.future[Unit](send_response).apply
+      if ( dispatch_queue != getCurrentQueue ) {
+        dispatch_queue.future[Unit](send_response).apply
       } else {
         send_response
       }
@@ -210,7 +240,7 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
           heartbeat_monitor.start
         case None =>
       }
-      connectedTask.foreach((x) => dispatchQueue << x)
+      connected_task.foreach((x) => dispatch_queue << x)
     })
   }
 
@@ -223,22 +253,22 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     session.setLocalChannel(null.asInstanceOf[Int])
   }
 
-  def session(remote:Boolean, remote_channel:Int): Session = {
-    val session = ProtocolSession.createSession(this)
+  def session(remote: Boolean, remote_channel: Int): Session = {
+    val session = session_factory.create_session(this)
     val local_channel = sessions.allocate(session)
     session.setLocalChannel(local_channel)
 
-    if (remote) {
+    if ( remote ) {
       session.setRemoteChannel(remote_channel)
       channels.put(remote_channel, local_channel)
     }
 
-    sessionHandler match {
+    session_handler match {
       case Some(x) =>
         x.sessionCreated(this, session)
       case None =>
-        if (remote) {
-          session.begin( ^ {
+        if ( remote ) {
+          session.begin(^ {
             session.end("Session rejected")
           })
         }
@@ -246,9 +276,9 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     session
   }
 
-  def createSession:Session = session(false, 0)
+  def createSession: Session = session(false, 0)
 
-  def getDispatchQueue = dispatchQueue
+  def getDispatchQueue = dispatch_queue
 
   def close() {}
 
@@ -267,8 +297,8 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     session_manager = new SinkMux[AnyRef](transport_sink.map {
       x =>
         x
-    }, dispatchQueue, AMQPCodec)
-    connection_sink = new OverflowSink(session_manager.open(dispatchQueue)).asInstanceOf[Sink[AnyRef]]
+    })
+    connection_sink = new OverflowSink(session_manager.open)
     connection_sink.refiller = NOOP
     header(null)
     transport.resumeRead

@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -18,7 +18,6 @@ import org.fusesource.fabric.apollo.amqp.jaxb.schema.Choice;
 import org.fusesource.fabric.apollo.amqp.jaxb.schema.Type;
 import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtbuf.Buffer;
-
 
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassName;
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toStaticName;
@@ -36,14 +35,14 @@ public class RestrictedType extends AmqpDefinedType {
 
     @Override
     protected void init() {
-        if ( type.getProvides() != null )  {
+        if ( type.getProvides() != null ) {
             cls()._implements(cm.ref(generator.getInterfaces() + "." + toJavaClassName(type.getProvides())));
         } else {
             cls()._implements(cm.ref(generator.getAmqpBaseType()));
         }
 
         String source = generator.getPrimitiveJavaClass().get(type.getSource());
-        if (source == null) {
+        if ( source == null ) {
             source = generator.getTypes() + "." + toJavaClassName(type.getSource());
         }
 
@@ -69,24 +68,24 @@ public class RestrictedType extends AmqpDefinedType {
 
     private void generateConstants() {
 
-        for (Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc()) {
-            if (obj instanceof Choice) {
-                Choice constant = (Choice)obj;
+        for ( Object obj : type.getEncodingOrDescriptorOrFieldOrChoiceOrDoc() ) {
+            if ( obj instanceof Choice ) {
+                Choice constant = (Choice) obj;
                 int mods = JMod.PUBLIC | JMod.STATIC | JMod.FINAL;
                 String name = toStaticName(constant.getName());
-                if (basePrimitiveType == Buffer.class) {
+                if ( basePrimitiveType == Buffer.class ) {
                     cls().field(mods, cls(), name, JExpr
                             ._new(cls()).arg(JExpr
                                     ._new(cm.ref(AsciiBuffer.class)).arg(JExpr.lit(constant.getValue()))));
-                } else if (basePrimitiveType == Boolean.class) {
-                    if (Boolean.parseBoolean(constant.getValue())) {
+                } else if ( basePrimitiveType == Boolean.class ) {
+                    if ( Boolean.parseBoolean(constant.getValue()) ) {
                         cls().field(mods, cls(), name, JExpr._new(cls()).arg(cm.ref("java.lang.Boolean").staticRef("TRUE")));
                     } else {
                         cls().field(mods, cls(), name, JExpr._new(cls()).arg(cm.ref("java.lang.Boolean").staticRef("FALSE")));
                     }
-                } else if (basePrimitiveType == Short.class) {
+                } else if ( basePrimitiveType == Short.class ) {
                     cls().field(mods, cls(), name, JExpr._new(cls()).arg(JExpr._new(cm.ref("java.lang.Short")).arg(JExpr.cast(cm.ref("short"), JExpr.lit(Short.parseShort(constant.getValue()))))));
-                } else if (basePrimitiveType == Long.class) {
+                } else if ( basePrimitiveType == Long.class ) {
                     cls().field(mods, cls(), name, JExpr._new(cls()).arg(JExpr._new(cm.ref("java.lang.Long")).arg(JExpr.lit(Long.parseLong(constant.getValue())))));
                 } else {
                     Log.warn("Not generating constant %s with type %s for restricted type %s!", constant.getName(), basePrimitiveType.getSimpleName(), type.getName());

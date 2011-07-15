@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import static org.fusesource.fabric.apollo.amqp.codec.TestSupport.writeRead;
 import static org.junit.Assert.assertEquals;
+
 /**
  *
  */
@@ -47,8 +48,8 @@ public class VariableWidthTypeTest {
     @Test
     public void testString32() throws Exception {
         StringBuilder builder = new StringBuilder();
-        for (int i=0; i < 2048; i++) {
-            builder.append((char)((Math.random() * 52) + 65));
+        for ( int i = 0; i < 2048; i++ ) {
+            builder.append((char) ((Math.random() * 52) + 65));
         }
         String in = builder.toString();
         String out = writeRead(new AMQPString(in)).getValue();

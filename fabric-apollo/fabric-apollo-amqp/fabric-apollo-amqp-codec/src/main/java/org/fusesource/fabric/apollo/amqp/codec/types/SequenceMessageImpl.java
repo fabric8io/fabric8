@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -30,8 +30,8 @@ public class SequenceMessageImpl extends BareMessageImpl<List<AMQPSequence>> imp
 
     public long dataSize() {
         long rc = 0;
-        for (AMQPSequence s : data) {
-            if (s != null) {
+        for ( AMQPSequence s : data ) {
+            if ( s != null ) {
                 rc += s.size();
             }
         }
@@ -40,8 +40,8 @@ public class SequenceMessageImpl extends BareMessageImpl<List<AMQPSequence>> imp
 
     @Override
     public void dataWrite(DataOutput out) throws Exception {
-        for (AMQPSequence s : data) {
-            if (s != null) {
+        for ( AMQPSequence s : data ) {
+            if ( s != null ) {
                 s.write(out);
             }
         }

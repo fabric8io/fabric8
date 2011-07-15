@@ -1,21 +1,24 @@
-package org.fusesource.fabric.apollo.amqp.protocol
-
-import org.fusesource.fabric.apollo.amqp.api.{Link, Connection, LinkHandler}
-
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
-/**
+/*
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ *
+ * 	http://fusesource.com
+ *
+are in this pack**
  *
  */
-class AMQPSession(var local_channel:Option[Int]) extends ProtocolSession {
+class AMQPSession(val connection:ProtocolConnection) extends ProtocolSession {
+
+  var local_channel:Option[Int] = None
 
   var remote_channel:Option[Int] = None
 

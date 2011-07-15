@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -26,7 +26,7 @@ public class DescribedConstructor {
     protected Buffer buffer;
 
     public DescribedConstructor(BigInteger descriptor) {
-        int size = (int)(1 + TypeRegistry.instance().sizer().sizeOfULong(descriptor));
+        int size = (int) (1 + TypeRegistry.instance().sizer().sizeOfULong(descriptor));
         DataByteArrayOutputStream out = new DataByteArrayOutputStream(size);
         try {
             out.writeByte(0x0);
@@ -38,7 +38,7 @@ public class DescribedConstructor {
     }
 
     public DescribedConstructor(Buffer descriptor) {
-        int size = (int)(1 + TypeRegistry.instance().sizer().sizeOfSymbol(descriptor));
+        int size = (int) (1 + TypeRegistry.instance().sizer().sizeOfSymbol(descriptor));
         DataByteArrayOutputStream out = new DataByteArrayOutputStream(size);
         try {
             out.writeByte(0x0);

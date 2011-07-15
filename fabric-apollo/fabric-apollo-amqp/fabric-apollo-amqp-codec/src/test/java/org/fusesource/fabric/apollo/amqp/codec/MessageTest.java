@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -54,8 +54,8 @@ public class MessageTest {
     @Test
     public void testEncodeDecodeMultipartDataMessage() throws Exception {
         BareMessage msg = createDataMessage(Buffer.ascii("Hello").buffer(),
-                                            ascii("World").buffer(),
-                                            ascii("!").buffer());
+                ascii("World").buffer(),
+                ascii("!").buffer());
         AnnotatedMessage in = createAnnotatedMessage(msg);
         AnnotatedMessage out = encodeDecode(in);
         assertEquals(in.toString(), out.toString());
@@ -85,10 +85,10 @@ public class MessageTest {
     public void testEncodeDecodeSequenceMessageWithList() throws Exception {
         List<AMQPSequence> list = new ArrayList<AMQPSequence>();
 
-        for (int i=0; i < 10; i++) {
+        for ( int i = 0; i < 10; i++ ) {
             List<AMQPInt> inner = new ArrayList<AMQPInt>();
             list.add(new AMQPSequence(inner));
-            for (int j=0; j < 10; j++) {
+            for ( int j = 0; j < 10; j++ ) {
                 inner.add(new AMQPInt(i + j));
             }
         }
@@ -121,7 +121,7 @@ public class MessageTest {
         ArrayList<AMQPString> payload1 = new ArrayList<AMQPString>();
         ArrayList<AMQPString> payload2 = new ArrayList<AMQPString>();
 
-        for (int i = 0; i < 10; i++) {
+        for ( int i = 0; i < 10; i++ ) {
             payload1.add(new AMQPString("payload item " + i));
             payload2.add(new AMQPString("and payload item " + (i + 10)));
         }

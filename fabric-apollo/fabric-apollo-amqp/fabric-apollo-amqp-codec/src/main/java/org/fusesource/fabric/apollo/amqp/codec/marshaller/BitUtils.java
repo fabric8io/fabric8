@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
@@ -23,7 +23,7 @@ public class BitUtils {
 
     public static final byte[] getUByteArray(short[] array) {
         byte[] ret = new byte[array.length];
-        for( int i=0; i<ret.length; i++) {
+        for ( int i = 0; i < ret.length; i++ ) {
             setUByte(ret, i, array[i]);
         }
         return ret;
@@ -52,8 +52,8 @@ public class BitUtils {
 
     public static final int getUShort(final byte[] source, final int offset) {
         return
-                ((int)source[offset + 0] & 0xff) << 8 |
-                        ((int)source[offset + 1] & 0xff);
+                ((int) source[offset + 0] & 0xff) << 8 |
+                        ((int) source[offset + 1] & 0xff);
     }
 
     public static final void setShort(final byte[] target, final int offset, final short value) {
@@ -76,7 +76,7 @@ public class BitUtils {
 
     public static final long getUInt(final byte[] source, final int offset) {
         return
-                ((long)(source[offset + 0] & 0xff) << 24 |
+                ((long) (source[offset + 0] & 0xff) << 24 |
                         (source[offset + 1] & 0xff) << 16 |
                         (source[offset + 2] & 0xff) << 8 |
                         (source[offset + 3] & 0xff)) & 0xFFFFFFFFL;
@@ -116,7 +116,7 @@ public class BitUtils {
                         ((long) (source[offset + 3] & 0xff) << 32) |
                         ((long) (source[offset + 4] & 0xff) << 24) |
                         ((long) (source[offset + 5] & 0xff) << 16) |
-                        ((long) (source[offset + 6] & 0xff) <<  8) |
+                        ((long) (source[offset + 6] & 0xff) << 8) |
                         ((long) (source[offset + 7] & 0xff));
     }
 

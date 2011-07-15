@@ -8,12 +8,14 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.codec.api;
-
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPValue;
+package org.fusesource.fabric.apollo.amqp.protocol
 
 /**
  *
  */
-public interface ValueMessage extends BareMessage<AMQPValue> {
+
+trait SessionFactory {
+
+  def create_session(connection: ProtocolConnection): ProtocolSession
+
 }
