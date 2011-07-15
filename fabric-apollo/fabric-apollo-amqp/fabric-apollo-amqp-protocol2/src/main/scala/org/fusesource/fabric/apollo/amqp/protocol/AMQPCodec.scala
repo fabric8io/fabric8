@@ -1,20 +1,19 @@
-/**
+/*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
- *     http://fusesource.com
+ * 	http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
+ * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file.
  */
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.apache.activemq.apollo.transport._
 import java.nio.channels._
 import java.nio.ByteBuffer
 import org.fusesource.hawtbuf.{DataByteArrayOutputStream, Buffer}
-import java.io.{DataOutputStream, DataInputStream, EOFException}
+import java.io.{DataInputStream, EOFException}
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPConstants._
 import org.apache.activemq.apollo.broker.Sizer
 import org.apache.activemq.apollo.util.Logging
@@ -37,7 +36,7 @@ class AMQPProtocolCodecFactory extends ProtocolCodecFactory.Provider {
 
   def maxIdentificaionLength = MAGIC.length
 
-  def matchesIdentification(buffer: Buffer) : Boolean = {
+  def matchesIdentification(buffer: Buffer): Boolean = {
     buffer.startsWith(MAGIC)
   }
 }
@@ -46,36 +45,37 @@ object AMQPCodec extends Sizer[AnyRef] {
 
   def size(value: AnyRef) = {
     value match {
-      case x:AMQPProtocolHeader=> AMQPProtocolHeaderCodec.INSTANCE.getFixedSize
-      case x:AMQPFrame=> x.getFrameSize.toInt
+      case x: AMQPProtocolHeader => AMQPProtocolHeaderCodec.INSTANCE.getFixedSize
+      case x: AMQPFrame => x.getFrameSize.toInt
     }
   }
 }
 
 class AMQPCodec extends ProtocolCodec with Logging {
 
-  implicit def toBuffer(value:Array[Byte]):Buffer = new Buffer(value)
+  implicit def toBuffer(value: Array[Byte]): Buffer = new Buffer(value)
 
   def protocol = PROTOCOL
 
-  var write_buffer_size = 1024*64;
+  var write_buffer_size = 1024 * 64;
   var write_counter = 0L
-  var write_channel:WritableByteChannel = null
+  var write_channel: WritableByteChannel = null
 
   var next_write_buffer = new DataByteArrayOutputStream(write_buffer_size)
   var write_buffer = ByteBuffer.allocate(0)
 
   def full = next_write_buffer.size() >= (write_buffer_size >> 1)
+
   def is_empty = write_buffer.remaining() == 0
 
   def setWritableByteChannel(channel: WritableByteChannel) = {
     this.write_channel = channel
     write_channel match {
-      case s:SocketChannel =>
+      case s: SocketChannel =>
         try {
-        s.socket().setSendBufferSize(write_buffer_size);
+          s.socket().setSendBufferSize(write_buffer_size);
         } catch {
-          case e:SocketException => warn("Unable to set write buffer size to " + write_buffer_size + " using " + s.socket().getSendBufferSize)
+          case e: SocketException => warn("Unable to set write buffer size to " + write_buffer_size + " using " + s.socket().getSendBufferSize)
         }
         write_buffer_size = s.socket().getSendBufferSize
       case _ =>
@@ -84,19 +84,19 @@ class AMQPCodec extends ProtocolCodec with Logging {
 
   def getWriteCounter = write_counter
 
-  def write(command: AnyRef):ProtocolCodec.BufferState =  {
-    if ( full) {
+  def write(command: AnyRef): ProtocolCodec.BufferState = {
+    if ( full ) {
       ProtocolCodec.BufferState.FULL
     } else {
       val was_empty = is_empty
       debug("Sending %s", command);
       command match {
-        case frame:AMQPProtocolHeader=>
+        case frame: AMQPProtocolHeader =>
           AMQPProtocolHeaderCodec.INSTANCE.encode(frame, next_write_buffer)
-        case frame:AMQPFrame=>
+        case frame: AMQPFrame =>
           frame.write(next_write_buffer)
       }
-      if( was_empty ) {
+      if ( was_empty ) {
         ProtocolCodec.BufferState.WAS_EMPTY
       } else {
         ProtocolCodec.BufferState.NOT_EMPTY
@@ -104,7 +104,7 @@ class AMQPCodec extends ProtocolCodec with Logging {
     }
   }
 
-  def flush():ProtocolCodec.BufferState = {
+  def flush(): ProtocolCodec.BufferState = {
     // if we have a pending write that is being sent over the socket...
     if ( write_buffer.remaining() != 0 ) {
       //trace("Remaining data in write buffer : %s bytes", write_buffer.remaining())
@@ -115,12 +115,12 @@ class AMQPCodec extends ProtocolCodec with Logging {
 
 
     // if it is now empty try to refill...
-    if ( is_empty && next_write_buffer.size()!=0 ) {
-        // size of next buffer is based on how much was used in the previous buffer.
-        val prev_size = (write_buffer.position()+512).max(512).min(write_buffer_size)
-        write_buffer = next_write_buffer.toBuffer().toByteBuffer()
-        next_write_buffer = new DataByteArrayOutputStream(prev_size)
-        //trace("Current write buffer size is %s bytes, next write buffer size is %s bytes", write_buffer.remaining, prev_size)
+    if ( is_empty && next_write_buffer.size() != 0 ) {
+      // size of next buffer is based on how much was used in the previous buffer.
+      val prev_size = (write_buffer.position() + 512).max(512).min(write_buffer_size)
+      write_buffer = next_write_buffer.toBuffer().toByteBuffer()
+      next_write_buffer = new DataByteArrayOutputStream(prev_size)
+      //trace("Current write buffer size is %s bytes, next write buffer size is %s bytes", write_buffer.remaining, prev_size)
     }
 
     if ( is_empty ) {
@@ -131,23 +131,23 @@ class AMQPCodec extends ProtocolCodec with Logging {
   }
 
   var read_counter = 0L
-  var read_buffer_size = 1024*64
-  var read_channel:ReadableByteChannel = null
+  var read_buffer_size = 1024 * 64
+  var read_channel: ReadableByteChannel = null
 
-  var next_action:()=>AnyRef = read_protocol_header
-  var read_buffer:ByteBuffer = ByteBuffer.allocate(AMQPProtocolHeaderCodec.INSTANCE.getFixedSize)
+  var next_action: () => AnyRef = read_protocol_header
+  var read_buffer: ByteBuffer = ByteBuffer.allocate(AMQPProtocolHeaderCodec.INSTANCE.getFixedSize)
   var read_waiting_on = AMQPProtocolHeaderCodec.INSTANCE.getFixedSize
 
 
   def setReadableByteChannel(channel: ReadableByteChannel) = {
     this.read_channel = channel
     read_channel match {
-      case s:SocketChannel =>
+      case s: SocketChannel =>
         val sock = s.socket();
         try {
           sock.setReceiveBufferSize(read_buffer_size);
         } catch {
-          case e:SocketException => warn("Unable to set receive buffer size to " + read_buffer_size + " using " + sock.getReceiveBufferSize)
+          case e: SocketException => warn("Unable to set receive buffer size to " + read_buffer_size + " using " + sock.getReceiveBufferSize)
         }
         read_buffer_size = sock.getReceiveBufferSize
 
@@ -168,10 +168,10 @@ class AMQPCodec extends ProtocolCodec with Logging {
 
   def getReadCounter = read_counter
 
-  override def read():Object = {
+  override def read(): Object = {
 
-    var command:Object = null
-    while( command==null ) {
+    var command: Object = null
+    while (command == null) {
       // do we need to read in more data???
       if ( read_waiting_on > 0 ) {
         assert(read_buffer.remaining >= read_waiting_on, "read_buffer too small")
@@ -179,10 +179,10 @@ class AMQPCodec extends ProtocolCodec with Logging {
         // Try to fill the buffer with data from the socket..
         var count = read_channel.read(read_buffer)
         //trace("Read in %s bytes", count)
-        if (count == -1) {
-            throw new EOFException("Peer disconnected")
-        } else if (count == 0) {
-            return null
+        if ( count == -1 ) {
+          throw new EOFException("Peer disconnected")
+        } else if ( count == 0 ) {
+          return null
         }
         read_counter += count
         read_waiting_on -= count
@@ -193,9 +193,9 @@ class AMQPCodec extends ProtocolCodec with Logging {
 
       } else {
         command = next_action()
-        if (read_waiting_on > read_buffer.remaining) {
+        if ( read_waiting_on > read_buffer.remaining ) {
           val next_buffer = try {
-             ByteBuffer.allocate((read_buffer.limit - read_buffer.position) + read_waiting_on)
+            ByteBuffer.allocate((read_buffer.limit - read_buffer.position) + read_waiting_on)
           } catch {
             case o: OutOfMemoryError =>
               error("Caught OOM allocating read buffer %s", o)
@@ -214,7 +214,7 @@ class AMQPCodec extends ProtocolCodec with Logging {
     return command
   }
 
-  def read_protocol_header:()=>AnyRef = ()=> {
+  def read_protocol_header: () => AnyRef = () => {
     val protocol_header = AMQPProtocolHeaderCodec.INSTANCE.decode(new DataInputStream(read_buffer.array.in))
     val new_pos = read_buffer.position + AMQPProtocolHeaderCodec.INSTANCE.getFixedSize
     read_buffer.position(new_pos)
@@ -225,7 +225,7 @@ class AMQPCodec extends ProtocolCodec with Logging {
     protocol_header
   }
 
-  def read_frame_header:()=>AnyRef = ()=> {
+  def read_frame_header: () => AnyRef = () => {
     //trace("Waiting to read in 8 byte frame header");
     read_buffer.mark
     val buf = new Array[Byte](8)
@@ -239,13 +239,13 @@ class AMQPCodec extends ProtocolCodec with Logging {
     null
   }
 
-  def read_frame(size:Int): ()=>AnyRef = ()=> {
+  def read_frame(size: Int): () => AnyRef = () => {
     //trace("Next frame to read in is %s bytes, read_buffer.position=%s, read_buffer.array length=%s", size, read_buffer.position, read_buffer.array.length)
     val buf = new Buffer(read_buffer.array, read_buffer.position, size)
     //trace("Read in : %s", buf)
     var rc = new AMQPFrame(buf);
 
-    read_buffer.position(read_buffer.position+size)
+    read_buffer.position(read_buffer.position + size)
 
     //trace("Read frame, read buffer position : %s", read_buffer.position)
 
