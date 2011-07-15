@@ -14,14 +14,25 @@ import java.nio.channels._
 import java.nio.ByteBuffer
 import org.fusesource.hawtbuf.{DataByteArrayOutputStream, Buffer}
 import java.io.{DataInputStream, EOFException}
-import org.fusesource.fabric.apollo.amqp.protocol.AMQPConstants._
 import org.apache.activemq.apollo.broker.Sizer
 import org.apache.activemq.apollo.util.Logging
 import java.net.SocketException
 import org.fusesource.fabric.apollo.amqp.codec._
 import marshaller.{BitUtils, AMQPProtocolHeaderCodec}
+import org.apache.activemq.apollo.transport._
 import org.apache.activemq.apollo.transport.ProtocolCodec.BufferState
 import types.{AMQPProtocolHeader, AMQPFrame}
+
+/*
+*
+*/
+object AMQPConstants {
+  val PROTOCOL = "amqp"
+  val MAGIC = new Buffer(AMQPDefinitions.MAGIC)
+  val MIN_MAX_FRAME_SIZE = AMQPDefinitions.MIN_MAX_FRAME_SIZE
+}
+
+import AMQPConstants._
 
 /*
 *
@@ -41,6 +52,9 @@ class AMQPProtocolCodecFactory extends ProtocolCodecFactory.Provider {
   }
 }
 
+/*
+*
+*/
 object AMQPCodec extends Sizer[AnyRef] {
 
   def size(value: AnyRef) = {
@@ -51,6 +65,9 @@ object AMQPCodec extends Sizer[AnyRef] {
   }
 }
 
+/*
+*
+*/
 class AMQPCodec extends ProtocolCodec with Logging {
 
   implicit def toBuffer(value: Array[Byte]): Buffer = new Buffer(value)

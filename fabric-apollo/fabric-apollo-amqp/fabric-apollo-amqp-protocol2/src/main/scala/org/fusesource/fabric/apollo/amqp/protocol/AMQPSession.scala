@@ -8,14 +8,10 @@
  * in the license.txt file.
  */
 
-/*
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
- *
- * 	http://fusesource.com
- *
-are in this pack**
- *
- */
+package org.fusesource.fabric.apollo.amqp.protocol
+
+import org.fusesource.fabric.apollo.amqp.api._
+
 class AMQPSession(val connection:ProtocolConnection) extends ProtocolSession {
 
   var local_channel:Option[Int] = None
