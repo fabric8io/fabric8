@@ -28,7 +28,7 @@ public class Sizer {
 
         definedClass = cm._class(className, ClassType.INTERFACE);
 
-        generator.registry().cls().field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cls(), "SIZER", JExpr.direct("AmqpSizer.instance()"));
+        generator.registry().cls().field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cls(), "SIZER", JExpr.direct("AMQPSizer.instance()"));
         JMethod singletonAccessor = generator.registry().cls().method(JMod.PUBLIC, cls(), "sizer");
         singletonAccessor.body()._return(JExpr.ref("SIZER"));
 

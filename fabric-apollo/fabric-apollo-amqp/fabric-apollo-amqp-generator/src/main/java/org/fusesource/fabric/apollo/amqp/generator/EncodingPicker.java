@@ -28,7 +28,7 @@ public class EncodingPicker {
 
         definedClass = cm._class(className, ClassType.INTERFACE);
 
-        generator.registry().cls().field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cls(), "PICKER", JExpr.direct("AmqpEncodingPicker.instance()"));
+        generator.registry().cls().field(JMod.PROTECTED | JMod.FINAL | JMod.STATIC, cls(), "PICKER", JExpr.direct("AMQPEncodingPicker.instance()"));
         JMethod singletonAccessor = generator.registry().cls().method(JMod.PUBLIC, cls(), "picker");
         singletonAccessor.body()._return(JExpr.ref("PICKER"));
 

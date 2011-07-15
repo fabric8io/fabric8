@@ -443,7 +443,7 @@ public class Generator {
     }
 
     public String getAmqpBaseType() {
-        return getInterfaces() + "." + "AmqpType";
+        return getInterfaces() + "." + "AMQPType";
     }
 
     public Map<String,String> getPrimitiveJavaClass() {

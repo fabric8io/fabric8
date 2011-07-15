@@ -23,6 +23,7 @@ public class Utilities {
     private static HashMap<String, String> fixed_substitutions = new HashMap<String, String>();
 
     static {
+        substitutions.put("Amqp", "AMQP");
         substitutions.put("Ubyte", "UByte");
         substitutions.put("Ushort", "UShort");
         substitutions.put("Uint", "UInt");
