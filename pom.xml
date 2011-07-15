@@ -193,12 +193,12 @@
         <module>fabric-cxf</module>
         <module>fabric-activemq</module>
         <module>fabric-distro</module>
+        <module>fab</module>
         <module>fabric-groups</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
         <module>fabric-dosgi</module>
         <module>fabric-examples</module>
-        <module>fab</module>
     </modules>
 
     <build>
