@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 
 import java.io.DataOutput;
 
@@ -20,10 +20,10 @@ import java.io.DataOutput;
 public class ArraySupport {
 
     public static Object getArrayConstructor(Object value[]) {
-        AmqpType[] arr = (AmqpType[])value;
+        AMQPType[] arr = (AMQPType[])value;
         Object constructor;
         try {
-            constructor = ((AmqpType)arr.getClass().getComponentType().newInstance()).getArrayConstructor();
+            constructor = ((AMQPType)arr.getClass().getComponentType().newInstance()).getArrayConstructor();
         } catch (Exception e) {
             throw new RuntimeException("Error determining array size : " + e.getMessage());
         }
@@ -41,9 +41,9 @@ public class ArraySupport {
     }
 
     public static long getArrayBodySize(Object value[]) {
-        AmqpType[] arr = (AmqpType[])value;
+        AMQPType[] arr = (AMQPType[])value;
         long size = 0;
-        for (AmqpType t : arr) {
+        for (AMQPType t : arr) {
             size += t.sizeOfBody();
         }
         return size;

@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
 import org.fusesource.fabric.apollo.amqp.codec.api.*;
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.types.*;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
@@ -101,13 +101,13 @@ public class MessageSupport {
                 rc.setProperties((Properties)arg);
             } else if (arg instanceof ApplicationProperties) {
                 rc.setApplicationProperties((ApplicationProperties)arg);
-            } else if (arg instanceof AmqpSequence) {
+            } else if (arg instanceof AMQPSequence) {
                 if (rc.getData() == null) {
                     List list = new ArrayList();
-                    list.add((AmqpSequence)arg);
+                    list.add((AMQPSequence)arg);
                     rc.setData(list);
                 } else {
-                    rc.getData().add((AmqpSequence)arg);
+                    rc.getData().add((AMQPSequence)arg);
                 }
             } else if (arg instanceof List) {
                 rc.setData((List)arg);
@@ -129,10 +129,10 @@ public class MessageSupport {
                 rc.setProperties((Properties)arg);
             } else if (arg instanceof ApplicationProperties) {
                 rc.setApplicationProperties((ApplicationProperties)arg);
-            } else if (arg instanceof AmqpValue) {
-                rc.setData((AmqpValue)arg);
-            } else if (arg instanceof AmqpType) {
-                ((ValueMessageImpl)rc).setData((AmqpType)arg);
+            } else if (arg instanceof AMQPValue) {
+                rc.setData((AMQPValue)arg);
+            } else if (arg instanceof AMQPType ) {
+                ((ValueMessageImpl)rc).setData((AMQPType)arg);
             } else {
                 throw new RuntimeException("Unknown type for ValueMessage");
             }
@@ -164,7 +164,7 @@ public class MessageSupport {
     public static AnnotatedMessage readAnnotatedMessage(DataInput in) throws Exception {
         try {
             AnnotatedMessage rc = new AnnotatedMessageImpl();
-            AmqpType type = TypeReader.read(in);
+            AMQPType type = TypeReader.read(in);
             if (type == null) {
                 return rc;
             }
@@ -197,21 +197,21 @@ public class MessageSupport {
                     } else {
                         ((DataMessage)message).getData().add((Data) type);
                     }
-                } else if (type instanceof AmqpSequence) {
+                } else if (type instanceof AMQPSequence) {
                     if (message != null && !(message instanceof SequenceMessageImpl)) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = createSequenceMessage((AmqpSequence)type);
+                        message = createSequenceMessage((AMQPSequence)type);
                     } else {
-                        ((SequenceMessage)message).getData().add((AmqpSequence)type);
+                        ((SequenceMessage)message).getData().add((AMQPSequence) type);
                     }
-                } else if (type instanceof AmqpValue) {
+                } else if (type instanceof AMQPValue) {
                     if (message != null && !(message instanceof ValueMessageImpl)) {
                         throw new RuntimeException("More than one type of application data section present in message");
                     }
                     if (message == null) {
-                        message = createValueMessage((AmqpValue)type);
+                        message = createValueMessage((AMQPValue)type);
                     } else {
                         throw new RuntimeException("Only one instance of an AMQP value section can be present in a message");
                     }
@@ -248,7 +248,7 @@ public class MessageSupport {
         }
     }
 
-    private static <T extends AmqpType> T getSection(Buffer descriptor, Buffer buffer) throws Exception {
+    private static <T extends AMQPType> T getSection(Buffer descriptor, Buffer buffer) throws Exception {
         int position = buffer.indexOf(descriptor);
         if (position == -1) {
             return null;
@@ -327,7 +327,7 @@ public class MessageSupport {
     }
 
     //TODO - get body type scanners
-    //TODO - scanners for body values, Data, AmqpValue, AmqpSequence
+    //TODO - scanners for body values, Data, AMQPValue, AMQPSequence
 
     public static Footer getFooter(Buffer buffer) throws Exception {
         if (buffer.length == 0) {
@@ -350,8 +350,8 @@ public class MessageSupport {
             Properties.CONSTRUCTOR.getBuffer(),
             ApplicationProperties.CONSTRUCTOR.getBuffer(),
             Data.CONSTRUCTOR.getBuffer(),
-            AmqpValue.CONSTRUCTOR.getBuffer(),
-            AmqpSequence.CONSTRUCTOR.getBuffer(),
+            AMQPValue.CONSTRUCTOR.getBuffer(),
+            AMQPSequence.CONSTRUCTOR.getBuffer(),
             Footer.CONSTRUCTOR.getBuffer()
     };
 
@@ -359,8 +359,8 @@ public class MessageSupport {
             Properties.CONSTRUCTOR.getBuffer(),
             ApplicationProperties.CONSTRUCTOR.getBuffer(),
             Data.CONSTRUCTOR.getBuffer(),
-            AmqpValue.CONSTRUCTOR.getBuffer(),
-            AmqpSequence.CONSTRUCTOR.getBuffer()
+            AMQPValue.CONSTRUCTOR.getBuffer(),
+            AMQPSequence.CONSTRUCTOR.getBuffer()
     };
     */
 

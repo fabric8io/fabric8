@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPSymbol;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPULong;
 
@@ -25,16 +25,16 @@ public class TypeReader {
         return in.readByte();
     }
 
-    public static AmqpType readDescriptor(DataInput in) throws Exception {
+    public static AMQPType readDescriptor(DataInput in) throws Exception {
         byte formatCode = readFormatCode(in);
         return readPrimitive(formatCode, in);
     }
 
-    public static AmqpType readPrimitive(byte formatCode, DataInput in) throws Exception {
+    public static AMQPType readPrimitive(byte formatCode, DataInput in) throws Exception {
         if ( checkEOS(formatCode)) {
             return null;
         }
-        AmqpType primitive = (AmqpType) TypeRegistry.instance().getPrimitiveFormatCodeMap().get(formatCode).newInstance();
+        AMQPType primitive = (AMQPType) TypeRegistry.instance().getPrimitiveFormatCodeMap().get(formatCode).newInstance();
         if (primitive != null) {
             primitive.read(formatCode, in);
         }
@@ -45,13 +45,13 @@ public class TypeReader {
          return formatCode == -1;
     }
 
-    public static AmqpType readDescribedType(AmqpType descriptor, DataInput in) throws Exception {
-        AmqpType rc = null;
+    public static AMQPType readDescribedType(AMQPType descriptor, DataInput in) throws Exception {
+        AMQPType rc = null;
 
         if (descriptor instanceof AMQPULong ) {
-            rc = (AmqpType) TypeRegistry.instance().getFormatCodeMap().get(((AMQPULong) descriptor).getValue()).newInstance();
+            rc = (AMQPType) TypeRegistry.instance().getFormatCodeMap().get(((AMQPULong) descriptor).getValue()).newInstance();
         } else if (descriptor instanceof AMQPSymbol) {
-            rc = (AmqpType) TypeRegistry.instance().getSymbolicCodeMap().get(((AMQPSymbol) descriptor).getValue()).newInstance();
+            rc = (AMQPType) TypeRegistry.instance().getSymbolicCodeMap().get(((AMQPSymbol) descriptor).getValue()).newInstance();
         } else {
             throw new IllegalArgumentException("Unknown AMQP descriptor type");
         }
@@ -62,13 +62,13 @@ public class TypeReader {
 
     }
 
-    public static AmqpType read(DataInput in) throws Exception {
+    public static AMQPType read(DataInput in) throws Exception {
         byte formatCode = readFormatCode(in);
         if ( checkEOS(formatCode)) {
             return null;
         }
         if (formatCode == TypeRegistry.DESCRIBED_FORMAT_CODE) {
-            AmqpType descriptor = readDescriptor(in);
+            AMQPType descriptor = readDescriptor(in);
             return readDescribedType(descriptor, in);
         } else if (formatCode == TypeRegistry.NULL_FORMAT_CODE) {
             return null;

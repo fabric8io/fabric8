@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.PrimitiveEncoder;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPArray;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPList;
@@ -25,7 +25,6 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.fusesource.fabric.apollo.amqp.codec.marshaller.ArraySupport.*;
@@ -56,14 +55,14 @@ public class Encoder implements PrimitiveEncoder {
             rc = (Object[])Array.newInstance(clazz, (int)count);
             for (int i = 0; i < rc.length; i++) {
                 rc[i] = clazz.newInstance();
-                ((AmqpType)rc[i]).read((byte)0x0, in);
+                ((AMQPType)rc[i]).read((byte)0x0, in);
             }
         } else {
             Class clazz = TypeRegistry.instance().getPrimitiveFormatCodeMap().get(formatCode);
             rc = (Object[])Array.newInstance(clazz, (int)count);
             for (int i=0; i < rc.length; i++) {
                 rc[i] = clazz.newInstance();
-                ((AmqpType)rc[i]).read(formatCode, in);
+                ((AMQPType)rc[i]).read(formatCode, in);
             }
         }
         return rc;
@@ -82,9 +81,9 @@ public class Encoder implements PrimitiveEncoder {
         for (Object obj : value) {
             Object constructor = getArrayConstructor(value);
             if (constructor instanceof Byte) {
-                ((AmqpType)obj).writeBody((Byte)constructor, out);
+                ((AMQPType)obj).writeBody((Byte)constructor, out);
             } else {
-                ((AmqpType)obj).writeBody((byte)0x0, out);
+                ((AMQPType)obj).writeBody((byte)0x0, out);
             }
         }
     }
@@ -287,7 +286,7 @@ public class Encoder implements PrimitiveEncoder {
 
     private void writeListData(List value, DataOutput out) throws Exception {
         for (Object obj : value) {
-            AmqpType element = (AmqpType)obj;
+            AMQPType element = (AMQPType)obj;
             if (element == null) {
                 writeNull(out);
             } else {
@@ -344,12 +343,12 @@ public class Encoder implements PrimitiveEncoder {
 
     private void writeMapData(Map value, DataOutput out) throws Exception {
         for (Object key : value.keySet()) {
-            ((AmqpType)key).write(out);
+            ((AMQPType)key).write(out);
             Object v = value.get(key);
             if (v == null) {
                 writeNull(out);
             } else {
-                ((AmqpType)v).write(out);
+                ((AMQPType)v).write(out);
             }
         }
     }
