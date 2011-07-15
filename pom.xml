@@ -49,6 +49,7 @@
         <forge-project-id>fabric</forge-project-id>
 
         <!-- OSGi bundles properties -->
+        <fabric.osgi.bundle.name>${project.name}</fabric.osgi.bundle.name>
         <fabric.osgi.import.fabric.version>version="[$(version;==;${fabric.osgi.version}),$(version;=+;${fabric.osgi.version}))"
         </fabric.osgi.import.fabric.version>
         <fabric.osgi.import.strict.version>version="[$(version;===;${fabric.osgi.version}),$(version;==+;${fabric.osgi.version}))"
@@ -220,7 +221,7 @@
                     <configuration>
                         <excludeDependencies>${fabric.osgi.exclude.dependencies}</excludeDependencies>
                         <instructions>
-                            <Bundle-Name>${project.artifactId}</Bundle-Name>
+                            <Bundle-Name>${fabric.osgi.bundle.name}</Bundle-Name>
                             <Bundle-SymbolicName>${fabric.osgi.symbolic.name}</Bundle-SymbolicName>
                             <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
                             <Bundle-Activator>${fabric.osgi.activator}</Bundle-Activator>
