@@ -23,8 +23,6 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
   test("Create server connection using pipe transport") {
 
-    val queue = Dispatch.createQueue
-
     val uri = "pipe://foobar:0"
 
     val latch = new CountDownLatch(2)
