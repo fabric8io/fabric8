@@ -21,7 +21,7 @@
     <artifactId>fabric-agent</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>FuseSource Fabric - Agent</name>
     <description>FuseSource Fabric :: Provisioning Agent</description>
 
     <properties>

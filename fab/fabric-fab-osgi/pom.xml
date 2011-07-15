@@ -21,7 +21,7 @@
   <artifactId>fabric-fab-osgi</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>FuseSource Fabric - Bundles</name>
   <description>FuseSource Fabric :: Archive Bundles Core</description>
 
   <properties>
