@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.Sizer;
 import org.fusesource.hawtbuf.Buffer;
 
@@ -52,11 +52,11 @@ import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUUID.UUID_WIDTH;
 /**
  *
  */
-public class AmqpSizer implements Sizer {
+public class AMQPSizer implements Sizer {
 
-    protected static final AmqpSizer SINGLETON = new AmqpSizer();
+    protected static final AMQPSizer SINGLETON = new AMQPSizer();
 
-    public static AmqpSizer instance() {
+    public static AMQPSizer instance() {
         return SINGLETON;
     }
 
@@ -194,7 +194,7 @@ public class AmqpSizer implements Sizer {
             if (obj == null) {
                 size += 1;
             } else {
-                size += ((AmqpType)obj).size();
+                size += ((AMQPType)obj).size();
             }
         }
         return size;
@@ -231,12 +231,12 @@ public class AmqpSizer implements Sizer {
         }
 
         for (Object key : value.keySet()) {
-            size += ((AmqpType)key).size();
+            size += ((AMQPType)key).size();
             Object obj = value.get(key);
             if (obj == null) {
                 size += 1;
             } else {
-                size += ((AmqpType)obj).size();
+                size += ((AMQPType)obj).size();
             }
         }
         return size;

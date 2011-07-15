@@ -23,7 +23,7 @@ import java.nio.channels.WritableByteChannel;
 /**
  * Represents an AMQP frame
  */
-public class AmqpFrame {
+public class AMQPFrame {
 
     public static final int AMQP_FRAME_TYPE = 0x00;
     public static final int AMQP_SASL_FRAME_TYPE = 0x01;
@@ -39,23 +39,23 @@ public class AmqpFrame {
     protected static final int TYPE_OFFSET = 5;
     protected static final int CHANNEL_OFFSET = 6;
 
-    public AmqpFrame() {
+    public AMQPFrame() {
 
     }
 
-    public AmqpFrame(Buffer body) {
+    public AMQPFrame(Buffer body) {
         this.body = body;
     }
 
-    public AmqpFrame(DataInput in) throws Exception {
+    public AMQPFrame(DataInput in) throws Exception {
         read(in);
     }
 
-    public AmqpFrame(ReadableByteChannel channel) throws Exception {
+    public AMQPFrame(ReadableByteChannel channel) throws Exception {
         bytesRead = read(channel);
     }
 
-    public boolean equals(AmqpFrame other) {
+    public boolean equals(AMQPFrame other) {
         if ( other == null ) {
             return false;
         }

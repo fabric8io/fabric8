@@ -13,7 +13,7 @@ package org.fusesource.fabric.apollo.amqp.codec.interfaces;
 import java.io.DataInput;
 import java.io.DataOutput;
 
-public interface AmqpType {
+public interface AMQPType {
 
     public Object getArrayConstructor();
 

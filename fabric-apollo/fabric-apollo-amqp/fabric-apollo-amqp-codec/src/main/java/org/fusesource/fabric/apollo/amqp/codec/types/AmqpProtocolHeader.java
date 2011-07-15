@@ -10,7 +10,12 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.types;
 
-import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
+import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions;
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.AMQPProtocolHeaderCodec;
+import org.fusesource.hawtbuf.Buffer;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * <p>
@@ -18,21 +23,35 @@ import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public class AmqpProtocolHeader {
+public class AMQPProtocolHeader {
+
+    public static Buffer PROTOCOL_HEADER = init();
+
+    private static Buffer init() {
+        Buffer rc = new Buffer(AMQPProtocolHeaderCodec.INSTANCE.getFixedSize());
+        try {
+            AMQPProtocolHeaderCodec.INSTANCE.encode(new AMQPProtocolHeader(), new DataOutputStream(rc.out()));
+        } catch (IOException e) {
+            throw new RuntimeException("Error initializing static protocol header buffer : " + e.getMessage());
+        }
+
+        return rc;
+    }
+
 
     public short protocolId;
     public short major;
     public short minor;
     public short revision;
 
-    public AmqpProtocolHeader() {
-        protocolId = AmqpDefinitions.PROTOCOL_ID;
-        major = AmqpDefinitions.MAJOR;
-        minor = AmqpDefinitions.MINOR;
-        revision = AmqpDefinitions.REVISION;
+    public AMQPProtocolHeader() {
+        protocolId = AMQPDefinitions.PROTOCOL_ID;
+        major = AMQPDefinitions.MAJOR;
+        minor = AMQPDefinitions.MINOR;
+        revision = AMQPDefinitions.REVISION;
     }
 
-    public AmqpProtocolHeader(AmqpProtocolHeader value) {
+    public AMQPProtocolHeader(AMQPProtocolHeader value) {
         this.protocolId = value.protocolId;
         this.major = value.major;
         this.minor = value.minor;

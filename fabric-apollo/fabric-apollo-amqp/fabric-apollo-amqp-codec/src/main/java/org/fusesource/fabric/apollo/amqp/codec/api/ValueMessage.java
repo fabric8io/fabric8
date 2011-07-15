@@ -10,10 +10,10 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.api;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpValue;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPValue;
 
 /**
  *
  */
-public interface ValueMessage extends BareMessage<AmqpValue> {
+public interface ValueMessage extends BareMessage<AMQPValue> {
 }

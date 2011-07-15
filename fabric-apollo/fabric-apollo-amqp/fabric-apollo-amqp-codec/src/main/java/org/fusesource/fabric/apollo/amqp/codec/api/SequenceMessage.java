@@ -10,12 +10,12 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.api;
 
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpSequence;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPSequence;
 
 import java.util.List;
 
 /**
  *
  */
-public interface SequenceMessage extends BareMessage<List<AmqpSequence>> {
+public interface SequenceMessage extends BareMessage<List<AMQPSequence>> {
 }

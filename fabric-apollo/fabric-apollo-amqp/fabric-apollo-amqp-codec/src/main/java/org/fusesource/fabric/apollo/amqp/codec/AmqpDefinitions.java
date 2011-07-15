@@ -15,7 +15,7 @@ import org.fusesource.hawtbuf.AsciiBuffer;
 /**
  * Definitions for the Amqp protocol
  */
-public interface AmqpDefinitions {
+public interface AMQPDefinitions {
 
     /**
      * Protocol magic identifier

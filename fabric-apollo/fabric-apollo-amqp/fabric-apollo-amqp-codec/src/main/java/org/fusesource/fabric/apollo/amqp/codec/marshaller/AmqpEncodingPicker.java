@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AmqpType;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.EncodingPicker;
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPMap;
 import org.fusesource.hawtbuf.Buffer;
@@ -58,11 +58,11 @@ import static org.fusesource.fabric.apollo.amqp.codec.types.AMQPUUID.UUID_CODE;
 /**
  *
  */
-public class AmqpEncodingPicker implements EncodingPicker {
+public class AMQPEncodingPicker implements EncodingPicker {
 
-    private static final AmqpEncodingPicker SINGLETON = new AmqpEncodingPicker();
+    private static final AMQPEncodingPicker SINGLETON = new AMQPEncodingPicker();
 
-    public static AmqpEncodingPicker instance() {
+    public static AMQPEncodingPicker instance() {
         return SINGLETON;
     }
 
@@ -77,7 +77,7 @@ public class AmqpEncodingPicker implements EncodingPicker {
         int size = 0;
         size += getArrayConstructorSize(value);
         for (Object v : value) {
-            AmqpType t = (AmqpType)v;
+            AMQPType t = (AMQPType)v;
             size += t.sizeOfBody();
             if (size > 255 - ARRAY_ARRAY8_WIDTH) {
                 return ARRAY_ARRAY32_CODE;
@@ -179,7 +179,7 @@ public class AmqpEncodingPicker implements EncodingPicker {
         }
         int size = 0;
         for (Object obj : value) {
-            size += ((AmqpType)obj).size();
+            size += ((AMQPType)obj).size();
             if (size > (255 - LIST_LIST8_WIDTH)) {
                 return LIST_LIST32_CODE;
             }
@@ -206,8 +206,8 @@ public class AmqpEncodingPicker implements EncodingPicker {
         }
         int size = 0;
         for (Object key : value.keySet()) {
-            size += ((AmqpType)key).size();
-            size += ((AmqpType)value.get(key)).size();
+            size += ((AMQPType)key).size();
+            size += ((AMQPType)value.get(key)).size();
             if (size > (255 - AMQPMap.MAP_MAP8_WIDTH)) {
                 return MAP_MAP32_CODE;
             }

@@ -10,8 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.codec.marshaller;
 
-import org.fusesource.fabric.apollo.amqp.codec.AmqpDefinitions;
-import org.fusesource.fabric.apollo.amqp.codec.types.AmqpProtocolHeader;
+import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader;
 import org.fusesource.hawtbuf.codec.Codec;
 
 import java.io.DataInput;
@@ -25,17 +25,17 @@ import java.util.Arrays;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public class AmqpProtocolHeaderCodec implements Codec<AmqpProtocolHeader> {
+public class AMQPProtocolHeaderCodec implements Codec<AMQPProtocolHeader> {
 
-    public static final AmqpProtocolHeaderCodec INSTANCE = new AmqpProtocolHeaderCodec();
+    public static final AMQPProtocolHeaderCodec INSTANCE = new AMQPProtocolHeaderCodec();
 
-    public AmqpProtocolHeader decode(DataInput in) throws IOException {
+    public AMQPProtocolHeader decode(DataInput in) throws IOException {
         byte magic[] = new byte[4];
         in.readFully(magic);
-        if( !Arrays.equals(magic, AmqpDefinitions.MAGIC) ) {
+        if( !Arrays.equals(magic, AMQPDefinitions.MAGIC) ) {
             throw new IOException("Invalid magic");
         }
-        AmqpProtocolHeader rc = new AmqpProtocolHeader();
+        AMQPProtocolHeader rc = new AMQPProtocolHeader();
         rc.protocolId = (short) (in.readByte() & 0xFF);
         rc.major = (short) (in.readByte() & 0xFF);
         rc.minor = (short) (in.readByte() & 0xFF);
@@ -43,8 +43,8 @@ public class AmqpProtocolHeaderCodec implements Codec<AmqpProtocolHeader> {
         return rc;
     }
 
-    public void encode(AmqpProtocolHeader value, DataOutput out) throws IOException {
-        out.write(AmqpDefinitions.MAGIC);
+    public void encode(AMQPProtocolHeader value, DataOutput out) throws IOException {
+        out.write(AMQPDefinitions.MAGIC);
         out.write(value.protocolId);
         out.writeByte(value.major);
         out.write(value.minor);
@@ -59,7 +59,7 @@ public class AmqpProtocolHeaderCodec implements Codec<AmqpProtocolHeader> {
         return true;
     }
 
-    public int estimatedSize(AmqpProtocolHeader value) {
+    public int estimatedSize(AMQPProtocolHeader value) {
         return 8;
     }
 
@@ -67,7 +67,7 @@ public class AmqpProtocolHeaderCodec implements Codec<AmqpProtocolHeader> {
         return true;
     }
 
-    public AmqpProtocolHeader deepCopy(AmqpProtocolHeader value) {
-        return new AmqpProtocolHeader(value);
+    public AMQPProtocolHeader deepCopy(AMQPProtocolHeader value) {
+        return new AMQPProtocolHeader(value);
     }
 }
