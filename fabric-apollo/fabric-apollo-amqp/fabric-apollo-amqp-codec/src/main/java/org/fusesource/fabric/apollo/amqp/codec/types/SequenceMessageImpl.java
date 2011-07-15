@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *
  */
-public class SequenceMessageImpl extends BareMessageImpl<List<AmqpSequence>> implements SequenceMessage {
+public class SequenceMessageImpl extends BareMessageImpl<List<AMQPSequence>> implements SequenceMessage {
 
     public SequenceMessageImpl() {
 
@@ -30,7 +30,7 @@ public class SequenceMessageImpl extends BareMessageImpl<List<AmqpSequence>> imp
 
     public long dataSize() {
         long rc = 0;
-        for (AmqpSequence s : data) {
+        for (AMQPSequence s : data) {
             if (s != null) {
                 rc += s.size();
             }
@@ -40,7 +40,7 @@ public class SequenceMessageImpl extends BareMessageImpl<List<AmqpSequence>> imp
 
     @Override
     public void dataWrite(DataOutput out) throws Exception {
-        for (AmqpSequence s : data) {
+        for (AMQPSequence s : data) {
             if (s != null) {
                 s.write(out);
             }
