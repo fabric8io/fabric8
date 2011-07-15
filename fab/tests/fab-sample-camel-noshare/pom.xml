@@ -59,13 +59,9 @@
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
               <Fabric-Dependency-Share></Fabric-Dependency-Share>
-              <Private-Package>META-INF.services.org.apache.camel,META-INF.services.org.apache.camel.component,META-INF.services.org.apache.camel.language</Private-Package>
               <!--
-              <Fabric-Dependency-Exclude>org.osgi:*</Fabric-Dependency-Exclude>
-
-              <Import-Package>org.osgi.framework</Import-Package>
+              <Private-Package>META-INF.services.org.apache.camel,META-INF.services.org.apache.camel.component,META-INF.services.org.apache.camel.language</Private-Package>
               -->
-              <!-- lets import the OSGi packages directly as the org.osgi bundle has unresolved exported packages -->
             </manifestEntries>
           </archive>
         </configuration>
