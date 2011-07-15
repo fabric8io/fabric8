@@ -21,7 +21,9 @@ import java.util.concurrent.{TimeUnit, CountDownLatch}
  */
 class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  test("Create server connection using vm transport") {
+  test("Create server connection using pipe transport") {
+
+    val queue = Dispatch.createQueue
 
     val uri = "pipe://foobar:0"
 
@@ -40,20 +42,19 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
       }
     })
 
-    server.bind(uri, ^{
-      val client = AMQPConnectionFactory.createConnection()
-      client.onDisconnected(^ {
-        latch.countDown
-      })
-      client.onConnected(^ {
-        client.close
-        latch.countDown
-      })
-      client.connect(uri)
+    server.bind(uri, NOOP)
+    val client = AMQPConnectionFactory.createConnection()
+    client.onDisconnected(^ {
+      latch.countDown
+    })
+    client.onConnected(^ {
+      client.close
+      latch.countDown
     })
 
-    latch.await(10, TimeUnit.SECONDS) should be(true)
+    client.connect(uri)
 
+    latch.await(10, TimeUnit.SECONDS) should be(true)
   }
 
 }

@@ -134,16 +134,14 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
         container_id = UUID.randomUUID.toString
     }
     hostname = Option(this.uri.getHost)
+    if (dispatch_queue == null) {
+      dispatch_queue = Dispatch.createQueue
+    }
   }
 
   def connect(t: Option[Transport], uri: String) = {
     init(uri)
-    t match {
-      case Some(t) =>
-        transport = t
-      case None =>
-        transport = TransportFactory.connect(uri)
-    }
+    transport = t.getOrElse(TransportFactory.connect(uri))
     transport.setProtocolCodec(new AMQPCodec)
     transport.setTransportListener(this)
     transport.setDispatchQueue(dispatch_queue)
