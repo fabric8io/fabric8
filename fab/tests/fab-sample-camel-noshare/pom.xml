@@ -24,6 +24,10 @@
   <name>${project.artifactId}</name>
   <description>FAB :: Sample :: Camel NoShare</description>
 
+  <properties>
+    <camel-version>2.8-SNAPSHOT</camel-version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.osgi</groupId>

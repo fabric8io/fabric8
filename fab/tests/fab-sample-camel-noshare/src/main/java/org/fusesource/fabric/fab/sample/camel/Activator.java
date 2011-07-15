@@ -11,12 +11,15 @@ package org.fusesource.fabric.fab.sample.camel;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.converter.CorePackageScanClassResolver;
+import org.apache.camel.impl.converter.DefaultTypeConverter;
+import org.apache.camel.spi.TypeConverterRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-    private CamelContext camelContext;
+    private DefaultCamelContext camelContext;
 
     public void start(BundleContext context) throws Exception {
         // inside OSGi the thread context class loader isn't set to the right class loader so lets try that now
@@ -34,6 +37,14 @@ public class Activator implements BundleActivator {
     public void startCamel() throws Exception {
         System.out.println("Starting my Sample CamelContext");
         camelContext = new DefaultCamelContext();
+
+        // TODO package scannning doesn't work in most containers so lets work around it.
+
+        CorePackageScanClassResolver corePackageScanClassResolver = new CorePackageScanClassResolver();
+        TypeConverterRegistry typeConverterRegistry = new DefaultTypeConverter(new CorePackageScanClassResolver(),
+                camelContext.getInjector(), camelContext.getFactoryFinder(""));
+        camelContext.setTypeConverterRegistry(typeConverterRegistry);
+
         camelContext.addRoutes(new RouteBuilder() {
             public void configure() throws Exception {
                 from("timer://foo?fixedRate=trueperiod=5000").to("log:myFooTimer");
