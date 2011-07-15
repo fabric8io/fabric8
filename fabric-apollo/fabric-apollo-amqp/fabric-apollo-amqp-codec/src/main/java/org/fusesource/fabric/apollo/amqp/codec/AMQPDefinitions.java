@@ -13,9 +13,9 @@ package org.fusesource.fabric.apollo.amqp.codec;
 import org.fusesource.hawtbuf.AsciiBuffer;
 
 /**
- * Definitions for the Amqp protocol
+ * Definitions for the AMQP protocol
  */
-public interface AmqpDefinitions {
+public interface AMQPDefinitions {
 
     /**
      * Protocol magic identifier
