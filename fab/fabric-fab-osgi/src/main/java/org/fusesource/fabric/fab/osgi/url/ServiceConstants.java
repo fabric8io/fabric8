@@ -65,6 +65,17 @@ public interface ServiceConstants extends Constants {
      */
     static final String INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE = "Fabric-Dependency-Require-Bundle";
 
+
+    /**
+     * The name of the configuration property used to define the extension dependencies to be used when installing this FAB.
+     *
+     * This lets you define dynamically which extension modules you want to use.
+     *
+     * For example if using activemq-apollo you could set this value to a space separated list of [groupId:]artifactId[:version].
+     * By default the same groupId and artifactId is used as the current FAB details.
+     */
+    static final String INSTR_FAB_EXTENSION_VARIABLE = "Fabric-Extension-Variable";
+
     /**
      * All the possible FAB headers on a manfiest, used to detect a FAB
      */

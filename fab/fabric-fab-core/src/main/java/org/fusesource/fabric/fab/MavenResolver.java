@@ -190,6 +190,14 @@ public class MavenResolver {
         return collectDependenciesFromPom(rootPom, offline, model);
     }
 
+    public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+        Dependency dependency = new Dependency(new DefaultArtifact(groupId, artifactId, classifier, extension, version), "runtime");
+
+        // TODO not implemented!!!
+
+        return null;
+    }
+
     protected DependencyTreeResult collectDependenciesFromPom(File rootPom, boolean offline, Model model) throws RepositoryException, MalformedURLException {
         Map<String, String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
 

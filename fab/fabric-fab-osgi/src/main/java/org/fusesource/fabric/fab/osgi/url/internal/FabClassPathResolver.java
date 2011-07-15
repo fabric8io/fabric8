@@ -21,6 +21,7 @@ import org.fusesource.fabric.fab.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
+import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism
@@ -52,6 +54,7 @@ public class FabClassPathResolver {
     private DependencyTree rootTree;
     // don't think there's any need to even look at Import-Packages as BND takes care of it...
     boolean processImportPackages = false;
+    private MavenResolver resolver = new MavenResolver();
 
     public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
@@ -60,7 +63,6 @@ public class FabClassPathResolver {
     }
 
     public void resolve() throws RepositoryException, IOException, XmlPullParserException {
-        MavenResolver resolver = new MavenResolver();
         String[] repositories = connection.getConfiguration().getMavenRepositories();
         if (repositories != null) {
             resolver.setRepositories(repositories);
@@ -91,6 +93,13 @@ public class FabClassPathResolver {
             instructions.setProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME, name);
         }
         addDependencies(rootTree);
+
+        // lets process any extension modules
+        String extensionPropertyName = getManfiestProperty(ServiceConstants.INSTR_FAB_EXTENSION_VARIABLE);
+        if (Strings.notEmpty(extensionPropertyName)) {
+            resolveExtensions(extensionPropertyName, rootTree);
+        }
+
 
         for (DependencyTree dependencyTree : sharedDependencies) {
             if (requireBundleFilter.matches(dependencyTree)) {
@@ -170,6 +179,55 @@ public class FabClassPathResolver {
         }
         return answer;
     }
+
+
+    /**
+     * Lets use the given property name to find any extension dependencies to add to this flat class loader
+     */
+    protected void resolveExtensions(String extensionPropertyName, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
+        String value = resolvePropertyName(extensionPropertyName);
+        if (Strings.notEmpty(value)) {
+            StringTokenizer iter = new StringTokenizer(value);
+            while (iter.hasMoreElements()) {
+                String text = iter.nextToken();
+
+                if (Strings.notEmpty(text)) {
+                    String[] values = text.split(":");
+                    String archetypeId;
+                    String groupId = root.getGroupId();
+                    String version = root.getVersion();
+                    String extension = "jar";
+                    String classifier = "";
+                    if (values.length == 1) {
+                        archetypeId = values[0];
+                    } else if (values.length == 2) {
+                        groupId = values[0];
+                        archetypeId = values[1];
+                    } else if (values.length > 2) {
+                        groupId = values[0];
+                        archetypeId = values[1];
+                        version = values[2];
+                    } else {
+                        continue;
+                    }
+
+                    // lets resolve the dependency
+                    DependencyTreeResult result = resolver.collectDependencies(groupId, archetypeId, version, extension, classifier);
+                    if (result != null) {
+                        addDependencies(result.getTree());
+                    }
+
+                }
+
+            }
+        }
+    }
+
+    protected String resolvePropertyName(String extensionPropertyName) {
+        // TODO whats the right way to do this???
+        return connection.getConfiguration().get(extensionPropertyName);
+    }
+
 
     protected void addDependencies(DependencyTree tree) throws MalformedURLException {
         List<DependencyTree> children = tree.getChildren();
