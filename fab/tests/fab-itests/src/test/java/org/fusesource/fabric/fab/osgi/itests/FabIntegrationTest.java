@@ -8,13 +8,11 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.osgi.framework.Bundle;
 import org.osgi.service.blueprint.container.BlueprintContainer;
 
 import static org.apache.karaf.testing.Helper.felixProvisionalApis;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.waitForFrameworkStartup;
@@ -44,13 +42,17 @@ public class FabIntegrationTest extends IntegrationTestSupport {
 
         Thread.sleep(1000);
 
-        // TODO now lets start the new FAB...
-
-        // TODO now lets stop the bundles....
+        cs.execute("osgi:install fab:mvn:org.fusesource.fabric.fab.tests/fab-sample-camel-noshare");
 
         Thread.sleep(1000);
 
         cs.execute("osgi:list");
+
+        assertStartBundle("org.fusesource.fabric.fab.tests.fab-sample-camel-noshare");
+
+        Thread.sleep(3000);
+
+        stopBundles();
 
         cs.close();
     }

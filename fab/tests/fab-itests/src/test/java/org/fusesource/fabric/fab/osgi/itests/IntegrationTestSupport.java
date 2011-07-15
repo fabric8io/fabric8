@@ -11,62 +11,49 @@ package org.fusesource.fabric.fab.osgi.itests;
 import org.apache.karaf.testing.AbstractIntegrationTest;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  */
 public class IntegrationTestSupport extends AbstractIntegrationTest {
+    private static final transient Logger LOG = LoggerFactory.getLogger(IntegrationTestSupport.class);
 
-    /*
-    @Test
-    public void testInstallCommand() throws Exception {
-        Thread.sleep(12000);
-
-        CommandProcessor cp = getOsgiService(CommandProcessor.class);
-        CommandSession cs = cp.createSession(System.in, System.out, System.err);
-
-        try {
-            cs.execute("log:display");
-            fail("command should not exist");
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().indexOf("Command not found") >= 0);
-        }
-
-        Bundle b = getInstalledBundle("org.apache.karaf.shell.log");
-        b.start();
-
-        Thread.sleep(1000);
-
-        cs.execute("log:display");
-
-        b.stop();
-
-        Thread.sleep(1000);
-
-        try {
-            cs.execute("log:display");
-            fail("command should not exist");
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().indexOf("Command not found") >= 0);
-        }
-
-        cs.close();
-    }
-    */
+    protected LinkedList<Bundle> startedBundles = new LinkedList<Bundle>();
 
     protected Bundle assertStartBundle(String symbolicName) throws Exception {
-        Bundle b = getInstalledBundle(symbolicName);
-
-        println("got bundle: " + b);
+        Bundle bundle = assertInstalledBundle(symbolicName);
+        LOG.info("installed bundle: " + bundle + " is about to start");
         try {
-            b.start();
+            bundle.start();
+            startedBundles.addLast(bundle);
         } catch (BundleException e) {
             println("ERROR: " + e, e);
             throw e;
         }
         Thread.sleep(1000);
-        return b;
+        return bundle;
     }
 
+    protected Bundle assertInstalledBundle(String symbolicName) {
+        Bundle bundle = getInstalledBundle(symbolicName);
+        assertNotNull("Should have a bundle for: " + symbolicName, bundle);
+        return bundle;
+    }
+
+    protected void stopBundles() throws Exception {
+        while (!startedBundles.isEmpty()) {
+            Bundle bundle = startedBundles.removeFirst();
+
+            assertNotNull("Should have a bundle", bundle);
+            LOG.info("stopping bundle: " + bundle + " is about to start");
+            bundle.stop();
+        }
+    }
 
     protected void println(Object value, BundleException e) {
         println(value);

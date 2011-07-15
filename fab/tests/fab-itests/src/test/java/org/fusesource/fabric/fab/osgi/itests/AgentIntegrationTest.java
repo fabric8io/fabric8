@@ -31,6 +31,8 @@ public class AgentIntegrationTest extends IntegrationTestSupport {
         Thread.sleep(10000);
 
         assertStartBundle("org.fusesource.fabric.fabric-agent");
+        Thread.sleep(10000);
+        stopBundles();
     }
 
     @Configuration

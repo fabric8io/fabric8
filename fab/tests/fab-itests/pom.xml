@@ -54,6 +54,20 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <scope>test</scope>
     </dependency>
 
+    <!-- test FABs -->
+    <dependency>
+      <groupId>org.fusesource.fabric.fab.tests</groupId>
+      <artifactId>fab-sample-camel-noshare</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric.fab.tests</groupId>
+      <artifactId>fab-sample-camel-blueprint-share</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
