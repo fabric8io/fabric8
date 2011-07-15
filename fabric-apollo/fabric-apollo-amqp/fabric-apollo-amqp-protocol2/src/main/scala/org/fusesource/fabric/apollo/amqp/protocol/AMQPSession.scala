@@ -10,7 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fabric.apollo.amqp.api._
+import interfaces.{ProtocolConnection, ProtocolSession}
+import org.fusesource.fabric.apollo.amqp.protocol.api._
 
 class AMQPSession(val connection:ProtocolConnection) extends ProtocolSession {
 

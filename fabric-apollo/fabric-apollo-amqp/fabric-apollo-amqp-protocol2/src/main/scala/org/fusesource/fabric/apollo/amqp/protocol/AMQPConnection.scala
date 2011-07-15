@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import interfaces.{ProtocolSession, ProtocolConnection}
 import org.fusesource.hawtdispatch._
 import org.fusesource.hawtbuf.Buffer
 import java.io.IOException
@@ -21,14 +22,15 @@ import collection.mutable.HashMap
 import collection.mutable.Map
 import java.util.UUID
 import org.apache.activemq.apollo.transport.{TransportFactory, Transport, TransportListener}
-import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, Sink, SinkMux}
+import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, SessionSinkMux, Sink}
 import java.util.concurrent.atomic.AtomicBoolean
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
 import java.lang.Long
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPFrame, Open, AMQPProtocolHeader}
-import org.fusesource.fabric.apollo.amqp.utilities.Slot
-import org.fusesource.fabric.apollo.amqp.api._
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
+import org.fusesource.fabric.apollo.amqp.protocol.api._
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
 
 /**
  *
@@ -67,7 +69,7 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
 
   var dispatch_queue: DispatchQueue = null;
 
-  var session_manager: SinkMux[AnyRef] = null
+  var session_manager: SessionSinkMux[AnyRef] = null
   var connection_sink: Sink[AnyRef] = null
   var transport_sink: TransportSink = null
 
@@ -294,11 +296,11 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
 
   def onTransportConnected() = {
     trace("Connected to %s:/%s", transport.getTypeId, transport.getRemoteAddress)
-    session_manager = new SinkMux[AnyRef](transport_sink.map {
+    session_manager = new SessionSinkMux[AnyRef](transport_sink.map {
       x =>
         x
-    })
-    connection_sink = new OverflowSink(session_manager.open)
+    }, dispatch_queue, AMQPCodec)
+    connection_sink = new OverflowSink(session_manager.open(dispatch_queue))
     connection_sink.refiller = NOOP
     header(null)
     transport.resumeRead

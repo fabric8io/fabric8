@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.api;
+package org.fusesource.fabric.apollo.amqp.protocol.api;
 
 /**
  * A callback used by a Connection to communicate session creation/destruction

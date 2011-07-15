@@ -10,7 +10,9 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.fusesource.fabric.apollo.amqp.api.ConnectionHandler
+import api.ConnectionHandler
+import interfaces.ConnectionFactory
+
 
 /**
  *

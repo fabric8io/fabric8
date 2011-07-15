@@ -1,3 +1,5 @@
+package org.fusesource.fabric.apollo.amqp.protocol
+
 /*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
  *
@@ -8,12 +10,10 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.utilities
-
+import api.{Connection, ConnectionHandler, AMQPConnectionFactory}
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.fusesource.fabric.apollo.amqp.api.{Connection, ConnectionHandler, AMQPConnectionFactory}
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 
 /**
@@ -23,7 +23,9 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
   test("Create server connection using vm transport") {
 
-    val latch = new CountDownLatch(1)
+    val uri = "pipe://foobar:0"
+
+    val latch = new CountDownLatch(2)
 
     val server = AMQPConnectionFactory.createServerConnection(new ConnectionHandler {
       def connectionCreated(connection: Connection) {
@@ -33,15 +35,22 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
         })
         connection.onConnected(^ {
           connection.close
-          latch.countDown()
+          latch.countDown
         })
       }
     })
 
-    server.bind("pipe:foo")
-
-    val client = AMQPConnectionFactory.createConnection()
-    client.connect("pipe:foo")
+    server.bind(uri, ^{
+      val client = AMQPConnectionFactory.createConnection()
+      client.onDisconnected(^ {
+        latch.countDown
+      })
+      client.onConnected(^ {
+        client.close
+        latch.countDown
+      })
+      client.connect(uri)
+    })
 
     latch.await(10, TimeUnit.SECONDS) should be(true)
 

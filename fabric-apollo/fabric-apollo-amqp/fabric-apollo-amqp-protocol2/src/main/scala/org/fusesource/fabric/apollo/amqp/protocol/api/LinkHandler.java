@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.api;
+package org.fusesource.fabric.apollo.amqp.protocol.api;
 
 /**
  * A callback used to notify when a new incoming or outgoing link is either attached to or detached from a session

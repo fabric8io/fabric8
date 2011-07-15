@@ -8,14 +8,13 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol.api;
+
+import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
 
 /**
  *
  */
-
-trait SessionFactory {
-
-  def create_session(connection: ProtocolConnection): ProtocolSession
+public interface AnnotatedMessageHandler extends MessageHandler<AnnotatedMessage> {
 
 }

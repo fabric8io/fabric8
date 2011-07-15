@@ -8,13 +8,13 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.api;
-
-import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
+package org.fusesource.fabric.apollo.amqp.protocol.api;
 
 /**
  *
  */
-public interface AnnotatedMessageHandler extends MessageHandler<AnnotatedMessage> {
+public interface FlowControlHandler {
+
+    public void needLinkCredit(int available);
 
 }

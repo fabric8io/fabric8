@@ -8,10 +8,10 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol.interfaces
 
-import org.fusesource.fabric.apollo.amqp.api.Connection
 import org.fusesource.hawtbuf.Buffer
+import org.fusesource.fabric.apollo.amqp.protocol.api.Connection
 
 /**
  *

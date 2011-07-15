@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.api;
+package org.fusesource.fabric.apollo.amqp.protocol.api;
 
 /**
  * Represents an AMQP server that listens for incoming client connections
@@ -28,8 +28,9 @@ public interface ServerConnection {
      * Binds this ServerConnection to the specified URI
      *
      * @param uri
+     * @param onComplete
      */
-    public void bind(String uri);
+    public void bind(String uri, Runnable onComplete);
 
     /**
      * Gets the port this ServerConnection is bound to

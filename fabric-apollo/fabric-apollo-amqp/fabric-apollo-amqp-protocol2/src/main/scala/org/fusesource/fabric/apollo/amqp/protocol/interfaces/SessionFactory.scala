@@ -8,15 +8,14 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.api;
-
-import org.fusesource.hawtbuf.Buffer;
+package org.fusesource.fabric.apollo.amqp.protocol.interfaces
 
 /**
  *
  */
-public interface DeliveryTagger {
 
-    public void setTag(Buffer target, long deliveryId, Buffer message);
+trait SessionFactory {
+
+  def create_session(connection: ProtocolConnection): ProtocolSession
 
 }

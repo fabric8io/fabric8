@@ -12,7 +12,6 @@ package org.fusesource.fabric.apollo.amqp.protocol.utilities
 
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.fusesource.fabric.apollo.amqp.utilities.Slot
 
 /**
  *

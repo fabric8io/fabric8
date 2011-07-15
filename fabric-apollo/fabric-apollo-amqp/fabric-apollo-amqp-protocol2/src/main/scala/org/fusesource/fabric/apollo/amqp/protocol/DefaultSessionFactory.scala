@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import interfaces.{ProtocolConnection, SessionFactory}
+
 /**
  *
  */

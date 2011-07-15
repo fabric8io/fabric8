@@ -8,7 +8,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.utilities
+package org.fusesource.fabric.apollo.amqp.protocol.utilities
 
 import collection.immutable.TreeSet
 import collection.mutable.HashMap

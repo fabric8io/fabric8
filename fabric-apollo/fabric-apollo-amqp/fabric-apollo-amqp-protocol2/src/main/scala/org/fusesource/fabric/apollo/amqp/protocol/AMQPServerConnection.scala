@@ -22,7 +22,7 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.apache.activemq.apollo.transport._
 import tcp.TcpTransportServer
-import org.fusesource.fabric.apollo.amqp.api._
+import org.fusesource.fabric.apollo.amqp.protocol.api._
 
 /**
  *
@@ -48,12 +48,12 @@ class AMQPServerConnection(handler: ConnectionHandler) extends AMQPConnection wi
     }
   }
 
-  def bind(uri: String) = {
+  def bind(uri: String, onComplete:Runnable) = {
     init(uri)
     transportServer = TransportFactory.bind(uri)
     transportServer.setDispatchQueue(dispatch_queue)
     transportServer.setAcceptListener(this)
-    transportServer.start()
+    transportServer.start(onComplete)
     info("AMQP Server listening on %s:%s", getListenHost, getListenPort)
   }
 

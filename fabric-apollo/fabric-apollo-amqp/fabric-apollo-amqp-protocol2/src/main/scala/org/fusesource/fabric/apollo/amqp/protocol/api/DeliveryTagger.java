@@ -8,13 +8,15 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.apollo.amqp.api;
+package org.fusesource.fabric.apollo.amqp.protocol.api;
+
+import org.fusesource.hawtbuf.Buffer;
 
 /**
  *
  */
-public interface FlowControlHandler {
+public interface DeliveryTagger {
 
-    public void needLinkCredit(int available);
+    public void setTag(Buffer target, long deliveryId, Buffer message);
 
 }
