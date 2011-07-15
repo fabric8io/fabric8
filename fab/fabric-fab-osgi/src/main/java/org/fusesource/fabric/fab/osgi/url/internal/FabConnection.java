@@ -39,6 +39,7 @@ public class FabConnection extends URLConnection {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabConnection.class);
 
     private Configuration configuration;
+    private String[] mavenRepositories;
 
     public FabConnection(URL url, Configuration config) throws MalformedURLException {
         super(url);

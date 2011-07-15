@@ -34,4 +34,21 @@ public class Configuration extends PropertyStore {
         return get(ServiceConstants.PROPERTY_CERTIFICATE_CHECK);
     }
 
+    public String[] getMavenRepositories() {
+        if (!contains(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES)) {
+            String text = propertyResolver.get(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES);
+            String[] repositories = toArray(text);
+            return set(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES, repositories);
+        }
+        return get(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES);
+    }
+
+    public static String[] toArray(String text) {
+        String[] answer = null;
+        if (text != null) {
+            answer = text.split(",");
+        }
+        return answer;
+    }
+
 }

@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -63,6 +64,10 @@ public class FabClassPathResolver {
 
     public void resolve() throws RepositoryException, IOException, XmlPullParserException {
         MavenResolver resolver = new MavenResolver();
+        String[] repositories = connection.getConfiguration().getMavenRepositories();
+        if (repositories != null) {
+            resolver.setRepositories(repositories);
+        }
         File fileJar = connection.getJarFile();
         DependencyTreeResult result = resolver.collectDependenciesForJar(fileJar, offline);
         this.rootTree = result.getTree();

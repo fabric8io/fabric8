@@ -75,4 +75,9 @@ public interface ServiceConstants extends Constants {
      * Certificate check configuration property name
      */
     static final String PROPERTY_CERTIFICATE_CHECK = PID + ".certificateCheck";
+
+    /**
+     * The list of maven repositories to use for resolving jars
+     */
+    static final String PROPERTY_MAVEN_REPOSITORIES = "org.ops4j.pax.url.mvn.repositories";
 }

@@ -29,3 +29,5 @@ The following example installs the [fab-sample-camel-blueprint-share sample jar|
     osgi:install fab:mvn:org.fusesource.fabric.fab.tests/fab-sample-camel-blueprint-share/1.0-SNAPSHOT
 
 now start it and you're good to go!
+
+

@@ -28,6 +28,7 @@ import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.ArtifactDescriptorException;
 import org.sonatype.aether.resolution.ArtifactDescriptorRequest;
 import org.sonatype.aether.resolution.ArtifactDescriptorResult;
@@ -153,15 +154,11 @@ public class MavenResolver {
         session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
 
         session.setDependencySelector(
-                new AndDependencySelector(new ScopeDependencySelector("test", "provided"),
+                new AndDependencySelector(new ScopeDependencySelector("test"),
                         new OptionalDependencySelector(), new ExclusionDependencySelector()));
         session.setOffline(offline);
 
-        List<RemoteRepository> repos = new ArrayList<RemoteRepository>();
-        for( int i = 0; i < repositories.length; i++ )
-        {
-            repos.add( new RemoteRepository( "repos" + i, "default", repositories[i] ) );
-        }
+        List<RemoteRepository> repos = getRemoteRepositories();
 
         Map<String,String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
         Artifact root = new DefaultArtifact("#groupId", "#artifactId", null, "pom", "#version", props, rootPom);
@@ -172,6 +169,7 @@ public class MavenResolver {
         DependencyFilter filter = new AndDependencyFilter();
         return repo.resolveDependencies(session, request, filter);
     }
+
 
     /**
      * Collects the dependency tree for the given file by extracting its pom.xml file
@@ -206,11 +204,7 @@ public class MavenResolver {
                         new OptionalDependencySelector(), new ExclusionDependencySelector()));
         session.setOffline(offline);
 
-        List<RemoteRepository> repos = new ArrayList<RemoteRepository>();
-        for (int i = 0; i < repositories.length; i++) {
-            repos.add(new RemoteRepository("repos" + i, "default", repositories[i]));
-        }
-
+        List<RemoteRepository> repos = getRemoteRepositories();
 
         String groupId = model.getGroupId();
         String artifactId = model.getArtifactId();
@@ -274,6 +268,34 @@ public class MavenResolver {
     }
 
 
+    protected List<RemoteRepository> getRemoteRepositories() {
+        List<RemoteRepository> repos = new ArrayList<RemoteRepository>();
+        for( int i = 0; i < repositories.length; i++ ) {
+            String text = repositories[i].trim();
+            boolean snapshot = false;
+            while (true) {
+                int idx = text.lastIndexOf('@');
+                if (idx <= 0) {
+                    break;
+                }
+                String postfix = text.substring(idx + 1);
+                if (postfix.equals("snapshots")) {
+                    snapshot = true;
+                } else if (postfix.equals("noreleases")) {
+                    // TODO
+                } else {
+                    LOGGER.warn("Unknown postfix: @" + postfix + " on repository URL: " + text);
+                    break;
+                }
+                text = text.substring(0, idx);
+            }
+            RemoteRepository repository = new RemoteRepository("repos" + i, "default", text);
+            RepositoryPolicy policy = new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_DAILY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
+            repository.setPolicy(snapshot, policy);
+            repos.add(repository);
+        }
+        return repos;
+    }
     protected PomDetails findPomFile(File jar) throws IOException {
         JarFile jarFile = new JarFile(jar);
         File file = null;
