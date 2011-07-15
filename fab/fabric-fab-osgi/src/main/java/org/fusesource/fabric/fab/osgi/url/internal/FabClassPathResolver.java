@@ -40,24 +40,23 @@ public class FabClassPathResolver {
     private final FabConnection connection;
     private final Properties instructions;
     private final Map<String, Object> embeddedResources;
-    private final List<String> bundleClassPath;
-    private final List<String> requireBundles;
-    private final List<String> importPackages;
+    private final List<String> bundleClassPath = new ArrayList<String>();
+    private final List<String> requireBundles = new ArrayList<String>();
+    private final List<String> importPackages = new ArrayList<String>();
     private boolean offline = false;
     private Filter<DependencyTree> sharedFilter;
-    private Filter<DependencyTree> importPackageFilter;
+    private Filter<DependencyTree> requireBundleFilter;
     private Filter<DependencyTree> excludePackageFilter;
     private List<DependencyTree> nonSharedDependencies = new ArrayList<DependencyTree>();
     private List<DependencyTree> sharedDependencies = new ArrayList<DependencyTree>();
     private DependencyTree rootTree;
+    // don't think there's any need to even look at Import-Packages as BND takes care of it...
+    boolean processImportPackages = false;
 
-    public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources, List<String> bundleClassPath, List<String> requireBundles, List<String> importPackages) {
+    public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
         this.instructions = instructions;
         this.embeddedResources = embeddedResources;
-        this.bundleClassPath = bundleClassPath;
-        this.requireBundles = requireBundles;
-        this.importPackages = importPackages;
     }
 
     public void resolve() throws RepositoryException, IOException, XmlPullParserException {
@@ -71,17 +70,19 @@ public class FabClassPathResolver {
         this.rootTree = result.getTree();
 
         String sharedFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY);
-        String importPackageFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_IMPORT_PACKAGES);
+        String requireBundleFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE);
         String excludeFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY);
         String optionalDependencyText = getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY);
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText);
-        importPackageFilter = DependencyTreeFilters.parseImportPackageFilter(importPackageFilterText);
+        requireBundleFilter = DependencyTreeFilters.parseImportPackageFilter(requireBundleFilterText);
         excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText, optionalDependencyText);
 
         bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
         requireBundles.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
-        importPackages.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE), ","));
+        if (processImportPackages) {
+            importPackages.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE), ","));
+        }
 
 
         String name = getManfiestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
@@ -92,20 +93,23 @@ public class FabClassPathResolver {
         addDependencies(rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
-            if (importPackageFilter.matches(dependencyTree)) {
-                // lets add all the import packages...
-                String text = dependencyTree.getManfiestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
-                if (text != null && text.length() > 0) {
-                    List<String> list = new ArrayList<String>();
-                    list.addAll(Strings.splitAsList(text, ","));
-                    // TODO filter out duplicates
-                    importPackages.addAll(list);
-                }
-            } else {
+            if (requireBundleFilter.matches(dependencyTree)) {
                 // lets figure out the bundle ID etc...
                 String bundleId = dependencyTree.getBundleId();
                 // TODO add a version range...
                 requireBundles.add(bundleId);
+            } else {
+                // TODO don't think we need to do anything now since already the BND stuff figures out the import packages for any missing stuff?
+                if (processImportPackages) {
+                    // lets add all the import packages...
+                    String text = dependencyTree.getManfiestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
+                    if (text != null && text.length() > 0) {
+                        List<String> list = new ArrayList<String>();
+                        list.addAll(Strings.splitAsList(text, ","));
+                        // TODO filter out duplicates
+                        importPackages.addAll(list);
+                    }
+                }
             }
         }
 
@@ -134,7 +138,19 @@ public class FabClassPathResolver {
 
         LOG.debug("resolved: bundleClassPath: " + Strings.join(bundleClassPath, "\t\n"));
         LOG.debug("resolved: requireBundles: " + Strings.join(requireBundles, "\t\n"));
-        LOG.debug("resolved: importPackages: " + Strings.join(importPackages, "\t\n"));
+        if (processImportPackages) {
+            LOG.debug("resolved: importPackages: " + Strings.join(importPackages, "\t\n"));
+        }
+
+        instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
+        instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
+        if (processImportPackages) {
+            instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
+        }
+    }
+
+    public boolean isProcessImportPackages() {
+        return processImportPackages;
     }
 
     protected String getManfiestProperty(String name) {
@@ -158,11 +174,11 @@ public class FabClassPathResolver {
     protected void addDependencies(DependencyTree tree) throws MalformedURLException {
         List<DependencyTree> children = tree.getChildren();
         for (DependencyTree child : children) {
-            if (excludePackageFilter != null && excludePackageFilter.matches(child)) {
+            if (excludePackageFilter.matches(child)) {
                 // ignore
                 LOG.debug("Excluded dependency: " + child);
                 continue;
-            } else if (sharedFilter != null && sharedFilter.matches(child)) {
+            } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
                 // lets add all the transitive dependencies as shared
                 sharedDependencies.add(child);
                 List<DependencyTree> list = child.getDescendants();
@@ -181,5 +197,4 @@ public class FabClassPathResolver {
             }
         }
     }
-
 }

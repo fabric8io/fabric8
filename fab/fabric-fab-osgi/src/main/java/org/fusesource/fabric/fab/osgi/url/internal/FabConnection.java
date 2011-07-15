@@ -110,16 +110,8 @@ public class FabConnection extends URLConnection {
      * Strategy method to allow the instructions to be processed by derived classes
      */
     protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException {
-        List<String> bundleClassPath = new ArrayList<String>();
-        List<String> requireBundles = new ArrayList<String>();
-        List<String> importPackages = new ArrayList<String>();
-
-        FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, embeddedResources, bundleClassPath, requireBundles, importPackages);
+        FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, embeddedResources);
         resolver.resolve();
-
-        instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
-        instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
-        instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
     }
 
     public File getJarFile() throws IOException {

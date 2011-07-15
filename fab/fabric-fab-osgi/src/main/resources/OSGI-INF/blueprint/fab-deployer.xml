@@ -23,7 +23,6 @@
 
   <cm:property-placeholder persistent-id="org.ops4j.pax.url.mvn" update-strategy="reload">
     <cm:default-properties>
-      <!-- http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases,  -->
       <cm:property name="org.ops4j.pax.url.mvn.repositories" value="
         http://repo1.maven.org/maven2, http://repository.ops4j.org/maven2,
         http://svn.apache.org/repos/asf/servicemix/m2-repo,
@@ -32,6 +31,7 @@
         http://scala-tools.org/repo-releases,
         http://repo.fusesource.com/nexus/content/groups/public,
         http://repo.fusesource.com/nexus/content/groups/public-snapshots@snapshots,
+        http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases,
         https://repository.apache.org/content/repositories/snapshots@snapshots"/>
     </cm:default-properties>
   </cm:property-placeholder>

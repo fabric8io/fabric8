@@ -58,16 +58,17 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_OPTIONAL_DEPENDENCY = "Fabric-Optional-Dependency";
 
     /**
-     * The space separated list of shared dependencies using wildcards such as "group:artifact group:* *:*"
-     * which denote which dependencies should not be used directly via a Require-Bundle but instead should
-     * Import-Package the various packages that are exported by the bundle.
+     * The space separated list of dependencies which should be shared using Require-Bundle directives in the OSGi manifest
+     * as opposed to deducing the Import-Package statements from your bytecode.
+     *
+     * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_DEPENDENCY_IMPORT_PACKAGES = "Fabric-Dependency-Import-Packages";
+    static final String INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE = "Fabric-Dependency-Require-Bundle";
 
     /**
      * All the possible FAB headers on a manfiest, used to detect a FAB
      */
-    static final String[] FAB_PROPERTY_NAMES = {INSTR_FAB_PROVIDED_DEPENDENCY, INSTR_FAB_EXCLUDE_DEPENDENCY, INSTR_FAB_DEPENDENCY_IMPORT_PACKAGES};
+    static final String[] FAB_PROPERTY_NAMES = {INSTR_FAB_PROVIDED_DEPENDENCY, INSTR_FAB_EXCLUDE_DEPENDENCY, INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE};
 
 
     // OSGi headers
