@@ -93,6 +93,7 @@ public class MavenResolver {
             return false;
         }
     };
+    private boolean offline = false;
 
     public MavenResolver() {
     }
@@ -131,6 +132,14 @@ public class MavenResolver {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public boolean isOffline() {
+        return offline;
+    }
+
+    public void setOffline(boolean offline) {
+        this.offline = offline;
     }
 
     public List<URL> resolve(File rootPom, boolean offline) throws RepositoryException {
@@ -193,25 +202,32 @@ public class MavenResolver {
     public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
         Dependency dependency = new Dependency(new DefaultArtifact(groupId, artifactId, classifier, extension, version), "runtime");
 
-        // TODO not implemented!!!
+        CollectRequest collectRequest = new CollectRequest();
+        collectRequest.setRoot(dependency);
+        List<RemoteRepository> repos = getRemoteRepositories();
+        for (RemoteRepository repo : repos) {
+              collectRequest.addRepository(repo);
+        }
 
-        return null;
+        RepositorySystem repositorySystem = getRepositorySystem();
+        MavenRepositorySystemSession session = createRepositorSystemSession(offline, repositorySystem);
+
+        DependencyNode rootNode = repositorySystem.collectDependencies(session, collectRequest).getRoot();
+
+        repositorySystem.resolveDependencies(session, rootNode, null);
+
+        DependencyTreeResult result = new DependencyTreeResult(rootNode);
+
+        return result;
     }
 
     protected DependencyTreeResult collectDependenciesFromPom(File rootPom, boolean offline, Model model) throws RepositoryException, MalformedURLException {
         Map<String, String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
 
+        RepositorySystem repositorySystem = getRepositorySystem();
+
         // lets load the model so we can get the version which is required for the transformer...
-        final MavenRepositorySystemSession session = new MavenRepositorySystemSession();
-        LocalRepository localRepository = new LocalRepository(getLocalRepo());
-        RepositorySystem repo = getRepositorySystem();
-        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
-
-        session.setDependencySelector(
-                new AndDependencySelector(new ScopeDependencySelector("test", "provided"),
-                        new OptionalDependencySelector(), new ExclusionDependencySelector()));
-        session.setOffline(offline);
-
+        final MavenRepositorySystemSession session = createRepositorSystemSession(offline, repositorySystem);
         List<RemoteRepository> repos = getRemoteRepositories();
 
         String groupId = model.getGroupId();
@@ -223,7 +239,7 @@ public class MavenResolver {
         }
         Artifact root = new DefaultArtifact(groupId, artifactId, null, packaging, pomVersion, props, rootPom);
 
-        ArtifactDescriptorResult artifactDescriptorResult = repo.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
+        ArtifactDescriptorResult artifactDescriptorResult = repositorySystem.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
 
 
         Dependency rootDependency = new Dependency(root, null);
@@ -238,9 +254,9 @@ public class MavenResolver {
 
         for (Dependency dependency : dependencies) {
             CollectRequest request = new CollectRequest(dependency, repos);
-            DependencyNode node = repo.collectDependencies(session, request).getRoot();
+            DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
 
-            repo.resolveDependencies(session, node, null);
+            repositorySystem.resolveDependencies(session, node, null);
             //repo.resolveDependencies(session, node, new AndDependencyFilter(new ScopeDependencyFilter("test", "provided")));
 
             pomNode.getChildren().add(node);
@@ -273,6 +289,17 @@ public class MavenResolver {
             LOGGER.warn("Duplicate dependency: " + duplicate);
         }
         return result;
+    }
+
+    protected MavenRepositorySystemSession createRepositorSystemSession(boolean offline, RepositorySystem repo) {
+        final MavenRepositorySystemSession session = new MavenRepositorySystemSession();
+        LocalRepository localRepository = new LocalRepository(getLocalRepo());
+        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
+        session.setDependencySelector(
+                new AndDependencySelector(new ScopeDependencySelector("test", "provided"),
+                        new OptionalDependencySelector(), new ExclusionDependencySelector()));
+        session.setOffline(offline);
+        return session;
     }
 
 

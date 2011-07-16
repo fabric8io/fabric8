@@ -52,14 +52,14 @@ public abstract class DependencyTestSupport {
 
     DependencyTree camel250_clogging_man = newBuilder("org.apache.camel", "camel-core", "2.5.0", clogging11, commonman).build();
 
-    protected MavenResolver manager = new MavenResolver();
+    protected MavenResolver mavenResolver = new MavenResolver();
 
     protected DependencyTreeResult collectDependencies(String pomName) throws Exception {
         URL resource = getClass().getClassLoader().getResource(pomName);
         assertNotNull("Could not find: " + pomName + " on the classpath", resource);
         File rootPom = new File(resource.getPath());
 
-        DependencyTreeResult node = manager.collectDependencies(rootPom, false);
+        DependencyTreeResult node = mavenResolver.collectDependencies(rootPom, false);
         LOG.debug("File: " + pomName);
         LOG.debug(node.getTreeDescription());
 
