@@ -37,6 +37,13 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_URL = "FAB-URL";
 
     /**
+     * Simple marker property to show that this bundle should be intepreted as a Fabric Bundle.
+     *
+     * Its value is ignored
+     */
+    static final String INSTR_FAB_BUNDLE = "Fabric-Bundle";
+
+    /**
      * The space separated list of dependencies which should be provided - thats to say imported from the container.
      *
      * You can use wildcards such as "group:artifact group:* *:*"
@@ -79,7 +86,12 @@ public interface ServiceConstants extends Constants {
     /**
      * All the possible FAB headers on a manfiest, used to detect a FAB
      */
-    static final String[] FAB_PROPERTY_NAMES = {INSTR_FAB_PROVIDED_DEPENDENCY, INSTR_FAB_EXCLUDE_DEPENDENCY, INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE};
+    static final String[] FAB_PROPERTY_NAMES = {INSTR_FAB_BUNDLE,
+            INSTR_FAB_PROVIDED_DEPENDENCY,
+            INSTR_FAB_EXCLUDE_DEPENDENCY,
+            INSTR_FAB_OPTIONAL_DEPENDENCY,
+            INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE,
+            INSTR_FAB_EXTENSION_VARIABLE};
 
 
     // OSGi headers

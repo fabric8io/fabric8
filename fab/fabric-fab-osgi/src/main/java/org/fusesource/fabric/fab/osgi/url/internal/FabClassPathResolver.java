@@ -186,11 +186,16 @@ public class FabClassPathResolver {
      */
     protected void resolveExtensions(String extensionPropertyName, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
         String value = resolvePropertyName(extensionPropertyName);
-        if (Strings.notEmpty(value)) {
-            StringTokenizer iter = new StringTokenizer(value);
-            while (iter.hasMoreElements()) {
-                String text = iter.nextToken();
+        // TODO dirty hack - how should this really work???
+        if (value == null) {
+            value = System.getProperty(extensionPropertyName);
+        }
+        LOG.info("Fabric resolved extension variable '" + extensionPropertyName + "' to extensions: " + value);
 
+        if (Strings.notEmpty(value)) {
+            StringTokenizer iter = new StringTokenizer(value, ",");
+            while (iter.hasMoreElements()) {
+                String text = iter.nextToken().trim();
                 if (Strings.notEmpty(text)) {
                     String[] values = text.split(":");
                     String archetypeId;
@@ -214,7 +219,9 @@ public class FabClassPathResolver {
                     // lets resolve the dependency
                     DependencyTreeResult result = resolver.collectDependencies(groupId, archetypeId, version, extension, classifier);
                     if (result != null) {
-                        addDependencies(result.getTree());
+                        DependencyTree tree = result.getTree();
+                        LOG.debug("Adding extensions: " + tree);
+                        addExtensionDependencies(tree);
                     }
 
                 }
@@ -241,8 +248,8 @@ public class FabClassPathResolver {
                 sharedDependencies.add(child);
                 List<DependencyTree> list = child.getDescendants();
                 for (DependencyTree grandChild : list) {
-                    if (excludePackageFilter != null && excludePackageFilter.matches(tree)) {
-                        LOG.debug("Excluded transitive dependency: " + child);
+                    if (excludePackageFilter.matches(grandChild)) {
+                        LOG.debug("Excluded transitive dependency: " + grandChild);
                         continue;
                     } else {
                         sharedDependencies.add(grandChild);
@@ -255,4 +262,29 @@ public class FabClassPathResolver {
             }
         }
     }
-}
+
+    protected void addExtensionDependencies(DependencyTree child) throws MalformedURLException {
+        if (excludePackageFilter.matches(child)) {
+            // ignore
+            LOG.debug("Excluded dependency: " + child);
+        } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
+            // lets add all the transitive dependencies as shared
+            sharedDependencies.add(child);
+            List<DependencyTree> list = child.getDescendants();
+            for (DependencyTree grandChild : list) {
+                if (excludePackageFilter.matches(grandChild)) {
+                    LOG.debug("Excluded transitive dependency: " + child);
+                    continue;
+                } else {
+                    sharedDependencies.add(grandChild);
+                }
+            }
+        } else {
+            nonSharedDependencies.add(child);
+            // we now need to recursively flatten all transitive dependencies (whether shared or not)
+            addDependencies(child);
+        }
+    }
+
+
+        }
