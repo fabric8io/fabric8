@@ -12,13 +12,10 @@ package org.fusesource.fabric.apollo.amqp.codec;
 
 import org.fusesource.fabric.apollo.amqp.codec.api.AnnotatedMessage;
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPType;
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.Frame;
-import org.fusesource.fabric.apollo.amqp.codec.marshaller.FrameSupport;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeReader;
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPFrame;
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame;
 import org.fusesource.fabric.apollo.amqp.codec.types.AnnotatedMessageImpl;
-import org.fusesource.fabric.apollo.amqp.codec.types.Transfer;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.DataByteArrayInputStream;
 import org.fusesource.hawtbuf.DataByteArrayOutputStream;
@@ -30,21 +27,9 @@ import static org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport.
  */
 public class TestSupport {
 
-    private static final int MAX_SIZE = 512;
+    private static final int MAX_SIZE = 80;
 
-    public static <T extends Frame> T encodeDecode(T frame) throws Exception {
-        DataByteArrayInputStream in = new DataByteArrayInputStream(FrameSupport.createFrame(frame).getBody());
-        return (T) FrameSupport.getPerformative(in);
-    }
-
-    public static AnnotatedMessage encodeDecode(Transfer performative, AnnotatedMessage payload) throws Exception {
-        DataByteArrayInputStream in = new DataByteArrayInputStream(FrameSupport.createFrame(performative, payload).getBody());
-
-        Transfer throwaway = (Transfer) FrameSupport.getPerformative(in);
-        return FrameSupport.getPayload(in);
-    }
-
-    public static AMQPFrame writeRead(AMQPFrame in, boolean display) throws Exception {
+    public static AMQPTransportFrame writeRead(AMQPTransportFrame in, boolean display) throws Exception {
         long size = in.getFrameSize();
         if ( size < MAX_SIZE && display ) {
             System.out.printf("\n%s", in);
@@ -53,22 +38,22 @@ public class TestSupport {
         if ( size < MAX_SIZE && display ) {
             System.out.printf("\n%s", string(buf.data));
         }
-        AMQPFrame out = read(buf);
+        AMQPTransportFrame out = read(buf);
         if ( size < MAX_SIZE && display ) {
             System.out.printf("\n%s\n", out);
         }
         return out;
     }
 
-    public static Buffer write(AMQPFrame in) throws Exception {
+    public static Buffer write(AMQPTransportFrame in) throws Exception {
         DataByteArrayOutputStream out = new DataByteArrayOutputStream((int) in.getFrameSize());
         in.write(out);
         return out.toBuffer();
     }
 
-    public static AMQPFrame read(Buffer buf) throws Exception {
+    public static AMQPTransportFrame read(Buffer buf) throws Exception {
         DataByteArrayInputStream in = new DataByteArrayInputStream(buf);
-        return new AMQPFrame(in);
+        return new AMQPTransportFrame(in);
     }
 
     public static <T extends AMQPType> byte[] write(T value) throws Exception {
@@ -131,5 +116,30 @@ public class TestSupport {
             System.out.printf("\n%s\n", out);
         }
         return out;
+    }
+    public static AMQPTransportFrame encodeDecode(AMQPTransportFrame in) throws Exception {
+        return encodeDecode(in, true);
+    }
+
+    public static AMQPTransportFrame encodeDecode(AMQPTransportFrame in, boolean display) throws Exception {
+        long size = in.getSize();
+        if ( size < MAX_SIZE && display ) {
+            System.out.printf("\n%s", in);
+        }
+        DataByteArrayOutputStream out = new DataByteArrayOutputStream((int)in.getSize());
+        in.write(out);
+
+        Buffer encoded = out.toBuffer();
+
+        if ( size < MAX_SIZE && display ) {
+            System.out.printf("\n%s", string(encoded.getData()));
+        }
+
+        AMQPTransportFrame rc = new AMQPTransportFrame(new DataByteArrayInputStream(encoded));
+        if ( size < MAX_SIZE && display ) {
+            System.out.printf("\n%s\n", rc);
+        }
+
+        return rc;
     }
 }
