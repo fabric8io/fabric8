@@ -19,6 +19,7 @@ import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Strings;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class FabClassPathResolver {
     private List<DependencyTree> installDependencies = new ArrayList<DependencyTree>();
     private DependencyTree rootTree;
     // don't think there's any need to even look at Import-Packages as BND takes care of it...
-    boolean processImportPackages = false;
+    private boolean processImportPackages = false;
     private MavenResolver resolver;
 
     public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources) {
@@ -65,6 +66,7 @@ public class FabClassPathResolver {
         this.embeddedResources = embeddedResources;
         this.resolver = connection.getResolver();
     }
+
 
     public void resolve() throws RepositoryException, IOException, XmlPullParserException, BundleException {
         PomDetails pomDetails = connection.resolvePomDetails();
@@ -173,6 +175,7 @@ public class FabClassPathResolver {
         if (bundleContext == null) {
             LOG.warn("No BundleContext available so cannot install provided dependencies");
         } else {
+            List<Bundle> toStart = new ArrayList<Bundle>();
             for (DependencyTree dependency : installDependencies) {
                 String name = dependency.getBundleSymbolicName();
                 if (Bundles.isInstalled(bundleContext, name)) {
@@ -181,19 +184,23 @@ public class FabClassPathResolver {
                     URL url = dependency.getJarURL();
                     String installUri = url.toExternalForm();
                     try {
+                        Bundle bundle = null;
                         if (!dependency.isBundle()) {
                             FabConnection childConnection = connection.createChild(url);
                             PomDetails pomDetails = childConnection.resolvePomDetails();
                             if (pomDetails != null && pomDetails.isValid()) {
                                 // lets make sure we use a FAB to deploy it
                                 LOG.info("Installing fabric bundle: " + name + " from: " + installUri);
-                                bundleContext.installBundle(installUri, childConnection.getInputStream());
+                                bundle = bundleContext.installBundle(installUri, childConnection.getInputStream());
                             } else {
                                 LOG.warn("Could not deduce the pom.xml for the jar " + installUri + " so cannot treat as FAB");
                             }
                         } else {
                             LOG.info("Installing bundle: " + name + " from: " + installUri);
-                            bundleContext.installBundle(installUri);
+                            bundle = bundleContext.installBundle(installUri);
+                        }
+                        if (bundle != null && connection.isStartInstalledDependentBundles()) {
+                            toStart.add(bundle);
                         }
                     } catch (BundleException e) {
                         LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
@@ -205,6 +212,14 @@ public class FabClassPathResolver {
                         LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
                         throw e;
                     }
+                }
+            }
+            // now lets start the installed bundles
+            for (Bundle bundle : toStart) {
+                try {
+                    bundle.start();
+                } catch (BundleException e) {
+                    LOG.warn("Failed to start " + bundle.getSymbolicName() + ". Reason: " + e, e);
                 }
             }
         }
@@ -335,7 +350,6 @@ public class FabClassPathResolver {
     }
 
     protected void addInstallDependencies(DependencyTree node) {
-        installDependencies.add(node);
         // we only transitively walk bundle dependencies as any non-bundle
         // dependencies will be installed using FAB which will deal with
         // non-shared or shared transitive dependencies
@@ -349,7 +363,8 @@ public class FabClassPathResolver {
                 }
             }
         }
+        // lets add the child dependencies first so we add things in the right order
+        installDependencies.add(node);
     }
-
 
 }

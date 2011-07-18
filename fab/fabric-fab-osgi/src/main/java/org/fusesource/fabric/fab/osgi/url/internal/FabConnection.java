@@ -14,7 +14,6 @@ import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
-import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
@@ -30,9 +29,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -47,6 +44,7 @@ public class FabConnection extends URLConnection {
     private final BundleContext bundleContext;
     private PomDetails pomDetails;
     private MavenResolver resolver = new MavenResolver();
+    private boolean startInstalledDependentBundles = ServiceConstants.DEFAULT_START_INSTALLED_DEPENDENCIES;
 
     public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
@@ -87,6 +85,14 @@ public class FabConnection extends URLConnection {
 
     public File getJarFile() throws IOException {
         return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
+    }
+
+    public boolean isStartInstalledDependentBundles() {
+        return startInstalledDependentBundles;
+    }
+
+    public void setStartInstalledDependentBundles(boolean startInstalledDependentBundles) {
+        this.startInstalledDependentBundles = startInstalledDependentBundles;
     }
 
     public FabConnection createChild(URL url) throws MalformedURLException {

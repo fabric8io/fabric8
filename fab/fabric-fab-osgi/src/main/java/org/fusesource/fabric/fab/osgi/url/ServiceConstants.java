@@ -116,4 +116,13 @@ public interface ServiceConstants extends Constants {
      */
     static final String PROPERTY_MAVEN_REPOSITORIES = "org.ops4j.pax.url.mvn.repositories";
 
+    /**
+     * Whether we should install provided dependencies by default
+     */
+    static final boolean DEFAULT_INSTALL_PROVIDED_DEPENDENCIES = false;
+
+    /**
+     * Whether we should start installed dependencies by default
+     */
+    static final boolean DEFAULT_START_INSTALLED_DEPENDENCIES = false;
 }

@@ -15,8 +15,6 @@ import org.ops4j.util.property.PropertyResolver;
 import org.ops4j.util.property.PropertyStore;
 
 public class Configuration extends PropertyStore {
-    protected static final boolean DEFAULT_INSTALL_PROVIDED_DEPENDENCIES = false;
-
     private PropertyResolver propertyResolver;
 
     public Configuration(PropertyResolver propertyResolver) {
@@ -51,7 +49,7 @@ public class Configuration extends PropertyStore {
         }
         Boolean answer = get(ServiceConstants.PROPERTY_INSTALL_PROVIDED_DEPENDENCIES);
         if (answer == null) {
-            return DEFAULT_INSTALL_PROVIDED_DEPENDENCIES;
+            return ServiceConstants.DEFAULT_INSTALL_PROVIDED_DEPENDENCIES;
         } else {
             return answer.booleanValue();
         }
