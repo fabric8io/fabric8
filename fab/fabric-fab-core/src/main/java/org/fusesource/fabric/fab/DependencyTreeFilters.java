@@ -39,8 +39,7 @@ public class DependencyTreeFilters {
      */
     public static Filter<DependencyTree> parseShareFilter(String dependencyFilterText) {
         Filter<DependencyTree> filter = parse(dependencyFilterText);
-        return filter;
-        //return Filters.or(providedScopeFilter, filter);
+        return Filters.or(providedScopeFilter, filter);
     }
 
     /**
@@ -52,7 +51,7 @@ public class DependencyTreeFilters {
     public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText, String includeOptionalDependencyFilterText) {
         Filter<DependencyTree> filter = parse(dependencyFilterText);
         Filter<DependencyTree> filteredOptionals = createExcludeOptionalFilter(includeOptionalDependencyFilterText);
-        Filter<DependencyTree> filterScopes = Filters.or(testScopeFilter, providedScopeFilter, filteredOptionals);
+        Filter<DependencyTree> filterScopes = Filters.or(testScopeFilter, filteredOptionals);
         // if no filter text then assume it matches nothing
         if (isEmpty(filter)) {
             return filterScopes;
@@ -90,13 +89,9 @@ public class DependencyTreeFilters {
     }
 
     /**
-     * Parses the filter of which bundles to use Import-Packages instead of the default Require-Bundle
+     * Parses the filter of which bundles should use the Require-Bundle instead of the default Import-Package
      */
-    public static Filter<DependencyTree> parseImportPackageFilter(String filterText) {
-        // lets default to package imports on the OSGi stuff
-        if (filterText == null || filterText.length() == 0) {
-            filterText = "org.osgi:*";
-        }
+    public static Filter<DependencyTree> parseRequireBundleFilter(String filterText) {
         return parse(filterText);
     }
 

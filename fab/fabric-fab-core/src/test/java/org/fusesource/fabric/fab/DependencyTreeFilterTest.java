@@ -32,14 +32,14 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
     }
 
     @Test
-    public void testExcludedDependencies() throws Exception {
+    public void testProvidedDependencies() throws Exception {
         DependencyTreeResult node = collectDependencies("test-osgi-provided.pom");
 
         // we exclude optional dependencies by default
         DependencyTree camelSpring = assertExcludeFilter(node, "org.apache.camel", "camel-spring", true, "", "");
 
         // we exclude provided dependencies by default
-        DependencyTree osgi = assertExcludeFilter(node, "org.osgi", "org.osgi.core", true, "", "");
+        DependencyTree osgi = assertShareFilter(node, "org.osgi", "org.osgi.core", true, "", "");
 
         assertEquals("getBundleId", "osgi.core", osgi.getBundleId());
     }

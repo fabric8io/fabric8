@@ -18,9 +18,11 @@
 package org.fusesource.fabric.fab.osgi;
 
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 import org.fusesource.fabric.fab.osgi.url.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.url.internal.FabConnection;
 import org.ops4j.util.property.PropertiesPropertyResolver;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 
 	private URL fabJarURL;
     private String mavenRepositories;
+    private BundleContext bundleContext;
 
     /**
      * Open the connection for the given URL.
@@ -61,7 +64,7 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
             logger.debug("Using maven repos: " + Arrays.asList(array));
             config.set(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES, array);
         }
-        return new FabConnection(fabJarURL, config);
+        return new FabConnection(fabJarURL, config, getBundleContext());
 	}
 
 	public URL getFabJarURL() {
@@ -74,6 +77,18 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 
     public void setMavenRepositories(String mavenRepositories) {
         this.mavenRepositories = mavenRepositories;
+    }
+
+    public BundleContext getBundleContext() {
+        if (bundleContext == null) {
+            // lets try find it ourselves
+            bundleContext = Activator.getInstanceBundleContext();
+        }
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }
 

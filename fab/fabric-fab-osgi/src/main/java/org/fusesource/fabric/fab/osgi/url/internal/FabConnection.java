@@ -16,6 +16,8 @@ import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
@@ -40,9 +42,11 @@ public class FabConnection extends URLConnection {
 
     private Configuration configuration;
     private String[] mavenRepositories;
+    private final BundleContext bundleContext;
 
-    public FabConnection(URL url, Configuration config) throws MalformedURLException {
+    public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
+        this.bundleContext = bundleContext;
         NullArgumentException.validateNotNull(url, "URL");
         NullArgumentException.validateNotNull(config, "Configuration");
 
@@ -55,6 +59,14 @@ public class FabConnection extends URLConnection {
 
     @Override
     public void connect() {
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public File getJarFile() throws IOException {
+        return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
     }
 
     /**
@@ -85,6 +97,8 @@ public class FabConnection extends URLConnection {
             throw new IOException(e.getMessage(), e);
         } catch (XmlPullParserException e) {
             throw new IOException(e.getMessage(), e);
+        } catch (BundleException e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -96,7 +110,7 @@ public class FabConnection extends URLConnection {
      * Returns the processing instructions
      * @param embeddedResources
      */
-    protected Properties createInstructions(Map<String, Object> embeddedResources) throws IOException, RepositoryException, XmlPullParserException {
+    protected Properties createInstructions(Map<String, Object> embeddedResources) throws IOException, RepositoryException, XmlPullParserException, BundleException {
         Properties instructions = BndUtils.parseInstructions(getURL().getQuery());
 
         String urlText = getURL().toExternalForm();
@@ -109,12 +123,9 @@ public class FabConnection extends URLConnection {
     /**
      * Strategy method to allow the instructions to be processed by derived classes
      */
-    protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException {
+    protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException, BundleException {
         FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, embeddedResources);
         resolver.resolve();
     }
 
-    public File getJarFile() throws IOException {
-        return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
-    }
 }

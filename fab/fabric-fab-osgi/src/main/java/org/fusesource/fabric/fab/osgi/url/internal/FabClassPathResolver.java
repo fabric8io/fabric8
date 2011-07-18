@@ -18,10 +18,11 @@ import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Strings;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class FabClassPathResolver {
         this.embeddedResources = embeddedResources;
     }
 
-    public void resolve() throws RepositoryException, IOException, XmlPullParserException {
+    public void resolve() throws RepositoryException, IOException, XmlPullParserException, BundleException {
         String[] repositories = connection.getConfiguration().getMavenRepositories();
         if (repositories != null) {
             resolver.setRepositories(repositories);
@@ -77,7 +78,7 @@ public class FabClassPathResolver {
         String optionalDependencyText = getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY);
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText);
-        requireBundleFilter = DependencyTreeFilters.parseImportPackageFilter(requireBundleFilterText);
+        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(requireBundleFilterText);
         excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText, optionalDependencyText);
 
         bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
@@ -156,6 +157,25 @@ public class FabClassPathResolver {
         if (processImportPackages) {
             instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
         }
+
+        if (connection.getConfiguration().isInstallMissingDependencies()) {
+            installMissingDependencies();
+        } else {
+            LOG.info("Not installing dependencies as not enabled");
+        }
+    }
+
+    protected void installMissingDependencies() throws MalformedURLException, BundleException {
+        BundleContext bundleContext = connection.getBundleContext();
+        if (bundleContext == null) {
+            LOG.warn("No BundleContext available so cannot install provided dependencies");
+        } else {
+            for (DependencyTree dependency : sharedDependencies) {
+                String installUri = dependency.getJarURL().toExternalForm();
+                LOG.info("Installing: " + dependency + " from: " + installUri);
+                bundleContext.installBundle(installUri);
+            }
+        }
     }
 
     public boolean isProcessImportPackages() {
@@ -167,7 +187,7 @@ public class FabClassPathResolver {
         try {
             if (true) {
                 // TODO do some caching!!!
-                 answer = Manifests.getManfiestEntry(connection.getJarFile(), name);
+                answer = Manifests.getManfiestEntry(connection.getJarFile(), name);
             } else {
                 answer = instructions.getProperty(name, "");
             }
@@ -245,16 +265,7 @@ public class FabClassPathResolver {
                 continue;
             } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
                 // lets add all the transitive dependencies as shared
-                sharedDependencies.add(child);
-                List<DependencyTree> list = child.getDescendants();
-                for (DependencyTree grandChild : list) {
-                    if (excludePackageFilter.matches(grandChild)) {
-                        LOG.debug("Excluded transitive dependency: " + grandChild);
-                        continue;
-                    } else {
-                        sharedDependencies.add(grandChild);
-                    }
-                }
+                addSharedDependency(child);
             } else {
                 nonSharedDependencies.add(child);
                 // we now need to recursively flatten all transitive dependencies (whether shared or not)
@@ -269,16 +280,7 @@ public class FabClassPathResolver {
             LOG.debug("Excluded dependency: " + child);
         } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
             // lets add all the transitive dependencies as shared
-            sharedDependencies.add(child);
-            List<DependencyTree> list = child.getDescendants();
-            for (DependencyTree grandChild : list) {
-                if (excludePackageFilter.matches(grandChild)) {
-                    LOG.debug("Excluded transitive dependency: " + child);
-                    continue;
-                } else {
-                    sharedDependencies.add(grandChild);
-                }
-            }
+            addSharedDependency(child);
         } else {
             nonSharedDependencies.add(child);
             // we now need to recursively flatten all transitive dependencies (whether shared or not)
@@ -286,5 +288,18 @@ public class FabClassPathResolver {
         }
     }
 
-
+    protected void addSharedDependency(DependencyTree child) {
+        sharedDependencies.add(child);
+        List<DependencyTree> list = child.getDescendants();
+        for (DependencyTree grandChild : list) {
+            if (excludePackageFilter.matches(grandChild)) {
+                LOG.debug("Excluded transitive dependency: " + grandChild);
+                continue;
+            } else {
+                sharedDependencies.add(grandChild);
+            }
         }
+    }
+
+
+}

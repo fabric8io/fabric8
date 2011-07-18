@@ -26,7 +26,7 @@ public class FabConnectionFactory implements ConnectionFactory<Configuration> {
     public URLConnection createConection(BundleContext bundleContext, URL url, Configuration config) throws MalformedURLException {
         String protocol = url.getProtocol();
         if (ServiceConstants.PROTOCOL_FAB.equals(protocol)) {
-            return new FabConnection(url, config);
+            return new FabConnection(url, config, bundleContext);
         }
         throw new MalformedURLException("Unsupported protocol: " + protocol);
     }

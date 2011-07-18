@@ -15,6 +15,8 @@ import org.ops4j.util.property.PropertyResolver;
 import org.ops4j.util.property.PropertyStore;
 
 public class Configuration extends PropertyStore {
+    protected static final boolean DEFAULT_INSTALL_PROVIDED_DEPENDENCIES = false;
+
     private PropertyResolver propertyResolver;
 
     public Configuration(PropertyResolver propertyResolver) {
@@ -32,6 +34,27 @@ public class Configuration extends PropertyStore {
             );
         }
         return get(ServiceConstants.PROPERTY_CERTIFICATE_CHECK);
+    }
+
+    /**
+     * Returns whether or not the shared dependencies should be installed
+     */
+    public boolean isInstallMissingDependencies() {
+        if (!contains(ServiceConstants.PROPERTY_INSTALL_PROVIDED_DEPENDENCIES)) {
+            String value = propertyResolver.get(ServiceConstants.PROPERTY_INSTALL_PROVIDED_DEPENDENCIES);
+            if (value != null) {
+                Boolean aBoolean = Boolean.valueOf(value);
+                return set(ServiceConstants.PROPERTY_INSTALL_PROVIDED_DEPENDENCIES,
+                        aBoolean
+                );
+            }
+        }
+        Boolean answer = get(ServiceConstants.PROPERTY_INSTALL_PROVIDED_DEPENDENCIES);
+        if (answer == null) {
+            return DEFAULT_INSTALL_PROVIDED_DEPENDENCIES;
+        } else {
+            return answer.booleanValue();
+        }
     }
 
     public String[] getMavenRepositories() {
