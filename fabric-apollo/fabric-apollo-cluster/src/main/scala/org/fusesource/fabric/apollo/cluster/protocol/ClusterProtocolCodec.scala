@@ -40,6 +40,9 @@ class ClusterProtocolCodec extends ProtocolCodec {
   var write_buffer = ByteBuffer.allocate(0)
 
 
+  def getWriteBufferSize = write_buffer_size
+
+  def getReadBufferSize = read_buffer_size
 
   def full = next_write_buffer.size() >= (write_buffer_size >> 1)
   def is_empty = write_buffer.remaining() == 0

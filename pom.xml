@@ -108,8 +108,8 @@
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
         <junit-version>4.8.1</junit-version>
-        <hawtbuf-version>1.5</hawtbuf-version>
-        <hawtdispatch-version>1.3</hawtdispatch-version>
+        <hawtbuf-version>1.6-SNAPSHOT</hawtbuf-version>
+        <hawtdispatch-version>1.4-SNAPSHOT</hawtdispatch-version>
         <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
         <sigar-version>1.6.4</sigar-version>
         <jackson-version>1.8.0</jackson-version>
