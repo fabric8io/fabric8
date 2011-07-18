@@ -10,6 +10,8 @@
 package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.MavenResolver;
+import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Strings;
@@ -43,6 +45,8 @@ public class FabConnection extends URLConnection {
     private Configuration configuration;
     private String[] mavenRepositories;
     private final BundleContext bundleContext;
+    private PomDetails pomDetails;
+    private MavenResolver resolver = new MavenResolver();
 
     public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
@@ -55,6 +59,10 @@ public class FabConnection extends URLConnection {
             throw new MalformedURLException("Path cannot empty");
         }
         this.configuration = config;
+        String[] repositories = configuration.getMavenRepositories();
+        if (repositories != null) {
+            resolver.setRepositories(repositories);
+        }
     }
 
     @Override
@@ -65,9 +73,38 @@ public class FabConnection extends URLConnection {
         return bundleContext;
     }
 
+    public MavenResolver getResolver() {
+        return resolver;
+    }
+
+    public PomDetails getPomDetails() {
+        return pomDetails;
+    }
+
+    public void setPomDetails(PomDetails pomDetails) {
+        this.pomDetails = pomDetails;
+    }
+
     public File getJarFile() throws IOException {
         return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
     }
+
+    public FabConnection createChild(URL url) throws MalformedURLException {
+        return new FabConnection(url, configuration, bundleContext);
+    }
+
+    /**
+     * If the PomDetails has not been resolved yet, try and resolve it
+     */
+    public PomDetails resolvePomDetails() throws IOException {
+        PomDetails pomDetails = getPomDetails();
+        if (pomDetails == null) {
+            File fileJar = getJarFile();
+            pomDetails = resolver.findPomFile(fileJar);
+        }
+        return pomDetails;
+    }
+
 
     /**
      * Returns the input stream denoted by the url

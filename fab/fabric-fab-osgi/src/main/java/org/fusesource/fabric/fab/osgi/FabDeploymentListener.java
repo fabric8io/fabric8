@@ -38,6 +38,7 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
     private final Logger logger = LoggerFactory.getLogger(FabDeploymentListener.class);
 
     private DocumentBuilderFactory dbf;
+    private boolean deployNonBundles = true;
 
     public boolean canHandle(File artifact) {
         try {
@@ -48,11 +49,12 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
             }
             JarFile jar = new JarFile(artifact);
             try {
-                // only handle non OSGi jar
                 Manifest manifest = jar.getManifest();
                 boolean answer = false;
+                boolean bundle = false;
                 if (manifest != null) {
                     Attributes attributes = manifest.getMainAttributes();
+                    bundle = isBundle(attributes);
                     for (String name : ServiceConstants.FAB_PROPERTY_NAMES) {
                         if (attributes.getValue(name) != null) {
                             answer = true;
@@ -60,6 +62,14 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
                         }
                     }
                 }
+                if (!answer && isDeployNonBundles()) {
+                    answer = !bundle;
+                    if (answer) {
+                        logger.info("Interpreting the non-bundle jar as a FAB: " + artifact);
+                    }
+                }
+                // TODO filter out if we can find the pom.xml / properties files
+                // so that we can get PomDetails.isValid()?
                 return answer;
             } finally {
                 jar.close();
@@ -68,6 +78,15 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
             logger.error("Unable to parse deployed file " + artifact.getAbsolutePath(), e);
         }
         return false;
+    }
+
+    /**
+     * Detect if the given attributes denote a valid OSGi bundle
+     * @param attributes
+     * @return
+     */
+    protected boolean isBundle(Attributes attributes) {
+        return attributes.getValue(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME) != null;
     }
 
     public URL transform(URL artifact) {
@@ -79,4 +98,11 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
         }
     }
 
+    public boolean isDeployNonBundles() {
+        return deployNonBundles;
+    }
+
+    public void setDeployNonBundles(boolean deployNonBundles) {
+        this.deployNonBundles = deployNonBundles;
+    }
 }

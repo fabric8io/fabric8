@@ -29,6 +29,13 @@ public class PomDetails {
         this.properties = properties;
     }
 
+    /**
+     * Returns true if the pom file exists and the properties are not null
+     */
+    public boolean isValid() {
+        return file != null && properties != null && file.exists();
+    }
+
     @Override
     public String toString() {
         return "PomDetails[" + file + "; properties: " + properties + "]";

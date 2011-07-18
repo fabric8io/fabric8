@@ -41,7 +41,7 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
         // we exclude provided dependencies by default
         DependencyTree osgi = assertShareFilter(node, "org.osgi", "org.osgi.core", true, "", "");
 
-        assertEquals("getBundleId", "osgi.core", osgi.getBundleId());
+        assertEquals("getBundleId", "osgi.core", osgi.getBundleSymbolicName());
     }
 
     @Test

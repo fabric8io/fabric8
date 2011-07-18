@@ -186,9 +186,13 @@ public class MavenResolver {
     public DependencyTreeResult collectDependenciesForJar(File jarFile, boolean offline) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
         // lets find the pom file
         PomDetails pomDetails = findPomFile(jarFile);
-        if (pomDetails == null) {
+        if (pomDetails == null || !pomDetails.isValid()) {
             throw new IllegalArgumentException("No pom.xml file could be found inside the jar file: " + jarFile);
         }
+        return collectDependencies(pomDetails, offline);
+    }
+
+    public DependencyTreeResult collectDependencies(PomDetails pomDetails, boolean offline) throws IOException, XmlPullParserException, RepositoryException {
         Model model = pomDetails.getModel();
         return collectDependenciesFromPom(pomDetails.getFile(), offline, model);
     }
@@ -331,7 +335,8 @@ public class MavenResolver {
         }
         return repos;
     }
-    protected PomDetails findPomFile(File jar) throws IOException {
+
+    public PomDetails findPomFile(File jar) throws IOException {
         JarFile jarFile = new JarFile(jar);
         File file = null;
         Properties properties = null;

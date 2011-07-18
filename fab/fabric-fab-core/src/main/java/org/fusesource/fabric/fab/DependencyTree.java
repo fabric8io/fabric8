@@ -50,8 +50,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import static org.fusesource.fabric.fab.util.Objects.compare;
 import static org.fusesource.fabric.fab.util.Objects.equal;
@@ -390,8 +388,8 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return optional;
     }
 
-    public String getBundleId() {
-        String bundleId = getManfiestEntry(Constants.INSTR_BUNDLE_SYMBOLIC_NAME);
+    public String getBundleSymbolicName() {
+        String bundleId = getManifestBundleSymbolicName();
         if (bundleId != null) {
             return bundleId;
         }
@@ -402,6 +400,10 @@ public class DependencyTree implements Comparable<DependencyTree> {
         } else {
             return getGroupId() + "." + artifactId;
         }
+    }
+
+    protected String getManifestBundleSymbolicName() {
+        return getManfiestEntry(Constants.INSTR_BUNDLE_SYMBOLIC_NAME);
     }
 
     /**
@@ -429,6 +431,11 @@ public class DependencyTree implements Comparable<DependencyTree> {
 
     public void setJarFile(File jarFile) {
         this.jarFile = jarFile;
+    }
+
+    public boolean isBundle() {
+        // TODO is this the best way to test that a dependency is an osgi bundle?
+        return getManifestBundleSymbolicName() != null;
     }
 
     // Helper classes
