@@ -117,12 +117,24 @@ public interface ServiceConstants extends Constants {
     static final String PROPERTY_MAVEN_REPOSITORIES = "org.ops4j.pax.url.mvn.repositories";
 
     /**
+     * List of paths looked for in shared dependencies which should be copied onto the Bundle-ClassPath
+     * for example to fix the META-INF/services stuff when using shared class loaders.
+     */
+    static final String PROPERTY_SHARED_RESOURCE_PATHS = PID + ".sharedResourcePaths";
+
+    /**
      * Whether we should install provided dependencies by default
      */
-    static final boolean DEFAULT_INSTALL_PROVIDED_DEPENDENCIES = false;
+    static final boolean DEFAULT_INSTALL_PROVIDED_DEPENDENCIES = true;
 
     /**
      * Whether we should start installed dependencies by default
      */
-    static final boolean DEFAULT_START_INSTALLED_DEPENDENCIES = false;
+    static final boolean DEFAULT_START_INSTALLED_DEPENDENCIES = true;
+
+    /**
+     * Default resource paths searched when copying resources from shared dependencies into the Bundle-ClassPath
+     * to avoid META-INF/services classloader issues
+     */
+    static final String[] DEFAULT_PROPERTY_SHARED_RESOURCE_PATHS = { "META-INF/services", "WEB-INF" };
 }

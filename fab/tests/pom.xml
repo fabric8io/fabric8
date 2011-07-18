@@ -28,6 +28,7 @@
     <module>fab-sample-camel-noshare</module>
     <module>fab-sample-camel-velocity-noshare</module>
     <module>fab-sample-camel-velocity-share</module>
+    <module>fab-sample-camel-velocity-require-bundle</module>
 
 <!--
     <module>fab-sample-camel-osgi-share</module>

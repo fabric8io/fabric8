@@ -64,6 +64,22 @@ public class Configuration extends PropertyStore {
         return get(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES);
     }
 
+
+    public String[] getSharedResourcePaths() {
+        if (!contains(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS)) {
+            String text = propertyResolver.get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
+            String[] repositories;
+            if (text == null || text.length() == 0) {
+                repositories = ServiceConstants.DEFAULT_PROPERTY_SHARED_RESOURCE_PATHS;
+            } else {
+                repositories = toArray(text);
+            }
+            return set(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS, repositories);
+        }
+        return get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
+    }
+
+
     public static String[] toArray(String text) {
         String[] answer = null;
         if (text != null) {
@@ -71,5 +87,4 @@ public class Configuration extends PropertyStore {
         }
         return answer;
     }
-
 }

@@ -17,6 +17,7 @@ import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.fabric.fab.util.IOHelpers;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Strings;
 import org.osgi.framework.Bundle;
@@ -27,14 +28,21 @@ import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism
@@ -142,10 +150,7 @@ public class FabClassPathResolver {
                         } else {
                             embeddedResources.put(path, new URL(url));
                         }
-                        if (bundleClassPath.isEmpty()) {
-                            bundleClassPath.add(".");
-                        }
-                        bundleClassPath.add(path);
+                        addBundleClassPath(path);
                     }
                 }
             }
@@ -303,7 +308,7 @@ public class FabClassPathResolver {
     }
 
 
-    protected void addDependencies(DependencyTree tree) throws MalformedURLException {
+    protected void addDependencies(DependencyTree tree) throws IOException {
         List<DependencyTree> children = tree.getChildren();
         for (DependencyTree child : children) {
             if (excludePackageFilter.matches(child)) {
@@ -321,7 +326,7 @@ public class FabClassPathResolver {
         }
     }
 
-    protected void addExtensionDependencies(DependencyTree child) throws MalformedURLException {
+    protected void addExtensionDependencies(DependencyTree child) throws IOException {
         if (excludePackageFilter.matches(child)) {
             // ignore
             LOG.debug("Excluded dependency: " + child);
@@ -335,18 +340,77 @@ public class FabClassPathResolver {
         }
     }
 
-    protected void addSharedDependency(DependencyTree child) {
-        sharedDependencies.add(child);
-        List<DependencyTree> list = child.getDescendants();
-        for (DependencyTree grandChild : list) {
-            if (excludePackageFilter.matches(grandChild)) {
-                LOG.debug("Excluded transitive dependency: " + grandChild);
+    protected void addSharedDependency(DependencyTree tree) throws IOException {
+        sharedDependencies.add(tree);
+        if (connection.isIncludeSharedResources()) {
+            includeSharedResources(tree);
+        }
+
+        List<DependencyTree> list = tree.getDescendants();
+        for (DependencyTree child : list) {
+            if (excludePackageFilter.matches(child)) {
+                LOG.debug("Excluded transitive dependency: " + child);
                 continue;
             } else {
-                sharedDependencies.add(grandChild);
+                sharedDependencies.add(child);
             }
         }
-        addInstallDependencies(child);
+        addInstallDependencies(tree);
+    }
+
+    /**
+     * If there are any matching shared resources using the current filters
+     * then extract them from the jar and create a new jar to be added to the Bundle-ClassPath
+     * containing the shared resources; which are then added to the flat class path to avoid
+     * breaking the META-INF/services contracts
+     */
+    protected void includeSharedResources(DependencyTree tree) throws IOException {
+        if (tree.isValidLibrary()) {
+            File file = tree.getJarFile();
+            if (file.exists()) {
+                File sharedResourceFile = null;
+                JarOutputStream out = null;
+                JarFile jarFile = new JarFile(file);
+                String[] sharedPaths = connection.getConfiguration().getSharedResourcePaths();
+                String pathPrefix = tree.getGroupId() + "." + tree.getArtifactId() + "-resources";
+                String path = pathPrefix + ".jar";
+                if (sharedPaths != null) {
+                    for (String sharedPath : sharedPaths) {
+                        Enumeration<JarEntry> entries = jarFile.entries();
+                        while (entries.hasMoreElements()) {
+                            JarEntry jarEntry = entries.nextElement();
+                            String name = jarEntry.getName();
+                            if (name.startsWith(sharedPath)) {
+                                if (sharedResourceFile == null) {
+                                    sharedResourceFile = File.createTempFile(pathPrefix + "-", ".jar");
+                                    out = new JarOutputStream(new FileOutputStream(sharedResourceFile));
+                                }
+                                out.putNextEntry(new ZipEntry(jarEntry.getName()));
+                                InputStream inputStream = jarFile.getInputStream(jarEntry);
+                                IOHelpers.writeTo(out, inputStream, false);
+                                out.closeEntry();
+                            }
+                        }
+                    }
+                }
+                if (sharedResourceFile != null) {
+                    out.finish();
+                    out.close();
+                    if (!bundleClassPath.contains(path)) {
+                        embeddedResources.put(path, sharedResourceFile);
+                        addBundleClassPath(path);
+                        LOG.info("Adding shared resources jar: " + path);
+                    }
+                }
+            }
+        }
+    }
+
+    protected void addBundleClassPath(String path) {
+        if (bundleClassPath.isEmpty()) {
+            bundleClassPath.add(".");
+        }
+        bundleClassPath.add(path);
     }
 
     protected void addInstallDependencies(DependencyTree node) {

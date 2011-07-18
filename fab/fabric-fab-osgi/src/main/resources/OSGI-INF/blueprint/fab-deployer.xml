@@ -21,7 +21,11 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            default-activation="lazy">
 
+  <cm:property-placeholder persistent-id="org.fusesource.fabric.fab.osgi.url" update-strategy="reload">
+    <!--
+    TODO copy the value across from the ops4j.pax.url.mvn value...
   <cm:property-placeholder persistent-id="org.ops4j.pax.url.mvn" update-strategy="reload">
+  -->
     <cm:default-properties>
       <cm:property name="org.ops4j.pax.url.mvn.repositories" value="
         http://repo1.maven.org/maven2, http://repository.ops4j.org/maven2,
@@ -33,9 +37,10 @@
         http://repo.fusesource.com/nexus/content/groups/public-snapshots@snapshots,
         http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases,
         https://repository.apache.org/content/repositories/snapshots@snapshots"/>
+
+      <cm:property name="org.fusesource.fabric.fab.osgi.url.sharedResourcePaths" value="META-INF/services, WEB-INF"/>
     </cm:default-properties>
   </cm:property-placeholder>
-
 
   <service id="fabUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
     <service-properties>

@@ -45,6 +45,7 @@ public class FabConnection extends URLConnection {
     private PomDetails pomDetails;
     private MavenResolver resolver = new MavenResolver();
     private boolean startInstalledDependentBundles = ServiceConstants.DEFAULT_START_INSTALLED_DEPENDENCIES;
+    private boolean includeSharedResources = true;
 
     public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
@@ -85,6 +86,14 @@ public class FabConnection extends URLConnection {
 
     public File getJarFile() throws IOException {
         return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
+    }
+
+    public boolean isIncludeSharedResources() {
+        return includeSharedResources;
+    }
+
+    public void setIncludeSharedResources(boolean includeSharedResources) {
+        this.includeSharedResources = includeSharedResources;
     }
 
     public boolean isStartInstalledDependentBundles() {
