@@ -40,6 +40,27 @@
       <artifactId>camel-velocity</artifactId>
       <version>${camel-version}</version>
       <scope>provided</scope>
+      <!-- exclude this bad osgi bundle which only supports version 0.0.0 it seems -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.velocity</groupId>
+          <artifactId>velocity</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- lets add a working velocity bundle  -->
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.velocity</artifactId>
+      <version>1.7_3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.oro</artifactId>
+      <version>2.0.8_5</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- add a missing dependency from camel-velocity -->
