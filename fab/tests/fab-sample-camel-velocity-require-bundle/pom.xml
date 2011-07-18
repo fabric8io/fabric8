@@ -1,0 +1,114 @@
+<!--
+
+    Copyright (C) 2009 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.fabric.fab.tests</groupId>
+    <artifactId>tests-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>fab-sample-camel-velocity-require-bundle</artifactId>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>FAB :: Sample :: Camel Velocity Require Bundle</description>
+
+  <properties>
+    <camel-version>2.8-SNAPSHOT</camel-version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-velocity</artifactId>
+      <version>${camel-version}</version>
+      <scope>provided</scope>
+      <!-- exclude this bad osgi bundle which only supports version 0.0.0 it seems -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.velocity</groupId>
+          <artifactId>velocity</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- lets add a working velocity bundle  -->
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.velocity</artifactId>
+      <version>1.7_3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.oro</artifactId>
+      <version>2.0.8_5</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- add a missing dependency from camel-velocity -->
+    <dependency>
+      <groupId>org.springframework.osgi</groupId>
+      <artifactId>spring-osgi-core</artifactId>
+      <version>1.2.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <!-- ServiceMix repo -->
+    <repository>
+        <id>servicemix</id>
+        <name>Apache ServiceMix Repository</name>
+        <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <index>true</index>
+            <manifestEntries>
+              <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
+              <Fabric-Dependency-Require-Bundle>org.apache.camel:*</Fabric-Dependency-Require-Bundle>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
