@@ -31,6 +31,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, Open, 
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 
 /**
  *
@@ -69,8 +70,8 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
 
   var dispatch_queue: DispatchQueue = null;
 
-  var session_manager: SessionSinkMux[AnyRef] = null
-  var connection_sink: Sink[AnyRef] = null
+  var session_manager: SessionSinkMux[AMQPFrame] = null
+  var connection_sink: Sink[AMQPFrame] = null
   var transport_sink: TransportSink = null
 
   var container_id: String = null
@@ -244,7 +245,7 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     })
   }
 
-  def send(data: Buffer, channel: Int) = connection_sink.offer(new AMQPTransportFrame(data))
+  def send(data: Buffer, channel: Int) = {} //connection_sink.offer(new AMQPTransportFrame(data))
 
   def release(session: ProtocolSession) = {
     session.getRemoteChannel.foreach((x) => channels.remove(x))
@@ -294,7 +295,7 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
 
   def onTransportConnected() = {
     trace("Connected to %s:/%s", transport.getTypeId, transport.getRemoteAddress)
-    session_manager = new SessionSinkMux[AnyRef](transport_sink.map {
+    session_manager = new SessionSinkMux[AMQPFrame](transport_sink.map {
       x =>
         x
     }, dispatch_queue, AMQPCodec)
