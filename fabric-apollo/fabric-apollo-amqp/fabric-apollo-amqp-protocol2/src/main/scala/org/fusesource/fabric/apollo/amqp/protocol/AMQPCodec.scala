@@ -21,7 +21,8 @@ import org.fusesource.fabric.apollo.amqp.codec._
 import marshaller.{BitUtils, AMQPProtocolHeaderCodec}
 import org.apache.activemq.apollo.transport._
 import org.apache.activemq.apollo.transport.ProtocolCodec.BufferState
-import types.{AMQPProtocolHeader, AMQPFrame}
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
+import types.{AMQPTransportFrame, AMQPProtocolHeader}
 
 /*
 *
@@ -55,12 +56,12 @@ class AMQPProtocolCodecFactory extends ProtocolCodecFactory.Provider {
 /*
 *
 */
-object AMQPCodec extends Sizer[AnyRef] {
+object AMQPCodec extends Sizer[AMQPFrame] {
 
-  def size(value: AnyRef) = {
+  def size(value: AMQPFrame) = {
     value match {
       case x: AMQPProtocolHeader => AMQPProtocolHeaderCodec.INSTANCE.getFixedSize
-      case x: AMQPFrame => x.getFrameSize.toInt
+      case x: AMQPTransportFrame => x.getFrameSize.toInt
     }
   }
 }
@@ -110,7 +111,7 @@ class AMQPCodec extends ProtocolCodec with Logging {
       command match {
         case frame: AMQPProtocolHeader =>
           AMQPProtocolHeaderCodec.INSTANCE.encode(frame, next_write_buffer)
-        case frame: AMQPFrame =>
+        case frame: AMQPTransportFrame =>
           frame.write(next_write_buffer)
       }
       if ( was_empty ) {
@@ -238,36 +239,24 @@ class AMQPCodec extends ProtocolCodec with Logging {
     //trace("Read protocol header, read_buffer position : %s", read_buffer.position)
 
     read_waiting_on += 8
-    next_action = read_frame_header
+    next_action = read_frame
     protocol_header
   }
 
-  def read_frame_header: () => AnyRef = () => {
-    //trace("Waiting to read in 8 byte frame header");
-    read_buffer.mark
-    val buf = new Array[Byte](8)
-    read_buffer.get(buf)
-    //trace("Read in %s", buf.map{(x) => String.format("0x%02X", java.lang.Byte.valueOf(x))}.mkString(" "))
-    val size = BitUtils.getUInt(buf, 0).asInstanceOf[Int]
-    //trace("Frame size : %s", size)
-    read_buffer.reset
-    read_waiting_on += (size - 8)
-    next_action = read_frame(size)
-    null
-  }
+  def read_frame: () => AnyRef = () => {
 
-  def read_frame(size: Int): () => AnyRef = () => {
-    //trace("Next frame to read in is %s bytes, read_buffer.position=%s, read_buffer.array length=%s", size, read_buffer.position, read_buffer.array.length)
-    val buf = new Buffer(read_buffer.array, read_buffer.position, size)
-    //trace("Read in : %s", buf)
-    var rc = new AMQPFrame(buf);
+    val header = new Buffer(8)
+    read_buffer.get(header.data)
+
+    val size = BitUtils.getUInt(header.data, 0).asInstanceOf[Int]
+    val rc = new AMQPTransportFrame(header, new Buffer(read_buffer.array, read_buffer.position, size))
 
     read_buffer.position(read_buffer.position + size)
 
     //trace("Read frame, read buffer position : %s", read_buffer.position)
 
     read_waiting_on += 8
-    next_action = read_frame_header
+    next_action = read_frame
     rc
   }
 

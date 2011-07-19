@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
 import java.lang.Long
-import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPFrame, Open, AMQPProtocolHeader}
+import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, Open, AMQPProtocolHeader}
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
@@ -233,8 +233,8 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
             close("Idle timeout expired")
           }
           heartbeat_monitor.on_keep_alive = () => {
-            val frame = new AMQPFrame
-            frame.setType(AMQPFrame.AMQP_FRAME_TYPE)
+            val frame = new AMQPTransportFrame
+            frame.setType(AMQPTransportFrame.AMQP_FRAME_TYPE)
             connection_sink.offer(frame)
           }
           heartbeat_monitor.start
@@ -244,7 +244,7 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
     })
   }
 
-  def send(data: Buffer, channel: Int) = connection_sink.offer(new AMQPFrame(data))
+  def send(data: Buffer, channel: Int) = connection_sink.offer(new AMQPTransportFrame(data))
 
   def release(session: ProtocolSession) = {
     session.getRemoteChannel.foreach((x) => channels.remove(x))

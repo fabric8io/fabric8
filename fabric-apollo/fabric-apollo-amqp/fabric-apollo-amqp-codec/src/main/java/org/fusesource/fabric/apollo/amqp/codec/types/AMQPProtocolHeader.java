@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.codec.types;
 
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame;
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.AMQPProtocolHeaderCodec;
 import org.fusesource.hawtbuf.Buffer;
 
@@ -23,7 +24,7 @@ import java.io.IOException;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public class AMQPProtocolHeader {
+public class AMQPProtocolHeader implements AMQPFrame {
 
     public static Buffer PROTOCOL_HEADER = init();
 
