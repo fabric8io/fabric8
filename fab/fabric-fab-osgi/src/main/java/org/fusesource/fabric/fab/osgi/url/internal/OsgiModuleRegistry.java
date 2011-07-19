@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
  */
-package org.fusesource.fabric.fab.osgi;
+package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.fusesource.fabric.fab.ModuleDescriptor;
 import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -13,11 +14,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.List;
-import java.util.Properties;
-
+import java.util.*;
+import static org.fusesource.fabric.fab.util.Strings.*;
 /**
  * <p>
  * </p>
@@ -29,6 +27,10 @@ public class OsgiModuleRegistry extends ModuleRegistry {
     File directory;
     ConfigurationAdmin configurationAdmin;
     String pid;
+
+    public OsgiModuleRegistry() {
+        Activator.registry = this;
+    }
 
     public File getDirectory() {
         return directory;
@@ -65,11 +67,14 @@ public class OsgiModuleRegistry extends ModuleRegistry {
         try {
             Configuration configuration = configurationAdmin.getConfiguration(pid);
             Dictionary props = configuration.getProperties();
+            if( props == null ) {
+                return null;
+            }
             String value = (String) props.get(id.toString());
             if( value==null ) {
                 return null;
             }
-            return ModuleDescriptor.split(value, " ");
+            return splitAndTrimAsList(value, " ");
         } catch (IOException e) {
             e.printStackTrace();
             return Collections.emptyList();
@@ -87,33 +92,41 @@ public class OsgiModuleRegistry extends ModuleRegistry {
         try {
             Configuration configuration = configurationAdmin.getConfiguration(pid);
             Dictionary props = configuration.getProperties();
-            props.put(id.toString(), ModuleDescriptor.mkString(values, " "));
+            if( props==null ) {
+                props = new Hashtable();
+            }
+            props.put(id.toString(), join(values, " "));
             configuration.update(props);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void load() throws IOException {
+    public void load() {
         directory.mkdirs();
+        load(directory);
+    }
 
-        // TODO: store in a maven repo style layout.
-
-        // Load all previously stored module descriptors.
+    private void load(File directory) {
         for(File f : directory.listFiles() ) {
-            if( f.getName().startsWith("module-") ) {
-                try {
-                    FileInputStream is = new FileInputStream(f);
+            if( f.isDirectory() ) {
+                load(f);
+            } else {
+                // load the fab module descriptors
+                if( f.getName().endsWith(".fmd") ) {
                     try {
-                        Properties properties = new Properties();
-                        properties.load(is);
-                        add(ModuleDescriptor.fromProperties(properties), f);
+                        FileInputStream is = new FileInputStream(f);
+                        try {
+                            Properties properties = new Properties();
+                            properties.load(is);
+                            add(ModuleDescriptor.fromProperties(properties), f);
 
-                    } finally {
-                        is.close();
+                        } finally {
+                            is.close();
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Error loading fab module descriptor '"+f+"': "+e);
                     }
-                } catch (IOException e) {
-                    System.err.println("Invalid module file: "+f+", error loading: "+e);
                 }
             }
         }
@@ -122,13 +135,14 @@ public class OsgiModuleRegistry extends ModuleRegistry {
     @Override
     public VersionedModule add(ModuleDescriptor descriptor) {
         try {
-
-            // Store the module info in a file..
-            File file = File.createTempFile("module-", "", directory);
+            // Store the module descriptor in a file..
+            String path = descriptor.getId().getRepositoryPath()+".fmd";
+            File file = new File(directory, path);
+            file.getParentFile().mkdirs();
             Properties props = descriptor.toProperties();
             FileOutputStream os = new FileOutputStream(file);
             try {
-                props.store(os, "");
+                props.store(os, null);
             } finally {
                 os.close();
             }

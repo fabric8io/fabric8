@@ -18,12 +18,9 @@ import org.osgi.service.blueprint.container.BlueprintContainer;
 
 import static org.apache.karaf.testing.Helper.felixProvisionalApis;
 import static org.junit.Assert.assertNotNull;
-import static org.ops4j.pax.exam.CoreOptions.felix;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.waitForFrameworkStartup;
+import static org.ops4j.pax.exam.CoreOptions.*;
 import static org.ops4j.pax.exam.OptionUtils.combine;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.scanFeatures;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.workingDirectory;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.*;
 
 /**
  */
@@ -83,6 +80,7 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
                         "fabric-bundle"
                 ),
 
+                mavenBundle("org.apache.felix", "org.apache.felix.configadmin"),
                 workingDirectory("target/paxrunner/core/"),
 
                 waitForFrameworkStartup(),
@@ -94,10 +92,17 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
                 //equinox(), felix().version("3.0.2")
                 felix().version("3.0.2"),
 
+                // If you wnat to debug the OSGi modules add the following system property when your run the test
+                // -Dpax-runner-vm-options="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
+                System.getProperty("pax-runner-vm-options")!=null ? vmOption(System.getProperty("pax-runner-vm-options")) : null,
                 felixProvisionalApis()
+
         );
+
         // Stop the shell log bundle
         //Helper.findMaven(options, "org.apache.karaf.shell", "org.apache.karaf.shell.log").noStart();
         return options;
     }
+
+
 }

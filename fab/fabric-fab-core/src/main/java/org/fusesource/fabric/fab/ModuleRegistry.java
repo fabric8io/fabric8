@@ -33,8 +33,9 @@ public class ModuleRegistry {
 
     protected VersionedModule add(ModuleDescriptor descriptor, File file) {
         VersionedDependencyId id = descriptor.getId();
-        VersionedModule rc = remove(id);
-        VersionedModule versionedModule = new VersionedModule(descriptor, file);
+        remove(id);
+        VersionedModule rc = new VersionedModule(descriptor, file);
+        moduleVersions.put(id, rc);
 
         DependencyId dependencyId = id.toDependencyId();
         Module module = modules.get(dependencyId);
@@ -42,7 +43,7 @@ public class ModuleRegistry {
             module = new Module(dependencyId);
             modules.put(dependencyId, module);
         }
-        module.versions.put(id.getVersion(), versionedModule);
+        module.versions.put(id.getVersion(), rc);
 
         for (VersionedDependencyId key: descriptor.getExtendsModules()){
             TreeMap<String, VersionedModule> map = extensions.get(key);
@@ -50,9 +51,8 @@ public class ModuleRegistry {
                 map = new TreeMap<String, VersionedModule>();
                 extensions.put(key, map);
             }
-            map.put(versionedModule.getName(), versionedModule);
+            map.put(rc.getName(), rc);
         }
-
         return rc;
     }
 
@@ -70,8 +70,6 @@ public class ModuleRegistry {
                     }
                 }
             }
-
-            setEnabledExtensions(id, null);
 
             DependencyId dependencyId = id.toDependencyId();
             Module module = modules.get(dependencyId);
