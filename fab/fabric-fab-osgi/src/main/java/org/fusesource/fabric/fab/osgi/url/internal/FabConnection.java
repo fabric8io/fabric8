@@ -46,6 +46,7 @@ public class FabConnection extends URLConnection {
     private MavenResolver resolver = new MavenResolver();
     private boolean startInstalledDependentBundles = ServiceConstants.DEFAULT_START_INSTALLED_DEPENDENCIES;
     private boolean includeSharedResources = true;
+    private FabClassPathResolver classPathResolver;
 
     public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
@@ -138,13 +139,14 @@ public class FabConnection extends URLConnection {
                         "Instructions file must contain a property named " + ServiceConstants.INSTR_FAB_URL
                 );
             }
+            String extraImportPackages = classPathResolver.getExtraImportPackages();
             return BndUtils.createBundle(
                     URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
                     instructions,
                     fabUri,
                     OverwriteMode.MERGE,
-                    embeddedResources
-            );
+                    embeddedResources,
+                    extraImportPackages);
         } catch (RepositoryException e) {
             throw new IOException(e.getMessage(), e);
         } catch (XmlPullParserException e) {
@@ -176,8 +178,8 @@ public class FabConnection extends URLConnection {
      * Strategy method to allow the instructions to be processed by derived classes
      */
     protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException, BundleException {
-        FabClassPathResolver resolver = new FabClassPathResolver(this, instructions, embeddedResources);
-        resolver.resolve();
+        classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
+        classPathResolver.resolve();
     }
 
 }

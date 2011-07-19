@@ -45,6 +45,8 @@ public class IOHelpers {
                 in.close();
                 if (close) {
                     out.close();
+                } else {
+                    out.flush();
                 }
                 return;
             }

@@ -30,6 +30,7 @@ import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,7 +89,7 @@ public class BndUtils
                                             final String jarInfo )
         throws IOException
     {
-        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP );
+        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP, "" );
     }
 
     /**
@@ -108,7 +109,8 @@ public class BndUtils
                                             final Properties instructions,
                                             final String jarInfo,
                                             final OverwriteMode overwriteMode,
-                                            final Map<String, Object> embeddedResources)
+                                            final Map<String, Object> embeddedResources,
+                                            final String extraImportPackages)
         throws IOException
     {
         NullArgumentException.validateNotNull( jarInputStream, "Jar URL" );
@@ -166,6 +168,16 @@ public class BndUtils
             checkMandatoryProperties( analyzer, jar, jarInfo );
 
             analyzer.calcManifest();
+            if (extraImportPackages != null && extraImportPackages.length() > 0) {
+                Attributes main = jar.getManifest().getMainAttributes();
+                String importPackages = main.getValue(Analyzer.IMPORT_PACKAGE);
+                if (importPackages == null || importPackages.length() == 0) {
+                    importPackages = extraImportPackages;
+                } else {
+                    importPackages += "," + extraImportPackages;
+                }
+                main.putValue(Analyzer.IMPORT_PACKAGE, importPackages);
+            }
         }
         return createInputStream( jar );
     }

@@ -96,9 +96,7 @@ public class FabClassPathResolver {
 
         bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
         requireBundles.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
-        if (processImportPackages) {
-            importPackages.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE), ","));
-        }
+        importPackages.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE), ","));
 
 
         String name = getManfiestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
@@ -125,13 +123,7 @@ public class FabClassPathResolver {
                 // TODO don't think we need to do anything now since already the BND stuff figures out the import packages for any missing stuff?
                 if (processImportPackages) {
                     // lets add all the import packages...
-                    String text = dependencyTree.getManfiestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
-                    if (text != null && text.length() > 0) {
-                        List<String> list = new ArrayList<String>();
-                        list.addAll(Strings.splitAsList(text, ","));
-                        // TODO filter out duplicates
-                        importPackages.addAll(list);
-                    }
+                    importAllExportedPackages(dependencyTree);
                 }
             }
         }
@@ -158,20 +150,28 @@ public class FabClassPathResolver {
 
         LOG.debug("resolved: bundleClassPath: " + Strings.join(bundleClassPath, "\t\n"));
         LOG.debug("resolved: requireBundles: " + Strings.join(requireBundles, "\t\n"));
-        if (processImportPackages) {
-            LOG.debug("resolved: importPackages: " + Strings.join(importPackages, "\t\n"));
-        }
+        LOG.debug("resolved: importPackages: " + Strings.join(importPackages, "\t\n"));
 
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
         instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
-        if (processImportPackages) {
-            instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
-        }
+
+        // adding import package statements causes the Bnd analyzer to not run so lets not do that :)
+        //instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
 
         if (connection.getConfiguration().isInstallMissingDependencies()) {
             installMissingDependencies();
         } else {
             LOG.info("Not installing dependencies as not enabled");
+        }
+    }
+
+    protected void importAllExportedPackages(DependencyTree dependencyTree) {
+        String text = dependencyTree.getManfiestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
+        if (text != null && text.length() > 0) {
+            List<String> list = new ArrayList<String>();
+            list.addAll(Strings.splitAsList(text, ","));
+            // TODO filter out duplicates
+            importPackages.addAll(list);
         }
     }
 
@@ -386,8 +386,9 @@ public class FabClassPathResolver {
                                     out = new JarOutputStream(new FileOutputStream(sharedResourceFile));
                                 }
                                 out.putNextEntry(new ZipEntry(jarEntry.getName()));
-                                InputStream inputStream = jarFile.getInputStream(jarEntry);
-                                IOHelpers.writeTo(out, inputStream, false);
+                                if (!jarEntry.isDirectory()) {
+                                    IOHelpers.writeTo(out, jarFile.getInputStream(jarEntry), false);
+                                }
                                 out.closeEntry();
                             }
                         }
@@ -400,6 +401,10 @@ public class FabClassPathResolver {
                         embeddedResources.put(path, sharedResourceFile);
                         addBundleClassPath(path);
                         LOG.info("Adding shared resources jar: " + path);
+
+                        // lets add the imports from this bundle's exports...
+                        // as we are probably using META-INF/services type stuff
+                        importAllExportedPackages(tree);
                     }
                 }
             }
@@ -431,4 +436,7 @@ public class FabClassPathResolver {
         installDependencies.add(node);
     }
 
+    public String getExtraImportPackages() {
+        return Strings.join(importPackages, ",");
+    }
 }
