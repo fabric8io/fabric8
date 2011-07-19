@@ -20,7 +20,16 @@ public class Activator implements BundleActivator {
     private DefaultCamelContext camelContext;
 
     public void start(BundleContext context) throws Exception {
-        startCamel();
+        // TODO this hack is required so that META-INF/services works
+        // lets put the flat class loader on the context class loader to fix META-INF/services...
+        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = getClass().getClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            startCamel();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
+        }
     }
 
     public void startCamel() throws Exception {

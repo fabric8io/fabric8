@@ -30,7 +30,6 @@ public class Activator implements BundleActivator {
         } finally {
             Thread.currentThread().setContextClassLoader(oldContextClassLoader);
         }
-
     }
 
     public void startCamel() throws Exception {
