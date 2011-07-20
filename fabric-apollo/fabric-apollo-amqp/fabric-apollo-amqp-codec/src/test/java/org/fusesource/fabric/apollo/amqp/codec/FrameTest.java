@@ -70,6 +70,7 @@ public class FrameTest {
         AMQPTransportFrame inFrame = new AMQPTransportFrame(0, transfer, MessageSupport.toBuffer(annotatedMessage));
 
         DataByteArrayOutputStream out = new DataByteArrayOutputStream((int)inFrame.getSize());
+        inFrame.write(out);
         Buffer buf = out.toBuffer();
 
 

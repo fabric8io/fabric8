@@ -39,6 +39,8 @@ abstract class Interceptor {
     }
   }
 
+  def connected:Boolean = !(_incoming == None && _outgoing == None)
+
   def outgoing_=(i:Interceptor):Unit = {
     if (i != null) {
       i._incoming = Option(this)

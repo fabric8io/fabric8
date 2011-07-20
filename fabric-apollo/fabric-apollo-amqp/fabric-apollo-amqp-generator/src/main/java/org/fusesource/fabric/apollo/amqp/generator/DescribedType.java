@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import static com.sun.codemodel.JExpr.*;
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.sanitize;
 import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toJavaClassName;
+import static org.fusesource.fabric.apollo.amqp.generator.Utilities.toStaticName;
 
 /**
  *
@@ -166,13 +167,50 @@ public class DescribedType extends AmqpDefinedType {
 
         generateConstructors();
 
+
         if ( isComposite() ) {
+            addDefaults();
             generateCount();
         }
         fillInReadMethod();
         fillInWriteMethod();
         fillInSizeMethod();
         generateToString();
+    }
+
+    private void addDefaults() {
+        int mods = JMod.PUBLIC | JMod.STATIC | JMod.FINAL;
+        for (Attribute attr : amqpFields) {
+            if (attr.defaultValue != null && !attr.defaultValue.equals("none")) {
+                JExpression init = null;
+
+
+                String d = attr.defaultValue;
+                String t = attr.type;
+
+                try {
+                    if (t.equals("boolean")) {
+                        init = lit(Boolean.parseBoolean(d));
+                    } else if (t.equals("long") || t.equals("uint")) {
+                        init = lit(Long.parseLong(d));
+                    } else if (t.equals("symbol")) {
+                        init = cm.ref(Buffer.class).staticInvoke("ascii").arg(lit(d));
+                    } else if (t.equals("int") || t.equals("ushort")) {
+                        init = lit(Integer.parseInt(d));
+                    } else {
+                        Log.warn("\n\nDefault value type for %s : %s, Java type : %s not set, value is %s\n\n\n", attr.attribute.name(), attr.type, attr.attribute.type().name(), attr.defaultValue);
+
+                    }
+                } catch (Exception e) {
+                    Log.warn("\n\nDefault value type for %s : %s, Java type : %s not set, value is %s\n\n\n", attr.attribute.name(), attr.type, attr.attribute.type().name(), attr.defaultValue);
+                    init = null;
+                }
+
+                if (init != null) {
+                    cls().field(mods, attr.attribute.type(), toStaticName(attr.attribute.name() + "_DEFAULT"), init);
+                }
+            }
+        }
     }
 
     private void generateConstructors() {
