@@ -72,6 +72,21 @@
     </feature>
 
     <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <feature version="${project.version}">fabric-maven-proxy</feature>
+
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
+
+        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
+        
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-commands/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
+
         <bundle>mvn:org.fusesource.fabric.fab/fabric-fab-osgi/${project.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>

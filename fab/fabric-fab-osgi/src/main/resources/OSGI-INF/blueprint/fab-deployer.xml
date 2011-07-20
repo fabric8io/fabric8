@@ -65,4 +65,13 @@ set on the SymbolicName osgi header -->
 
   <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener"/>
 
+  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+      <command name="fab/show">
+          <action class="org.fusesource.fabric.fab.osgi.url.internal.ShowCommand"/>
+      </command>
+      <command name="fab/list">
+          <action class="org.fusesource.fabric.fab.osgi.url.internal.ListCommand"/>
+      </command>
+  </command-bundle>
+
 </blueprint>

@@ -21,7 +21,7 @@
   <artifactId>fabric-fab-osgi</artifactId>
   <packaging>bundle</packaging>
 
-  <name>FuseSource Fabric - Bundles</name>
+  <name>${artifactId}</name>
   <description>FuseSource Fabric :: Archive Bundles Core</description>
 
   <properties>
@@ -70,6 +70,10 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.karaf.shell</groupId>
+        <artifactId>org.apache.karaf.shell.console</artifactId>
     </dependency>
 
     <dependency>
