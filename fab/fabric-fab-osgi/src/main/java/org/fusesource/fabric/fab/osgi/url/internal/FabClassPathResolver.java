@@ -9,12 +9,9 @@
 
 package org.fusesource.fabric.fab.osgi.url.internal;
 
+import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.DependencyTreeFilters;
-import org.fusesource.fabric.fab.DependencyTreeResult;
-import org.fusesource.fabric.fab.MavenResolver;
-import org.fusesource.fabric.fab.PomDetails;
+import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.IOHelpers;
@@ -30,19 +27,18 @@ import org.sonatype.aether.RepositoryException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import static org.fusesource.fabric.fab.ModuleDescriptor.*;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism
@@ -53,6 +49,7 @@ public class FabClassPathResolver {
     private final FabConnection connection;
     private final Properties instructions;
     private final Map<String, Object> embeddedResources;
+    private final ModuleRegistry moduleRegistry;
     private final List<String> bundleClassPath = new ArrayList<String>();
     private final List<String> requireBundles = new ArrayList<String>();
     private final List<String> importPackages = new ArrayList<String>();
@@ -67,11 +64,14 @@ public class FabClassPathResolver {
     // don't think there's any need to even look at Import-Packages as BND takes care of it...
     private boolean processImportPackages = false;
     private MavenResolver resolver;
+    private ModuleDescriptor descriptor;
+    private ModuleRegistry.VersionedModule module;
 
     public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
         this.instructions = instructions;
         this.embeddedResources = embeddedResources;
+        this.moduleRegistry = Activator.registry;
         this.resolver = connection.getResolver();
     }
 
@@ -106,12 +106,9 @@ public class FabClassPathResolver {
         }
         addDependencies(rootTree);
 
-        // lets process any extension modules
-        String extensionPropertyName = getManfiestProperty(ServiceConstants.INSTR_FAB_EXTENSION_VARIABLE);
-        if (Strings.notEmpty(extensionPropertyName)) {
-            resolveExtensions(extensionPropertyName, rootTree);
-        }
-
+        // Build a ModuleDescriptor using the Jar Manifests headers..
+        registerModule(pomDetails);
+        resolveExtensions(rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
             if (requireBundleFilter.matches(dependencyTree)) {
@@ -162,6 +159,44 @@ public class FabClassPathResolver {
             installMissingDependencies();
         } else {
             LOG.info("Not installing dependencies as not enabled");
+        }
+    }
+
+    private void registerModule(PomDetails pomDetails) throws IOException, XmlPullParserException {
+        try {
+            Properties moduleProperties = new Properties();
+            for( String key: FAB_MODULE_PROPERTIES) {
+                String value = getManfiestProperty(key);
+                if( Strings.notEmpty(value) ) {
+                    moduleProperties.setProperty(key, value);
+                }
+            }
+            // Enhance with maven pom information
+            Model model = pomDetails.getModel();
+            if( !moduleProperties.containsKey(FAB_MODULE_ID) ) {
+                moduleProperties.setProperty(FAB_MODULE_ID, new VersionedDependencyId(model).toString());
+            }
+            if( !moduleProperties.containsKey(FAB_MODULE_NAME) ) {
+                moduleProperties.setProperty(FAB_MODULE_NAME, model.getArtifactId());
+            }
+            if( !moduleProperties.containsKey(FAB_MODULE_DESCRIPTION) ) {
+                moduleProperties.setProperty(FAB_MODULE_NAME, model.getDescription());
+            }
+            descriptor = ModuleDescriptor.fromProperties(moduleProperties);
+
+            // make sure the descriptor exits.
+            module = moduleRegistry.add(descriptor);
+
+            for (VersionedDependencyId ext : descriptor.getEndorsedExtensions()) {
+                if( moduleRegistry.getVersionedModule(ext) == null ) {
+                    // TODO: Make sure all endorsed extensions are added to the
+                    // module registry too so they their extensions get registered.
+
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to register the fabric module for: "+pomDetails);
+            e.printStackTrace();;
         }
     }
 
@@ -234,17 +269,27 @@ public class FabClassPathResolver {
         return processImportPackages;
     }
 
+    private Manifest manfiest;
+
+    Manifest getManifest() {
+        if( manfiest == null ) {
+            try {
+                manfiest = Manifests.getManfiest(connection.getJarFile());
+            } catch (IOException e) {
+                // TODO: warn
+                manfiest = new Manifest();
+            }
+        }
+        return manfiest;
+    }
+
     protected String getManfiestProperty(String name) {
         String answer = null;
-        try {
-            if (true) {
-                // TODO do some caching!!!
-                answer = Manifests.getManfiestEntry(connection.getJarFile(), name);
-            } else {
-                answer = instructions.getProperty(name, "");
-            }
-        } catch (IOException e) {
-            // TODO warn
+        if (true) {
+            // TODO do some caching!!!
+            answer = getManifest().getMainAttributes().getValue(name);
+        } else {
+            answer = instructions.getProperty(name, "");
         }
         if (answer == null) {
             answer = "";
@@ -253,53 +298,25 @@ public class FabClassPathResolver {
     }
 
 
-    /**
-     * Lets use the given property name to find any extension dependencies to add to this flat class loader
-     */
-    protected void resolveExtensions(String extensionPropertyName, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
-        String value = resolvePropertyName(extensionPropertyName);
-        // TODO dirty hack - how should this really work???
-        if (value == null) {
-            value = System.getProperty(extensionPropertyName);
-        }
-        LOG.info("Fabric resolved extension variable '" + extensionPropertyName + "' to extensions: " + value);
+    protected void resolveExtensions(DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
+        Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
+        for (String enabledExtension : module.getEnabledExtensions()) {
+            ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
+            if( extensionModule!=null ) {
+                VersionedDependencyId id = extensionModule.getId();
 
-        if (Strings.notEmpty(value)) {
-            StringTokenizer iter = new StringTokenizer(value, ",");
-            while (iter.hasMoreElements()) {
-                String text = iter.nextToken().trim();
-                if (Strings.notEmpty(text)) {
-                    String[] values = text.split(":");
-                    String archetypeId;
-                    String groupId = root.getGroupId();
-                    String version = root.getVersion();
-                    String extension = "jar";
-                    String classifier = "";
-                    if (values.length == 1) {
-                        archetypeId = values[0];
-                    } else if (values.length == 2) {
-                        groupId = values[0];
-                        archetypeId = values[1];
-                    } else if (values.length > 2) {
-                        groupId = values[0];
-                        archetypeId = values[1];
-                        version = values[2];
-                    } else {
-                        continue;
-                    }
-
-                    // lets resolve the dependency
-                    DependencyTreeResult result = resolver.collectDependencies(groupId, archetypeId, version, extension, classifier);
-                    if (result != null) {
-                        DependencyTree tree = result.getTree();
-                        LOG.debug("Adding extensions: " + tree);
-                        addExtensionDependencies(tree);
-                    }
-
+                // lets resolve the dependency
+                DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
+                if (result != null) {
+                    DependencyTree tree = result.getTree();
+                    LOG.debug("Adding extensions: " + tree);
+                    addExtensionDependencies(tree);
+                } else {
+                    LOG.debug("Could not resolve extension: " + id);
                 }
-
             }
         }
+
     }
 
     protected String resolvePropertyName(String extensionPropertyName) {

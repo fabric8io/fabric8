@@ -20,24 +20,25 @@ public class Manifests {
     /**
      * Returns the entry from the manifest for the given name
      */
-    public static String getManfiestEntry(File file, String attributeName) {
-        String answer = null;
-        try {
-            JarFile jar = new JarFile(file);
-            try {
-                // only handle non OSGi jar
-                Manifest manifest = jar.getManifest();
-                if (manifest != null) {
-                    answer = manifest.getMainAttributes().getValue(attributeName);
-                }
-            } finally {
-                jar.close();
-            }
-        } catch (IOException e) {
-            // TODO warn...
+    public static String getManfiestEntry(File file, String attributeName) throws IOException {
+        Manifest manifest = getManfiest(file);
+        if (manifest != null) {
+            return manifest.getMainAttributes().getValue(attributeName);
         }
-        return answer;
+        return null;
     }
 
+    /**
+     * Returns the entry from the manifest for the given name
+     */
+    public static Manifest getManfiest(File file) throws IOException {
+        JarFile jar = new JarFile(file);
+        try {
+            // only handle non OSGi jar
+            return jar.getManifest();
+        } finally {
+            jar.close();
+        }
+    }
 
 }

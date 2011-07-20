@@ -12,6 +12,10 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.ops4j.pax.url.commons.handler.HandlerActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
+
+import java.io.File;
 
 /**
  * Activator for the fab protocol
@@ -20,6 +24,7 @@ public class Activator extends HandlerActivator<Configuration> {
     private static Activator instance;
 
     private BundleContext bundleContext;
+    public static OsgiModuleRegistry registry = new OsgiModuleRegistry();
 
     public static Activator getInstance() {
         return instance;
@@ -41,6 +46,15 @@ public class Activator extends HandlerActivator<Configuration> {
     @Override
     public void start(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+
+        ServiceReference serviceReference = bundleContext.getServiceReference("org.osgi.service.cm.ConfigurationAdmin");
+        ConfigurationAdmin configurationAdmin = (ConfigurationAdmin)bundleContext.getService(serviceReference);
+
+        registry.setDirectory(new File("./fab-module-registry"));
+        registry.setConfigurationAdmin(configurationAdmin);
+        registry.setPid("org.fusesource.fabric.fab.osgi.registry");
+        registry.load();
+
         super.start(bundleContext);
     }
 

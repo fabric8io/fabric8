@@ -32,6 +32,22 @@ public class Strings {
         return text != null && text.length() > 0;
     }
 
+    public  static String nullIfEmpty(String value) {
+        if( value == null || value.length()==0 ) {
+            return null;
+        } else {
+            return value;
+        }
+    }
+
+    public  static String emptyIfNull(String value) {
+        if( value == null ) {
+            return "";
+        } else {
+            return value;
+        }
+    }
+
     /**
      * splits a string into a list of strings, ignoring the empty string
      */
@@ -39,6 +55,22 @@ public class Strings {
         List<String> answer = new ArrayList<String>();
         if (text != null && text.length() > 0) {
             answer.addAll(Arrays.asList(text.split(delimiter)));
+        }
+        return answer;
+    }
+
+    /**
+     * splits a string into a list of strings.  Trims the results and ignores empty strings
+     */
+    public static List<String> splitAndTrimAsList(String text, String sep) {
+        ArrayList<String> answer = new ArrayList<String>();
+        if( text!=null && text.length()>0 ) {
+            for( String v : text.split(sep) ) {
+                String trim = v.trim();
+                if( trim.length() > 0 ) {
+                    answer.add(trim);
+                }
+            }
         }
         return answer;
     }
@@ -60,4 +92,5 @@ public class Strings {
         }
         return buffer.toString();
     }
+
 }
