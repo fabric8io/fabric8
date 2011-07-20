@@ -16,10 +16,7 @@
 
   <properties>
     <c24.test.version>4.0.1</c24.test.version>
-    <c24.version>4.0.0-SNAPSHOT</c24.version>
-<!--
-<c24.version>4.0.0-20110524.150749-8</c24.version>
--->
+    <c24.version>4.0.0</c24.version>
   </properties>
 
   <dependencies>
@@ -56,6 +53,12 @@
       <groupId>biz.c24.io.test</groupId>
       <artifactId>test-transactions</artifactId>
       <version>${c24.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>2.9.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -132,7 +135,7 @@
       <name>C24IO Public Repository</name>
       <url>http://repo.c24io.net:8081/nexus/content/groups/C24</url>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
       <releases>
         <enabled>true</enabled>
