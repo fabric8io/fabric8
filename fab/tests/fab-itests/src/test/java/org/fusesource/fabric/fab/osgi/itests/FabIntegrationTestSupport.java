@@ -100,4 +100,12 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
         //Helper.findMaven(options, "org.apache.karaf.shell", "org.apache.karaf.shell.log").noStart();
         return options;
     }
+
+    protected void doInstallFabricBundle(String artifactId) throws Exception {
+        commandSession.execute("osgi:install fab:mvn:org.fusesource.fabric.fab.tests/" + artifactId);
+
+        Thread.sleep(1000);
+
+        assertStartBundle("org.fusesource.fabric.fab.tests." + artifactId);
+    }
 }

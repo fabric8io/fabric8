@@ -8,11 +8,7 @@ public class FabCamelVelocityNonSharedTest extends FabIntegrationTestSupport {
 
     @Override
     protected void doInstallFabricBundles() throws Exception {
-        commandSession.execute("osgi:install fab:mvn:org.fusesource.fabric.fab.tests/fab-sample-camel-velocity-noshare");
-
-        Thread.sleep(1000);
-
-        assertStartBundle("org.fusesource.fabric.fab.tests.fab-sample-camel-velocity-noshare");
+        doInstallFabricBundle("fab-sample-camel-velocity-noshare");
     }
 
 

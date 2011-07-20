@@ -4,14 +4,12 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 @RunWith(JUnit4TestRunner.class)
-public class FabCamelBlueprintSharedTest extends FabIntegrationTestSupport {
+public class FabCamelVelocityRequireBundleTest extends FabIntegrationTestSupport {
 
     @Override
     protected void doInstallFabricBundles() throws Exception {
-        doInstallFabricBundle("fab-sample-camel-blueprint-share");
+        doInstallFabricBundle("fab-sample-camel-velocity-require-bundle");
     }
-
-
 
 
 }
