@@ -10,6 +10,7 @@
 package org.fusesource.fabric.fab.osgi.url;
 
 import org.fusesource.fabric.fab.Constants;
+import static org.fusesource.fabric.fab.ModuleDescriptor.*;
 
 /**
  * Constants for the FAB URL handler
@@ -75,11 +76,20 @@ public interface ServiceConstants extends Constants {
     /**
      * All the possible FAB headers on a manfiest, used to detect a FAB
      */
-    static final String[] FAB_PROPERTY_NAMES = {INSTR_FAB_BUNDLE,
+    static final String[] FAB_PROPERTY_NAMES = {
+            INSTR_FAB_BUNDLE,
             INSTR_FAB_PROVIDED_DEPENDENCY,
             INSTR_FAB_EXCLUDE_DEPENDENCY,
             INSTR_FAB_OPTIONAL_DEPENDENCY,
             INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE,
+            FAB_MODULE_ID,
+            FAB_MODULE_NAME,
+            FAB_MODULE_EXTENSION,
+            FAB_MODULE_DESCRIPTION,
+            FAB_MODULE_LONG_DESCRIPTION,
+            FAB_MODULE_DEFAULT_EXTENSIONS,
+            FAB_MODULE_EXTENDS,
+            FAB_MODULE_ENDORSED_EXTENSIONS
     };
 
 

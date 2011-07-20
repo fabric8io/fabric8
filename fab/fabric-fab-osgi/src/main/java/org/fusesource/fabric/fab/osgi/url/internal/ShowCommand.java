@@ -14,10 +14,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.fab.ModuleRegistry;
 import static org.fusesource.fabric.fab.util.Strings.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 @Command(name = "list", scope = "fab", description = "Display details about a module.")
 public class ShowCommand extends FabCommand {
@@ -56,26 +53,31 @@ public class ShowCommand extends FabCommand {
                     }
                 }
 
-                println("Name    : %s", selected.getName());
-                println("Version : %s", selected.getId().getVersion());
+                println("%15s: %s", "Name", selected.getName());
+                println("%15s: %s", "Version", selected.getId());
+                println("%15s: %s", "Artifact Id", selected.getId());
+
                 versions.remove(selected.getId().getVersion());
                 if( !versions.isEmpty() ) {
-                println("  Available: %s", join(versions, ", "));
+                    println("%20s: %s", "Available", join(versions, ", "));
                 }
 
-                println("Description    : %s", notEmpty(selected.getLongDescription()) ? selected.getLongDescription() : selected.getDescription());
+                String desc = notEmpty(selected.getLongDescription()) ? selected.getLongDescription() : selected.getDescription();
+                String lines[] = wordWrap(desc, 60);
+                println("%15s: %s", "Description", lines[0]);
+                for( int i=1; i < lines.length; i++ ) {
+                    println("%15s  %s", "", lines[i]);
+                }
+
                 Map<String,ModuleRegistry.VersionedModule> extensions = selected.getAvailableExtensions();
                 if( extensions.size() > 0 ) {
-                    println("Extensions");
-                    println("  Default: %s", join(selected.getDefaultExtensions(), ", "));
-                    println("  Enabled: %s", join(selected.getEnabledExtensions(), ", "));
-                    println("  Available: %s\t%s\t%s", "Name",  "Version", "Description");
-                    println("             %s\t%s\t%s", "Name",  "Version", "Description");
+                    HashSet enabled = new HashSet<String>(selected.getEnabledExtensions());
+                    println("Extensions:");
+                    println("  * %-20s\t%-10s\t%-40s", "Name",  "Version", "Description");
+
                     for (Map.Entry<String, ModuleRegistry.VersionedModule> entry : extensions.entrySet()) {
                         ModuleRegistry.VersionedModule extension = entry.getValue();
-                        if( name!=null && name.equals(extension.getName()) ) {
-                            println("            %s\t%s\t%s", extension.getName(), extension.getId().getVersion(), extension.getDescription());
-                        }
+                        println("  %s %-20s\t%-10s\t%-40s", enabled.contains(extension.getName()) ? "+" : "-", extension.getName(), extension.getId().getVersion(), extension.getDescription());
                     }
                 }
 
@@ -83,6 +85,29 @@ public class ShowCommand extends FabCommand {
         }
 
         return null;
+    }
+
+    private String[] wordWrap(String desc, int max) {
+        ArrayList<String> lines = new ArrayList<String>();
+        LinkedList<String> words = new LinkedList<String>(Arrays.asList(desc.split("\\s+")));
+        String current="";
+        while(!words.isEmpty()) {
+            String word = words.getFirst();
+            if( current.length()==0 || (current.length() + word.length()) < max ) {
+                if( current.length()!=0 ){
+                    current += " ";
+                }
+                current += word;
+                words.removeFirst();
+            } else {
+                lines.add(current);
+                current = "";
+            }
+        }
+        if( current.length()!=0 ) {
+            lines.add(current);
+        }
+        return lines.toArray(new String[lines.size()]);
     }
 
 

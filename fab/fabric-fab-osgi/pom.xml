@@ -26,7 +26,7 @@
 
   <properties>
     <fabric.osgi.activator>org.fusesource.fabric.fab.osgi.url.internal.Activator</fabric.osgi.activator>
-    <fabric.embed.dependency>*;scope=compile|runtime</fabric.embed.dependency>
+    <fabric.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fabric.embed.dependency>
 
     <fabric.osgi.import.defaults>
     </fabric.osgi.import.defaults>

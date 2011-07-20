@@ -46,11 +46,11 @@ public class ListCommand extends FabCommand {
         OsgiModuleRegistry registry = Activator.registry;
         List<ModuleRegistry.Module> modules = registry.getApplicationModules();
 
-        println("%s\t%s\t%s", "Name",  "Version", "Description");
+        println("%-20s\t%-10s\t%-40s", "Name",  "Version", "Description");
         for (ModuleRegistry.Module module : modules) {
             ModuleRegistry.VersionedModule latest = module.latest();
-            if( name!=null && name.equals(module.getName()) ) {
-                println("%s\t%s\t%s", module.getName(), latest.getId().getVersion(), latest.getDescription());
+            if( name==null || name.equals(module.getName()) ) {
+                println("%-20s\t%-10s\t%-40s", module.getName(), latest.getId().getVersion(), latest.getDescription());
             }
         }
 
