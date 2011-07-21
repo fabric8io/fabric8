@@ -184,7 +184,7 @@ public class FabClassPathResolver {
                 moduleProperties.setProperty(FAB_MODULE_NAME, model.getArtifactId());
             }
             if( !moduleProperties.containsKey(FAB_MODULE_DESCRIPTION) ) {
-                moduleProperties.setProperty(FAB_MODULE_NAME, model.getDescription());
+                moduleProperties.setProperty(FAB_MODULE_DESCRIPTION, model.getDescription());
             }
 
             ModuleDescriptor descriptor = ModuleDescriptor.fromProperties(moduleProperties);
