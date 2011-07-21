@@ -77,6 +77,27 @@
           </archive>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.fusesource.mvnplugins</groupId>
+        <artifactId>maven-fab-plugin</artifactId>
+        <version>1.16-SNAPSHOT</version>
+        <configuration>
+          <descriptor>
+            <Long-Description></Long-Description>
+            <!-- <Endorsed-Extensions>
+              ${project.groupId}:artifact:${project.version}
+            </Endorsed-Extensions>
+            <Default-Extensions>name</Default-Extensions> -->
+          </descriptor>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
