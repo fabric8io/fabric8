@@ -186,18 +186,13 @@ public class FabClassPathResolver {
             if( !moduleProperties.containsKey(FAB_MODULE_DESCRIPTION) ) {
                 moduleProperties.setProperty(FAB_MODULE_NAME, model.getDescription());
             }
+
             ModuleDescriptor descriptor = ModuleDescriptor.fromProperties(moduleProperties);
+            moduleRegistry.add(descriptor);
 
-            for (VersionedDependencyId ext : descriptor.getEndorsedExtensions()) {
-                if( moduleRegistry.getVersionedModule(ext) == null ) {
-                    // TODO: Make sure all endorsed extensions are added to the
-                    // module registry too so they their extensions get registered.
-
-                }
-            }
         } catch (Exception e) {
             System.err.println("Failed to register the fabric module for: "+moduleId);
-            e.printStackTrace();;
+            e.printStackTrace();
         }
     }
 
@@ -301,30 +296,32 @@ public class FabClassPathResolver {
 
     protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
-        Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
-        String extensionsString="";
-        for (String enabledExtension : module.getEnabledExtensions()) {
-            ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
-            if( extensionModule!=null ) {
-                VersionedDependencyId id = extensionModule.getId();
+        if( module!=null ) {
+            Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
+            String extensionsString="";
+            for (String enabledExtension : module.getEnabledExtensions()) {
+                ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
+                if( extensionModule!=null ) {
+                    VersionedDependencyId id = extensionModule.getId();
 
-                // lets resolve the dependency
-                DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
-                if (result != null) {
-                    DependencyTree tree = result.getTree();
-                    LOG.debug("Adding extensions: " + tree);
-                    if( extensionsString.length()!=0 ) {
-                        extensionsString += " ";
+                    // lets resolve the dependency
+                    DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
+                    if (result != null) {
+                        DependencyTree tree = result.getTree();
+                        LOG.debug("Adding extensions: " + tree);
+                        if( extensionsString.length()!=0 ) {
+                            extensionsString += " ";
+                        }
+                        extensionsString += id;
+                        addExtensionDependencies(tree);
+                    } else {
+                        LOG.debug("Could not resolve extension: " + id);
                     }
-                    extensionsString += id;
-                    addExtensionDependencies(tree);
-                } else {
-                    LOG.debug("Could not resolve extension: " + id);
                 }
             }
-        }
-        if( extensionsString.length()!= 0 ) {
-            instructions.put(ServiceConstants.INSTR_FAB_MODULE_ENABLED_EXTENSIONS, extensionsString);
+            if( extensionsString.length()!= 0 ) {
+                instructions.put(ServiceConstants.INSTR_FAB_MODULE_ENABLED_EXTENSIONS, extensionsString);
+            }
         }
     }
 
