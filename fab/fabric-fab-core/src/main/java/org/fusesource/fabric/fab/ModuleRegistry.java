@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.fab;
 
+import com.sun.tools.javac.util.Log;
+
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarInputStream;
@@ -248,23 +250,27 @@ public class ModuleRegistry {
         }
     }
 
+    public void loadDirectory(File directory, PrintStream err) {
+        loadDirectory(directory, err, false);
+    }
+
     /**
      * recursively scan a directory of ".fmd" files to add
      * a fabric module descriptors to the repository.
      *
      * @param directory
      */
-    public void loadDirectory(File directory, PrintStream err) {
+    public void loadDirectory(File directory, PrintStream err, boolean local) {
         for(File f : directory.listFiles() ) {
             if( f.isDirectory() ) {
-                loadDirectory(f, err);
+                loadDirectory(f, err, local);
             } else {
                 // load the fab module descriptors
                 if( f.getName().endsWith(".fmd") ) {
                     try {
                         FileInputStream is = new FileInputStream(f);
                         try {
-                            load(f, is);
+                            load(local ? f : null, is);
                         } finally {
                             is.close();
                         }

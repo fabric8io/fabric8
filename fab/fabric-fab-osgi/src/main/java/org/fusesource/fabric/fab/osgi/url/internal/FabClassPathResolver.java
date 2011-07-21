@@ -106,8 +106,11 @@ public class FabClassPathResolver {
         addDependencies(rootTree);
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
-//        registerModule(pomDetails);
         Model model = pomDetails.getModel();
+        ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
+        if( module==null || module.getFile()!=null ) {
+            registerModule(model);
+        }
         moduleId = new VersionedDependencyId(model);
         resolveExtensions(model, rootTree);
 

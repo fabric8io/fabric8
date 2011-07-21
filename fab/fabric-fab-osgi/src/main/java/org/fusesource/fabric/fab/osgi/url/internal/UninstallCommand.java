@@ -10,31 +10,42 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.fab.ModuleRegistry;
+import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.util.Strings;
+import org.osgi.framework.Bundle;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
-@Command(name = "search", scope = "fab", description = "Search for all the available modules")
+@Command(name = "uninstall", scope = "fab", description = "Uninstall a module")
 public class UninstallCommand extends FabCommand {
 
-    @Argument(index = 0, required = false, description = "Name of the module to list")
+    @Argument(index = 0, required = true, description = "Name of the module to uninstall")
     private String name;
+
+    @Option(name = "--version", description = "Version to uninstall")
+    private String version;
 
     @Override
     protected Object doExecute() throws Exception {
         OsgiModuleRegistry registry = Activator.registry;
         List<ModuleRegistry.Module> modules = registry.getApplicationModules();
+        Map<VersionedDependencyId, Bundle> installed = registry.getInstalled();
 
-
-        Table table = new Table("{1} | {2} | {3}", -20, -10, -40);
-        table.add("Name", "Version", "Description");
         for (ModuleRegistry.Module module : modules) {
-            ModuleRegistry.VersionedModule latest = module.latest();
-            if( name==null || module.getName().indexOf(name) >=0 ) {
-                table.add(module.getName(), latest.getId().getVersion(), latest.getDescription());
+            HashSet<VersionedDependencyId> s = new HashSet<VersionedDependencyId>(module.getVersionIds());
+            s.retainAll(installed.keySet());
+            if( !s.isEmpty() &&  module.getName().equals(name) ) {
+                for (VersionedDependencyId dependencyId : s) {
+                    if( version==null || version.equals(dependencyId.getVersion()) ) {
+                        installed.get(dependencyId).uninstall();
+                    }
+                }
             }
         }
-        table.print(session.getConsole());
 
         return null;
     }

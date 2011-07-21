@@ -127,7 +127,7 @@ public class OsgiModuleRegistry extends ModuleRegistry {
     public void update(PrintStream err, boolean download) {
         clear();
         getLocalIndexDir().mkdirs();
-        loadDirectory(getLocalIndexDir(), err);
+        loadDirectory(getLocalIndexDir(), err, true);
 
         for (Map.Entry<String, URL> entry: repos.entrySet()){
             String name = entry.getKey();
