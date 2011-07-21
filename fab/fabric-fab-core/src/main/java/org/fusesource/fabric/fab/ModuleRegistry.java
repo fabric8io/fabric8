@@ -136,6 +136,9 @@ public class ModuleRegistry {
                 return Collections.unmodifiableList(rc);
             }
         }
+        public void setEnabledExtensions(List<String> extensions) {
+            ModuleRegistry.this.setEnabledExtensions(descriptor.getId(), extensions);
+        }
 
         public List<String> getDefaultExtensions() {
             return Collections.unmodifiableList(descriptor.getDefaultExtensions());
@@ -160,6 +163,7 @@ public class ModuleRegistry {
         public boolean isExtensionModule() {
             return descriptor.isExtensionModule();
         }
+
     }
 
     public class Module {
@@ -188,9 +192,10 @@ public class ModuleRegistry {
             }
         }
 
-        public List<VersionedModule> getVersions() {
-            return new ArrayList<VersionedModule>(versions.values());
+        public Map<String, VersionedModule> getVersions() {
+            return Collections.unmodifiableMap(versions);
         }
+
         public List<VersionedDependencyId> getVersionIds() {
             ArrayList<VersionedDependencyId> rc = new ArrayList<VersionedDependencyId>(versions.size());
             for (VersionedModule module : versions.values()) {

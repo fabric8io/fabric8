@@ -17,15 +17,18 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.fusesource.fabric.fab.util.Strings.join;
 
 @Command(name = "install", scope = "fab", description = "Install a module")
 public class InstallCommand extends FabCommand {
 
     @Argument(index = 0, required = true, description = "Name of the module to install")
     private String name;
+
+    @Argument(index = 1, required = false, description = "Extensions to enable or disable", multiValued = true)
+    private String extensions[] = new String[]{};
 
     @Option(name = "--version", description = "Version to install")
     private String version;
@@ -47,8 +50,39 @@ public class InstallCommand extends FabCommand {
                     throw new Exception("The module is already installed");
                 }
 
-                VersionedDependencyId id = module.latest().getId();
+                ModuleRegistry.VersionedModule versionedModule = null;
+                if( version!=null ) {
+                    versionedModule = module.getVersions().get(version);
+                    if( versionedModule ==null ) {
+                        throw new Exception("Invalid version: "+version);
+                    }
+                } else {
+                    versionedModule = module.latest();
+                }
+
+                VersionedDependencyId id = versionedModule.getId();
                 String v = version!=null ? version : id.getVersion();
+
+                List<String> extensionAdjustments = Arrays.asList(extensions);
+                if( !extensionAdjustments.isEmpty() ) {
+                    List<String> enabled = new ArrayList<String>(versionedModule.getDefaultExtensions());
+                    for (String adjustment : extensionAdjustments) {
+                        if( adjustment.startsWith("+") ) {
+                            String name = adjustment.substring(1);
+                            enabled.add(name);
+                        } else if( adjustment.startsWith("-") ) {
+                            String name = adjustment.substring(1);
+                            enabled.remove(name);
+                        } else {
+                            throw new IllegalArgumentException("Expected extension argument '"+adjustment+"' to be prefixed with '+' or '-'");
+                        }
+                    }
+                    versionedModule.setEnabledExtensions(enabled);
+                    if( !enabled.isEmpty() ) {
+                        println("Enabling extensions: "+join(enabled, ", "));
+                    }
+                }
+                //
 
                 String url = "fab:mvn:"+id.getGroupId()+"/"+id.getArtifactId()+"/"+v+"/"+id.getExtension()+
                         (id.getClassifier()==null ? "" : "/"+id.getClassifier());

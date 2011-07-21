@@ -107,11 +107,11 @@ public class FabClassPathResolver {
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
         Model model = pomDetails.getModel();
+        moduleId = new VersionedDependencyId(model);
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
         if( module==null || module.getFile()!=null ) {
             registerModule(model);
         }
-        moduleId = new VersionedDependencyId(model);
         resolveExtensions(model, rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
@@ -314,7 +314,7 @@ public class FabClassPathResolver {
                     DependencyTree tree = result.getTree();
                     LOG.debug("Adding extensions: " + tree);
                     if( extensionsString.length()!=0 ) {
-                        extensionsString += ",";
+                        extensionsString += " ";
                     }
                     extensionsString += id;
                     addExtensionDependencies(tree);
