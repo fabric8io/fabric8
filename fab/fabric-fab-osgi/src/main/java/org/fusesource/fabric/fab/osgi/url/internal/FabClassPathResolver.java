@@ -299,6 +299,7 @@ public class FabClassPathResolver {
     protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
         Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
+        String extensionsString="";
         for (String enabledExtension : module.getEnabledExtensions()) {
             ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
             if( extensionModule!=null ) {
@@ -309,13 +310,19 @@ public class FabClassPathResolver {
                 if (result != null) {
                     DependencyTree tree = result.getTree();
                     LOG.debug("Adding extensions: " + tree);
+                    if( extensionsString.length()!=0 ) {
+                        extensionsString += ",";
+                    }
+                    extensionsString += id;
                     addExtensionDependencies(tree);
                 } else {
                     LOG.debug("Could not resolve extension: " + id);
                 }
             }
         }
-
+        if( extensionsString.length()!= 0 ) {
+            instructions.put(ServiceConstants.INSTR_FAB_MODULE_ENABLED_EXTENSIONS, extensionsString);
+        }
     }
 
     protected String resolvePropertyName(String extensionPropertyName) {

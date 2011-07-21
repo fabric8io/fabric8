@@ -78,6 +78,12 @@ set on the SymbolicName osgi header -->
     <command name="fab/update">
         <action class="org.fusesource.fabric.fab.osgi.url.internal.UpdateCommand"/>
     </command>
+    <command name="fab/install">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.InstallCommand"/>
+    </command>
+    <command name="fab/uninstall">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.UninstallCommand"/>
+    </command>
   </command-bundle>
 
 </blueprint>
