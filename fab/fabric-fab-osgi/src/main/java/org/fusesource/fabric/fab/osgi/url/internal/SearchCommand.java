@@ -14,8 +14,8 @@ import org.fusesource.fabric.fab.ModuleRegistry;
 
 import java.util.List;
 
-@Command(name = "list", scope = "fab", description = "List the installed modules")
-public class ListCommand extends FabCommand {
+@Command(name = "search", scope = "fab", description = "Search for all the available modules")
+public class SearchCommand extends FabCommand {
 
     @Argument(index = 0, required = false, description = "Name of the module to list")
     private String name;
@@ -28,7 +28,7 @@ public class ListCommand extends FabCommand {
         println("%-20s\t%-10s\t%-40s", "Name",  "Version", "Description");
         for (ModuleRegistry.Module module : modules) {
             ModuleRegistry.VersionedModule latest = module.latest();
-            if( module.isInstalled() && (name==null || module.getName().indexOf(name) >=0) ) {
+            if( name==null || module.getName().indexOf(name) >=0 ) {
                 println("%-20s\t%-10s\t%-40s", module.getName(), latest.getId().getVersion(), latest.getDescription());
             }
         }

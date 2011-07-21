@@ -16,6 +16,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.File;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Activator for the fab protocol
@@ -50,7 +52,8 @@ public class Activator extends HandlerActivator<Configuration> {
         ServiceReference serviceReference = bundleContext.getServiceReference("org.osgi.service.cm.ConfigurationAdmin");
         ConfigurationAdmin configurationAdmin = (ConfigurationAdmin)bundleContext.getService(serviceReference);
 
-        registry.setDirectory(new File("./fab-module-registry"));
+        File data = new File(System.getProperty("karaf.data", "."));
+        registry.setDirectory(new File(data, "fab-module-registry"));
         registry.setConfigurationAdmin(configurationAdmin);
         registry.setPid("org.fusesource.fabric.fab.osgi.registry");
         registry.load();

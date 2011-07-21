@@ -24,45 +24,50 @@ public class ModuleDescriptor {
      * The groupId:artifactId:version[:extension[:classifier]] of this module.  This will automatically
      * be set by the deployer.
      */
-    public static final String FAB_MODULE_ID = "Fabric-Id";
+    public static final String FAB_MODULE_ID = "Id";
 
     /**
      * The short name to identify the module in a ui.  (It should not contain a space).
      */
-    public static final String FAB_MODULE_NAME = "Fabric-Name";
+    public static final String FAB_MODULE_NAME = "Name";
     /**
      * A short one line description of the module.  Used in UI's when multiple
      * modules are listed.
      */
-    public static final String FAB_MODULE_DESCRIPTION = "Fabric-Description";
+    public static final String FAB_MODULE_DESCRIPTION = "Description";
     /**
      * A long detailed description of the module.
      */
-    public static final String FAB_MODULE_LONG_DESCRIPTION = "Fabric-Long-Description";
+    public static final String FAB_MODULE_LONG_DESCRIPTION = "Long-Description";
 
     /**
      * Set this to true, if this is purely an Extension module.  It should not get deployed
      * on it's own.
      */
-    public static final String FAB_MODULE_EXTENSION = "Fabric-Extension";
+    public static final String FAB_MODULE_EXTENSION = "Extension";
 
     /**
      * The name of the configuration property used to define the the FAB modules which this FAB extends.
      * Set this to space separated list of the groupId:artifactId:version[:extension[:classifier]] of the module it extends.
      */
-    public static final String FAB_MODULE_EXTENDS = "Fabric-Extends";
+    public static final String FAB_MODULE_EXTENDS = "Extends";
 
     /**
      * The Extensions to this module which this module's vendor is aware of and recommends.
      * Set this to space separated list of the groupId:artifactId:version[:extension[:classifier]] of the modules it endorses.
      */
-    public static final String FAB_MODULE_ENDORSED_EXTENSIONS = "Fabric-Endorsed-Extensions";
+    public static final String FAB_MODULE_ENDORSED_EXTENSIONS = "Endorsed-Extensions";
 
     /**
      * A space separated list of extension names which should automatically be enabled when
      * this module is activated.
      */
-    public static final String FAB_MODULE_DEFAULT_EXTENSIONS = "Fabric-Default-Extensions";
+    public static final String FAB_MODULE_DEFAULT_EXTENSIONS = "Default-Extensions";
+
+    /**
+     * The expected SHA1 of the artifact.
+     */
+    public static final String  FAB_MODULE_SHA1 = "SHA1";
 
     public static final String FAB_MODULE_PROPERTIES[] = new String[]{
         FAB_MODULE_ID,

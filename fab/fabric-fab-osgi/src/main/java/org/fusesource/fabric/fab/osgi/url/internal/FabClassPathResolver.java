@@ -166,7 +166,7 @@ public class FabClassPathResolver {
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
-                String value = getManfiestProperty(key);
+                String value = getManfiestProperty("Fabric-"+key);
                 if( Strings.notEmpty(value) ) {
                     moduleProperties.setProperty(key, value);
                 }

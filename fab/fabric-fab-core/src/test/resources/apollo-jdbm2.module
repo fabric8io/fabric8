@@ -1,7 +1,0 @@
-#
-Fabric-Id=org.apache.activemq:apollo-jdbm2:1.0-SNAPSHOT
-Fabric-Name=apollo-jdbm2
-Fabric-Description=JDBM2 based message storage
-Fabric-Long-Description=
-Fabric-Extension=true
-Fabric-Extends=org.apache.activemq:apollo-broker:1.0-SNAPSHOT

@@ -6,15 +6,13 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 import org.fusesource.fabric.fab.ModuleDescriptor;
 import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.VersionedDependencyId;
-import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.*;
+
 import static org.fusesource.fabric.fab.util.Strings.*;
 /**
  * <p>
@@ -56,6 +54,99 @@ public class OsgiModuleRegistry extends ModuleRegistry {
         this.pid = pid;
     }
 
+    public File getLocalIndexDir() {
+        return new File(directory, "local");
+    }
+
+    HashMap<String, URL> repos = new HashMap<String, URL>();
+
+    public void load() {
+        try {
+            Dictionary config = getConfig();
+            while (config.elements().hasMoreElements()) {
+                String key = (String) config.elements().nextElement();
+                if( key.startsWith("repo.") ) {
+                    String name = key.substring("repo.".length());
+                    String value = (String) config.get(key);
+                    repos.put(name, new URL(value));
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        update(System.err);
+    }
+
+    private static long copy(InputStream in, OutputStream out) throws IOException {
+      long rc = 0;
+      byte[] buffer = new byte[8192];
+      int bytes = in.read(buffer);
+      while (bytes >= 0) {
+        out.write(buffer, 0, bytes);
+        rc += bytes;
+        bytes = in.read(buffer);
+      }
+      return rc;
+    }
+
+    /**
+     * Updates the repo sources.
+     *
+     * @param err
+     */
+    public void update(PrintStream err) {
+        clear();
+        getLocalIndexDir().mkdirs();
+        loadDirectory(getLocalIndexDir(), err);
+
+        Set<Map.Entry<String, URL>> entries = repos.entrySet();
+        for (Map.Entry<String, URL> entry: entries){
+            String name = entry.getKey();
+            URL url = entry.getValue();
+
+            File file = new File(directory, "repo-"+name + ".zip");
+
+            if( "file".equals(url.getProtocol()) ) {
+                file = new File(url.getFile());
+            } else {
+                err.println("Downloading: "+url);
+                try {
+                    InputStream is = url.openStream();
+                    try {
+                        FileOutputStream os = new FileOutputStream(file);
+                        try {
+                            copy(is, os);
+                        } finally {
+                          os.close();
+                        }
+
+                    } finally{
+                        is.close();
+                    }
+                } catch (IOException e) {
+                    if( err!=null ) {
+                        err.println(String.format("Error occurred while downloading '%s'.  Error: %s", url, e));
+                    }
+                }
+            }
+
+            if( file.isDirectory() ) {
+                loadDirectory(file, err);
+            } else {
+                try {
+                    loadJar(file);
+                } catch (IOException e) {
+                    if( err!=null ) {
+                        err.println(String.format("Error occurred while loading repo '%s'.  Error: %s", name, e));
+                    }
+                }
+            }
+
+        }
+
+    }
+
     /**
      * Store extension configuration in the config admin.
      *
@@ -65,15 +156,8 @@ public class OsgiModuleRegistry extends ModuleRegistry {
     @Override
     protected List<String> getEnabledExtensions(VersionedDependencyId id) {
         try {
-            Configuration configuration = configurationAdmin.getConfiguration(pid);
-            Dictionary props = configuration.getProperties();
-            if( props == null ) {
-                return null;
-            }
-            String value = (String) props.get(id.toString());
-            if( value==null ) {
-                return null;
-            }
+            String value = getConfigProperty("extensions."+id);
+            if (value == null) return null;
             return splitAndTrimAsList(value, " ");
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,55 +173,52 @@ public class OsgiModuleRegistry extends ModuleRegistry {
      */
     @Override
     protected void setEnabledExtensions(VersionedDependencyId id, List<String> values) {
+        setConfigProperty("extensions."+id.toString(), join(values, " "));
+    }
+
+    private String getConfigProperty(String key) throws IOException {
+        Configuration configuration = configurationAdmin.getConfiguration(pid);
+        Dictionary props = configuration.getProperties();
+        if( props == null ) {
+            return null;
+        }
+        String value = (String) props.get(key);
+        if( value==null ) {
+            return null;
+        }
+        return value;
+    }
+
+    private Dictionary getConfig() throws IOException {
+        Configuration configuration = configurationAdmin.getConfiguration(pid);
+        Dictionary props = configuration.getProperties();
+        if( props == null ) {
+            return new Hashtable();
+        }
+        return props;
+    }
+
+    protected void setConfigProperty(String key, String value) {
         try {
             Configuration configuration = configurationAdmin.getConfiguration(pid);
             Dictionary props = configuration.getProperties();
             if( props==null ) {
                 props = new Hashtable();
             }
-            props.put(id.toString(), join(values, " "));
+            props.put(key, value);
             configuration.update(props);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void load() {
-        directory.mkdirs();
-        load(directory);
-    }
-
-    private void load(File directory) {
-        for(File f : directory.listFiles() ) {
-            if( f.isDirectory() ) {
-                load(f);
-            } else {
-                // load the fab module descriptors
-                if( f.getName().endsWith(".fmd") ) {
-                    try {
-                        FileInputStream is = new FileInputStream(f);
-                        try {
-                            Properties properties = new Properties();
-                            properties.load(is);
-                            add(ModuleDescriptor.fromProperties(properties), f);
-
-                        } finally {
-                            is.close();
-                        }
-                    } catch (IOException e) {
-                        System.err.println("Error loading fab module descriptor '"+f+"': "+e);
-                    }
-                }
-            }
-        }
-    }
 
     @Override
     public VersionedModule add(ModuleDescriptor descriptor) {
         try {
             // Store the module descriptor in a file..
             String path = descriptor.getId().getRepositoryPath()+".fmd";
-            File file = new File(directory, path);
+            File file = new File(getLocalIndexDir(), path);
             file.getParentFile().mkdirs();
             Properties props = descriptor.toProperties();
             FileOutputStream os = new FileOutputStream(file);
@@ -156,8 +237,9 @@ public class OsgiModuleRegistry extends ModuleRegistry {
 
     @Override
     public VersionedModule remove(VersionedDependencyId id) {
-        VersionedModule rc = super.remove(id);
-        if( rc!=null ) {
+        VersionedModule rc = getVersionedModule(id);
+        if( rc!=null && rc.getFile()!=null ) {
+            rc = super.remove(id);
             rc.getFile().delete();
         }
         return rc;

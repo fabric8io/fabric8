@@ -82,14 +82,14 @@ public interface ServiceConstants extends Constants {
             INSTR_FAB_EXCLUDE_DEPENDENCY,
             INSTR_FAB_OPTIONAL_DEPENDENCY,
             INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE,
-            FAB_MODULE_ID,
-            FAB_MODULE_NAME,
-            FAB_MODULE_EXTENSION,
-            FAB_MODULE_DESCRIPTION,
-            FAB_MODULE_LONG_DESCRIPTION,
-            FAB_MODULE_DEFAULT_EXTENSIONS,
-            FAB_MODULE_EXTENDS,
-            FAB_MODULE_ENDORSED_EXTENSIONS
+            "Fabric-"+FAB_MODULE_ID,
+            "Fabric-"+FAB_MODULE_NAME,
+            "Fabric-"+FAB_MODULE_EXTENSION,
+            "Fabric-"+FAB_MODULE_DESCRIPTION,
+            "Fabric-"+FAB_MODULE_LONG_DESCRIPTION,
+            "Fabric-"+FAB_MODULE_DEFAULT_EXTENSIONS,
+            "Fabric-"+FAB_MODULE_EXTENDS,
+            "Fabric-"+FAB_MODULE_ENDORSED_EXTENSIONS
     };
 
 

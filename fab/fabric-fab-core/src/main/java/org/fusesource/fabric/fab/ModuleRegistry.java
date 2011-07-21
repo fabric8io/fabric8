@@ -8,8 +8,11 @@
  */
 package org.fusesource.fabric.fab;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
+import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.util.Collections.*;
 
@@ -29,6 +32,11 @@ public class ModuleRegistry {
 
     public VersionedModule add(ModuleDescriptor descriptor) {
         return add(descriptor, null);
+    }
+
+    public void clear() {
+        modules.clear();
+        moduleVersions.clear();
     }
 
     protected VersionedModule add(ModuleDescriptor descriptor, File file) {
@@ -183,6 +191,11 @@ public class ModuleRegistry {
             return new ArrayList<VersionedModule>(versions.values());
         }
 
+        public boolean isInstalled() {
+            // TODO: inspect the installed OSGi bundles
+            // to see if this is true.
+            return true;
+        }
     }
 
     public VersionedModule getVersionedModule(VersionedDependencyId id) {
@@ -212,4 +225,66 @@ public class ModuleRegistry {
         }
         return rc;
     }
+
+    /**
+     * Scan a jar file for ".fmd" files to add as
+     * fabric module descriptors to the repository.
+     *
+     * @param file
+     * @throws IOException
+     */
+    public void loadJar(File file) throws IOException {
+        JarInputStream jar = new JarInputStream(new FileInputStream(file));
+        try {
+            ZipEntry zipEntry;
+            while( (zipEntry = jar.getNextEntry()) != null ) {
+                if( zipEntry.getName().endsWith(".fmd") && !zipEntry.isDirectory()) {
+                    load(null, jar);
+                }
+                jar.closeEntry();
+            }
+        } finally {
+            jar.close();
+        }
+    }
+
+    /**
+     * recursively scan a directory of ".fmd" files to add
+     * a fabric module descriptors to the repository.
+     *
+     * @param directory
+     */
+    public void loadDirectory(File directory, PrintStream err) {
+        for(File f : directory.listFiles() ) {
+            if( f.isDirectory() ) {
+                loadDirectory(f, err);
+            } else {
+                // load the fab module descriptors
+                if( f.getName().endsWith(".fmd") ) {
+                    try {
+                        FileInputStream is = new FileInputStream(f);
+                        try {
+                            load(f, is);
+                        } finally {
+                            is.close();
+                        }
+                    } catch (IOException e) {
+                        err.println("Error loading fab module descriptor '"+f+"': "+e);
+                    }
+                }
+            }
+        }
+    }
+
+    private void load(File f, InputStream is) throws IOException {
+        Properties properties = new Properties();
+        properties.load(is);
+        ModuleDescriptor descriptor = ModuleDescriptor.fromProperties(properties);
+
+        // only the first load wins..
+        if( getVersionedModule(descriptor.getId()) == null ) {
+            add(descriptor, f);
+        }
+    }
+
 }
