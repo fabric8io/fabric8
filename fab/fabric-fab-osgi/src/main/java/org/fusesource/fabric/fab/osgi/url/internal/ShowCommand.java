@@ -54,7 +54,7 @@ public class ShowCommand extends FabCommand {
                 }
 
                 println("%15s: %s", "Name", selected.getName());
-                println("%15s: %s", "Version", selected.getId());
+                println("%15s: %s", "Version", selected.getId().getVersion());
                 println("%15s: %s", "Artifact Id", selected.getId());
 
                 versions.remove(selected.getId().getVersion());

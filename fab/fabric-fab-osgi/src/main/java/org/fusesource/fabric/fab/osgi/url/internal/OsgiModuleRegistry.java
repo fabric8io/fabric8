@@ -61,21 +61,38 @@ public class OsgiModuleRegistry extends ModuleRegistry {
     HashMap<String, URL> repos = new HashMap<String, URL>();
 
     public void load() {
+        loadRepoConfiguration();
+
+        boolean download = false;
+        for (Map.Entry<String, URL> entry: repos.entrySet()){
+            String name = entry.getKey();
+            URL url = entry.getValue();
+
+            File file = new File(directory, "repo-"+name + ".zip");
+            if( !"file".equals(url.getProtocol()) && !file.exists()) {
+                download = true;
+            }
+        }
+
+        update(System.err, download);
+    }
+
+    private void loadRepoConfiguration() {
+        repos.clear();
         try {
             Dictionary config = getConfig();
-            while (config.elements().hasMoreElements()) {
-                String key = (String) config.elements().nextElement();
+            Enumeration elements = config.keys();
+            while (elements.hasMoreElements()) {
+                String key = (String) elements.nextElement();
                 if( key.startsWith("repo.") ) {
                     String name = key.substring("repo.".length());
                     String value = (String) config.get(key);
                     repos.put(name, new URL(value));
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-        update(System.err);
     }
 
     private static long copy(InputStream in, OutputStream out) throws IOException {
@@ -96,12 +113,21 @@ public class OsgiModuleRegistry extends ModuleRegistry {
      * @param err
      */
     public void update(PrintStream err) {
+        loadRepoConfiguration();
+        update(err, true);
+    }
+
+    /**
+     * Updates the repo sources.
+     *
+     * @param err
+     */
+    public void update(PrintStream err, boolean download) {
         clear();
         getLocalIndexDir().mkdirs();
         loadDirectory(getLocalIndexDir(), err);
 
-        Set<Map.Entry<String, URL>> entries = repos.entrySet();
-        for (Map.Entry<String, URL> entry: entries){
+        for (Map.Entry<String, URL> entry: repos.entrySet()){
             String name = entry.getKey();
             URL url = entry.getValue();
 
@@ -110,23 +136,25 @@ public class OsgiModuleRegistry extends ModuleRegistry {
             if( "file".equals(url.getProtocol()) ) {
                 file = new File(url.getFile());
             } else {
-                err.println("Downloading: "+url);
-                try {
-                    InputStream is = url.openStream();
+                if( download ) {
+                    err.println("Downloading: "+url);
                     try {
-                        FileOutputStream os = new FileOutputStream(file);
+                        InputStream is = url.openStream();
                         try {
-                            copy(is, os);
-                        } finally {
-                          os.close();
-                        }
+                            FileOutputStream os = new FileOutputStream(file);
+                            try {
+                                copy(is, os);
+                            } finally {
+                              os.close();
+                            }
 
-                    } finally{
-                        is.close();
-                    }
-                } catch (IOException e) {
-                    if( err!=null ) {
-                        err.println(String.format("Error occurred while downloading '%s'.  Error: %s", url, e));
+                        } finally{
+                            is.close();
+                        }
+                    } catch (IOException e) {
+                        if( err!=null ) {
+                            err.println(String.format("Error occurred while downloading '%s'.  Error: %s", url, e));
+                        }
                     }
                 }
             }

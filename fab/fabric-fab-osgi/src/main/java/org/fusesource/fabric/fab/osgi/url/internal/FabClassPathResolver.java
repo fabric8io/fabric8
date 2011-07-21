@@ -65,7 +65,6 @@ public class FabClassPathResolver {
     private boolean processImportPackages = false;
     private MavenResolver resolver;
     private ModuleDescriptor descriptor;
-    private ModuleRegistry.VersionedModule module;
 
     public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
@@ -107,8 +106,8 @@ public class FabClassPathResolver {
         addDependencies(rootTree);
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
-        registerModule(pomDetails);
-        resolveExtensions(rootTree);
+//        registerModule(pomDetails);
+        resolveExtensions(pomDetails.getModel(), rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
             if (requireBundleFilter.matches(dependencyTree)) {
@@ -162,7 +161,8 @@ public class FabClassPathResolver {
         }
     }
 
-    private void registerModule(PomDetails pomDetails) throws IOException, XmlPullParserException {
+    private void registerModule(Model model) throws IOException, XmlPullParserException {
+        VersionedDependencyId id = new VersionedDependencyId(model);
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
@@ -172,9 +172,8 @@ public class FabClassPathResolver {
                 }
             }
             // Enhance with maven pom information
-            Model model = pomDetails.getModel();
             if( !moduleProperties.containsKey(FAB_MODULE_ID) ) {
-                moduleProperties.setProperty(FAB_MODULE_ID, new VersionedDependencyId(model).toString());
+                moduleProperties.setProperty(FAB_MODULE_ID, id.toString());
             }
             if( !moduleProperties.containsKey(FAB_MODULE_NAME) ) {
                 moduleProperties.setProperty(FAB_MODULE_NAME, model.getArtifactId());
@@ -184,9 +183,6 @@ public class FabClassPathResolver {
             }
             descriptor = ModuleDescriptor.fromProperties(moduleProperties);
 
-            // make sure the descriptor exits.
-            module = moduleRegistry.add(descriptor);
-
             for (VersionedDependencyId ext : descriptor.getEndorsedExtensions()) {
                 if( moduleRegistry.getVersionedModule(ext) == null ) {
                     // TODO: Make sure all endorsed extensions are added to the
@@ -195,7 +191,7 @@ public class FabClassPathResolver {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Failed to register the fabric module for: "+pomDetails);
+            System.err.println("Failed to register the fabric module for: "+id);
             e.printStackTrace();;
         }
     }
@@ -298,7 +294,8 @@ public class FabClassPathResolver {
     }
 
 
-    protected void resolveExtensions(DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
+    protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
+        ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(new VersionedDependencyId(model));
         Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
         for (String enabledExtension : module.getEnabledExtensions()) {
             ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);

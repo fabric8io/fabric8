@@ -173,12 +173,12 @@ public class ModuleDescriptor {
         ModuleDescriptor rc = new ModuleDescriptor();
         rc.id = VersionedDependencyId.fromString(value.getProperty(FAB_MODULE_ID));
         rc.name = value.getProperty(FAB_MODULE_NAME);
-        rc.extensionModule = Boolean.valueOf(value.getProperty(FAB_MODULE_EXTENSION));
         rc.description = value.getProperty(FAB_MODULE_DESCRIPTION);
         rc.longDescription = value.getProperty(FAB_MODULE_LONG_DESCRIPTION);
         rc.defaultExtensions = splitAndTrimAsList(value.getProperty(FAB_MODULE_DEFAULT_EXTENSIONS), "\\s+");
         rc.extendsModules = decodeDependencyIds(splitAndTrimAsList(value.getProperty(FAB_MODULE_EXTENDS), "\\s+"));
         rc.endorsedExtensions = decodeDependencyIds(splitAndTrimAsList(value.getProperty(FAB_MODULE_ENDORSED_EXTENSIONS), "\\s+"));
+        rc.extensionModule = Boolean.valueOf(value.getProperty(FAB_MODULE_EXTENSION, ""+(!rc.extendsModules.isEmpty())));
         return rc;
     }
 
