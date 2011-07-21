@@ -6,6 +6,8 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 import org.fusesource.fabric.fab.ModuleDescriptor;
 import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
+import org.osgi.framework.Bundle;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -269,6 +271,20 @@ public class OsgiModuleRegistry extends ModuleRegistry {
         if( rc!=null && rc.getFile()!=null ) {
             rc = super.remove(id);
             rc.getFile().delete();
+        }
+        return rc;
+    }
+
+    public Map<VersionedDependencyId, Bundle> getInstalled() {
+        Map<VersionedDependencyId, Bundle> rc = new HashMap<VersionedDependencyId, Bundle>();
+        for (Bundle bundle : Activator.getInstanceBundleContext().getBundles()) {
+            String value = (String) bundle.getHeaders().get(ServiceConstants.INSTR_FAB_MODULE_ID);
+            if( notEmpty(value) ) {
+                try {
+                    rc.put(VersionedDependencyId.fromString(value), bundle);
+                } catch (Throwable e) {
+                }
+            }
         }
         return rc;
     }

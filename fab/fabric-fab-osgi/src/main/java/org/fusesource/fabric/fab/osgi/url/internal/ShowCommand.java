@@ -73,12 +73,15 @@ public class ShowCommand extends FabCommand {
                 if( extensions.size() > 0 ) {
                     HashSet enabled = new HashSet<String>(selected.getEnabledExtensions());
                     println("Extensions:");
-                    println("  * %-20s\t%-10s\t%-40s", "Name",  "Version", "Description");
+
+                    Table table = new Table("  {1} | {2} | {3}", -20, -10, -40);
+                    table.add("Name", "Version", "Description");
 
                     for (Map.Entry<String, ModuleRegistry.VersionedModule> entry : extensions.entrySet()) {
                         ModuleRegistry.VersionedModule extension = entry.getValue();
-                        println("  %s %-20s\t%-10s\t%-40s", enabled.contains(extension.getName()) ? "+" : "-", extension.getName(), extension.getId().getVersion(), extension.getDescription());
+                        table.add(enabled.contains(extension.getName()) ? "+" : "-", extension.getName(), extension.getId().getVersion(), extension.getDescription());
                     }
+                    table.print(session.getConsole());
                 }
 
             }

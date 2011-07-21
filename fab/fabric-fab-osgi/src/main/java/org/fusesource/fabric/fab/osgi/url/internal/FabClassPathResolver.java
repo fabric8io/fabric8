@@ -64,7 +64,7 @@ public class FabClassPathResolver {
     // don't think there's any need to even look at Import-Packages as BND takes care of it...
     private boolean processImportPackages = false;
     private MavenResolver resolver;
-    private ModuleDescriptor descriptor;
+    private VersionedDependencyId moduleId;
 
     public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
@@ -107,7 +107,9 @@ public class FabClassPathResolver {
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
 //        registerModule(pomDetails);
-        resolveExtensions(pomDetails.getModel(), rootTree);
+        Model model = pomDetails.getModel();
+        moduleId = new VersionedDependencyId(model);
+        resolveExtensions(model, rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
             if (requireBundleFilter.matches(dependencyTree)) {
@@ -150,6 +152,7 @@ public class FabClassPathResolver {
 
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
         instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
+        instructions.setProperty(ServiceConstants.INSTR_FAB_MODULE_ID, moduleId.toString());
 
         // adding import package statements causes the Bnd analyzer to not run so lets not do that :)
         //instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
@@ -162,7 +165,6 @@ public class FabClassPathResolver {
     }
 
     private void registerModule(Model model) throws IOException, XmlPullParserException {
-        VersionedDependencyId id = new VersionedDependencyId(model);
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
@@ -173,7 +175,7 @@ public class FabClassPathResolver {
             }
             // Enhance with maven pom information
             if( !moduleProperties.containsKey(FAB_MODULE_ID) ) {
-                moduleProperties.setProperty(FAB_MODULE_ID, id.toString());
+                moduleProperties.setProperty(FAB_MODULE_ID, moduleId.toString());
             }
             if( !moduleProperties.containsKey(FAB_MODULE_NAME) ) {
                 moduleProperties.setProperty(FAB_MODULE_NAME, model.getArtifactId());
@@ -181,7 +183,7 @@ public class FabClassPathResolver {
             if( !moduleProperties.containsKey(FAB_MODULE_DESCRIPTION) ) {
                 moduleProperties.setProperty(FAB_MODULE_NAME, model.getDescription());
             }
-            descriptor = ModuleDescriptor.fromProperties(moduleProperties);
+            ModuleDescriptor descriptor = ModuleDescriptor.fromProperties(moduleProperties);
 
             for (VersionedDependencyId ext : descriptor.getEndorsedExtensions()) {
                 if( moduleRegistry.getVersionedModule(ext) == null ) {
@@ -191,7 +193,7 @@ public class FabClassPathResolver {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Failed to register the fabric module for: "+id);
+            System.err.println("Failed to register the fabric module for: "+moduleId);
             e.printStackTrace();;
         }
     }
@@ -295,7 +297,7 @@ public class FabClassPathResolver {
 
 
     protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
-        ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(new VersionedDependencyId(model));
+        ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
         Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
         for (String enabledExtension : module.getEnabledExtensions()) {
             ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);

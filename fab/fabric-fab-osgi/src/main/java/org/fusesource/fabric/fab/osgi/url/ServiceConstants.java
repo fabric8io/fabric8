@@ -74,6 +74,14 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE = "Fabric-Dependency-Require-Bundle";
 
     /**
+     * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]
+     *
+     * You can use wildcards such as "group:artifact group:* *:*"
+     */
+    static final String INSTR_FAB_MODULE_ID = "Fabric-"+FAB_MODULE_ID;
+
+
+    /**
      * All the possible FAB headers on a manfiest, used to detect a FAB
      */
     static final String[] FAB_PROPERTY_NAMES = {
@@ -82,7 +90,7 @@ public interface ServiceConstants extends Constants {
             INSTR_FAB_EXCLUDE_DEPENDENCY,
             INSTR_FAB_OPTIONAL_DEPENDENCY,
             INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE,
-            "Fabric-"+FAB_MODULE_ID,
+            INSTR_FAB_MODULE_ID,
             "Fabric-"+FAB_MODULE_NAME,
             "Fabric-"+FAB_MODULE_EXTENSION,
             "Fabric-"+FAB_MODULE_DESCRIPTION,

@@ -158,7 +158,6 @@ public class ModuleRegistry {
         public boolean isExtensionModule() {
             return descriptor.isExtensionModule();
         }
-
     }
 
     public class Module {
@@ -190,11 +189,12 @@ public class ModuleRegistry {
         public List<VersionedModule> getVersions() {
             return new ArrayList<VersionedModule>(versions.values());
         }
-
-        public boolean isInstalled() {
-            // TODO: inspect the installed OSGi bundles
-            // to see if this is true.
-            return true;
+        public List<VersionedDependencyId> getVersionIds() {
+            ArrayList<VersionedDependencyId> rc = new ArrayList<VersionedDependencyId>(versions.size());
+            for (VersionedModule module : versions.values()) {
+                rc.add(module.getId());
+            }
+            return rc;
         }
     }
 

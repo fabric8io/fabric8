@@ -11,7 +11,9 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.fab.ModuleRegistry;
+import org.fusesource.fabric.fab.VersionedDependencyId;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Command(name = "search", scope = "fab", description = "Search for all the available modules")
@@ -25,16 +27,25 @@ public class SearchCommand extends FabCommand {
         OsgiModuleRegistry registry = Activator.registry;
         List<ModuleRegistry.Module> modules = registry.getApplicationModules();
 
-        println("%-20s\t%-10s\t%-40s", "Name",  "Version", "Description");
+
+        Table table = new Table("{1} | {2} | {3}", -20, -10, -40);
+        table.add("Name", "Version", "Description");
         for (ModuleRegistry.Module module : modules) {
             ModuleRegistry.VersionedModule latest = module.latest();
             if( name==null || module.getName().indexOf(name) >=0 ) {
-                println("%-20s\t%-10s\t%-40s", module.getName(), latest.getId().getVersion(), latest.getDescription());
+                table.add(module.getName(), latest.getId().getVersion(), latest.getDescription());
             }
         }
+        table.print(session.getConsole());
 
         return null;
     }
 
-
+    public static void main(String []args) {
+        Table table = new Table("{1} | {2} | {3}", -20, -10, -40);
+        table.add("Name", "Version", "Description");
+        table.add("x", "y", "z");
+        table.add("x", "y", "z");
+        table.print(System.out);
+    }
 }
