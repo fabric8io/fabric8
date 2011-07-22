@@ -8,12 +8,17 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.codec.api;
+package org.fusesource.fabric.apollo.amqp.protocol.commands
 
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPValue;
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 
 /**
  *
  */
-public interface ValueMessage extends BareMessage<AMQPValue> {
+object ConnectionClosed {
+  val INSTANCE = new ConnectionClosed
+}
+class ConnectionClosed extends AMQPFrame {
+  override def toString = getClass.getSimpleName
+
 }
