@@ -17,7 +17,7 @@ import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPConnection
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import org.apache.activemq.apollo.transport.Transport
-import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, Close, Open, Error}
+import org.fusesource.fabric.apollo.amqp.codec.types._
 
 /**
  *
@@ -44,6 +44,7 @@ class HeartbeatInterceptor extends Interceptor {
       case f:AMQPTransportFrame =>
         val performative:Object = f.getPerformative
         performative match {
+          case n:NoPerformative =>
           case o:Open =>
             Option(o.getIdleTimeout).foreach( t => {
               idle_timeout = idle_timeout.min(t)
@@ -55,12 +56,14 @@ class HeartbeatInterceptor extends Interceptor {
                 send(new AMQPTransportFrame(close), new Queue[() => Unit])
               }
               heartbeat_monitor.on_keep_alive = on_keep_alive
+              heartbeat_monitor.start
             })
           case _ =>
+            incoming.receive(frame, tasks)
         }
       case _ =>
+        incoming.receive(frame, tasks)
     }
-    incoming.receive(frame, tasks)
   }
 
 }

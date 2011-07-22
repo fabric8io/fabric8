@@ -16,22 +16,20 @@ import collection.mutable.Queue
 import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions._
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
-import org.fusesource.fabric.apollo.amqp.protocol.commands.{HeaderSent, ConnectionCreated}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, HeaderSent, ConnectionCreated}
 
-object HeaderInterceptor {
-  val error = () => {
-    throw new RuntimeException("Unexpected protocol version received, supported : " + new AMQPProtocolHeader)
-  }
-}
 /**
  *
  */
 class HeaderInterceptor extends Interceptor {
-  import HeaderInterceptor._
+
+  val error = () => {
+    send(CloseConnection(), new Queue[() => Unit])
+  }
 
   val sent = new AtomicBoolean(false)
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  def send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case h:AMQPProtocolHeader =>
         if (!sent.getAndSet(true)) {
@@ -53,7 +51,7 @@ class HeaderInterceptor extends Interceptor {
     }
   }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case s:ConnectionCreated =>
         send(new AMQPProtocolHeader, tasks)

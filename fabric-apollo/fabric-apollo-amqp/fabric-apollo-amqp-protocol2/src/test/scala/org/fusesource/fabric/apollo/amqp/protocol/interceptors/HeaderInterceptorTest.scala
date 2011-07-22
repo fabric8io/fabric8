@@ -17,7 +17,7 @@ import collection.mutable.Queue
 import test_interceptors._
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionCreated, HeaderSent}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionCreated, HeaderSent}
 
 /**
  *
@@ -26,7 +26,14 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
 
   def createInterceptorChain = {
     val dummy_in = new TestSendInterceptor((frame: AMQPFrame, tasks: Queue[() => Unit]) => {
-      frame.isInstanceOf[AMQPProtocolHeader] should be(true)
+      info("Frame : %s", frame)
+      frame match {
+        case a:AMQPProtocolHeader =>
+        case c:CloseConnection =>
+        case _ =>
+          fail("Expecting either AMQPProtocolHeader or CloseConnection")
+
+      }
     })
 
     val header_interceptor = new HeaderInterceptor
@@ -64,16 +71,7 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
     val (dummy_in, tasks) = createInterceptorChain
     val bad = new AMQPProtocolHeader
     bad.revision = 1.asInstanceOf[Short]
-    try {
-      dummy_in.receive(bad, tasks)
-      fail("Should have receieved exception")
-    } catch {
-      case r:RuntimeException =>
-
-      case _ =>
-        fail
-    }
-    tasks should be ('empty)
+    dummy_in.receive(bad, tasks)
   }
 
 
