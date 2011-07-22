@@ -67,6 +67,22 @@ abstract class Interceptor {
     _incoming = Option(i)
   }
 
+  def tail:Interceptor = {
+    if (!connected || _incoming == None) {
+      this
+    } else {
+      incoming.tail
+    }
+  }
+
+  def head:Interceptor = {
+    if (!connected || _outgoing == None) {
+      this
+    } else {
+      outgoing.head
+    }
+  }
+
   def send(frame:AMQPFrame, tasks:Queue[() => Unit])
 
   def receive(frame:AMQPFrame, tasks:Queue[() => Unit])

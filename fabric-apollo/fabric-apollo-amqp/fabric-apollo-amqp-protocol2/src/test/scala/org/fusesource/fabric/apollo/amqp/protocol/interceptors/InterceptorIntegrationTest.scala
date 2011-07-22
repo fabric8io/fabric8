@@ -42,15 +42,15 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
       def onAccept(transport: Transport) {
         val transport_interceptor = new TransportInterceptor
         transport_interceptor.transport = transport
-        transport_interceptor.incoming = new HeaderInterceptor
-        transport_interceptor.incoming.incoming = new CloseInterceptor
+        transport_interceptor.tail.incoming = new HeaderInterceptor
+        transport_interceptor.tail.incoming = new CloseInterceptor
         val heartbeat_interceptor = new HeartbeatInterceptor
         heartbeat_interceptor.transport = transport
-        transport_interceptor.incoming.incoming.incoming = heartbeat_interceptor
+        transport_interceptor.tail.incoming = heartbeat_interceptor
         val open_interceptor = new OpenInterceptor
         open_interceptor.open.setIdleTimeout(2500L)
-        transport_interceptor.incoming.incoming.incoming.incoming = open_interceptor
-        transport_interceptor.incoming.incoming.incoming.incoming.incoming = new Interceptor {
+        transport_interceptor.tail.incoming = open_interceptor
+        transport_interceptor.tail.incoming = new Interceptor {
           def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
             frame match {
               case c:ConnectionClosed =>
@@ -88,15 +88,15 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
     val transport_interceptor = new TransportInterceptor
     client.setTransportListener(transport_interceptor)
     transport_interceptor.transport = client
-    transport_interceptor.incoming = new HeaderInterceptor
-    transport_interceptor.incoming.incoming = new CloseInterceptor
+    transport_interceptor.tail.incoming = new HeaderInterceptor
+    transport_interceptor.tail.incoming = new CloseInterceptor
     val heartbeat_interceptor = new HeartbeatInterceptor
     heartbeat_interceptor.transport = client
-    transport_interceptor.incoming.incoming.incoming = heartbeat_interceptor
+    transport_interceptor.tail.incoming = heartbeat_interceptor
     val open_interceptor = new OpenInterceptor
     open_interceptor.open.setIdleTimeout(2500L)
-    transport_interceptor.incoming.incoming.incoming.incoming = open_interceptor
-    transport_interceptor.incoming.incoming.incoming.incoming.incoming = new Interceptor {
+    transport_interceptor.tail.incoming = open_interceptor
+    transport_interceptor.tail.incoming = new Interceptor {
       def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
       def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {

@@ -24,6 +24,29 @@ import test_interceptors._
 
 class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
 
+  test("Test get head/tail of interceptor chain") {
+    val middle = new SimpleInterceptor
+    middle.incoming = new SimpleInterceptor
+    middle.outgoing = new SimpleInterceptor
+
+    val start = middle.outgoing
+    val end = middle.incoming
+
+    start.tail should be theSameInstanceAs (end)
+    end.head should be theSameInstanceAs (start)
+    middle.tail should be theSameInstanceAs (end)
+    middle.head should be theSameInstanceAs (start)
+
+    middle.remove
+
+    middle.tail should be theSameInstanceAs  (middle)
+    middle.head should be theSameInstanceAs (middle)
+
+    start.tail should be theSameInstanceAs (end)
+    end.head should be theSameInstanceAs (start)
+
+  }
+
   test("Create interceptor chain, remove an interceptor, verify it's disconnected") {
     val middle = new SimpleInterceptor
     middle.incoming = new SimpleInterceptor
