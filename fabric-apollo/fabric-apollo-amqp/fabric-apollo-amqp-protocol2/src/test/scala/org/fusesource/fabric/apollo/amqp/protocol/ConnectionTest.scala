@@ -21,7 +21,7 @@ import java.util.concurrent.{TimeUnit, CountDownLatch}
  */
 class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  test("Create server connection using pipe transport") {
+  ignore("Create server connection using pipe transport") {
 
     val uri = "pipe://foobar:0"
 

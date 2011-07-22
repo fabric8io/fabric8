@@ -6,6 +6,7 @@ import collection.mutable.Queue
 import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.types.{Open, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{OpenSent, HeaderSent}
 
 object OpenInterceptor {
   // TODO - probably gonna be a few possibilities here...
@@ -29,10 +30,16 @@ class OpenInterceptor extends Interceptor {
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case f:AMQPTransportFrame =>
+        if (f.getPerformative == null) {
+          outgoing.send(frame, tasks)
+        }
         f.getPerformative match {
           case o:Open =>
             if (!sent.getAndSet(true)) {
               if (!tasks.contains(error)) {
+                tasks.enqueue( () => {
+                  receive(new OpenSent, new Queue[() => Unit])
+                })
                 tasks.enqueue(rm)
               }
               outgoing.send(frame, tasks)
@@ -52,6 +59,8 @@ class OpenInterceptor extends Interceptor {
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
+      case h:HeaderSent =>
+        send(new AMQPTransportFrame(open), tasks)
       case f:AMQPTransportFrame =>
         f.getPerformative match {
           case o:Open =>

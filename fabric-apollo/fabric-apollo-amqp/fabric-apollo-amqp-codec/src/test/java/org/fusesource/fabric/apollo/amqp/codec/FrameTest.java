@@ -37,7 +37,7 @@ public class FrameTest {
         in.setOutgoingWindow(10L);
         in.setNextOutgoingID(0L);
 
-        Begin out = TestSupport.encodeDecode(new AMQPTransportFrame(0, in)).getPerformative();
+        Begin out = (Begin)TestSupport.encodeDecode(new AMQPTransportFrame(0, in)).getPerformative();
         assertEquals(in.toString(), out.toString());
     }
 
@@ -51,7 +51,7 @@ public class FrameTest {
 
         AMQPTransportFrame outFrame = TestSupport.encodeDecode(frame);
 
-        Transfer outTransfer = outFrame.getPerformative();
+        Transfer outTransfer = (Transfer)outFrame.getPerformative();
 
         System.out.printf("Transfer : %s\n", outTransfer);
 
@@ -83,7 +83,7 @@ public class FrameTest {
 
         AMQPTransportFrame outFrame = new AMQPTransportFrame(header, body);
 
-        Transfer outTransfer = outFrame.getPerformative();
+        Transfer outTransfer = (Transfer)outFrame.getPerformative();
         AnnotatedMessage msg = MessageSupport.decodeAnnotatedMessage(outFrame.getPayload());
         assertEquals(transfer.toString(), outTransfer.toString());
         assertEquals(annotatedMessage.toString(), msg.toString());

@@ -25,6 +25,8 @@ import java.io.DataOutput;
  */
 public class AMQPTransportFrame implements AMQPFrame {
 
+    public static final Buffer EMPTY = new Buffer(0);
+
     public static final int AMQP_FRAME_TYPE = 0x00;
     public static final int AMQP_SASL_FRAME_TYPE = 0x01;
 
@@ -39,24 +41,27 @@ public class AMQPTransportFrame implements AMQPFrame {
     protected static final int CHANNEL_OFFSET = 6;
 
     public AMQPTransportFrame() {
-
+        setPerformative(NoPerformative.INSTANCE);
+        setPayload(EMPTY);
     }
 
     public AMQPTransportFrame(Frame performative) {
-        this.performative = performative;
+        setPerformative(performative);
+        setPayload(EMPTY);
     }
 
     public AMQPTransportFrame(int channel, Frame performative) {
         setChannel(channel);
-        this.performative = performative;
+        setPerformative(performative);
+        setPayload(EMPTY);
         setDoff(calculateDataOffset());
         setSize(getFrameSize());
     }
 
     public AMQPTransportFrame(int channel, Frame performative, Buffer payload) {
         setChannel(channel);
-        this.performative = performative;
-        this.payload = payload;
+        setPerformative(performative);
+        setPayload(payload);
         setDoff(calculateDataOffset());
         setSize(getFrameSize());
     }
@@ -70,10 +75,17 @@ public class AMQPTransportFrame implements AMQPFrame {
     private void fromBuffer(Buffer body) {
         try {
             DataByteArrayInputStream in = new DataByteArrayInputStream(body);
-            performative = (Frame) TypeReader.read(in);
             if (in.available() > 0) {
-                payload = new Buffer(in.available());
+                setPerformative((Frame)TypeReader.read(in));
+            } else {
+                setPerformative(NoPerformative.INSTANCE);
+            }
+            if (in.available() > 0) {
+                Buffer payload = new Buffer(in.available());
                 payload.readFrom((DataInput)in);
+                setPayload(payload);
+            } else {
+                setPayload(EMPTY);
             }
         } catch (Exception e) {
             throw new RuntimeException("Error creating frame from buffer : " + e.getMessage());
@@ -116,13 +128,13 @@ public class AMQPTransportFrame implements AMQPFrame {
     }
 
     private void initExtHeader() {
-        initExtHeader(null);
+        initExtHeader(EMPTY);
     }
 
     private void initExtHeader(Buffer body) {
         int dataOffset = getDoff() * 4;
         if ( dataOffset > header.length ) {
-            if (body == null) {
+            if (body == null || body == EMPTY) {
                 extHeader = new Buffer(dataOffset - header.length);
             } else {
                 extHeader = new Buffer(body.data, 0, dataOffset - header.length);
@@ -141,12 +153,8 @@ public class AMQPTransportFrame implements AMQPFrame {
         setSize(getFrameSize());
         header.writeTo(out);
         extHeader.writeTo(out);
-        if (performative != null) {
-            performative.write(out);
-        }
-        if (payload != null) {
-            payload.writeTo(out);
-        }
+        performative.write(out);
+        payload.writeTo(out);
     }
 
     public long getFrameSize() {
@@ -160,12 +168,15 @@ public class AMQPTransportFrame implements AMQPFrame {
         return ret;
     }
 
-    public <T extends Frame> T getPerformative() {
-        return (T)performative;
+    public Frame getPerformative() {
+        return performative;
     }
 
     public void setPerformative(Frame performative) {
         this.performative = performative;
+        if (this.performative == null) {
+            performative = NoPerformative.INSTANCE;
+        }
     }
 
     public Buffer getPayload() {
@@ -173,7 +184,10 @@ public class AMQPTransportFrame implements AMQPFrame {
     }
 
     public void setPayload(Buffer buffer) {
-        this.payload = payload;
+        this.payload = buffer;
+        if (this.payload == null) {
+            payload = EMPTY;
+        }
     }
 
     public final void setSize(long size) {

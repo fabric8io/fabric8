@@ -6,7 +6,7 @@ import collection.mutable.Queue
 import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions._
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
-import org.fusesource.fabric.apollo.amqp.protocol.commands.SendHeader
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{HeaderSent, ConnectionCreated}
 
 object HeaderInterceptor {
   val error = () => {
@@ -26,6 +26,9 @@ class HeaderInterceptor extends Interceptor {
       case h:AMQPProtocolHeader =>
         if (!sent.getAndSet(true)) {
           if (!tasks.contains(error)) {
+            tasks.enqueue(() => {
+              receive(HeaderSent.INSTANCE, new Queue[() => Unit])
+            })
             tasks.enqueue(rm)
           }
           outgoing.send(frame, tasks)
@@ -42,7 +45,7 @@ class HeaderInterceptor extends Interceptor {
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
-      case s:SendHeader =>
+      case s:ConnectionCreated =>
         send(new AMQPProtocolHeader, tasks)
       case h:AMQPProtocolHeader =>
         if ( h.major != MAJOR && h.minor != MINOR && h.revision != REVISION ) {
