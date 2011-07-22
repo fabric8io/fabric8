@@ -19,8 +19,8 @@ import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPCodec
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, Sink, SessionSinkMux}
-import org.fusesource.fabric.apollo.amqp.protocol.commands.ConnectionCreated
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPProtocolHeader, AMQPTransportFrame}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, CloseConnection, ConnectionCreated}
 
 /**
  *
@@ -46,10 +46,13 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 
   def onRefill() {}
 
-  def onTransportFailure(error: IOException) {}
+  def onTransportFailure(error: IOException) = {
+    trace("Connection to %s failed with %s:%s", transport.getRemoteAddress, error, error.getMessage)
+    receive(ConnectionClosed.INSTANCE, new Queue[() => Unit])
+  }
 
   def onTransportConnected() {
-    trace("Connected to %s:/%s", transport.getTypeId, transport.getRemoteAddress)
+    trace("Connected to %s via %s", transport.getRemoteAddress, transport.getTypeId)
     dispatch_queue = transport.getDispatchQueue
     val transport_sink = new TransportSink(transport)
 
@@ -66,14 +69,23 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 
   def onTransportDisconnected() {
     trace("Disconnected from %s", transport.getRemoteAddress)
+    receive(ConnectionClosed.INSTANCE, new Queue[() => Unit])
   }
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    trace("Sending : %s", frame)
     frame match {
+      case c:CloseConnection =>
+        tasks.enqueue( () => {
+          trace("Closing connection")
+          transport.stop(^{
+            receive(ConnectionClosed.INSTANCE, new Queue[() => Unit])
+          })
+        })
       case f:AMQPTransportFrame =>
+        trace("Sending : %s", frame)
         connection_sink.offer(f)
       case f:AMQPProtocolHeader =>
+        trace("Sending : %s", frame)
         connection_sink.offer(f)
       case _ =>
     }

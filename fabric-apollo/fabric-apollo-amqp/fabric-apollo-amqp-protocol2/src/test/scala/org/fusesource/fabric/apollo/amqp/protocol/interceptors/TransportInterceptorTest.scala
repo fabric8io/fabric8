@@ -18,8 +18,9 @@ import org.fusesource.fabric.apollo.amqp.protocol.AMQPCodec
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, AMQPProtocolHeader}
 import java.util.concurrent.{CountDownLatch, TimeUnit}
+import org.fusesource.fabric.apollo.amqp.codec.types.{NoPerformative, AMQPTransportFrame, AMQPProtocolHeader}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{OpenSent, ConnectionClosed, CloseConnection}
 
 /**
  *
@@ -46,9 +47,17 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
         listener.incoming.incoming = new OpenInterceptor
         listener.incoming.incoming.incoming = new Interceptor {
           def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-            transport.stop(^{
-              server_disconnect_wait.countDown
-            })
+            frame match {
+              case t:AMQPTransportFrame =>
+                t.getPerformative match {
+                  case n:NoPerformative =>
+                    send(CloseConnection.INSTANCE, new Queue[() => Unit])
+                  case _ =>
+                }
+              case c:ConnectionClosed =>
+                server_disconnect_wait.countDown
+              case _ =>
+            }
           }
 
           def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
@@ -73,6 +82,8 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
     val client_queue = Dispatch.createQueue("Client Queue")
     client_queue.resume
 
+    val client_wait = new CountDownLatch(1)
+
     val client = TransportFactory.connect("pipe://vm:0/blah")
     client.setDispatchQueue(client_queue)
     client.setProtocolCodec(new AMQPCodec)
@@ -85,18 +96,19 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
       def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
       def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-        client.stop(^{
-          client_disconnect_wait.countDown
-        })
+        frame match {
+          case o:OpenSent =>
+            client_wait.countDown
+            send(new AMQPTransportFrame, new Queue[() => Unit])
+          case c:ConnectionClosed =>
+            client_disconnect_wait.countDown
+          case _ =>
+        }
       }
     }
 
-    val client_wait = new CountDownLatch(1)
-
     listener.on_connect = () => {
       info("Client connected")
-      listener.incoming.send(new AMQPTransportFrame, new Queue[() => Unit])
-      client_wait.countDown
     }
 
     client.start(^{
@@ -104,7 +116,6 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
     })
 
     client_wait.await(10, TimeUnit.SECONDS) should be (true)
-
     server_disconnect_wait.await(10, TimeUnit.SECONDS) should be (true)
     client_disconnect_wait.await(10, TimeUnit.SECONDS) should be (true)
   }

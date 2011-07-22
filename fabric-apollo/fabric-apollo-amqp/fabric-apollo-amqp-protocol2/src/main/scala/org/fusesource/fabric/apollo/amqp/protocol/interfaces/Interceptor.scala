@@ -47,6 +47,8 @@ abstract class Interceptor {
         }
       case None =>
     }
+    _outgoing = None
+    _incoming = None
   }
 
   def connected:Boolean = !(_incoming == None && _outgoing == None)

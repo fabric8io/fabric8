@@ -15,7 +15,8 @@ import org.apache.activemq.apollo.util.{FunSuiteSupport, Logging}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, Open}
-import test_interceptors.{FailInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.OpenSent
+import test_interceptors._
 
 /**
  *
@@ -45,20 +46,33 @@ class OpenInterceptorTest extends FunSuiteSupport with ShouldMatchers with Loggi
         case _ =>
           fail("Frame should be an AMQPTransportFrame")
       }
-      open_interceptor.outgoing.outgoing = new TaskExecutingInterceptor
-      open_interceptor.incoming = new FailInterceptor
-
-      open_interceptor.connected should be (true)
-      open_interceptor.outgoing.outgoing.send(new AMQPTransportFrame(open), new Queue[() => Unit])
-      open_interceptor.connected should be (false)
-      open_interceptor.peer.getContainerID should  be ("MyContainer")
-      open_interceptor.peer.getHostname should be ("localhost")
-      open_interceptor.peer.getMaxFrameSize should be (1024L)
-      open_interceptor.peer.getChannelMax should be (10)
-      open_interceptor.peer.getIdleTimeout should be (5000)
-
     })
 
+    open_interceptor.outgoing.outgoing = new TaskExecutingInterceptor
+
+    var sent = false
+
+    open_interceptor.incoming = new TestReceiveInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
+      frame match {
+        case o:OpenSent =>
+          sent = true
+        case _ =>
+          fail("Should not have received frame " + frame)
+      }
+    })
+    open_interceptor.incoming.incoming = new EndInterceptor
+
+    open_interceptor.connected should be (true)
+
+    open_interceptor.outgoing.outgoing.receive(new AMQPTransportFrame(open), new Queue[() => Unit])
+
+    sent should be (true)
+    open_interceptor.connected should be (false)
+    open_interceptor.peer.getContainerID should  be ("MyContainer")
+    open_interceptor.peer.getHostname should be ("localhost")
+    open_interceptor.peer.getMaxFrameSize should be (1024L)
+    open_interceptor.peer.getChannelMax should be (10)
+    open_interceptor.peer.getIdleTimeout should be (5000)
 
   }
 

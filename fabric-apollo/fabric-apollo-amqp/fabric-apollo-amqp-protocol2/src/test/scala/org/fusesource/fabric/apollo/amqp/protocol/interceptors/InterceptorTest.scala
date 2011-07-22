@@ -24,6 +24,21 @@ import test_interceptors._
 
 class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
 
+  test("Create interceptor chain, remove an interceptor, verify it's disconnected") {
+    val middle = new SimpleInterceptor
+    middle.incoming = new SimpleInterceptor
+    middle.outgoing = new SimpleInterceptor
+
+    val start = middle.outgoing
+    val end = middle.incoming
+
+    middle.remove
+
+    start.incoming should be theSameInstanceAs (end)
+    end.outgoing should be theSameInstanceAs (start)
+    middle.connected should be (false)
+  }
+
   test("Create interceptor chain, send message down it, modify chain, send another message down it") {
     var got_here = false
     val in = new TestSendInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
