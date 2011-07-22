@@ -48,7 +48,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 
   def onTransportFailure(error: IOException) = {
     trace("Connection to %s failed with %s:%s", transport.getRemoteAddress, error, error.getMessage)
-    receive(ConnectionClosed.INSTANCE, new Queue[() => Unit])
+    receive(ConnectionClosed(), new Queue[() => Unit])
   }
 
   def onTransportConnected() {
@@ -62,14 +62,14 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
     }, dispatch_queue, AMQPCodec)
     connection_sink = new OverflowSink(session_manager.open(dispatch_queue))
     connection_sink.refiller = NOOP
-    receive(ConnectionCreated.INSTANCE, new Queue[() => Unit])
+    receive(ConnectionCreated(), new Queue[() => Unit])
     _on_connect.foreach( x => x() )
     transport.resumeRead
   }
 
   def onTransportDisconnected() {
     trace("Disconnected from %s", transport.getRemoteAddress)
-    receive(ConnectionClosed.INSTANCE, new Queue[() => Unit])
+    receive(ConnectionClosed(), new Queue[() => Unit])
   }
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
@@ -78,7 +78,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
         tasks.enqueue( () => {
           trace("Closing connection")
           transport.stop(^{
-            receive(ConnectionClosed.INSTANCE, new Queue[() => Unit])
+            receive(ConnectionClosed(), new Queue[() => Unit])
           })
         })
       case f:AMQPTransportFrame =>

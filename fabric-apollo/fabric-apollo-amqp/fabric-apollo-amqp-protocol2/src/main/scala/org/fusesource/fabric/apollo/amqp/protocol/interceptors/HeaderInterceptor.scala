@@ -35,7 +35,7 @@ class HeaderInterceptor extends Interceptor {
         if (!sent.getAndSet(true)) {
           if (!tasks.contains(error)) {
             tasks.enqueue(() => {
-              receive(HeaderSent.INSTANCE, new Queue[() => Unit])
+              receive(HeaderSent(), new Queue[() => Unit])
             })
             tasks.enqueue(rm)
           }

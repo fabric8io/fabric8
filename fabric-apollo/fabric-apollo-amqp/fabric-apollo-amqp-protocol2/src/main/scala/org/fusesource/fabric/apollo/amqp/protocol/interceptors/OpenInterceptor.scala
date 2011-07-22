@@ -48,7 +48,7 @@ class OpenInterceptor extends Interceptor {
             if (!sent.getAndSet(true)) {
               if (!tasks.contains(error)) {
                 tasks.enqueue( () => {
-                  receive(new OpenSent, new Queue[() => Unit])
+                  receive(OpenSent(), new Queue[() => Unit])
                 })
                 tasks.enqueue(rm)
               }

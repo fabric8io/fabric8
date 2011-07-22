@@ -12,10 +12,13 @@ package org.fusesource.fabric.apollo.amqp.protocol.commands
 
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 
+object OpenSent {
+  private val INSTANCE = new OpenSent
+  def apply = INSTANCE
+}
 /**
  *
  */
-
 class OpenSent extends AMQPFrame {
 
   override def toString = getClass.getSimpleName
