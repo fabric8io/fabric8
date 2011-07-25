@@ -34,6 +34,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	var transport: Transport = null
 
 	var _on_connect:Option[() => Unit] = None
+  var _on_disconnect:Option[() => Unit] = None
 
 	def onTransportCommand(command: AnyRef) {
 		command match {
@@ -49,6 +50,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	def onTransportFailure(error: IOException) = {
 		trace("Connection to %s failed with %s:%s", transport.getRemoteAddress, error, error.getMessage)
 		receive(ConnectionClosed.apply, new Queue[() => Unit])
+    _on_disconnect.foreach((x) => x())
 	}
 
 	def onTransportConnected() {
@@ -70,6 +72,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	def onTransportDisconnected() {
 		trace("Disconnected from %s", transport.getRemoteAddress)
 		receive(ConnectionClosed.apply, new Queue[() => Unit])
+    _on_disconnect.foreach((x) => x())
 	}
 
 	def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
@@ -97,6 +100,8 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 
 	def on_connect_=(func:() => Unit) = _on_connect = Option(func)
 	def on_connect = _on_connect.getOrElse(() => {})
+  def on_disconnect_=(func:() => Unit) = _on_disconnect = Option(func)
+  def on_disconnect = _on_disconnect.getOrElse(() => {})
 
 	def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
 		trace("Received : %s", frame)
