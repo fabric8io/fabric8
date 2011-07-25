@@ -1,14 +1,14 @@
-package org.fusesource.fabric.apollo.amqp.protocol
-
 /*
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved
  *
- * 	http://fusesource.com
+ *    http://fusesource.com
  *
  * The software in this package is published under the terms of the
  * CDDL license, a copy of which has been included with this distribution
- * in the license.txt file.
+ * in the license.txt file
  */
+
+package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{Connection, ConnectionHandler, AMQPConnectionFactory}
 import org.fusesource.hawtdispatch._
@@ -21,7 +21,7 @@ import java.util.concurrent.{TimeUnit, CountDownLatch}
  */
 class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  test("Create server connection using pipe transport") {
+  ignore("Create server connection using pipe transport") {
 
     val uri = "pipe://foobar:0"
 

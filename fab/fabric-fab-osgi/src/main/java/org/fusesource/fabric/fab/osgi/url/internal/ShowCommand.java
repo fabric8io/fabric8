@@ -11,7 +11,12 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.fab.ModuleDescriptor;
 import org.fusesource.fabric.fab.ModuleRegistry;
+import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
+import org.osgi.framework.Bundle;
+
 import static org.fusesource.fabric.fab.util.Strings.*;
 
 import java.util.*;
@@ -29,37 +34,53 @@ public class ShowCommand extends FabCommand {
     protected Object doExecute() throws Exception {
         OsgiModuleRegistry registry = Activator.registry;
         List<ModuleRegistry.Module> modules = registry.getApplicationModules();
+        Map<VersionedDependencyId, Bundle> installed = registry.getInstalled();
 
         for (ModuleRegistry.Module module : modules) {
             if( module.getName().equals(name) ) {
 
                 ModuleRegistry.VersionedModule selected = null;
 
-                TreeSet<String> versions = new TreeSet<String>();
-                for (ModuleRegistry.VersionedModule mv : module.getVersions()) {
-                    String v = mv.getId().getVersion();
-                    versions.add(v);
-                    if( version!=null && version.equals(v) ) {
-                        selected = mv;
-                    }
-                }
+                TreeSet<String> versions = mapVersion(module.getVersionIds());
+                HashSet<VersionedDependencyId> installedVersionIds = new HashSet<VersionedDependencyId>(module.getVersionIds());
+                installedVersionIds.retainAll(installed.keySet());
+                TreeSet<String> installedVersions = mapVersion(installedVersionIds);
+                versions.removeAll(installedVersions);
 
-                if( version==null ) {
-                    selected = module.latest();
-                } else {
+                if( version!=null ) {
+                    selected = module.getVersions().get(version);
                     if( selected==null ) {
                         println("Unknown version: %s", version);
                         return null;
                     }
+                } else {
+                    selected = module.latest();
                 }
 
                 println("%15s: %s", "Name", selected.getName());
-                println("%15s: %s", "Version", selected.getId().getVersion());
-                println("%15s: %s", "Artifact Id", selected.getId());
-
-                versions.remove(selected.getId().getVersion());
+                if( !installedVersionIds.isEmpty() ) {
+                    for (VersionedDependencyId id : installedVersionIds) {
+                        Bundle bundle = installed.get(id);
+                        String version = id.getVersion();
+                        String extensionIds = (String) bundle.getHeaders().get(ServiceConstants.INSTR_FAB_MODULE_ENABLED_EXTENSIONS);
+                        if( notEmpty(extensionIds) ) {
+                            List<VersionedDependencyId> ids = ModuleDescriptor.decodeVersionList(extensionIds);
+                            ArrayList<String> ext = new ArrayList<String>();
+                            for (VersionedDependencyId x : ids) {
+                                ModuleRegistry.VersionedModule vm = registry.getVersionedModule(x);
+                                if( vm!=null ) {
+                                    ext.add(vm.getName());
+                                }
+                            }
+                            if( !ext.isEmpty() ) {
+                                version += ", Extensions: "+join(ext, " ")+"";
+                            }
+                        }
+                        println("%15s: %s, Bundle: %d", "Installed", version, bundle.getBundleId());
+                    }
+                }
                 if( !versions.isEmpty() ) {
-                    println("%20s: %s", "Available", join(versions, ", "));
+                    println("%15s: %s", "Available", join(versions, ", "));
                 }
 
                 String desc = notEmpty(selected.getLongDescription()) ? selected.getLongDescription() : selected.getDescription();
@@ -72,14 +93,14 @@ public class ShowCommand extends FabCommand {
                 Map<String,ModuleRegistry.VersionedModule> extensions = selected.getAvailableExtensions();
                 if( extensions.size() > 0 ) {
                     HashSet enabled = new HashSet<String>(selected.getEnabledExtensions());
-                    println("Extensions:");
+                    println("%15s: %s", "Extensions", selected.getDefaultExtensions().isEmpty() ? "" : "(Default: "+join(selected.getDefaultExtensions(), ", ")+")");
 
-                    Table table = new Table("  {1} | {2} | {3}", -20, -10, -40);
+                    Table table = new Table("       {1} | {2} | {3}", -20, -10, -40);
                     table.add("Name", "Version", "Description");
 
                     for (Map.Entry<String, ModuleRegistry.VersionedModule> entry : extensions.entrySet()) {
                         ModuleRegistry.VersionedModule extension = entry.getValue();
-                        table.add(enabled.contains(extension.getName()) ? "+" : "-", extension.getName(), extension.getId().getVersion(), extension.getDescription());
+                        table.add( extension.getName(), extension.getId().getVersion(), extension.getDescription());
                     }
                     table.print(session.getConsole());
                 }
@@ -88,6 +109,15 @@ public class ShowCommand extends FabCommand {
         }
 
         return null;
+    }
+
+    private TreeSet<String> mapVersion(Collection<VersionedDependencyId> versionIds) {
+        TreeSet<String> versions = new TreeSet<String>();
+        for (VersionedDependencyId id : versionIds) {
+            String v = id.getVersion();
+            versions.add(v);
+        }
+        return versions;
     }
 
     private String[] wordWrap(String desc, int max) {

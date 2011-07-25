@@ -41,11 +41,4 @@ public class SearchCommand extends FabCommand {
         return null;
     }
 
-    public static void main(String []args) {
-        Table table = new Table("{1} | {2} | {3}", -20, -10, -40);
-        table.add("Name", "Version", "Description");
-        table.add("x", "y", "z");
-        table.add("x", "y", "z");
-        table.print(System.out);
-    }
 }

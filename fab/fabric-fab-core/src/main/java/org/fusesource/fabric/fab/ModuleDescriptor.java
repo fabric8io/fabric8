@@ -176,10 +176,14 @@ public class ModuleDescriptor {
         rc.description = value.getProperty(FAB_MODULE_DESCRIPTION);
         rc.longDescription = value.getProperty(FAB_MODULE_LONG_DESCRIPTION);
         rc.defaultExtensions = splitAndTrimAsList(value.getProperty(FAB_MODULE_DEFAULT_EXTENSIONS), "\\s+");
-        rc.extendsModules = decodeDependencyIds(splitAndTrimAsList(value.getProperty(FAB_MODULE_EXTENDS), "\\s+"));
-        rc.endorsedExtensions = decodeDependencyIds(splitAndTrimAsList(value.getProperty(FAB_MODULE_ENDORSED_EXTENSIONS), "\\s+"));
+        rc.extendsModules = decodeVersionList(value.getProperty(FAB_MODULE_EXTENDS));
+        rc.endorsedExtensions = decodeVersionList(value.getProperty(FAB_MODULE_ENDORSED_EXTENSIONS));
         rc.extensionModule = Boolean.valueOf(value.getProperty(FAB_MODULE_EXTENSION, ""+(!rc.extendsModules.isEmpty())));
         return rc;
+    }
+
+    public static List<VersionedDependencyId> decodeVersionList(String property) {
+        return decodeDependencyIds(splitAndTrimAsList(property, "\\s+"));
     }
 
 

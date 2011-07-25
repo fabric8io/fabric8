@@ -75,11 +75,15 @@ public interface ServiceConstants extends Constants {
 
     /**
      * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]
-     *
-     * You can use wildcards such as "group:artifact group:* *:*"
      */
     static final String INSTR_FAB_MODULE_ID = "Fabric-"+FAB_MODULE_ID;
 
+    /**
+     * The Ids of the Fabric Module extensions that are enabled.  This is a space
+     * separated list of
+     * groupId:artifactId:version:type[:classsifer]
+     */
+    static final String INSTR_FAB_MODULE_ENABLED_EXTENSIONS = "Fabric-Enabled-Extensions";
 
     /**
      * All the possible FAB headers on a manfiest, used to detect a FAB

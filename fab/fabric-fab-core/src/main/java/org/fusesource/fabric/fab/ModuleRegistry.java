@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.fab;
 
+import com.sun.tools.javac.util.Log;
+
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarInputStream;
@@ -134,6 +136,9 @@ public class ModuleRegistry {
                 return Collections.unmodifiableList(rc);
             }
         }
+        public void setEnabledExtensions(List<String> extensions) {
+            ModuleRegistry.this.setEnabledExtensions(descriptor.getId(), extensions);
+        }
 
         public List<String> getDefaultExtensions() {
             return Collections.unmodifiableList(descriptor.getDefaultExtensions());
@@ -158,6 +163,7 @@ public class ModuleRegistry {
         public boolean isExtensionModule() {
             return descriptor.isExtensionModule();
         }
+
     }
 
     public class Module {
@@ -186,9 +192,10 @@ public class ModuleRegistry {
             }
         }
 
-        public List<VersionedModule> getVersions() {
-            return new ArrayList<VersionedModule>(versions.values());
+        public Map<String, VersionedModule> getVersions() {
+            return Collections.unmodifiableMap(versions);
         }
+
         public List<VersionedDependencyId> getVersionIds() {
             ArrayList<VersionedDependencyId> rc = new ArrayList<VersionedDependencyId>(versions.size());
             for (VersionedModule module : versions.values()) {
@@ -248,23 +255,27 @@ public class ModuleRegistry {
         }
     }
 
+    public void loadDirectory(File directory, PrintStream err) {
+        loadDirectory(directory, err, false);
+    }
+
     /**
      * recursively scan a directory of ".fmd" files to add
      * a fabric module descriptors to the repository.
      *
      * @param directory
      */
-    public void loadDirectory(File directory, PrintStream err) {
+    public void loadDirectory(File directory, PrintStream err, boolean local) {
         for(File f : directory.listFiles() ) {
             if( f.isDirectory() ) {
-                loadDirectory(f, err);
+                loadDirectory(f, err, local);
             } else {
                 // load the fab module descriptors
                 if( f.getName().endsWith(".fmd") ) {
                     try {
                         FileInputStream is = new FileInputStream(f);
                         try {
-                            load(f, is);
+                            load(local ? f : null, is);
                         } finally {
                             is.close();
                         }

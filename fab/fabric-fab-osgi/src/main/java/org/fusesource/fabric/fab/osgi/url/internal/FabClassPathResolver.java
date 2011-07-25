@@ -9,21 +9,6 @@
 
 package org.fusesource.fabric.fab.osgi.url.internal;
 
-import org.apache.maven.model.Model;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.*;
-import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.IOHelpers;
-import org.fusesource.fabric.fab.util.Manifests;
-import org.fusesource.fabric.fab.util.Strings;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryException;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,7 +23,35 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import static org.fusesource.fabric.fab.ModuleDescriptor.*;
+
+import org.apache.felix.utils.version.VersionCleaner;
+import org.apache.maven.model.Model;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.DependencyTreeFilters;
+import org.fusesource.fabric.fab.DependencyTreeResult;
+import org.fusesource.fabric.fab.MavenResolver;
+import org.fusesource.fabric.fab.ModuleDescriptor;
+import org.fusesource.fabric.fab.ModuleRegistry;
+import org.fusesource.fabric.fab.PomDetails;
+import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
+import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.fabric.fab.util.IOHelpers;
+import org.fusesource.fabric.fab.util.Manifests;
+import org.fusesource.fabric.fab.util.Strings;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonatype.aether.RepositoryException;
+
+import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
+import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_ID;
+import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_NAME;
+import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism
@@ -106,17 +119,20 @@ public class FabClassPathResolver {
         addDependencies(rootTree);
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
-//        registerModule(pomDetails);
         Model model = pomDetails.getModel();
         moduleId = new VersionedDependencyId(model);
+        ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
+        if( module==null || module.getFile()!=null ) {
+            registerModule(model);
+        }
         resolveExtensions(model, rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
             if (requireBundleFilter.matches(dependencyTree)) {
                 // lets figure out the bundle ID etc...
                 String bundleId = dependencyTree.getBundleSymbolicName();
-                // TODO add a version range...
-                requireBundles.add(bundleId);
+                Version version = new Version(VersionCleaner.clean(dependencyTree.getVersion()));
+                requireBundles.add(bundleId + ";bundle-version=" + version + "");
             } else {
                 // TODO don't think we need to do anything now since already the BND stuff figures out the import packages for any missing stuff?
                 if (processImportPackages) {
@@ -181,20 +197,15 @@ public class FabClassPathResolver {
                 moduleProperties.setProperty(FAB_MODULE_NAME, model.getArtifactId());
             }
             if( !moduleProperties.containsKey(FAB_MODULE_DESCRIPTION) ) {
-                moduleProperties.setProperty(FAB_MODULE_NAME, model.getDescription());
+                moduleProperties.setProperty(FAB_MODULE_DESCRIPTION, model.getDescription());
             }
+
             ModuleDescriptor descriptor = ModuleDescriptor.fromProperties(moduleProperties);
+            moduleRegistry.add(descriptor);
 
-            for (VersionedDependencyId ext : descriptor.getEndorsedExtensions()) {
-                if( moduleRegistry.getVersionedModule(ext) == null ) {
-                    // TODO: Make sure all endorsed extensions are added to the
-                    // module registry too so they their extensions get registered.
-
-                }
-            }
         } catch (Exception e) {
             System.err.println("Failed to register the fabric module for: "+moduleId);
-            e.printStackTrace();;
+            e.printStackTrace();
         }
     }
 
@@ -216,8 +227,9 @@ public class FabClassPathResolver {
             List<Bundle> toStart = new ArrayList<Bundle>();
             for (DependencyTree dependency : installDependencies) {
                 String name = dependency.getBundleSymbolicName();
-                if (Bundles.isInstalled(bundleContext, name)) {
-                    LOG.info("Bundle already installed: " + name);
+                String version = dependency.getVersion();
+                if (Bundles.isInstalled(bundleContext, name, version)) {
+                    LOG.info("Bundle already installed: " + name + " (" + version + ")");
                 } else {
                     URL url = dependency.getJarURL();
                     String installUri = url.toExternalForm();
@@ -298,24 +310,33 @@ public class FabClassPathResolver {
 
     protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
-        Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
-        for (String enabledExtension : module.getEnabledExtensions()) {
-            ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
-            if( extensionModule!=null ) {
-                VersionedDependencyId id = extensionModule.getId();
+        if( module!=null ) {
+            Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
+            String extensionsString="";
+            for (String enabledExtension : module.getEnabledExtensions()) {
+                ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
+                if( extensionModule!=null ) {
+                    VersionedDependencyId id = extensionModule.getId();
 
-                // lets resolve the dependency
-                DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
-                if (result != null) {
-                    DependencyTree tree = result.getTree();
-                    LOG.debug("Adding extensions: " + tree);
-                    addExtensionDependencies(tree);
-                } else {
-                    LOG.debug("Could not resolve extension: " + id);
+                    // lets resolve the dependency
+                    DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
+                    if (result != null) {
+                        DependencyTree tree = result.getTree();
+                        LOG.debug("Adding extensions: " + tree);
+                        if( extensionsString.length()!=0 ) {
+                            extensionsString += " ";
+                        }
+                        extensionsString += id;
+                        addExtensionDependencies(tree);
+                    } else {
+                        LOG.debug("Could not resolve extension: " + id);
+                    }
                 }
             }
+            if( extensionsString.length()!= 0 ) {
+                instructions.put(ServiceConstants.INSTR_FAB_MODULE_ENABLED_EXTENSIONS, extensionsString);
+            }
         }
-
     }
 
     protected String resolvePropertyName(String extensionPropertyName) {
