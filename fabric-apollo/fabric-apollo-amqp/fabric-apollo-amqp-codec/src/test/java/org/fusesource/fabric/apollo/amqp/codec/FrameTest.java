@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved
  *
- * 	http://fusesource.com
+ *    http://fusesource.com
  *
  * The software in this package is published under the terms of the
  * CDDL license, a copy of which has been included with this distribution
- * in the license.txt file.
+ * in the license.txt file
  */
 
 package org.fusesource.fabric.apollo.amqp.codec;
@@ -37,7 +37,7 @@ public class FrameTest {
         in.setOutgoingWindow(10L);
         in.setNextOutgoingID(0L);
 
-        Begin out = TestSupport.encodeDecode(new AMQPTransportFrame(0, in)).getPerformative();
+        Begin out = (Begin)TestSupport.encodeDecode(new AMQPTransportFrame(0, in)).getPerformative();
         assertEquals(in.toString(), out.toString());
     }
 
@@ -51,7 +51,7 @@ public class FrameTest {
 
         AMQPTransportFrame outFrame = TestSupport.encodeDecode(frame);
 
-        Transfer outTransfer = outFrame.getPerformative();
+        Transfer outTransfer = (Transfer)outFrame.getPerformative();
 
         System.out.printf("Transfer : %s\n", outTransfer);
 
@@ -70,6 +70,7 @@ public class FrameTest {
         AMQPTransportFrame inFrame = new AMQPTransportFrame(0, transfer, MessageSupport.toBuffer(annotatedMessage));
 
         DataByteArrayOutputStream out = new DataByteArrayOutputStream((int)inFrame.getSize());
+        inFrame.write(out);
         Buffer buf = out.toBuffer();
 
 
@@ -82,7 +83,7 @@ public class FrameTest {
 
         AMQPTransportFrame outFrame = new AMQPTransportFrame(header, body);
 
-        Transfer outTransfer = outFrame.getPerformative();
+        Transfer outTransfer = (Transfer)outFrame.getPerformative();
         AnnotatedMessage msg = MessageSupport.decodeAnnotatedMessage(outFrame.getPayload());
         assertEquals(transfer.toString(), outTransfer.toString());
         assertEquals(annotatedMessage.toString(), msg.toString());

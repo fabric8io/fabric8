@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved
  *
- * 	http://fusesource.com
+ *    http://fusesource.com
  *
  * The software in this package is published under the terms of the
  * CDDL license, a copy of which has been included with this distribution
- * in the license.txt file.
+ * in the license.txt file
  */
 
 package org.fusesource.fabric.apollo.amqp.protocol
@@ -134,11 +134,11 @@ class AMQPCodec extends ProtocolCodec with Logging {
 
     // if it is now empty try to refill...
     if ( is_empty && next_write_buffer.size() != 0 ) {
-      // size of next buffer is based on how much was used in the previous buffer.
+      // size of incoming buffer is based on how much was used in the outgoing buffer.
       val prev_size = (write_buffer.position() + 512).max(512).min(write_buffer_size)
       write_buffer = next_write_buffer.toBuffer().toByteBuffer()
       next_write_buffer = new DataByteArrayOutputStream(prev_size)
-      //trace("Current write buffer size is %s bytes, next write buffer size is %s bytes", write_buffer.remaining, prev_size)
+      //trace("Current write buffer size is %s bytes, incoming write buffer size is %s bytes", write_buffer.remaining, prev_size)
     }
 
     if ( is_empty ) {
@@ -222,7 +222,7 @@ class AMQPCodec extends ProtocolCodec with Logging {
               error("Caught exception allocating read buffer %s", t)
               throw t
           }
-          // Move any unread bytes into the next buffer.. (don't think we ever have any)
+          // Move any unread bytes into the incoming buffer.. (don't think we ever have any)
           next_buffer.put(read_buffer)
           read_buffer = next_buffer
         }
@@ -264,5 +264,8 @@ class AMQPCodec extends ProtocolCodec with Logging {
 
   def getLastReadSize = 0
 
+  def getReadBufferSize = read_buffer_size
+
+  def getWriteBufferSize = write_buffer_size
 }
 
