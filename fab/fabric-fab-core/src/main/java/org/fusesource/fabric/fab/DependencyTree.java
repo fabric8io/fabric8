@@ -150,7 +150,6 @@ public class DependencyTree implements Comparable<DependencyTree> {
         this.children = Collections.unmodifiableList(sortedChildren);
         this.hashCode = Objects.hashCode(dependencyId, version, this.children);
     }
-
     public URL getJarURL() throws MalformedURLException {
         String url = getUrl();
         if (url == null) {
@@ -210,7 +209,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
      * Returns true if the dependency is a valid library (ie. pom files are ignored)
      */
     public boolean isValidLibrary() {
-        return !getUrl().endsWith(".pom");
+        return getUrl()!=null && !getUrl().endsWith(".pom");
     }
 
     public DependencyTree findDependency(String groupId, String artifactId) {

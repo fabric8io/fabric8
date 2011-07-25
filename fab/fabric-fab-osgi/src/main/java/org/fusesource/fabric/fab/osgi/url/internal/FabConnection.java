@@ -191,7 +191,7 @@ public class FabConnection extends URLConnection {
                     if ( missing.isEmpty() ) {
                         LOG.info("Bundle packages already installed: " + name );
                     } else {
-                        System.out.println("Missing packages: "+missing);
+                        LOG.info("Packages not yet shared: "+missing);
                         URL url = dependency.getJarURL();
                         String installUri = url.toExternalForm();
                         try {

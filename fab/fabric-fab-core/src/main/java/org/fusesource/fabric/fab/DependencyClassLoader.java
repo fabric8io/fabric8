@@ -35,8 +35,10 @@ public class DependencyClassLoader extends URLClassLoader {
         dependencies.addAll(nonSharedDependencies);
         List<URL> urlList = new ArrayList<URL>();
         for (DependencyTree dependency : dependencies) {
-            URL u = dependency.getJarURL();
-            urlList.add(u);
+            if( dependency.isValidLibrary() ) {
+                URL u = dependency.getJarURL();
+                urlList.add(u);
+            }
         }
         URL[] urls = urlList.toArray(new URL[urlList.size()]);
         return new DependencyClassLoader(tree, urls, parentClassLoader);

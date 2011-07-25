@@ -37,6 +37,7 @@ import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.util.artifact.ArtifactProperties;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.filter.AndDependencyFilter;
+import org.sonatype.aether.util.filter.ScopeDependencyFilter;
 import org.sonatype.aether.util.graph.DefaultDependencyNode;
 import org.sonatype.aether.util.graph.selector.AndDependencySelector;
 import org.sonatype.aether.util.graph.selector.ExclusionDependencySelector;
@@ -50,13 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -259,10 +254,8 @@ public class MavenResolver {
         for (Dependency dependency : dependencies) {
             CollectRequest request = new CollectRequest(dependency, repos);
             DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
-
-            repositorySystem.resolveDependencies(session, node, null);
-            //repo.resolveDependencies(session, node, new AndDependencyFilter(new ScopeDependencyFilter("test", "provided")));
-
+            // Avoid the test scope dependencies.
+            repositorySystem.resolveDependencies(session, node, new ScopeDependencyFilter("test"));
             pomNode.getChildren().add(node);
         }
 
