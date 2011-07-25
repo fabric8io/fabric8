@@ -61,7 +61,7 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
 
   test("Create interceptor, send header to it") {
     val (dummy_in, tasks) = createInterceptorChain
-    dummy_in.receive(ConnectionCreated.INSTANCE, tasks)
+    dummy_in.receive(ConnectionCreated.apply, tasks)
 
     dummy_in.incoming.incoming.isInstanceOf[TerminationInterceptor] should be (true)
     tasks should be ('empty)

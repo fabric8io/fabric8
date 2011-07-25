@@ -11,10 +11,12 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import interfaces.{ProtocolConnection, SessionFactory}
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.ProtocolSession
 
 /**
  *
  */
 class DefaultSessionFactory extends SessionFactory {
-  def create_session(connection: ProtocolConnection) = new AMQPSession(connection)
+  def create_session(connection: Interceptor):ProtocolSession = new AMQPSession(connection)
 }

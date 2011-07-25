@@ -104,7 +104,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
           case o:OpenSent =>
             client_queue.executeAfter(5, TimeUnit.SECONDS, ^ {
               client_wait.countDown
-              send(CloseConnection(), new Queue[() => Unit])
+              send(CloseConnection.apply, new Queue[() => Unit])
             })
           case c:ConnectionClosed =>
             client_disconnect_wait.countDown

@@ -53,15 +53,15 @@ class SessionMultiplexer extends Interceptor with Logging {
   }
 
   def session(remote: Boolean, remote_channel: Int): Session = {
-    val session = session_factory.create_session(this)
-    val local_channel = sessions.allocate(session)
+    val session = session_factory.create_session(new OutgoingConnector(this))
+    val local_channel = sessions.allocate(session.outgoing)
     session.setLocalChannel(local_channel)
 
     if ( remote ) {
       session.setRemoteChannel(remote_channel)
       channels.put(remote_channel, local_channel)
     }
-
+/*
     session_handler match {
       case Some(x) =>
         x.sessionCreated(this, session)
@@ -72,6 +72,7 @@ class SessionMultiplexer extends Interceptor with Logging {
           })
         }
     }
+    */
     session
   }
 

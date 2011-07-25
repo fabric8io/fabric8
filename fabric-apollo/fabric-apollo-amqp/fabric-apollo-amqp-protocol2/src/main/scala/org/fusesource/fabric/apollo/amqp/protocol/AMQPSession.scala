@@ -12,8 +12,9 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import interfaces.{ProtocolConnection, ProtocolSession}
 import org.fusesource.fabric.apollo.amqp.protocol.api._
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 
-class AMQPSession(val connection:ProtocolConnection) extends ProtocolSession {
+class AMQPSession(val connection:Interceptor) extends ProtocolSession {
 
   var local_channel:Option[Int] = None
 
@@ -58,5 +59,7 @@ class AMQPSession(val connection:ProtocolConnection) extends ProtocolSession {
   def getLocalChannel = local_channel
 
   def getRemoteChannel = remote_channel
+
+  def outgoing = connection
 
 }
