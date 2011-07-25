@@ -21,8 +21,29 @@ import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
  */
 
 class OutgoingConnector(target:Interceptor) extends Interceptor {
+  
+  private var _local_channel:Option[Int] = None
+  private var _remote_channel:Option[Int] = None
+  
+  def release = {
+    val rc = (local_channel, remote_channel)
+    _local_channel = None
+    _remote_channel = None
+    rc
+  }
+  
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = target.send(frame, tasks)
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
+  
+  def local_channel = _local_channel.getOrElse(throw new RuntimeException("No local channel set on connector"))
+  
+  def local_channel_=(channel:Int) = _local_channel = Option(channel)
+  
+  def remote_channel = _remote_channel.getOrElse(throw new RuntimeException("No remote channel set on connector"))
+  
+  def remote_channel_=(channel:Int) = _remote_channel = Option(channel)
+  
+  override def toString = String.format("%s{local_channel=%s remote_channel=%s", getClass.getSimpleName, _local_channel, _remote_channel)
 }
 

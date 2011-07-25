@@ -72,7 +72,7 @@ class CloseInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
               received_close_frame = true
             case _ =>
               fail("Should not have received " + f.getPerformative)
-          }
+          }    
         case c:CloseConnection =>
           received_close_connection = true
         case _ =>
