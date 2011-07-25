@@ -23,12 +23,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -71,6 +66,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     private String scope;
     private File jarFile;
     private boolean optional;
+    private HashSet<String> packages;
 
     public static Builder newBuilder() {
         return new Builder();
@@ -436,6 +432,22 @@ public class DependencyTree implements Comparable<DependencyTree> {
     public boolean isBundle() {
         // TODO is this the best way to test that a dependency is an osgi bundle?
         return getManifestBundleSymbolicName() != null;
+    }
+
+    public Set<String> getPackages() throws IOException {
+        if( packages==null ) {
+            if( getExtension().equals("jar") || getExtension().equals("zip") ) {
+                aQute.lib.osgi.Jar jar = new aQute.lib.osgi.Jar(getJarFile());
+                try {
+                    packages = new HashSet<String>(jar.getPackages());
+                } finally {
+                    jar.close();
+                }
+            } else {
+                return Collections.emptySet();
+            }
+        }
+        return packages;
     }
 
     // Helper classes

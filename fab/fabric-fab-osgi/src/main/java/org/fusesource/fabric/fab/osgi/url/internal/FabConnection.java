@@ -10,6 +10,7 @@
 package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
@@ -17,6 +18,7 @@ import org.fusesource.fabric.fab.util.Files;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
@@ -29,9 +31,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * {@link URLConnection} for the "fab" protocol
@@ -140,19 +140,100 @@ public class FabConnection extends URLConnection {
                 );
             }
             String extraImportPackages = classPathResolver.getExtraImportPackages();
-            return BndUtils.createBundle(
+            HashSet<String> actualImports = new HashSet<String>();
+            InputStream rc = BndUtils.createBundle(
                     URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
                     instructions,
                     fabUri,
                     OverwriteMode.MERGE,
                     embeddedResources,
-                    extraImportPackages);
+                    extraImportPackages,
+                    actualImports);
+
+            if (getConfiguration().isInstallMissingDependencies()) {
+                installMissingDependencies(actualImports);
+            } else {
+                LOG.info("Not installing dependencies as not enabled");
+            }
+
+            return rc;
         } catch (RepositoryException e) {
             throw new IOException(e.getMessage(), e);
         } catch (XmlPullParserException e) {
             throw new IOException(e.getMessage(), e);
         } catch (BundleException e) {
             throw new IOException(e.getMessage(), e);
+        }
+    }
+
+
+    protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException {
+
+//                    classPathResolver.getDependenciesByPackage(),
+        BundleContext bundleContext = getBundleContext();
+        if (bundleContext == null) {
+            LOG.warn("No BundleContext available so cannot install provided dependencies");
+        } else {
+            List<Bundle> toStart = new ArrayList<Bundle>();
+            for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
+                String name = dependency.getBundleSymbolicName();
+                String version = dependency.getVersion();
+                if (Bundles.isInstalled(bundleContext, name, version)) {
+                    LOG.info("Bundle already installed: " + name + " (" + version + ")");
+                } else {
+
+                    // Which of the dependencies packages did we really import?
+                    HashSet<String> p = new HashSet<String>(dependency.getPackages());
+                    p.retainAll(actualImports);
+
+                    // Now which of the packages not not exported in the OSGi env?
+                    Set<String> missing = Bundles.filterInstalled(bundleContext, p);
+                    if ( missing.isEmpty() ) {
+                        LOG.info("Bundle packages already installed: " + name );
+                    } else {
+                        System.out.println("Missing packages: "+missing);
+                        URL url = dependency.getJarURL();
+                        String installUri = url.toExternalForm();
+                        try {
+                            Bundle bundle = null;
+                            if (!dependency.isBundle()) {
+                                FabConnection childConnection = createChild(url);
+                                PomDetails pomDetails = childConnection.resolvePomDetails();
+                                if (pomDetails != null && pomDetails.isValid()) {
+                                    // lets make sure we use a FAB to deploy it
+                                    LOG.info("Installing fabric bundle: " + name + " from: " + installUri);
+                                    bundle = bundleContext.installBundle(installUri, childConnection.getInputStream());
+                                } else {
+                                    LOG.warn("Could not deduce the pom.xml for the jar " + installUri + " so cannot treat as FAB");
+                                }
+                            } else {
+                                LOG.info("Installing bundle: " + name + " from: " + installUri);
+                                bundle = bundleContext.installBundle(installUri);
+                            }
+                            if (bundle != null && isStartInstalledDependentBundles()) {
+                                toStart.add(bundle);
+                            }
+                        } catch (BundleException e) {
+                            LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
+                            throw e;
+                        } catch (IOException e) {
+                            LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
+                            throw e;
+                        } catch (RuntimeException e) {
+                            LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
+                            throw e;
+                        }
+                    }
+                }
+            }
+            // now lets start the installed bundles
+            for (Bundle bundle : toStart) {
+                try {
+                    bundle.start();
+                } catch (BundleException e) {
+                    LOG.warn("Failed to start " + bundle.getSymbolicName() + ". Reason: " + e, e);
+                }
+            }
         }
     }
 
