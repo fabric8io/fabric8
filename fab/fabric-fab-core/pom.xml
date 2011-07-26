@@ -95,6 +95,12 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>biz.aQute</groupId>
+      <artifactId>bndlib</artifactId>
+      <version>0.0.313</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -117,5 +123,12 @@
       </resource>
     </resources>
   </build>
+
+  <repositories>
+    <repository>
+      <id>aQute</id>
+      <url>http://www.aQute.biz/repo</url>
+    </repository>
+  </repositories>
 
 </project>

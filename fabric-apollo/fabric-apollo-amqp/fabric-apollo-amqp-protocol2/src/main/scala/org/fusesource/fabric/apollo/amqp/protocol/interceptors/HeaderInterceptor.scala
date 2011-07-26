@@ -24,7 +24,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, Hea
 class HeaderInterceptor extends Interceptor {
 
   val error = () => {
-    send(CloseConnection(), new Queue[() => Unit])
+    send(CloseConnection.apply, new Queue[() => Unit])
   }
 
   val sent = new AtomicBoolean(false)
@@ -35,7 +35,7 @@ class HeaderInterceptor extends Interceptor {
         if (!sent.getAndSet(true)) {
           if (!tasks.contains(error)) {
             tasks.enqueue(() => {
-              receive(HeaderSent(), new Queue[() => Unit])
+                receive(HeaderSent.apply, new Queue[() => Unit])
             })
             tasks.enqueue(rm)
           }

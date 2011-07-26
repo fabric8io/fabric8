@@ -18,31 +18,27 @@
  */
 package org.fusesource.fabric.fab.osgi.url.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.UnsupportedEncodingException;
+import aQute.lib.osgi.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.fusesource.fabric.fab.util.Files;
+import org.ops4j.lang.NullArgumentException;
+
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import aQute.lib.osgi.Analyzer;
-import aQute.lib.osgi.FileResource;
-import aQute.lib.osgi.Jar;
-import aQute.lib.osgi.Resource;
-import aQute.lib.osgi.URLResource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.fab.util.Files;
-import org.ops4j.lang.NullArgumentException;
+
+import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
+import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
  * Wrapper over PeterK's bnd lib.
@@ -89,28 +85,31 @@ public class BndUtils
                                             final String jarInfo )
         throws IOException
     {
-        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP, "" );
+        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP, "", new HashSet<String>() );
     }
 
     /**
      * Processes the input jar and generates the necessary OSGi headers using specified instructions.
+     *
      *
      * @param jarInputStream input stream for the jar to be processed. Cannot be null.
      * @param instructions   bnd specific processing instructions. Cannot be null.
      * @param jarInfo        information about the jar to be processed. Usually the jar url. Cannot be null or empty.
      * @param overwriteMode  manifets overwrite mode
      *
+     * @param actualImports
      * @return an input stream for the generated bundle
      *
      * @throws NullArgumentException if any of the parameters is null
      * @throws IOException           re-thron during jar processing
      */
-    public static InputStream createBundle( final InputStream jarInputStream,
-                                            final Properties instructions,
-                                            final String jarInfo,
-                                            final OverwriteMode overwriteMode,
-                                            final Map<String, Object> embeddedResources,
-                                            final String extraImportPackages)
+    public static InputStream createBundle(final InputStream jarInputStream,
+                                           final Properties instructions,
+                                           final String jarInfo,
+                                           final OverwriteMode overwriteMode,
+                                           final Map<String, Object> embeddedResources,
+                                           final String extraImportPackages,
+                                           final HashSet<String> actualImports)
         throws IOException
     {
         NullArgumentException.validateNotNull( jarInputStream, "Jar URL" );
@@ -168,14 +167,20 @@ public class BndUtils
             checkMandatoryProperties( analyzer, jar, jarInfo );
 
             analyzer.calcManifest();
-            if (extraImportPackages != null && extraImportPackages.length() > 0) {
-                Attributes main = jar.getManifest().getMainAttributes();
-                String importPackages = main.getValue(Analyzer.IMPORT_PACKAGE);
-                if (importPackages == null || importPackages.length() == 0) {
-                    importPackages = extraImportPackages;
-                } else {
-                    importPackages += "," + extraImportPackages;
+
+            Attributes main = jar.getManifest().getMainAttributes();
+            String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
+
+            if (notEmpty(extraImportPackages) ) {
+                if( importPackages.length()!=0 ) {
+                    importPackages += ",";
                 }
+                importPackages += extraImportPackages;
+            }
+
+            if (notEmpty(importPackages) ) {
+                Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
+                actualImports.addAll(values.keySet());
                 main.putValue(Analyzer.IMPORT_PACKAGE, importPackages);
             }
         }

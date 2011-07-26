@@ -19,11 +19,10 @@ import org.fusesource.fabric.apollo.amqp.codec.types._
 /**
  *
  */
-
 class CloseInterceptor extends Interceptor {
 
   val close = () => {
-    outgoing.send(CloseConnection(), new Queue[() => Unit])
+    outgoing.send(CloseConnection.apply, new Queue[() => Unit])
     remove
   }
 
@@ -60,7 +59,7 @@ class CloseInterceptor extends Interceptor {
         case t:AMQPTransportFrame =>
           t.getPerformative match {
             case c:Close =>
-              send(CloseConnection(), tasks)
+              send(CloseConnection.apply, tasks)
             case _ =>
               incoming.receive(frame, tasks)
           }

@@ -13,11 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -52,6 +48,7 @@ import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_ID;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_NAME;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
+import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism
@@ -59,20 +56,25 @@ import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
 public class FabClassPathResolver {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabClassPathResolver.class);
 
-    private final FabConnection connection;
-    private final Properties instructions;
-    private final Map<String, Object> embeddedResources;
-    private final ModuleRegistry moduleRegistry;
-    private final List<String> bundleClassPath = new ArrayList<String>();
-    private final List<String> requireBundles = new ArrayList<String>();
-    private final List<String> importPackages = new ArrayList<String>();
+    private FabConnection connection;
+    private Properties instructions;
+    private Map<String, Object> embeddedResources;
+    private HashMap<String, DependencyTree> dependenciesByPackage = new HashMap<String, DependencyTree>();
+    private ModuleRegistry moduleRegistry;
+    private List<String> bundleClassPath = new ArrayList<String>();
+    private List<String> requireBundles = new ArrayList<String>();
+    private List<String> importPackages = new ArrayList<String>();
     private boolean offline = false;
     private Filter<DependencyTree> sharedFilter;
     private Filter<DependencyTree> requireBundleFilter;
     private Filter<DependencyTree> excludePackageFilter;
+    private Filter<DependencyTree> excludeOptionalFilter;
+
     private List<DependencyTree> nonSharedDependencies = new ArrayList<DependencyTree>();
     private List<DependencyTree> sharedDependencies = new ArrayList<DependencyTree>();
+
     private List<DependencyTree> installDependencies = new ArrayList<DependencyTree>();
+    private List<DependencyTree> optionalDependencies = new ArrayList<DependencyTree>();
     private DependencyTree rootTree;
     // don't think there's any need to even look at Import-Packages as BND takes care of it...
     private boolean processImportPackages = false;
@@ -87,6 +89,9 @@ public class FabClassPathResolver {
         this.resolver = connection.getResolver();
     }
 
+    public List<DependencyTree> getInstallDependencies() {
+        return installDependencies;
+    }
 
     public void resolve() throws RepositoryException, IOException, XmlPullParserException, BundleException {
         PomDetails pomDetails = connection.resolvePomDetails();
@@ -104,7 +109,8 @@ public class FabClassPathResolver {
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText);
         requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(requireBundleFilterText);
-        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText, optionalDependencyText);
+        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText);
+        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(optionalDependencyText);
 
         bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
         requireBundles.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
@@ -117,6 +123,7 @@ public class FabClassPathResolver {
             instructions.setProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME, name);
         }
         addDependencies(rootTree);
+
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
         Model model = pomDetails.getModel();
@@ -171,13 +178,7 @@ public class FabClassPathResolver {
         instructions.setProperty(ServiceConstants.INSTR_FAB_MODULE_ID, moduleId.toString());
 
         // adding import package statements causes the Bnd analyzer to not run so lets not do that :)
-        //instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
-
-        if (connection.getConfiguration().isInstallMissingDependencies()) {
-            installMissingDependencies();
-        } else {
-            LOG.info("Not installing dependencies as not enabled");
-        }
+        instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
     }
 
     private void registerModule(Model model) throws IOException, XmlPullParserException {
@@ -197,7 +198,7 @@ public class FabClassPathResolver {
                 moduleProperties.setProperty(FAB_MODULE_NAME, model.getArtifactId());
             }
             if( !moduleProperties.containsKey(FAB_MODULE_DESCRIPTION) ) {
-                moduleProperties.setProperty(FAB_MODULE_DESCRIPTION, model.getDescription());
+                moduleProperties.setProperty(FAB_MODULE_DESCRIPTION, emptyIfNull(model.getDescription()));
             }
 
             ModuleDescriptor descriptor = ModuleDescriptor.fromProperties(moduleProperties);
@@ -206,6 +207,37 @@ public class FabClassPathResolver {
         } catch (Exception e) {
             System.err.println("Failed to register the fabric module for: "+moduleId);
             e.printStackTrace();
+        }
+    }
+
+    protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
+        ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
+        if( module!=null ) {
+            Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
+            String extensionsString="";
+            for (String enabledExtension : module.getEnabledExtensions()) {
+                ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
+                if( extensionModule!=null ) {
+                    VersionedDependencyId id = extensionModule.getId();
+
+                    // lets resolve the dependency
+                    DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
+                    if (result != null) {
+                        DependencyTree tree = result.getTree();
+                        LOG.debug("Adding extensions: " + tree);
+                        if( extensionsString.length()!=0 ) {
+                            extensionsString += " ";
+                        }
+                        extensionsString += id;
+                        addExtensionDependencies(tree);
+                    } else {
+                        LOG.debug("Could not resolve extension: " + id);
+                    }
+                }
+            }
+            if( extensionsString.length()!= 0 ) {
+                instructions.put(ServiceConstants.INSTR_FAB_MODULE_ENABLED_EXTENSIONS, extensionsString);
+            }
         }
     }
 
@@ -219,61 +251,6 @@ public class FabClassPathResolver {
         }
     }
 
-    protected void installMissingDependencies() throws IOException, BundleException {
-        BundleContext bundleContext = connection.getBundleContext();
-        if (bundleContext == null) {
-            LOG.warn("No BundleContext available so cannot install provided dependencies");
-        } else {
-            List<Bundle> toStart = new ArrayList<Bundle>();
-            for (DependencyTree dependency : installDependencies) {
-                String name = dependency.getBundleSymbolicName();
-                String version = dependency.getVersion();
-                if (Bundles.isInstalled(bundleContext, name, version)) {
-                    LOG.info("Bundle already installed: " + name + " (" + version + ")");
-                } else {
-                    URL url = dependency.getJarURL();
-                    String installUri = url.toExternalForm();
-                    try {
-                        Bundle bundle = null;
-                        if (!dependency.isBundle()) {
-                            FabConnection childConnection = connection.createChild(url);
-                            PomDetails pomDetails = childConnection.resolvePomDetails();
-                            if (pomDetails != null && pomDetails.isValid()) {
-                                // lets make sure we use a FAB to deploy it
-                                LOG.info("Installing fabric bundle: " + name + " from: " + installUri);
-                                bundle = bundleContext.installBundle(installUri, childConnection.getInputStream());
-                            } else {
-                                LOG.warn("Could not deduce the pom.xml for the jar " + installUri + " so cannot treat as FAB");
-                            }
-                        } else {
-                            LOG.info("Installing bundle: " + name + " from: " + installUri);
-                            bundle = bundleContext.installBundle(installUri);
-                        }
-                        if (bundle != null && connection.isStartInstalledDependentBundles()) {
-                            toStart.add(bundle);
-                        }
-                    } catch (BundleException e) {
-                        LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
-                        throw e;
-                    } catch (IOException e) {
-                        LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
-                        throw e;
-                    } catch (RuntimeException e) {
-                        LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
-                        throw e;
-                    }
-                }
-            }
-            // now lets start the installed bundles
-            for (Bundle bundle : toStart) {
-                try {
-                    bundle.start();
-                } catch (BundleException e) {
-                    LOG.warn("Failed to start " + bundle.getSymbolicName() + ". Reason: " + e, e);
-                }
-            }
-        }
-    }
 
     public boolean isProcessImportPackages() {
         return processImportPackages;
@@ -307,50 +284,28 @@ public class FabClassPathResolver {
         return answer;
     }
 
-
-    protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
-        ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
-        if( module!=null ) {
-            Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
-            String extensionsString="";
-            for (String enabledExtension : module.getEnabledExtensions()) {
-                ModuleRegistry.VersionedModule extensionModule = availableExtensions.get(enabledExtension);
-                if( extensionModule!=null ) {
-                    VersionedDependencyId id = extensionModule.getId();
-
-                    // lets resolve the dependency
-                    DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
-                    if (result != null) {
-                        DependencyTree tree = result.getTree();
-                        LOG.debug("Adding extensions: " + tree);
-                        if( extensionsString.length()!=0 ) {
-                            extensionsString += " ";
-                        }
-                        extensionsString += id;
-                        addExtensionDependencies(tree);
-                    } else {
-                        LOG.debug("Could not resolve extension: " + id);
-                    }
+    protected void addPackages(DependencyTree tree) {
+        try {
+            for(String p: tree.getPackages() ) {
+                if( !dependenciesByPackage.containsKey(p) ) {
+                    dependenciesByPackage.put(p, tree);
                 }
             }
-            if( extensionsString.length()!= 0 ) {
-                instructions.put(ServiceConstants.INSTR_FAB_MODULE_ENABLED_EXTENSIONS, extensionsString);
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    protected String resolvePropertyName(String extensionPropertyName) {
-        // TODO whats the right way to do this???
-        return connection.getConfiguration().get(extensionPropertyName);
-    }
-
-
     protected void addDependencies(DependencyTree tree) throws IOException {
+        addPackages(tree);
         List<DependencyTree> children = tree.getChildren();
         for (DependencyTree child : children) {
             if (excludePackageFilter.matches(child)) {
                 // ignore
                 LOG.debug("Excluded dependency: " + child);
+                continue;
+            } else if (excludeOptionalFilter.matches(child)) {
+                addOptionalDependency(child);
                 continue;
             } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
                 // lets add all the transitive dependencies as shared
@@ -363,10 +318,26 @@ public class FabClassPathResolver {
         }
     }
 
+    private void addOptionalDependency(DependencyTree tree) {
+        addPackages(tree);
+        optionalDependencies.add(tree);
+        List<DependencyTree> list = tree.getDescendants();
+        for (DependencyTree child : list) {
+            if (excludePackageFilter.matches(child)) {
+                LOG.debug("Excluded transitive dependency: " + child);
+                continue;
+            } else {
+                addOptionalDependency(child);
+            }
+        }
+    }
+
     protected void addExtensionDependencies(DependencyTree child) throws IOException {
         if (excludePackageFilter.matches(child)) {
             // ignore
             LOG.debug("Excluded dependency: " + child);
+        } else if (excludeOptionalFilter.matches(child)) {
+            LOG.debug("Excluded optional dependency: " + child);
         } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
             // lets add all the transitive dependencies as shared
             addSharedDependency(child);
@@ -378,6 +349,7 @@ public class FabClassPathResolver {
     }
 
     protected void addSharedDependency(DependencyTree tree) throws IOException {
+        addPackages(tree);
         sharedDependencies.add(tree);
         if (connection.isIncludeSharedResources()) {
             includeSharedResources(tree);
@@ -387,6 +359,9 @@ public class FabClassPathResolver {
         for (DependencyTree child : list) {
             if (excludePackageFilter.matches(child)) {
                 LOG.debug("Excluded transitive dependency: " + child);
+                continue;
+            } else if (excludeOptionalFilter.matches(child)) {
+                LOG.debug("Excluded optional transitive dependency: " + child);
                 continue;
             } else {
                 sharedDependencies.add(child);
@@ -464,6 +439,8 @@ public class FabClassPathResolver {
             for (DependencyTree child : list) {
                 if (excludePackageFilter.matches(child)) {
                     continue;
+                } else if (excludeOptionalFilter.matches(child)) {
+                    continue;
                 } else {
                     addInstallDependencies(child);
                 }
@@ -475,5 +452,13 @@ public class FabClassPathResolver {
 
     public String getExtraImportPackages() {
         return Strings.join(importPackages, ",");
+    }
+
+    public Map<String, DependencyTree> getDependenciesByPackage() {
+        return dependenciesByPackage;
+    }
+
+    public List<DependencyTree> getOptionalDependencies() {
+        return optionalDependencies;
     }
 }

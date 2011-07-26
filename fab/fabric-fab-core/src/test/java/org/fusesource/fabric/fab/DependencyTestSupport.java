@@ -130,7 +130,7 @@ public abstract class DependencyTestSupport {
     }
 
     protected Filter<DependencyTree> getExcludeFilter() {
-        return DependencyTreeFilters.parseExcludeFilter("", "");
+        return DependencyTreeFilters.parseExcludeFilter("");
     }
 
     protected DependencyClassLoader getClassLoaderForPom(String pomName, Filter<DependencyTree> shareFilter, Filter<DependencyTree> excludeFilter) throws Exception {
