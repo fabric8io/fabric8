@@ -22,6 +22,7 @@
 
   <groupId>org.fusesource.fabric.apollo.amqp</groupId>
   <artifactId>fabric-apollo-amqp-protocol2</artifactId>
+  <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <version>1.0-SNAPSHOT</version>
 

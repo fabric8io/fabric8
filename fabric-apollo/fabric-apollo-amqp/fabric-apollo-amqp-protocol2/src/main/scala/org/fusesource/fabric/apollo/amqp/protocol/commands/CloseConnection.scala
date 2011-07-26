@@ -18,7 +18,7 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 object CloseConnection {
   private val INSTANCE = new CloseConnection
 
-  def apply() = INSTANCE
+  def apply = INSTANCE
 
   def apply(reason:String) = {
     val rc = new CloseConnection

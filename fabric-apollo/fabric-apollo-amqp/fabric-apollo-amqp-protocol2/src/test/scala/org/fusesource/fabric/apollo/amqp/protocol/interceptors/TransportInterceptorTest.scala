@@ -42,7 +42,7 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
         transport.setDispatchQueue(server.getDispatchQueue)
         transport.start(^{
           server.getDispatchQueue.executeAfter(2, TimeUnit.SECONDS, ^{
-            transport_interceptor.send(CloseConnection(), new Queue[() => Unit])
+            transport_interceptor.send(CloseConnection.apply, new Queue[() => Unit])
           })
         })
       }

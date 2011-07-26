@@ -25,4 +25,6 @@ abstract trait ProtocolSession extends Session {
 
   def getRemoteChannel: Option[Int]
 
+  def outgoing:Interceptor
+
 }

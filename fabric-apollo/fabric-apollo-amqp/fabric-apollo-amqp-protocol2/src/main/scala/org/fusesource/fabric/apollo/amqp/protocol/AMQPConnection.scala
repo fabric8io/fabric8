@@ -255,6 +255,8 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
   }
 
   def session(remote: Boolean, remote_channel: Int): Session = {
+    
+    /*
     val session = session_factory.create_session(this)
     val local_channel = sessions.allocate(session)
     session.setLocalChannel(local_channel)
@@ -275,6 +277,8 @@ class AMQPConnection extends ProtocolConnection with TransportListener with Logg
         }
     }
     session
+    */
+   null.asInstanceOf[Session]
   }
 
   def createSession: Session = session(false, 0)

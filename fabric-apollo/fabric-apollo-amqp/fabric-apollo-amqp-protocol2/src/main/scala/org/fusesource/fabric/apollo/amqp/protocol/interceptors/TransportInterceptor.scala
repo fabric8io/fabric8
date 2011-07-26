@@ -28,78 +28,78 @@ import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, Cl
 
 class TransportInterceptor extends Interceptor with TransportListener with Logging {
 
-  var dispatch_queue:DispatchQueue = null
-  var session_manager: SessionSinkMux[AMQPFrame] = null
-  var connection_sink: Sink[AMQPFrame] = null
-  var transport: Transport = null
+	var dispatch_queue:DispatchQueue = null
+	var session_manager: SessionSinkMux[AMQPFrame] = null
+	var connection_sink: Sink[AMQPFrame] = null
+	var transport: Transport = null
 
-  var _on_connect:Option[() => Unit] = None
+	var _on_connect:Option[() => Unit] = None
 
-  def onTransportCommand(command: AnyRef) {
-    command match {
-      case f:AMQPFrame =>
-        receive(f, new Queue[() => Unit])
-      case _ =>
-        // TODO - handle this case in some way
-    }
-  }
+	def onTransportCommand(command: AnyRef) {
+		command match {
+			case f:AMQPFrame =>
+				receive(f, new Queue[() => Unit])
+			case _ =>
+				// TODO - handle this case in some way
+		}
+	}
 
-  def onRefill() {}
+	def onRefill() {}
 
-  def onTransportFailure(error: IOException) = {
-    trace("Connection to %s failed with %s:%s", transport.getRemoteAddress, error, error.getMessage)
-    receive(ConnectionClosed(), new Queue[() => Unit])
-  }
+	def onTransportFailure(error: IOException) = {
+		trace("Connection to %s failed with %s:%s", transport.getRemoteAddress, error, error.getMessage)
+		receive(ConnectionClosed.apply, new Queue[() => Unit])
+	}
 
-  def onTransportConnected() {
-    trace("Connected to %s via %s", transport.getRemoteAddress, transport.getTypeId)
-    dispatch_queue = transport.getDispatchQueue
-    val transport_sink = new TransportSink(transport)
+	def onTransportConnected() {
+		trace("Connected to %s via %s", transport.getRemoteAddress, transport.getTypeId)
+		dispatch_queue = transport.getDispatchQueue
+		val transport_sink = new TransportSink(transport)
 
-    session_manager = new SessionSinkMux[AMQPFrame](transport_sink.map {
-      x =>
-        x
-    }, dispatch_queue, AMQPCodec)
-    connection_sink = new OverflowSink(session_manager.open(dispatch_queue))
-    connection_sink.refiller = NOOP
-    receive(ConnectionCreated(), new Queue[() => Unit])
-    _on_connect.foreach( x => x() )
-    transport.resumeRead
-  }
+		session_manager = new SessionSinkMux[AMQPFrame](transport_sink.map {
+				x =>
+				x
+			}, dispatch_queue, AMQPCodec)
+		connection_sink = new OverflowSink(session_manager.open(dispatch_queue))
+		connection_sink.refiller = NOOP
+		receive(ConnectionCreated.apply, new Queue[() => Unit])
+		_on_connect.foreach( x => x() )
+		transport.resumeRead
+	}
 
-  def onTransportDisconnected() {
-    trace("Disconnected from %s", transport.getRemoteAddress)
-    receive(ConnectionClosed(), new Queue[() => Unit])
-  }
+	def onTransportDisconnected() {
+		trace("Disconnected from %s", transport.getRemoteAddress)
+		receive(ConnectionClosed.apply, new Queue[() => Unit])
+	}
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case c:CloseConnection =>
-        tasks.enqueue( () => {
-          trace("Closing connection")
-          transport.stop(^{
-            receive(ConnectionClosed(), new Queue[() => Unit])
-          })
-        })
-      case f:AMQPTransportFrame =>
-        trace("Sending : %s", frame)
-        connection_sink.offer(f)
-      case f:AMQPProtocolHeader =>
-        trace("Sending : %s", frame)
-        connection_sink.offer(f)
-      case _ =>
-    }
-    tasks.dequeueAll( (x) => {
-      x()
-      true
-    })
-  }
+	def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+		frame match {
+			case c:CloseConnection =>
+				tasks.enqueue( () => {
+						trace("Closing connection")
+						transport.stop(^{
+								receive(ConnectionClosed.apply, new Queue[() => Unit])
+							})
+					})
+			case f:AMQPTransportFrame =>
+				trace("Sending : %s", frame)
+				connection_sink.offer(f)
+			case f:AMQPProtocolHeader =>
+				trace("Sending : %s", frame)
+				connection_sink.offer(f)
+			case _ =>
+		}
+		tasks.dequeueAll( (x) => {
+				x()
+				true
+			})
+	}
 
-  def on_connect_=(func:() => Unit) = _on_connect = Option(func)
-  def on_connect = _on_connect.getOrElse(() => {})
+	def on_connect_=(func:() => Unit) = _on_connect = Option(func)
+	def on_connect = _on_connect.getOrElse(() => {})
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    trace("Received : %s", frame)
-    incoming.receive(frame, tasks)
-  }
+	def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+		trace("Received : %s", frame)
+		incoming.receive(frame, tasks)
+	}
 }
