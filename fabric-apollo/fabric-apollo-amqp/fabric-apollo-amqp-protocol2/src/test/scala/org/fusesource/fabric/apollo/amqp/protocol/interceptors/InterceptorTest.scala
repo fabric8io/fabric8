@@ -15,8 +15,8 @@ import org.scalatest.matchers.ShouldMatchers
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.commands.SimpleFrame
-import sun.tools.tree.NewInstanceExpression
 import test_interceptors._
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 
 /**
  *
@@ -86,6 +86,15 @@ class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
     in.receive(new SimpleFrame, new Queue[() => Unit])
     got_here should be (true)
 
+  }
+
+  test("toString") {
+    val in = new SimpleInterceptor
+    in.tail.incoming = new SimpleInterceptor
+    in.tail.incoming = new TerminationInterceptor
+    in.tail.incoming = new TaskExecutingInterceptor
+    in.tail.incoming = new TerminationInterceptor
+    info("Chain is %s", display_chain(in))
   }
 
 }

@@ -18,12 +18,14 @@ import org.fusesource.fabric.apollo.amqp.protocol.AMQPConnection
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import org.apache.activemq.apollo.transport.Transport
 import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.protocol.commands.ConnectionClosed
+import org.apache.activemq.apollo.util.Logging
 
 /**
  *
  */
 
-class HeartbeatInterceptor extends Interceptor {
+class HeartbeatInterceptor extends Interceptor with Logging {
 
   var transport:Transport = null
 
@@ -35,35 +37,44 @@ class HeartbeatInterceptor extends Interceptor {
     send(new AMQPTransportFrame, new Queue[() => Unit])
   }
 
-  def heartbeat_interval = (idle_timeout - (idle_timeout * 0.05)).asInstanceOf[Long]
+  def heartbeat_interval(t:Long) = (t - (t * 0.05)).asInstanceOf[Long]
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = outgoing.send(frame, tasks)
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
+      case c:ConnectionClosed =>
+        heartbeat_monitor.stop
       case f:AMQPTransportFrame =>
         val performative:Object = f.getPerformative
         performative match {
           case n:NoPerformative =>
+            info("Dropping heartbeat frame : %s", frame)
+            return
           case o:Open =>
-            Option(o.getIdleTimeout).foreach( t => {
-              idle_timeout = idle_timeout.min(t)
-              heartbeat_monitor.read_interval = idle_timeout
-              heartbeat_monitor.write_interval = heartbeat_interval
-              heartbeat_monitor.transport = transport
-              heartbeat_monitor.on_dead = () => {
-                val close = new Close(new Error(ascii("Idle timeout expired")))
-                send(new AMQPTransportFrame(close), new Queue[() => Unit])
-              }
-              heartbeat_monitor.on_keep_alive = on_keep_alive
-              heartbeat_monitor.start
-            })
+            Option(o.getIdleTimeout) match {
+              case Some(t) =>
+                tasks.enqueue( () => {
+                  val write_interval = heartbeat_interval(t)
+                  trace("Setting up heartbeat, read_interval:%s write_interval: %s", idle_timeout, write_interval)
+                  heartbeat_monitor.read_interval = idle_timeout
+                  heartbeat_monitor.write_interval = write_interval
+                  heartbeat_monitor.transport = transport
+                  heartbeat_monitor.on_dead = () => {
+                    val close = new Close(new Error(ascii("Idle timeout expired")))
+                    send(new AMQPTransportFrame(close), new Queue[() => Unit])
+                  }
+                  heartbeat_monitor.on_keep_alive = on_keep_alive
+                  heartbeat_monitor.start
+                })
+              case None =>
+                tasks.enqueue(rm)
+            }
           case _ =>
-            incoming.receive(frame, tasks)
         }
       case _ =>
-        incoming.receive(frame, tasks)
     }
+    incoming.receive(frame, tasks)
   }
 
 }

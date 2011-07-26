@@ -47,6 +47,7 @@ class HeaderInterceptor extends Interceptor {
           })
         }
       case _ =>
+        // TODO should actually throw an error here, nothing should go out until the header is sent
         outgoing.send(frame, tasks)
     }
   }
@@ -61,9 +62,8 @@ class HeaderInterceptor extends Interceptor {
         }
         send(new AMQPProtocolHeader, tasks)
       case _ =>
+        // TODO should throw an error here
         incoming.receive(frame, tasks)
     }
   }
-
-  override def toString = String.format("AMQP Header Interceptor outgoing=%s incoming=%s", outgoing, incoming)
 }

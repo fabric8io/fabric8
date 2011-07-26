@@ -13,6 +13,16 @@ package org.fusesource.fabric.apollo.amqp.protocol.interfaces
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 
+object Interceptor {
+  def display_chain(in:Interceptor):String = {
+    var rc = ""
+    in.foreach((in) => {
+      rc = rc + "=>{" + in + "}"
+    })
+    rc.substring(2)
+  }
+}
+
 abstract class Interceptor {
 
   private var _outgoing:Option[Interceptor] = None
@@ -82,6 +92,24 @@ abstract class Interceptor {
       outgoing.head
     }
   }
+
+  def foreach_reverse(func:Interceptor => Unit) = {
+    var in = Option[Interceptor](tail)
+    while (in != None) {
+      func(in.get)
+      in = in.get._outgoing
+    }
+  }
+
+  def foreach(func:Interceptor => Unit) = {
+    var in = Option[Interceptor](head)
+    while (in != None) {
+      func(in.get)
+      in = in.get._incoming
+    }
+  }
+
+  override def toString = getClass.getSimpleName
 
   def send(frame:AMQPFrame, tasks:Queue[() => Unit])
 

@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import api.ConnectionHandler
+import api.{ServerConnection, ConnectionHandler}
 import interfaces.ConnectionFactory
 
 
@@ -20,5 +20,5 @@ import interfaces.ConnectionFactory
 class DefaultConnectionFactory extends ConnectionFactory {
   def createConnection() = new AMQPConnection
 
-  def createServerConnection(handler: ConnectionHandler) = new AMQPServerConnection(handler)
+  def createServerConnection(handler: ConnectionHandler) = null.asInstanceOf[ServerConnection]
 }

@@ -27,7 +27,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.api._
 /**
  *
  */
-class AMQPServerConnection(handler: ConnectionHandler) extends AMQPConnection with ServerConnection with TransportAcceptListener {
+class AMQPServerConnection(handler: ConnectionHandler) /*extends AMQPConnection with ServerConnection with TransportAcceptListener {
   var transportServer: TransportServer = null
 
   def getListenPort = {
@@ -80,7 +80,7 @@ class AMQPServerConnection(handler: ConnectionHandler) extends AMQPConnection wi
         rc.append(transport.getConnectAddress)
       case None =>
     }
-    Option(transport) match {
+    Option(_transport) match {
       case Some(transport) =>
         rc.append(" remote=")
         rc.append(transport.getRemoteAddress)
@@ -94,4 +94,4 @@ class AMQPServerConnection(handler: ConnectionHandler) extends AMQPConnection wi
 
 
 
-
+*/

@@ -22,9 +22,17 @@ import org.apache.activemq.apollo.util.Logging
 class EndInterceptor extends Interceptor with Logging {
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     info("Dropping frame %s", frame)
+    tasks.dequeueAll((x) => {
+      x()
+      true
+    })
   }
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     info("Dropping frame %s", frame)
+    tasks.dequeueAll((x) => {
+      x()
+      true
+    })
   }
 }

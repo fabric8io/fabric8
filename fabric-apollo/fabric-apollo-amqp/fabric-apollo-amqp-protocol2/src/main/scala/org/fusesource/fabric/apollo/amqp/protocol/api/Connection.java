@@ -15,6 +15,8 @@ import org.fusesource.hawtdispatch.DispatchQueue;
 /**
  * Represents an AMQP Connection.
  *
+ * TODO - Add more getters/setters for fields in Open frame
+ *
  * @author Stan Lewis
  */
 public interface Connection {

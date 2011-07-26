@@ -50,46 +50,18 @@ object AMQPConnection {
 /**
  *
  */
-class AMQPConnection extends Connection with Logging {
+class AMQPConnection extends AbstractConnection {
 
   import AMQPConnection._
 
-  val transport = new TransportInterceptor
-  val header = new HeaderInterceptor
-  val close = new CloseInterceptor
-  val heartbeat = new HeartbeatInterceptor
-  val open = new OpenInterceptor
-  val sessions = new Multiplexer
-
-  transport.tail.incoming = header
-  transport.tail.incoming = close
-  transport.tail.incoming = heartbeat
-  transport.tail.incoming = open
-  transport.tail.incoming = sessions
-
-  def connect(uri: String) {}
-
-  def onConnected(task: Runnable) = transport.on_connect = () => { task.run }
-
-  def onDisconnected(task: Runnable) = transport.on_disconnect = () => { task.run }
+  _transport.tail.incoming = _header
+  _transport.tail.incoming = _close
+  _transport.tail.incoming = _heartbeat
+  _transport.tail.incoming = _open
+  _transport.tail.incoming = _sessions
 
   def createSession() = null
 
-  def connected() = false
-
-  def error() = null
-
-  def getDispatchQueue = transport.dispatch_queue
-
-  def setContainerID(id: String) = open.open.setContainerID(id)
-
-  def getContainerID = open.open.getContainerID
-
-  def close(t: Throwable) = close.send(CloseConnection(t), new Queue[() => Unit])
-
-  def close(reason: String) = close.send(CloseConnection(reason), new Queue[() => Unit])
-
   def setSessionHandler(handler: SessionHandler) {}
 
-  def getPeerContainerID = open.peer.getContainerID
 }

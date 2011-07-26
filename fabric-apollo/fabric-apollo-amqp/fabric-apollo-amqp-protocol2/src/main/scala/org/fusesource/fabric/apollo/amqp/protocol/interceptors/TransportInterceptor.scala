@@ -31,10 +31,28 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	var dispatch_queue:DispatchQueue = null
 	var session_manager: SessionSinkMux[AMQPFrame] = null
 	var connection_sink: Sink[AMQPFrame] = null
-	var transport: Transport = null
+  var _error:Option[Throwable] = None
+	private var _transport: Transport = null
 
 	var _on_connect:Option[() => Unit] = None
   var _on_disconnect:Option[() => Unit] = None
+
+  def transport = _transport
+  def transport_=(t:Transport) = {
+    require(t != null, "Transport cannot be null")
+    _transport = t
+    _transport.setProtocolCodec(new AMQPCodec)
+    _transport.setTransportListener(this)
+    if (_transport.getDispatchQueue == null) {
+      dispatch_queue = Dispatch.createQueue
+      _transport.setDispatchQueue(dispatch_queue)
+    } else {
+      dispatch_queue = _transport.getDispatchQueue
+    }
+    transport.start
+  }
+
+  def error:Throwable = _error.getOrElse(null.asInstanceOf[Throwable])
 
 	def onTransportCommand(command: AnyRef) {
 		command match {
@@ -50,12 +68,12 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	def onTransportFailure(error: IOException) = {
 		trace("Connection to %s failed with %s:%s", transport.getRemoteAddress, error, error.getMessage)
 		receive(ConnectionClosed.apply, new Queue[() => Unit])
+    _error = Option(error)
     _on_disconnect.foreach((x) => x())
 	}
 
 	def onTransportConnected() {
 		trace("Connected to %s via %s", transport.getRemoteAddress, transport.getTypeId)
-		dispatch_queue = transport.getDispatchQueue
 		val transport_sink = new TransportSink(transport)
 
 		session_manager = new SessionSinkMux[AMQPFrame](transport_sink.map {
@@ -77,20 +95,31 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 
 	def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
 		frame match {
+      case f:AMQPTransportFrame =>
+        trace("Sending : %s", frame)
+        connection_sink.offer(f)
+      case f:AMQPProtocolHeader =>
+        trace("Sending : %s", frame)
+        connection_sink.offer(f)
 			case c:CloseConnection =>
+        c.reason match {
+          case Some(reason) =>
+            _error = Option(new RuntimeException(reason))
+          case None =>
+        }
+        c.exception match {
+          case Some(reason) =>
+            _error = Option(reason)
+          case None =>
+        }
 				tasks.enqueue( () => {
 						trace("Closing connection")
 						transport.stop(^{
 								receive(ConnectionClosed.apply, new Queue[() => Unit])
 							})
 					})
-			case f:AMQPTransportFrame =>
-				trace("Sending : %s", frame)
-				connection_sink.offer(f)
-			case f:AMQPProtocolHeader =>
-				trace("Sending : %s", frame)
-				connection_sink.offer(f)
 			case _ =>
+        debug("Dropping frame %s", frame)
 		}
 		tasks.dequeueAll( (x) => {
 				x()

@@ -28,11 +28,14 @@ class Multiplexer extends Interceptor with Logging {
 
   val interceptors = new Slot[Interceptor]
   val channels = new HashMap[Int, Int]
-  
+
   var channel_selector:Option[(AMQPFrame) => Int] = None
+  var channel_mapper:Option[(AMQPFrame) => Option[Int]] = None
   var interceptor_factory:Option[(AMQPFrame) => Interceptor] = None
-  
-  
+
+  var chain_attached:Option[(Interceptor) => Unit] = None
+  var chain_released:Option[(Interceptor) => Unit] = None
+
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     outgoing.send(frame, tasks)
   }
@@ -40,55 +43,90 @@ class Multiplexer extends Interceptor with Logging {
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     map_channel(frame, tasks)
   }
-  
-  def release(chain:Interceptor) = {
+
+  def release(chain:Interceptor):Interceptor = {
     chain match {
       case o:OutgoingConnector =>
         val (local, remote) = o.release
         interceptors.free(local)
-        channels.remove(remote)        
+        channels.remove(remote)
+        chain_released.foreach((x) => x(o))
+        o.incoming
       case _ =>
-        throw new IllegalArgumentException("Invalid type (" + chain.getClass.getSimpleName + ") passed to release")        
+        throw new IllegalArgumentException("Invalid type (" + chain.getClass.getSimpleName + ") passed to release")
     }
   }
-  
+
+  def attach(chain:Interceptor):Interceptor = {
+    val temp = chain match {
+      case o:OutgoingConnector =>
+        o
+      case _ =>
+        val o = new OutgoingConnector(this)
+        o.incoming = chain
+        o
+    }
+    val to = interceptors.allocate(temp)
+    temp.local_channel = to
+    temp
+  }
+
+  private def mapper = channel_mapper match {
+    case Some(mapper) =>
+      mapper
+    case None =>
+      throw new RuntimeException("Channel mapper not set on multiplexer")
+  }
+
   private def selector = channel_selector match {
       case Some(selector) =>
         selector
       case None =>
         throw new RuntimeException("Channel selector not set on multiplexer")
   }
-  
+
   private def factory = interceptor_factory match {
     case Some(factory) =>
       factory
     case None =>
       throw new RuntimeException("Factory not set on multiplexer")
   }
-  
+
   private def create(frame:AMQPFrame, from:Int):OutgoingConnector = {
-    val interceptor = new OutgoingConnector(this)
-    interceptor.incoming = factory(frame)
-    val to = interceptors.allocate(interceptor)
-    interceptor.local_channel = to
+    val interceptor = attach(factory(frame)).asInstanceOf[OutgoingConnector]
+    val to = interceptor.local_channel
     interceptor.remote_channel = from
     channels.put(from, to)
-    interceptor    
-  }  
-  
+    chain_attached.foreach((x) => x(interceptor))
+    interceptor
+  }
+
   private def map_channel(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
     val from = selector(frame)
     val to = channels.get(from) match {
       case Some(to) =>
         to
       case None =>
-        create(frame, from).local_channel
+        mapper(frame) match {
+          case Some(x) =>
+            channels.put(from, x)
+            interceptors.get(x) match {
+              case Some(i) =>
+                i.asInstanceOf[OutgoingConnector].remote_channel = from
+                chain_attached.foreach((x) => x(i))
+              case None =>
+                throw new RuntimeException("No local slot allocated for channel " + x)
+            }
+            x
+          case None =>
+            create(frame, from).local_channel
+        }
     }
     interceptors.get(to) match {
       case Some(interceptor) =>
         interceptor.receive(frame, tasks)
       case None =>
         create(frame, from).receive(frame, tasks)
-    }    
-  }  
+    }
+  }
 }

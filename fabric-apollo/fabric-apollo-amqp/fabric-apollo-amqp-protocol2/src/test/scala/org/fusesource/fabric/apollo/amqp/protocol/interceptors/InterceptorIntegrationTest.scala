@@ -21,6 +21,7 @@ import collection.mutable.Queue
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 import org.fusesource.fabric.apollo.amqp.codec.types.{NoPerformative, AMQPTransportFrame, AMQPProtocolHeader}
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{OpenSent, ConnectionClosed, CloseConnection}
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 
 /**
  *
@@ -41,14 +42,13 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
     server.setAcceptListener(new TransportAcceptListener {
       def onAccept(transport: Transport) {
         val transport_interceptor = new TransportInterceptor
-        transport_interceptor.transport = transport
         transport_interceptor.tail.incoming = new HeaderInterceptor
         transport_interceptor.tail.incoming = new CloseInterceptor
         val heartbeat_interceptor = new HeartbeatInterceptor
         heartbeat_interceptor.transport = transport
         transport_interceptor.tail.incoming = heartbeat_interceptor
         val open_interceptor = new OpenInterceptor
-        open_interceptor.open.setIdleTimeout(2500L)
+        open_interceptor.open.setIdleTimeout(250L)
         transport_interceptor.tail.incoming = open_interceptor
         transport_interceptor.tail.incoming = new Interceptor {
           def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
@@ -61,10 +61,8 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
 
           def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
         }
-        transport.setTransportListener(transport_interceptor)
-        transport.setProtocolCodec(new AMQPCodec)
-        transport.setDispatchQueue(server_queue)
-        transport.start
+        transport_interceptor.transport = transport
+        info("Server created chain : %s", display_chain(transport_interceptor))
       }
 
       def onAcceptError(error: Exception) {}
@@ -78,16 +76,10 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
 
     server_wait.await(10, TimeUnit.SECONDS) should be (true)
 
-    val client_queue = Dispatch.createQueue("Client Queue")
-
     val client_wait = new CountDownLatch(1)
 
     val client = TransportFactory.connect("pipe://vm:0/blah")
-    client.setDispatchQueue(client_queue)
-    client.setProtocolCodec(new AMQPCodec)
     val transport_interceptor = new TransportInterceptor
-    client.setTransportListener(transport_interceptor)
-    transport_interceptor.transport = client
     transport_interceptor.tail.incoming = new HeaderInterceptor
     transport_interceptor.tail.incoming = new CloseInterceptor
     val heartbeat_interceptor = new HeartbeatInterceptor
@@ -102,7 +94,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
       def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         frame match {
           case o:OpenSent =>
-            client_queue.executeAfter(5, TimeUnit.SECONDS, ^ {
+            transport_interceptor.dispatch_queue.executeAfter(5, TimeUnit.SECONDS, ^ {
               client_wait.countDown
               send(CloseConnection.apply, new Queue[() => Unit])
             })
@@ -113,13 +105,13 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
       }
     }
 
-    transport_interceptor.on_connect = () => {
-      info("Client connected")
-    }
+    transport_interceptor.transport = client
 
-    client.start(^{
-      info("Client started")
-    })
+    info("Created client chain : %s", display_chain(transport_interceptor))
+
+    transport_interceptor.on_connect = () => {
+      info("Client connected, chain : %s", display_chain(transport_interceptor))
+    }
 
     client_wait.await(10, TimeUnit.SECONDS) should be (true)
     server_disconnect_wait.await(10, TimeUnit.SECONDS) should be (true)
