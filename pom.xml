@@ -8,8 +8,7 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -21,7 +20,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-project</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <name>${project.artifactId}</name>
     <description>FuseSource Fabric</description>
@@ -60,8 +59,8 @@
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.7,3)",
         </fabric.osgi.import.defaults>
-        <fabric.osgi.import.before.defaults/>
-        <fabric.osgi.import.additional/>
+        <fabric.osgi.import.before.defaults />
+        <fabric.osgi.import.additional />
         <fabric.osgi.import.pkg>
             org.fusesource.fabric.*;${fabric.osgi.import.fabric.version},
             ${fabric.osgi.import.before.defaults},
@@ -69,17 +68,17 @@
             ${fabric.osgi.import.additional},
             *
         </fabric.osgi.import.pkg>
-        <fabric.osgi.activator/>
+        <fabric.osgi.activator />
         <fabric.osgi.failok>false</fabric.osgi.failok>
         <fabric.osgi.private.pkg>!*</fabric.osgi.private.pkg>
         <fabric.osgi.export>org.fusesource.fabric.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
         <fabric.osgi.split.pkg>-split-package:=first</fabric.osgi.split.pkg>
         <fabric.osgi.import>${fabric.osgi.import.pkg}</fabric.osgi.import>
-        <fabric.osgi.dynamic/>
+        <fabric.osgi.dynamic />
         <fabric.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fabric.osgi.symbolic.name>
         <fabric.osgi.exclude.dependencies>false</fabric.osgi.exclude.dependencies>
         <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
-        <fabric.osgi.services.export></fabric.osgi.services.export>
+        <fabric.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <activemq-version>5.5.0-fuse-00-39</activemq-version>
