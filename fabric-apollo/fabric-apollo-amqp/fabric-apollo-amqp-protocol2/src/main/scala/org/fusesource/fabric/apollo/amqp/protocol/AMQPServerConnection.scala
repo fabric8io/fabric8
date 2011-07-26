@@ -10,25 +10,22 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
- *
- *     http://fusesource.com
- *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
- */
-
 import org.apache.activemq.apollo.transport._
 import tcp.TcpTransportServer
 import org.fusesource.fabric.apollo.amqp.protocol.api._
+import org.fusesource.hawtdispatch.Dispatch
+import org.apache.activemq.apollo.util.Logging
 
 /**
  *
  */
-class AMQPServerConnection(handler: ConnectionHandler) /*extends AMQPConnection with ServerConnection with TransportAcceptListener {
+class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection with TransportAcceptListener with Logging {
+
   var transportServer: TransportServer = null
+  var container_id:String = ""
+
+  override def setContainerID(id:String) = container_id = id
+  override def getContainerID = container_id
 
   def getListenPort = {
     transportServer match {
@@ -49,49 +46,25 @@ class AMQPServerConnection(handler: ConnectionHandler) /*extends AMQPConnection 
   }
 
   def bind(uri: String, onComplete:Runnable) = {
-    init(uri)
     transportServer = TransportFactory.bind(uri)
-    transportServer.setDispatchQueue(dispatch_queue)
+    transportServer.setDispatchQueue(Dispatch.createQueue)
     transportServer.setAcceptListener(this)
     transportServer.start(onComplete)
     info("AMQP Server listening on %s:%s", getListenHost, getListenPort)
   }
 
   def onAccept(transport: Transport) = {
-    val connection = new AMQPServerConnection(null)
+    val connection = new AMQPConnection
     connection.setContainerID(container_id)
     val clientUri = transport.getTypeId + ":/" + transport.getRemoteAddress
     info("Client connected from %s", clientUri)
-    connection.connect(Option(transport), uri.toString)
-    //trace("Created AmqpConnection %s", connection)
     handler.connectionCreated(connection)
+    connection._transport.transport = transport
   }
 
   def onAcceptError(error: Exception) = {
-
-  }
-
-  override def toString = {
-    val rc = new StringBuilder(getClass.getSimpleName)
-    rc.append("{")
-    Option(transportServer) match {
-      case Some(transport) =>
-        rc.append("local=")
-        rc.append(transport.getConnectAddress)
-      case None =>
-    }
-    Option(_transport) match {
-      case Some(transport) =>
-        rc.append(" remote=")
-        rc.append(transport.getRemoteAddress)
-      case None =>
-    }
-    rc.append("}")
-    rc.toString
+    // TODO
   }
 
 }
 
-
-
-*/

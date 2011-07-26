@@ -21,6 +21,10 @@ import org.fusesource.hawtdispatch.DispatchQueue;
  */
 public interface Connection {
 
+    public void setIdleTimeout(long timeout);
+
+    public long getIdleTimeout();
+
     /**
      * Connects this connection to a peer
      *

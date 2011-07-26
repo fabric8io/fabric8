@@ -58,10 +58,27 @@ class AMQPConnection extends AbstractConnection {
   _transport.tail.incoming = _close
   _transport.tail.incoming = _heartbeat
   _transport.tail.incoming = _open
+  _transport.tail.incoming = new ConnectionFrameBarrier
   _transport.tail.incoming = _sessions
 
-  def createSession() = null
+  def createSession() = {
+    val rc = new AMQPSession
+    _sessions.attach(rc)
+    rc
+  }
 
-  def setSessionHandler(handler: SessionHandler) {}
+  def setSessionHandler(handler: SessionHandler) = {
+    _sessions.chain_attached = Option((chain:Interceptor) => {
+      chain.head.foreach((x) => if (x.isInstanceOf[Session]) {
+        handler.sessionCreated(x.asInstanceOf[Session])
+      })
+    })
+
+    _sessions.chain_released = Option((chain:Interceptor) => {
+      chain.head.foreach((x) => if (x.isInstanceOf[Session]) {
+        handler.sessionReleased(x.asInstanceOf[Session])
+      })
+    })
+  }
 
 }

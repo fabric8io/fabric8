@@ -42,8 +42,13 @@ class SlotTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
     foo.used_slots() should be('empty)
     foo.available_slots() should not(be('empty))
+  }
 
-
+  test("Create with lower bound") {
+    val foo = new Slot[String]
+    foo.reserve(4)
+    printf("foo is %s\n", foo)
+    foo.allocate("Zero") should be (4)
   }
 
 }

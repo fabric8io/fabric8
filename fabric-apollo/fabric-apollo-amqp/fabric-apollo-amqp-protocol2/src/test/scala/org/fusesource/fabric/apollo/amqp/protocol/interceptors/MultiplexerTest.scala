@@ -39,7 +39,7 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
         case t:AMQPTransportFrame =>
           t.getChannel
         case _ =>
-          throw new RuntimeException("Unexpected frame type")
+          throw new UnknownFrameType
       }
     })
 

@@ -25,12 +25,14 @@ import org.apache.activemq.apollo.transport.TransportFactory
 
 abstract class AbstractConnection extends Connection {
 
-  protected val _transport = new TransportInterceptor
-  protected val _header = new HeaderInterceptor
-  protected val _close = new CloseInterceptor
-  protected val _heartbeat = new HeartbeatInterceptor
-  protected val _open = new OpenInterceptor
-  protected val _sessions = new Multiplexer
+  val _transport = new TransportInterceptor
+  val _header = new HeaderInterceptor
+  val _close = new CloseInterceptor
+  val _heartbeat = new HeartbeatInterceptor
+  val _open = new OpenInterceptor
+  val _sessions = new Multiplexer
+
+  _sessions.interceptors.reserve(1)
 
   def connect(uri:String) = {
     IntrospectionSupport.setProperties(this, URISupport.parseParamters(new URI(uri)))
@@ -65,5 +67,15 @@ abstract class AbstractConnection extends Connection {
   def close(reason: String) = _close.send(CloseConnection(reason), new Queue[() => Unit])
 
   def getPeerContainerID = _open.peer.getContainerID
+
+  def getIdleTimeout = _heartbeat.idle_timeout.getOrElse(-1)
+
+  def setIdleTimeout(timeout:Long) = {
+    if (timeout <= 0) {
+      _heartbeat.idle_timeout = None
+    } else {
+      _heartbeat.idle_timeout = Option(timeout)
+    }
+  }
 
 }

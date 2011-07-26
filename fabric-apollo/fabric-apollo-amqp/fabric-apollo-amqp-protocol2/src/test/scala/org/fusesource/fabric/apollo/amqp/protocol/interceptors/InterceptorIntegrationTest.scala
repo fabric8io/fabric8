@@ -46,9 +46,9 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
         transport_interceptor.tail.incoming = new CloseInterceptor
         val heartbeat_interceptor = new HeartbeatInterceptor
         heartbeat_interceptor.transport = transport
+        heartbeat_interceptor.idle_timeout = Option(1500L)
         transport_interceptor.tail.incoming = heartbeat_interceptor
         val open_interceptor = new OpenInterceptor
-        open_interceptor.open.setIdleTimeout(250L)
         transport_interceptor.tail.incoming = open_interceptor
         transport_interceptor.tail.incoming = new Interceptor {
           def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
@@ -84,9 +84,9 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
     transport_interceptor.tail.incoming = new CloseInterceptor
     val heartbeat_interceptor = new HeartbeatInterceptor
     heartbeat_interceptor.transport = client
+    heartbeat_interceptor.idle_timeout = Option(2500L)
     transport_interceptor.tail.incoming = heartbeat_interceptor
     val open_interceptor = new OpenInterceptor
-    open_interceptor.open.setIdleTimeout(2500L)
     transport_interceptor.tail.incoming = open_interceptor
     transport_interceptor.tail.incoming = new Interceptor {
       def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)

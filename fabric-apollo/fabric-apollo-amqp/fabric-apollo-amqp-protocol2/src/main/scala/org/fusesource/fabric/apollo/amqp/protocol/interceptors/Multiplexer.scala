@@ -10,17 +10,17 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors
 
-import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.{HashMap, Queue}
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.SessionFactory
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
-import org.fusesource.fabric.apollo.amqp.codec.types.{Begin, AMQPTransportFrame}
 import org.apache.activemq.apollo.util.Logging
-import org.fusesource.fabric.apollo.amqp.protocol.DefaultSessionFactory
-import org.fusesource.fabric.apollo.amqp.protocol.api.{SessionHandler, Session}
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 
+
+class UnknownFrameType extends Exception {
+
+}
 /**
  *
  */
@@ -41,7 +41,21 @@ class Multiplexer extends Interceptor with Logging {
   }
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    map_channel(frame, tasks)
+    frame match {
+      case t:AMQPTransportFrame =>
+        try {
+          map_channel(frame, tasks)
+        } catch {
+          case e:UnknownFrameType =>
+            debug("Selector doesn't recognize frame, dropping %s", frame)
+            tasks.dequeueAll((x) => {x(); true})
+        }
+
+      // TODO send ConnectionClosed frames down all chains when that happens
+      case _ =>
+        debug("Dropping frame %s", frame)
+        tasks.dequeueAll((x) => {x(); true})
+    }
   }
 
   def release(chain:Interceptor):Interceptor = {
