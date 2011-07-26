@@ -176,9 +176,6 @@ public class FabClassPathResolver {
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
         instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
         instructions.setProperty(ServiceConstants.INSTR_FAB_MODULE_ID, moduleId.toString());
-
-        // adding import package statements causes the Bnd analyzer to not run so lets not do that :)
-        instructions.setProperty(ServiceConstants.INSTR_IMPORT_PACKAGE, Strings.join(importPackages, ","));
     }
 
     private void registerModule(Model model) throws IOException, XmlPullParserException {
