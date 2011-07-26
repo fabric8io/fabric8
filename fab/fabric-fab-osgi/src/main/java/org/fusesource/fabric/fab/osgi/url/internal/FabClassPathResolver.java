@@ -58,6 +58,12 @@ public class FabClassPathResolver {
     private List<String> requireBundles = new ArrayList<String>();
     private List<String> importPackages = new ArrayList<String>();
     private boolean offline = false;
+
+    String sharedFilterText = "";
+    String requireBundleFilterText = "";
+    String excludeFilterText = "";
+    String optionalDependencyText = "";
+
     private Filter<DependencyTree> sharedFilter;
     private Filter<DependencyTree> requireBundleFilter;
     private Filter<DependencyTree> excludePackageFilter;
@@ -95,15 +101,15 @@ public class FabClassPathResolver {
         DependencyTreeResult result = resolver.collectDependencies(pomDetails, offline);
         this.rootTree = result.getTree();
 
-        String sharedFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY);
-        String requireBundleFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE);
-        String excludeFilterText = getManfiestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY);
-        String optionalDependencyText = getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY);
+        sharedFilterText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY));
+        requireBundleFilterText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
+        excludeFilterText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY));
+        optionalDependencyText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
 
-        sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText);
-        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(requireBundleFilterText);
-        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText);
-        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(optionalDependencyText);
+        sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText.trim());
+        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(requireBundleFilterText.trim());
+        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText.trim());
+        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(optionalDependencyText.trim());
 
         bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
         requireBundles.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
@@ -126,6 +132,7 @@ public class FabClassPathResolver {
         if( module==null || module.getFile()!=null ) {
             registerModule(model);
         }
+
         resolveExtensions(model, rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
@@ -242,14 +249,27 @@ public class FabClassPathResolver {
 
                     // lets resolve the dependency
                     DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
+
                     if (result != null) {
                         DependencyTree tree = result.getTree();
+
+                        sharedFilterText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY));
+                        requireBundleFilterText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
+                        excludeFilterText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY));
+                        optionalDependencyText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
+
+                        sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText.trim());
+                        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(requireBundleFilterText.trim());
+                        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText.trim());
+                        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(optionalDependencyText.trim());
+
                         LOG.debug("Adding extension: " + tree.getDependencyId());
                         if( extensionsString.length()!=0 ) {
                             extensionsString += " ";
                         }
                         extensionsString += id;
-                        addExtensionDependencies(tree);
+                        addChildDependency(tree);
+
                     } else {
                         LOG.debug("Could not resolve extension: " + id);
                     }
@@ -320,22 +340,30 @@ public class FabClassPathResolver {
         addPackages(tree);
         List<DependencyTree> children = tree.getChildren();
         for (DependencyTree child : children) {
-            if (excludePackageFilter.matches(child)) {
-                // ignore
-                LOG.debug("Excluded dependency: " + child.getDependencyId());
-                continue;
-            } else if (excludeOptionalFilter.matches(child)) {
-                addOptionalDependency(child);
-                continue;
-            } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
-                // lets add all the transitive dependencies as shared
-                addSharedDependency(child);
-            } else {
-                LOG.debug("Added non-shared dependency: " + tree.getDependencyId());
-                nonSharedDependencies.add(child);
-                // we now need to recursively flatten all transitive dependencies (whether shared or not)
-                addDependencies(child);
-            }
+            addChildDependency(child);
+        }
+    }
+
+    private void addChildDependency(DependencyTree child) throws IOException {
+        String dependencyId = child.getDependencyId().toString();
+        if( dependencyId.contains("jetty-all-server") ) {
+            LOG.debug("test");
+        }
+        if (excludePackageFilter.matches(child)) {
+            // ignore
+            LOG.debug("Excluded dependency: " + dependencyId);
+            return;
+        } else if (excludeOptionalFilter.matches(child)) {
+            addOptionalDependency(child);
+            return;
+        } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
+            // lets add all the transitive dependencies as shared
+            addSharedDependency(child);
+        } else {
+            LOG.debug("Added non-shared dependency: " + dependencyId);
+            nonSharedDependencies.add(child);
+            // we now need to recursively flatten all transitive dependencies (whether shared or not)
+            addDependencies(child);
         }
     }
 
@@ -351,23 +379,6 @@ public class FabClassPathResolver {
             } else {
                 addOptionalDependency(child);
             }
-        }
-    }
-
-    protected void addExtensionDependencies(DependencyTree child) throws IOException {
-        LOG.debug("Added extension dependency: " + child.getDependencyId());
-        if (excludePackageFilter.matches(child)) {
-            // ignore
-            LOG.debug("Excluded dependency: " + child.getDependencyId());
-        } else if (excludeOptionalFilter.matches(child)) {
-            LOG.debug("Excluded optional dependency: " + child.getDependencyId());
-        } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
-            // lets add all the transitive dependencies as shared
-            addSharedDependency(child);
-        } else {
-            nonSharedDependencies.add(child);
-            // we now need to recursively flatten all transitive dependencies (whether shared or not)
-            addDependencies(child);
         }
     }
 
