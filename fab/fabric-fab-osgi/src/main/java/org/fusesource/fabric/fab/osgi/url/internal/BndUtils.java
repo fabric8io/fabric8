@@ -172,15 +172,34 @@ public class BndUtils
             String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
 
             if (notEmpty(extraImportPackages) ) {
-                if( importPackages.length()!=0 ) {
-                    importPackages += ",";
+
+                Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
+                Map<String, Map<String, String>> extra = new Analyzer().parseHeader(extraImportPackages);
+
+                // Merge in the extra imports.
+                for (Map.Entry<String, Map<String, String>> entry : extra.entrySet()) {
+                    Map<String, String> original = values.get(entry.getKey());
+                    if( original == null ) {
+                        original = entry.getValue();
+                    } else {
+                        original.putAll(entry.getValue());
+                    }
+                    values.put(entry.getKey(), original);
                 }
-                importPackages += extraImportPackages;
+                importPackages  = Processor.printClauses(values, "resolution:");
             }
 
             if (notEmpty(importPackages) ) {
+
                 Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
-                actualImports.addAll(values.keySet());
+                for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
+                    String res = entry.getValue().get("resolution:");
+                    if( !"optional".equals(res) ) {
+                        // add all the non-optional deps..
+                        actualImports.add(entry.getKey());
+                    }
+                }
+
                 main.putValue(Analyzer.IMPORT_PACKAGE, importPackages);
             }
         }

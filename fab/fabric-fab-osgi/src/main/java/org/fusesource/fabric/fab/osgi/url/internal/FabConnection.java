@@ -170,7 +170,7 @@ public class FabConnection extends URLConnection {
     }
 
 
-        protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException {
+    protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException {
 
         BundleContext bundleContext = getBundleContext();
         if (bundleContext == null) {
@@ -183,8 +183,14 @@ public class FabConnection extends URLConnection {
                     String importPackages = dependency.getManfiestEntry(Analyzer.IMPORT_PACKAGE);
                     if( notEmpty(importPackages) ) {
                         Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
-
-                        actualImports.addAll(values.keySet());
+                        for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
+                            String res = entry.getValue().get("resolution:");
+                            if( !"optional".equals(res) ) {
+                                // add all the non-optional deps..
+                                actualImports.add(entry.getKey());
+                            }
+                        }
+                        //values.get()
                     }
                 }
             }

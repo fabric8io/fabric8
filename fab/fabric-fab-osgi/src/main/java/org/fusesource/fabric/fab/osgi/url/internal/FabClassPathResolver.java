@@ -23,14 +23,7 @@ import java.util.zip.ZipEntry;
 import org.apache.felix.utils.version.VersionCleaner;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.DependencyTreeFilters;
-import org.fusesource.fabric.fab.DependencyTreeResult;
-import org.fusesource.fabric.fab.MavenResolver;
-import org.fusesource.fabric.fab.ModuleDescriptor;
-import org.fusesource.fabric.fab.ModuleRegistry;
-import org.fusesource.fabric.fab.PomDetails;
-import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.IOHelpers;
@@ -122,8 +115,9 @@ public class FabClassPathResolver {
             name = rootTree.getBundleSymbolicName();
             instructions.setProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME, name);
         }
-        addDependencies(rootTree);
 
+        LOG.debug("Resolving Dependencies for: "+rootTree.getDependencyId());
+        addDependencies(rootTree);
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
         Model model = pomDetails.getModel();
@@ -169,6 +163,25 @@ public class FabClassPathResolver {
             }
         }
 
+        // Remove dup dependencies..
+        nonSharedDependencies = filterOutDuplicates(nonSharedDependencies);
+        sharedDependencies = filterOutDuplicates(sharedDependencies);
+        installDependencies = filterOutDuplicates(installDependencies);
+        optionalDependencies = filterOutDuplicates(optionalDependencies);
+
+        LOG.debug("nonSharedDependencies:");
+        for( DependencyTree d : nonSharedDependencies) {
+            LOG.debug("  "+d.getDependencyId());
+        }
+        LOG.debug("sharedDependencies:");
+        for( DependencyTree d : sharedDependencies) {
+            LOG.debug("  "+d.getDependencyId());
+        }
+        LOG.debug("installDependencies:");
+        for( DependencyTree d : installDependencies) {
+            LOG.debug("  "+d.getDependencyId());
+        }
+
         LOG.debug("resolved: bundleClassPath: " + Strings.join(bundleClassPath, "\t\n"));
         LOG.debug("resolved: requireBundles: " + Strings.join(requireBundles, "\t\n"));
         LOG.debug("resolved: importPackages: " + Strings.join(importPackages, "\t\n"));
@@ -176,6 +189,16 @@ public class FabClassPathResolver {
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
         instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
         instructions.setProperty(ServiceConstants.INSTR_FAB_MODULE_ID, moduleId.toString());
+    }
+
+    private List<DependencyTree> filterOutDuplicates(List<DependencyTree> list) {
+        LinkedHashMap<DependencyId, DependencyTree> map = new LinkedHashMap<DependencyId, DependencyTree>();
+        for (DependencyTree tree : list) {
+            if( !map.containsKey(tree.getDependencyId()) ) {
+                map.put(tree.getDependencyId(), tree);
+            }
+        }
+        return new ArrayList<DependencyTree>(map.values());
     }
 
     private void registerModule(Model model) throws IOException, XmlPullParserException {
@@ -221,7 +244,7 @@ public class FabClassPathResolver {
                     DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
                     if (result != null) {
                         DependencyTree tree = result.getTree();
-                        LOG.debug("Adding extensions: " + tree);
+                        LOG.debug("Adding extension: " + tree.getDependencyId());
                         if( extensionsString.length()!=0 ) {
                             extensionsString += " ";
                         }
@@ -299,7 +322,7 @@ public class FabClassPathResolver {
         for (DependencyTree child : children) {
             if (excludePackageFilter.matches(child)) {
                 // ignore
-                LOG.debug("Excluded dependency: " + child);
+                LOG.debug("Excluded dependency: " + child.getDependencyId());
                 continue;
             } else if (excludeOptionalFilter.matches(child)) {
                 addOptionalDependency(child);
@@ -308,6 +331,7 @@ public class FabClassPathResolver {
                 // lets add all the transitive dependencies as shared
                 addSharedDependency(child);
             } else {
+                LOG.debug("Added non-shared dependency: " + tree.getDependencyId());
                 nonSharedDependencies.add(child);
                 // we now need to recursively flatten all transitive dependencies (whether shared or not)
                 addDependencies(child);
@@ -316,12 +340,13 @@ public class FabClassPathResolver {
     }
 
     private void addOptionalDependency(DependencyTree tree) {
+        LOG.debug("Added optional dependency: " + tree.getDependencyId());
         addPackages(tree);
         optionalDependencies.add(tree);
         List<DependencyTree> list = tree.getDescendants();
         for (DependencyTree child : list) {
             if (excludePackageFilter.matches(child)) {
-                LOG.debug("Excluded transitive dependency: " + child);
+                LOG.debug("Excluded transitive dependency: " + child.getDependencyId());
                 continue;
             } else {
                 addOptionalDependency(child);
@@ -330,11 +355,12 @@ public class FabClassPathResolver {
     }
 
     protected void addExtensionDependencies(DependencyTree child) throws IOException {
+        LOG.debug("Added extension dependency: " + child.getDependencyId());
         if (excludePackageFilter.matches(child)) {
             // ignore
-            LOG.debug("Excluded dependency: " + child);
+            LOG.debug("Excluded dependency: " + child.getDependencyId());
         } else if (excludeOptionalFilter.matches(child)) {
-            LOG.debug("Excluded optional dependency: " + child);
+            LOG.debug("Excluded optional dependency: " + child.getDependencyId());
         } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
             // lets add all the transitive dependencies as shared
             addSharedDependency(child);
@@ -346,6 +372,7 @@ public class FabClassPathResolver {
     }
 
     protected void addSharedDependency(DependencyTree tree) throws IOException {
+        LOG.debug("Added shared dependency: " + tree.getDependencyId());
         addPackages(tree);
         sharedDependencies.add(tree);
         if (connection.isIncludeSharedResources()) {
@@ -355,10 +382,10 @@ public class FabClassPathResolver {
         List<DependencyTree> list = tree.getDescendants();
         for (DependencyTree child : list) {
             if (excludePackageFilter.matches(child)) {
-                LOG.debug("Excluded transitive dependency: " + child);
+                LOG.debug("Excluded transitive dependency: " + child.getDependencyId());
                 continue;
             } else if (excludeOptionalFilter.matches(child)) {
-                LOG.debug("Excluded optional transitive dependency: " + child);
+                LOG.debug("Excluded optional transitive dependency: " + child.getDependencyId());
                 continue;
             } else {
                 sharedDependencies.add(child);
