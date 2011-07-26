@@ -9,6 +9,7 @@
 
 package org.fusesource.fabric.fab.osgi.url.internal;
 
+import aQute.lib.osgi.Analyzer;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.MavenResolver;
@@ -32,6 +33,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+
+import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
  * {@link URLConnection} for the "fab" protocol
@@ -167,13 +170,25 @@ public class FabConnection extends URLConnection {
     }
 
 
-    protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException {
+        protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException {
 
-//                    classPathResolver.getDependenciesByPackage(),
         BundleContext bundleContext = getBundleContext();
         if (bundleContext == null) {
             LOG.warn("No BundleContext available so cannot install provided dependencies");
         } else {
+
+            for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
+                if (dependency.isBundle()) {
+                    // Expand the actual imports list with imports of our dependencies
+                    String importPackages = dependency.getManfiestEntry(Analyzer.IMPORT_PACKAGE);
+                    if( notEmpty(importPackages) ) {
+                        Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
+
+                        actualImports.addAll(values.keySet());
+                    }
+                }
+            }
+
             List<Bundle> toStart = new ArrayList<Bundle>();
             for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
                 String name = dependency.getBundleSymbolicName();
