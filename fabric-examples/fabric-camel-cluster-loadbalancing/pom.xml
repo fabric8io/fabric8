@@ -7,14 +7,13 @@
     a copy of which has been included with this distribution in the license.txt file.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-examples</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.fusesource.fabric.fabric-examples</groupId>
@@ -35,11 +34,11 @@
         <camel.version>2.7.0</camel.version>
 
         <osgi-import-pkg>*</osgi-import-pkg>
-        <osgi-export-pkg></osgi-export-pkg>
-        <osgi-private-pkg></osgi-private-pkg>
-        <osgi-dynamic-pkg></osgi-dynamic-pkg>
-        <require-bundle></require-bundle>
-        <spring-context></spring-context>
+        <osgi-export-pkg />
+        <osgi-private-pkg />
+        <osgi-dynamic-pkg />
+        <require-bundle />
+        <spring-context />
     </properties>
 
     <dependencies>
