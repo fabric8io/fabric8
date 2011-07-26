@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.0</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-zookeeper</artifactId>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-linkedin-zookeeper</artifactId>
-            <version>1.0</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

@@ -20,7 +20,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-project</artifactId>
     <packaging>pom</packaging>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
     <description>FuseSource Fabric</description>
