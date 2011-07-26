@@ -32,9 +32,11 @@
   <profiles>
     <profile>
       <id>itests</id>
+      <!--
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
+      -->
       <modules>
         <module>tests</module>
       </modules>
