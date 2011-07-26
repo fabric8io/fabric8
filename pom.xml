@@ -651,6 +651,14 @@
         <module>fabric-website</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>release</id>
+
+      <modules>
+        <module>fabric-linkedin-zookeeper</module>
+      </modules>
+    </profile>
       
     <!-- 
         Do a license check by running       : mvn -P license license:check  
