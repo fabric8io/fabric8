@@ -109,7 +109,7 @@
         <junit-version>4.8.1</junit-version>
         <hawtbuf-version>1.6</hawtbuf-version>
         <hawtdispatch-version>1.4</hawtdispatch-version>
-        <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
+        <rrd4j-version>2.0.7</rrd4j-version>
         <sigar-version>1.6.4</sigar-version>
         <jackson-version>1.8.0</jackson-version>
         <jersey-version>1.5</jersey-version>
