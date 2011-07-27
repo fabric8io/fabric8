@@ -63,7 +63,7 @@ public interface ServiceConstants extends Constants {
      *
      * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_OPTIONAL_DEPENDENCY = "Fabric-Optional-Dependency";
+    static final String INSTR_FAB_OPTIONAL_DEPENDENCY = "Fabric-Include-Optional-Dependency";
 
     /**
      * The space separated list of dependencies which should be shared using Require-Bundle directives in the OSGi manifest
