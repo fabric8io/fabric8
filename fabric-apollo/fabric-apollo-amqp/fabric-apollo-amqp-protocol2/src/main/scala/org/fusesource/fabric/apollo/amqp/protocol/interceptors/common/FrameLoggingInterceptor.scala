@@ -8,7 +8,7 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
 
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
@@ -16,15 +16,15 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import scala.collection.mutable.Queue
 
 /**
- * 
+ *
  */
-class FrameLoggingInterceptor(prefix:String = "") extends Interceptor with Logging {  
-  
+class FrameLoggingInterceptor(prefix:String = "") extends Interceptor with Logging {
+
   def send(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
     info("%s:send{frame=%s tasks=%s", prefix, frame, tasks)
     outgoing.send(frame, tasks)
   }
-  
+
   def receive(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
     info("%s:receive{frame=%s tasks=%s", prefix, frame, tasks)
     incoming.receive(frame, tasks)

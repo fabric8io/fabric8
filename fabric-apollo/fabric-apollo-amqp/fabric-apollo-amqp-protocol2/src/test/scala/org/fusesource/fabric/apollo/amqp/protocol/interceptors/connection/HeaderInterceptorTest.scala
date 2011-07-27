@@ -8,16 +8,16 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import test_interceptors._
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionCreated, HeaderSent}
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{TerminationInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
 
 /**
  *

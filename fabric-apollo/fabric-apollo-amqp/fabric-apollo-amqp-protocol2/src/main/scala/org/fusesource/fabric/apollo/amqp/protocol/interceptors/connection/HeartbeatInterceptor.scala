@@ -8,7 +8,7 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
 import org.fusesource.hawtbuf.Buffer._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor

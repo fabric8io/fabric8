@@ -8,9 +8,8 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol.api
 
-import api._
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}

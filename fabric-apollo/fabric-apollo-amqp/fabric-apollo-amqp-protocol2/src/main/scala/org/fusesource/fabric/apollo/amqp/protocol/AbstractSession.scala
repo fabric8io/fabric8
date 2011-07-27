@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{LinkHandler, Link, Session}
-import interceptors.{EndInterceptor, SessionFlowControlInterceptor, BeginInterceptor}
+import interceptors.session.{SessionFlowControlInterceptor, EndInterceptor, BeginInterceptor}
 
 /**
  *

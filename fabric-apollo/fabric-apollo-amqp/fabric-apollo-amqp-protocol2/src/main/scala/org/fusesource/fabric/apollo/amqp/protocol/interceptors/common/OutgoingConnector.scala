@@ -1,5 +1,3 @@
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
-
 /*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved
  *
@@ -9,6 +7,8 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors
  * CDDL license, a copy of which has been included with this distribution
  * in the license.txt file
  */
+
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
 
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame

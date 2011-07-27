@@ -10,23 +10,21 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors
 
+import connection._
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.apache.activemq.apollo.transport.{Transport, TransportAcceptListener, TransportFactory}
-import org.fusesource.fabric.apollo.amqp.protocol.AMQPCodec
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
+import org.apache.activemq.apollo.transport.{TransportAcceptListener, TransportFactory, Transport}
 import collection.mutable.Queue
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-import org.fusesource.fabric.apollo.amqp.codec.types.{NoPerformative, AMQPTransportFrame, AMQPProtocolHeader}
-import org.fusesource.fabric.apollo.amqp.protocol.commands.{OpenSent, ConnectionClosed, CloseConnection}
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
+import java.util.concurrent.{TimeUnit, CountDownLatch}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, OpenSent, ConnectionClosed}
 
 /**
  *
  */
-
 class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
   test("Create server, create client, send empty frame, disconnect") {

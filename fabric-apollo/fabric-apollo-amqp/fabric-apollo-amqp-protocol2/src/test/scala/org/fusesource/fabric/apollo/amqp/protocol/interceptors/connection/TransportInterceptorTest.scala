@@ -8,7 +8,7 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.scalatest.matchers.ShouldMatchers
@@ -20,7 +20,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.commands.CloseConnection
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import java.util.concurrent.{TimeUnit, CountDownLatch}
-import test_interceptors.EndInterceptor
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.FrameDroppingInterceptor
 
 /**
  *
@@ -35,7 +35,7 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
     server.setAcceptListener(new TransportAcceptListener {
       def onAccept(transport: Transport) {
         val transport_interceptor = new TransportInterceptor
-        transport_interceptor.tail.incoming = new EndInterceptor
+        transport_interceptor.tail.incoming = new FrameDroppingInterceptor
         transport_interceptor.transport = transport
         transport.setTransportListener(transport_interceptor)
         transport.setProtocolCodec(new AMQPCodec)
@@ -58,7 +58,7 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
     client.setDispatchQueue(Dispatch.createQueue("Client Queue"))
     client.setProtocolCodec(new AMQPCodec)
     val transport_interceptor = new TransportInterceptor
-    transport_interceptor.tail.incoming = new EndInterceptor
+    transport_interceptor.tail.incoming = new FrameDroppingInterceptor
     transport_interceptor.transport = client
     client.setTransportListener(transport_interceptor)
 

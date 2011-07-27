@@ -8,7 +8,7 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.session
 
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.apache.activemq.apollo.util.Logging

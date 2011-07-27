@@ -10,14 +10,9 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import commands.CloseConnection
-import interceptors._
-import org.fusesource.hawtdispatch._
-import org.apache.activemq.apollo.util.Logging
-import org.fusesource.fabric.apollo.amqp.codec.Codec._
+import interceptors.connection.ConnectionFrameBarrier
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
-import collection.mutable.Queue
 
 /**
  *

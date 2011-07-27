@@ -12,9 +12,9 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.Connection
 import commands.CloseConnection
-import interceptors._
-import tools.nsc.doc.model.ProtectedInInstance
 import collection.mutable.Queue
+import interceptors.common.Multiplexer
+import interceptors.connection.{TransportInterceptor, HeaderInterceptor, CloseInterceptor, HeartbeatInterceptor, OpenInterceptor}
 import org.apache.activemq.apollo.util.{URISupport, IntrospectionSupport}
 import java.net.URI
 import org.apache.activemq.apollo.transport.TransportFactory

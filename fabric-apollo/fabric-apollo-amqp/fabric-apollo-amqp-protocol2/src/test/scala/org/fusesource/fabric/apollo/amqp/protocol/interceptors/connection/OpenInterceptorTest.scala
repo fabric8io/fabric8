@@ -8,7 +8,7 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{FunSuiteSupport, Logging}
@@ -16,7 +16,7 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, Open}
 import org.fusesource.fabric.apollo.amqp.protocol.commands.OpenSent
-import test_interceptors._
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FrameDroppingInterceptor, TaskExecutingInterceptor, TestReceiveInterceptor, TestSendInterceptor}
 
 /**
  *
@@ -60,7 +60,7 @@ class OpenInterceptorTest extends FunSuiteSupport with ShouldMatchers with Loggi
           fail("Should not have received frame " + frame)
       }
     })
-    open_interceptor.incoming.incoming = new EndInterceptor
+    open_interceptor.incoming.incoming = new FrameDroppingInterceptor
 
     open_interceptor.connected should be (true)
 

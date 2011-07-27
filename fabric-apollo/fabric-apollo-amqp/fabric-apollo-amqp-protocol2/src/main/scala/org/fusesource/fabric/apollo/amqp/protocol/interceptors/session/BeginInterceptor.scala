@@ -8,7 +8,7 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.session
 
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.apache.activemq.apollo.util.Logging
@@ -61,7 +61,7 @@ class BeginInterceptor extends Interceptor with Logging {
           case None =>
             remote_channel match {
               case Some(channel) =>
-                begin.setRemoteChannel(new Integer(channel))
+                begin.setRemoteChannel(channel)
               case None =>
                 throw new RuntimeException("Remote channel must be sent but is not set")
             }
