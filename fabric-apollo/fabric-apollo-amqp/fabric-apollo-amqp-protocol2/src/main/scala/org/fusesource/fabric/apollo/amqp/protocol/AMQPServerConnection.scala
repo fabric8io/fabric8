@@ -15,6 +15,7 @@ import tcp.TcpTransportServer
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.hawtdispatch.Dispatch
 import org.apache.activemq.apollo.util.Logging
+import java.util.UUID
 
 /**
  *
@@ -22,10 +23,10 @@ import org.apache.activemq.apollo.util.Logging
 class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection with TransportAcceptListener with Logging {
 
   var transportServer: TransportServer = null
-  var container_id:String = ""
+  var container_id:String = null
 
-  override def setContainerID(id:String) = container_id = id
-  override def getContainerID = container_id
+  def setContainerID(id:String) = container_id = id
+  def getContainerID = container_id
 
   def getListenPort = {
     transportServer match {
@@ -50,6 +51,11 @@ class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection 
     transportServer.setDispatchQueue(Dispatch.createQueue)
     transportServer.setAcceptListener(this)
     transportServer.start(onComplete)
+    Option(container_id) match {
+      case Some(id) =>
+      case None =>
+        container_id = UUID.randomUUID().toString
+    }
     info("AMQP Server listening on %s:%s", getListenHost, getListenPort)
   }
 

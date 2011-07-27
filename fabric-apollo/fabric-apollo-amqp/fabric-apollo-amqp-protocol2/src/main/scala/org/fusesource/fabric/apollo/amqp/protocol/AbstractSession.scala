@@ -39,7 +39,6 @@ trait AbstractSession extends Session {
 
   def sufficientSessionCredit() = false
 
-  def begin(onBegin: Runnable) {}
 
   def getConnection = null
 
@@ -47,10 +46,6 @@ trait AbstractSession extends Session {
 
   def setLinkHandler(handler: LinkHandler) {}
 
-  def end(onEnd: Runnable) {}
-
-  def end(t: Throwable) {}
-
-  def end(reason: String) {}
+  def setOnEnd(task:Runnable) = {}
 
 }

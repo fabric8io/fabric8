@@ -17,10 +17,6 @@ import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 
-
-class UnknownFrameType extends Exception {
-
-}
 /**
  *
  */
@@ -29,30 +25,42 @@ class Multiplexer extends Interceptor with Logging {
   val interceptors = new Slot[Interceptor]
   val channels = new HashMap[Int, Int]
 
-  var channel_selector:Option[(AMQPFrame) => Int] = None
-  var channel_mapper:Option[(AMQPFrame) => Option[Int]] = None
-  var interceptor_factory:Option[(AMQPFrame) => Interceptor] = None
+  var channel_selector:Option[(AMQPTransportFrame) => Int] = None
+  var channel_mapper:Option[(AMQPTransportFrame) => Option[Int]] = None
+  var interceptor_factory:Option[(AMQPTransportFrame) => Interceptor] = None
+  var outgoing_channel_setter:Option[(Int, AMQPTransportFrame) => Unit] = None
+  var check_release:Option[AMQPTransportFrame => Boolean] = None
 
   var chain_attached:Option[(Interceptor) => Unit] = None
   var chain_released:Option[(Interceptor) => Unit] = None
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    frame match {
+      case t:AMQPTransportFrame =>
+        if (check(t)) {
+          val from = selector(t)
+          channels.get(from) match {
+            case Some(to) =>
+              interceptors.get(to) match {
+                case Some(interceptor) =>
+                  release(interceptor)
+                case None =>
+                  throw new RuntimeException("No channel mapping from " + from + " to " + to)
+              }
+            case None =>
+              throw new RuntimeException("Outgoing channel " + from + " has not been allocated")
+          }
+        }
+    }
     outgoing.send(frame, tasks)
   }
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
-        try {
-          map_channel(frame, tasks)
-        } catch {
-          case e:UnknownFrameType =>
-            debug("Selector doesn't recognize frame, dropping %s", frame)
-            tasks.dequeueAll((x) => {x(); true})
-        }
-
-      // TODO send ConnectionClosed frames down all chains when that happens
+          map_channel(t, tasks)
       case _ =>
+        // TODO send ConnectionClosed frames down all chains when that happens
         debug("Dropping frame %s", frame)
         tasks.dequeueAll((x) => {x(); true})
     }
@@ -76,13 +84,27 @@ class Multiplexer extends Interceptor with Logging {
       case o:OutgoingConnector =>
         o
       case _ =>
-        val o = new OutgoingConnector(this)
+        val o = new OutgoingConnector(this, outgoing_channel)
         o.incoming = chain
         o
     }
     val to = interceptors.allocate(temp)
     temp.local_channel = to
     temp
+  }
+
+  private def check = check_release match {
+    case Some(check) =>
+      check
+    case None =>
+      throw new RuntimeException("Cleanup function not set on multiplexer")
+  }
+
+  private def outgoing_channel = outgoing_channel_setter match {
+    case Some(setter) =>
+      setter
+    case None =>
+      throw new RuntimeException("Outgoing channel setter not set on multiplexer")
   }
 
   private def mapper = channel_mapper match {
@@ -106,7 +128,7 @@ class Multiplexer extends Interceptor with Logging {
       throw new RuntimeException("Factory not set on multiplexer")
   }
 
-  private def create(frame:AMQPFrame, from:Int):OutgoingConnector = {
+  private def create(frame:AMQPTransportFrame, from:Int):OutgoingConnector = {
     val interceptor = attach(factory(frame)).asInstanceOf[OutgoingConnector]
     val to = interceptor.local_channel
     interceptor.remote_channel = from
@@ -115,7 +137,7 @@ class Multiplexer extends Interceptor with Logging {
     interceptor
   }
 
-  private def map_channel(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
+  private def map_channel(frame:AMQPTransportFrame, tasks:Queue[() => Unit]) = {
     val from = selector(frame)
     val to = channels.get(from) match {
       case Some(to) =>

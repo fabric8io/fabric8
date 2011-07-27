@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import api.{Connection, ConnectionHandler, AMQPConnectionFactory}
+import api._
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
@@ -21,9 +21,9 @@ import java.util.concurrent.{TimeUnit, CountDownLatch}
  */
 class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  ignore("Create server connection using pipe transport") {
+  test("Create server connection using pipe transport") {
 
-    val uri = "pipe://foobar:0"
+    val uri = "pipe://foobar/blah"
 
     val latch = new CountDownLatch(2)
 
@@ -48,6 +48,53 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
     client.onConnected(^ {
       client.close
       latch.countDown
+    })
+
+    client.connect(uri)
+
+    latch.await(10, TimeUnit.SECONDS) should be(true)
+  }
+
+
+  test("Create connection, create session") {
+
+    val uri = "pipe://foobar/blah"
+
+    val latch = new CountDownLatch(2)
+
+    val server = AMQPConnectionFactory.createServerConnection(new ConnectionHandler {
+      def connectionCreated(connection: Connection) {
+        info("Created connection : %s", connection)
+        connection.onDisconnected(^ {
+          info("Connection %s closed", connection)
+        })
+        connection.setSessionHandler(new SessionHandler {
+          def sessionCreated(session: Session) {
+            session.begin(^{})
+          }
+
+          def sessionReleased(session: Session) {
+            session.end
+          }
+        })
+      }
+    })
+
+    server.bind(uri, NOOP)
+    val client = AMQPConnectionFactory.createConnection()
+    client.onDisconnected(^ {
+      latch.countDown
+    })
+    client.onConnected(^ {
+      val session = client.createSession
+      session.setOnEnd(^{
+        client.close
+        latch.countDown
+      })
+
+      session.begin(^{
+        session.end
+      })
     })
 
     client.connect(uri)

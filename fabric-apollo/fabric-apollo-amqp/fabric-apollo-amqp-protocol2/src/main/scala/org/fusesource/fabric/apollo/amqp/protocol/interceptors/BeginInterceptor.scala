@@ -8,26 +8,25 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors
 
-import interfaces.{ProtocolConnection, ProtocolSession}
-import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
+import org.apache.activemq.apollo.util.Logging
+import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 
-class AMQPSession extends Interceptor with AbstractSession {
+/**
+ *
+ */
 
-  def begin(onBegin: Runnable) {}
+class BeginInterceptor extends Interceptor with Logging {
 
-  def end() {}
+  val sent = new AtomicBoolean(false)
 
-  def end(t: Throwable) {}
-
-  def end(reason: String) {}
+  var onBegin:Option[() => Unit] = None
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = null
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = null
-
 }

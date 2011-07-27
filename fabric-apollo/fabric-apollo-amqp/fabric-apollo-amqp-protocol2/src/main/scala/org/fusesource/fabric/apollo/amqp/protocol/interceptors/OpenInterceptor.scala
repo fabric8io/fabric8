@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.types.{Open, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{OpenSent, HeaderSent}
+import java.util.UUID
 
 object OpenInterceptor {
   // TODO - probably gonna be a few possibilities here...
@@ -68,14 +69,24 @@ class OpenInterceptor extends Interceptor {
   }
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+
+    def send_open = {
+      Option(open.getContainerID) match {
+        case Some(id) =>
+        case None =>
+          open.setContainerID(UUID.randomUUID.toString)
+      }
+      send(new AMQPTransportFrame(open), tasks)
+    }
+
     frame match {
       case h:HeaderSent =>
-        send(new AMQPTransportFrame(open), tasks)
+        send_open
       case f:AMQPTransportFrame =>
         f.getPerformative match {
           case o:Open =>
             peer = o
-            send(new AMQPTransportFrame(open), tasks)
+            send_open
           case _ =>
             // TODO throw error here instead
             incoming.receive(frame, tasks)

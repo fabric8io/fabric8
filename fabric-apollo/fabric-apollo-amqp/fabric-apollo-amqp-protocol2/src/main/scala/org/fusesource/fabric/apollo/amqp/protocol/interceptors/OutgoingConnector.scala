@@ -15,12 +15,13 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.{HashMap, Queue}
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
+import org.fusesource.fabric.apollo.amqp.protocol.commands.CloseConnection
 
 /**
  *
  */
 
-class OutgoingConnector(target:Interceptor) extends Interceptor {
+class OutgoingConnector(target:Interceptor, set_outgoing_channel:(Int, AMQPTransportFrame) => Unit) extends Interceptor {
 
   private var _local_channel:Option[Int] = None
   private var _remote_channel:Option[Int] = None
@@ -32,7 +33,17 @@ class OutgoingConnector(target:Interceptor) extends Interceptor {
     rc
   }
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = target.send(frame, tasks)
+  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    frame match {
+      case t:AMQPTransportFrame =>
+        set_outgoing_channel(remote_channel, t)
+        target.send(frame, tasks)
+      case c:CloseConnection =>
+        target.send(frame, tasks)
+      case _ =>
+        tasks.dequeueAll((x) => {x(); true})
+    }
+  }
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
 
