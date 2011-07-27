@@ -36,6 +36,9 @@ public class InstallCommand extends FabCommand {
     @Option(name = "--force", description = "Force install")
     private boolean force;
 
+    @Option(name = "--no-starte", description = "don't start the module once installed")
+    private boolean noStart;
+
     @Override
     protected Object doExecute() throws Exception {
         OsgiModuleRegistry registry = Activator.registry;
@@ -92,6 +95,9 @@ public class InstallCommand extends FabCommand {
                 Bundle bundle = install(url);
                 if( bundle!=null ) {
                     println("Installed bundle: %d", bundle.getBundleId());
+                    if( !noStart ) {
+                        bundle.start();
+                    }
                 }
             }
         }
