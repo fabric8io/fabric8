@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{LinkHandler, Link, Session}
+import interceptors.{EndInterceptor, SessionFlowControlInterceptor, BeginInterceptor}
 
 /**
  *
@@ -18,16 +19,21 @@ import api.{LinkHandler, Link, Session}
 
 trait AbstractSession extends Session {
 
-  var outgoing_window = 10L
-  var incoming_window = 10L
+  val _begin = new BeginInterceptor
 
-  def setOutgoingWindow(window: Long) = outgoing_window = window
+  _begin.set_outgoing_window = Option(() => getOutgoingWindow)
+  _begin.set_incoming_window = Option(() => getIncomingWindow.asInstanceOf[Long])
 
-  def setIncomingWindow(window: Long) = incoming_window = window
+  val _end = new EndInterceptor
+  val _flow = new SessionFlowControlInterceptor
 
-  def getOutgoingWindow = outgoing_window
+  def setOutgoingWindow(window: Long) = _flow.flow.setOutgoingWindow(window)
 
-  def getIncomingWindow = incoming_window
+  def setIncomingWindow(window: Long) = _flow.flow.setIncomingWindow(window)
+
+  def getOutgoingWindow = _flow.flow.getOutgoingWindow
+
+  def getIncomingWindow = _flow.flow.getIncomingWindow
 
   def attach(link: Link) {}
 
@@ -38,7 +44,6 @@ trait AbstractSession extends Session {
   def detach(link: Link, t: Throwable) {}
 
   def sufficientSessionCredit() = false
-
 
   def getConnection = null
 
