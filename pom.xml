@@ -173,6 +173,7 @@
     </dependencies>
 
     <modules>
+        <module>fab</module>
         <module>fabric-core</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-commands</module>
@@ -188,10 +189,12 @@
         <module>fabric-camel-dslio</module>
         <module>fabric-cxf</module>
         <module>fabric-activemq</module>
-        <module>fabric-distro</module>
-        <module>fab</module>
+        <module>fabric-monitor</module>
+        <module>fabric-launcher</module>
+        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-groups</module>
         <module>fabric-dosgi</module>
+        <module>fabric-distro</module>
         <module>fabric-examples</module>
     </modules>
 
@@ -643,12 +646,7 @@
       <id>distro</id>
 
       <modules>
-        <!-- disabled until rrd4j release -->
-        <module>fabric-monitor</module>
-        <module>fabric-launcher</module>
-
         <module>fabric-apollo</module>
-        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-website</module>
       </modules>
     </profile>
