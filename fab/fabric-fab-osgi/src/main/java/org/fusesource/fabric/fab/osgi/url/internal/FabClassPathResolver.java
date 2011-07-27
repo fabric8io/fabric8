@@ -29,8 +29,6 @@ import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.IOHelpers;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Strings;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
@@ -42,6 +40,7 @@ import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_ID;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_NAME;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
 import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
+import static org.fusesource.fabric.fab.util.Strings.join;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism
@@ -59,10 +58,10 @@ public class FabClassPathResolver {
     private List<String> importPackages = new ArrayList<String>();
     private boolean offline = false;
 
-    String sharedFilterText = "";
-    String requireBundleFilterText = "";
-    String excludeFilterText = "";
-    String optionalDependencyText = "";
+    HashSet<String> sharedFilterPatterns = new HashSet<String>();
+    HashSet<String> requireBundleFilterPatterns = new HashSet<String>();
+    HashSet<String> excludeFilterPatterns = new HashSet<String>();
+    HashSet<String> optionalDependencyPatterns = new HashSet<String>();
 
     private Filter<DependencyTree> sharedFilter;
     private Filter<DependencyTree> requireBundleFilter;
@@ -101,15 +100,15 @@ public class FabClassPathResolver {
         DependencyTreeResult result = resolver.collectDependencies(pomDetails, offline);
         this.rootTree = result.getTree();
 
-        sharedFilterText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY));
-        requireBundleFilterText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
-        excludeFilterText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY));
-        optionalDependencyText = emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
+        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
+        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
+        excludeFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
+        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
 
-        sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText.trim());
-        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(requireBundleFilterText.trim());
-        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText.trim());
-        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(optionalDependencyText.trim());
+        sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
+        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
+        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(join(excludeFilterPatterns, " "));
+        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
 
         bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
         requireBundles.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
@@ -196,6 +195,21 @@ public class FabClassPathResolver {
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
         instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
         instructions.setProperty(ServiceConstants.INSTR_FAB_MODULE_ID, moduleId.toString());
+
+        // Update the headers fab headers.. they may have been updated by the extensions.
+        if( !sharedFilterPatterns.isEmpty() ) {
+            instructions.setProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY, join(sharedFilterPatterns, " "));
+        }
+        if( !requireBundleFilterPatterns.isEmpty() ) {
+            instructions.setProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE, join(requireBundleFilterPatterns, " "));
+        }
+        if( !excludeFilterPatterns.isEmpty() ) {
+            instructions.setProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY, join(excludeFilterPatterns, " "));
+        }
+        if( !optionalDependencyPatterns.isEmpty() ) {
+            instructions.setProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY, join(optionalDependencyPatterns, " "));
+        }
+
     }
 
     private List<DependencyTree> filterOutDuplicates(List<DependencyTree> list) {
@@ -253,15 +267,15 @@ public class FabClassPathResolver {
                     if (result != null) {
                         DependencyTree tree = result.getTree();
 
-                        sharedFilterText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY));
-                        requireBundleFilterText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
-                        excludeFilterText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY));
-                        optionalDependencyText += " " + emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
+                        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
+                        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
+                        excludeFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
+                        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
 
-                        sharedFilter = DependencyTreeFilters.parseShareFilter(sharedFilterText.trim());
-                        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(requireBundleFilterText.trim());
-                        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(excludeFilterText.trim());
-                        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(optionalDependencyText.trim());
+                        sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
+                        requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
+                        excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(join(excludeFilterPatterns, " "));
+                        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
 
                         LOG.debug("Adding extension: " + tree.getDependencyId());
                         if( extensionsString.length()!=0 ) {

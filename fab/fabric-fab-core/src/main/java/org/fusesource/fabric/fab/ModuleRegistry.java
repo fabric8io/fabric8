@@ -8,15 +8,12 @@
  */
 package org.fusesource.fabric.fab;
 
-import com.sun.tools.javac.util.Log;
-
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
-import static java.util.Collections.*;
+import static java.util.Collections.sort;
 
 /**
  * <p>The ModuleRegistry keeps track of all Fab modules that
