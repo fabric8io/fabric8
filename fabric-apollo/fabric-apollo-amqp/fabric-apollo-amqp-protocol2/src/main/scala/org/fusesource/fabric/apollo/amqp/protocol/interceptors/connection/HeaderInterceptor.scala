@@ -15,13 +15,15 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions._
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, HeaderSent, ConnectionCreated}
-
+import java.lang.IllegalStateException
+import org.fusesource.fabric.apollo.amqp.codec.types.{Open, AMQPTransportFrame, AMQPProtocolHeader}
+import org.apache.activemq.apollo.util.Logging
+import Interceptor._
 /**
  *
  */
-class HeaderInterceptor extends Interceptor {
+class HeaderInterceptor extends Interceptor with Logging {
 
   val error = () => {
     send(CloseConnection.apply, new Queue[() => Unit])
@@ -41,14 +43,18 @@ class HeaderInterceptor extends Interceptor {
           }
           outgoing.send(frame, tasks)
         } else {
-          tasks.dequeueAll((x) => {
-            x()
-            true
-          })
+          tasks.dequeueAll((x) => {x(); true})
         }
-      case _ =>
-        // TODO should actually throw an error here, nothing should go out until the header is sent
+      case c:CloseConnection =>
         outgoing.send(frame, tasks)
+      case _ =>
+        if (!sent.get) {
+          info("AMQP header frame has not yet been sent, dropping frame : %s", frame)
+          tasks.dequeueAll((x) => {x(); true})
+          throw new IllegalStateException("Header frame has not yet been sent, cannot send frame : " + frame)
+        } else {
+          outgoing.send(frame, tasks)
+        }
     }
   }
 
@@ -62,7 +68,6 @@ class HeaderInterceptor extends Interceptor {
         }
         send(new AMQPProtocolHeader, tasks)
       case _ =>
-        // TODO should throw an error here
         incoming.receive(frame, tasks)
     }
   }

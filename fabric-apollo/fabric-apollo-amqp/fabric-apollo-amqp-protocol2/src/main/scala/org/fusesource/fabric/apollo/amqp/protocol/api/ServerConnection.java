@@ -45,4 +45,6 @@ public interface ServerConnection {
      * @return
      */
     public String getListenHost();
+
+    public void unbind();
 }

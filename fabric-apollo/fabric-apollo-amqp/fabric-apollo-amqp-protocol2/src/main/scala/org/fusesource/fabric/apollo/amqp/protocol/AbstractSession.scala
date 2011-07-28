@@ -21,7 +21,7 @@ trait AbstractSession extends Session {
 
   val _begin = new BeginInterceptor
 
-  _begin.set_outgoing_window = Option(() => getOutgoingWindow)
+  _begin.set_outgoing_window = Option(() => getOutgoingWindow.asInstanceOf[Long])
   _begin.set_incoming_window = Option(() => getIncomingWindow.asInstanceOf[Long])
 
   val _end = new EndInterceptor

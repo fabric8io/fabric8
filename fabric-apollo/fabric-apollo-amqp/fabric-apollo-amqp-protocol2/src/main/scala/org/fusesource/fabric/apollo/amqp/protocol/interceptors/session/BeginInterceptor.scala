@@ -26,22 +26,36 @@ class BeginInterceptor extends Interceptor with Logging {
   var set_outgoing_window:Option[() => Long] = None
   var set_incoming_window:Option[() => Long] = None
 
+  var sent = false
+  var received = false
+  var executed_callback = false
+
   val begin = new Begin()
   var peer:Begin = null
   var remote_channel:Option[Int] = None
 
-  var onBegin:Option[() => Unit] = None
+  var on_begin:Option[() => Unit] = None
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+
+  def run_callback {
+    if ( sent && received && !executed_callback) {
+      executed_callback = true
+      remove
+      on_begin.foreach((x) => x())
+    }
+  }
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
         t.getPerformative match {
           case b:Begin =>
+            received = true
             peer = b
             remote_channel = Option(t.getChannel)
             tasks.dequeueAll((x) => {x(); true})
+            run_callback
           case _ =>
             incoming.receive(frame, tasks)
         }
@@ -69,7 +83,7 @@ class BeginInterceptor extends Interceptor with Logging {
       case None =>
     }
     send(new AMQPTransportFrame(begin), new Queue[() => Unit])
-
+    run_callback
   }
 
 }

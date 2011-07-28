@@ -49,6 +49,8 @@ class Slot[B] {
     }
   }
 
+  def foreach(func:(B) => Unit) = used.values.foreach((x) => func(x))
+
   def is_reserved(key:Int) = reserved.contains(key)
 
   def get(key: Int): Option[B] = {

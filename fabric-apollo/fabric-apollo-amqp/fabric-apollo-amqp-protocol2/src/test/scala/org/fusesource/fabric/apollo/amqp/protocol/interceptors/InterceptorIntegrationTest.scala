@@ -92,7 +92,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
       def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         frame match {
           case o:OpenSent =>
-            transport_interceptor.dispatch_queue.executeAfter(5, TimeUnit.SECONDS, ^ {
+            transport_interceptor.queue.executeAfter(5, TimeUnit.SECONDS, ^ {
               client_wait.countDown
               send(CloseConnection.apply, new Queue[() => Unit])
             })

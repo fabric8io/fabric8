@@ -16,6 +16,7 @@ import collection.mutable.{HashMap, Queue}
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
+import org.fusesource.hawtdispatch.DispatchQueue
 
 /**
  *
@@ -38,17 +39,19 @@ class Multiplexer extends Interceptor with Logging {
     frame match {
       case t:AMQPTransportFrame =>
         if (check(t)) {
-          val from = selector(t)
-          channels.get(from) match {
-            case Some(to) =>
-              interceptors.get(to) match {
-                case Some(interceptor) =>
-                  release(interceptor)
-                case None =>
-                  throw new RuntimeException("No channel mapping from " + from + " to " + to)
+          // this is all wrong...
+          val local = selector(t)
+          interceptors.get(local) match {
+            case Some(interceptor) =>
+              try {
+                val remote = interceptor.asInstanceOf[OutgoingConnector].remote_channel
+                channels.remove(remote)
+              } catch {
+                case e:RuntimeException =>
               }
+              release(interceptor)
             case None =>
-              throw new RuntimeException("Outgoing channel " + from + " has not been allocated")
+              throw new RuntimeException("No interceptor exists for local channel " + local)
           }
         }
     }
@@ -66,6 +69,13 @@ class Multiplexer extends Interceptor with Logging {
     }
   }
 
+  def foreach_chain(func:(Interceptor) => Unit) = interceptors.foreach((x) => func(x))
+
+  override def queue_=(q:DispatchQueue) = {
+    super.queue_=(q)
+    foreach_chain((x) => x.queue = q)
+  }
+
   def release(chain:Interceptor):Interceptor = {
     chain match {
       case o:OutgoingConnector =>
@@ -73,6 +83,7 @@ class Multiplexer extends Interceptor with Logging {
         interceptors.free(local)
         channels.remove(remote)
         chain_released.foreach((x) => x(o))
+        o.queue = null
         o.incoming
       case _ =>
         throw new IllegalArgumentException("Invalid type (" + chain.getClass.getSimpleName + ") passed to release")
@@ -90,6 +101,9 @@ class Multiplexer extends Interceptor with Logging {
     }
     val to = interceptors.allocate(temp)
     temp.local_channel = to
+    if (queue_set) {
+      temp.queue = queue
+    }
     temp
   }
 
@@ -134,6 +148,7 @@ class Multiplexer extends Interceptor with Logging {
     interceptor.remote_channel = from
     channels.put(from, to)
     chain_attached.foreach((x) => x(interceptor))
+    trace("Created local channel %s for remote channel %s", to, from)
     interceptor
   }
 
@@ -160,6 +175,7 @@ class Multiplexer extends Interceptor with Logging {
     }
     interceptors.get(to) match {
       case Some(interceptor) =>
+        trace("Mapping incoming channel %s to local channel %s", from, to)
         interceptor.receive(frame, tasks)
       case None =>
         create(frame, from).receive(frame, tasks)

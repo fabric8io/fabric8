@@ -88,11 +88,9 @@ class OpenInterceptor extends Interceptor {
             peer = o
             send_open
           case _ =>
-            // TODO throw error here instead
             incoming.receive(frame, tasks)
         }
       case _ =>
-        // TODO maybe throw error here
         incoming.receive(frame, tasks)
     }
   }

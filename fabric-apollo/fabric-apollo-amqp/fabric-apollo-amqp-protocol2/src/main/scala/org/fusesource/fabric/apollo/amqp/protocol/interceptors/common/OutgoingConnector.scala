@@ -36,7 +36,7 @@ class OutgoingConnector(target:Interceptor, set_outgoing_channel:(Int, AMQPTrans
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
-        set_outgoing_channel(remote_channel, t)
+        set_outgoing_channel(local_channel, t)
         target.send(frame, tasks)
       case c:CloseConnection =>
         target.send(frame, tasks)

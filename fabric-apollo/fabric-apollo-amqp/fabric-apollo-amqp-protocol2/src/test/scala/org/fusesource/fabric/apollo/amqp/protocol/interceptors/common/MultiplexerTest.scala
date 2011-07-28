@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
 
+import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.FunSuiteSupport
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
@@ -17,7 +18,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.scalatest.matchers.ShouldMatchers
 import scala.collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{End, AMQPTransportFrame, Begin}
-import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FailInterceptor, TaskExecutingInterceptor, TestSendInterceptor, TerminationInterceptor}
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors._
 
 /**
  *
@@ -142,6 +143,7 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     })
 
     multiplexer.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => frame.setChannel(channel))
+
     multiplexer.check_release = Option((frame:AMQPTransportFrame) => {
       frame.getPerformative match {
         case e:End =>
@@ -168,22 +170,50 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     multiplexer.head.outgoing = new TestSendInterceptor( (frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       frame match {
         case t:AMQPTransportFrame =>
-          t.getChannel should be (5)
+          t.getChannel should be (0)
       }
     })
     multiplexer.outgoing = new TaskExecutingInterceptor
 
     val chain = new FrameLoggingInterceptor("My chain")
-    chain.incoming = new TerminationInterceptor
+    chain.incoming = new FrameDroppingInterceptor
     multiplexer.attach(chain)
 
     multiplexer.head.receive(new AMQPTransportFrame(5, new Begin(0)), new Queue[() => Unit])
 
     instances should be (1)
 
-    chain.tail.send(new AMQPTransportFrame(5, new End), new Queue[() => Unit])
+    chain.send(new AMQPTransportFrame(new End), new Queue[() => Unit])
 
     instances should be(0)
+  }
+
+  test("set dispatch queue on multiplexer, ensure chains have dispatch queue set on them") {
+    val multiplexer = new Multiplexer
+    multiplexer.chain_attached = Option((chain:Interceptor) => {
+      info("Attaching chain : %s", chain)
+    })
+
+    multiplexer.chain_released = Option((chain:Interceptor) => {
+      info("Releasing chain : %s", chain)
+    })
+
+    multiplexer.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => frame.setChannel(channel))
+
+    multiplexer.queue_set should be (false)
+
+    multiplexer.attach(new SimpleInterceptor)
+    multiplexer.attach(new SimpleInterceptor)
+    multiplexer.attach(new SimpleInterceptor)
+    multiplexer.attach(new SimpleInterceptor)
+    multiplexer.attach(new SimpleInterceptor)
+
+    multiplexer.foreach_chain((x) => x.queue_set should be (false))
+
+    multiplexer.queue = Dispatch.createQueue
+
+    multiplexer.queue_set should be (true)
+    multiplexer.foreach_chain((x) => x.queue_set should be (true))
   }
 
 

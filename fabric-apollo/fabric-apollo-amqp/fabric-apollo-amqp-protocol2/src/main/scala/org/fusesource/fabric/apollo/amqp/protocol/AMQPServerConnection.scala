@@ -22,14 +22,14 @@ import java.util.UUID
  */
 class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection with TransportAcceptListener with Logging {
 
-  var transportServer: TransportServer = null
+  var transport_server: TransportServer = null
   var container_id:String = null
 
   def setContainerID(id:String) = container_id = id
   def getContainerID = container_id
 
   def getListenPort = {
-    transportServer match {
+    transport_server match {
       case t: TcpTransportServer =>
         t.getSocketAddress.getPort
       case _ =>
@@ -38,7 +38,7 @@ class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection 
   }
 
   def getListenHost = {
-    transportServer match {
+    transport_server match {
       case t: TcpTransportServer =>
         t.getSocketAddress.getHostName
       case _ =>
@@ -47,10 +47,10 @@ class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection 
   }
 
   def bind(uri: String, onComplete:Runnable) = {
-    transportServer = TransportFactory.bind(uri)
-    transportServer.setDispatchQueue(Dispatch.createQueue)
-    transportServer.setAcceptListener(this)
-    transportServer.start(onComplete)
+    transport_server = TransportFactory.bind(uri)
+    transport_server.setDispatchQueue(Dispatch.createQueue)
+    transport_server.setAcceptListener(this)
+    transport_server.start(onComplete)
     Option(container_id) match {
       case Some(id) =>
       case None =>
@@ -71,6 +71,8 @@ class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection 
   def onAcceptError(error: Exception) = {
     // TODO
   }
+
+  def unbind = transport_server.stop
 
 }
 

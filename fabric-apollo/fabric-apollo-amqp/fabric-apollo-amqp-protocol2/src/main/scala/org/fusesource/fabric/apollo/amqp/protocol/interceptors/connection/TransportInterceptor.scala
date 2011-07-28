@@ -28,7 +28,6 @@ import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, Cl
 
 class TransportInterceptor extends Interceptor with TransportListener with Logging {
 
-	var dispatch_queue:DispatchQueue = null
 	var session_manager: SessionSinkMux[AMQPFrame] = null
 	var connection_sink: Sink[AMQPFrame] = null
   var _error:Option[Throwable] = None
@@ -44,10 +43,10 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
     _transport.setProtocolCodec(new AMQPCodec)
     _transport.setTransportListener(this)
     if (_transport.getDispatchQueue == null) {
-      dispatch_queue = Dispatch.createQueue
-      _transport.setDispatchQueue(dispatch_queue)
+      queue = Dispatch.createQueue
+      _transport.setDispatchQueue(queue)
     } else {
-      dispatch_queue = _transport.getDispatchQueue
+      queue = _transport.getDispatchQueue
     }
     transport.start
   }
@@ -79,8 +78,8 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 		session_manager = new SessionSinkMux[AMQPFrame](transport_sink.map {
 				x =>
 				x
-			}, dispatch_queue, AMQPCodec)
-		connection_sink = new OverflowSink(session_manager.open(dispatch_queue))
+			}, queue, AMQPCodec)
+		connection_sink = new OverflowSink(session_manager.open(queue))
 		connection_sink.refiller = NOOP
 		receive(ConnectionCreated.apply, new Queue[() => Unit])
 		_on_connect.foreach( x => x() )

@@ -23,7 +23,7 @@ import org.apache.activemq.apollo.transport.TransportFactory
  *
  */
 
-abstract class AbstractConnection extends Connection {
+trait AbstractConnection extends Connection {
 
   val _transport = new TransportInterceptor
   val _header = new HeaderInterceptor
@@ -32,8 +32,6 @@ abstract class AbstractConnection extends Connection {
   val _open = new OpenInterceptor
   val _sessions = new Multiplexer
 
-  _sessions.interceptors.reserve(1)
-
   def connect(uri:String) = {
     IntrospectionSupport.setProperties(this, URISupport.parseParamters(new URI(uri)))
     _transport.transport = TransportFactory.connect(uri)
@@ -41,7 +39,7 @@ abstract class AbstractConnection extends Connection {
 
   def error() = _transport.error
 
-  def connected() = {
+  def isConnected() = {
     Option(_transport.transport) match {
       case Some(t) =>
         t.isConnected
@@ -50,11 +48,9 @@ abstract class AbstractConnection extends Connection {
     }
   }
 
-  def onConnected(task: Runnable) = _transport.on_connect = () => { task.run }
-
   def onDisconnected(task: Runnable) = _transport.on_disconnect = () => { task.run }
 
-  def getDispatchQueue = _transport.dispatch_queue
+  def getDispatchQueue = _transport.queue
 
   def setContainerID(id: String) = _open.open.setContainerID(id)
 

@@ -12,6 +12,7 @@ package org.fusesource.fabric.apollo.amqp.protocol.interfaces
 
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
+import org.fusesource.hawtdispatch.DispatchQueue
 
 object Interceptor {
   def display_chain(in:Interceptor):String = {
@@ -24,16 +25,29 @@ object Interceptor {
 }
 
 abstract class Interceptor {
+  import Interceptor._
+
+  private var _queue:Option[DispatchQueue] = None
 
   private var _outgoing:Option[Interceptor] = None
   private var _incoming:Option[Interceptor] = None
 
+  val rm = () => remove
+
   def outgoing = _outgoing.getOrElse(throw new RuntimeException("No outgoing interceptor exists at this end of chain"))
   def incoming = _incoming.getOrElse(throw new RuntimeException("No incoming interceptor exists at this end of chain"))
 
-  val rm = () => {
-    remove
+  def queue = {
+    _queue match {
+      case Some(queue) =>
+        queue
+      case None =>
+        throw new RuntimeException("No queue set for this interceptor chain : " + display_chain(this))
+    }
   }
+
+  def queue_=(q:DispatchQueue) = head.foreach((x) => x._queue = Option(q))
+  def queue_set:Boolean = !_queue.isEmpty
 
   def remove:Unit = {
     _outgoing match {
@@ -57,6 +71,7 @@ abstract class Interceptor {
         }
       case None =>
     }
+    _queue = None
     _outgoing = None
     _incoming = None
   }
@@ -65,6 +80,7 @@ abstract class Interceptor {
 
   def outgoing_=(i:Interceptor):Unit = {
     if (i != null) {
+      i.foreach_reverse((x) => x._queue = _queue)
       i._incoming = Option(this)
     }
     _outgoing = Option(i)
@@ -72,6 +88,7 @@ abstract class Interceptor {
 
   def incoming_=(i:Interceptor):Unit = {
     if (i != null) {
+      i.foreach((x) => x._queue = _queue)
       i._outgoing = Option(this)
     }
     _incoming = Option(i)

@@ -48,7 +48,7 @@ public interface Connection {
      *
      * @return boolean
      */
-    public boolean connected();
+    public boolean isConnected();
 
     /**
      * Gets the last error received on this Connection

@@ -86,6 +86,8 @@ class CloseInterceptor extends Interceptor with Logging {
         }
       } catch {
         case t:Throwable =>
+          warn("Exception processing frame : %s, error is %s", frame, t)
+          warn("Exception stack trace : \n%s", t.getStackTraceString)
           send(CloseConnection(t), tasks)
       }
     }

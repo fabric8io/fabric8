@@ -14,7 +14,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.apache.activemq.apollo.util.Logging
-import org.fusesource.fabric.apollo.amqp.codec.types.{NoPerformative, Close, Open, AMQPTransportFrame}
+import org.fusesource.fabric.apollo.amqp.codec.types._
 
 /**
  * Prevents frames on channel 0 from proceeding further in the receive interceptor
@@ -25,6 +25,8 @@ class ConnectionFrameBarrier extends Interceptor with Logging {
 
   def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
+      case p:AMQPProtocolHeader =>
+        tasks.dequeueAll((x) => { x(); true })
       case t:AMQPTransportFrame =>
         if (t.getChannel == 0) {
           tasks.dequeueAll((x) => { x(); true })
