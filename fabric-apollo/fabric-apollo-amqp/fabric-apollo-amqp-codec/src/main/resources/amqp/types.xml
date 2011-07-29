@@ -177,7 +177,14 @@
        <p>
         The namespace for both symbolic and numeric descriptors is divided into distinct domains.
         Each domain has a defined symbol and/or 4 byte numeric id assigned by the AMQP working
-        group. Descriptors are then assigned within each domain according to the following rules:
+        group. For numeric ids the assigned domain-id will be equal to the IANA Private Enterprise
+        Number (PEN) of the requesting organisation (<xref type="extern"
+        name="http://www.iana.org/assignments/enterprise-numbers"/>) with domain-id 0 reserved for
+        descriptors defined in the AMQP Specification.
+      </p>
+
+      <p>
+        Descriptors are then assigned within each domain according to the following rules:
       </p>
 
       <dl>
@@ -474,14 +481,14 @@ Subcategory     n
       <encoding code="0x71" category="fixed" width="4"
                 label="32-bit two's-complement integer in network byte order"/>
       <encoding name="smallint" code="0x54" category="fixed" width="1"
-                label="unsigned integer value in the range -128-127"/>
+                label="signed integer value in the range -128-127"/>
     </type>
 
     <type class="primitive" name="long" label="integer in the range -(2^63) to 2^63 - 1">
       <encoding code="0x81" category="fixed" width="8"
                 label="64-bit two's-complement integer in network byte order"/>
       <encoding name="smalllong" code="0x55" category="fixed" width="1"
-                label="unsigned long value in the range -128-127"/>
+                label="signed long value in the range -128-127"/>
     </type>
 
     <type class="primitive" name="float"
@@ -748,19 +755,11 @@ Subcategory     n
         multiple and mandatory MUST contain at least one value (i.e. for such a field both
         <i>null</i> and an array with no entries are invalid).
       </p>
-
-      <p>
-        AMQP composite types may be encoded either as a described list or a described map. In
-        general a specific composite type definition will allow for only one encoding option. This
-        is currently indicated by the naming convention of the symbolic descriptor. Map encodings
-        have symbolic descriptors ending in ":map", and list encodings in ":list". (Note that there
-        may be a more formal way of distinguishing in a future revision.)
-      </p>
     </doc>
 
     <doc title="List Encoding">
       <p>
-        When encoding AMQP composite values as a described list, each element in the list is
+        AMQP composite values are encoded as a described list. Each element in the list is
         positionally correlated with the fields listed in the composite type definition. The
         permitted element values are determined by the type specification and multiplicity of the
         corresponding field definitions. When the trailing elements of the list representation are

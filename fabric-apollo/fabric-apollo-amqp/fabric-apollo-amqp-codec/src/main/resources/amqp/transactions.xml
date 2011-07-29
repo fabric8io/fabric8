@@ -131,7 +131,7 @@
         the transaction by sending a <xref name="discharge"/> message to the coordinator. Should
         the coordinator fail to perform the <xref name="declare"/> or <xref name="discharge"/> as
         specified in the message, the message will be <xref name="rejected"/> with a <xref
-        name="transaction-errors"/> indicating the failure condition that occurred.
+        name="transaction-error"/> indicating the failure condition that occurred.
       </p>
 
       <p>
@@ -358,7 +358,7 @@
     <type class="restricted" name="txn-capability" source="symbol" provides="txn-capability"
           label="symbols indicating (desired/available) capabilities of a transaction coordinator">
 
-      <choice name="local-txn" value="amqp:local-transactions">
+      <choice name="local-transactions" value="amqp:local-transactions">
         <doc>
           <p>
               Support local transactions.
@@ -366,7 +366,7 @@
         </doc>
       </choice>
 
-      <choice name="distributed-txn" value="amqp:distributed-transactions">
+      <choice name="distributed-transactions" value="amqp:distributed-transactions">
         <doc>
           <p>
               Support AMQP Distributed Transactions.
@@ -374,7 +374,7 @@
         </doc>
       </choice>
 
-      <choice name="promotable-txn" value="amqp:promotable-transactions">
+      <choice name="promotable-transactions" value="amqp:promotable-transactions">
         <doc>
           <p>
               Support AMQP Promotable Transactions.
@@ -399,7 +399,7 @@
       </choice>
     </type>
 
-    <type class="restricted" name="transaction-errors" source="symbol" provides="error-condition"
+    <type class="restricted" name="transaction-error" source="symbol" provides="error-condition"
           label="symbols used to indicate transaction errors">
       <choice name="unknown-id" value="amqp:transaction:unknown-id">
         <doc>

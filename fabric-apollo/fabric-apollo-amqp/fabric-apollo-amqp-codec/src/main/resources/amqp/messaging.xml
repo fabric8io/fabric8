@@ -1235,23 +1235,17 @@ settled with outcome: |        |
       </choice>
       <choice name="session-end" value="session-end">
         <doc>
-          <p>
-            The expiry timer starts when the most recently associated session is ended.
-          </p>
+          <p>The expiry timer starts when the most recently associated session is ended.</p>
         </doc>
       </choice>
       <choice name="connection-close" value="connection-close">
         <doc>
-          <p>
-            The expiry timer starts when most recently associated connection is closed.
-          </p>
+          <p>The expiry timer starts when most recently associated connection is closed.</p>
         </doc>
       </choice>
       <choice name="never" value="never">
         <doc>
-          <p>
-            The Terminus never expires.
-          </p>
+          <p>The Terminus never expires.</p>
         </doc>
       </choice>
     </type>

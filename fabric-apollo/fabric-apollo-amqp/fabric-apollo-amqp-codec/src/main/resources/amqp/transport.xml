@@ -2505,7 +2505,7 @@ Key: R:XFR(M=?,A=?) --> Received TRANSFER(more=?, aborted=?)
           label="begin a Session on a channel">
       <doc>
         <p>
-          Indicate that a Session as begun on the channel.
+          Indicate that a Session has begun on the channel.
         </p>
       </doc>
 
@@ -3503,7 +3503,7 @@ msb                        lsb
 
       <choice name="transfer-limit-exceeded" value="amqp:link:transfer-limit-exceeded">
         <doc>
-          <p>The peer sent more Message transfers than currently allowed on the session.</p>
+          <p>The peer sent more Message transfers than currently allowed on the link.</p>
         </doc>
       </choice>
 
