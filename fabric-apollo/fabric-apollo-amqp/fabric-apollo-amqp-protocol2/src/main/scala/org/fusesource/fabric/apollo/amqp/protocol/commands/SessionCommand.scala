@@ -15,6 +15,9 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 /**
  *
  */
+
+class SessionCommand extends Command
+
 object EndSession {
   private val INSTANCE = new EndSession
 
@@ -33,10 +36,31 @@ object EndSession {
   }
 }
 
-class EndSession extends AMQPFrame {
-
+class EndSession extends SessionCommand {
   var reason:Option[String] = None
   var exception:Option[Throwable] = None
-
-  override def toString = getClass.getSimpleName
 }
+
+object BeginSent {
+  private val INSTANCE = new BeginSent
+  def apply() = INSTANCE
+}
+class BeginSent extends SessionCommand
+
+object BeginReceived {
+  private val INSTANCE = new BeginReceived
+  def apply() = INSTANCE
+}
+class BeginReceived extends SessionCommand
+
+object EndSent {
+  private val INSTANCE = new EndSent
+  def apply() = INSTANCE
+}
+class EndSent extends SessionCommand
+
+object EndReceived {
+  private val INSTANCE = new EndReceived
+  def apply() = INSTANCE
+}
+class EndReceived extends SessionCommand
