@@ -61,6 +61,12 @@ object HeaderReceived {
 }
 class HeaderReceived extends ConnectionCommand
 
+object SendOpen {
+  private val INSTANCE = new SendOpen
+  def apply() = INSTANCE
+}
+class SendOpen extends ConnectionCommand
+
 object OpenSent {
   private val INSTANCE = new OpenSent
   def apply() = INSTANCE

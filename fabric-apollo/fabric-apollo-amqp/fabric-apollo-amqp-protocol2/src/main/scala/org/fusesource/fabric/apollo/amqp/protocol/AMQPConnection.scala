@@ -10,7 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import commands.OpenSent
+import org.fusesource.hawtdispatch._
+import commands._
 import utilities._
 import interceptors.connection.ConnectionFrameBarrier
 import org.fusesource.fabric.apollo.amqp.protocol.api._
@@ -18,8 +19,8 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
 import org.fusesource.fabric.apollo.amqp.codec.types.{Begin, End, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
+import org.apache.activemq.apollo.util.{Log, Logging}
 
 /**
  *
@@ -70,7 +71,8 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
   _sessions.interceptor_factory = Option((frame:AMQPTransportFrame) => {
     frame.getPerformative match {
       case b:Begin =>
-        new AMQPSession
+        val rc = new AMQPSession
+        rc.head
       case _ =>
         throw new RuntimeException("Frame received for non-existant session : {" + frame + "}")
     }
@@ -97,7 +99,7 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
   def createSession() = {
     val rc = new AMQPSession
     rc.queue = getDispatchQueue
-    _sessions.attach(rc)
+    _sessions.attach(rc.head)
     rc.asInstanceOf[Session]
   }
 
@@ -124,13 +126,38 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
     }
   }
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+  def open_sent_or_received = {
+    if (_open.sent && _open.received) {
+      info("Open frames exchanged")
+      on_connect.foreach((x) => x())
+    }
+  }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  def header_sent_or_received = {
+      info("AMQP protocol header frames exchanged")
+  }
+
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
+      case o:HeaderSent =>
+        header_sent_or_received
+        execute(tasks)
+      case o:HeaderReceived =>
+        header_sent_or_received
+        execute(tasks)
+      case o:OpenReceived =>
+        if (!_open.sent) {
+          queue {
+            send(SendOpen(), Tasks())
+          }
+        }
+        open_sent_or_received
+        execute(tasks)
       case o:OpenSent =>
-        on_connect.foreach((x) => x())
-        Execute(tasks)
+        open_sent_or_received
+        execute(tasks)
       case _ =>
         incoming.receive(frame, tasks)
     }

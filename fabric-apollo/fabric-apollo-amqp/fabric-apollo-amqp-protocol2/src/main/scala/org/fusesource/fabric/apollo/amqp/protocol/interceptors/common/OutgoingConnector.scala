@@ -15,7 +15,7 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.{HashMap, Queue}
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{ReleaseChain, CloseConnection}
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Slot}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Slot}
 
 /**
  *
@@ -27,13 +27,13 @@ class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTrans
   private var _remote_channel:Option[Int] = None
 
   def release = {
-    val rc = (local_channel, remote_channel)
+    val rc = (_local_channel, _remote_channel)
     _local_channel = None
     _remote_channel = None
     rc
   }
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
         set_outgoing_channel(local_channel, t)
@@ -42,13 +42,13 @@ class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTrans
         target.send(frame, tasks)
       case r:ReleaseChain =>
         target.release(this)
-        Execute(tasks)
+        execute(tasks)
       case _ =>
-        Execute(tasks)
+        execute(tasks)
     }
   }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
 
   def local_channel = _local_channel.getOrElse(throw new RuntimeException("No local channel set on connector"))
 

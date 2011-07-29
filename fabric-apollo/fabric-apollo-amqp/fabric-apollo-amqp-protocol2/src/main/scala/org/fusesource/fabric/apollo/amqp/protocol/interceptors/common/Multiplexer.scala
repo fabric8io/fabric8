@@ -16,7 +16,7 @@ import collection.mutable.{HashMap, Queue}
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 import org.fusesource.hawtdispatch.DispatchQueue
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Slot}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Slot}
 
 /**
  *
@@ -34,18 +34,18 @@ class Multiplexer extends Interceptor with Logging {
   var chain_attached:Option[(Interceptor) => Unit] = None
   var chain_released:Option[(Interceptor) => Unit] = None
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     outgoing.send(frame, tasks)
   }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
           map_channel(t, tasks)
       case _ =>
         // TODO send ConnectionClosed frames down all chains when that happens
         debug("Dropping frame %s", frame)
-        Execute(tasks)
+        execute(tasks)
     }
   }
 
@@ -60,10 +60,10 @@ class Multiplexer extends Interceptor with Logging {
     chain match {
       case o:OutgoingConnector =>
         val (local, remote) = o.release
-        interceptors.free(local)
-        channels.remove(remote)
-        chain_released.foreach((x) => x(o))
+        local.foreach((x) => interceptors.free(x))
+        remote.foreach((x) => channels.remove(x))
         o.queue = null
+        chain_released.foreach((x) => x(o))
         o.incoming
       case _ =>
         throw new IllegalArgumentException("Invalid type (" + chain.getClass.getSimpleName + ") passed to release")

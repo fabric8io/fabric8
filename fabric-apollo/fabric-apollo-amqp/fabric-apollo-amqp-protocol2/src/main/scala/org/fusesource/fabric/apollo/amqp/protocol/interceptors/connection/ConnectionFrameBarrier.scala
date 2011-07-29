@@ -21,9 +21,9 @@ import org.fusesource.fabric.apollo.amqp.codec.types._
  * chain
  */
 class ConnectionFrameBarrier extends Interceptor with Logging {
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case p:AMQPProtocolHeader =>
         tasks.dequeueAll((x) => { x(); true })

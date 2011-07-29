@@ -27,6 +27,11 @@ trait AbstractSession extends Session {
   val _end = new EndInterceptor
   val _flow = new SessionFlowControlInterceptor
 
+  var on_begin:Option[Runnable] = None
+  var on_end:Option[Runnable] = None
+
+  def setOnEnd(on_end:Runnable) = this.on_end = Option(on_end)
+
   def setOutgoingWindow(window: Long) = _flow.flow.setOutgoingWindow(window)
 
   def setIncomingWindow(window: Long) = _flow.flow.setIncomingWindow(window)
@@ -47,17 +52,8 @@ trait AbstractSession extends Session {
 
   def getConnection = null
 
-  def established() = false
+  def established() = _begin.sent && _begin.received && !_end.sent && !_end.received
 
   def setLinkHandler(handler: LinkHandler) {}
-
-  def setOnEnd(task:Runnable) = {
-    Option(task) match {
-      case Some(task) =>
-        _end.on_end = Option(() => task.run)
-      case None =>
-        _end.on_end = None
-    }
-  }
 
 }

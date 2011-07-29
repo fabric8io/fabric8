@@ -15,8 +15,8 @@ import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types._
-import org.fusesource.fabric.apollo.amqp.protocol.commands.{ReleaseChain, EndSession}
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Tasks}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Tasks}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{EndReceived, EndSent, EndSession}
 
 /**
  *
@@ -27,28 +27,18 @@ class EndInterceptor extends Interceptor with Logging {
   var sent = false
   var received = false
 
-  var on_end:Option[() => Unit] = None
-
-  val check_end = {
-    if (sent && received) {
-      outgoing.send(ReleaseChain(), Tasks())
-      remove
-      on_end.foreach((x) => x())
-    }
-  }
-
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case f:AMQPTransportFrame =>
         f.getPerformative match {
           case e:End =>
             if (!sent) {
               sent = true
+              tasks.enqueue(() => receive(EndSent(), Tasks()))
               outgoing.send(frame, tasks)
             } else {
-              Execute(tasks)
+              execute(tasks)
             }
-            check_end
           case _ =>
             outgoing.send(frame, tasks)
         }
@@ -70,19 +60,18 @@ class EndInterceptor extends Interceptor with Logging {
     }
   }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     try {
       frame match {
         case t:AMQPTransportFrame =>
           t.getPerformative match {
             case e:End =>
-              received = true
-              if (!sent) {
-                send(EndSession(), tasks)
+              if (!received) {
+                received = true
+                incoming.receive(EndReceived(), tasks)
               } else {
-                Execute(tasks)
+                execute(tasks)
               }
-              check_end
             case _ =>
               incoming.receive(frame, tasks)
           }

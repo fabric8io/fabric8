@@ -50,7 +50,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
         val open_interceptor = new OpenInterceptor
         transport_interceptor.tail.incoming = open_interceptor
         transport_interceptor.tail.incoming = new Interceptor {
-          def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+          protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
             frame match {
               case c:ConnectionClosed =>
                 server_disconnect_wait.countDown
@@ -58,7 +58,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
             }
           }
 
-          def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+          protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
         }
         transport_interceptor.transport = transport
         info("Server created chain : %s", display_chain(transport_interceptor))
@@ -88,9 +88,9 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
     val open_interceptor = new OpenInterceptor
     transport_interceptor.tail.incoming = open_interceptor
     transport_interceptor.tail.incoming = new Interceptor {
-      def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+      protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-      def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+      protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         frame match {
           case o:OpenSent =>
             transport_interceptor.queue.executeAfter(5, TimeUnit.SECONDS, ^ {

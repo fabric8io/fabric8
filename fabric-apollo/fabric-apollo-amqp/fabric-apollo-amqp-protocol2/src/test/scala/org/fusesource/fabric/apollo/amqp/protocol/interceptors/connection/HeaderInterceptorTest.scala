@@ -17,8 +17,8 @@ import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionCreated, HeaderSent}
-import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{TerminationInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FrameDroppingInterceptor, TerminationInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
 
 /**
  *
@@ -43,9 +43,9 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
     dummy_in.incoming = header_interceptor
 
     header_interceptor.incoming = new Interceptor {
-      def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+      protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-      def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+      protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         frame match {
           case h:HeaderSent =>
           case _ =>
@@ -54,7 +54,7 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
       }
     }
 
-    header_interceptor.incoming.incoming = new TerminationInterceptor
+    header_interceptor.incoming.incoming = new FrameDroppingInterceptor
 
     (dummy_in, Tasks())
   }
@@ -63,7 +63,6 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
     val (dummy_in, tasks) = createInterceptorChain
     dummy_in.receive(ConnectionCreated(), tasks)
 
-    dummy_in.incoming.incoming.isInstanceOf[TerminationInterceptor] should be (true)
     tasks should be ('empty)
   }
 

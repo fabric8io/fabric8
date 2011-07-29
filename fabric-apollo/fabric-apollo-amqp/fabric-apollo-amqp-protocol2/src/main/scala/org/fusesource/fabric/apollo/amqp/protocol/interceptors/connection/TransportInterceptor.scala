@@ -21,7 +21,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.AMQPCodec
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, Sink, SessionSinkMux}
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPProtocolHeader, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, CloseConnection, ConnectionCreated}
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Tasks}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Tasks}
 
 /**
  *
@@ -93,7 +93,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
     _on_disconnect.foreach((x) => x())
 	}
 
-	def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+	protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
 		frame match {
       case f:AMQPTransportFrame =>
         trace("Sending : %s", frame)
@@ -121,7 +121,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 			case _ =>
         debug("Dropping frame %s", frame)
 		}
-    Execute(tasks)
+    execute(tasks)
 	}
 
 	def on_connect_=(func:() => Unit) = _on_connect = Option(func)
@@ -129,7 +129,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
   def on_disconnect_=(func:() => Unit) = _on_disconnect = Option(func)
   def on_disconnect = _on_disconnect.getOrElse(() => {})
 
-	def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+	protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
 		trace("Received : %s", frame)
 		incoming.receive(frame, tasks)
 	}

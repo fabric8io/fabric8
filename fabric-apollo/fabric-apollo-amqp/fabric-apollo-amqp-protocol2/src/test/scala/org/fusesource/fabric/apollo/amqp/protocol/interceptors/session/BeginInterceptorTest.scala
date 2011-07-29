@@ -15,8 +15,9 @@ import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{Begin, AMQPTransportFrame}
-import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{TaskExecutingInterceptor, TestSendInterceptor}
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
+import org.fusesource.fabric.apollo.amqp.protocol.commands.BeginSession
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FrameDroppingInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
 
 /**
  *
@@ -42,9 +43,9 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
       }
     })
 
+    begin.tail.incoming = new FrameDroppingInterceptor
     begin.head.outgoing = new TaskExecutingInterceptor
-
-    begin.send_begin
+    begin.send(BeginSession(), Tasks())
   }
 
   test("Begin a session remotely") {
@@ -67,9 +68,10 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
     })
 
     begin.head.outgoing = new TaskExecutingInterceptor
+    begin.tail.incoming = new FrameDroppingInterceptor
 
     begin.head.receive(new AMQPTransportFrame(7, new Begin), Tasks())
-    begin.send_begin
+    begin.send(BeginSession(), Tasks())
   }
 
 }

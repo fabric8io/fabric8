@@ -13,6 +13,10 @@ package org.fusesource.fabric.apollo.amqp.protocol.interfaces
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.hawtdispatch.DispatchQueue
+import org.apache.activemq.apollo.util.Log
+import apple.laf.JRSUIConstants.Direction
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.sanitize
+
 
 object Interceptor {
   def display_chain(in:Interceptor):String = {
@@ -26,6 +30,8 @@ object Interceptor {
 
 abstract class Interceptor {
   import Interceptor._
+
+  val logger:Log = Log(getClass.getName.stripSuffix("$"))
 
   private var _queue:Option[DispatchQueue] = None
 
@@ -82,6 +88,9 @@ abstract class Interceptor {
     if (i != null) {
       i.foreach_reverse((x) => x._queue = _queue)
       i._incoming = Option(this)
+      if (logger.log.isTraceEnabled) {
+        logger.trace("%s<==%s", i, this)
+      }
     }
     _outgoing = Option(i)
   }
@@ -90,6 +99,9 @@ abstract class Interceptor {
     if (i != null) {
       i.foreach((x) => x._queue = _queue)
       i._outgoing = Option(this)
+      if (logger.log.isTraceEnabled) {
+        logger.trace("%s==>%s", this, i)
+      }
     }
     _incoming = Option(i)
   }
@@ -128,8 +140,27 @@ abstract class Interceptor {
 
   override def toString = getClass.getSimpleName
 
-  def send(frame:AMQPFrame, tasks:Queue[() => Unit])
+  private def log_frame(frame:AMQPFrame, tasks:Queue[() => Unit], prefix:String) = {
+    logger.trace("%s(frame=%s, tasks=%s)", prefix, sanitize(frame), tasks)
 
-  def receive(frame:AMQPFrame, tasks:Queue[() => Unit])
+  }
+
+  def send(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
+    if (logger.log.isTraceEnabled) {
+      log_frame(frame, tasks, "send")
+    }
+    _send(frame, tasks)
+  }
+
+  def receive(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
+    if (logger.log.isTraceEnabled) {
+      log_frame(frame, tasks, "receive")
+    }
+    _receive(frame, tasks)
+  }
+
+  protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit])
+
+  protected def _receive(frame:AMQPFrame, tasks:Queue[() => Unit])
 
 }

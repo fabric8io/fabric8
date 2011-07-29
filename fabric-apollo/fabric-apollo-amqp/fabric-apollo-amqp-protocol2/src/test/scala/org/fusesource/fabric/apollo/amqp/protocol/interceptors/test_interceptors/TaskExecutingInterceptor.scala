@@ -20,7 +20,7 @@ import org.apache.activemq.apollo.util.Logging
  */
 
 class TaskExecutingInterceptor extends Interceptor  {
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     printf("Tasks : %s\n", tasks)
     tasks.dequeueAll((x) => {
       x()
@@ -28,7 +28,7 @@ class TaskExecutingInterceptor extends Interceptor  {
     })
   }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     incoming.receive(frame, tasks)
   }
 }

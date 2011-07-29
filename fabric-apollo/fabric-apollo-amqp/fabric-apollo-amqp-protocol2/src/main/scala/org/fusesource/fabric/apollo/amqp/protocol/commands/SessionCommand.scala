@@ -18,6 +18,12 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 
 class SessionCommand extends Command
 
+object BeginSession {
+  private val INSTANCE = new BeginSession
+  def apply() = INSTANCE
+}
+class BeginSession extends SessionCommand
+
 object EndSession {
   private val INSTANCE = new EndSession
 

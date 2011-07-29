@@ -15,9 +15,9 @@ import org.apache.activemq.apollo.util.{FunSuiteSupport, Logging}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, Open}
-import org.fusesource.fabric.apollo.amqp.protocol.commands.OpenSent
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FrameDroppingInterceptor, TaskExecutingInterceptor, TestReceiveInterceptor, TestSendInterceptor}
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{SendOpen, OpenReceived, OpenSent}
 
 /**
  *
@@ -51,12 +51,10 @@ class OpenInterceptorTest extends FunSuiteSupport with ShouldMatchers with Loggi
 
     open_interceptor.outgoing.outgoing = new TaskExecutingInterceptor
 
-    var sent = false
-
     open_interceptor.incoming = new TestReceiveInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       frame match {
+        case o:OpenReceived =>
         case o:OpenSent =>
-          sent = true
         case _ =>
           fail("Should not have received frame " + frame)
       }
@@ -67,8 +65,6 @@ class OpenInterceptorTest extends FunSuiteSupport with ShouldMatchers with Loggi
 
     open_interceptor.outgoing.outgoing.receive(new AMQPTransportFrame(open), Tasks())
 
-    sent should be (true)
-    open_interceptor.connected should be (false)
     open_interceptor.peer.getContainerID should  be ("MyContainer")
     open_interceptor.peer.getHostname should be ("localhost")
     open_interceptor.peer.getMaxFrameSize should be (1024L)

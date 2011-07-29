@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol.utilities
 
 import collection.mutable.Queue
+import org.fusesource.hawtdispatch._
 
 /**
  *
@@ -26,6 +27,28 @@ object Tasks {
   }
 }
 
-object Execute {
-  def apply(q:Queue[() => Unit]) = q.dequeueAll((x) => {x(); true})
+object OptionalTask {
+  def apply(args:Option[() => Unit]*) = {
+    val rc = new Queue[() => Unit]
+    args.foreach((x) => x.foreach((x) => rc.enqueue(x)))
+    rc
+  }
+}
+
+object execute {
+  def apply(q:Queue[() => Unit]) = {
+    if (!q.isEmpty) {
+      Option(Dispatch.getCurrentQueue) match {
+        case Some(queue) =>
+          q.dequeueAll((x) => {
+            queue {
+              x()
+            }
+            true
+          })
+        case None =>
+          q.dequeueAll((x) => {x(); true})
+      }
+    }
+  }
 }

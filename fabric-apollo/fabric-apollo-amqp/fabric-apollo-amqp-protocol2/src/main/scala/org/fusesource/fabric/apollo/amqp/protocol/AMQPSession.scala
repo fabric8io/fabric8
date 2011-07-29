@@ -16,7 +16,8 @@ import org.fusesource.fabric.apollo.amqp.protocol.commands._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import Interceptor._
 import collection.mutable.Queue
-import utilities.Tasks
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
+import utilities.{execute, Tasks}
 import org.apache.activemq.apollo.util.Logging
 
 /**
@@ -24,25 +25,18 @@ import org.apache.activemq.apollo.util.Logging
  */
 class AMQPSession extends Interceptor with AbstractSession with Logging {
 
-  tail.incoming = _begin
-  tail.incoming = _end
-  tail.incoming = _flow
+  head.outgoing = _flow
+  head.outgoing = _end
+  head.outgoing = _begin
 
   setOutgoingWindow(10L)
   setIncomingWindow(10L)
 
   trace("Constructed session chain : %s", display_chain(this))
 
-  def begin(onBegin: Runnable) = {
-    Option(onBegin) match {
-      case Some(x) =>
-        _begin.on_begin = Option(() => x.run())
-      case None =>
-        _begin.on_begin = None
-    }
-    queue {
-      _begin.send_begin
-    }
+  def begin(on_begin: Runnable) = {
+    this.on_begin = Option(on_begin)
+    send(BeginSession(), Tasks())
   }
 
   def end() = _end.send(EndSession(), Tasks())
@@ -51,8 +45,49 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   def end(reason: String) = _end.send(EndSession(reason), Tasks())
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    frame match {
+      case t:AMQPTransportFrame =>
+        incoming.receive(frame, tasks)
+      case x:BeginReceived =>
+        begin_sent_or_received
+        execute(tasks)
+      case x:BeginSent =>
+        begin_sent_or_received
+        execute(tasks)
+      case x:EndReceived =>
+        if (!_end.sent) {
+          queue {
+            send(EndSession(), Tasks())
+          }
+        }
+        end_sent_or_received
+        execute(tasks)
+      case x:EndSent =>
+        end_sent_or_received
+        execute(tasks)
+      case _ =>
+        incoming.receive(frame, tasks)
+    }
+  }
+
+  def begin_sent_or_received = {
+    if (_begin.sent && _begin.received) {
+      info("Begin frames exchanged")
+      on_begin.foreach((x) => x.run)
+    }
+  }
+
+  def end_sent_or_received = {
+    if (_end.sent && _end.received) {
+      info("End frames exchanged")
+      on_end.foreach((x) => x.run)
+      queue {
+        send(ReleaseChain(), Tasks())
+      }
+    }
+  }
 
 }

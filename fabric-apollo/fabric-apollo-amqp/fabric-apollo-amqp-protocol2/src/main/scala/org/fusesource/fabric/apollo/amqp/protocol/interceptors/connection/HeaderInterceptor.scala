@@ -15,12 +15,13 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions._
-import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, HeaderSent, ConnectionCreated}
 import java.lang.IllegalStateException
-import org.fusesource.fabric.apollo.amqp.codec.types.{Open, AMQPTransportFrame, AMQPProtocolHeader}
 import org.apache.activemq.apollo.util.Logging
 import Interceptor._
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, Execute}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, execute}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{HeaderReceived, CloseConnection, HeaderSent, ConnectionCreated}
+import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPProtocolHeader, Open, AMQPTransportFrame}
+import org.fusesource.hawtdispatch._
 
 /**
  *
@@ -31,28 +32,29 @@ class HeaderInterceptor extends Interceptor with Logging {
     send(CloseConnection(), Tasks())
   }
 
-  val sent = new AtomicBoolean(false)
+  var sent = false
+  var received = false
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case h:AMQPProtocolHeader =>
-        if (!sent.getAndSet(true)) {
+        if (!sent) {
           if (!tasks.contains(error)) {
+            sent = true
             tasks.enqueue(() => {
                 receive(HeaderSent(), Tasks())
             })
-            tasks.enqueue(rm)
           }
           outgoing.send(frame, tasks)
         } else {
-          Execute(tasks)
+          execute(tasks)
         }
       case c:CloseConnection =>
         outgoing.send(frame, tasks)
       case _ =>
-        if (!sent.get) {
+        if (!sent) {
           info("AMQP header frame has not yet been sent, dropping frame : %s", frame)
-          Execute(tasks)
+          execute(tasks)
           throw new IllegalStateException("Header frame has not yet been sent, cannot send frame : " + frame)
         } else {
           outgoing.send(frame, tasks)
@@ -60,15 +62,23 @@ class HeaderInterceptor extends Interceptor with Logging {
     }
   }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case s:ConnectionCreated =>
         send(new AMQPProtocolHeader, tasks)
       case h:AMQPProtocolHeader =>
-        if ( h.major != MAJOR && h.minor != MINOR && h.revision != REVISION ) {
-          tasks.enqueue(error)
+        if (!received) {
+          if ( h.major != MAJOR && h.minor != MINOR && h.revision != REVISION ) {
+            send(new AMQPProtocolHeader(), Tasks(error))
+          } else {
+            received = true
+            send(new AMQPProtocolHeader, Tasks())
+            queue {
+              incoming.receive(HeaderReceived(), tasks)
+            }
+          }
         }
-        send(new AMQPProtocolHeader, tasks)
+
       case _ =>
         incoming.receive(frame, tasks)
     }
