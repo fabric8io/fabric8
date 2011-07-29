@@ -1,5 +1,3 @@
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
-
 /*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved
  *
@@ -10,13 +8,15 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
  * in the license.txt file
  */
 
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
+
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.{HashMap, Queue}
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 import org.fusesource.hawtdispatch.DispatchQueue
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Slot}
 
 /**
  *
@@ -30,31 +30,11 @@ class Multiplexer extends Interceptor with Logging {
   var channel_mapper:Option[(AMQPTransportFrame) => Option[Int]] = None
   var interceptor_factory:Option[(AMQPTransportFrame) => Interceptor] = None
   var outgoing_channel_setter:Option[(Int, AMQPTransportFrame) => Unit] = None
-  var check_release:Option[AMQPTransportFrame => Boolean] = None
 
   var chain_attached:Option[(Interceptor) => Unit] = None
   var chain_released:Option[(Interceptor) => Unit] = None
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case t:AMQPTransportFrame =>
-        if (check(t)) {
-          // this is all wrong...
-          val local = selector(t)
-          interceptors.get(local) match {
-            case Some(interceptor) =>
-              try {
-                val remote = interceptor.asInstanceOf[OutgoingConnector].remote_channel
-                channels.remove(remote)
-              } catch {
-                case e:RuntimeException =>
-              }
-              release(interceptor)
-            case None =>
-              throw new RuntimeException("No interceptor exists for local channel " + local)
-          }
-        }
-    }
     outgoing.send(frame, tasks)
   }
 
@@ -65,7 +45,7 @@ class Multiplexer extends Interceptor with Logging {
       case _ =>
         // TODO send ConnectionClosed frames down all chains when that happens
         debug("Dropping frame %s", frame)
-        tasks.dequeueAll((x) => {x(); true})
+        Execute(tasks)
     }
   }
 
@@ -105,13 +85,6 @@ class Multiplexer extends Interceptor with Logging {
       temp.queue = queue
     }
     temp
-  }
-
-  private def check = check_release match {
-    case Some(check) =>
-      check
-    case None =>
-      throw new RuntimeException("Cleanup function not set on multiplexer")
   }
 
   private def outgoing_channel = outgoing_channel_setter match {

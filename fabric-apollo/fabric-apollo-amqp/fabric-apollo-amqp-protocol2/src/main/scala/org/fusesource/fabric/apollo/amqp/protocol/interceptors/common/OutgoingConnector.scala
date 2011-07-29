@@ -13,15 +13,15 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.{HashMap, Queue}
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
-import org.fusesource.fabric.apollo.amqp.protocol.commands.CloseConnection
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ReleaseChain, CloseConnection}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Slot}
 
 /**
  *
  */
 
-class OutgoingConnector(target:Interceptor, set_outgoing_channel:(Int, AMQPTransportFrame) => Unit) extends Interceptor {
+class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTransportFrame) => Unit) extends Interceptor {
 
   private var _local_channel:Option[Int] = None
   private var _remote_channel:Option[Int] = None
@@ -40,8 +40,11 @@ class OutgoingConnector(target:Interceptor, set_outgoing_channel:(Int, AMQPTrans
         target.send(frame, tasks)
       case c:CloseConnection =>
         target.send(frame, tasks)
+      case r:ReleaseChain =>
+        target.release(this)
+        Execute(tasks)
       case _ =>
-        tasks.dequeueAll((x) => {x(); true})
+        Execute(tasks)
     }
   }
 

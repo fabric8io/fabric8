@@ -21,6 +21,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.AMQPCodec
 import org.apache.activemq.apollo.broker.{OverflowSink, TransportSink, Sink, SessionSinkMux}
 import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPProtocolHeader, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, CloseConnection, ConnectionCreated}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Tasks}
 
 /**
  *
@@ -56,7 +57,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	def onTransportCommand(command: AnyRef) {
 		command match {
 			case f:AMQPFrame =>
-				receive(f, new Queue[() => Unit])
+				receive(f, Tasks())
 			case _ =>
 				// TODO - handle this case in some way
 		}
@@ -66,7 +67,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 
 	def onTransportFailure(error: IOException) = {
 		trace("Connection to %s failed with %s:%s", transport.getRemoteAddress, error, error.getMessage)
-		receive(ConnectionClosed.apply, new Queue[() => Unit])
+		receive(ConnectionClosed(), Tasks())
     _error = Option(error)
     _on_disconnect.foreach((x) => x())
 	}
@@ -81,14 +82,14 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 			}, queue, AMQPCodec)
 		connection_sink = new OverflowSink(session_manager.open(queue))
 		connection_sink.refiller = NOOP
-		receive(ConnectionCreated.apply, new Queue[() => Unit])
+		receive(ConnectionCreated(), Tasks())
 		_on_connect.foreach( x => x() )
 		transport.resumeRead
 	}
 
 	def onTransportDisconnected() {
 		trace("Disconnected from %s", transport.getRemoteAddress)
-		receive(ConnectionClosed.apply, new Queue[() => Unit])
+		receive(ConnectionClosed(), Tasks())
     _on_disconnect.foreach((x) => x())
 	}
 
@@ -114,16 +115,13 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 				tasks.enqueue( () => {
 						trace("Closing connection")
 						transport.stop(^{
-								receive(ConnectionClosed.apply, new Queue[() => Unit])
+								receive(ConnectionClosed(), Tasks())
 							})
 					})
 			case _ =>
         debug("Dropping frame %s", frame)
 		}
-		tasks.dequeueAll( (x) => {
-				x()
-				true
-			})
+    Execute(tasks)
 	}
 
 	def on_connect_=(func:() => Unit) = _on_connect = Option(func)

@@ -15,28 +15,28 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 /**
  *
  */
-object CloseConnection {
-  private val INSTANCE = new CloseConnection
+object EndSession {
+  private val INSTANCE = new EndSession
 
   def apply() = INSTANCE
 
   def apply(reason:String) = {
-    val rc = new CloseConnection
+    val rc = new EndSession
     rc.reason = Option(reason)
     rc
   }
 
   def apply(reason:Throwable) = {
-    val rc = new CloseConnection
+    val rc = new EndSession
     rc.exception = Option(reason)
     rc
   }
 }
-class CloseConnection extends AMQPFrame {
+
+class EndSession extends AMQPFrame {
 
   var reason:Option[String] = None
   var exception:Option[Throwable] = None
 
   override def toString = getClass.getSimpleName
-
 }

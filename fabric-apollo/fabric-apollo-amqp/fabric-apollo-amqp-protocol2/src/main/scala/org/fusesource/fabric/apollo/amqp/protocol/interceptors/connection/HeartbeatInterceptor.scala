@@ -20,6 +20,7 @@ import org.apache.activemq.apollo.transport.Transport
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.protocol.commands.ConnectionClosed
 import org.apache.activemq.apollo.util.Logging
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 
 /**
  *
@@ -34,7 +35,7 @@ class HeartbeatInterceptor extends Interceptor with Logging {
   val heartbeat_monitor = new HeartBeatMonitor
 
   val on_keep_alive = () => {
-    send(new AMQPTransportFrame, new Queue[() => Unit])
+    send(new AMQPTransportFrame, Tasks())
   }
 
   def heartbeat_interval(t:Long) = (t - (t * 0.05)).asInstanceOf[Long]
@@ -74,7 +75,7 @@ class HeartbeatInterceptor extends Interceptor with Logging {
                 heartbeat_monitor.transport = transport
                 heartbeat_monitor.on_dead = () => {
                   val close = new Close(new Error(ascii("Idle timeout expired")))
-                  send(new AMQPTransportFrame(close), new Queue[() => Unit])
+                  send(new AMQPTransportFrame(close), Tasks())
                 }
                 heartbeat_monitor.on_keep_alive = on_keep_alive
                 heartbeat_monitor.start

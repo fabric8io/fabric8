@@ -18,6 +18,7 @@ import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{Close, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{SimpleFrame, CloseConnection}
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FailInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 
 /**
  *
@@ -50,7 +51,7 @@ class CloseInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
     close_interceptor.head.outgoing = new TaskExecutingInterceptor
     close_interceptor.tail.incoming = new FailInterceptor
 
-    close_interceptor.head.receive(new SimpleFrame, new Queue[() => Unit])
+    close_interceptor.head.receive(new SimpleFrame, Tasks())
 
     received_close_frame should be (true)
     received_close_connection should be (true)
@@ -82,7 +83,7 @@ class CloseInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
     close_interceptor.head.outgoing = new TaskExecutingInterceptor
 
 
-    close_interceptor.tail.send(new AMQPTransportFrame(new Close), new Queue[() => Unit])
+    close_interceptor.tail.send(new AMQPTransportFrame(new Close), Tasks())
 
     received_close_frame should be (true)
     received_close_connection should be (true)

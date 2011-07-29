@@ -18,6 +18,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.commands.SimpleFrame
 import test_interceptors._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 import org.fusesource.hawtdispatch._
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 
 /**
  *
@@ -76,14 +77,14 @@ class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
     in.incoming.incoming.incoming = new SimpleInterceptor
     in.incoming.incoming.incoming.incoming = new TerminationInterceptor
 
-    in.receive(new SimpleFrame, new Queue[() => Unit])
+    in.receive(new SimpleFrame, Tasks())
     got_here should be (true)
 
     got_here = false
     in.incoming.incoming.incoming.remove
     in.incoming.incoming.remove
 
-    in.receive(new SimpleFrame, new Queue[() => Unit])
+    in.receive(new SimpleFrame, Tasks())
     got_here should be (true)
 
   }

@@ -17,7 +17,7 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
  */
 object HeaderSent {
   private val INSTANCE = new HeaderSent
-  def apply = INSTANCE
+  def apply() = INSTANCE
 }
 
 class HeaderSent extends AMQPFrame {

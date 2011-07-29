@@ -19,6 +19,8 @@ import org.scalatest.matchers.ShouldMatchers
 import scala.collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{End, AMQPTransportFrame, Begin}
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors._
+import org.fusesource.fabric.apollo.amqp.protocol.commands.ReleaseChain
+import org.fusesource.fabric.apollo.amqp.protocol.utilities._
 
 /**
  *
@@ -31,7 +33,6 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     multiplexer.channel_selector = Option((frame:AMQPTransportFrame) => frame.getChannel)
     multiplexer.channel_mapper = Option((frame:AMQPTransportFrame) => None)
     multiplexer.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => frame.setChannel(channel))
-    multiplexer.check_release = Option((frame:AMQPTransportFrame) => false)
 
     var instances = 0
     var saved:Interceptor = null
@@ -56,9 +57,9 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     multiplexer.head.outgoing = new FrameLoggingInterceptor("Outgoing")
     multiplexer.head.outgoing = new TaskExecutingInterceptor
 
-    multiplexer.head.receive(new AMQPTransportFrame(0, new Begin(0)), new Queue[() => Unit])
-    multiplexer.head.receive(new AMQPTransportFrame(1, new Begin(1)), new Queue[() => Unit])
-    multiplexer.head.receive(new AMQPTransportFrame(2, new Begin(2)), new Queue[() => Unit])
+    multiplexer.head.receive(new AMQPTransportFrame(0, new Begin(0)), Tasks())
+    multiplexer.head.receive(new AMQPTransportFrame(1, new Begin(1)), Tasks())
+    multiplexer.head.receive(new AMQPTransportFrame(2, new Begin(2)), Tasks())
 
     instances should be (3)
 
@@ -67,9 +68,9 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     saved.tail.incoming = new FailInterceptor
 
     multiplexer.release(saved.head)
-    multiplexer.head.receive(new AMQPTransportFrame(0, new Begin(0)), new Queue[() => Unit])
-    multiplexer.head.receive(new AMQPTransportFrame(1, new Begin(1)), new Queue[() => Unit])
-    multiplexer.head.receive(new AMQPTransportFrame(2, new Begin(2)), new Queue[() => Unit])
+    multiplexer.head.receive(new AMQPTransportFrame(0, new Begin(0)), Tasks())
+    multiplexer.head.receive(new AMQPTransportFrame(1, new Begin(1)), Tasks())
+    multiplexer.head.receive(new AMQPTransportFrame(2, new Begin(2)), Tasks())
 
     instances should be (3)
   }
@@ -92,7 +93,6 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     })
 
     multiplexer.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => frame.setChannel(channel))
-    multiplexer.check_release = Option((frame:AMQPTransportFrame) => false)
 
     multiplexer.channel_mapper = Option((frame:AMQPTransportFrame) => {
       frame.getPerformative match {
@@ -120,7 +120,7 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     chain.incoming = new TerminationInterceptor
     multiplexer.attach(chain)
 
-    multiplexer.head.receive(new AMQPTransportFrame(5, new Begin(0)), new Queue[() => Unit])
+    multiplexer.head.receive(new AMQPTransportFrame(5, new Begin(0)), Tasks())
 
     instances should be (1)
   }
@@ -143,15 +143,6 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     })
 
     multiplexer.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => frame.setChannel(channel))
-
-    multiplexer.check_release = Option((frame:AMQPTransportFrame) => {
-      frame.getPerformative match {
-        case e:End =>
-          true
-        case _ =>
-          false
-      }
-    })
 
     multiplexer.channel_mapper = Option((frame:AMQPTransportFrame) => {
       frame.getPerformative match {
@@ -179,11 +170,12 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
     chain.incoming = new FrameDroppingInterceptor
     multiplexer.attach(chain)
 
-    multiplexer.head.receive(new AMQPTransportFrame(5, new Begin(0)), new Queue[() => Unit])
+    multiplexer.head.receive(new AMQPTransportFrame(5, new Begin(0)), Tasks())
 
     instances should be (1)
 
-    chain.send(new AMQPTransportFrame(new End), new Queue[() => Unit])
+    chain.send(new AMQPTransportFrame(new End), Tasks())
+    chain.send(ReleaseChain(), Tasks())
 
     instances should be(0)
   }

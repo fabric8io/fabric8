@@ -10,14 +10,19 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import interfaces.{ProtocolConnection, ProtocolSession}
-import org.fusesource.fabric.apollo.amqp.protocol.api._
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
-import collection.mutable.Queue
 import org.fusesource.hawtdispatch._
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
+import org.fusesource.fabric.apollo.amqp.protocol.commands._
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
+import Interceptor._
+import collection.mutable.Queue
+import utilities.Tasks
+import org.apache.activemq.apollo.util.Logging
 
-class AMQPSession extends Interceptor with AbstractSession {
+/**
+ *
+ */
+class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   tail.incoming = _begin
   tail.incoming = _end
@@ -25,6 +30,8 @@ class AMQPSession extends Interceptor with AbstractSession {
 
   setOutgoingWindow(10L)
   setIncomingWindow(10L)
+
+  trace("Constructed session chain : %s", display_chain(this))
 
   def begin(onBegin: Runnable) = {
     Option(onBegin) match {
@@ -38,11 +45,11 @@ class AMQPSession extends Interceptor with AbstractSession {
     }
   }
 
-  def end() {}
+  def end() = _end.send(EndSession(), Tasks())
 
-  def end(t: Throwable) {}
+  def end(t: Throwable) = _end.send(EndSession(t), Tasks())
 
-  def end(reason: String) {}
+  def end(reason: String) = _end.send(EndSession(reason), Tasks())
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 

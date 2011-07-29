@@ -17,7 +17,8 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
  */
 object ConnectionClosed {
   private val INSTANCE = new ConnectionClosed
-  def apply = INSTANCE
+
+  def apply() = INSTANCE
 }
 class ConnectionClosed extends AMQPFrame {
   override def toString = getClass.getSimpleName

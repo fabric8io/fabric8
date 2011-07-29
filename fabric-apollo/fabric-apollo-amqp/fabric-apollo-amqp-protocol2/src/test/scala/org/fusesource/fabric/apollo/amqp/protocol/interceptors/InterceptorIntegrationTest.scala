@@ -21,6 +21,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, OpenSent, ConnectionClosed}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 
 /**
  *
@@ -94,7 +95,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
           case o:OpenSent =>
             transport_interceptor.queue.executeAfter(5, TimeUnit.SECONDS, ^ {
               client_wait.countDown
-              send(CloseConnection.apply, new Queue[() => Unit])
+              send(CloseConnection(), Tasks())
             })
           case c:ConnectionClosed =>
             client_disconnect_wait.countDown

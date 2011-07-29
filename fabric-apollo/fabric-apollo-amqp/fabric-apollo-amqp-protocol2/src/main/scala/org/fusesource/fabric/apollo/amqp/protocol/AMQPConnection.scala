@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import commands.OpenSent
+import utilities._
 import interceptors.connection.ConnectionFrameBarrier
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
@@ -77,14 +78,6 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
 
   _sessions.channel_selector = Option((frame:AMQPTransportFrame) => frame.getChannel)
   _sessions.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => frame.setChannel(channel))
-  _sessions.check_release = Option((frame:AMQPTransportFrame) => {
-    frame.getPerformative match {
-      case e:End =>
-        true
-      case _ =>
-        false
-    }
-  })
   _sessions.channel_mapper = Option((frame:AMQPTransportFrame) => {
       frame.getPerformative match {
         case b:Begin =>
@@ -137,7 +130,7 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
     frame match {
       case o:OpenSent =>
         on_connect.foreach((x) => x())
-        tasks.dequeueAll((x) => {x(); true})
+        Execute(tasks)
       case _ =>
         incoming.receive(frame, tasks)
     }

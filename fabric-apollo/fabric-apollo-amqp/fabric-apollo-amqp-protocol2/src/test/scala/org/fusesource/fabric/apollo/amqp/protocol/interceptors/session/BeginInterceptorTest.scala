@@ -16,6 +16,7 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{Begin, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{TaskExecutingInterceptor, TestSendInterceptor}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 
 /**
  *
@@ -67,7 +68,7 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
 
     begin.head.outgoing = new TaskExecutingInterceptor
 
-    begin.head.receive(new AMQPTransportFrame(7, new Begin), new Queue[() => Unit])
+    begin.head.receive(new AMQPTransportFrame(7, new Begin), Tasks())
     begin.send_begin
   }
 

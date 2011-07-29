@@ -51,6 +51,13 @@ trait AbstractSession extends Session {
 
   def setLinkHandler(handler: LinkHandler) {}
 
-  def setOnEnd(task:Runnable) = {}
+  def setOnEnd(task:Runnable) = {
+    Option(task) match {
+      case Some(task) =>
+        _end.on_end = Option(() => task.run)
+      case None =>
+        _end.on_end = None
+    }
+  }
 
 }

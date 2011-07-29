@@ -18,6 +18,7 @@ import interceptors.connection.{TransportInterceptor, HeaderInterceptor, CloseIn
 import org.apache.activemq.apollo.util.{URISupport, IntrospectionSupport}
 import java.net.URI
 import org.apache.activemq.apollo.transport.TransportFactory
+import utilities.Tasks
 
 /**
  *
@@ -56,9 +57,9 @@ trait AbstractConnection extends Connection {
 
   def getContainerID = _open.open.getContainerID
 
-  def close = _close.send(CloseConnection.apply, new Queue[() => Unit])
+  def close = _close.send(CloseConnection(), Tasks())
 
-  def close(t: Throwable) = _close.send(CloseConnection(t), new Queue[() => Unit])
+  def close(t: Throwable) = _close.send(CloseConnection(t), Tasks())
 
   def close(reason: String) = _close.send(CloseConnection(reason), new Queue[() => Unit])
 

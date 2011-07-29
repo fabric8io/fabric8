@@ -21,6 +21,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.FrameDroppingInterceptor
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 
 /**
  *
@@ -42,7 +43,7 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
         transport.setDispatchQueue(server.getDispatchQueue)
         transport.start(^{
           server.getDispatchQueue.executeAfter(2, TimeUnit.SECONDS, ^{
-            transport_interceptor.send(CloseConnection.apply, new Queue[() => Unit])
+            transport_interceptor.send(CloseConnection(), Tasks())
           })
         })
       }

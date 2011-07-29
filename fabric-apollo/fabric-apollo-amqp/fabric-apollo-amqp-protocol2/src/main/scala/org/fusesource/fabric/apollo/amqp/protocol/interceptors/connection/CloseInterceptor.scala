@@ -17,6 +17,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types._
 import java.util.concurrent.atomic.AtomicBoolean
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, CloseConnection}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, Execute}
 
 /**
  *
@@ -26,13 +27,13 @@ class CloseInterceptor extends Interceptor with Logging {
   val sent = new AtomicBoolean(false)
 
   val close = () => {
-    outgoing.send(CloseConnection.apply, new Queue[() => Unit])
+    outgoing.send(CloseConnection(), Tasks())
     sent.set(true)
   }
 
   def send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     if (sent.get) {
-      tasks.dequeueAll((x) => {x(); true})
+      Execute(tasks)
       trace("Connection is closed, dropping outgoing frame %s", frame)
     } else {
       frame match {
@@ -69,7 +70,7 @@ class CloseInterceptor extends Interceptor with Logging {
           incoming.receive(frame, tasks)
         case _ =>
           trace("Connection is closed, dropping incoming frame %s", frame)
-          tasks.dequeueAll((x) => {x(); true})
+          Execute(tasks)
       }
     } else {
       try {
@@ -77,7 +78,7 @@ class CloseInterceptor extends Interceptor with Logging {
           case t:AMQPTransportFrame =>
             t.getPerformative match {
               case c:Close =>
-                send(CloseConnection.apply, tasks)
+                send(CloseConnection(), tasks)
               case _ =>
                 incoming.receive(frame, tasks)
             }

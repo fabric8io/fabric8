@@ -14,8 +14,8 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import java.util.concurrent.atomic.AtomicBoolean
-import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPTransportFrame, Begin}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Tasks}
+import org.fusesource.fabric.apollo.amqp.codec.types.{End, AMQPTransportFrame, Begin}
 
 /**
  *
@@ -28,7 +28,6 @@ class BeginInterceptor extends Interceptor with Logging {
 
   var sent = false
   var received = false
-  var executed_callback = false
 
   val begin = new Begin()
   var peer:Begin = null
@@ -36,11 +35,33 @@ class BeginInterceptor extends Interceptor with Logging {
 
   var on_begin:Option[() => Unit] = None
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    frame match {
+      case t:AMQPTransportFrame =>
+        t.getPerformative match {
+          case b:Begin =>
+            if (!sent) {
+              sent = true
+              outgoing.send(frame, tasks)
+              maybe_remove
+            } else {
+              Execute(tasks)
+            }
+          case _ =>
+            if (sent) {
+              outgoing.send(frame, tasks)
+            } else {
+              debug("Session hasn't been started, dropping outgoing frame %s", frame)
+              Execute(tasks)
+            }
+        }
+      case _ =>
+        outgoing.send(frame, tasks)
+    }
+  }
 
-  def run_callback {
-    if ( sent && received && !executed_callback) {
-      executed_callback = true
+  def maybe_remove {
+    if (sent && received) {
       remove
       on_begin.foreach((x) => x())
     }
@@ -54,8 +75,8 @@ class BeginInterceptor extends Interceptor with Logging {
             received = true
             peer = b
             remote_channel = Option(t.getChannel)
-            tasks.dequeueAll((x) => {x(); true})
-            run_callback
+            Execute(tasks)
+            maybe_remove
           case _ =>
             incoming.receive(frame, tasks)
         }
@@ -82,8 +103,8 @@ class BeginInterceptor extends Interceptor with Logging {
         }
       case None =>
     }
-    send(new AMQPTransportFrame(begin), new Queue[() => Unit])
-    run_callback
+    send(new AMQPTransportFrame(begin), Tasks())
+    maybe_remove
   }
 
 }

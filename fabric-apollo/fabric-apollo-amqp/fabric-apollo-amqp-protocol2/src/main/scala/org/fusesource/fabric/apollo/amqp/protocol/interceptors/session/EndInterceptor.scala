@@ -14,13 +14,86 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ReleaseChain, EndSession}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Execute, Tasks}
 
 /**
  *
  */
 
 class EndInterceptor extends Interceptor with Logging {
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = null
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = null
+  var sent = false
+  var received = false
+
+  var on_end:Option[() => Unit] = None
+
+  val check_end = {
+    if (sent && received) {
+      outgoing.send(ReleaseChain(), Tasks())
+      remove
+      on_end.foreach((x) => x())
+    }
+  }
+
+  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    frame match {
+      case f:AMQPTransportFrame =>
+        f.getPerformative match {
+          case e:End =>
+            if (!sent) {
+              sent = true
+              outgoing.send(frame, tasks)
+            } else {
+              Execute(tasks)
+            }
+            check_end
+          case _ =>
+            outgoing.send(frame, tasks)
+        }
+      case e:EndSession =>
+        val end = new End
+        e.reason match {
+          case Some(reason) =>
+            end.setError(new Error(AMQPError.INTERNAL_ERROR.getValue, reason))
+          case None =>
+        }
+        e.exception match {
+          case Some(reason) =>
+            end.setError(new Error(AMQPError.INTERNAL_ERROR.getValue, reason.toString))
+          case None =>
+        }
+        send(new AMQPTransportFrame(end), tasks)
+      case _ =>
+        outgoing.send(frame, tasks)
+    }
+  }
+
+  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    try {
+      frame match {
+        case t:AMQPTransportFrame =>
+          t.getPerformative match {
+            case e:End =>
+              received = true
+              if (!sent) {
+                send(EndSession(), tasks)
+              } else {
+                Execute(tasks)
+              }
+              check_end
+            case _ =>
+              incoming.receive(frame, tasks)
+          }
+        case _ =>
+          incoming.receive(frame, tasks)
+      }
+    } catch {
+      case t:Throwable =>
+        warn("Exception processing frame : %s, error is %s", frame, t)
+        warn("Exception stack trace : \n%s", t.getStackTraceString)
+        send(EndSession(t), tasks)
+    }
+  }
 }

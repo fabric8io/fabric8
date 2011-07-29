@@ -18,6 +18,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.{Open, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{OpenSent, HeaderSent}
 import java.util.UUID
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, Execute}
 
 object OpenInterceptor {
   // TODO - probably gonna be a few possibilities here...
@@ -49,16 +50,13 @@ class OpenInterceptor extends Interceptor {
             if (!sent.getAndSet(true)) {
               if (!tasks.contains(error)) {
                 tasks.enqueue( () => {
-                  receive(OpenSent.apply, new Queue[() => Unit])
+                  receive(OpenSent(), Tasks())
                 })
                 tasks.enqueue(rm)
               }
               outgoing.send(frame, tasks)
             } else {
-              tasks.dequeueAll((x) => {
-                x()
-                true
-              })
+              Execute(tasks)
             }
           case _ =>
             outgoing.send(frame, tasks)

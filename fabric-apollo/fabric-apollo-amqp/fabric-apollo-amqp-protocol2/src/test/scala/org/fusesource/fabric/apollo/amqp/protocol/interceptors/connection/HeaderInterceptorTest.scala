@@ -18,6 +18,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionCreated, HeaderSent}
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{TerminationInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 
 /**
  *
@@ -55,13 +56,12 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
 
     header_interceptor.incoming.incoming = new TerminationInterceptor
 
-    val tasks = new Queue[() => Unit]
-    (dummy_in, tasks)
+    (dummy_in, Tasks())
   }
 
   test("Create interceptor, send header to it") {
     val (dummy_in, tasks) = createInterceptorChain
-    dummy_in.receive(ConnectionCreated.apply, tasks)
+    dummy_in.receive(ConnectionCreated(), tasks)
 
     dummy_in.incoming.incoming.isInstanceOf[TerminationInterceptor] should be (true)
     tasks should be ('empty)

@@ -20,13 +20,15 @@ import java.lang.IllegalStateException
 import org.fusesource.fabric.apollo.amqp.codec.types.{Open, AMQPTransportFrame, AMQPProtocolHeader}
 import org.apache.activemq.apollo.util.Logging
 import Interceptor._
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, Execute}
+
 /**
  *
  */
 class HeaderInterceptor extends Interceptor with Logging {
 
   val error = () => {
-    send(CloseConnection.apply, new Queue[() => Unit])
+    send(CloseConnection(), Tasks())
   }
 
   val sent = new AtomicBoolean(false)
@@ -37,20 +39,20 @@ class HeaderInterceptor extends Interceptor with Logging {
         if (!sent.getAndSet(true)) {
           if (!tasks.contains(error)) {
             tasks.enqueue(() => {
-                receive(HeaderSent.apply, new Queue[() => Unit])
+                receive(HeaderSent(), Tasks())
             })
             tasks.enqueue(rm)
           }
           outgoing.send(frame, tasks)
         } else {
-          tasks.dequeueAll((x) => {x(); true})
+          Execute(tasks)
         }
       case c:CloseConnection =>
         outgoing.send(frame, tasks)
       case _ =>
         if (!sent.get) {
           info("AMQP header frame has not yet been sent, dropping frame : %s", frame)
-          tasks.dequeueAll((x) => {x(); true})
+          Execute(tasks)
           throw new IllegalStateException("Header frame has not yet been sent, cannot send frame : " + frame)
         } else {
           outgoing.send(frame, tasks)
