@@ -221,9 +221,9 @@
       </p>
 
       <p>
-        The exact structure of a message, together with its encoding, is defined by the
-        <xref name="MESSAGE-FORMAT"/>. This document defines the structure and semantics of message
-        format <i>0</i>. Altogether a message consists of the following sections:
+        The exact structure of a message, together with its encoding, is defined by the message
+        format. This document defines the structure and semantics of message format
+        <xref name="MESSAGE-FORMAT"/>. Altogether a message consists of the following sections:
       </p>
 
       <ul>
@@ -256,8 +256,8 @@
         </li>
         <li>
           <p>
-            The body consists of either a one or more of <xref name="data"/> sections, a one or more
-            of <xref name="amqp-sequence"/> sections, or a single <xref name="amqp-value"/> section.
+            The body consists of either: one or more <xref name="data"/> sections, one or more
+             <xref name="amqp-sequence"/> sections, or a single <xref name="amqp-value"/> section.
           </p>
         </li>
         <li>

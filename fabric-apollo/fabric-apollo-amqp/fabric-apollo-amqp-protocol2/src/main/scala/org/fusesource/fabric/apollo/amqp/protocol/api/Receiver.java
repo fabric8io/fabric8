@@ -28,7 +28,7 @@ public interface Receiver {
 
     public void addLinkCredit(int credit);
 
-    public void drain();
+    public void drainLinkCredit();
 
 
 }

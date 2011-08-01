@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{LinkHandler, Link, Session}
+import interceptors.common.Multiplexer
 import interceptors.session.{SessionFlowControlInterceptor, EndInterceptor, BeginInterceptor}
 
 /**
@@ -26,6 +27,7 @@ trait AbstractSession extends Session {
 
   val _end = new EndInterceptor
   val _flow = new SessionFlowControlInterceptor
+  val _links = new Multiplexer
 
   var on_begin:Option[Runnable] = None
   var on_end:Option[Runnable] = None

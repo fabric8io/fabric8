@@ -28,6 +28,7 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   var connection:Connection = null
 
+  head.outgoing = _links
   head.outgoing = _flow
   head.outgoing = _end
   head.outgoing = _begin
@@ -36,6 +37,13 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
   setIncomingWindow(10L)
 
   trace("Constructed session chain : %s", display_chain(this))
+
+  _links.interceptor_factory = Option((frame:AMQPTransportFrame) => {
+
+    null.asInstanceOf[Interceptor]
+  })
+
+  def link_name_prefix = connection.getContainerID + "," + connection.getPeerContainerID + ","
 
   def begin(on_begin: Runnable) = {
     this.on_begin = Option(on_begin)
