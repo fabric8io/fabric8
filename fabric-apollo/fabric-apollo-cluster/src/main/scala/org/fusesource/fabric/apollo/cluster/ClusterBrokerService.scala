@@ -29,7 +29,6 @@ import org.apache.zookeeper.Watcher.Event.EventType
 import java.util.concurrent.TimeUnit
 import java.util.{Arrays, Properties}
 import org.apache.activemq.apollo.dto.{BrokerDTO, XmlCodec}
-import org.apache.activemq.apollo.broker.osgi.BrokerService
 import org.fusesource.fabric.groups.{ZooKeeperGroupFactory, Group}
 
 object ClusterBrokerService extends Log {
