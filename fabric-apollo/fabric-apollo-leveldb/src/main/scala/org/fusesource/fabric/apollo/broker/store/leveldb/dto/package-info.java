@@ -16,5 +16,5 @@
 @javax.xml.bind.annotation.XmlSchema(
         namespace = "http://activemq.apache.org/schema/activemq/apollo",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.apache.activemq.apollo.broker.store.leveldb.dto;
+package org.fusesource.fabric.apollo.broker.store.leveldb.dto;
 

@@ -113,6 +113,12 @@
       <scope>test</scope>
     </dependency> -->
     <dependency>
+      <groupId>org.fusesource.fabric.apollo</groupId>
+      <artifactId>fabric-apollo-leveldb</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-bdb</artifactId>
       <version>${apollo-version}</version>

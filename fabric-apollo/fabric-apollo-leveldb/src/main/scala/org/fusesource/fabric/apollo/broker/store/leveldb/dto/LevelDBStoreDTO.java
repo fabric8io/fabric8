@@ -7,7 +7,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.apache.activemq.apollo.broker.store.leveldb.dto;
+package org.fusesource.fabric.apollo.broker.store.leveldb.dto;
 
 import org.apache.activemq.apollo.dto.StoreDTO;
 
