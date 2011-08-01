@@ -70,8 +70,8 @@ object HelperTrait {
   final class RichDB(val db: DB) {
 
 
-    def get(key:Array[Byte]):Option[Array[Byte]] = {
-      Option(db.get(new ReadOptions, key))
+    def get(key:Array[Byte], ro:ReadOptions=new ReadOptions):Option[Array[Byte]] = {
+      Option(db.get(ro, key))
     }
 
     def delete = db.delete()
@@ -80,8 +80,8 @@ object HelperTrait {
       db.delete(wo, key)
     }
 
-    def put(key:Array[Byte], value:Array[Byte]):Unit = {
-      db.put(new WriteOptions, key, value)
+    def put(key:Array[Byte], value:Array[Byte], wo:WriteOptions=new WriteOptions):Unit = {
+      db.put(wo, key, value)
     }
 
     def write[T](wo:WriteOptions=new WriteOptions)(func: WriteBatch=>T):T = {
@@ -103,8 +103,6 @@ object HelperTrait {
         db.releaseSnapshot(snapshot)
       }
     }
-
-    def iterator(ro:ReadOptions=new ReadOptions()) = db.iterator(ro)
 
     def cursor_keys(ro:ReadOptions=new ReadOptions)(func: Array[Byte] => Boolean): Unit = {
       val iterator = db.iterator(ro)
