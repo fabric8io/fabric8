@@ -21,6 +21,8 @@ public interface Link {
 
     public Role getRole();
 
+    public void setFlowControlHandler(FlowControlHandler handler);
+
     public void setMaxMessageSize(long size);
 
     public long getMaxMessageSize();

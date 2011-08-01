@@ -18,11 +18,17 @@ import org.fusesource.fabric.apollo.amqp.codec.types.ReceiverSettleMode;
  */
 public interface Receiver {
 
-    public void setMessageHandler(MessageHandler handler);
+    public void setCreditHandler(CreditHandler handler);
 
-    public void setFlowControlHandler(FlowControlHandler handler);
+    public void setMessageHandler(MessageHandler handler);
 
     public void setSettleMode(ReceiverSettleMode mode);
 
     public void settle(long deliveryId, Outcome outcome);
+
+    public void addLinkCredit(int credit);
+
+    public void drain();
+
+
 }
