@@ -127,14 +127,18 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
   }
 
   def open_sent_or_received = {
-    if (_open.sent && _open.received) {
+    if (_open.sent && _open.received && _open.connected) {
       info("Open frames exchanged")
       on_connect.foreach((x) => x())
+      _open.remove
     }
   }
 
   def header_sent_or_received = {
+    if (_header.sent && _header.received && _header.connected) {
       info("AMQP protocol header frames exchanged")
+      _header.remove
+    }
   }
 
   protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)

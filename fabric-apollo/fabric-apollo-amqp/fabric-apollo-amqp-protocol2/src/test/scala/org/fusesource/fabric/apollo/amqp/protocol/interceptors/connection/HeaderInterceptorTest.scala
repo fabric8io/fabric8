@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
+import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
@@ -55,6 +56,7 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
     }
 
     header_interceptor.incoming.incoming = new FrameDroppingInterceptor
+    dummy_in.queue = Dispatch.createQueue
 
     (dummy_in, Tasks())
   }

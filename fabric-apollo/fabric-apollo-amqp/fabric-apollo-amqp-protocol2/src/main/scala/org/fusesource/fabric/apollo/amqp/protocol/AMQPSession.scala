@@ -74,9 +74,10 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
   }
 
   def begin_sent_or_received = {
-    if (_begin.sent && _begin.received) {
+    if (_begin.sent && _begin.received && _begin.connected) {
       info("Begin frames exchanged")
       on_begin.foreach((x) => x.run)
+      _begin.remove
     }
   }
 

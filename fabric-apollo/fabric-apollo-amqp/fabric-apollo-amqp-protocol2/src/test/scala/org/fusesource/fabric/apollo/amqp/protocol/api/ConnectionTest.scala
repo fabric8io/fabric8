@@ -20,7 +20,7 @@ import java.util.concurrent.{TimeUnit, CountDownLatch}
  */
 class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  ignore("Create server connection using pipe transport") {
+  test("Create server connection using pipe transport") {
     info("Starting %s", testName)
 
     val uri = "pipe://foobar/blah"
@@ -57,30 +57,31 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
   }
 
   test("Create connection, create session") {
-    info("Starting %s", testName)
+    printf("Starting %s\n", testName)
 
     val uri = "pipe://foobar2/blah"
     val latch = new CountDownLatch(2)
 
     val server = AMQPConnectionFactory.createServerConnection(new ConnectionHandler {
       def connectionCreated(connection: Connection) {
-        info("Created connection")
+        printf("Created connection\n")
         connection.onDisconnected(^ {
-          info("Connection closed")
+          printf("Connection closed\n")
+          latch.countDown
         })
         connection.setSessionHandler(new SessionHandler {
           def sessionCreated(session: Session) {
             session.setOnEnd(^{
-              info("Server session ended")
+              printf("Server session ended\n")
             })
-            info("Session created for incoming client")
+            printf("Session created for incoming client\n")
             session.begin(^{
-              info("Server session started")
+              printf("Server session started\n")
             })
           }
 
           def sessionReleased(session: Session) {
-            info("Session released for incoming client")
+            printf("Session released for incoming client\n")
           }
         })
       }
@@ -89,19 +90,19 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
     server.bind(uri, NOOP)
     val client = AMQPConnectionFactory.createConnection()
     client.onDisconnected(^ {
-      info("Disconnecting")
-      latch.countDown
+      printf("Disconnecting\n")
     })
     client.onConnected(^ {
+      printf("Created connection\n")
       val session = client.createSession
       session.setOnEnd(^{
-        info("Session stopped")
+        printf("Session stopped\n")
         client.close
         latch.countDown
       })
 
       session.begin(^{
-        info("Session started")
+        printf("Session started\n")
         session.end
       })
     })
