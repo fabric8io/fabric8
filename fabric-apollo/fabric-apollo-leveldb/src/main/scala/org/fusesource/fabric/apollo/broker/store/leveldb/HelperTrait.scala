@@ -29,6 +29,10 @@ object HelperTrait {
     out.writeLong(a1)
     out.getData
   }
+  def decode_long(bytes:Array[Byte]):Long = {
+    val in = new DataByteArrayInputStream(bytes)
+    in.readLong()
+  }
 
   def encode(a1:Byte, a2:Long):Array[Byte] = {
     val out = new DataByteArrayOutputStream(9)

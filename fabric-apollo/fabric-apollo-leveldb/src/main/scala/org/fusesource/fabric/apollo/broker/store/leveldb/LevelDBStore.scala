@@ -17,7 +17,7 @@ import java.util.concurrent._
 import org.apache.activemq.apollo.broker.store._
 import org.apache.activemq.apollo.util._
 import org.fusesource.hawtdispatch.ListEventAggregator
-import org.apache.activemq.apollo.dto.{StoreStatusDTO, IntMetricDTO, TimeMetricDTO, StoreDTO}
+import org.apache.activemq.apollo.dto.StoreStatusDTO
 import org.apache.activemq.apollo.util.OptionSupport._
 import scala.util.continuations._
 import java.io._
@@ -34,12 +34,11 @@ object LevelDBStore extends Log {
  */
 class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
 
-  import LevelDBStore._
-
   var next_queue_key = new AtomicLong(1)
   var next_msg_key = new AtomicLong(1)
 
   var write_executor:ExecutorService = _
+  var gc_executor:ExecutorService = _
   var read_executor:ExecutorService = _
   val client = new LevelDBClient(this)
 
@@ -69,6 +68,13 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
         rc
       }
     })
+    gc_executor = Executors.newFixedThreadPool(1, new ThreadFactory(){
+      def newThread(r: Runnable) = {
+        val rc = new Thread(r, "leveldb store gc")
+        rc.setDaemon(true)
+        rc
+      }
+    })
     read_executor = Executors.newFixedThreadPool(config.read_threads.getOrElse(10), new ThreadFactory(){
       def newThread(r: Runnable) = {
         val rc = new Thread(r, "leveldb store io read")
@@ -82,6 +88,7 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
       client.start()
       next_msg_key.set( client.getLastMessageKey +1 )
       next_queue_key.set( client.getLastQueueKey +1 )
+      poll_gc
       on_completed.run
     }
   }
@@ -95,10 +102,34 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
         read_executor.shutdown
         read_executor.awaitTermination(60, TimeUnit.SECONDS)
         read_executor = null
+        gc_executor.shutdown
         client.stop
         on_completed.run
       }
     }.start
+  }
+
+  private def keep_polling = {
+    val ss = service_state
+    ss.is_starting || ss.is_started
+  }
+
+  def poll_gc:Unit = {
+    val interval = config.gc_interval.getOrElse(60)
+    if( interval>0 ) {
+      dispatch_queue.after(interval, TimeUnit.SECONDS) {
+        if( keep_polling ) {
+          gc {
+            poll_gc
+          }
+        }
+      }
+    }
+  }
+
+  def gc(onComplete: =>Unit) = gc_executor {
+    client.mark_and_sweep
+    onComplete
   }
 
   /////////////////////////////////////////////////////////////////////

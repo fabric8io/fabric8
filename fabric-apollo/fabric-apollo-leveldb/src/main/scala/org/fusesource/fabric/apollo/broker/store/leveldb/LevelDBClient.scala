@@ -17,18 +17,14 @@ import collection.mutable.ListBuffer
 import org.apache.activemq.apollo.util._
 import org.fusesource.hawtbuf.proto.PBMessageFactory
 
-import org.fusesource.leveldbjni.DB._
-
-
 import scala.Some
-import java.security.Key
 import org.apache.activemq.apollo.broker.store._
-import scala.Predef._
 import org.apache.activemq.apollo.broker.store.PBSupport._
 import java.io._
 import org.fusesource.hawtbuf.AbstractVarIntSupport
-import java.sql.BatchUpdateException
 import org.fusesource.leveldbjni._
+import java.util.concurrent.TimeUnit
+import scala.Predef._
 
 object LevelDBClient extends Log
 /**
@@ -342,6 +338,55 @@ class LevelDBClient(store: LevelDBStore) {
       db.last_key(queues_db).map(decode_long_key(_)._2).getOrElse(0)
     }
   }
+
+  def mark_and_sweep() = {
+    var delete_counter = 0
+    val latency_counter = new TimeCounter
+
+    val now = System.currentTimeMillis()
+    val marker = encode(now)
+
+    latency_counter.time {
+
+      with_ctx {
+        val ro = new ReadOptions()
+        ro.setFillCache(false)
+        ro.setVerifyChecksums(verify_checksums)
+
+        val wo = new WriteOptions
+        wo.setSync(false)
+
+        // update all the message refs with the current time.
+        db.write(wo) { batch =>
+          db.cursor_prefixed(entries_db) { (_,value) =>
+            val entry:QueueEntryRecord = value
+            batch.put(encode(message_refs_db_byte, entry.message_key), marker)
+            true
+          }
+        }
+
+        val expiration_point = now - 1000;
+        // now scan and sweep all messages that have an older value for the timestamp.
+        db.write(wo) { batch =>
+          db.cursor_prefixed(message_refs_db) { (key,value) =>
+            val (_, message_id) = decode_long_key(key)
+            val ts = decode_long(value)
+
+            // Looks like it's no longer referenced.. it had an old ts.
+            if ( ts < expiration_point ) {
+              // Delete it.
+              batch.delete(encode(messages_db_byte, message_id))
+              batch.delete(encode(message_refs_db_byte, message_id))
+            }
+            true
+          }
+        }
+      }
+    }
+
+    info("leveldb gc deleted %d, it took: %f seconds", delete_counter, latency_counter.apply(true).totalTime(TimeUnit.SECONDS))
+  }
+
 
   def export_pb(streams:StreamManager[OutputStream]):Result[Zilch,String] = {
     try {

@@ -27,25 +27,28 @@ public class LevelDBStoreDTO extends StoreDTO {
     @XmlAttribute
     public File directory;
 
+    @XmlAttribute(name="gc_interval")
+    public Integer gc_interval;
+
     @XmlAttribute(name="read_threads")
     public Integer read_threads;
 
-    @XmlAttribute
+    @XmlAttribute(name="max_open_files")
     public Integer max_open_files;
 
-    @XmlAttribute
+    @XmlAttribute(name="block_restart_interval")
     public Integer block_restart_interval;
 
-    @XmlAttribute
+    @XmlAttribute(name="paranoid_checks")
     public Boolean paranoid_checks;
 
-    @XmlAttribute
+    @XmlAttribute(name="write_buffer_size")
     public Long write_buffer_size;
 
-    @XmlAttribute
+    @XmlAttribute(name="block_size")
     public Integer block_size;
 
-    @XmlAttribute
+    @XmlAttribute(name="block_cache_size")
     public Long block_cache_size;
 
     @XmlAttribute
@@ -54,7 +57,7 @@ public class LevelDBStoreDTO extends StoreDTO {
     @XmlAttribute
     public Boolean sync;
 
-    @XmlAttribute
+    @XmlAttribute(name="verify_checksums")
     public Boolean verify_checksums;
 
     @Override
