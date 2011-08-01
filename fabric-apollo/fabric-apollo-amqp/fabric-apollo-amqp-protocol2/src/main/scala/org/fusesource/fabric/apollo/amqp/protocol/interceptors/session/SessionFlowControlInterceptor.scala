@@ -8,17 +8,23 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.session
 
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
+import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
+import org.fusesource.fabric.apollo.amqp.codec.types.Flow
 
 /**
  *
  */
 
-class SimpleInterceptor extends Interceptor {
+class SessionFlowControlInterceptor extends Interceptor with Logging {
+
+  val flow = new Flow()
+  var peer:Flow = null
+
   protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
   protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)

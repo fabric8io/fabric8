@@ -18,7 +18,6 @@ public interface SessionHandler {
     /**
      * Called when a new session is being created on a connection
      *
-     * @param connection The connection where the session is being created
      * @param session    The session being created
      */
     public void sessionCreated(Session session);
@@ -26,7 +25,6 @@ public interface SessionHandler {
     /**
      * Called when a session is being released from a connection
      *
-     * @param connection The connection releasing the session
      * @param session    The session being released
      */
     public void sessionReleased(Session session);

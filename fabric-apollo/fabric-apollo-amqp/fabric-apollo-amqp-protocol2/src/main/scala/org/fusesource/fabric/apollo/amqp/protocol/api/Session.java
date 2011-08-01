@@ -88,12 +88,12 @@ public interface Session {
      */
     public void setLinkHandler(LinkHandler handler);
 
+    public void setOnEnd(Runnable task);
+
     /**
      * Ends the session gracefully
-     *
-     * @param onEnd task to be performed when the peer session responds
      */
-    public void end(Runnable onEnd);
+    public void end();
 
     /**
      * Ends the session ungracefully

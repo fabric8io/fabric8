@@ -10,56 +10,84 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import interfaces.{ProtocolConnection, ProtocolSession}
-import org.fusesource.fabric.apollo.amqp.protocol.api._
+import org.fusesource.hawtdispatch._
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
+import org.fusesource.fabric.apollo.amqp.protocol.commands._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
+import Interceptor._
+import collection.mutable.Queue
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
+import utilities.{execute, Tasks}
+import org.apache.activemq.apollo.util.Logging
 
-class AMQPSession(val connection:Interceptor) extends ProtocolSession {
+/**
+ *
+ */
+class AMQPSession extends Interceptor with AbstractSession with Logging {
 
-  var local_channel:Option[Int] = None
+  head.outgoing = _flow
+  head.outgoing = _end
+  head.outgoing = _begin
 
-  var remote_channel:Option[Int] = None
+  setOutgoingWindow(10L)
+  setIncomingWindow(10L)
 
-  def setOutgoingWindow(window: Long) {}
+  trace("Constructed session chain : %s", display_chain(this))
 
-  def setIncomingWindow(window: Long) {}
+  def begin(on_begin: Runnable) = {
+    this.on_begin = Option(on_begin)
+    send(BeginSession(), Tasks())
+  }
 
-  def getOutgoingWindow = 0L
+  def end() = _end.send(EndSession(), Tasks())
 
-  def getIncomingWindow = 0L
+  def end(t: Throwable) = _end.send(EndSession(t), Tasks())
 
-  def attach(link: Link) {}
+  def end(reason: String) = _end.send(EndSession(reason), Tasks())
 
-  def detach(link: Link) {}
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-  def detach(link: Link, reason: String) {}
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    frame match {
+      case t:AMQPTransportFrame =>
+        incoming.receive(frame, tasks)
+      case x:BeginReceived =>
+        begin_sent_or_received
+        execute(tasks)
+      case x:BeginSent =>
+        begin_sent_or_received
+        execute(tasks)
+      case x:EndReceived =>
+        if (!_end.sent) {
+          queue {
+            send(EndSession(), Tasks())
+          }
+        }
+        end_sent_or_received
+        execute(tasks)
+      case x:EndSent =>
+        end_sent_or_received
+        execute(tasks)
+      case _ =>
+        incoming.receive(frame, tasks)
+    }
+  }
 
-  def detach(link: Link, t: Throwable) {}
+  def begin_sent_or_received = {
+    if (_begin.sent && _begin.received) {
+      info("Begin frames exchanged")
+      on_begin.foreach((x) => x.run)
+    }
+  }
 
-  def sufficientSessionCredit() = false
-
-  def begin(onBegin: Runnable) {}
-
-  def getConnection = null
-
-  def established() = false
-
-  def setLinkHandler(handler: LinkHandler) {}
-
-  def end(onEnd: Runnable) {}
-
-  def end(t: Throwable) {}
-
-  def end(reason: String) {}
-
-  def setLocalChannel(channel: Int) = local_channel = Option(channel)
-
-  def setRemoteChannel(channel: Int) = remote_channel = Option(channel)
-
-  def getLocalChannel = local_channel
-
-  def getRemoteChannel = remote_channel
-
-  def outgoing = connection
+  def end_sent_or_received = {
+    if (_end.sent && _end.received) {
+      info("End frames exchanged")
+      on_end.foreach((x) => x.run)
+      queue {
+        send(ReleaseChain(), Tasks())
+      }
+    }
+  }
 
 }

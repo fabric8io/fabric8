@@ -1,5 +1,3 @@
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
-
 /*
  * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved
  *
@@ -10,40 +8,56 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors
  * in the license.txt file
  */
 
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
+
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.{HashMap, Queue}
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.Slot
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ReleaseChain, CloseConnection}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Slot}
 
 /**
  *
  */
 
-class OutgoingConnector(target:Interceptor) extends Interceptor {
-  
+class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTransportFrame) => Unit) extends Interceptor {
+
   private var _local_channel:Option[Int] = None
   private var _remote_channel:Option[Int] = None
-  
+
   def release = {
-    val rc = (local_channel, remote_channel)
+    val rc = (_local_channel, _remote_channel)
     _local_channel = None
     _remote_channel = None
     rc
   }
-  
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = target.send(frame, tasks)
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
-  
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    frame match {
+      case t:AMQPTransportFrame =>
+        set_outgoing_channel(local_channel, t)
+        target.send(frame, tasks)
+      case c:CloseConnection =>
+        target.send(frame, tasks)
+      case r:ReleaseChain =>
+        target.release(this)
+        execute(tasks)
+      case _ =>
+        execute(tasks)
+    }
+  }
+
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
+
   def local_channel = _local_channel.getOrElse(throw new RuntimeException("No local channel set on connector"))
-  
+
   def local_channel_=(channel:Int) = _local_channel = Option(channel)
-  
+
   def remote_channel = _remote_channel.getOrElse(throw new RuntimeException("No remote channel set on connector"))
-  
+
   def remote_channel_=(channel:Int) = _remote_channel = Option(channel)
-  
+
   override def toString = String.format("%s{local_channel=%s remote_channel=%s", getClass.getSimpleName, _local_channel, _remote_channel)
 }
 

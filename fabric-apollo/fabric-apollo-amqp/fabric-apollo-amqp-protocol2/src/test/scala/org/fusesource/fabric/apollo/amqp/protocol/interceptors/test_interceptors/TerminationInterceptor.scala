@@ -20,9 +20,9 @@ import collection.mutable.Queue
 
 class TerminationInterceptor extends Interceptor {
 
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     printf("Terminating interceptor chain\n")
     send(frame, tasks)
   }

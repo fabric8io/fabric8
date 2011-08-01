@@ -8,19 +8,21 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.commands
+package org.fusesource.fabric.apollo.amqp.protocol.utilities
 
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 
-object ConnectionCreated {
-  private val INSTANCE = new ConnectionCreated
-  def apply = INSTANCE
-}
 /**
  *
  */
-class ConnectionCreated extends AMQPFrame {
-
-  override def toString = getClass.getSimpleName
-
+object sanitize {
+  def apply(frame:AMQPFrame):String = {
+    frame match {
+      case t:AMQPTransportFrame =>
+        t.getPerformative.toString
+      case _ =>
+        frame.toString
+    }
+  }
 }

@@ -15,9 +15,15 @@ import org.fusesource.hawtdispatch.DispatchQueue;
 /**
  * Represents an AMQP Connection.
  *
+ * TODO - Add more getters/setters for fields in Open frame
+ *
  * @author Stan Lewis
  */
 public interface Connection {
+
+    public void setIdleTimeout(long timeout);
+
+    public long getIdleTimeout();
 
     /**
      * Connects this connection to a peer
@@ -42,7 +48,7 @@ public interface Connection {
      *
      * @return boolean
      */
-    public boolean connected();
+    public boolean isConnected();
 
     /**
      * Gets the last error received on this Connection

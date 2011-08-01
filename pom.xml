@@ -81,11 +81,11 @@
         <fabric.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
-        <activemq-version>5.5.0-fuse-00-39</activemq-version>
-        <cxf-version>2.4.0-fuse-00-39</cxf-version>
-        <camel-version>2.7.1-fuse-00-39</camel-version>
+        <activemq-version>5.5.0-fuse-00-43</activemq-version>
+        <cxf-version>2.4.1-fuse-00-43</cxf-version>
+        <camel-version>2.7.1-fuse-00-43</camel-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
-        <karaf-version>2.2.0-fuse-00-39</karaf-version>
+        <karaf-version>2.2.0-fuse-00-43</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
         <logback-version>0.9.28</logback-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
@@ -109,7 +109,7 @@
         <junit-version>4.8.1</junit-version>
         <hawtbuf-version>1.6</hawtbuf-version>
         <hawtdispatch-version>1.4</hawtdispatch-version>
-        <rrd4j-version>2.0.7-SNAPSHOT</rrd4j-version>
+        <rrd4j-version>2.0.7</rrd4j-version>
         <sigar-version>1.6.4</sigar-version>
         <jackson-version>1.8.0</jackson-version>
         <jersey-version>1.5</jersey-version>

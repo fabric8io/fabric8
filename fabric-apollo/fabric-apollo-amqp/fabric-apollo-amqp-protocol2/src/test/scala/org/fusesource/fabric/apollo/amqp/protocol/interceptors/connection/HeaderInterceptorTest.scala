@@ -8,16 +8,17 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interceptors
+package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import test_interceptors._
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionCreated, HeaderSent}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FrameDroppingInterceptor, TerminationInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
 
 /**
  *
@@ -42,9 +43,9 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
     dummy_in.incoming = header_interceptor
 
     header_interceptor.incoming = new Interceptor {
-      def send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+      protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-      def receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+      protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         frame match {
           case h:HeaderSent =>
           case _ =>
@@ -53,17 +54,15 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
       }
     }
 
-    header_interceptor.incoming.incoming = new TerminationInterceptor
+    header_interceptor.incoming.incoming = new FrameDroppingInterceptor
 
-    val tasks = new Queue[() => Unit]
-    (dummy_in, tasks)
+    (dummy_in, Tasks())
   }
 
   test("Create interceptor, send header to it") {
     val (dummy_in, tasks) = createInterceptorChain
-    dummy_in.receive(ConnectionCreated.apply, tasks)
+    dummy_in.receive(ConnectionCreated(), tasks)
 
-    dummy_in.incoming.incoming.isInstanceOf[TerminationInterceptor] should be (true)
     tasks should be ('empty)
   }
 

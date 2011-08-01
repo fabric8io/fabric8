@@ -12,18 +12,48 @@ package org.fusesource.fabric.apollo.amqp.protocol.interfaces
 
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
+import org.fusesource.hawtdispatch.DispatchQueue
+import org.apache.activemq.apollo.util.Log
+import apple.laf.JRSUIConstants.Direction
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.sanitize
+
+
+object Interceptor {
+  def display_chain(in:Interceptor):String = {
+    var rc = ""
+    in.foreach((in) => {
+      rc = rc + "=>{" + in + "}"
+    })
+    rc.substring(2)
+  }
+}
 
 abstract class Interceptor {
+  import Interceptor._
+
+  val logger:Log = Log(getClass.getName.stripSuffix("$"))
+
+  private var _queue:Option[DispatchQueue] = None
 
   private var _outgoing:Option[Interceptor] = None
   private var _incoming:Option[Interceptor] = None
 
+  val rm = () => remove
+
   def outgoing = _outgoing.getOrElse(throw new RuntimeException("No outgoing interceptor exists at this end of chain"))
   def incoming = _incoming.getOrElse(throw new RuntimeException("No incoming interceptor exists at this end of chain"))
 
-  val rm = () => {
-    remove
+  def queue = {
+    _queue match {
+      case Some(queue) =>
+        queue
+      case None =>
+        throw new RuntimeException("No queue set for this interceptor chain : " + display_chain(this))
+    }
   }
+
+  def queue_=(q:DispatchQueue) = head.foreach((x) => x._queue = Option(q))
+  def queue_set:Boolean = !_queue.isEmpty
 
   def remove:Unit = {
     _outgoing match {
@@ -47,6 +77,7 @@ abstract class Interceptor {
         }
       case None =>
     }
+    _queue = None
     _outgoing = None
     _incoming = None
   }
@@ -55,14 +86,22 @@ abstract class Interceptor {
 
   def outgoing_=(i:Interceptor):Unit = {
     if (i != null) {
+      i.foreach_reverse((x) => x._queue = _queue)
       i._incoming = Option(this)
+      if (logger.log.isTraceEnabled) {
+        logger.trace("%s<==%s", i, this)
+      }
     }
     _outgoing = Option(i)
   }
 
   def incoming_=(i:Interceptor):Unit = {
     if (i != null) {
+      i.foreach((x) => x._queue = _queue)
       i._outgoing = Option(this)
+      if (logger.log.isTraceEnabled) {
+        logger.trace("%s==>%s", this, i)
+      }
     }
     _incoming = Option(i)
   }
@@ -83,8 +122,45 @@ abstract class Interceptor {
     }
   }
 
-  def send(frame:AMQPFrame, tasks:Queue[() => Unit])
+  def foreach_reverse(func:Interceptor => Unit) = {
+    var in = Option[Interceptor](tail)
+    while (in != None) {
+      func(in.get)
+      in = in.get._outgoing
+    }
+  }
 
-  def receive(frame:AMQPFrame, tasks:Queue[() => Unit])
+  def foreach(func:Interceptor => Unit) = {
+    var in = Option[Interceptor](head)
+    while (in != None) {
+      func(in.get)
+      in = in.get._incoming
+    }
+  }
+
+  override def toString = getClass.getSimpleName
+
+  private def log_frame(frame:AMQPFrame, tasks:Queue[() => Unit], prefix:String) = {
+    logger.trace("%s(frame=%s, tasks=%s)", prefix, sanitize(frame), tasks)
+
+  }
+
+  def send(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
+    if (logger.log.isTraceEnabled) {
+      log_frame(frame, tasks, "send")
+    }
+    _send(frame, tasks)
+  }
+
+  def receive(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
+    if (logger.log.isTraceEnabled) {
+      log_frame(frame, tasks, "receive")
+    }
+    _receive(frame, tasks)
+  }
+
+  protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit])
+
+  protected def _receive(frame:AMQPFrame, tasks:Queue[() => Unit])
 
 }

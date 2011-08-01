@@ -18,11 +18,11 @@ import collection.mutable.Queue
  *
  */
 class FailInterceptor extends Interceptor {
-  def send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     throw new RuntimeException("FAIL on send")
   }
 
-  def receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     throw new RuntimeException("FAIL on receive")
   }
 }
