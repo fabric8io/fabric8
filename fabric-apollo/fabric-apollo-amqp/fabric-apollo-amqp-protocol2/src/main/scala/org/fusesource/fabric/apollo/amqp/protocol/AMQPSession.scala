@@ -10,6 +10,7 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import api.{Connection, Link}
 import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import org.fusesource.fabric.apollo.amqp.protocol.commands._
@@ -24,6 +25,8 @@ import org.apache.activemq.apollo.util.Logging
  *
  */
 class AMQPSession extends Interceptor with AbstractSession with Logging {
+
+  var connection:Connection = null
 
   head.outgoing = _flow
   head.outgoing = _end
@@ -90,5 +93,18 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
       }
     }
   }
+
+  def attach(link: Link) {}
+
+  def detach(link: Link) {}
+
+  def detach(link: Link, reason: String) {}
+
+  def detach(link: Link, t: Throwable) {}
+
+  def sufficientSessionCredit() = false
+
+  def getConnection = connection
+
 
 }

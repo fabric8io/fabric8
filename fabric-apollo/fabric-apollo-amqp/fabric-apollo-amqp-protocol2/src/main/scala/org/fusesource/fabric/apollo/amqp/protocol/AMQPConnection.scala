@@ -72,6 +72,7 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
     frame.getPerformative match {
       case b:Begin =>
         val rc = new AMQPSession
+        rc.connection = this
         rc.head
       case _ =>
         throw new RuntimeException("Frame received for non-existant session : {" + frame + "}")
@@ -98,6 +99,7 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
 
   def createSession() = {
     val rc = new AMQPSession
+    rc.connection = this
     rc.queue = getDispatchQueue
     _sessions.attach(rc.head)
     rc.asInstanceOf[Session]

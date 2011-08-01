@@ -40,20 +40,9 @@ trait AbstractSession extends Session {
 
   def getIncomingWindow = _flow.flow.getIncomingWindow
 
-  def attach(link: Link) {}
-
-  def detach(link: Link) {}
-
-  def detach(link: Link, reason: String) {}
-
-  def detach(link: Link, t: Throwable) {}
-
-  def sufficientSessionCredit() = false
-
-  def getConnection = null
+  def setLinkHandler(handler: LinkHandler) {}
 
   def established() = _begin.sent && _begin.received && !_end.sent && !_end.received
 
-  def setLinkHandler(handler: LinkHandler) {}
 
 }
