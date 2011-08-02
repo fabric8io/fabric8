@@ -128,8 +128,6 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-web</artifactId>
       <version>${apollo-version}</version>
-      <type>jar</type>
-      <classifier>slim</classifier>
       <scope>test</scope>
     </dependency>
 
