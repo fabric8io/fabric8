@@ -15,11 +15,11 @@ import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionCreated, HeaderSent}
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{FrameDroppingInterceptor, TerminationInterceptor, TaskExecutingInterceptor, TestSendInterceptor}
+import org.fusesource.fabric.apollo.amqp.codec.types.AMQPProtocolHeader
 
 /**
  *
@@ -44,10 +44,10 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
     dummy_in.incoming = header_interceptor
 
     header_interceptor.incoming = new Interceptor {
-      override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
       override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         frame match {
+          case c:ConnectionCreated =>
+            send(new AMQPProtocolHeader(), tasks)
           case h:HeaderSent =>
           case _ =>
             incoming.receive(frame, tasks)

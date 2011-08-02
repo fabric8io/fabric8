@@ -16,11 +16,11 @@ import utilities._
 import interceptors.connection.ConnectionFrameBarrier
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
-import org.fusesource.fabric.apollo.amqp.codec.types.{Begin, End, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 import org.apache.activemq.apollo.util.{Log, Logging}
+import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPProtocolHeader, Begin, End, AMQPTransportFrame}
 
 /**
  *
@@ -57,6 +57,17 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
 
   import AMQPConnection._
   _transport.tail.incoming = _header
+
+  _header.incoming = new FrameInterceptor[ConnectionCreated] {
+    override protected def receive_frame(frame:ConnectionCreated, tasks:Queue[() => Unit]) = {
+      queue {
+        send(new AMQPProtocolHeader(), tasks)
+      }
+      incoming.receive(frame, tasks)
+    }
+  }
+
+
   _transport.tail.incoming = _close
   _transport.tail.incoming = _heartbeat
   _transport.tail.incoming = _open
@@ -145,6 +156,34 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
 
   override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
+      case o:HeaderSent =>
+        header_sent_or_received
+        execute(tasks)
+      case o:HeaderReceived =>
+        header_sent_or_received
+        execute(tasks)
+      case o:OpenReceived =>
+        if (!_open.sent) {
+          queue {
+            send(SendOpen(), Tasks())
+          }
+        }
+        open_sent_or_received
+        execute(tasks)
+      case o:OpenSent =>
+        open_sent_or_received
+        execute(tasks)
+      case _ =>
+        incoming.receive(frame, tasks)
+    }
+  }
+
+  protected def send_frame(frame: ConnectionCommand, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+
+  protected def receive_frame(frame: ConnectionCommand, tasks: Queue[() => Unit]) = {
+    frame match {
+      case x:ConnectionCreated =>
+        send(new AMQPProtocolHeader(), tasks)
       case o:HeaderSent =>
         header_sent_or_received
         execute(tasks)

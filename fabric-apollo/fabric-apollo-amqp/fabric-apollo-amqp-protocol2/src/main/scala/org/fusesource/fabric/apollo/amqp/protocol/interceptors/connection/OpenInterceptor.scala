@@ -76,7 +76,7 @@ class OpenInterceptor extends Interceptor {
     }
   }
 
-  protected def send_open = {
+  def send_open = {
     Option(open.getContainerID) match {
       case Some(id) =>
       case None =>
