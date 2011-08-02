@@ -73,6 +73,9 @@ object HelperTrait {
 
   final class RichDB(val db: DB) {
 
+    def getProperty(name:Array[Byte]) = db.getProperty(name)
+
+    def getApproximateSizes(ranges:Range*) = db.getApproximateSizes(ranges:_*)
 
     def get(key:Array[Byte], ro:ReadOptions=new ReadOptions):Option[Array[Byte]] = {
       Option(db.get(ro, key))
