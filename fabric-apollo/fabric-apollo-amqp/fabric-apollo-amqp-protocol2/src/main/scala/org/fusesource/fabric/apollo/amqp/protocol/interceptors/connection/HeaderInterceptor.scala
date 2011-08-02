@@ -35,7 +35,7 @@ class HeaderInterceptor extends Interceptor with Logging {
   var sent = false
   var received = false
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case h:AMQPProtocolHeader =>
         if (!sent) {
@@ -62,7 +62,7 @@ class HeaderInterceptor extends Interceptor with Logging {
     }
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case s:ConnectionCreated =>
         send(new AMQPProtocolHeader, tasks)

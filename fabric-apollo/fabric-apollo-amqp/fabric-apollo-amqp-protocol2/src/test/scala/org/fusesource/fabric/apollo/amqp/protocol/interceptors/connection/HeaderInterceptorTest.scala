@@ -44,9 +44,9 @@ class HeaderInterceptorTest extends FunSuiteSupport with ShouldMatchers with Log
     dummy_in.incoming = header_interceptor
 
     header_interceptor.incoming = new Interceptor {
-      protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+      override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-      protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+      override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         frame match {
           case h:HeaderSent =>
           case _ =>

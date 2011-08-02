@@ -143,9 +143,7 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
     }
   }
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case o:HeaderSent =>
         header_sent_or_received

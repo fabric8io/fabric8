@@ -28,10 +28,11 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   var connection:Connection = null
 
-  head.outgoing = _links
   head.outgoing = _flow
   head.outgoing = _end
   head.outgoing = _begin
+
+  tail.incoming = _links
 
   setOutgoingWindow(10L)
   setIncomingWindow(10L)
@@ -56,9 +57,7 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   def end(reason: String) = _end.send(EndSession(reason), Tasks())
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
         incoming.receive(frame, tasks)

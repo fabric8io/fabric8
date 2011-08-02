@@ -34,11 +34,11 @@ class Multiplexer extends Interceptor with Logging {
   var chain_attached:Option[(Interceptor) => Unit] = None
   var chain_released:Option[(Interceptor) => Unit] = None
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     outgoing.send(frame, tasks)
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
           map_channel(t, tasks)

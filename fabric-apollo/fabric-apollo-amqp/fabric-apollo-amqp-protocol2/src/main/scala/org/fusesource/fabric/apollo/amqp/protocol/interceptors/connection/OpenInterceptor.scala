@@ -32,7 +32,7 @@ class OpenInterceptor extends Interceptor {
   peer.setMaxFrameSize(AMQPDefinitions.MIN_MAX_FRAME_SIZE.asInstanceOf[Int])
   peer.setChannelMax(0)
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case f:AMQPTransportFrame =>
         f.getPerformative match {
@@ -57,7 +57,7 @@ class OpenInterceptor extends Interceptor {
     }
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case h:HeaderSent =>
         send_open

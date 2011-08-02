@@ -31,7 +31,7 @@ class CloseInterceptor extends Interceptor with Logging {
     sent.set(true)
   }
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     if (sent.get) {
       execute(tasks)
       trace("Connection is closed, dropping outgoing frame %s", frame)
@@ -63,7 +63,7 @@ class CloseInterceptor extends Interceptor with Logging {
     }
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     if (sent.get) {
       frame match {
         case c:ConnectionClosed =>

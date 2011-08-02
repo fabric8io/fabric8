@@ -33,7 +33,7 @@ class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTrans
     rc
   }
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
         set_outgoing_channel(local_channel, t)
@@ -47,8 +47,6 @@ class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTrans
         execute(tasks)
     }
   }
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
 
   def local_channel = _local_channel.getOrElse(throw new RuntimeException("No local channel set on connector"))
 

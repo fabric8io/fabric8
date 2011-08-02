@@ -28,7 +28,7 @@ object Interceptor {
   }
 }
 
-abstract class Interceptor {
+trait Interceptor {
   import Interceptor._
 
   val logger:Log = Log(getClass.getName.stripSuffix("$"))
@@ -53,9 +53,9 @@ abstract class Interceptor {
   }
 
   def queue_=(q:DispatchQueue) = head.foreach((x) => x._queue = Option(q))
-  def queue_set:Boolean = !_queue.isEmpty
+  final def queue_set:Boolean = !_queue.isEmpty
 
-  def remove:Unit = {
+  final def remove:Unit = {
     _outgoing match {
       case Some(out) =>
         _incoming match {
@@ -82,9 +82,9 @@ abstract class Interceptor {
     _incoming = None
   }
 
-  def connected:Boolean = !(_incoming == None && _outgoing == None)
+  final def connected:Boolean = !(_incoming == None && _outgoing == None)
 
-  def outgoing_=(i:Interceptor):Unit = {
+  final def outgoing_=(i:Interceptor):Unit = {
     if (i != null) {
       i.foreach_reverse((x) => x._queue = _queue)
       i._incoming = Option(this)
@@ -95,7 +95,7 @@ abstract class Interceptor {
     _outgoing = Option(i)
   }
 
-  def incoming_=(i:Interceptor):Unit = {
+  final def incoming_=(i:Interceptor):Unit = {
     if (i != null) {
       i.foreach((x) => x._queue = _queue)
       i._outgoing = Option(this)
@@ -106,7 +106,7 @@ abstract class Interceptor {
     _incoming = Option(i)
   }
 
-  def tail:Interceptor = {
+  final def tail:Interceptor = {
     if (!connected || _incoming == None) {
       this
     } else {
@@ -114,7 +114,7 @@ abstract class Interceptor {
     }
   }
 
-  def head:Interceptor = {
+  final def head:Interceptor = {
     if (!connected || _outgoing == None) {
       this
     } else {
@@ -122,7 +122,7 @@ abstract class Interceptor {
     }
   }
 
-  def foreach_reverse(func:Interceptor => Unit) = {
+  final def foreach_reverse(func:Interceptor => Unit) = {
     var in = Option[Interceptor](tail)
     while (in != None) {
       func(in.get)
@@ -130,7 +130,7 @@ abstract class Interceptor {
     }
   }
 
-  def foreach(func:Interceptor => Unit) = {
+  final def foreach(func:Interceptor => Unit) = {
     var in = Option[Interceptor](head)
     while (in != None) {
       func(in.get)
@@ -145,22 +145,22 @@ abstract class Interceptor {
 
   }
 
-  def send(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
+  final def send(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
     if (logger.log.isTraceEnabled) {
       log_frame(frame, tasks, "send")
     }
     _send(frame, tasks)
   }
 
-  def receive(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
+  final def receive(frame:AMQPFrame, tasks:Queue[() => Unit]):Unit = {
     if (logger.log.isTraceEnabled) {
       log_frame(frame, tasks, "receive")
     }
     _receive(frame, tasks)
   }
 
-  protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit])
+  protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit]) = outgoing.send(frame, tasks)
 
-  protected def _receive(frame:AMQPFrame, tasks:Queue[() => Unit])
+  protected def _receive(frame:AMQPFrame, tasks:Queue[() => Unit]) = incoming.receive(frame, tasks)
 
 }

@@ -14,25 +14,20 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.apache.activemq.apollo.util.Logging
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
 
 /**
  *
  */
 
 class FrameDroppingInterceptor extends Interceptor with Logging {
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     info("Dropping frame %s", frame)
-    tasks.dequeueAll((x) => {
-      x()
-      true
-    })
+    execute(tasks)
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     info("Dropping frame %s", frame)
-    tasks.dequeueAll((x) => {
-      x()
-      true
-    })
+    execute(tasks)
   }
 }

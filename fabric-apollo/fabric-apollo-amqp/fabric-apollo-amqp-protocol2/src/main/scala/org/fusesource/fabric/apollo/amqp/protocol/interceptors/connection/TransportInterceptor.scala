@@ -93,13 +93,11 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
     _on_disconnect.foreach((x) => x())
 	}
 
-	protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+	override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
 		frame match {
       case f:AMQPTransportFrame =>
-        trace("Sending : %s", frame)
         connection_sink.offer(f)
       case f:AMQPProtocolHeader =>
-        trace("Sending : %s", frame)
         connection_sink.offer(f)
 			case c:CloseConnection =>
         c.reason match {
@@ -129,8 +127,4 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
   def on_disconnect_=(func:() => Unit) = _on_disconnect = Option(func)
   def on_disconnect = _on_disconnect.getOrElse(() => {})
 
-	protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-		trace("Received : %s", frame)
-		incoming.receive(frame, tasks)
-	}
 }

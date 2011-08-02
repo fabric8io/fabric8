@@ -35,7 +35,7 @@ class BeginInterceptor extends Interceptor with Logging {
 
   def received = !peer.isEmpty
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
         t.getPerformative match {
@@ -63,7 +63,7 @@ class BeginInterceptor extends Interceptor with Logging {
     }
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
         t.getPerformative match {

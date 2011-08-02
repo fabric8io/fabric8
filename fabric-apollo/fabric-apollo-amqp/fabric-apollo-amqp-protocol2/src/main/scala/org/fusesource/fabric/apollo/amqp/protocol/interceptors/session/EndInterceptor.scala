@@ -27,7 +27,7 @@ class EndInterceptor extends Interceptor with Logging {
   var sent = false
   var received = false
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case f:AMQPTransportFrame =>
         f.getPerformative match {
@@ -60,7 +60,7 @@ class EndInterceptor extends Interceptor with Logging {
     }
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     try {
       frame match {
         case t:AMQPTransportFrame =>

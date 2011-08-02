@@ -64,9 +64,9 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
     client.setTransportListener(transport_interceptor)
 
     transport_interceptor.incoming = new Interceptor {
-      protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {}
+      override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {}
 
-      protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+      override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
         client_wait.countDown
       }
     }

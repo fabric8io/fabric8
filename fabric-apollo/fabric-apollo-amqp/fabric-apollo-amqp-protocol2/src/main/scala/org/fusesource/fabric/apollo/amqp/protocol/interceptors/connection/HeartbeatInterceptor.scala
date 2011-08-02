@@ -40,7 +40,7 @@ class HeartbeatInterceptor extends Interceptor with Logging {
 
   def heartbeat_interval(t:Long) = (t - (t * 0.05)).asInstanceOf[Long]
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case t:AMQPTransportFrame =>
         t.getPerformative match {
@@ -54,7 +54,7 @@ class HeartbeatInterceptor extends Interceptor with Logging {
     outgoing.send(frame, tasks)
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case c:ConnectionClosed =>
         heartbeat_monitor.stop
