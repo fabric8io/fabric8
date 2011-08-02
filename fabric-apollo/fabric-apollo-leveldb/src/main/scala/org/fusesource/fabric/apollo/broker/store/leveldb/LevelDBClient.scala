@@ -72,7 +72,7 @@ class LevelDBClient(store: LevelDBStore) {
     config.block_restart_interval.foreach( db_options.blockRestartInterval(_) )
     config.paranoid_checks.foreach( db_options.paranoidChecks(_) )
     config.write_buffer_size.foreach( db_options.writeBufferSize(_) )
-    config.block_cache_size.foreach(x => db_options.blockCache(new Cache(x)) )
+    config.cache_size.foreach(x => db_options.cache(new Cache(x)) )
     config.block_size.foreach( db_options.blockSize(_) )
     Option(config.compression).foreach(x => db_options.compression( x match {
       case "snappy" => CompressionType.kSnappyCompression

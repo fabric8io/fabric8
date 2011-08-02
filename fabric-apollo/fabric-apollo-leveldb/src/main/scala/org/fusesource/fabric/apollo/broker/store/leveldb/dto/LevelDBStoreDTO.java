@@ -49,7 +49,7 @@ public class LevelDBStoreDTO extends StoreDTO {
     public Integer block_size;
 
     @XmlAttribute(name="block_cache_size")
-    public Long block_cache_size;
+    public Long cache_size;
 
     @XmlAttribute
     public String compression;
@@ -68,7 +68,7 @@ public class LevelDBStoreDTO extends StoreDTO {
 
         LevelDBStoreDTO that = (LevelDBStoreDTO) o;
 
-        if (block_cache_size != null ? !block_cache_size.equals(that.block_cache_size) : that.block_cache_size != null)
+        if (cache_size != null ? !cache_size.equals(that.cache_size) : that.cache_size != null)
             return false;
         if (block_restart_interval != null ? !block_restart_interval.equals(that.block_restart_interval) : that.block_restart_interval != null)
             return false;
@@ -104,7 +104,7 @@ public class LevelDBStoreDTO extends StoreDTO {
         result = 31 * result + (paranoid_checks != null ? paranoid_checks.hashCode() : 0);
         result = 31 * result + (write_buffer_size != null ? write_buffer_size.hashCode() : 0);
         result = 31 * result + (block_size != null ? block_size.hashCode() : 0);
-        result = 31 * result + (block_cache_size != null ? block_cache_size.hashCode() : 0);
+        result = 31 * result + (cache_size != null ? cache_size.hashCode() : 0);
         result = 31 * result + (compression != null ? compression.hashCode() : 0);
         result = 31 * result + (sync != null ? sync.hashCode() : 0);
         result = 31 * result + (verify_checksums != null ? verify_checksums.hashCode() : 0);
