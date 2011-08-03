@@ -16,10 +16,11 @@ import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.commands.SimpleFrame
 import test_interceptors._
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 
 /**
  *
@@ -206,6 +207,26 @@ class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
 
     in.foreach((x) => {x.queue_set should be (true); Unit})
     in2.foreach((x) => {x.queue_set should be (true); Unit})
+  }
+
+  test("Ensure callbacks work") {
+    val in = new SimpleInterceptor
+
+    var amount = 0
+    in.incoming = new Interceptor {
+      override protected def adding_to_chain = amount = amount + 1
+      override protected def removing_from_chain = amount = amount - 1
+    }
+    amount should be (1)
+    in.incoming.remove
+    amount should be (0)
+    in.after(new Interceptor {
+      override protected def adding_to_chain = amount = amount + 1
+      override protected def removing_from_chain = amount = amount - 1
+    })
+    amount should be (1)
+    in.incoming.remove
+    amount should be (0)
   }
 
 }

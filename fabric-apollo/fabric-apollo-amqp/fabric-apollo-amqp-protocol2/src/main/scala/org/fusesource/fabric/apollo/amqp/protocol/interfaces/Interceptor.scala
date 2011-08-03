@@ -77,6 +77,7 @@ trait Interceptor {
         }
       case None =>
     }
+    removing_from_chain
     _queue = None
     _outgoing = None
     _incoming = None
@@ -93,6 +94,7 @@ trait Interceptor {
       }
     }
     _outgoing = Option(i)
+    _outgoing.foreach((x) => x.adding_to_chain)
   }
 
   final def incoming_=(i:Interceptor):Unit = {
@@ -104,6 +106,7 @@ trait Interceptor {
       }
     }
     _incoming = Option(i)
+    _incoming.foreach((x) => x.adding_to_chain)
   }
 
   final def after(i:Interceptor):Unit = {
@@ -115,6 +118,11 @@ trait Interceptor {
     i.tail._incoming = _incoming
     i.head._outgoing = Option(this)
     _incoming = Option(i)
+    _incoming match {
+      case Some(i) =>
+        i.adding_to_chain
+      case None =>
+    }
   }
 
   final def before(i:Interceptor):Unit = {
@@ -126,6 +134,11 @@ trait Interceptor {
     i.head._outgoing = _outgoing
     i.tail._incoming = Option(this)
     _outgoing = Option(i)
+    _incoming match {
+      case Some(i) =>
+        i.adding_to_chain
+      case None =>
+    }
   }
 
   final def tail:Interceptor = {
@@ -180,6 +193,10 @@ trait Interceptor {
     }
     _receive(frame, tasks)
   }
+
+  protected def adding_to_chain = {}
+
+  protected def removing_from_chain = {}
 
   protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit]) = outgoing.send(frame, tasks)
 
