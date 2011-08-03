@@ -45,7 +45,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
         transport_interceptor.tail.incoming = new CloseInterceptor
         val heartbeat_interceptor = new HeartbeatInterceptor
         heartbeat_interceptor.transport = transport
-        heartbeat_interceptor.idle_timeout = Option(1500L)
+        heartbeat_interceptor.local_idle_timeout = Option(1500L)
         transport_interceptor.tail.incoming = heartbeat_interceptor
         val open_interceptor = new OpenInterceptor
         transport_interceptor.tail.incoming = open_interceptor
@@ -83,7 +83,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
     transport_interceptor.tail.incoming = new CloseInterceptor
     val heartbeat_interceptor = new HeartbeatInterceptor
     heartbeat_interceptor.transport = client
-    heartbeat_interceptor.idle_timeout = Option(2500L)
+    heartbeat_interceptor.local_idle_timeout = Option(2500L)
     transport_interceptor.tail.incoming = heartbeat_interceptor
     val open_interceptor = new OpenInterceptor
     transport_interceptor.tail.incoming = open_interceptor

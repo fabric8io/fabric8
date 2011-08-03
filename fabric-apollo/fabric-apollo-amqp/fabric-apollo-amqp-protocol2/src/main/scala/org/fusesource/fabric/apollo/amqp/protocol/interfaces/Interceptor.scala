@@ -60,9 +60,9 @@ trait Interceptor {
       case Some(out) =>
         _incoming match {
           case Some(in) =>
-            in.outgoing = out
+            in._outgoing = Option(out)
           case None =>
-            out.incoming = null
+            out._incoming = None
         }
       case None =>
 
@@ -71,9 +71,9 @@ trait Interceptor {
       case Some(in) =>
         _outgoing match {
           case Some(out) =>
-            out.incoming = in
+            out._incoming = Option(in)
           case None =>
-            in.outgoing = null
+            in._outgoing = None
         }
       case None =>
     }
@@ -87,7 +87,7 @@ trait Interceptor {
   final def outgoing_=(i:Interceptor):Unit = {
     if (i != null) {
       i.foreach_reverse((x) => x._queue = _queue)
-      i._incoming = Option(this)
+      i.tail._incoming = Option(this)
       if (logger.log.isTraceEnabled) {
         logger.trace("%s<==%s", i, this)
       }
@@ -98,12 +98,34 @@ trait Interceptor {
   final def incoming_=(i:Interceptor):Unit = {
     if (i != null) {
       i.foreach((x) => x._queue = _queue)
-      i._outgoing = Option(this)
+      i.head._outgoing = Option(this)
       if (logger.log.isTraceEnabled) {
         logger.trace("%s==>%s", this, i)
       }
     }
     _incoming = Option(i)
+  }
+
+  final def after(i:Interceptor):Unit = {
+    _queue match {
+      case Some(queue) =>
+        i.queue = queue
+      case None =>
+    }
+    i.tail._incoming = _incoming
+    i.head._outgoing = Option(this)
+    _incoming = Option(i)
+  }
+
+  final def before(i:Interceptor):Unit = {
+    _queue match {
+      case Some(queue) =>
+        i.queue = queue
+      case None =>
+    }
+    i.head._outgoing = _outgoing
+    i.tail._incoming = Option(this)
+    _outgoing = Option(i)
   }
 
   final def tail:Interceptor = {

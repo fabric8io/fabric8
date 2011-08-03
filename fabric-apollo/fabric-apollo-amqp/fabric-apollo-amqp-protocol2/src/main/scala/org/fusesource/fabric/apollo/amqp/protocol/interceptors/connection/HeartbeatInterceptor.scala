@@ -11,7 +11,6 @@
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
 import org.fusesource.hawtbuf.Buffer._
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPConnection
@@ -21,18 +20,20 @@ import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.protocol.commands.ConnectionClosed
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{PerformativeInterceptor, Interceptor}
+import org.fusesource.hawtbuf.Buffer
 
 /**
  *
  */
 
-class HeartbeatInterceptor extends Interceptor with Logging {
+class HeartbeatInterceptor extends PerformativeInterceptor[Open] with Logging {
 
   var transport:Transport = null
-
-  var idle_timeout:Option[Long] = None
-
+  var local_idle_timeout:Option[Long] = None
+  var remote_idle_timeout:Option[Long] = None
   val heartbeat_monitor = new HeartBeatMonitor
+  var started = false
 
   val on_keep_alive = () => {
     send(new AMQPTransportFrame, Tasks())
@@ -40,6 +41,32 @@ class HeartbeatInterceptor extends Interceptor with Logging {
 
   def heartbeat_interval(t:Long) = (t - (t * 0.05)).asInstanceOf[Long]
 
+  override protected def send(o:Open, payload:Buffer, tasks: Queue[() => Unit]) = {
+    local_idle_timeout.foreach((x) => o.setIdleTimeout(x))
+    false
+  }
+
+  override protected def receive(o:Open, payload:Buffer, tasks: Queue[() => Unit]) = {
+    remote_idle_timeout = Option(o.getIdleTimeout)
+    false
+  }
+
+  def start_monitor = {
+    val read_interval = local_idle_timeout.getOrElse(AMQPConnection.DEFAULT_HEARTBEAT)
+    val write_interval = heartbeat_interval(remote_idle_timeout.getOrElse(AMQPConnection.DEFAULT_HEARTBEAT))
+    trace("Setting up heartbeat, read_interval:%s write_interval: %s", read_interval, write_interval)
+    heartbeat_monitor.read_interval = read_interval
+    heartbeat_monitor.write_interval = write_interval
+    heartbeat_monitor.transport = transport
+    heartbeat_monitor.on_dead = () => {
+      val close = new Close(new Error(ascii("Idle timeout expired")))
+      send(new AMQPTransportFrame(close), Tasks())
+    }
+    heartbeat_monitor.on_keep_alive = on_keep_alive
+    heartbeat_monitor.start
+  }
+
+/*
   override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
     frame match {
       case t:AMQPTransportFrame =>
@@ -88,5 +115,5 @@ class HeartbeatInterceptor extends Interceptor with Logging {
     }
     incoming.receive(frame, tasks)
   }
-
+*/
 }

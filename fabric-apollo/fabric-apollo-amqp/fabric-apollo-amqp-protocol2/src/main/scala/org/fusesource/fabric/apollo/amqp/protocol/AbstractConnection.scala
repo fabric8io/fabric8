@@ -65,13 +65,13 @@ trait AbstractConnection extends Connection {
 
   def getPeerContainerID = _open.peer.getContainerID
 
-  def getIdleTimeout = _heartbeat.idle_timeout.getOrElse(-1)
+  def getIdleTimeout = _heartbeat.local_idle_timeout.getOrElse(-1)
 
   def setIdleTimeout(timeout:Long) = {
     if (timeout <= 0) {
-      _heartbeat.idle_timeout = None
+      _heartbeat.local_idle_timeout = None
     } else {
-      _heartbeat.idle_timeout = Option(timeout)
+      _heartbeat.local_idle_timeout = Option(timeout)
     }
   }
 
