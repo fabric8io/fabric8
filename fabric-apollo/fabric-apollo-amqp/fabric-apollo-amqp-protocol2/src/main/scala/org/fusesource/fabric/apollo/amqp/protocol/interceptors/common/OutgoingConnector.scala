@@ -12,15 +12,14 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
 
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
-import collection.mutable.{HashMap, Queue}
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
+import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{ReleaseChain, CloseConnection}
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Slot}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
+import org.fusesource.fabric.apollo.amqp.codec.types.{Close, AMQPTransportFrame}
 
 /**
  *
  */
-
 class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTransportFrame) => Unit) extends Interceptor {
 
   private var _local_channel:Option[Int] = None
@@ -36,7 +35,9 @@ class OutgoingConnector(target:Multiplexer, set_outgoing_channel:(Int, AMQPTrans
   override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
     frame match {
       case t:AMQPTransportFrame =>
-        set_outgoing_channel(local_channel, t)
+        if (!t.getPerformative.isInstanceOf[Close]) {
+          set_outgoing_channel(local_channel, t)
+        }
         target.send(frame, tasks)
       case c:CloseConnection =>
         target.send(frame, tasks)

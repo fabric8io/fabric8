@@ -37,10 +37,12 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
   setOutgoingWindow(10L)
   setIncomingWindow(10L)
 
+  var on_begin_received:Option[() => Unit] = None
+  var on_end_received:Option[() => Unit] = None
+
   trace("Constructed session chain : %s", display_chain(this))
 
   _links.interceptor_factory = Option((frame:AMQPTransportFrame) => {
-
     null.asInstanceOf[Interceptor]
   })
 
@@ -48,7 +50,7 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   def begin(on_begin: Runnable) = {
     this.on_begin = Option(on_begin)
-    send(BeginSession(), Tasks())
+    _begin.send_begin
   }
 
   def end() = _end.send(EndSession(), Tasks())
@@ -62,17 +64,14 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
       case t:AMQPTransportFrame =>
         incoming.receive(frame, tasks)
       case x:BeginReceived =>
+        on_begin_received.foreach((x) => {x(); on_begin_received = None})
         begin_sent_or_received
         execute(tasks)
       case x:BeginSent =>
         begin_sent_or_received
         execute(tasks)
       case x:EndReceived =>
-        if (!_end.sent) {
-          queue {
-            send(EndSession(), Tasks())
-          }
-        }
+        on_end_received.foreach((x) => {x(); on_end_received = None})
         end_sent_or_received
         execute(tasks)
       case x:EndSent =>
@@ -84,17 +83,16 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
   }
 
   def begin_sent_or_received = {
-    if (_begin.sent && _begin.received && _begin.connected) {
+    if (_begin.sent && _begin.received) {
       info("Begin frames exchanged")
-      on_begin.foreach((x) => x.run)
-      _begin.remove
+      on_begin.foreach((x) => {x.run; on_begin = None})
     }
   }
 
   def end_sent_or_received = {
     if (_end.sent && _end.received) {
       info("End frames exchanged")
-      on_end.foreach((x) => x.run)
+      on_end.foreach((x) => {x.run; on_end = None})
       queue {
         send(ReleaseChain(), Tasks())
       }

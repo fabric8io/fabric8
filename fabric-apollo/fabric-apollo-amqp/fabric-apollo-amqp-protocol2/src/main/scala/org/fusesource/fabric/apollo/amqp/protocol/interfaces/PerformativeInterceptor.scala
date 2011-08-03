@@ -46,7 +46,7 @@ class PerformativeInterceptor[K <: Frame : ClassManifest] extends FrameIntercept
 
   }
 
-  protected def send(performative:K, payload:Buffer, tasks:Queue[() => Unit]):Boolean  = false
+  protected def send(performative:K, payload:Buffer, tasks:Queue[() => Unit]):Boolean = false
 
-  protected def receive(performative:K, payload:Buffer, tasks:Queue[() => Unit]):Boolean  = false
+  protected def receive(performative:K, payload:Buffer, tasks:Queue[() => Unit]):Boolean = false
 }

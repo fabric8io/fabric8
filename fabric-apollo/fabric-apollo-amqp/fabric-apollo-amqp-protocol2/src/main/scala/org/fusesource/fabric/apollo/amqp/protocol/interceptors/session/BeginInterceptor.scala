@@ -10,73 +10,77 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.session
 
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
-import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Tasks}
-import org.fusesource.fabric.apollo.amqp.codec.types.{End, AMQPTransportFrame, Begin}
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{BeginSession, BeginSent, BeginReceived}
+import org.fusesource.hawtbuf.Buffer
+import collection.mutable.Queue
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{FrameInterceptor, PerformativeInterceptor, Interceptor}
+import org.fusesource.fabric.apollo.amqp.codec.types._
 
 /**
  *
  */
 
-class BeginInterceptor extends Interceptor with Logging {
+class BeginInterceptor extends PerformativeInterceptor[Begin] with Logging {
 
   var set_outgoing_window:Option[() => Long] = None
   var set_incoming_window:Option[() => Long] = None
 
   var sent = false
+  var received = false
 
   val begin = new Begin()
   var peer:Option[Begin] = None
-  //var remote_channel:Option[Int] = None
 
-  def received = !peer.isEmpty
+  var remote_channel = 0
 
-  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case t:AMQPTransportFrame =>
-        t.getPerformative match {
-          case b:Begin =>
-            if (!sent) {
-              sent = true
-              tasks.enqueue( () => receive(BeginSent(), Tasks()))
-              outgoing.send(frame, tasks)
-            } else {
-              execute(tasks)
-            }
-          case _ =>
-            if (sent) {
-              outgoing.send(frame, tasks)
-            } else {
-              debug("Session hasn't been started, dropping outgoing frame %s", frame)
-              execute(tasks)
-            }
-        }
-      case s:BeginSession =>
-        send_begin
-        execute(tasks)
-      case _ =>
-        outgoing.send(frame, tasks)
+  val channel_interceptor = new FrameInterceptor[AMQPTransportFrame] {
+    override protected def receive_frame(f:AMQPTransportFrame, tasks:Queue[() => Unit]) = {
+      remote_channel = f.getChannel
+      incoming.receive(f, tasks)
     }
   }
 
-  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case t:AMQPTransportFrame =>
-        t.getPerformative match {
-          case b:Begin =>
-            peer = Option(b)
-            begin.setRemoteChannel(t.getChannel)
-            incoming.receive(BeginReceived(), tasks)
-          case _ =>
-            incoming.receive(frame, tasks)
-        }
-      case _ =>
-        incoming.receive(frame, tasks)
+  override protected def adding_to_chain = {
+    before(channel_interceptor)
+  }
+
+  override protected def removing_from_chain = {
+    if (channel_interceptor.connected) {
+      channel_interceptor.remove
     }
+  }
+
+  override protected def send(b:Begin, payload:Buffer, tasks:Queue[() => Unit]):Boolean = {
+    if (!sent) {
+      sent = true
+      tasks.enqueue( () => {
+        if (connected) {
+          receive(BeginSent(), Tasks())
+        }
+      })
+      false
+    } else {
+      execute(tasks)
+      true
+    }
+  }
+
+  override protected def receive(b:Begin, payload:Buffer, tasks:Queue[() => Unit]):Boolean = {
+    if (!received) {
+      received = true
+      peer = Option(b)
+      begin.setRemoteChannel(remote_channel)
+      channel_interceptor.remove
+      receive(BeginReceived(), tasks)
+    } else {
+      val close = new Close
+      close.setError(new Error(AMQPError.ILLEGAL_STATE.getValue, "Session has already received a begin frame"))
+      send(new AMQPTransportFrame(close), tasks)
+    }
+    true
   }
 
   def send_begin = {

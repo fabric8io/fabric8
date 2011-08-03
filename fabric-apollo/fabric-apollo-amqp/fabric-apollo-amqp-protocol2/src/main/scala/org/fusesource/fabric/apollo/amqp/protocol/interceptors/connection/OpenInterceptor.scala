@@ -38,6 +38,7 @@ class OpenInterceptor extends PerformativeInterceptor[Open] with Logging {
         queue {
           send_open
         }
+        tasks.enqueue(() => remove)
         incoming.receive(h, tasks)
       }
     })

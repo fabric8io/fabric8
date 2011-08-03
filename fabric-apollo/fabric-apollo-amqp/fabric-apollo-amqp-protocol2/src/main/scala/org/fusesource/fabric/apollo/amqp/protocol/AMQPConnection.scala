@@ -107,16 +107,19 @@ class AMQPConnection extends FrameInterceptor[ConnectionCommand] with AbstractCo
 
   def setSessionHandler(handler: SessionHandler) = {
     _sessions.chain_attached = Option((chain:Interceptor) => {
-      chain.head.foreach((x) => if (x.isInstanceOf[AMQPSession]) {
-        handler.sessionCreated(x.asInstanceOf[Session])
+      chain.head.foreach((x) => x match {
+        case s:AMQPSession =>
+          s.on_begin_received = Option( () => {
+            handler.sessionCreated(s)
+          })
+          s.on_end_received = Option( () => {
+            handler.sessionReleased(s)
+          })
+        case _ =>
       })
     })
 
-    _sessions.chain_released = Option((chain:Interceptor) => {
-      chain.head.foreach((x) => if (x.isInstanceOf[AMQPSession]) {
-        handler.sessionReleased(x.asInstanceOf[Session])
-      })
-    })
+    _sessions.chain_released = Option((chain:Interceptor) => {})
   }
 
   def onConnected(task: Runnable) {

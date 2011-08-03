@@ -25,7 +25,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors
 
 class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  test("Begin a session locally") {
+  ignore("Begin a session locally") {
 
     val begin = new BeginInterceptor
 
@@ -48,7 +48,7 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
     begin.send(BeginSession(), Tasks())
   }
 
-  test("Begin a session remotely") {
+  ignore("Begin a session remotely") {
 
     val begin = new BeginInterceptor
 
