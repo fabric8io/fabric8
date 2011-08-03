@@ -56,23 +56,27 @@ class LevelDBClient(store: LevelDBStore) {
   var config: LevelDBStoreDTO = null
 
   var db:RichDB = _
+
+  var cache:Cache = _
+  var logger:Logger = _
   var db_options:Options = _
 
   var sync = false;
   var verify_checksums = false;
 
   def start() = {
-    db_options = new Options();
     import OptionSupport._
 
     sync = config.sync.getOrElse(false);
     verify_checksums = config.verify_checksums.getOrElse(false);
-    
+
+    db_options = new Options();
+    db_options.createIfMissing(true);
+
     config.max_open_files.foreach( db_options.maxOpenFiles(_) )
     config.block_restart_interval.foreach( db_options.blockRestartInterval(_) )
     config.paranoid_checks.foreach( db_options.paranoidChecks(_) )
     config.write_buffer_size.foreach( db_options.writeBufferSize(_) )
-    config.cache_size.foreach(x => db_options.cache(new Cache(x)) )
     config.block_size.foreach( db_options.blockSize(_) )
     Option(config.compression).foreach(x => db_options.compression( x match {
       case "snappy" => CompressionType.kSnappyCompression
@@ -80,7 +84,13 @@ class LevelDBClient(store: LevelDBStore) {
       case _ => CompressionType.kSnappyCompression
     }) )
 
-    db_options.createIfMissing(true);
+    cache = new Cache(config.cache_size.getOrElse(1024*1024*256L))
+    db_options.cache(cache)
+
+//    logger = new Logger() {
+//      def log(msg: String) = debug(msg)
+//    }
+//    db_options.infoLog(logger)
 
     retry {
       db = new RichDB(DB.open(db_options, config.directory));
@@ -88,7 +98,18 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   def stop() = {
-    db.delete
+    if( db!=null ) {
+      db.delete
+      db = null
+    }
+    if( logger!=null ) {
+      logger.delete
+      logger = null
+    }
+    if( cache!=null ) {
+      cache.delete
+      cache = null
+    }
   }
 
   def retry[T](func: => T): T = {
@@ -147,7 +168,7 @@ class LevelDBClient(store: LevelDBStore) {
     val wo = new WriteOptions
     wo.sync(sync)
     retry {
-      db.put(encode(queues_db_byte, record.key), record, wo)
+      db.put(encode(queue_prefix, record.key), record, wo)
     }
     callback.run
   }
@@ -159,8 +180,8 @@ class LevelDBClient(store: LevelDBStore) {
       ro.verifyChecksums(verify_checksums)
       val wo = new WriteOptions
       wo.sync(false)
-      db.delete(encode(queues_db_byte, queue_key), wo)
-      db.cursor_keys_prefixed(encode(entries_db_byte, queue_key), ro) { key=>
+      db.delete(encode(queue_prefix, queue_key), wo)
+      db.cursor_keys_prefixed(encode(queue_entry_prefix, queue_key), ro) { key=>
         db.delete(key, wo)
         true
       }
@@ -180,17 +201,16 @@ class LevelDBClient(store: LevelDBStore) {
 
                 val message_record = action.message_record
                 if (message_record != null) {
-                  import PBSupport._
-                  batch.put(encode(messages_db_byte, action.message_record.key), message_record)
-                  batch.put(encode(message_refs_db_byte, action.message_record.key), now)
+                  batch.put(encode(message_prefix, action.message_record.key), message_record)
+                  batch.put(encode(message_ts_prefix, action.message_record.key), now)
                 }
 
                 action.enqueues.foreach { entry =>
-                  batch.put(encode(entries_db_byte, entry.queue_key, entry.entry_seq), entry)
+                  batch.put(encode(queue_entry_prefix, entry.queue_key, entry.entry_seq), entry)
                 }
 
                 action.dequeues.foreach { entry =>
-                  batch.delete(encode(entries_db_byte, entry.queue_key, entry.entry_seq))
+                  batch.delete(encode(queue_entry_prefix, entry.queue_key, entry.entry_seq))
                 }
             }
         }
@@ -206,7 +226,7 @@ class LevelDBClient(store: LevelDBStore) {
       val ro = new ReadOptions
       ro.verifyChecksums(verify_checksums)
       ro.fillCache(false)
-      db.cursor_keys_prefixed(queues_db, ro) { key =>
+      db.cursor_keys_prefixed(queue_prefix_array, ro) { key =>
         rc += decode_long_key(key)._2
         true // to continue cursoring.
       }
@@ -219,7 +239,7 @@ class LevelDBClient(store: LevelDBStore) {
       val ro = new ReadOptions
       ro.fillCache(false)
       ro.verifyChecksums(verify_checksums)
-      db.get(encode(queues_db_byte, queue_key), ro).map( x=> decode_queue_record(x)  )
+      db.get(encode(queue_prefix, queue_key), ro).map( x=> decode_queue_record(x)  )
     }
   }
 
@@ -229,55 +249,61 @@ class LevelDBClient(store: LevelDBStore) {
     ro.verifyChecksums(verify_checksums)
     ro.fillCache(false)
     retry {
-      var group:QueueEntryRange = null
-      db.cursor_prefixed( encode(entries_db_byte, queue_key), ro) { (key, value) =>
+      db.snapshot { snapshot =>
+        ro.snapshot(snapshot)
 
-        val (_,_,current_key) = decode_long_long_key(key)
-        if( group == null ) {
-          group = new QueueEntryRange
-          group.first_entry_seq = current_key
-        }
+        var group:QueueEntryRange = null
+        db.cursor_prefixed( encode(queue_entry_prefix, queue_key), ro) { (key, value) =>
 
-        val entry:QueueEntryRecord = value
-
-        group.last_entry_seq = current_key
-        group.count += 1
-        group.size += entry.size
-
-        if(group.expiration == 0){
-          group.expiration = entry.expiration
-        } else {
-          if( entry.expiration != 0 ) {
-            group.expiration = entry.expiration.min(group.expiration)
+          val (_,_,current_key) = decode_long_long_key(key)
+          if( group == null ) {
+            group = new QueueEntryRange
+            group.first_entry_seq = current_key
           }
-        }
 
-        if( group.count == limit) {
+          val entry:QueueEntryRecord = value
+
+          group.last_entry_seq = current_key
+          group.count += 1
+          group.size += entry.size
+
+          if(group.expiration == 0){
+            group.expiration = entry.expiration
+          } else {
+            if( entry.expiration != 0 ) {
+              group.expiration = entry.expiration.min(group.expiration)
+            }
+          }
+
+          if( group.count == limit) {
+            rc += group
+            group = null
+          }
+
+          true // to continue cursoring.
+        }
+        if( group!=null ) {
           rc += group
-          group = null
         }
-
-        true // to continue cursoring.
       }
-      if( group!=null ) {
-        rc += group
-      }
-
     }
     rc
   }
 
   def getQueueEntries(queue_key: Long, firstSeq:Long, lastSeq:Long): Seq[QueueEntryRecord] = {
     var rc = ListBuffer[QueueEntryRecord]()
+    val ro = new ReadOptions
+    ro.verifyChecksums(verify_checksums)
+    ro.fillCache(true)
     retry {
-      val start = encode(entries_db_byte, queue_key, firstSeq)
-      val end = encode(entries_db_byte, queue_key, lastSeq+1)
-      val ro = new ReadOptions
-      ro.verifyChecksums(verify_checksums)
-      ro.fillCache(true)
-      db.cursor_range( start, end, ro ) { (key, value) =>
-        rc += value
-        true
+      db.snapshot { snapshot =>
+        ro.snapshot(snapshot)
+        val start = encode(queue_entry_prefix, queue_key, firstSeq)
+        val end = encode(queue_entry_prefix, queue_key, lastSeq+1)
+        db.cursor_range( start, end, ro ) { (key, value) =>
+          rc += value
+          true
+        }
       }
     }
     rc
@@ -291,20 +317,24 @@ class LevelDBClient(store: LevelDBStore) {
     val ro = new ReadOptions
     ro.verifyChecksums(verify_checksums)
     ro.fillCache(true)
+
     val missing = retry {
-      requests.flatMap { x =>
-        val (message_key, callback) = x
-        val record = metric_load_from_index_counter.time {
-          db.get(encode(messages_db_byte, message_key), ro).map{ data=>
-            val rc:MessageRecord = data
-            rc
+      db.snapshot { snapshot =>
+        ro.snapshot(snapshot)
+        requests.flatMap { x =>
+          val (message_key, callback) = x
+          val record = metric_load_from_index_counter.time {
+            db.get(encode(message_prefix, message_key), ro).map{ data=>
+              val rc:MessageRecord = data
+              rc
+            }
           }
-        }
-        if( record.isDefined ) {
-          callback(record)
-          None
-        } else {
-          Some(x)
+          if( record.isDefined ) {
+            callback(record)
+            None
+          } else {
+            Some(x)
+          }
         }
       }
     }
@@ -315,15 +345,18 @@ class LevelDBClient(store: LevelDBStore) {
     // There's a small chance that a message was missing, perhaps we started a read tx, before the
     // write tx completed.  Lets try again..
     retry {
-      missing.foreach { x =>
-        val (message_key, callback) = x
-        val record = metric_load_from_index_counter.time {
-          db.get(encode(messages_db_byte, message_key), ro).map{ data=>
-            val rc:MessageRecord = data
-            rc
+      db.snapshot { snapshot =>
+        ro.snapshot(snapshot)
+        missing.foreach { x =>
+          val (message_key, callback) = x
+          val record = metric_load_from_index_counter.time {
+            db.get(encode(message_prefix, message_key), ro).map{ data=>
+              val rc:MessageRecord = data
+              rc
+            }
           }
+          callback(record)
         }
-        callback(record)
       }
     }
   }
@@ -331,17 +364,17 @@ class LevelDBClient(store: LevelDBStore) {
 
   def getLastMessageKey:Long = {
     retry {
-      db.last_key(messages_db).map(decode_long_key(_)._2).getOrElse(0)
+      db.last_key(message_prefix_array).map(decode_long_key(_)._2).getOrElse(0)
     }
   }
 
   def getLastQueueKey:Long = {
     retry {
-      db.last_key(queues_db).map(decode_long_key(_)._2).getOrElse(0)
+      db.last_key(queue_prefix_array).map(decode_long_key(_)._2).getOrElse(0)
     }
   }
 
-  def mark_and_sweep() = {
+  def mark_and_sweep:Unit = {
     var active_counter = 0
     var delete_counter = 0
     val latency_counter = new TimeCounter
@@ -349,6 +382,7 @@ class LevelDBClient(store: LevelDBStore) {
     val now = System.currentTimeMillis()
     val marker = encode(now)
 
+    debug("leveldb gc stating")
     latency_counter.time {
 
       retry {
@@ -362,9 +396,9 @@ class LevelDBClient(store: LevelDBStore) {
         // update all the message refs with the current time.
         db.snapshot { snapshot =>
           ro.snapshot(snapshot)
-          db.cursor_prefixed(entries_db, ro) { (_,value) =>
+          db.cursor_prefixed(queue_entry_prefix_array, ro) { (_,value) =>
             val entry:QueueEntryRecord = value
-            db.put(encode(message_refs_db_byte, entry.message_key), marker)
+            db.put(encode(message_ts_prefix, entry.message_key), marker)
             true
           }
         }
@@ -373,15 +407,15 @@ class LevelDBClient(store: LevelDBStore) {
         // now scan and sweep all messages that have an older value for the timestamp.
         db.snapshot { snapshot =>
           ro.snapshot(snapshot)
-          db.cursor_prefixed(message_refs_db) { (key,value) =>
+          db.cursor_prefixed(message_ts_prefix_array) { (key,value) =>
             val (_, message_id) = decode_long_key(key)
             val ts = decode_long(value)
 
             // Looks like it's no longer referenced.. it had an old ts.
             if ( ts < expiration_point ) {
               // Delete it.
-              db.delete(encode(messages_db_byte, message_id))
-              db.delete(encode(message_refs_db_byte, message_id))
+              db.delete(encode(message_prefix, message_id))
+              db.delete(encode(message_ts_prefix, message_id))
               delete_counter += 1
             } else {
               active_counter += 1
@@ -395,7 +429,7 @@ class LevelDBClient(store: LevelDBStore) {
     }
 
     info("leveldb gc deleted %d messages, it took: %f seconds, %d messages are left", delete_counter, latency_counter.apply(true).totalTime(TimeUnit.SECONDS), active_counter)
-    info("leveldb stats:\n"+DB.asString(db.getProperty(DB.bytes("leveldb.stats"))))
+    info("leveldb stats:\n"+db.getProperty("leveldb.stats"))
   }
 
 
@@ -419,19 +453,19 @@ class LevelDBClient(store: LevelDBStore) {
           }
 
           streams.using_queue_stream { stream =>
-            db.cursor_prefixed(queues_db, ro) { (_, value) =>
+            db.cursor_prefixed(queue_prefix_array, ro) { (_, value) =>
               write_framed(stream, value)
             }
           }
 
           streams.using_message_stream { stream=>
-            db.cursor_prefixed(messages_db, ro) { (_, value) =>
+            db.cursor_prefixed(message_prefix_array, ro) { (_, value) =>
               write_framed(stream, value)
             }
           }
 
           streams.using_queue_entry_stream { stream=>
-            db.cursor_prefixed(entries_db, ro) { (_, value) =>
+            db.cursor_prefixed(queue_entry_prefix_array, ro) { (_, value) =>
               write_framed(stream, value)
             }
           }
@@ -469,20 +503,20 @@ class LevelDBClient(store: LevelDBStore) {
 
         streams.using_queue_stream { stream=>
           foreach[QueuePB.Buffer](stream, QueuePB.FACTORY) { record=>
-            db.put(encode(queues_db_byte, record.key), record.toUnframedByteArray, wo)
+            db.put(encode(queue_prefix, record.key), record.toUnframedByteArray, wo)
           }
         }
 
         streams.using_message_stream { stream=>
           foreach[MessagePB.Buffer](stream, MessagePB.FACTORY) { record=>
-            db.put(encode(messages_db_byte, record.getMessageKey), record.toUnframedByteArray, wo)
-            db.put(encode(message_refs_db_byte, record.getMessageKey), now, wo)
+            db.put(encode(message_prefix, record.getMessageKey), record.toUnframedByteArray, wo)
+            db.put(encode(message_ts_prefix, record.getMessageKey), now, wo)
           }
         }
 
         streams.using_queue_entry_stream { stream=>
           foreach[QueueEntryPB.Buffer](stream, QueueEntryPB.FACTORY) { record=>
-            db.put(encode(entries_db_byte, record.queue_key, record.entry_seq), record.toUnframedByteArray, wo)
+            db.put(encode(queue_entry_prefix, record.queue_key, record.entry_seq), record.toUnframedByteArray, wo)
           }
         }
       }

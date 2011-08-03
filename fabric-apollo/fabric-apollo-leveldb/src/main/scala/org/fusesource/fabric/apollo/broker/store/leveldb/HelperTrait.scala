@@ -14,15 +14,15 @@ import org.fusesource.leveldbjni._
 
 object HelperTrait {
 
-  final val messages_db_byte = 'm'.toByte
-  final val message_refs_db_byte = 'r'.toByte
-  final val queues_db_byte = 'q'.toByte
-  final val entries_db_byte = 'e'.toByte
+  final val message_prefix = 'm'.toByte
+  final val message_ts_prefix = 'r'.toByte
+  final val queue_prefix = 'q'.toByte
+  final val queue_entry_prefix = 'e'.toByte
 
-  final val messages_db = Array(messages_db_byte)
-  final val message_refs_db = Array(message_refs_db_byte)
-  final val queues_db = Array(queues_db_byte)
-  final val entries_db = Array(entries_db_byte)
+  final val message_prefix_array = Array(message_prefix)
+  final val message_ts_prefix_array = Array(message_ts_prefix)
+  final val queue_prefix_array = Array(queue_prefix)
+  final val queue_entry_prefix_array = Array(queue_entry_prefix)
 
   def encode(a1:Long):Array[Byte] = {
     val out = new DataByteArrayOutputStream(8)
@@ -51,7 +51,7 @@ object HelperTrait {
     out.writeByte(a1)
     out.writeLong(a2)
     out.writeLong(a3)
-    out.toBuffer.data
+    out.getData
   }
 
   def decode_long_long_key(bytes:Array[Byte]):(Byte,Long,Long) = {
@@ -63,7 +63,7 @@ object HelperTrait {
     val out = new DataByteArrayOutputStream(5)
     out.writeByte(a1)
     out.writeInt(a2)
-    out.toBuffer.data
+    out.getData
   }
 
   def decode_int_key(bytes:Array[Byte]):(Byte,Int) = {
@@ -73,7 +73,7 @@ object HelperTrait {
 
   final class RichDB(val db: DB) {
 
-    def getProperty(name:Array[Byte]) = db.getProperty(name)
+    def getProperty(name:String) = db.getProperty(name)
 
     def getApproximateSizes(ranges:Range*) = db.getApproximateSizes(ranges:_*)
 

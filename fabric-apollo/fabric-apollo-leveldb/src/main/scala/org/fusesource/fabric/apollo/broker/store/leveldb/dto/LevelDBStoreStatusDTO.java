@@ -34,4 +34,6 @@ public class LevelDBStoreStatusDTO extends StoreStatusDTO {
     @XmlElement(name="message_load_batch_size")
     public IntMetricDTO message_load_batch_size;
 
+    @XmlElement(name="leveldb_stats")
+    public String leveldb_stats;
 }

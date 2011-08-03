@@ -115,7 +115,7 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
   }
 
   def poll_gc:Unit = {
-    val interval = config.gc_interval.getOrElse(60)
+    val interval = config.gc_interval.getOrElse(60*30)
     if( interval>0 ) {
       dispatch_queue.after(interval, TimeUnit.SECONDS) {
         if( keep_polling ) {
@@ -240,6 +240,7 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
     val rc = new LevelDBStoreStatusDTO
     fill_store_status(rc)
     rc.message_load_batch_size = message_load_batch_size
+    rc.leveldb_stats = client.db.getProperty("leveldb.stats")
     callback(rc)
   }
 
