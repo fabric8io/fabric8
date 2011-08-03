@@ -53,21 +53,10 @@ object AMQPConnection {
 /**
  *
  */
-class AMQPConnection extends Interceptor with AbstractConnection with Logging {
+class AMQPConnection extends FrameInterceptor[ConnectionCommand] with AbstractConnection with Logging {
 
   import AMQPConnection._
   _transport.tail.incoming = _header
-
-  _header.incoming = new FrameInterceptor[ConnectionCreated] {
-    override protected def receive_frame(frame:ConnectionCreated, tasks:Queue[() => Unit]) = {
-      queue {
-        send(new AMQPProtocolHeader(), tasks)
-      }
-      incoming.receive(frame, tasks)
-    }
-  }
-
-
   _transport.tail.incoming = _close
   _transport.tail.incoming = _heartbeat
   _transport.tail.incoming = _open
@@ -154,36 +143,13 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
     }
   }
 
-  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case o:HeaderSent =>
-        header_sent_or_received
-        execute(tasks)
-      case o:HeaderReceived =>
-        header_sent_or_received
-        execute(tasks)
-      case o:OpenReceived =>
-        if (!_open.sent) {
-          queue {
-            send(SendOpen(), Tasks())
-          }
-        }
-        open_sent_or_received
-        execute(tasks)
-      case o:OpenSent =>
-        open_sent_or_received
-        execute(tasks)
-      case _ =>
-        incoming.receive(frame, tasks)
-    }
-  }
-
-  protected def send_frame(frame: ConnectionCommand, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
-  protected def receive_frame(frame: ConnectionCommand, tasks: Queue[() => Unit]) = {
+  override protected def receive_frame(frame: ConnectionCommand, tasks: Queue[() => Unit]) = {
     frame match {
       case x:ConnectionCreated =>
-        send(new AMQPProtocolHeader(), tasks)
+        execute(tasks)
+      case x:ConnectionClosed =>
+        execute(tasks)
+        incoming.receive(frame, tasks)
       case o:HeaderSent =>
         header_sent_or_received
         execute(tasks)
@@ -191,11 +157,6 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
         header_sent_or_received
         execute(tasks)
       case o:OpenReceived =>
-        if (!_open.sent) {
-          queue {
-            send(SendOpen(), Tasks())
-          }
-        }
         open_sent_or_received
         execute(tasks)
       case o:OpenSent =>

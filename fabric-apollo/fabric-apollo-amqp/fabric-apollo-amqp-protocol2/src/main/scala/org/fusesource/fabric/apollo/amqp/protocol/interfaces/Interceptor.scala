@@ -110,34 +110,22 @@ trait Interceptor {
   }
 
   final def after(i:Interceptor):Unit = {
-    _queue match {
-      case Some(queue) =>
-        i.queue = queue
-      case None =>
-    }
-    i.tail._incoming = _incoming
-    i.head._outgoing = Option(this)
-    _incoming = Option(i)
     _incoming match {
-      case Some(i) =>
-        i.adding_to_chain
+      case Some(interceptor) =>
+        interceptor.outgoing = i
+        this.incoming = i
       case None =>
+        this.incoming = i
     }
   }
 
   final def before(i:Interceptor):Unit = {
-    _queue match {
-      case Some(queue) =>
-        i.queue = queue
+    _outgoing match {
+      case Some(interceptor) =>
+        interceptor.incoming = i
+        this.outgoing = i
       case None =>
-    }
-    i.head._outgoing = _outgoing
-    i.tail._incoming = Option(this)
-    _outgoing = Option(i)
-    _incoming match {
-      case Some(i) =>
-        i.adding_to_chain
-      case None =>
+        this.outgoing = i
     }
   }
 

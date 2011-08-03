@@ -23,7 +23,7 @@ class PerformativeInterceptor[K <: Frame : ClassManifest] extends FrameIntercept
 
   implicit val performative_cm = classManifest[K]
 
-  private def performative_matches(performative:Frame) = performative.getClass == performative_cm.getClass
+  private def performative_matches(performative:Frame) = performative_cm.erasure.isInstance(performative)
 
   final override protected def send_frame(frame: AMQPTransportFrame, tasks: Queue[() => Unit]) = {
     if (performative_matches(frame.getPerformative)) {

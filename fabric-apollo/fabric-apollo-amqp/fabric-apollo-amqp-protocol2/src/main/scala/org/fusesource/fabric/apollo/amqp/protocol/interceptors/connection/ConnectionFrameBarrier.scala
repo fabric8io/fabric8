@@ -10,37 +10,23 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.FrameInterceptor
 
 /**
  * Prevents frames on channel 0 from proceeding further in the receive interceptor
  * chain
  */
-class ConnectionFrameBarrier extends Interceptor with Logging {
+class ConnectionFrameBarrier extends FrameInterceptor[AMQPTransportFrame] with Logging {
 
-  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case p:AMQPProtocolHeader =>
-        tasks.dequeueAll((x) => { x(); true })
-      case t:AMQPTransportFrame =>
-        if (t.getChannel == 0) {
-          tasks.dequeueAll((x) => { x(); true })
-          t.getPerformative match {
-            case o:Open =>
-            case c:Close =>
-            case n:NoPerformative =>
-            case _ =>
-              throw new RuntimeException("Only open/close and heartbeat frames can be sent on channel 0")
-          }
-        } else {
-          incoming.receive(frame, tasks)
-        }
-      case _ =>
-        incoming.receive(frame, tasks)
+  override protected def receive_frame(frame:AMQPTransportFrame, tasks: Queue[() => Unit]) = {
+    if (frame.getChannel == 0) {
+      execute(tasks)
+    } else {
+      incoming.receive(frame, tasks)
     }
   }
 }

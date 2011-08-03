@@ -21,7 +21,7 @@ class FrameInterceptor[T <: AMQPFrame : ClassManifest] extends Interceptor {
 
   implicit val cm = classManifest[T]
 
-  private def matches(frame:AMQPFrame) = frame.getClass == cm.getClass
+  private def matches(frame:AMQPFrame) = cm.erasure.isInstance(frame)
 
   final override protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
     if (matches(frame)) {

@@ -28,7 +28,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.utilities.Tasks
  */
 class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  test("Create server, create client, send empty frame, disconnect") {
+  ignore("Create server, create client, send empty frame, disconnect") {
 
     val server_queue = Dispatch.createQueue("Server Queue")
 

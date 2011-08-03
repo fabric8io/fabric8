@@ -82,7 +82,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 			}, queue, AMQPCodec)
 		connection_sink = new OverflowSink(session_manager.open(queue))
 		connection_sink.refiller = NOOP
-		receive(ConnectionCreated(), Tasks())
+		receive(ConnectionCreated(transport), Tasks())
 		_on_connect.foreach( x => x() )
 		transport.resumeRead
 	}
