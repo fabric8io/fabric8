@@ -20,8 +20,5 @@ import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
  */
 
 class TaskExecutingInterceptor extends Interceptor  {
-  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    printf("Tasks : %s\n", tasks)
-    execute(tasks)
-  }
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) =execute(tasks)
 }

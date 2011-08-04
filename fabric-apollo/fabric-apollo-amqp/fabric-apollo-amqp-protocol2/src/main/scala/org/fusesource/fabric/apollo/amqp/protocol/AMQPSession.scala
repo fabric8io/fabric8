@@ -24,7 +24,7 @@ import utilities.{fire_function, fire_runnable, execute, Tasks}
 /**
  *
  */
-class AMQPSession extends Interceptor with AbstractSession with Logging {
+class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession with Logging {
 
   var connection:Connection = null
 
@@ -42,15 +42,15 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   var _established = false
 
-  before(new FrameInterceptor[ChainAttached] {
+  val attach_detector = new FrameInterceptor[ChainAttached] {
     override protected def receive_frame(c:ChainAttached, tasks:Queue[() => Unit]) = {
       trace("Session connected to connection")
       _established = true
       execute(tasks)
     }
-  })
+  }
 
-  before(new FrameInterceptor[ChainReleased] {
+  val released_detector = new FrameInterceptor[ChainReleased] {
     override protected def receive_frame(c:ChainReleased, tasks:Queue[() => Unit]) = {
       trace("Session disconnected from connection")
       _established = false
@@ -58,7 +58,15 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
       on_end = fire_runnable(on_end)
       execute(tasks)
     }
-  })
+  }
+
+  before(attach_detector)
+  before(released_detector)
+
+  override protected def removing_from_chain = {
+    attach_detector.remove
+    released_detector.remove
+  }
 
   trace("Constructed session chain : %s", display_chain(this))
 
@@ -72,25 +80,23 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
 
   def begin(on_begin: Runnable) = if (_established) {
     this.on_begin = Option(on_begin)
-    _begin.send_begin
+    send(BeginSession(), Tasks())
   }
 
   def end() = if (_established) {
-    _end.send(EndSession(), Tasks())
+    send(EndSession(), Tasks())
   }
 
   def end(t: Throwable) = if (_established) {
-    _end.send(EndSession(t), Tasks())
+    send(EndSession(t), Tasks())
   }
 
   def end(reason: String) = if (_established) {
-    _end.send(EndSession(reason), Tasks())
+    send(EndSession(reason), Tasks())
   }
 
-  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def receive_frame(frame:SessionCommand, tasks: Queue[() => Unit]) = {
     frame match {
-      case t:AMQPTransportFrame =>
-        incoming.receive(frame, tasks)
       case x:BeginReceived =>
         on_begin_received = fire_function(on_begin_received)
         begin_sent_or_received
@@ -105,8 +111,6 @@ class AMQPSession extends Interceptor with AbstractSession with Logging {
       case x:EndSent =>
         end_sent_or_received
         execute(tasks)
-      case _ =>
-        incoming.receive(frame, tasks)
     }
   }
 

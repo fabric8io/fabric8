@@ -43,13 +43,24 @@ class BeginInterceptor extends PerformativeInterceptor[Begin] with Logging {
     }
   }
 
+  val session_started = new FrameInterceptor[BeginSession] {
+    override protected def send_frame(b:BeginSession, tasks:Queue[() => Unit]) = {
+      send_begin
+      execute(tasks)
+    }
+  }
+
   override protected def adding_to_chain = {
     before(channel_interceptor)
+    after(session_started)
   }
 
   override protected def removing_from_chain = {
     if (channel_interceptor.connected) {
       channel_interceptor.remove
+    }
+    if (session_started.connected) {
+      session_started.remove
     }
   }
 

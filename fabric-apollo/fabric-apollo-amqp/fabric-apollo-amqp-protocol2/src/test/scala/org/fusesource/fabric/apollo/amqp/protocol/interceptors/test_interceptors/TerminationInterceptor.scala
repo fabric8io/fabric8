@@ -19,9 +19,5 @@ import collection.mutable.Queue
  */
 
 class TerminationInterceptor extends Interceptor {
-
-  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    printf("Terminating interceptor chain\n")
-    send(frame, tasks)
-  }
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = send(frame, tasks)
 }

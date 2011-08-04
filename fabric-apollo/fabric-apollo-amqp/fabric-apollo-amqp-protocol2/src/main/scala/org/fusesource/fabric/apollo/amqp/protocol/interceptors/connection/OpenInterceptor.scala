@@ -32,8 +32,7 @@ class OpenInterceptor extends PerformativeInterceptor[Open] with Logging {
   peer.setMaxFrameSize(AMQPDefinitions.MIN_MAX_FRAME_SIZE.asInstanceOf[Int])
   peer.setChannelMax(0)
 
-  override protected def adding_to_chain = {
-    before(new FrameInterceptor[HeaderSent] {
+  val sender = new FrameInterceptor[HeaderSent] {
       override protected def receive_frame(h:HeaderSent, tasks: Queue[() => Unit]) = {
         queue {
           send_open
@@ -41,7 +40,16 @@ class OpenInterceptor extends PerformativeInterceptor[Open] with Logging {
         tasks.enqueue(() => remove)
         incoming.receive(h, tasks)
       }
-    })
+    }
+
+  override protected def adding_to_chain = {
+    before(sender)
+  }
+
+  override protected def removing_from_chain = {
+    if (sender.connected) {
+      sender.remove
+    }
   }
 
   override protected def send(o:Open, payload:Buffer, tasks: Queue[() => Unit]) = {

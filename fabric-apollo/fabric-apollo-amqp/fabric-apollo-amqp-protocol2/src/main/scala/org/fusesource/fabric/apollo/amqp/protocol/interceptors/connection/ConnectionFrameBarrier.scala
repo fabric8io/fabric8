@@ -15,12 +15,27 @@ import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.FrameInterceptor
+import org.fusesource.fabric.apollo.amqp.protocol.commands.ConnectionCommand
 
 /**
- * Prevents frames on channel 0 from proceeding further in the receive interceptor
+ * Prevents frames on channel 0 and connection command frames from proceeding further in the receive interceptor
  * chain
  */
 class ConnectionFrameBarrier extends FrameInterceptor[AMQPTransportFrame] with Logging {
+
+  val connection_command_dropper = new FrameInterceptor[ConnectionCommand] {
+    override protected def receive_frame(c:ConnectionCommand, tasks: Queue[() => Unit]) = {
+      execute(tasks)
+    }
+  }
+
+  override protected def adding_to_chain = {
+    before(connection_command_dropper)
+  }
+
+  override protected def removing_from_chain = {
+    connection_command_dropper.remove
+  }
 
   override protected def receive_frame(frame:AMQPTransportFrame, tasks: Queue[() => Unit]) = {
     if (frame.getChannel == 0) {

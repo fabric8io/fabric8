@@ -96,11 +96,11 @@ class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
     val in = new TaskExecutingInterceptor
     in.tail.incoming = new TestSendInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       sent = sent + 1
-      printf("Sent : %s\n", sent)
+      info("Sent : %s\n", sent)
     })
     in.tail.incoming = new TestReceiveInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       received = received + 1
-      printf("Received : %s\n", received)
+      info("Received : %s\n", received)
     })
     in.tail.incoming = new TerminationInterceptor
 
@@ -114,11 +114,11 @@ class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
     val in_two = new SimpleInterceptor
     in_two.tail.incoming = new TestSendInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       sent2 = sent2 + 1
-      printf("Sent : %s\n", sent2)
+      info("Sent : %s\n", sent2)
     })
     in_two.tail.incoming = new TestReceiveInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       received2 = received2 + 1
-      printf("Received : %s\n", received2)
+      info("Received : %s\n", received2)
     })
     in_two.tail.incoming = new TerminationInterceptor
 
@@ -138,14 +138,14 @@ class InterceptorTest extends FunSuiteSupport with ShouldMatchers {
     val in = new TaskExecutingInterceptor
     in.tail.incoming = new TestSendInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       sent = sent + 1
-      printf("Sent : %s\n", sent)
+      info("Sent : %s\n", sent)
     })
     in.tail.incoming = new SimpleInterceptor
     in.tail.incoming = new SimpleInterceptor
     in.tail.incoming = new SimpleInterceptor
     in.tail.incoming = new TestReceiveInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       received = received + 1
-      printf("Received : %s\n", received)
+      info("Received : %s\n", received)
     })
     in.tail.incoming = new TerminationInterceptor
     info("Created chain - %s", display_chain(in))

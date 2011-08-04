@@ -30,8 +30,7 @@ class HeaderInterceptor extends FrameInterceptor[AMQPProtocolHeader] with Loggin
   var sent = false
   var received = false
 
-  override protected def adding_to_chain = {
-    before(new FrameInterceptor[ConnectionCreated] {
+  val sender = new FrameInterceptor[ConnectionCreated] {
       override protected def receive_frame(c:ConnectionCreated, tasks:Queue[() => Unit]) = {
         queue {
           send_header(false)
@@ -39,7 +38,16 @@ class HeaderInterceptor extends FrameInterceptor[AMQPProtocolHeader] with Loggin
         tasks.enqueue(() => remove)
         incoming.receive(c, tasks)
       }
-    })
+    }
+
+  override protected def adding_to_chain = {
+    before(sender)
+  }
+
+  override protected def removing_from_chain = {
+    if (sender.connected) {
+      sender.remove
+    }
   }
 
   override protected def send_frame(frame: AMQPProtocolHeader, tasks: Queue[() => Unit]) = {
