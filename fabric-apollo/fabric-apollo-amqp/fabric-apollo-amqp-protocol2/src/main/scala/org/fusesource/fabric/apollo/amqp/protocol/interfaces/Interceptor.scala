@@ -164,7 +164,7 @@ trait Interceptor {
   override def toString = getClass.getSimpleName
 
   private def log_frame(frame:AMQPFrame, tasks:Queue[() => Unit], prefix:String) = {
-    logger.trace("%s(frame=%s, tasks=%s)", prefix, sanitize(frame), tasks)
+    logger.trace("%s(frame=%s, tasks=%s)", prefix, frame, tasks)
 
   }
 

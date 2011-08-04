@@ -14,6 +14,7 @@ import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import java.util.concurrent.{TimeUnit, CountDownLatch}
+import collection.mutable.ListBuffer
 
 /**
  *
@@ -118,7 +119,91 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
     client.connect(uri)
 
-    latch.await()
+    latch.await(10, TimeUnit.SECONDS)
+
+    latch.getCount should be (0)
+
+    client.error() should be (null)
+    server.unbind
+  }
+
+  test("Multiple sessions") {
+    printf("Starting %s\n", testName)
+
+    val uri = "pipe://foobar2/blah"
+    val max_sessions = 100
+    val count = max_sessions + 1
+    val latch = new CountDownLatch(count)
+
+    val server = AMQPConnectionFactory.createServerConnection(new ConnectionHandler {
+      def connectionCreated(connection: Connection) {
+        printf("Created new incoming connection\n")
+        connection.onDisconnected(^ {
+          printf("Connection closed\n")
+          latch.countDown
+        })
+        connection.setSessionHandler(new SessionHandler {
+          def sessionCreated(session: Session) {
+            session.setOnEnd(^{
+              printf("Server session ended\n")
+            })
+            printf("Session created for incoming client\n")
+            session.begin(^{
+              printf("Server session started\n")
+            })
+          }
+
+          def sessionReleased(session: Session) {
+            printf("Session released for incoming client\n")
+            session.end
+          }
+        })
+      }
+    })
+
+    server.bind(uri, NOOP)
+
+    var num = 0
+
+    val client = AMQPConnectionFactory.createConnection()
+    client.setSessionHandler(new SessionHandler {
+      def sessionCreated(session: Session) {
+        num = num + 1
+      }
+
+      def sessionReleased(session: Session) {
+        num = num - 1
+        if (num == 0) {
+          client.close
+        }
+      }
+    })
+    client.onDisconnected(^ {
+      printf("Disconnecting\n")
+      latch.countDown
+    })
+    client.onConnected(^ {
+      printf("Created connection\n")
+      val sessions = new ListBuffer[Session]
+      for (i <- 1 to 100 ) {
+        val session = client.createSession
+        session.setOnEnd(^{
+          printf("Session stopped\n")
+          latch.countDown
+        })
+        sessions.append(session)
+      }
+
+      sessions.foreach((session) => {
+        session.begin(^{
+          printf("Session started\n")
+          session.end
+        })
+
+      })
+    })
+
+    client.connect(uri)
 
     latch.await(10, TimeUnit.SECONDS)
 
@@ -128,4 +213,88 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
     server.unbind
   }
 
+  test("Multiple sessions close with one call to close") {
+    printf("Starting %s\n", testName)
+
+    val uri = "pipe://foobar2/blah"
+    val max_sessions = 100
+    val count = max_sessions + 1
+    val latch = new CountDownLatch(count)
+
+    val server = AMQPConnectionFactory.createServerConnection(new ConnectionHandler {
+      def connectionCreated(connection: Connection) {
+        printf("Created new incoming connection\n")
+        connection.onDisconnected(^ {
+          printf("Connection closed\n")
+          latch.countDown
+        })
+        connection.setSessionHandler(new SessionHandler {
+          def sessionCreated(session: Session) {
+            session.setOnEnd(^{
+              printf("Server session ended\n")
+            })
+            printf("Session created for incoming client\n")
+            session.begin(^{
+              printf("Server session started\n")
+            })
+          }
+
+          def sessionReleased(session: Session) {
+            printf("Session released for incoming client\n")
+            session.end
+          }
+        })
+      }
+    })
+
+    server.bind(uri, NOOP)
+
+    var num = 0
+
+    val client = AMQPConnectionFactory.createConnection()
+    client.setSessionHandler(new SessionHandler {
+      def sessionCreated(session: Session) {
+        num = num + 1
+        if (num == max_sessions) {
+          client.close
+        }
+      }
+
+      def sessionReleased(session: Session) {
+        num = num - 1
+      }
+    })
+    client.onDisconnected(^ {
+      printf("Disconnecting\n")
+      latch.countDown
+    })
+    client.onConnected(^ {
+      printf("Created connection\n")
+      val sessions = new ListBuffer[Session]
+      for (i <- 1 to 100 ) {
+        val session = client.createSession
+        session.setOnEnd(^{
+          printf("Session stopped\n")
+          latch.countDown
+        })
+        sessions.append(session)
+      }
+
+      sessions.foreach((session) => {
+        session.begin(^{
+          printf("Session started\n")
+        })
+
+      })
+    })
+
+    client.connect(uri)
+
+    latch.await(10, TimeUnit.SECONDS)
+
+    latch.getCount should be (0)
+
+    client.error() should be (null)
+    server.unbind
+  }
 }

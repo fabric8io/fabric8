@@ -16,7 +16,8 @@ import collection.mutable.{HashMap, Queue}
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 import org.fusesource.hawtdispatch.DispatchQueue
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Slot}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ChainAttached, ChainReleased}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, execute, Slot}
 
 /**
  *
@@ -62,8 +63,8 @@ class Multiplexer extends Interceptor with Logging {
         val (local, remote) = o.release
         local.foreach((x) => interceptors.free(x))
         remote.foreach((x) => channels.remove(x))
-        o.queue = null
         chain_released.foreach((x) => x(o))
+        o.incoming.receive(ChainReleased(), Tasks())
         o.incoming
       case _ =>
         throw new IllegalArgumentException("Invalid type (" + chain.getClass.getSimpleName + ") passed to release")
@@ -84,6 +85,7 @@ class Multiplexer extends Interceptor with Logging {
     if (queue_set) {
       temp.queue = queue
     }
+    temp.head.receive(ChainAttached(), Tasks())
     temp
   }
 

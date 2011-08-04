@@ -22,4 +22,16 @@ object ReleaseChain {
 }
 class ReleaseChain extends UtilityCommand
 
+object ChainReleased {
+  val INSTANCE = new ChainReleased
+  def apply() = INSTANCE
+}
+class ChainReleased extends UtilityCommand
+
+object ChainAttached {
+  val INSTANCE = new ChainAttached
+  def apply() = INSTANCE
+}
+class ChainAttached extends UtilityCommand
+
 

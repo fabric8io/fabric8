@@ -11,16 +11,17 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.hawtdispatch._
+import org.fusesource.hawtbuf.Buffer
 import commands._
 import utilities._
 import interceptors.connection.ConnectionFrameBarrier
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
-import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 import org.apache.activemq.apollo.util.{Log, Logging}
-import org.fusesource.fabric.apollo.amqp.codec.types.{AMQPProtocolHeader, Begin, End, AMQPTransportFrame}
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import collection.mutable.Queue
 
 /**
  *
@@ -95,6 +96,15 @@ class AMQPConnection extends FrameInterceptor[ConnectionCommand] with AbstractCo
       }
     })
 
+  _transport.after(new PerformativeInterceptor[Close] {
+    override protected def send(c:Close, payload:Buffer, tasks:Queue[() => Unit]):Boolean = {
+      tasks.enqueue(() => {
+        _sessions.foreach_chain((x) => _sessions.release(x))
+      })
+      false
+    }
+  })
+
   trace("Constructed connection chain : %s", display_chain(this))
 
   def createSession() = {
@@ -151,8 +161,8 @@ class AMQPConnection extends FrameInterceptor[ConnectionCommand] with AbstractCo
       case x:ConnectionCreated =>
         execute(tasks)
       case x:ConnectionClosed =>
+        _sessions.foreach_chain((x) => _sessions.release(x))
         execute(tasks)
-        incoming.receive(frame, tasks)
       case o:HeaderSent =>
         header_sent_or_received
         execute(tasks)

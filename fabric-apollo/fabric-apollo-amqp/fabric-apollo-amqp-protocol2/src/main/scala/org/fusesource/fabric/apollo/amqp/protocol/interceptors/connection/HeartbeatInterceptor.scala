@@ -20,7 +20,7 @@ import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtbuf.Buffer
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Tasks}
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{FrameInterceptor, PerformativeInterceptor}
-import org.fusesource.fabric.apollo.amqp.protocol.commands.ConnectionCreated
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, ConnectionCreated}
 
 /**
  *
@@ -32,6 +32,7 @@ class HeartbeatInterceptor extends PerformativeInterceptor[Open] with Logging {
   var remote_idle_timeout:Option[Long] = None
   var heartbeat_monitor = new HeartBeatMonitor
   var started = false
+  var stopped = false
 
   var sent = false
   var received = false
@@ -41,10 +42,19 @@ class HeartbeatInterceptor extends PerformativeInterceptor[Open] with Logging {
   }
 
   override protected def adding_to_chain = {
+    before (new FrameInterceptor[ConnectionClosed] {
+      override protected def receive_frame(c:ConnectionClosed, tasks:Queue[() => Unit]) = stop
+    })
+
+    before (new PerformativeInterceptor[Close] {
+      override protected def send(c:Close, payload:Buffer, tasks:Queue[() => Unit]):Boolean = { stop; false }
+      override protected def receive(c:Close, payload:Buffer, tasks:Queue[() => Unit]):Boolean = { stop; false }
+    })
+
     before(new FrameInterceptor[ConnectionCreated] {
       override protected def receive_frame(c:ConnectionCreated, tasks:Queue[() => Unit]) = {
         transport = c.transport
-        tasks.enqueue( () => remove)
+        tasks.enqueue(() => remove)
         incoming.receive(c, tasks)
       }
     })
@@ -58,6 +68,13 @@ class HeartbeatInterceptor extends PerformativeInterceptor[Open] with Logging {
   }
 
   def heartbeat_interval(t:Long) = (t - (t * 0.05)).asInstanceOf[Long]
+
+  def stop = {
+    if (!stopped) {
+      stopped = true
+      heartbeat_monitor.stop
+    }
+  }
 
   override protected def send(o:Open, payload:Buffer, tasks: Queue[() => Unit]) = {
     local_idle_timeout.foreach((x) => o.setIdleTimeout(x))
