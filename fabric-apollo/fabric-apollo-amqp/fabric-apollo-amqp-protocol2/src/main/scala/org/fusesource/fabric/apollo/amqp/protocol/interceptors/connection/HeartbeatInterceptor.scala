@@ -19,8 +19,9 @@ import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtbuf.Buffer
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Tasks}
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{FrameInterceptor, PerformativeInterceptor}
-import org.fusesource.fabric.apollo.amqp.protocol.commands.{ConnectionClosed, ConnectionCreated}
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{Interceptor, FrameInterceptor, PerformativeInterceptor}
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionClosed, ConnectionCreated}
 
 /**
  *
@@ -41,30 +42,57 @@ class HeartbeatInterceptor extends PerformativeInterceptor[Open] with Logging {
     send(new AMQPTransportFrame, Tasks())
   }
 
-  override protected def adding_to_chain = {
-    before (new FrameInterceptor[ConnectionClosed] {
-      override protected def receive_frame(c:ConnectionClosed, tasks:Queue[() => Unit]) = stop
-    })
+  val stopper = new Interceptor {
+    override protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
+      frame match {
+        case t:AMQPTransportFrame =>
+          t.getPerformative match {
+            case c:Close =>
+              stop
+            case _ =>
+          }
+        case c:CloseConnection =>
+          stop
+        case _ =>
+      }
+      outgoing.send(frame, tasks)
+    }
 
-    before (new PerformativeInterceptor[Close] {
-      override protected def send(c:Close, payload:Buffer, tasks:Queue[() => Unit]):Boolean = { stop; false }
-      override protected def receive(c:Close, payload:Buffer, tasks:Queue[() => Unit]):Boolean = { stop; false }
-    })
+    override protected def _receive(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
+      frame match {
+        case c:ConnectionClosed =>
+          stop
+        case _ =>
+      }
+      incoming.receive(frame, tasks)
+    }
+  }
 
-    before(new FrameInterceptor[ConnectionCreated] {
+  val starter = new FrameInterceptor[ConnectionCreated] {
       override protected def receive_frame(c:ConnectionCreated, tasks:Queue[() => Unit]) = {
         transport = c.transport
         tasks.enqueue(() => remove)
         incoming.receive(c, tasks)
       }
-    })
+    }
 
-    before(new PerformativeInterceptor[NoPerformative] {
+  val empty_frame_filter = new PerformativeInterceptor[NoPerformative] {
       override protected def receive(n:NoPerformative, payload:Buffer, tasks:Queue[() => Unit]) = {
         execute(tasks)
         true
       }
-    })
+    }
+
+  override protected def adding_to_chain = {
+    before(stopper)
+    before(starter)
+    before(empty_frame_filter)
+  }
+
+  override protected def removing_from_chain = {
+    stopper.remove
+    starter.remove
+    empty_frame_filter.remove
   }
 
   def heartbeat_interval(t:Long) = (t - (t * 0.05)).asInstanceOf[Long]
