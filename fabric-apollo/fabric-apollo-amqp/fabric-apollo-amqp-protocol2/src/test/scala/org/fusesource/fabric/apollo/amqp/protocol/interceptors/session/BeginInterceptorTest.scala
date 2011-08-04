@@ -25,7 +25,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors
 
 class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
-  ignore("Begin a session locally") {
+  test("Begin a session locally") {
 
     val begin = new BeginInterceptor
 
@@ -45,14 +45,14 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
 
     begin.tail.incoming = new FrameDroppingInterceptor
     begin.head.outgoing = new TaskExecutingInterceptor
-    begin.send(BeginSession(), Tasks())
+    begin.send_begin
   }
 
-  ignore("Begin a session remotely") {
+  test("Begin a session remotely") {
 
     val begin = new BeginInterceptor
 
-    begin.head.outgoing = new TestSendInterceptor( (frame:AMQPFrame, tasks:Queue[() => Unit]) => {
+    new TestSendInterceptor( (frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       frame match {
         case t:AMQPTransportFrame =>
           t.getPerformative match {
@@ -65,13 +65,13 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
               }
           }
       }
-    })
+    }).incoming = begin
 
     begin.head.outgoing = new TaskExecutingInterceptor
     begin.tail.incoming = new FrameDroppingInterceptor
 
     begin.head.receive(new AMQPTransportFrame(7, new Begin), Tasks())
-    begin.send(BeginSession(), Tasks())
+    begin.send_begin
   }
 
 }
