@@ -25,7 +25,4 @@ class SessionFlowControlInterceptor extends Interceptor with Logging {
   val flow = new Flow()
   var peer:Flow = null
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
 }

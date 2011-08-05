@@ -32,22 +32,22 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	var session_manager: SessionSinkMux[AMQPFrame] = null
 	var connection_sink: Sink[AMQPFrame] = null
   var _error:Option[Throwable] = None
-	private var _transport: Transport = null
+	private var _transport: Option[Transport] = None
 
 	var _on_connect:Option[() => Unit] = None
   var _on_disconnect:Option[() => Unit] = None
 
-  def transport = _transport
+  def transport = _transport.get
   def transport_=(t:Transport) = {
     require(t != null, "Transport cannot be null")
-    _transport = t
-    _transport.setProtocolCodec(new AMQPCodec)
-    _transport.setTransportListener(this)
-    if (_transport.getDispatchQueue == null) {
+    _transport = Option(t)
+    transport.setProtocolCodec(new AMQPCodec)
+    transport.setTransportListener(this)
+    if (transport.getDispatchQueue == null) {
       queue = Dispatch.createQueue
-      _transport.setDispatchQueue(queue)
+      transport.setDispatchQueue(queue)
     } else {
-      queue = _transport.getDispatchQueue
+      queue = transport.getDispatchQueue
     }
     transport.start
   }
@@ -82,7 +82,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 			}, queue, AMQPCodec)
 		connection_sink = new OverflowSink(session_manager.open(queue))
 		connection_sink.refiller = NOOP
-		receive(ConnectionCreated(), Tasks())
+		receive(ConnectionCreated(transport), Tasks())
 		_on_connect.foreach( x => x() )
 		transport.resumeRead
 	}
@@ -93,34 +93,38 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
     _on_disconnect.foreach((x) => x())
 	}
 
-	protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-		frame match {
-      case f:AMQPTransportFrame =>
-        trace("Sending : %s", frame)
-        connection_sink.offer(f)
-      case f:AMQPProtocolHeader =>
-        trace("Sending : %s", frame)
-        connection_sink.offer(f)
-			case c:CloseConnection =>
-        c.reason match {
-          case Some(reason) =>
-            _error = Option(new RuntimeException(reason))
-          case None =>
+	override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+    _transport match {
+      case Some(t) =>
+        if (t.isConnected) {
+          frame match {
+            case f:AMQPTransportFrame =>
+              connection_sink.offer(f)
+            case f:AMQPProtocolHeader =>
+              connection_sink.offer(f)
+            case c:CloseConnection =>
+              c.reason match {
+                case Some(reason) =>
+                  _error = Option(new RuntimeException(reason))
+                case None =>
+              }
+              c.exception match {
+                case Some(reason) =>
+                  _error = Option(reason)
+                case None =>
+              }
+              tasks.enqueue( () => {
+                trace("Closing connection")
+                transport.stop(^{
+                  receive(ConnectionClosed(), Tasks())
+                })
+              })
+            case _ =>
+              debug("Dropping frame %s", frame)
+          }
         }
-        c.exception match {
-          case Some(reason) =>
-            _error = Option(reason)
-          case None =>
-        }
-				tasks.enqueue( () => {
-						trace("Closing connection")
-						transport.stop(^{
-								receive(ConnectionClosed(), Tasks())
-							})
-					})
-			case _ =>
-        debug("Dropping frame %s", frame)
-		}
+      case None =>
+    }
     execute(tasks)
 	}
 
@@ -129,8 +133,4 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
   def on_disconnect_=(func:() => Unit) = _on_disconnect = Option(func)
   def on_disconnect = _on_disconnect.getOrElse(() => {})
 
-	protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-		trace("Received : %s", frame)
-		incoming.receive(frame, tasks)
-	}
 }

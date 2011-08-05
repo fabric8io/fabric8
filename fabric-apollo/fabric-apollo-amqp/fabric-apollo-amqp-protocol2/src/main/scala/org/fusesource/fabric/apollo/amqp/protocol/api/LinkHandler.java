@@ -18,13 +18,13 @@ package org.fusesource.fabric.apollo.amqp.protocol.api;
 public interface LinkHandler {
 
     /**
-     * @param session the session the remote sender is attaching to
+     * @param session the session the remote link is attaching to
      * @param peer
      */
     public void linkAttaching(Session session, Link peer);
 
     /**
-     * @param session the session the remote receiver is detaching from
+     * @param session the session the remote link is detaching from
      * @param peer
      */
     public void linkDetaching(Session session, Link peer);

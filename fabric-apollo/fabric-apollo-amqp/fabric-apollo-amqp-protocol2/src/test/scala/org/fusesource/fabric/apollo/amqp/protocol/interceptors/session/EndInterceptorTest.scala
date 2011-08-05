@@ -15,10 +15,10 @@ import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{End, AMQPTransportFrame}
-import org.fusesource.fabric.apollo.amqp.protocol.interceptors.common.FrameLoggingInterceptor
-import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{TaskExecutingInterceptor, FailInterceptor, TestSendInterceptor}
-import org.fusesource.fabric.apollo.amqp.protocol.commands.ReleaseChain
 import org.fusesource.fabric.apollo.amqp.protocol.utilities._
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.FrameInterceptor
+import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors.{SimpleInterceptor, TaskExecutingInterceptor, FailInterceptor, TestSendInterceptor}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{EndSent, ReleaseChain}
 
 /**
  *
@@ -28,7 +28,7 @@ class EndInterceptorTest extends FunSuiteSupport with ShouldMatchers with Loggin
 
   test("Create end interceptor, throw exception, see that end frame is sent") {
     val end = new EndInterceptor
-    end.head.outgoing = new FrameLoggingInterceptor
+    new SimpleInterceptor().outgoing = end
     end.head.outgoing = new TestSendInterceptor((frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       frame match {
         case t:AMQPTransportFrame =>
@@ -39,6 +39,11 @@ class EndInterceptorTest extends FunSuiteSupport with ShouldMatchers with Loggin
       }
     })
     end.head.outgoing = new TaskExecutingInterceptor
+    end.tail.incoming = new FrameInterceptor[EndSent] {
+      override protected def receive_frame(e:EndSent, tasks:Queue[() => Unit]) = {
+        // filtering this out
+      }
+    }
     end.tail.incoming = new FailInterceptor
     end.head.receive(new AMQPTransportFrame, Tasks())
     end.sent should be (true)

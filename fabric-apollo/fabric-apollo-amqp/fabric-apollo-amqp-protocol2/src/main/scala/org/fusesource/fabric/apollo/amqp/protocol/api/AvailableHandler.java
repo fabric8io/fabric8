@@ -13,8 +13,15 @@ package org.fusesource.fabric.apollo.amqp.protocol.api;
 /**
  *
  */
-public interface FlowControlHandler {
+public interface AvailableHandler {
 
-    public void needLinkCredit(int available);
+    /**
+     * Called by a sender when updating the peer with the sender's flow
+     * state, the amount returned is the amount of message units available
+     * at the sender to be sent
+     * @param sender
+     * @return
+     */
+    public int getAvailable(Sender sender);
 
 }

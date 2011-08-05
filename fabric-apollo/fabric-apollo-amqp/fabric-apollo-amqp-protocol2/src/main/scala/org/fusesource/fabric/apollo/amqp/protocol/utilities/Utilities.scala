@@ -26,3 +26,18 @@ object sanitize {
     }
   }
 }
+
+object fire_runnable {
+  def apply(runnable:Option[Runnable]):Option[Runnable] = {
+    runnable.foreach((x) => x.run())
+    None
+  }
+
+}
+
+object fire_function {
+  def apply(func:Option[() => Unit]):Option[() => Unit] = {
+    func.foreach((x) => x())
+    None
+  }
+}

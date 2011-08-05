@@ -531,9 +531,9 @@ Subcategory     n
                 label="64-bit signed integer representing milliseconds since the unix epoch">
         <doc>
           <p>
-            Encodes a point in time using a 64 bit signed integer representing milliseconds since
-            Midnight Jan 1, 1970 UTC. For the purpose of this representation, milliseconds are taken
-            to be (1/(24*60*60*1000))th of a day.
+            Represents an approximate point in time using the Unix time_t encoding of UTC, but with
+            a precision of milliseconds. For example, 1311704463521 represents the moment
+            2011-07-26T18:21:03.521Z.
           </p>
         </doc>
       </encoding>

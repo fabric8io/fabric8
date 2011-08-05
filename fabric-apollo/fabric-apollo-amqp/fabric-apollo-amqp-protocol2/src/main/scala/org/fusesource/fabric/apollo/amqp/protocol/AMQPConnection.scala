@@ -11,16 +11,17 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import org.fusesource.hawtdispatch._
+import org.fusesource.hawtbuf.Buffer
 import commands._
 import utilities._
 import interceptors.connection.ConnectionFrameBarrier
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces._
-import org.fusesource.fabric.apollo.amqp.codec.types.{Begin, End, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
-import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor._
 import org.apache.activemq.apollo.util.{Log, Logging}
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import collection.mutable.Queue
 
 /**
  *
@@ -53,7 +54,7 @@ object AMQPConnection {
 /**
  *
  */
-class AMQPConnection extends Interceptor with AbstractConnection with Logging {
+class AMQPConnection extends FrameInterceptor[ConnectionCommand] with AbstractConnection with Logging {
 
   import AMQPConnection._
   _transport.tail.incoming = _header
@@ -72,6 +73,7 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
     frame.getPerformative match {
       case b:Begin =>
         val rc = new AMQPSession
+        rc.connection = this
         rc.head
       case _ =>
         throw new RuntimeException("Frame received for non-existant session : {" + frame + "}")
@@ -94,10 +96,20 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
       }
     })
 
+  _transport.after(new PerformativeInterceptor[Close] {
+    override protected def send(c:Close, payload:Buffer, tasks:Queue[() => Unit]):Boolean = {
+      tasks.enqueue(() => {
+        _sessions.foreach_chain((x) => _sessions.release(x))
+      })
+      false
+    }
+  })
+
   trace("Constructed connection chain : %s", display_chain(this))
 
   def createSession() = {
     val rc = new AMQPSession
+    rc.connection = this
     rc.queue = getDispatchQueue
     _sessions.attach(rc.head)
     rc.asInstanceOf[Session]
@@ -105,16 +117,19 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
 
   def setSessionHandler(handler: SessionHandler) = {
     _sessions.chain_attached = Option((chain:Interceptor) => {
-      chain.head.foreach((x) => if (x.isInstanceOf[AMQPSession]) {
-        handler.sessionCreated(x.asInstanceOf[Session])
+      chain.head.foreach((x) => x match {
+        case s:AMQPSession =>
+          s.on_begin_received = Option( () => {
+            handler.sessionCreated(s)
+          })
+          s.on_end_received = Option( () => {
+            handler.sessionReleased(s)
+          })
+        case _ =>
       })
     })
 
-    _sessions.chain_released = Option((chain:Interceptor) => {
-      chain.head.foreach((x) => if (x.isInstanceOf[AMQPSession]) {
-        handler.sessionReleased(x.asInstanceOf[Session])
-      })
-    })
+    _sessions.chain_released = Option((chain:Interceptor) => {})
   }
 
   def onConnected(task: Runnable) {
@@ -127,20 +142,27 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
   }
 
   def open_sent_or_received = {
-    if (_open.sent && _open.received) {
+    if (_open.sent && _open.received && _open.connected) {
       info("Open frames exchanged")
       on_connect.foreach((x) => x())
+      _open.remove
     }
   }
 
   def header_sent_or_received = {
+    if (_header.sent && _header.received && _header.connected) {
       info("AMQP protocol header frames exchanged")
+      _header.remove
+    }
   }
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def receive_frame(frame: ConnectionCommand, tasks: Queue[() => Unit]) = {
     frame match {
+      case x:ConnectionCreated =>
+        execute(tasks)
+      case x:ConnectionClosed =>
+        _sessions.foreach_chain((x) => _sessions.release(x))
+        execute(tasks)
       case o:HeaderSent =>
         header_sent_or_received
         execute(tasks)
@@ -148,11 +170,6 @@ class AMQPConnection extends Interceptor with AbstractConnection with Logging {
         header_sent_or_received
         execute(tasks)
       case o:OpenReceived =>
-        if (!_open.sent) {
-          queue {
-            send(SendOpen(), Tasks())
-          }
-        }
         open_sent_or_received
         execute(tasks)
       case o:OpenSent =>

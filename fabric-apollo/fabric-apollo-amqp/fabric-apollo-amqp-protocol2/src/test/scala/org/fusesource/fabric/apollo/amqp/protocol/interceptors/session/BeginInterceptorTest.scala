@@ -45,14 +45,14 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
 
     begin.tail.incoming = new FrameDroppingInterceptor
     begin.head.outgoing = new TaskExecutingInterceptor
-    begin.send(BeginSession(), Tasks())
+    begin.send_begin
   }
 
   test("Begin a session remotely") {
 
     val begin = new BeginInterceptor
 
-    begin.head.outgoing = new TestSendInterceptor( (frame:AMQPFrame, tasks:Queue[() => Unit]) => {
+    new TestSendInterceptor( (frame:AMQPFrame, tasks:Queue[() => Unit]) => {
       frame match {
         case t:AMQPTransportFrame =>
           t.getPerformative match {
@@ -65,13 +65,13 @@ class BeginInterceptorTest extends FunSuiteSupport with ShouldMatchers with Logg
               }
           }
       }
-    })
+    }).incoming = begin
 
     begin.head.outgoing = new TaskExecutingInterceptor
     begin.tail.incoming = new FrameDroppingInterceptor
 
     begin.head.receive(new AMQPTransportFrame(7, new Begin), Tasks())
-    begin.send(BeginSession(), Tasks())
+    begin.send_begin
   }
 
 }

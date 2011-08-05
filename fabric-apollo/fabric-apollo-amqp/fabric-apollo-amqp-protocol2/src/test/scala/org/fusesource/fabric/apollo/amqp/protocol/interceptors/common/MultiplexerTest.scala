@@ -14,13 +14,13 @@ import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.util.FunSuiteSupport
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.scalatest.matchers.ShouldMatchers
 import scala.collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.{End, AMQPTransportFrame, Begin}
 import org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptors._
-import org.fusesource.fabric.apollo.amqp.protocol.commands.ReleaseChain
 import org.fusesource.fabric.apollo.amqp.protocol.utilities._
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ChainReleased, ReleaseChain}
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{FrameInterceptor, Interceptor}
 
 /**
  *
@@ -65,6 +65,10 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
     // now remove one
     saved.tail.remove
+    // filter out this message
+    saved.tail.incoming = new FrameInterceptor[ChainReleased] {
+      override protected def receive_frame(c:ChainReleased, tasks:Queue[() => Unit]) = {}
+    }
     saved.tail.incoming = new FailInterceptor
 
     multiplexer.release(saved.head)
@@ -194,11 +198,11 @@ class MultiplexerTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
     multiplexer.queue_set should be (false)
 
-    multiplexer.attach(new SimpleInterceptor)
-    multiplexer.attach(new SimpleInterceptor)
-    multiplexer.attach(new SimpleInterceptor)
-    multiplexer.attach(new SimpleInterceptor)
-    multiplexer.attach(new SimpleInterceptor)
+    multiplexer.attach(new FrameDroppingInterceptor)
+    multiplexer.attach(new FrameDroppingInterceptor)
+    multiplexer.attach(new FrameDroppingInterceptor)
+    multiplexer.attach(new FrameDroppingInterceptor)
+    multiplexer.attach(new FrameDroppingInterceptor)
 
     multiplexer.foreach_chain((x) => x.queue_set should be (false))
 

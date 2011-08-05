@@ -19,6 +19,10 @@ import org.fusesource.fabric.apollo.amqp.codec.types.Role;
  */
 public interface Link {
 
+    public String getName();
+
+    public void setName(String name);
+
     public Role getRole();
 
     public void setMaxMessageSize(long size);

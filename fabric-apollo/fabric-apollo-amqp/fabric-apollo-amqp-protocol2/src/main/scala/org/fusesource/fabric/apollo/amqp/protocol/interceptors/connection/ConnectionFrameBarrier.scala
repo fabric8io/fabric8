@@ -10,38 +10,38 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.FrameInterceptor
+import org.fusesource.fabric.apollo.amqp.protocol.commands.ConnectionCommand
 
 /**
- * Prevents frames on channel 0 from proceeding further in the receive interceptor
+ * Prevents frames on channel 0 and connection command frames from proceeding further in the receive interceptor
  * chain
  */
-class ConnectionFrameBarrier extends Interceptor with Logging {
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
+class ConnectionFrameBarrier extends FrameInterceptor[AMQPTransportFrame] with Logging {
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case p:AMQPProtocolHeader =>
-        tasks.dequeueAll((x) => { x(); true })
-      case t:AMQPTransportFrame =>
-        if (t.getChannel == 0) {
-          tasks.dequeueAll((x) => { x(); true })
-          t.getPerformative match {
-            case o:Open =>
-            case c:Close =>
-            case n:NoPerformative =>
-            case _ =>
-              throw new RuntimeException("Only open/close and heartbeat frames can be sent on channel 0")
-          }
-        } else {
-          incoming.receive(frame, tasks)
-        }
-      case _ =>
-        incoming.receive(frame, tasks)
+  val connection_command_dropper = new FrameInterceptor[ConnectionCommand] {
+    override protected def receive_frame(c:ConnectionCommand, tasks: Queue[() => Unit]) = {
+      execute(tasks)
+    }
+  }
+
+  override protected def adding_to_chain = {
+    before(connection_command_dropper)
+  }
+
+  override protected def removing_from_chain = {
+    connection_command_dropper.remove
+  }
+
+  override protected def receive_frame(frame:AMQPTransportFrame, tasks: Queue[() => Unit]) = {
+    if (frame.getChannel == 0) {
+      execute(tasks)
+    } else {
+      incoming.receive(frame, tasks)
     }
   }
 }

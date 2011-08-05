@@ -18,8 +18,4 @@ import collection.mutable.Queue
  *
  */
 
-class SimpleInterceptor extends Interceptor {
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = incoming.receive(frame, tasks)
-}
+class SimpleInterceptor extends Interceptor

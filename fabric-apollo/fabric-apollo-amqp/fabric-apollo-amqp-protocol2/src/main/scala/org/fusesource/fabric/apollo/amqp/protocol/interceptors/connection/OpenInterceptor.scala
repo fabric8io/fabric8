@@ -10,20 +10,20 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import java.util.concurrent.atomic.AtomicBoolean
 import org.fusesource.fabric.apollo.amqp.codec.types.{Open, AMQPTransportFrame}
 import org.fusesource.fabric.apollo.amqp.codec.AMQPDefinitions
 import java.util.UUID
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, execute}
-import org.fusesource.fabric.apollo.amqp.protocol.commands.{SendOpen, OpenReceived, OpenSent, HeaderSent}
-
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{OpenReceived, OpenSent, HeaderSent}
+import org.apache.activemq.apollo.util.Logging
+import org.fusesource.hawtbuf.Buffer
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{FrameInterceptor, PerformativeInterceptor}
+import org.fusesource.hawtdispatch._
 /**
  *
  */
-class OpenInterceptor extends Interceptor {
+class OpenInterceptor extends PerformativeInterceptor[Open] with Logging {
 
   var sent = false
   var received = false
@@ -32,51 +32,51 @@ class OpenInterceptor extends Interceptor {
   peer.setMaxFrameSize(AMQPDefinitions.MIN_MAX_FRAME_SIZE.asInstanceOf[Int])
   peer.setChannelMax(0)
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case f:AMQPTransportFrame =>
-        f.getPerformative match {
-          case o:Open =>
-            if (!sent) {
-              sent = true
-                tasks.enqueue( () => {
-                  receive(OpenSent(), Tasks())
-                })
-              outgoing.send(frame, tasks)
-            } else {
-              execute(tasks)
-            }
-          case _ =>
-            outgoing.send(frame, tasks)
+  val sender = new FrameInterceptor[HeaderSent] {
+      override protected def receive_frame(h:HeaderSent, tasks: Queue[() => Unit]) = {
+        queue {
+          send_open
         }
-      case o:SendOpen =>
-        execute(tasks)
-        send_open
-      case _ =>
-        outgoing.send(frame, tasks)
+        tasks.enqueue(() => remove)
+        incoming.receive(h, tasks)
+      }
+    }
+
+  override protected def adding_to_chain = {
+    before(sender)
+  }
+
+  override protected def removing_from_chain = {
+    if (sender.connected) {
+      sender.remove
     }
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case h:HeaderSent =>
-        send_open
-        execute(tasks)
-      case f:AMQPTransportFrame =>
-        f.getPerformative match {
-          case o:Open =>
-            peer = o
-            received = true
-            incoming.receive(OpenReceived(), tasks)
-          case _ =>
-            incoming.receive(frame, tasks)
-        }
-      case _ =>
-        incoming.receive(frame, tasks)
+  override protected def send(o:Open, payload:Buffer, tasks: Queue[() => Unit]) = {
+    if (!sent) {
+      sent = true
+      tasks.enqueue( () => {
+        receive(OpenSent(), Tasks())
+      })
+      false
+    } else {
+      execute(tasks)
+      true
     }
   }
 
-  protected def send_open = {
+  override protected def receive(o:Open, payload:Buffer, tasks: Queue[() => Unit]) = {
+    if (!received) {
+      received = true
+      peer = o
+      receive(OpenReceived(), tasks)
+    } else {
+      execute(tasks)
+    }
+    true
+  }
+
+  def send_open = {
     Option(open.getContainerID) match {
       case Some(id) =>
       case None =>

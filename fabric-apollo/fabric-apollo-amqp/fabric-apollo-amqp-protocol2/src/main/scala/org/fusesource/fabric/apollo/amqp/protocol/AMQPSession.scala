@@ -10,84 +10,138 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
+import api.{Connection, Link}
+import interfaces.{FrameInterceptor, Interceptor}
 import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import org.fusesource.fabric.apollo.amqp.protocol.commands._
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import Interceptor._
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
-import utilities.{execute, Tasks}
 import org.apache.activemq.apollo.util.Logging
+import utilities.{fire_function, fire_runnable, execute, Tasks}
 
 /**
  *
  */
-class AMQPSession extends Interceptor with AbstractSession with Logging {
+class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession with Logging {
+
+  var connection:Connection = null
 
   head.outgoing = _flow
   head.outgoing = _end
   head.outgoing = _begin
 
+  tail.incoming = _links
+
   setOutgoingWindow(10L)
   setIncomingWindow(10L)
 
+  var on_begin_received:Option[() => Unit] = None
+  var on_end_received:Option[() => Unit] = None
+
+  var _established = false
+
+  val attach_detector = new FrameInterceptor[ChainAttached] {
+    override protected def receive_frame(c:ChainAttached, tasks:Queue[() => Unit]) = {
+      trace("Session connected to connection")
+      _established = true
+      execute(tasks)
+    }
+  }
+
+  val released_detector = new FrameInterceptor[ChainReleased] {
+    override protected def receive_frame(c:ChainReleased, tasks:Queue[() => Unit]) = {
+      trace("Session disconnected from connection")
+      _established = false
+      on_end_received = fire_function(on_end_received)
+      on_end = fire_runnable(on_end)
+      execute(tasks)
+    }
+  }
+
+  before(attach_detector)
+  before(released_detector)
+
+  override protected def removing_from_chain = {
+    attach_detector.remove
+    released_detector.remove
+  }
+
   trace("Constructed session chain : %s", display_chain(this))
 
-  def begin(on_begin: Runnable) = {
+  _links.interceptor_factory = Option((frame:AMQPTransportFrame) => {
+    null.asInstanceOf[Interceptor]
+  })
+
+  def established() = _begin.sent && _begin.received && !_end.sent && !_end.received && _established
+
+  def link_name_prefix = connection.getContainerID + "," + connection.getPeerContainerID + ","
+
+  def begin(on_begin: Runnable) = if (_established) {
     this.on_begin = Option(on_begin)
     send(BeginSession(), Tasks())
   }
 
-  def end() = _end.send(EndSession(), Tasks())
+  def end() = if (_established) {
+    send(EndSession(), Tasks())
+  }
 
-  def end(t: Throwable) = _end.send(EndSession(t), Tasks())
+  def end(t: Throwable) = if (_established) {
+    send(EndSession(t), Tasks())
+  }
 
-  def end(reason: String) = _end.send(EndSession(reason), Tasks())
+  def end(reason: String) = if (_established) {
+    send(EndSession(reason), Tasks())
+  }
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = outgoing.send(frame, tasks)
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
+  override protected def receive_frame(frame:SessionCommand, tasks: Queue[() => Unit]) = {
     frame match {
-      case t:AMQPTransportFrame =>
-        incoming.receive(frame, tasks)
       case x:BeginReceived =>
+        on_begin_received = fire_function(on_begin_received)
         begin_sent_or_received
         execute(tasks)
       case x:BeginSent =>
         begin_sent_or_received
         execute(tasks)
       case x:EndReceived =>
-        if (!_end.sent) {
-          queue {
-            send(EndSession(), Tasks())
-          }
-        }
+        on_end_received = fire_function(on_end_received)
         end_sent_or_received
         execute(tasks)
       case x:EndSent =>
         end_sent_or_received
         execute(tasks)
-      case _ =>
-        incoming.receive(frame, tasks)
     }
   }
 
   def begin_sent_or_received = {
     if (_begin.sent && _begin.received) {
       info("Begin frames exchanged")
-      on_begin.foreach((x) => x.run)
+      on_begin = fire_runnable(on_begin)
     }
   }
 
   def end_sent_or_received = {
     if (_end.sent && _end.received) {
       info("End frames exchanged")
-      on_end.foreach((x) => x.run)
+      on_end = fire_runnable(on_end)
       queue {
         send(ReleaseChain(), Tasks())
       }
     }
   }
+
+  def attach(link: Link) {}
+
+  def detach(link: Link) {}
+
+  def detach(link: Link, reason: String) {}
+
+  def detach(link: Link, t: Throwable) {}
+
+  def sufficientSessionCredit() = false
+
+  def getConnection = connection
+
 
 }

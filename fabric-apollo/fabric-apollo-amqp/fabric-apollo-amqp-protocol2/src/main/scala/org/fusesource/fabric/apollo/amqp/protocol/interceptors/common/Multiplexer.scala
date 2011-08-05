@@ -10,18 +10,19 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.common
 
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.{HashMap, Queue}
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 import org.fusesource.hawtdispatch.DispatchQueue
-import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Slot}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{ChainAttached, ChainReleased}
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, execute, Slot}
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{FrameInterceptor, Interceptor}
 
 /**
  *
  */
-class Multiplexer extends Interceptor with Logging {
+class Multiplexer extends FrameInterceptor[AMQPTransportFrame] with Logging {
 
   val interceptors = new Slot[Interceptor]
   val channels = new HashMap[Int, Int]
@@ -34,20 +35,7 @@ class Multiplexer extends Interceptor with Logging {
   var chain_attached:Option[(Interceptor) => Unit] = None
   var chain_released:Option[(Interceptor) => Unit] = None
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    outgoing.send(frame, tasks)
-  }
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    frame match {
-      case t:AMQPTransportFrame =>
-          map_channel(t, tasks)
-      case _ =>
-        // TODO send ConnectionClosed frames down all chains when that happens
-        debug("Dropping frame %s", frame)
-        execute(tasks)
-    }
-  }
+  override protected def receive_frame(frame:AMQPTransportFrame, tasks: Queue[() => Unit]) = map_channel(frame, tasks)
 
   def foreach_chain(func:(Interceptor) => Unit) = interceptors.foreach((x) => func(x))
 
@@ -62,8 +50,8 @@ class Multiplexer extends Interceptor with Logging {
         val (local, remote) = o.release
         local.foreach((x) => interceptors.free(x))
         remote.foreach((x) => channels.remove(x))
-        o.queue = null
         chain_released.foreach((x) => x(o))
+        o.incoming.receive(ChainReleased(), Tasks())
         o.incoming
       case _ =>
         throw new IllegalArgumentException("Invalid type (" + chain.getClass.getSimpleName + ") passed to release")
@@ -84,6 +72,7 @@ class Multiplexer extends Interceptor with Logging {
     if (queue_set) {
       temp.queue = queue
     }
+    temp.head.receive(ChainAttached(), Tasks())
     temp
   }
 

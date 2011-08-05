@@ -24,15 +24,15 @@ import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, execute}
  */
 class CloseInterceptor extends Interceptor with Logging {
 
-  val sent = new AtomicBoolean(false)
+  var sent = false
 
   val close = () => {
     outgoing.send(CloseConnection(), Tasks())
-    sent.set(true)
+    sent = true
   }
 
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
-    if (sent.get) {
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+    if (sent) {
       execute(tasks)
       trace("Connection is closed, dropping outgoing frame %s", frame)
     } else {
@@ -63,8 +63,8 @@ class CloseInterceptor extends Interceptor with Logging {
     }
   }
 
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
-    if (sent.get) {
+  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]):Unit = {
+    if (sent) {
       frame match {
         case c:ConnectionClosed =>
           incoming.receive(frame, tasks)

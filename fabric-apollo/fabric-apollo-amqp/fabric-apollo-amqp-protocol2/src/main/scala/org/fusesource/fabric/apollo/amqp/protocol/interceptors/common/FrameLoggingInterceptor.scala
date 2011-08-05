@@ -20,12 +20,12 @@ import scala.collection.mutable.Queue
  */
 class FrameLoggingInterceptor(prefix:String = "") extends Interceptor with Logging {
 
-  protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
+  override protected def _send(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
     info("%s:send{frame=%s tasks=%s", prefix, frame, tasks)
     outgoing.send(frame, tasks)
   }
 
-  protected def _receive(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
+  override protected def _receive(frame:AMQPFrame, tasks:Queue[() => Unit]) = {
     info("%s:receive{frame=%s tasks=%s", prefix, frame, tasks)
     incoming.receive(frame, tasks)
   }

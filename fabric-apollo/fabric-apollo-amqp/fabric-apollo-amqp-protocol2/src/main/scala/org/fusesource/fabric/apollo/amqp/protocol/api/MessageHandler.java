@@ -18,7 +18,7 @@ package org.fusesource.fabric.apollo.amqp.protocol.api;
 public interface MessageHandler<T> {
 
     /**
-     * Called when the Receiver wants to check if this listener can accept a message
+     * Called by the Receiver to check if this listener can accept a message
      *
      * @return
      */
@@ -28,13 +28,15 @@ public interface MessageHandler<T> {
      * Called when a new message arrives at the Receiver
      *
      * @param receiver the Receiver the messaged arrived on
+     * @param deliveryId the deliver ID of the message
      * @param message
      * @return whether or not more messages can be accepted by this listener
      */
     public boolean offer(Receiver receiver, long deliveryId, T message);
 
     /**
-     * Called to supply a refiller task when this listener is ready to accept more messages
+     * Called to supply a refiller task when this listener is ready to accept more
+     * messages.  Link credit should be added before this refiller task is run
      *
      * @param refiller
      */

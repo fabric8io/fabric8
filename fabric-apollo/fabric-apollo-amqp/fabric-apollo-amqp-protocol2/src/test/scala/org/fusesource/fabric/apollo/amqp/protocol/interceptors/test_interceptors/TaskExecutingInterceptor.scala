@@ -13,22 +13,12 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.test_interceptor
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
-import org.apache.activemq.apollo.util.Logging
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
 
 /**
  *
  */
 
 class TaskExecutingInterceptor extends Interceptor  {
-  protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    printf("Tasks : %s\n", tasks)
-    tasks.dequeueAll((x) => {
-      x()
-      true
-    })
-  }
-
-  protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = {
-    incoming.receive(frame, tasks)
-  }
+  override protected def _send(frame: AMQPFrame, tasks: Queue[() => Unit]) =execute(tasks)
 }

@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.commands
 
+import org.apache.activemq.apollo.transport.Transport
+
 /**
  *
  */
@@ -44,10 +46,9 @@ object ConnectionClosed {
 class ConnectionClosed extends ConnectionCommand
 
 object ConnectionCreated {
-  private val INSTANCE = new ConnectionCreated
-  def apply() = INSTANCE
+  def apply(transport:Transport) = new ConnectionCreated(transport)
 }
-class ConnectionCreated extends ConnectionCommand
+class ConnectionCreated(val transport:Transport) extends ConnectionCommand
 
 object HeaderSent {
   private val INSTANCE = new HeaderSent
