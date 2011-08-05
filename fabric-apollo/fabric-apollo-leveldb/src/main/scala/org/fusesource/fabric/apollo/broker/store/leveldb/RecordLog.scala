@@ -21,7 +21,6 @@ import java.util.Arrays
 import collection.mutable.{HashMap, HashSet}
 import collection.immutable.TreeMap
 import java.util.concurrent.atomic.AtomicLong
-import javax.sound.sampled.DataLine.Info
 
 object RecordLog {
 
@@ -72,8 +71,8 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
 
   directory.mkdirs()
 
-  var flush_watermark = 1024 * 1024 * 4
-  var rotate_watermark = 1024 * 1024 * 100
+  var write_buffer_size = 1024 * 1024 * 4
+  var log_size = 1024 * 1024 * 100
   private var current_appender:LogAppender = _
 
   case class LogInfo(file:File, position:Long, length:AtomicLong) {
@@ -95,7 +94,10 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
     }
   }
 
-  def sync = current_appender.sync
+  def sync = {
+    current_appender.flush
+    current_appender.sync
+  }
 
   case class LogAppender(file:File, start:Long) {
 
@@ -145,7 +147,7 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
      */
     def append(id:Byte, data: Array[Byte]): Long = {
       assert(id != LOG_HEADER_PREFIX(0))
-      if( batch_length!=0 && (batch_length + data.length > flush_watermark) ) {
+      if( batch_length!=0 && (batch_length + data.length > write_buffer_size) ) {
         flush
       }
       if( batch_length==0 ) {
@@ -284,7 +286,7 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
     } finally {
       log_mutex.synchronized {
         current_appender.flush
-        if ( current_appender.length.get >= rotate_watermark ) {
+        if ( current_appender.length.get >= log_size ) {
           current_appender.close
           on_log_rotate
           val position = current_appender.limit
@@ -318,7 +320,7 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
 
   private def get_reader[T](pos:Long)(func: (LogReader)=>T) = {
     val infos = log_mutex.synchronized(log_infos)
-    val info = infos.range(0L, pos).lastOption.map(_._2)
+    val info = infos.range(0L, pos+1).lastOption.map(_._2)
     info.map { info =>
       // Checkout a reader from the cache...
       val (set, reader_id, reader) = reader_cache_files.synchronized {

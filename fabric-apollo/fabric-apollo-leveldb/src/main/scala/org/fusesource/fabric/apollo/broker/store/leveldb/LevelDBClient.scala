@@ -14,6 +14,7 @@ import java.{lang=>jl}
 import java.{util=>ju}
 
 import org.fusesource.hawtbuf.proto.PBMessageFactory
+import org.apache.activemq.apollo.broker.store.PBSupport._
 
 import org.apache.activemq.apollo.broker.store._
 import scala.Predef._
@@ -23,10 +24,9 @@ import java.util.concurrent.TimeUnit
 import org.apache.activemq.apollo.util._
 import collection.mutable.{HashMap, ListBuffer}
 import java.util.concurrent.locks.ReentrantReadWriteLock
-import org.fusesource.leveldbjni._
-import org.apache.activemq.apollo.broker.store.PBSupport._
 import java.util.concurrent.atomic.AtomicLong
 import org.fusesource.hawtdispatch._
+import org.fusesource.leveldbjni._
 
 object LevelDBClient extends Log {
 
@@ -37,11 +37,15 @@ object LevelDBClient extends Log {
   final val message_prefix_array = Array(message_prefix)
   final val queue_prefix_array = Array(queue_prefix)
   final val queue_entry_prefix_array = Array(queue_entry_prefix)
+  final val dirty_index_key = DB.bytes(":dirty")
 
-  final val LOG_ADD_MESSAGE = 1.toByte
-  final val LOG_REMOVE_MESSAGE = 2.toByte
-  final val LOG_ADD_QUEUE_ENTRY = 3.toByte
-  final val LOG_REMOVE_QUEUE_ENTRY = 4.toByte
+  final val LOG_ADD_QUEUE           = 1.toByte
+  final val LOG_REMOVE_QUEUE        = 2.toByte
+  final val LOG_ADD_MESSAGE         = 3.toByte
+  final val LOG_REMOVE_MESSAGE      = 4.toByte
+  final val LOG_ADD_QUEUE_ENTRY     = 5.toByte
+  final val LOG_REMOVE_QUEUE_ENTRY  = 6.toByte
+
 }
 
 /**
@@ -97,24 +101,25 @@ class LevelDBClient(store: LevelDBStore) {
     index_options = new Options();
     index_options.createIfMissing(true);
 
-    config.max_open_files.foreach( index_options.maxOpenFiles(_) )
-    config.block_restart_interval.foreach( index_options.blockRestartInterval(_) )
+    config.index_max_open_files.foreach( index_options.maxOpenFiles(_) )
+    config.index_block_restart_interval.foreach( index_options.blockRestartInterval(_) )
     config.paranoid_checks.foreach( index_options.paranoidChecks(_) )
-    config.write_buffer_size.foreach( index_options.writeBufferSize(_) )
-    config.block_size.foreach( index_options.blockSize(_) )
-    Option(config.compression).foreach(x => index_options.compression( x match {
+    config.index_write_buffer_size.foreach( index_options.writeBufferSize(_) )
+    config.index_block_size.foreach( index_options.blockSize(_) )
+    Option(config.index_compression).foreach(x => index_options.compression( x match {
       case "snappy" => CompressionType.kSnappyCompression
       case "none" => CompressionType.kNoCompression
       case _ => CompressionType.kSnappyCompression
     }) )
 
-    index_cache = new Cache(config.cache_size.getOrElse(1024*1024*256L))
+    index_cache = new Cache(config.index_cache_size.getOrElse(1024*1024*256L))
     index_options.cache(index_cache)
 
     index_logger = new Logger() {
       def log(msg: String) = debug("leveldb: "+msg)
     }
     index_options.infoLog(index_logger)
+
 
     log = new RecordLog(directory, ".log") {
       override def on_log_rotate:Unit = {
@@ -126,6 +131,10 @@ class LevelDBClient(store: LevelDBStore) {
         }
       }
     }
+
+    log.write_buffer_size = config.log_write_buffer_size.getOrElse(1024*1024*4)
+    log.log_size = config.log_size.getOrElse(1024*1024*100)
+
     retry {
       log.open
     }
@@ -160,31 +169,49 @@ class LevelDBClient(store: LevelDBStore) {
 
       index = new RichDB(DB.open(index_options, dirty_index_file));
       try {
-
+        index.put(dirty_index_key, DB.bytes("true"))
         // Update the index /w what was stored on the logs..
         var pos = last_snapshot_index_pos;
-        index.write() { batch =>
 
-          // Replay the log from the last update position..
-          while( pos < log.appender_limit ) {
-            log.read(pos).map { case (kind, data, len)=>
-              kind match {
-                case LOG_ADD_MESSAGE =>
-                  val record:MessageRecord = data
-                  batch.put(encode(message_prefix, record.key), encode(pos))
-                case LOG_ADD_QUEUE_ENTRY =>
-                  val record:QueueEntryRecord = data
-                  batch.put(encode(queue_entry_prefix, record.queue_key, record.entry_seq), data)
-                case LOG_REMOVE_QUEUE_ENTRY =>
-                  batch.delete(data)
-                case _ =>
+        // Replay the log from the last update position..
+        try {
+          while (pos < log.appender_limit) {
+            log.read(pos).map {
+              case (kind, data, len) =>
+                kind match {
+                  case LOG_ADD_MESSAGE =>
+                    val record: MessageRecord = data
+                    index.put(encode(message_prefix, record.key), encode(pos))
+                  case LOG_ADD_QUEUE_ENTRY =>
+                    val record: QueueEntryRecord = data
+                    index.put(encode(queue_entry_prefix, record.queue_key, record.entry_seq), data)
+                  case LOG_REMOVE_QUEUE_ENTRY =>
+                    index.delete(data)
+                  case LOG_ADD_QUEUE =>
+                    val record: QueueRecord = data
+                    index.put(encode(queue_prefix, record.key), data)
+                  case LOG_REMOVE_QUEUE =>
+                    val ro = new ReadOptions
+                    ro.fillCache(false)
+                    ro.verifyChecksums(verify_checksums)
+                    val queue_key = decode_long(data)
+                    index.delete(encode(queue_prefix, queue_key))
+                    index.cursor_keys_prefixed(encode(queue_entry_prefix, queue_key), ro) {
+                      key =>
+                        index.delete(key)
+                        true
+                    }
+                  case _ =>
                   // Skip unknown records like the RecordLog headers.
-              }
-              pos += len
+                }
+                pos += len
             }
           }
-
         }
+        catch {
+          case e:Throwable => e.printStackTrace()
+        }
+
 
       } catch {
         case e:Throwable =>
@@ -232,8 +259,10 @@ class LevelDBClient(store: LevelDBStore) {
     // we will be closing it to create a consistent snapshot.
     snapshot_rw_lock.writeLock().lock()
 
-    // Close the index so that's does not move around under us..
+    // Close the index so that it's files are not changed async on us.
+    index.put(dirty_index_key, DB.bytes("false"), new WriteOptions().sync(true))
     index.delete
+
     // Make sure all the log data is on disk..
     log.sync
   }
@@ -246,6 +275,7 @@ class LevelDBClient(store: LevelDBStore) {
     // re=open it..
     retry {
       index = new RichDB(DB.open(index_options, dirty_index_file));
+      index.put(dirty_index_key, DB.bytes("true"))
     }
     snapshot_rw_lock.writeLock().unlock()
   }
@@ -336,26 +366,30 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   def addQueue(record: QueueRecord, callback:Runnable) = {
-    val wo = new WriteOptions
-    wo.sync(sync)
     retry_using_index {
-      index.put(encode(queue_prefix, record.key), record, wo)
+      log.appender { appender =>
+        appender.append(LOG_ADD_QUEUE, record)
+        index.put(encode(queue_prefix, record.key), record)
+      }
+      log.sync
     }
     callback.run
   }
 
   def removeQueue(queue_key: Long, callback:Runnable) = {
     retry_using_index {
-      val ro = new ReadOptions
-      ro.fillCache(false)
-      ro.verifyChecksums(verify_checksums)
-      val wo = new WriteOptions
-      wo.sync(false)
-      index.delete(encode(queue_prefix, queue_key), wo)
-      index.cursor_keys_prefixed(encode(queue_entry_prefix, queue_key), ro) { key=>
-        index.delete(key, wo)
-        true
+      log.appender { appender =>
+        val ro = new ReadOptions
+        ro.fillCache(false)
+        ro.verifyChecksums(verify_checksums)
+        appender.append(LOG_REMOVE_QUEUE, encode(queue_key))
+        index.delete(encode(queue_prefix, queue_key))
+        index.cursor_keys_prefixed(encode(queue_entry_prefix, queue_key), ro) { key=>
+          index.delete(key)
+          true
+        }
       }
+      log.sync
     }
     callback.run
   }
@@ -364,9 +398,7 @@ class LevelDBClient(store: LevelDBStore) {
 
     retry_using_index {
       log.appender { appender =>
-        val wo = new WriteOptions
-        wo.sync(sync)
-        index.write(wo) { batch =>
+        index.write() { batch =>
           uows.foreach { uow =>
               uow.actions.foreach {
                 case (msg, action) =>
@@ -401,6 +433,9 @@ class LevelDBClient(store: LevelDBStore) {
           }
         }
       }
+    }
+    if( sync ) {
+      log.sync
     }
     callback.run
   }
@@ -586,9 +621,6 @@ class LevelDBClient(store: LevelDBStore) {
     ro.fillCache(false)
     ro.verifyChecksums(verify_checksums)
 
-    val wo = new WriteOptions
-    wo.sync(false)
-
     val journal_usage = new TreeMap[Long,(RecordLog#LogInfo , HashMap[Long, LongCounter])]()
     var append_journal = 0L
 
@@ -732,9 +764,6 @@ class LevelDBClient(store: LevelDBStore) {
       purge
 
       retry_using_index {
-        val wo = new WriteOptions
-        wo.sync(sync)
-
         def foreach[Buffer] (stream:InputStream, fact:PBMessageFactory[_,_])(func: (Buffer)=>Unit):Unit = {
           var done = false
           do {
@@ -750,7 +779,7 @@ class LevelDBClient(store: LevelDBStore) {
 
         streams.using_queue_stream { stream=>
           foreach[QueuePB.Buffer](stream, QueuePB.FACTORY) { record=>
-            index.put(encode(queue_prefix, record.key), record.toUnframedByteArray, wo)
+            index.put(encode(queue_prefix, record.key), record.toUnframedByteArray)
           }
         }
 
@@ -758,14 +787,14 @@ class LevelDBClient(store: LevelDBStore) {
           streams.using_message_stream { stream=>
             foreach[MessagePB.Buffer](stream, MessagePB.FACTORY) { record=>
               val pos = appender.append(LOG_ADD_MESSAGE, record.toUnframedByteArray)
-              index.put(encode(message_prefix, record.key), encode(pos), wo)
+              index.put(encode(message_prefix, record.key), encode(pos))
             }
           }
         }
 
         streams.using_queue_entry_stream { stream=>
           foreach[QueueEntryPB.Buffer](stream, QueueEntryPB.FACTORY) { record=>
-            index.put(encode(queue_entry_prefix, record.queue_key, record.entry_seq), record.toUnframedByteArray, wo)
+            index.put(encode(queue_entry_prefix, record.queue_key, record.entry_seq), record.toUnframedByteArray)
           }
         }
       }
