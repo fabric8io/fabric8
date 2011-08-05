@@ -10,10 +10,10 @@
 package org.fusesource.fabric.apollo.broker.store.leveldb
 
 import dto.{LevelDBStoreDTO, LevelDBStoreStatusDTO}
-import java.util.concurrent.atomic.AtomicLong
 import collection.Seq
 import org.fusesource.hawtdispatch._
 import java.util.concurrent._
+import atomic.{AtomicReference, AtomicLong}
 import org.apache.activemq.apollo.broker.store._
 import org.apache.activemq.apollo.util._
 import org.fusesource.hawtdispatch.ListEventAggregator
@@ -128,7 +128,7 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
   }
 
   def gc(onComplete: =>Unit) = gc_executor {
-    client.mark_and_sweep
+    client.gc
     onComplete
   }
 
@@ -184,14 +184,14 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
     }
   }
 
-  val load_source = createSource(new ListEventAggregator[(Long, (Option[MessageRecord])=>Unit)](), dispatch_queue)
+  val load_source = createSource(new ListEventAggregator[(Long, AtomicLong, (Option[MessageRecord])=>Unit)](), dispatch_queue)
   load_source.setEventHandler(^{drain_loads});
   load_source.resume
 
 
-  def load_message(messageKey: Long)(callback: (Option[MessageRecord]) => Unit) = {
+  def load_message(messageKey: Long, locator:AtomicLong)(callback: (Option[MessageRecord]) => Unit) = {
     message_load_latency_counter.start { end=>
-      load_source.merge((messageKey, { (result)=>
+      load_source.merge((messageKey, locator, { (result)=>
         end()
         callback(result)
       }))
@@ -240,7 +240,7 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
     val rc = new LevelDBStoreStatusDTO
     fill_store_status(rc)
     rc.message_load_batch_size = message_load_batch_size
-    rc.leveldb_stats = client.db.getProperty("leveldb.stats")
+    rc.leveldb_stats = client.index.getProperty("leveldb.stats")
     callback(rc)
   }
 

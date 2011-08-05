@@ -14,24 +14,17 @@ import org.fusesource.leveldbjni._
 
 object HelperTrait {
 
-  final val message_prefix = 'm'.toByte
-  final val message_ts_prefix = 'r'.toByte
-  final val queue_prefix = 'q'.toByte
-  final val queue_entry_prefix = 'e'.toByte
-
-  final val message_prefix_array = Array(message_prefix)
-  final val message_ts_prefix_array = Array(message_ts_prefix)
-  final val queue_prefix_array = Array(queue_prefix)
-  final val queue_entry_prefix_array = Array(queue_entry_prefix)
-
   def encode(a1:Long):Array[Byte] = {
-    val out = new DataByteArrayOutputStream(8)
-    out.writeLong(a1)
+    val out = new DataByteArrayOutputStream(
+      AbstractVarIntSupport.computeVarLongSize(a1)
+    )
+    out.writeVarLong(a1)
     out.getData
   }
+
   def decode_long(bytes:Array[Byte]):Long = {
     val in = new DataByteArrayInputStream(bytes)
-    in.readLong()
+    in.readVarLong()
   }
 
   def encode(a1:Byte, a2:Long):Array[Byte] = {
@@ -78,10 +71,19 @@ object HelperTrait {
     def getApproximateSizes(ranges:Range*) = db.getApproximateSizes(ranges:_*)
 
     def get(key:Array[Byte], ro:ReadOptions=new ReadOptions):Option[Array[Byte]] = {
-      Option(db.get(ro, key))
+      try {
+        Some(db.get(ro, key))
+      } catch {
+        case e:DB.DBException =>
+          if( e.isNotFound ) {
+            None
+          } else {
+            throw e;
+          }
+      }
     }
 
-    def delete = db.delete()
+    def delete:Unit = db.delete()
 
     def delete(key:Array[Byte], wo:WriteOptions=new WriteOptions):Unit = {
       db.delete(wo, key)
