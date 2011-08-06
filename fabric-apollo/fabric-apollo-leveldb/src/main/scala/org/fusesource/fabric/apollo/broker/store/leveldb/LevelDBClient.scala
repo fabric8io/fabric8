@@ -27,7 +27,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 import java.util.concurrent.atomic.AtomicLong
 import org.fusesource.hawtdispatch._
 import org.fusesource.leveldbjni._
+import org.apache.activemq.apollo.util.{TreeMap=>ApolloTreeMap}
+import collection.immutable.TreeMap
 
+/**
+ * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
+ */
 object LevelDBClient extends Log {
 
   final val message_prefix = 'm'.toByte
@@ -45,6 +50,28 @@ object LevelDBClient extends Log {
   final val LOG_REMOVE_MESSAGE      = 4.toByte
   final val LOG_ADD_QUEUE_ENTRY     = 5.toByte
   final val LOG_REMOVE_QUEUE_ENTRY  = 6.toByte
+
+  final val LOG_SUFFIX  = ".log"
+  final val INDEX_SUFFIX  = ".index"
+
+  import FileSupport._
+  def create_sequence_file(directory:File, id:Long, suffix:String) = directory / ("%016x%s".format(id, suffix))
+
+  def find_sequence_files(directory:File, suffix:String) = {
+    TreeMap((directory.list_files.flatMap { f=>
+      if( f.getName.endsWith(suffix) ) {
+        try {
+          val base = f.getName.stripSuffix(suffix)
+          val position = java.lang.Long.parseLong(base, 16);
+          Some(position -> f)
+        } catch {
+          case e:NumberFormatException => None
+        }
+      } else {
+        None
+      }
+    }): _* )
+  }
 
 }
 
@@ -66,7 +93,8 @@ class LevelDBClient(store: LevelDBStore) {
   //
   /////////////////////////////////////////////////////////////////////
 
-  private def directory = config.directory
+  def config = store.config
+  def directory = config.directory
 
   /////////////////////////////////////////////////////////////////////
   //
@@ -74,7 +102,6 @@ class LevelDBClient(store: LevelDBStore) {
   //
   /////////////////////////////////////////////////////////////////////
 
-  var config: LevelDBStoreDTO = null
   var sync = false;
   var verify_checksums = false;
 
@@ -85,12 +112,21 @@ class LevelDBClient(store: LevelDBStore) {
   var index_logger:Logger = _
   var index_options:Options = _
 
-  var last_snapshot_index_pos:Long = _
+  var last_index_snapshot_id:Long = _
   val snapshot_rw_lock = new ReentrantReadWriteLock(true)
 
-  def dirty_index_file = directory / "dirty.index"
-  def temp_index_file = directory / "temp.index"
-  def snapshot_index_file(id:Long) = directory / ("%016d.index".format(id))
+  def dirty_index_file = directory / ("dirty"+INDEX_SUFFIX)
+  def temp_index_file = directory / ("temp"+INDEX_SUFFIX)
+  def snapshot_index_file(id:Long) = create_sequence_file(directory,id, INDEX_SUFFIX)
+
+  def create_log: RecordLog = {
+    new RecordLog(directory, LOG_SUFFIX)
+  }
+
+  def log_size = {
+    import OptionSupport._
+    config.log_size.getOrElse(1024 * 1024 * 100)
+  }
 
   def start() = {
     import OptionSupport._
@@ -121,31 +157,29 @@ class LevelDBClient(store: LevelDBStore) {
     index_options.infoLog(index_logger)
 
 
-    log = new RecordLog(directory, ".log") {
-      override def on_log_rotate:Unit = {
-        // lets queue a request to checkpoint when
-        // the logs rotate.. queue it on the GC thread since GC's lock
-        // the index for a long time.
-        store.gc_executor {
-          snapshot_index
-        }
+    log = create_log
+    log.write_buffer_size = config.log_write_buffer_size.getOrElse(1024*1024*4)
+    log.log_size = log_size
+    log.on_log_rotate = ()=> {
+      // lets queue a request to checkpoint when
+      // the logs rotate.. queue it on the GC thread since GC's lock
+      // the index for a long time.
+      store.gc_executor {
+        snapshot_index
       }
     }
-
-    log.write_buffer_size = config.log_write_buffer_size.getOrElse(1024*1024*4)
-    log.log_size = config.log_size.getOrElse(1024*1024*100)
 
     retry {
       log.open
     }
 
     // Find out what was the last snapshot.
-    val snapshots = RecordLog.find_sequence_files(directory, ".index")
+    val snapshots = find_sequence_files(directory, ".index")
     var last_snapshot_index = snapshots.lastOption
-    last_snapshot_index_pos = last_snapshot_index.map(_._1).getOrElse(0)
+    last_index_snapshot_id = last_snapshot_index.map(_._1).getOrElse(0)
 
     // Only keep the last snapshot..
-    snapshots.filterNot(_._1 == last_snapshot_index_pos).foreach( _._2.recursive_delete )
+    snapshots.filterNot(_._1 == last_index_snapshot_id).foreach( _._2.recursive_delete )
     temp_index_file.recursive_delete
 
     retry {
@@ -157,7 +191,7 @@ class LevelDBClient(store: LevelDBStore) {
       last_snapshot_index.foreach { case (id, file) =>
         // Resume log replay from a snapshot of the index..
         try {
-          file.listFiles().foreach { file =>
+          file.list_files.foreach { file =>
             Util.link(file, dirty_index_file / file.getName)
           }
         } catch {
@@ -171,7 +205,7 @@ class LevelDBClient(store: LevelDBStore) {
       try {
         index.put(dirty_index_key, DB.bytes("true"))
         // Update the index /w what was stored on the logs..
-        var pos = last_snapshot_index_pos;
+        var pos = last_index_snapshot_id;
 
         // Replay the log from the last update position..
         try {
@@ -220,22 +254,26 @@ class LevelDBClient(store: LevelDBStore) {
           throw e;
       }
     }
-
   }
 
   def stop() = {
-    if( index!=null ) {
-      index.delete
-      index = null
-    }
-    if( index_logger!=null ) {
+    // this blocks until all io completes..
+    // Suspend also deletes the index.
+    suspend()
+
+    if (index_logger != null) {
       index_logger.delete
-      index_logger = null
     }
-    if( index_cache!=null ) {
+    if (index_cache != null) {
       index_cache.delete
-      index_cache = null
     }
+    if (log != null) {
+      log.close
+    }
+    copy_dirty_index_to_snapshot
+    index_logger = null
+    index_cache = null
+    log = null
   }
 
   def using_index[T](func: =>T):T = {
@@ -280,40 +318,48 @@ class LevelDBClient(store: LevelDBStore) {
     snapshot_rw_lock.writeLock().unlock()
   }
 
-  def snapshot_index:Unit = {
-
-    if( log.appender_limit == last_snapshot_index_pos  ) {
+  def copy_dirty_index_to_snapshot {
+    if( log.appender_limit == last_index_snapshot_id  ) {
       // no need to snapshot again...
       return
     }
 
+    // Where we start copying files into.  Delete this on
+    // restart.
+    val tmp_dir = temp_index_file
+    tmp_dir.mkdirs()
+
+    try {
+
+      // Hard link all the index files.
+      dirty_index_file.list_files.foreach {
+        file =>
+          Util.link(file, tmp_dir / file.getName)
+      }
+
+      // Rename to signal that the snapshot is complete.
+      val new_snapshot_index_pos = log.appender_limit
+      tmp_dir.renameTo(snapshot_index_file(new_snapshot_index_pos))
+      snapshot_index_file(last_index_snapshot_id).recursive_delete
+      last_index_snapshot_id = new_snapshot_index_pos
+
+    } catch {
+      case e: Exception =>
+        // if we could not snapshot for any reason, delete it as we don't
+        // want a partial check point..
+        warn(e, "Could not snapshot the index: " + e)
+        tmp_dir.recursive_delete
+    }
+  }
+
+  def snapshot_index:Unit = {
+    if( log.appender_limit == last_index_snapshot_id  ) {
+      // no need to snapshot again...
+      return
+    }
     suspend()
     try {
-      // Where we start copying files into.  Delete this on
-      // restart.
-      val tmp_dir = temp_index_file
-      tmp_dir.mkdirs()
-
-      try {
-
-        // Hard link all the index files.
-        dirty_index_file.listFiles().foreach { file =>
-          Util.link(file, tmp_dir / file.getName)
-        }
-
-        // Rename to signal that the snapshot is complete.
-        val new_snapshot_index_pos = log.appender_limit
-        tmp_dir.renameTo(snapshot_index_file(new_snapshot_index_pos))
-        snapshot_index_file(last_snapshot_index_pos).recursive_delete
-        last_snapshot_index_pos = new_snapshot_index_pos
-
-      } catch {
-        case e:Exception =>
-          // if we could not snapshot for any reason, delete it as we don't
-          // want a partial check point..
-          warn(e, "Could not snapshot the index: "+e)
-          tmp_dir.recursive_delete
-      }
+      copy_dirty_index_to_snapshot
     } finally {
       resume()
     }
@@ -356,7 +402,7 @@ class LevelDBClient(store: LevelDBStore) {
     suspend()
     try{
       log.close
-      directory.listFiles().foreach(_.recursive_delete)
+      directory.list_files.foreach(_.recursive_delete)
     } finally {
       retry {
         log.open
@@ -621,7 +667,21 @@ class LevelDBClient(store: LevelDBStore) {
     ro.fillCache(false)
     ro.verifyChecksums(verify_checksums)
 
-    val journal_usage = new TreeMap[Long,(RecordLog#LogInfo , HashMap[Long, LongCounter])]()
+    case class UsageCounter() {
+      var count = 0L
+      var size = 0L
+      def increment(value:Int) = {
+        count += 1
+        size += value
+      }
+    }
+
+
+    //
+    // This journal_usage will let us get a picture of which queues are using how much of each
+    // log file.  It will help folks figure out why a log file is not getting deleted.
+    //
+    val journal_usage = new ApolloTreeMap[Long,(RecordLog#LogInfo , HashMap[Long, UsageCounter])]()
     var append_journal = 0L
 
     log.log_mutex.synchronized {
@@ -656,13 +716,11 @@ class LevelDBClient(store: LevelDBStore) {
           // Figure out which journal files are still in use by which queues.
           index.cursor_prefixed(queue_entry_prefix_array, ro) { (_,value) =>
             val entry_record:QueueEntryRecord = value
-            index.get(encode(message_prefix, entry_record.message_key), ro).foreach { value =>
-              val pos = decode_long(value)
-              find_journal(pos) match {
-                case Some((key,map)) =>
-                  map.getOrElseUpdate(entry_record.queue_key, new LongCounter(0)).incrementAndGet()
-                case None =>
-              }
+            val pos = entry_record.message_locator
+            find_journal(pos) match {
+              case Some((key,map)) =>
+                map.getOrElseUpdate(entry_record.queue_key,UsageCounter()).increment(entry_record.size)
+              case None =>
             }
             true
           }
@@ -694,8 +752,8 @@ class LevelDBClient(store: LevelDBStore) {
 
           // We don't want to delete any journals that the index has not snapshot'ed or
           // the the
-          val delete_limit = find_journal(last_snapshot_index_pos).map(_._1).
-                getOrElse(last_snapshot_index_pos).min(log.appender_start)
+          val delete_limit = find_journal(last_index_snapshot_id).map(_._1).
+                getOrElse(last_index_snapshot_id).min(log.appender_start)
 
           empty_journals.foreach { id =>
             if ( id < delete_limit ) {

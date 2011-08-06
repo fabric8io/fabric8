@@ -32,7 +32,7 @@ object LevelDBStore extends Log {
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
+class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
 
   var next_queue_key = new AtomicLong(1)
   var next_msg_key = new AtomicLong(1)
@@ -40,7 +40,9 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
   var write_executor:ExecutorService = _
   var gc_executor:ExecutorService = _
   var read_executor:ExecutorService = _
-  val client = new LevelDBClient(this)
+
+  val client = create_client
+  def create_client = new LevelDBClient(this)
 
   override def toString = "leveldb store at "+config.directory
 
@@ -82,7 +84,6 @@ class LevelDBStore(var config:LevelDBStoreDTO) extends DelayingStoreSupport {
         rc
       }
     })
-    client.config = config
     poll_stats
     write_executor {
       client.start()

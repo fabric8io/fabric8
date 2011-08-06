@@ -47,25 +47,9 @@ object RecordLog {
   val LOG_HEADER_PREFIX = Array('*', 'L').map(_.toByte)
   val LOG_HEADER_SIZE = 10 // BATCH_HEADER_PREFIX (2) + checksum (4) + length (4)
 
-  def find_sequence_files(directory:File, suffix:String) = {
-    TreeMap((directory.listFiles().flatMap { f=>
-      if( f.getName.endsWith(suffix) ) {
-        try {
-          val base = f.getName.stripSuffix(suffix)
-          val position = base.toLong
-          Some(position -> f)
-        } catch {
-          case e:NumberFormatException => None
-        }
-      } else {
-        None
-      }
-    }): _* )
-  }
-
 }
 
-case class RecordLog(directory: File, log_suffix:String=".jrn") {
+case class RecordLog(directory: File, log_suffix:String) {
   import FileSupport._
   import RecordLog._
 
@@ -99,9 +83,10 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
     current_appender.sync
   }
 
-  case class LogAppender(file:File, start:Long) {
+  class LogAppender(val file:File, val start:Long) {
 
-    val os = new FileOutputStream(file)
+    val fos = new FileOutputStream(file)
+    def os:OutputStream = fos
 
     val outbound = new DataByteArrayOutputStream()
 
@@ -110,7 +95,7 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
     var limit = start
 
     def sync = {
-      os.getChannel.force(true)
+      fos.getChannel.force(true)
     }
 
     def flush {
@@ -237,9 +222,20 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
     }
   }
 
+  def create_log_appender(position: Long) = {
+    new LogAppender(next_log(position), position)
+  }
+
+  def create_appender(position: Long): Any = {
+    current_appender = create_log_appender(position)
+    log_mutex.synchronized {
+      log_infos += position -> new LogInfo(current_appender.file, position, current_appender.length)
+    }
+  }
+
   def open = {
     log_mutex.synchronized {
-      log_infos = find_sequence_files(directory, log_suffix).map { case (position,file) =>
+      log_infos = LevelDBClient.find_sequence_files(directory, log_suffix).map { case (position,file) =>
         position -> LogInfo(file, position, new AtomicLong(file.length()))
       }
 
@@ -261,24 +257,19 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
         }
       }
 
-      current_appender = LogAppender(next_log(append_pos), append_pos)
-      val position = current_appender.start
-      log_infos += position -> new LogInfo( current_appender.file, position, current_appender.length )
+      create_appender(append_pos)
     }
   }
   def close = {
     log_mutex.synchronized {
       current_appender.close
-      current_appender = null
     }
   }
 
   def appender_limit = current_appender.limit
   def appender_start = current_appender.start
 
-  def next_log(position:Long) = {
-    directory / ("%016d%s".format(position, log_suffix))
-  }
+  def next_log(position:Long) = LevelDBClient.create_sequence_file(directory, position, log_suffix)
 
   def appender[T](func: (LogAppender)=>T):T= {
     try {
@@ -288,18 +279,14 @@ case class RecordLog(directory: File, log_suffix:String=".jrn") {
         current_appender.flush
         if ( current_appender.length.get >= log_size ) {
           current_appender.close
-          on_log_rotate
-          val position = current_appender.limit
-          current_appender = LogAppender(next_log(position), position)
-          log_mutex.synchronized {
-            log_infos += position -> new LogInfo( current_appender.file, position, current_appender.length )
-          }
+          on_log_rotate()
+          create_appender(current_appender.limit)
         }
       }
     }
   }
 
-  def on_log_rotate = {}
+  var on_log_rotate: ()=>Unit = ()=>{}
 
   val next_reader_id = new LongCounter()
   val reader_cache_files = new HashMap[File, HashSet[Long]];

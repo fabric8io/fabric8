@@ -19,13 +19,12 @@ import org.apache.activemq.apollo.util.FileSupport._
 class LevelDBStoreTest extends StoreFunSuiteSupport {
 
   def create_store(flushDelay:Long):Store = {
-    val rc = new LevelDBStore({
+    new LevelDBStore({
       val rc = new LevelDBStoreDTO
       rc.directory = basedir / "target" / "apollo-data"
+      rc.flush_delay = flushDelay
       rc
     })
-    rc.config.flush_delay = flushDelay
-    rc
   }
 
 }
