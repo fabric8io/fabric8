@@ -36,6 +36,19 @@ h2 Store Latency Stats
 - show("Message load latency", message_load_latency)
 - show("UOW flush latency", flush_latency)
 
-h2 LevelDB Stats
+h2 Log Status
+p last log GC occured #{uptime(last_gc_ts)}
+p last log GC duration: #{friendly_duration(last_gc_duration)}
 pre
-  !~~ leveldb_stats
+  !~~ log_stats
+p
+  Index recovery starts from log position:
+  code #{"%016x".format(index_snapshot_pos)}
+p
+  Append position:
+  code #{"%016x".format(log_append_pos)}
+
+h2 Index Status
+pre
+  !~~ index_stats
+

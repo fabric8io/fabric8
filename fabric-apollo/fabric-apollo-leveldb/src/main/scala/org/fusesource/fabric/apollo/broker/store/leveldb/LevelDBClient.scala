@@ -73,6 +73,15 @@ object LevelDBClient extends Log {
     }): _* )
   }
 
+  case class UsageCounter() {
+    var count = 0L
+    var size = 0L
+    def increment(value:Int) = {
+      count += 1
+      size += value
+    }
+  }
+
 }
 
 /**
@@ -112,8 +121,13 @@ class LevelDBClient(store: LevelDBStore) {
   var index_logger:Logger = _
   var index_options:Options = _
 
-  var last_index_snapshot_id:Long = _
+  var last_index_snapshot_pos:Long = _
   val snapshot_rw_lock = new ReentrantReadWriteLock(true)
+
+  var last_gc_ts = 0L
+  var last_gc_duration = 0L
+  var in_gc = false
+  var gc_detected_log_usage = Map[Long, UsageCounter]()
 
   def dirty_index_file = directory / ("dirty"+INDEX_SUFFIX)
   def temp_index_file = directory / ("temp"+INDEX_SUFFIX)
@@ -176,10 +190,10 @@ class LevelDBClient(store: LevelDBStore) {
     // Find out what was the last snapshot.
     val snapshots = find_sequence_files(directory, ".index")
     var last_snapshot_index = snapshots.lastOption
-    last_index_snapshot_id = last_snapshot_index.map(_._1).getOrElse(0)
+    last_index_snapshot_pos = last_snapshot_index.map(_._1).getOrElse(0)
 
     // Only keep the last snapshot..
-    snapshots.filterNot(_._1 == last_index_snapshot_id).foreach( _._2.recursive_delete )
+    snapshots.filterNot(_._1 == last_index_snapshot_pos).foreach( _._2.recursive_delete )
     temp_index_file.recursive_delete
 
     retry {
@@ -205,7 +219,7 @@ class LevelDBClient(store: LevelDBStore) {
       try {
         index.put(dirty_index_key, DB.bytes("true"))
         // Update the index /w what was stored on the logs..
-        var pos = last_index_snapshot_id;
+        var pos = last_index_snapshot_pos;
 
         // Replay the log from the last update position..
         try {
@@ -319,7 +333,7 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   def copy_dirty_index_to_snapshot {
-    if( log.appender_limit == last_index_snapshot_id  ) {
+    if( log.appender_limit == last_index_snapshot_pos  ) {
       // no need to snapshot again...
       return
     }
@@ -340,8 +354,8 @@ class LevelDBClient(store: LevelDBStore) {
       // Rename to signal that the snapshot is complete.
       val new_snapshot_index_pos = log.appender_limit
       tmp_dir.renameTo(snapshot_index_file(new_snapshot_index_pos))
-      snapshot_index_file(last_index_snapshot_id).recursive_delete
-      last_index_snapshot_id = new_snapshot_index_pos
+      snapshot_index_file(last_index_snapshot_pos).recursive_delete
+      last_index_snapshot_pos = new_snapshot_index_pos
 
     } catch {
       case e: Exception =>
@@ -353,7 +367,7 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   def snapshot_index:Unit = {
-    if( log.appender_limit == last_index_snapshot_id  ) {
+    if( log.appender_limit == last_index_snapshot_pos  ) {
       // no need to snapshot again...
       return
     }
@@ -667,34 +681,24 @@ class LevelDBClient(store: LevelDBStore) {
     ro.fillCache(false)
     ro.verifyChecksums(verify_checksums)
 
-    case class UsageCounter() {
-      var count = 0L
-      var size = 0L
-      def increment(value:Int) = {
-        count += 1
-        size += value
-      }
-    }
-
-
     //
     // This journal_usage will let us get a picture of which queues are using how much of each
     // log file.  It will help folks figure out why a log file is not getting deleted.
     //
-    val journal_usage = new ApolloTreeMap[Long,(RecordLog#LogInfo , HashMap[Long, UsageCounter])]()
+    val journal_usage = new ApolloTreeMap[Long,(RecordLog#LogInfo , UsageCounter)]()
     var append_journal = 0L
 
     log.log_mutex.synchronized {
       append_journal = log.log_infos.last._1
-      log.log_infos.foreach(entry=> journal_usage.put(entry._1, (entry._2, new HashMap())) )
+      log.log_infos.foreach(entry=> journal_usage.put(entry._1, (entry._2, UsageCounter())) )
     }
 
     def find_journal(pos: Long) = {
       var entry = journal_usage.floorEntry(pos)
       if (entry != null) {
-        val (info, map) = entry.getValue()
+        val (info, usageCounter) = entry.getValue()
         if (pos < info.limit) {
-          Some(entry.getKey -> map)
+          Some(entry.getKey -> usageCounter)
         } else {
           None
         }
@@ -703,8 +707,9 @@ class LevelDBClient(store: LevelDBStore) {
       }
     }
 
-    debug("leveldb gc stating")
-
+    in_gc = true
+    val now = System.currentTimeMillis()
+    debug("leveldb gc starting")
     latency_counter.time {
 
       retry_using_index {
@@ -718,20 +723,24 @@ class LevelDBClient(store: LevelDBStore) {
             val entry_record:QueueEntryRecord = value
             val pos = entry_record.message_locator
             find_journal(pos) match {
-              case Some((key,map)) =>
-                map.getOrElseUpdate(entry_record.queue_key,UsageCounter()).increment(entry_record.size)
+              case Some((key,usageCounter)) =>
+                usageCounter.increment(entry_record.size)
               case None =>
             }
             true
           }
+
+          gc_detected_log_usage = Map((collection.JavaConversions.asScalaSet(journal_usage.entrySet()).map { x=>
+            x.getKey -> x.getValue._2
+          }).toSeq : _ * )
 
           // Take empty journals out of the map..
           val empty_journals = ListBuffer[Long]()
 
           val i = journal_usage.entrySet().iterator();
           while( i.hasNext ) {
-            val (info, map) = i.next().getValue
-            if( map.isEmpty && info.position < append_journal) {
+            val (info, usageCounter) = i.next().getValue
+            if( usageCounter.count==0 && info.position < append_journal) {
               empty_journals += info.position
               i.remove()
             }
@@ -752,8 +761,8 @@ class LevelDBClient(store: LevelDBStore) {
 
           // We don't want to delete any journals that the index has not snapshot'ed or
           // the the
-          val delete_limit = find_journal(last_index_snapshot_id).map(_._1).
-                getOrElse(last_index_snapshot_id).min(log.appender_start)
+          val delete_limit = find_journal(last_index_snapshot_pos).map(_._1).
+                getOrElse(last_index_snapshot_pos).min(log.appender_start)
 
           empty_journals.foreach { id =>
             if ( id < delete_limit ) {
@@ -765,9 +774,10 @@ class LevelDBClient(store: LevelDBStore) {
 
       }
     }
-
-    info("leveldb gc deleted %d messages, it took: %f seconds, %d messages are left", delete_counter, latency_counter.apply(true).totalTime(TimeUnit.SECONDS), active_counter)
-    info("leveldb stats:\n"+index.getProperty("leveldb.stats"))
+    last_gc_ts=now
+    last_gc_duration = latency_counter.total(TimeUnit.MILLISECONDS)
+    in_gc = false
+    debug("leveldb gc ended")
   }
 
 
