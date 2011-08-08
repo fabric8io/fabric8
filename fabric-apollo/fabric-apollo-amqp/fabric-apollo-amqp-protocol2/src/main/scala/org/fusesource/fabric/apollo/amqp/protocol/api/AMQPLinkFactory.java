@@ -10,16 +10,19 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.api;
 
+import org.fusesource.fabric.apollo.amqp.protocol.AMQPReceiver;
+import org.fusesource.fabric.apollo.amqp.protocol.AMQPSender;
+
 /**
  *
  */
 public class AMQPLinkFactory {
 
     public static Sender createSender(String name) {
-        return null;
+        return AMQPSender.create(name);
     }
 
     public static Receiver createReceiver(String name) {
-        return null;
+        return AMQPReceiver.create(name);
     }
 }
