@@ -48,6 +48,15 @@ public class AMQPTransportFrame implements AMQPFrame {
     public AMQPTransportFrame(Frame performative) {
         setPerformative(performative);
         setPayload(EMPTY);
+        setDoff(calculateDataOffset());
+        setSize(getFrameSize());
+    }
+
+    public AMQPTransportFrame(Frame performative, Buffer payload) {
+        setPerformative(performative);
+        setPayload(payload);
+        setDoff(calculateDataOffset());
+        setSize(getFrameSize());
     }
 
     public AMQPTransportFrame(int channel, Frame performative) {
