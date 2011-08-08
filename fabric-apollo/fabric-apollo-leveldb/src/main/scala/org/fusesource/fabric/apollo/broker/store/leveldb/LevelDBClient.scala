@@ -314,9 +314,6 @@ class LevelDBClient(store: LevelDBStore) {
     // Close the index so that it's files are not changed async on us.
     index.put(dirty_index_key, DB.bytes("false"), new WriteOptions().sync(true))
     index.delete
-
-    // Make sure all the log data is on disk..
-    log.sync
   }
 
   /**
