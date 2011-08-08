@@ -16,10 +16,10 @@ import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import org.fusesource.fabric.apollo.amqp.protocol.commands._
 import Interceptor._
-import collection.mutable.Queue
-import org.fusesource.fabric.apollo.amqp.codec.types.AMQPTransportFrame
 import org.apache.activemq.apollo.util.Logging
 import utilities.{fire_function, fire_runnable, execute, Tasks}
+import org.fusesource.fabric.apollo.amqp.codec.types._
+import collection.mutable.{HashMap, Queue}
 
 /**
  *
@@ -28,10 +28,10 @@ class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession 
 
   var connection:Connection = null
 
-  head.outgoing = _flow
   head.outgoing = _end
   head.outgoing = _begin
 
+  tail.incoming = _flow
   tail.incoming = _links
 
   setOutgoingWindow(10L)
@@ -63,20 +63,33 @@ class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession 
   before(attach_detector)
   before(released_detector)
 
-  override protected def removing_from_chain = {
-    attach_detector.remove
-    released_detector.remove
-  }
-
   trace("Constructed session chain : %s", display_chain(this))
+
+  val link_map = new HashMap[String, Interceptor]()
 
   _links.interceptor_factory = Option((frame:AMQPTransportFrame) => {
     null.asInstanceOf[Interceptor]
   })
 
-  def established() = _begin.sent && _begin.received && !_end.sent && !_end.received && _established
+  _links.channel_selector = Option((frame:AMQPTransportFrame) => {
+    frame.getPerformative match {
+      case a:Attach =>
+        a.getHandle.asInstanceOf[Int]
+      case d:Detach =>
+        d.getHandle.asInstanceOf[Int]
+      case f:Flow =>
+        f.getHandle.asInstanceOf[Int]
+      case t:Transfer =>
+        t.getHandle.asInstanceOf[Int]
+    }
+  })
 
-  def link_name_prefix = connection.getContainerID + "," + connection.getPeerContainerID + ","
+  override protected def removing_from_chain = {
+    attach_detector.remove
+    released_detector.remove
+  }
+
+  def established() = _begin.sent && _begin.received && !_end.sent && !_end.received && _established
 
   def begin(on_begin: Runnable) = if (_established) {
     this.on_begin = Option(on_begin)
@@ -131,13 +144,29 @@ class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession 
     }
   }
 
-  def attach(link: Link) {}
+  private def global_link_name(link:Link) = {
+    if (link.getRole == Role.SENDER.getValue) {
+      getConnection.getContainerID + "," + getConnection.getPeerContainerID + "," + link.getName
+    } else {
+      getConnection.getPeerContainerID + "," + getConnection.getContainerID + "," + link.getName
+    }
+  }
 
-  def detach(link: Link) {}
+  def attach(link: Link) {
+    require(link.isInstanceOf[Interceptor], "Unexpected link type")
+  }
 
-  def detach(link: Link, reason: String) {}
+  def detach(link: Link) {
+    require(link.isInstanceOf[Interceptor], "Unexpected link type")
+  }
 
-  def detach(link: Link, t: Throwable) {}
+  def detach(link: Link, reason: String) {
+    require(link.isInstanceOf[Interceptor], "Unexpected link type")
+  }
+
+  def detach(link: Link, t: Throwable) {
+    require(link.isInstanceOf[Interceptor], "Unexpected link type")
+  }
 
   def sufficientSessionCredit() = false
 

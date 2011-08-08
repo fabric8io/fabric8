@@ -119,6 +119,8 @@ class ConnectionTest extends FunSuiteSupport with ShouldMatchers with Logging {
 
     client.connect(uri)
 
+    latch.await
+
     latch.await(10, TimeUnit.SECONDS)
 
     latch.getCount should be (0)

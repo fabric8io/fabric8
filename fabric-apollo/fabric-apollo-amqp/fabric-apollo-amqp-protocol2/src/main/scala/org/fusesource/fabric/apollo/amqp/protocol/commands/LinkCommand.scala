@@ -8,15 +8,15 @@
  * in the license.txt file
  */
 
-package org.fusesource.fabric.apollo.amqp.protocol.interfaces
+package org.fusesource.fabric.apollo.amqp.protocol.commands
 
-import org.fusesource.fabric.apollo.amqp.protocol.api.Session
+import org.fusesource.hawtbuf.Buffer
 
 /**
  *
  */
-trait SessionFactory {
+class LinkCommand extends Command
 
-  def create_session(connection: Interceptor): ProtocolSession
 
-}
+
+
