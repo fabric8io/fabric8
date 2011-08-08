@@ -40,15 +40,26 @@
     <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0</version>
       <classifier>osx</classifier>
     </dependency>
-
+    <dependency>
+      <groupId>org.fusesource.leveldbjni</groupId>
+      <artifactId>leveldbjni</artifactId>
+      <version>1.0</version>
+      <classifier>linux32</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.leveldbjni</groupId>
+      <artifactId>leveldbjni</artifactId>
+      <version>1.0</version>
+      <classifier>linux64</classifier>
+    </dependency>
 
     <!-- Since we implement a jade template to display the LevelDB status -->
     <dependency>
