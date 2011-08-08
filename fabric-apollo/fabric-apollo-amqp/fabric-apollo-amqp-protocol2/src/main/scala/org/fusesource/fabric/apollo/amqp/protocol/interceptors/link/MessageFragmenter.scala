@@ -35,22 +35,26 @@ class MessageFragmenter extends PerformativeInterceptor[Transfer] {
     }
   }
 
-  private def fragment(low:Long, high:Long, t:Transfer, payload:Buffer, tasks:Queue[() => Unit]):Unit = {
+  private def fragment(low:Long, high:Long, transfer:Transfer, payload:Buffer, tasks:Queue[() => Unit]):Unit = {
     implicit def long2int(i:Long) = i.asInstanceOf[Int]
     if (high < payload.length) {
       val b = payload.slice(low, high)
-      send(new AMQPTransportFrame(copy_transfer(t), b), Tasks())
-      fragment(high, high + max_message_size, t, payload, tasks)
+      val t = copy_transfer(transfer)
+      if (low == 0L) {
+        t.setDeliveryID(transfer.getDeliveryID)
+        t.setDeliveryTag(transfer.getDeliveryTag)
+      }
+      t.setMore(true)
+      send(new AMQPTransportFrame(t, b), Tasks())
+      fragment(high, high + max_message_size, transfer, payload, tasks)
     } else {
       val b = payload.slice(low, payload.length)
-      send(new AMQPTransportFrame(copy_transfer(t), b), tasks)
+      send(new AMQPTransportFrame(copy_transfer(transfer), b), tasks)
     }
   }
 
   private def copy_transfer(t:Transfer):Transfer = {
     val rc = new Transfer
-    rc.setDeliveryID(t.getDeliveryID)
-    rc.setDeliveryTag(t.getDeliveryTag)
     rc.setMessageFormat(t.getMessageFormat)
     rc.setSettled(t.getSettled)
     rc.setRcvSettleMode(t.getRcvSettleMode)
