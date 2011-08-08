@@ -10,14 +10,23 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.interceptors.link
 
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
+import org.fusesource.fabric.apollo.amqp.codec.types.Flow
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{PerformativeInterceptor, Interceptor}
 
 /**
  *
  */
 
-class LinkFlowControlInterceptor extends Interceptor {
+class LinkFlowControlInterceptor extends PerformativeInterceptor[Flow] {
+
+  var link_credit = Option(0L)
+  var delivery_count = 0L
+  var available = 0L
+
+
+
+
 
 }

@@ -33,21 +33,9 @@ object AMQPConnection {
 
   val DEFAULT_HEARTBEAT = 10 * 1000L
 
-  var factory: ConnectionFactory = null
+  def createConnection: Connection = new AMQPConnection().asInstanceOf[Connection]
 
-  def createConnection: Connection = {
-    if ( factory == null ) {
-      factory = new DefaultConnectionFactory
-    }
-    factory.createConnection
-  }
-
-  def createServerConnection(handler: ConnectionHandler): ServerConnection = {
-    if ( factory == null ) {
-      factory = new DefaultConnectionFactory
-    }
-    factory.createServerConnection(handler)
-  }
+  def createServerConnection(handler: ConnectionHandler) = new AMQPServerConnection(handler).asInstanceOf[ServerConnection]
 
 }
 

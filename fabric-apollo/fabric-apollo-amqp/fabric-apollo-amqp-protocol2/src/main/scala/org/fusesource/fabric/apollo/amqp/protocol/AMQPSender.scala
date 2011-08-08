@@ -22,6 +22,13 @@ import utilities.execute
 /**
  *
  */
+object AMQPSender {
+  def create(name:String) = {
+    val rc = new AMQPSender
+    rc.setName(name)
+    rc
+  }
+}
 
 class AMQPSender extends Interceptor with Sender with AMQPLink {
   def full() = false
