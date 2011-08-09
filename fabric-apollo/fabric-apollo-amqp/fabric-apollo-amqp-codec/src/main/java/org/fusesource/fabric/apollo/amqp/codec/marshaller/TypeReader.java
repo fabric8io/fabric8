@@ -41,25 +41,28 @@ public class TypeReader {
         return primitive;
     }
 
-    private static boolean checkEOS(byte formatCode) {
+    public static boolean checkEOS(byte formatCode) {
         return formatCode == -1;
     }
 
-    public static AMQPType readDescribedType(AMQPType descriptor, DataInput in) throws Exception {
-        AMQPType rc = null;
-
+    public static Class getDescribedTypeClass(AMQPType descriptor) {
+        Class rc = null;
         if ( descriptor instanceof AMQPULong ) {
-            rc = (AMQPType) TypeRegistry.instance().getFormatCodeMap().get(((AMQPULong) descriptor).getValue()).newInstance();
+            rc = TypeRegistry.instance().getFormatCodeMap().get(((AMQPULong) descriptor).getValue());
         } else if ( descriptor instanceof AMQPSymbol ) {
-            rc = (AMQPType) TypeRegistry.instance().getSymbolicCodeMap().get(((AMQPSymbol) descriptor).getValue()).newInstance();
+            rc = TypeRegistry.instance().getSymbolicCodeMap().get(((AMQPSymbol) descriptor).getValue());
         } else {
             throw new IllegalArgumentException("Unknown AMQP descriptor type");
         }
+        return rc;
+    }
+
+    public static AMQPType readDescribedType(AMQPType descriptor, DataInput in) throws Exception {
+        AMQPType rc = (AMQPType)getDescribedTypeClass(descriptor).newInstance();
         if ( rc != null ) {
             rc.read((byte) 0x0, in);
         }
         return rc;
-
     }
 
     public static AMQPType read(DataInput in) throws Exception {

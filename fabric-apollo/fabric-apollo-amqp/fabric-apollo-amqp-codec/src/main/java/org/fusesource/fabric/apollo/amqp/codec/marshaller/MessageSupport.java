@@ -21,6 +21,8 @@ import java.io.DataOutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.fusesource.fabric.apollo.amqp.codec.marshaller.TypeReader.*;
+
 /**
  *
  */
@@ -341,28 +343,46 @@ public class MessageSupport {
         return rc;
     }
 
-    // TODO - need to have symbolic constructors in here as well...
-    /*
-    private static final Buffer[] ANNOTATED_MESSAGE_PARTS = new Buffer[] {
-            Header.CONSTRUCTOR.getBuffer(),
-            DeliveryAnnotations.CONSTRUCTOR.getBuffer(),
-            MessageAnnotations.CONSTRUCTOR.getBuffer(),
-            Properties.CONSTRUCTOR.getBuffer(),
-            ApplicationProperties.CONSTRUCTOR.getBuffer(),
-            Data.CONSTRUCTOR.getBuffer(),
-            AMQPValue.CONSTRUCTOR.getBuffer(),
-            AMQPSequence.CONSTRUCTOR.getBuffer(),
-            Footer.CONSTRUCTOR.getBuffer()
-    };
+    class SectionBoundary {
+        String sectionName;
+        long index;
+        long size;
+    }
 
-    private static final Buffer[] BARE_MESSAGE_PARTS = new Buffer[] {
-            Properties.CONSTRUCTOR.getBuffer(),
-            ApplicationProperties.CONSTRUCTOR.getBuffer(),
-            Data.CONSTRUCTOR.getBuffer(),
-            AMQPValue.CONSTRUCTOR.getBuffer(),
-            AMQPSequence.CONSTRUCTOR.getBuffer()
-    };
-    */
+    // TODO -- complete this...
+    public static List<SectionBoundary> getSectionBoundaries(Buffer buffer) throws Exception {
+        DataByteArrayInputStream in = new DataByteArrayInputStream(buffer);
+        ArrayList<SectionBoundary> rc = new ArrayList<SectionBoundary>();
+        while (in.available() != -1) {
+            long index = in.getPos();
+            byte formatCode = readFormatCode(in);
+            if (checkEOS(formatCode)) {
+                break;
+            }
+            if (formatCode != TypeRegistry.DESCRIBED_FORMAT_CODE) {
+                throw new IllegalArgumentException("Invalid format code in message : " + formatCode);
+            }
+            AMQPType descriptor = readDescriptor(in);
+            Class typeClass = getDescribedTypeClass(descriptor);
+
+            if (typeClass == Data.class) {
+
+            } else if (typeClass == AMQPValue.class) {
+
+            } else if (typeClass == AMQPSequence.class) {
+
+            } else {
+
+            }
+
+
+
+
+
+        }
+
+        return rc;
+    }
 
     public static AnnotatedMessage decodeAnnotatedMessage(Buffer buffer) throws Exception {
         return readAnnotatedMessage(new DataByteArrayInputStream(buffer));
