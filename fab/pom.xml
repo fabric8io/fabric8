@@ -26,29 +26,7 @@
   <modules>
     <module>fabric-fab-core</module>
     <module>fabric-fab-osgi</module>
+    <module>tests</module>
   </modules>
 
-  <profiles>
-    <profile>
-      <id>itests</id>
-      <!--
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      -->
-      <modules>
-        <module>tests</module>
-      </modules>
-    </profile>
-
-    <!-- allow Fabric bundles to be built quicky without all the integration tests -->
-    <profile>
-      <id>notest</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <modules>
-      </modules>
-    </profile>
-  </profiles>
 </project>
