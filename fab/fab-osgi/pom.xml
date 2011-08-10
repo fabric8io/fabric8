@@ -73,6 +73,12 @@
     <dependency>
         <groupId>org.apache.karaf.shell</groupId>
         <artifactId>org.apache.karaf.shell.console</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.karaf.shell</groupId>
+        <artifactId>org.apache.karaf.shell.dev</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -88,6 +94,11 @@
       <groupId>org.ops4j.pax.url</groupId>
       <artifactId>pax-url-commons</artifactId>
       <version>${pax.url.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.ops4j.pax.url</groupId>
+      <artifactId>pax-url-mvn</artifactId>
+      <version>${pax.url.mvn.version}</version>
     </dependency>
 
     <!-- Embeded dependencies (not transitive) -->

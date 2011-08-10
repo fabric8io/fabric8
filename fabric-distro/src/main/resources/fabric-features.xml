@@ -16,7 +16,7 @@
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.8-fuse-00-10</bundle>
 
-        <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/1.2.6</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.mvn.version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/1.2.6</bundle>
 
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/1.6.2</bundle>
@@ -73,6 +73,7 @@
 
     <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric.fab/fab-osgi/${project.version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/${karaf-version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
