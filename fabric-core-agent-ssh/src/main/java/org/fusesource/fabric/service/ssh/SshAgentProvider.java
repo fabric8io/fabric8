@@ -131,10 +131,10 @@ public class SshAgentProvider implements AgentProvider {
         extractTargzIntoDirectory(sb, proxy, "org.apache.karaf", "apache-karaf", "2.2.1");
         sb.append("run cd ").append("apache-karaf-2.2.1").append("\n");
         List<String> lines = new ArrayList<String>();
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-linkedin-zookeeper", "1.0-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-zookeeper", "1.0-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-configadmin", "1.0-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.0-SNAPSHOT", "jar") + "=60");
+        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-linkedin-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
+        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
+        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-configadmin", "1.1-SNAPSHOT", "jar") + "=60");
+        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
         appendFile(sb, "etc/startup.properties", lines);
         appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
         sb.append("run bin/start").append("\n");
