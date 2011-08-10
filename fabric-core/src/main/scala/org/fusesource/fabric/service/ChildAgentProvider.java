@@ -8,11 +8,11 @@
  */
 package org.fusesource.fabric.service;
 
-import java.net.URI;
-
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
+
+import java.net.URI;
 
 public class ChildAgentProvider implements AgentProvider {
 
@@ -29,7 +29,7 @@ public class ChildAgentProvider implements AgentProvider {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
                 adminService.startInstance(name, null);
                 return null;
