@@ -17,11 +17,11 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fabric-fab-core</artifactId>
+  <artifactId>fab-core</artifactId>
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Archive Bundles Core</description>
+  <description>FuseSource Fabric :: Fabric Bundles Core</description>
 
   <properties>
     <aetherVersion>1.7</aetherVersion>

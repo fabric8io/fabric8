@@ -42,7 +42,7 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
         commandSession.execute("osgi:list");
         assertStartBundle("org.apache.karaf.shell.log");
 
-        assertStartBundle("org.fusesource.fabric.fab.fabric-fab-osgi");
+        assertStartBundle("org.fusesource.fabric.fab.fab-osgi");
         Thread.sleep(1000);
 
         doInstallFabricBundles();
