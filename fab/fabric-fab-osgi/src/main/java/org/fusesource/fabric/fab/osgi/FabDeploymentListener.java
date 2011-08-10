@@ -30,7 +30,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 /**
- * A deployment listener that listens for spring xml applications
+ * A deployment listener that listens for fabric bundles
  * and creates bundles for these.
  */
 public class FabDeploymentListener implements ArtifactUrlTransformer {
@@ -42,9 +42,11 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
 
     public boolean canHandle(File artifact) {
         try {
-            // only handle .jar files
             String path = artifact.getPath();
-            if (!path.endsWith(".jar") && !path.endsWith(".fab")) {
+            if (path.endsWith(".fab")) {
+                return true;
+            }
+            if (!path.endsWith(".jar")) {
                 return false;
             }
             JarFile jar = new JarFile(artifact);
@@ -68,6 +70,7 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
                         logger.info("Interpreting the non-bundle jar as a FAB: " + artifact);
                     }
                 }
+                //System.out.println("Fab deploy of a jar answer: " + answer + " bundle: " + bundle + " isDeployNonBundles: " + isDeployNonBundles() + " manifest: " + manifest);
                 // TODO filter out if we can find the pom.xml / properties files
                 // so that we can get PomDetails.isValid()?
                 return answer;
