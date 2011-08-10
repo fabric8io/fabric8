@@ -17,11 +17,11 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fabric-fab-osgi</artifactId>
+  <artifactId>fab-osgi</artifactId>
   <packaging>bundle</packaging>
 
   <name>${artifactId}</name>
-  <description>FuseSource Fabric :: Archive Bundles Core</description>
+  <description>FuseSource Fabric :: Fabric Bundles for OSGi</description>
 
   <properties>
     <fabric.osgi.activator>org.fusesource.fabric.fab.osgi.url.internal.Activator</fabric.osgi.activator>
@@ -81,7 +81,7 @@
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric.fab</groupId>
-      <artifactId>fabric-fab-core</artifactId>
+      <artifactId>fab-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

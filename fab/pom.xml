@@ -24,8 +24,8 @@
   <description>FuseSource Fabric :: Archive Bundles</description>
 
   <modules>
-    <module>fabric-fab-core</module>
-    <module>fabric-fab-osgi</module>
+    <module>fab-core</module>
+    <module>fab-osgi</module>
     <module>tests</module>
   </modules>
 
