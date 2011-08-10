@@ -21,6 +21,9 @@ import java.util.Arrays
 import collection.mutable.{HashMap, HashSet}
 import collection.immutable.TreeMap
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.TimeUnit
+import org.fusesource.hawtdispatch.BaseRetained
+import java.nio.ByteBuffer
 
 object RecordLog {
 
@@ -78,14 +81,10 @@ case class RecordLog(directory: File, log_suffix:String) {
     }
   }
 
-  def sync = {
-    current_appender.flush
-    current_appender.sync
-  }
-
   class LogAppender(val file:File, val start:Long) {
 
     val fos = new FileOutputStream(file)
+    def channel = fos.getChannel
     def os:OutputStream = fos
 
     val outbound = new DataByteArrayOutputStream()
@@ -94,8 +93,15 @@ case class RecordLog(directory: File, log_suffix:String) {
     val length = new AtomicLong(0)
     var limit = start
 
+    // set the file size ahead of time so that we don't have to sync the file
+    // meta-data on every log sync.
+    channel.position(log_size)
+    channel.write(ByteBuffer.wrap(Array(0.toByte)))
+    channel.force(true)
+
     def sync = {
-      fos.getChannel.force(true)
+      // only need to update the file metadata if the file size changes..
+      channel.force(length.get() > log_size)
     }
 
     def flush {
@@ -155,6 +161,7 @@ case class RecordLog(directory: File, log_suffix:String) {
 
     def close = {
       flush
+      channel.truncate(length.get())
       os.close()
     }
   }
