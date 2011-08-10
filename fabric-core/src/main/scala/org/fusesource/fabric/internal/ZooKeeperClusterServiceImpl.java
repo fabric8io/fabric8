@@ -117,7 +117,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_AGENT.getPath(karafName), version);
             ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, karafName), "default zk-server-0000-1");
 
-            Bundle bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.0-SNAPSHOT");
+            Bundle bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.1-SNAPSHOT");
             if (bundle.getState() == Bundle.ACTIVE) {
                 bundle.stop();
             }
