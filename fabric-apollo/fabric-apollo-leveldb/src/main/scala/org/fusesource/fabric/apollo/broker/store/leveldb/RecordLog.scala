@@ -98,6 +98,7 @@ case class RecordLog(directory: File, log_suffix:String) {
     channel.position(log_size)
     channel.write(ByteBuffer.wrap(Array(0.toByte)))
     channel.force(true)
+    channel.position(0)
 
     def sync = {
       // only need to update the file metadata if the file size changes..
