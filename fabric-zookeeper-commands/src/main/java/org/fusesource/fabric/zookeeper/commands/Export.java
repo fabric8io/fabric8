@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 @Command(name = "export", scope = "zk", description = "Export data from zookeeper")
 public class Export extends ZooKeeperCommandSupport {
 
-    @Argument(description="URL of the file to export to")
+    @Argument(description="path of the directory to export to")
     String target = "." + File.separator + "export";
 
     @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to export", multiValued=true)
