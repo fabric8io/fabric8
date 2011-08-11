@@ -335,14 +335,16 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                             if (map != null) {
                                 String version = map.get("version");
                                 if (version != null) {
-                                    return version;
+                                    return toVersionRange(version);
                                 }
                             }
                         }
                     }
                     String version = dependency.getVersion();
                     if (version != null) {
-                        return toOSGiVersionRange(version);
+                        // lets convert to OSGi
+                        String osgiVersion = VersionCleaner.clean(version);
+                        return toVersionRange(osgiVersion);
                     }
                 }
             } catch (IOException e) {
@@ -352,8 +354,23 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         return null;
     }
 
-    protected String toOSGiVersionRange(String version) {
-        // TODO generate a range instead!!!
-        return VersionCleaner.clean(version);
+    /**
+     * Lets convert the version to a version range depending on the default or FAB specific version range value
+     */
+    protected String toVersionRange(String version) {
+        int digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
+        String value = classPathResolver.getManfiestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
+        if (notEmpty(value)) {
+            try {
+                digits = Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                LOG.warn("Failed to parse manifest header " + ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS + " as a number. Got: '" + value + "' so ignoring it");
+            }
+            if (digits < 0 || digits > 4) {
+                LOG.warn("Invalid value of manifest header " + ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS + " as value " + digits + " is out of range so ignoring it");
+                digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
+            }
+        }
+        return Versions.toVersionRange(version, digits);
     }
 }
