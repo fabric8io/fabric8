@@ -178,7 +178,7 @@ public class FabricServiceImpl implements FabricService {
             public Agent doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
                 adminService.startInstance(name, null);
                 return new AgentImpl(parent, name, FabricServiceImpl.this);

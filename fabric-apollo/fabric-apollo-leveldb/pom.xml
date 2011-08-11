@@ -129,6 +129,31 @@
 
   <build>
     <plugins>
+      
+      <!-- include all the dependencies into the jar so it can run standalone -->
+      <plugin>
+        <groupId>org.fusesource.mvnplugins</groupId>
+        <artifactId>maven-uberize-plugin</artifactId>
+        <version>1.15</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>uberize</goal></goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.fusesource.leveldbjni:leveldbjni</include>
+                  <include>org.fusesource.leveldbjni:leveldbjni:osx</include>
+                  <include>org.fusesource.leveldbjni:leveldbjni:linux32</include>
+                  <include>org.fusesource.leveldbjni:leveldbjni:linux64</include>
+                  <include>org.fusesource.hawtjni:hawtjni-runtime</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
       <!-- Generate a test jar for the test cases in this package -->
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>

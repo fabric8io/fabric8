@@ -109,7 +109,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://scala-tools.org/repo-releases");
 
-            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/repository.fabric", "mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/repository.fabric", "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features");
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/feature.karaf", "karaf");
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/feature.fabric-agent", "fabric-agent");
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.agent/framework", "mvn:org.apache.felix/org.apache.felix.framework/3.0.9-fuse-00-10");

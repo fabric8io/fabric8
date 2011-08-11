@@ -145,7 +145,7 @@ class LevelDBClient(store: LevelDBStore) {
   def start() = {
     import OptionSupport._
 
-    sync = config.sync.getOrElse(false);
+    sync = config.sync.getOrElse(true);
     verify_checksums = config.verify_checksums.getOrElse(false);
 
     index_options = new Options();
@@ -428,7 +428,6 @@ class LevelDBClient(store: LevelDBStore) {
         appender.append(LOG_ADD_QUEUE, record)
         index.put(encode(queue_prefix, record.key), record)
       }
-      log.sync
     }
     callback.run
   }
@@ -446,53 +445,54 @@ class LevelDBClient(store: LevelDBStore) {
           true
         }
       }
-      log.sync
     }
     callback.run
   }
 
   def store(uows: Seq[LevelDBStore#DelayableUOW], callback:Runnable) {
-
     retry_using_index {
       log.appender { appender =>
+
+        var sync_needed = false
         index.write() { batch =>
           uows.foreach { uow =>
-              uow.actions.foreach {
-                case (msg, action) =>
-
-                  val message_record = action.message_record
-                  var pos = 0L
-                  if (message_record != null) {
-                    pos = appender.append(LOG_ADD_MESSAGE, message_record)
-                    if( message_record.locator !=null ) {
-                      message_record.locator.set(pos);
-                    }
-                    batch.put(encode(message_prefix, action.message_record.key), encode(pos))
-                  }
-
-                  action.dequeues.foreach { entry =>
-                    if( pos==0 && entry.message_locator!=0 ) {
-                      pos = entry.message_locator
-                    }
-                    val key = encode(queue_entry_prefix, entry.queue_key, entry.entry_seq)
-                    appender.append(LOG_REMOVE_QUEUE_ENTRY, key)
-                    batch.delete(key)
-                  }
-
-                  action.enqueues.foreach { entry =>
-                    entry.message_locator = pos
-                    val encoded:Array[Byte] = entry
-                    appender.append(LOG_ADD_QUEUE_ENTRY, encoded)
-                    batch.put(encode(queue_entry_prefix, entry.queue_key, entry.entry_seq), encoded)
-                  }
-
+            uow.actions.foreach { case (msg, action) =>
+              val message_record = action.message_record
+              var pos = 0L
+              if (message_record != null) {
+                pos = appender.append(LOG_ADD_MESSAGE, message_record)
+                if( message_record.locator !=null ) {
+                  message_record.locator.set(pos);
+                }
+                batch.put(encode(message_prefix, action.message_record.key), encode(pos))
               }
+
+              action.dequeues.foreach { entry =>
+                if( pos==0 && entry.message_locator!=0 ) {
+                  pos = entry.message_locator
+                }
+                val key = encode(queue_entry_prefix, entry.queue_key, entry.entry_seq)
+                appender.append(LOG_REMOVE_QUEUE_ENTRY, key)
+                batch.delete(key)
+              }
+
+              action.enqueues.foreach { entry =>
+                entry.message_locator = pos
+                val encoded:Array[Byte] = entry
+                appender.append(LOG_ADD_QUEUE_ENTRY, encoded)
+                batch.put(encode(queue_entry_prefix, entry.queue_key, entry.entry_seq), encoded)
+              }
+            }
+            if( !uow.complete_listeners.isEmpty ) {
+              sync_needed = true
+            }
           }
         }
+        if( sync_needed && sync ) {
+          appender.flush
+          appender.sync
+        }
       }
-    }
-    if( sync ) {
-      log.sync
     }
     callback.run
   }

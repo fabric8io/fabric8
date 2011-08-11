@@ -11,6 +11,7 @@ package org.fusesource.fabric.apollo.broker.store.leveldb
 
 import org.fusesource.hawtbuf._
 import org.fusesource.leveldbjni._
+import java.util.concurrent.TimeUnit
 
 object HelperTrait {
 
@@ -96,6 +97,7 @@ object HelperTrait {
     def write[T](wo:WriteOptions=new WriteOptions)(func: WriteBatch=>T):T = {
       val updates = new WriteBatch()
       try {
+
         val rc=Some(func(updates))
         db.write(wo, updates)
         return rc.get

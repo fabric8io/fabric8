@@ -21,6 +21,9 @@ import java.util.Arrays
 import collection.mutable.{HashMap, HashSet}
 import collection.immutable.TreeMap
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.TimeUnit
+import org.fusesource.hawtdispatch.BaseRetained
+import java.nio.ByteBuffer
 
 object RecordLog {
 
@@ -71,21 +74,21 @@ case class RecordLog(directory: File, log_suffix:String) {
       // We can't delete the current appender.
       if( current_appender.start != id ) {
         log_infos.get(id).foreach { info =>
-          info.file.delete
+          on_delete(info.file)
           log_infos = log_infos.filterNot(_._1 == id)
         }
       }
     }
   }
 
-  def sync = {
-    current_appender.flush
-    current_appender.sync
+  protected def on_delete(file:File) = {
+    file.delete()
   }
 
   class LogAppender(val file:File, val start:Long) {
 
     val fos = new FileOutputStream(file)
+    def channel = fos.getChannel
     def os:OutputStream = fos
 
     val outbound = new DataByteArrayOutputStream()
@@ -94,8 +97,16 @@ case class RecordLog(directory: File, log_suffix:String) {
     val length = new AtomicLong(0)
     var limit = start
 
+    // set the file size ahead of time so that we don't have to sync the file
+    // meta-data on every log sync.
+    channel.position(log_size)
+    channel.write(ByteBuffer.wrap(Array(0.toByte)))
+    channel.force(true)
+    channel.position(0)
+
     def sync = {
-      fos.getChannel.force(true)
+      // only need to update the file metadata if the file size changes..
+      channel.force(length.get() > log_size)
     }
 
     def flush {
@@ -155,6 +166,7 @@ case class RecordLog(directory: File, log_suffix:String) {
 
     def close = {
       flush
+      channel.truncate(length.get())
       os.close()
     }
   }
@@ -275,8 +287,8 @@ case class RecordLog(directory: File, log_suffix:String) {
     try {
       func(current_appender)
     } finally {
+      current_appender.flush
       log_mutex.synchronized {
-        current_appender.flush
         if ( current_appender.length.get >= log_size ) {
           current_appender.close
           on_log_rotate()

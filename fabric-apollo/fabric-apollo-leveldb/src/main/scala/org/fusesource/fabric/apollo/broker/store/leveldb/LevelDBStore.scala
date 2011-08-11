@@ -22,6 +22,7 @@ import org.apache.activemq.apollo.util.OptionSupport._
 import scala.util.continuations._
 import java.io._
 import org.apache.activemq.apollo.web.resources.ViewHelper
+import collection.mutable.ListBuffer
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
