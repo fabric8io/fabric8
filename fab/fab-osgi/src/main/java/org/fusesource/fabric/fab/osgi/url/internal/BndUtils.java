@@ -63,7 +63,7 @@ public class BndUtils
     private static final Pattern INSTRUCTIONS_PATTERN =
         Pattern.compile( "([a-zA-Z_0-9-]+)=([-!\"'()*+,.0-9A-Z_a-z%;:=/]+)" );
 
-    private static final String ALLOWED_PACKAGE_CLAUSES = Strings.join(Arrays.asList(Constants.directives), ":,") + ":,version:";
+    private static final String ALLOWED_PACKAGE_CLAUSES = Strings.join(Arrays.asList(Constants.directives), ",") + ",version";
 
     /**
      * Utility class. Ment to be used using static methods
