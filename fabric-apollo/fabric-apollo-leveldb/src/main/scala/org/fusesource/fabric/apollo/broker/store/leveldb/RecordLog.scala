@@ -74,11 +74,15 @@ case class RecordLog(directory: File, log_suffix:String) {
       // We can't delete the current appender.
       if( current_appender.start != id ) {
         log_infos.get(id).foreach { info =>
-          info.file.delete
+          on_delete(info.file)
           log_infos = log_infos.filterNot(_._1 == id)
         }
       }
     }
+  }
+
+  protected def on_delete(file:File) = {
+    file.delete()
   }
 
   class LogAppender(val file:File, val start:Long) {
@@ -283,8 +287,8 @@ case class RecordLog(directory: File, log_suffix:String) {
     try {
       func(current_appender)
     } finally {
+      current_appender.flush
       log_mutex.synchronized {
-        current_appender.flush
         if ( current_appender.length.get >= log_size ) {
           current_appender.close
           on_log_rotate()
