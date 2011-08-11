@@ -57,7 +57,7 @@ object LevelDBClient extends Log {
   import FileSupport._
   def create_sequence_file(directory:File, id:Long, suffix:String) = directory / ("%016x%s".format(id, suffix))
 
-  def find_sequence_files(directory:File, suffix:String) = {
+  def find_sequence_files(directory:File, suffix:String):TreeMap[Long, File] = {
     TreeMap((directory.list_files.flatMap { f=>
       if( f.getName.endsWith(suffix) ) {
         try {
@@ -188,7 +188,7 @@ class LevelDBClient(store: LevelDBStore) {
     }
 
     // Find out what was the last snapshot.
-    val snapshots = find_sequence_files(directory, ".index")
+    val snapshots = find_sequence_files(directory, INDEX_SUFFIX)
     var last_snapshot_index = snapshots.lastOption
     last_index_snapshot_pos = last_snapshot_index.map(_._1).getOrElse(0)
 
