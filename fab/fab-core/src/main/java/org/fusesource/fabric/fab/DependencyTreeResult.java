@@ -18,6 +18,7 @@
 package org.fusesource.fabric.fab;
 
 import org.sonatype.aether.graph.DependencyNode;
+import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.net.MalformedURLException;
 import java.util.Collection;
@@ -28,19 +29,21 @@ import java.util.List;
  */
 public class DependencyTreeResult {
     private final DependencyNode rootNode;
+    private final MavenResolver resolver;
     private DependencyTree tree;
 
-    public DependencyTreeResult(DependencyNode rootNode) {
+    public DependencyTreeResult(DependencyNode rootNode, MavenResolver resolver) {
         this.rootNode = rootNode;
+        this.resolver = resolver;
     }
 
     public DependencyNode getRootNode() {
         return rootNode;
     }
 
-    public DependencyTree getTree() throws MalformedURLException {
+    public DependencyTree getTree() throws MalformedURLException, ArtifactResolutionException {
         if (tree == null) {
-            tree = DependencyTree.newInstance(getRootNode());
+            tree = DependencyTree.newInstance(getRootNode(), resolver);
         }
         return tree;
     }

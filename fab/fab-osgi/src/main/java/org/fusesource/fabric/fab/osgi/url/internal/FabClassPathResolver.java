@@ -270,7 +270,7 @@ public class FabClassPathResolver {
                     VersionedDependencyId id = extensionModule.getId();
 
                     // lets resolve the dependency
-                    DependencyTreeResult result = resolver.collectDependencies(id.getGroupId(), id.getArtifactId(), id.getVersion(), id.getExtension(), id.getClassifier());
+                    DependencyTreeResult result = resolver.collectDependencies(id, offline);
 
                     if (result != null) {
                         DependencyTree tree = result.getTree();

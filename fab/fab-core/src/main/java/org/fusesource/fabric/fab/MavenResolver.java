@@ -32,6 +32,7 @@ import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.ArtifactDescriptorException;
 import org.sonatype.aether.resolution.ArtifactDescriptorRequest;
 import org.sonatype.aether.resolution.ArtifactDescriptorResult;
+import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.util.artifact.ArtifactProperties;
@@ -137,6 +138,20 @@ public class MavenResolver {
         this.offline = offline;
     }
 
+    public File resolveFile(Artifact root) throws ArtifactResolutionException {
+        RepositorySystem repositorySystem = getRepositorySystem();
+
+        final MavenRepositorySystemSession session = createRepositorSystemSession(offline, repositorySystem);
+        List<RemoteRepository> repos = getRemoteRepositories();
+
+        ArtifactRequest request = new ArtifactRequest();
+        request.setArtifact(root);
+        request.setRepositories(repos);
+        request.setRequestContext("runtime");
+        ArtifactResult result = repositorySystem.resolveArtifact(session, request);
+        return result.getArtifact().getFile();
+    }
+
     public List<URL> resolve(File rootPom, boolean offline) throws RepositoryException {
         List<ArtifactResult> results = resolveResult(rootPom, offline);
         List<URL> urls = new ArrayList<URL>();
@@ -150,6 +165,7 @@ public class MavenResolver {
         }
         return urls;
     }
+
 
     public List<ArtifactResult> resolveResult(File rootPom, boolean offline) throws ArtifactDescriptorException, DependencyCollectionException, ArtifactResolutionException {
         MavenRepositorySystemSession session = new MavenRepositorySystemSession();
@@ -198,37 +214,11 @@ public class MavenResolver {
         return collectDependenciesFromPom(rootPom, offline, model);
     }
 
-    public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
-        Dependency dependency = new Dependency(new DefaultArtifact(groupId, artifactId, classifier, extension, version), "runtime");
-
-        CollectRequest collectRequest = new CollectRequest();
-        collectRequest.setRoot(dependency);
-        List<RemoteRepository> repos = getRemoteRepositories();
-        for (RemoteRepository repo : repos) {
-              collectRequest.addRepository(repo);
-        }
-
-        RepositorySystem repositorySystem = getRepositorySystem();
-        MavenRepositorySystemSession session = createRepositorSystemSession(offline, repositorySystem);
-
-        DependencyNode rootNode = repositorySystem.collectDependencies(session, collectRequest).getRoot();
-
-        repositorySystem.resolveDependencies(session, rootNode, null);
-
-        DependencyTreeResult result = new DependencyTreeResult(rootNode);
-
-        return result;
-    }
 
     protected DependencyTreeResult collectDependenciesFromPom(File rootPom, boolean offline, Model model) throws RepositoryException, MalformedURLException {
         Map<String, String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
 
-        RepositorySystem repositorySystem = getRepositorySystem();
-
         // lets load the model so we can get the version which is required for the transformer...
-        final MavenRepositorySystemSession session = createRepositorSystemSession(offline, repositorySystem);
-        List<RemoteRepository> repos = getRemoteRepositories();
-
         String groupId = model.getGroupId();
         String artifactId = model.getArtifactId();
         String pomVersion = model.getVersion();
@@ -238,8 +228,25 @@ public class MavenResolver {
         }
         Artifact root = new DefaultArtifact(groupId, artifactId, null, packaging, pomVersion, props, rootPom);
 
-        ArtifactDescriptorResult artifactDescriptorResult = repositorySystem.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
+        return collectDependencies(root, pomVersion, offline);
+    }
 
+    public DependencyTreeResult collectDependencies(VersionedDependencyId dependencyId, boolean offline) throws RepositoryException, IOException, XmlPullParserException {
+        return collectDependencies(dependencyId.getGroupId(), dependencyId.getArtifactId(), dependencyId.getVersion(), dependencyId.getExtension(), dependencyId.getClassifier(), offline);
+    }
+
+    public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier, boolean offline) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+        DefaultArtifact artifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
+        return collectDependencies(artifact, version, offline);
+    }
+
+    protected DependencyTreeResult collectDependencies(Artifact root, String pomVersion, boolean offline) throws RepositoryException, MalformedURLException {
+        RepositorySystem repositorySystem = getRepositorySystem();
+
+        final MavenRepositorySystemSession session = createRepositorSystemSession(offline, repositorySystem);
+        List<RemoteRepository> repos = getRemoteRepositories();
+
+        ArtifactDescriptorResult artifactDescriptorResult = repositorySystem.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
 
         Dependency rootDependency = new Dependency(root, null);
 
@@ -278,7 +285,7 @@ public class MavenResolver {
         DependencyGraphTransformer transformer = new ReplaceConflictingVersionResolver();
         pomNode = transformer.transformGraph(pomNode, tranformContext);
 
-        DependencyTreeResult result = new DependencyTreeResult(pomNode);
+        DependencyTreeResult result = new DependencyTreeResult(pomNode, this);
 
         // lets log a warning if we end up using multiple dependencies of the same artifact in the class loader tree
         List<DependencyTree.DuplicateDependency> duplicates = result.getTree().checkForDuplicateDependencies();
@@ -428,5 +435,4 @@ public class MavenResolver {
             }
         }
     }
-
 }

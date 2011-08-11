@@ -46,9 +46,15 @@ public class Main {
     public void run() throws Exception {
         MavenResolver manager = new MavenResolver();
 
+        DependencyTreeResult results;
         File file = new File(pomFile);
-        System.out.println("Parsing pom: " + file);
-        DependencyTreeResult results = manager.collectDependencies(file, false);
+        if (file.exists()) {
+            System.out.println("Parsing pom: " + file);
+            results = manager.collectDependencies(file, true);
+        } else {
+            VersionedDependencyId dependencyId = VersionedDependencyId.fromString(pomFile);
+            results = manager.collectDependencies(dependencyId, true);
+        }
         DependencyTree tree = results.getTree();
         System.out.println(tree.getDescription());
     }

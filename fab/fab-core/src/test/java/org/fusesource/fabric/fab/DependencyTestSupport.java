@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Filters;
 import org.junit.Assert;
+import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -157,7 +158,7 @@ public abstract class DependencyTestSupport {
         }
     }
 
-    protected DependencyTree assertFindDependencyTree(DependencyTreeResult result, String groupId, String artifactId) throws MalformedURLException {
+    protected DependencyTree assertFindDependencyTree(DependencyTreeResult result, String groupId, String artifactId) throws MalformedURLException, ArtifactResolutionException {
         DependencyTree tree = result.getTree();
         DependencyTree answer = tree.findDependency(groupId, artifactId);
         assertNotNull("Should have found a DpendencyTree for " + groupId + ":" + artifactId, answer);

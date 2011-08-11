@@ -12,6 +12,8 @@ import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -23,17 +25,32 @@ import static org.junit.Assert.assertTrue;
 
 public class MavenResolverTest extends DependencyTestSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(MavenResolverTest.class);
-    
+
+    protected boolean testJarFile = true;
+
+    protected String groupId = "log4j";
+    protected String artifactId = "log4j";
+    protected String version = "1.2.16";
+/*
     protected String groupId = "org.apache.camel";
     protected String artifactId = "camel-core";
     protected String version = "2.7.0";
+*/
     protected String extension = "jar";
     protected String classifier = "";
 
     @Test
+    public void testArchetypeResolve() throws Exception {
+        Artifact artifact = new DefaultArtifact(groupId, artifactId, "jar", version);
+        File file = mavenResolver.resolveFile(artifact);
+        assertNotNull("File null for " + artifact, file);
+        assertTrue("File should exist for " + artifact, file.exists());
+    }
+
+    @Test
     public void testResolveDependenciesByGroupAndArtifactId() throws Exception {
         LOG.info("Resolving " + groupId + "/" + artifactId + "/" + version);
-        DependencyTreeResult result = mavenResolver.collectDependencies(groupId, artifactId, version, extension, classifier);
+        DependencyTreeResult result = mavenResolver.collectDependencies(groupId, artifactId, version, extension, classifier, false);
         assertNotNull("result", result);
 
         DependencyTree tree = result.getTree();
@@ -42,9 +59,11 @@ public class MavenResolverTest extends DependencyTestSupport {
         List<DependencyTree> children = tree.getChildren();
         for (DependencyTree child : children) {
             LOG.info("Dependency: " + child + " optional: " + child.isOptional() + " scope: " + child.getScope());
-            File jarFile = child.getJarFile();
-            assertNotNull("jar file should not be null!", jarFile);
-            assertTrue("jar file for " + child + " should exist! " + jarFile, jarFile.exists());
+            if (testJarFile) {
+                File jarFile = child.getJarFile();
+                assertNotNull("jar file should not be null!", jarFile);
+                assertTrue("jar file for " + child + " should exist! " + jarFile, jarFile.exists());
+            }
         }
         
         assertTrue("Should have child dependencies!", children.size() > 0);

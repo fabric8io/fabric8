@@ -44,7 +44,7 @@ public class BundleFabFacade extends FabFacadeSupport {
 
     @Override
     public DependencyTreeResult collectDependencies(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
-        return getResolver().collectDependencies(dependencyId.getGroupId(), dependencyId.getArtifactId(), dependencyId.getVersion(), dependencyId.getExtension(), dependencyId.getClassifier());
+        return getResolver().collectDependencies(dependencyId, offline);
     }
 
     @Override

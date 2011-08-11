@@ -10,6 +10,7 @@ package org.fusesource.fabric.fab;
 
 import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
+import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.net.MalformedURLException;
 
@@ -50,7 +51,7 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
 //        DependencyTree camelSpring = assertExcludeFilter(node, "org.springframework", "spring-context", true, "");
 //    }
 
-    protected DependencyTree assertShareFilter(DependencyTreeResult result, String groupId, String artifactId, boolean expected, String... filterTexts) throws MalformedURLException {
+    protected DependencyTree assertShareFilter(DependencyTreeResult result, String groupId, String artifactId, boolean expected, String... filterTexts) throws MalformedURLException, ArtifactResolutionException {
         DependencyTree tree = assertFindDependencyTree(result, groupId, artifactId);
 
         for (String filterText : filterTexts) {
@@ -63,7 +64,7 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
     }
 
 
-    protected DependencyTree assertExcludeFilter(DependencyTreeResult result, String groupId, String artifactId, boolean expected, String filterText) throws MalformedURLException {
+    protected DependencyTree assertExcludeFilter(DependencyTreeResult result, String groupId, String artifactId, boolean expected, String filterText) throws MalformedURLException, ArtifactResolutionException {
         DependencyTree tree = assertFindDependencyTree(result, groupId, artifactId);
         Filter<DependencyTree> filter = DependencyTreeFilters.parseExcludeFilter(filterText);
         boolean actual = filter.matches(tree);
