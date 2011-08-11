@@ -41,19 +41,6 @@ public class Export extends ZooKeeperCommandSupport {
         return null;
     }
 
-    private boolean matches(List<Pattern> patterns, String value) {
-        if (patterns.isEmpty()) {
-            return true;
-        }
-        boolean rc = false;
-        for (Pattern pattern : patterns) {
-            if (pattern.matcher(value).matches()) {
-                rc = true;
-            }
-        }
-        return rc;
-    }
-
     private void delete(File parent) throws Exception {
         if (!parent.exists()) {
             return;
@@ -73,19 +60,14 @@ public class Export extends ZooKeeperCommandSupport {
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
-        List<Pattern> patterns = new ArrayList<Pattern>();
-        if (regex != null) {
-            for(String p : regex) {
-                patterns.add(Pattern.compile(p));
-            }
-        }
+        List<Pattern> patterns = RegexSupport.getPatterns(regex);
         List<String> paths = getZooKeeper().getAllChildren(path);
         SortedSet<File> directories = new TreeSet<File>();
         Map<File, String> settings = new HashMap<File, String>();
 
         for(String p : paths) {
             p = path + p;
-            if (!matches(patterns, p)) {
+            if (!RegexSupport.matches(patterns, p) ) {
                 continue;
             }
             byte[] data = getZooKeeper().getData(p);
