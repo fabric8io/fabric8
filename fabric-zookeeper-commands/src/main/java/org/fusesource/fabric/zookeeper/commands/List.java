@@ -24,13 +24,15 @@ public class List extends ZooKeeperCommandSupport {
     @Option(name="-d", aliases={"--display"}, description="Display a node's value if set")
     boolean display = false;
 
+    //TODO - Be good to also have an option to show other ZK attributes for a node similar to ls -la
+
     @Override
     protected Object doExecute() throws Exception {
         display(path);
         return null;
     }
 
-    protected java.util.List<String> getPaths() throws Exception {
+    private java.util.List<String> getPaths() throws Exception {
         if (recursive) {
             return getZooKeeper().getAllChildren(path);
         } else {
@@ -39,11 +41,17 @@ public class List extends ZooKeeperCommandSupport {
     }
 
     protected void display(String path) throws Exception {
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
         java.util.List<String> paths = getPaths();
 
         for(String p : paths) {
             if (display) {
-                byte[] data = getZooKeeper().getData(p);
+                byte[] data = getZooKeeper().getData(path + p);
                 if (data != null) {
                     System.out.printf("%s = %s\n", p, new String(data));
                 } else {
