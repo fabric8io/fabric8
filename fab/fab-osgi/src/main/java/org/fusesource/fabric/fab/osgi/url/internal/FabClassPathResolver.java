@@ -48,7 +48,7 @@ import static org.fusesource.fabric.fab.util.Strings.join;
 public class FabClassPathResolver {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabClassPathResolver.class);
 
-    private FabConnection connection;
+    private FabFacade connection;
     private Properties instructions;
     private Map<String, Object> embeddedResources;
     private HashMap<String, DependencyTree> dependenciesByPackage = new HashMap<String, DependencyTree>();
@@ -79,7 +79,9 @@ public class FabClassPathResolver {
     private MavenResolver resolver;
     private VersionedDependencyId moduleId;
 
-    public FabClassPathResolver(FabConnection connection, Properties instructions, Map<String, Object> embeddedResources) {
+    private Manifest manfiest;
+
+    public FabClassPathResolver(FabFacade connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
         this.instructions = instructions;
         this.embeddedResources = embeddedResources;
@@ -87,17 +89,13 @@ public class FabClassPathResolver {
         this.resolver = connection.getResolver();
     }
 
-    public List<DependencyTree> getInstallDependencies() {
-        return installDependencies;
-    }
 
     public void resolve() throws RepositoryException, IOException, XmlPullParserException, BundleException {
-        PomDetails pomDetails = connection.resolvePomDetails();
-        if (!pomDetails.isValid()) {
-            LOG.warn("Cannot resolve pom.xml for " + connection.getJarFile());
+        moduleId = connection.getVersionedDependencyId();
+        if (moduleId == null) {
             return;
         }
-        DependencyTreeResult result = resolver.collectDependencies(pomDetails, offline);
+        DependencyTreeResult result = connection.collectDependencies(offline);
         this.rootTree = result.getTree();
 
         sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
@@ -125,14 +123,12 @@ public class FabClassPathResolver {
         addDependencies(rootTree);
 
         // Build a ModuleDescriptor using the Jar Manifests headers..
-        Model model = pomDetails.getModel();
-        moduleId = new VersionedDependencyId(model);
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
-        if( module==null || module.getFile()!=null ) {
-            registerModule(model);
+        if (module == null || module.getFile() != null) {
+            registerModule();
         }
 
-        resolveExtensions(model, rootTree);
+        resolveExtensions(rootTree);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
             if (requireBundleFilter.matches(dependencyTree)) {
@@ -212,6 +208,18 @@ public class FabClassPathResolver {
 
     }
 
+    public List<DependencyTree> getInstallDependencies() {
+        return installDependencies;
+    }
+
+    public List<DependencyTree> getSharedDependencies() {
+        return sharedDependencies;
+    }
+
+    public List<DependencyTree> getNonSharedDependencies() {
+        return nonSharedDependencies;
+    }
+
     private List<DependencyTree> filterOutDuplicates(List<DependencyTree> list) {
         LinkedHashMap<DependencyId, DependencyTree> map = new LinkedHashMap<DependencyId, DependencyTree>();
         for (DependencyTree tree : list) {
@@ -222,7 +230,7 @@ public class FabClassPathResolver {
         return new ArrayList<DependencyTree>(map.values());
     }
 
-    private void registerModule(Model model) throws IOException, XmlPullParserException {
+    private void registerModule() throws IOException, XmlPullParserException {
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
@@ -236,10 +244,10 @@ public class FabClassPathResolver {
                 moduleProperties.setProperty(FAB_MODULE_ID, moduleId.toString());
             }
             if( !moduleProperties.containsKey(FAB_MODULE_NAME) ) {
-                moduleProperties.setProperty(FAB_MODULE_NAME, model.getArtifactId());
+                moduleProperties.setProperty(FAB_MODULE_NAME, moduleId.getArtifactId());
             }
             if( !moduleProperties.containsKey(FAB_MODULE_DESCRIPTION) ) {
-                moduleProperties.setProperty(FAB_MODULE_DESCRIPTION, emptyIfNull(model.getDescription()));
+                moduleProperties.setProperty(FAB_MODULE_DESCRIPTION, emptyIfNull(connection.getProjectDescription()));
             }
 
             ModuleDescriptor descriptor = ModuleDescriptor.fromProperties(moduleProperties);
@@ -251,7 +259,7 @@ public class FabClassPathResolver {
         }
     }
 
-    protected void resolveExtensions(Model model, DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
+    protected void resolveExtensions(DependencyTree root) throws IOException, RepositoryException, XmlPullParserException {
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
         if( module!=null ) {
             Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
@@ -310,12 +318,13 @@ public class FabClassPathResolver {
         return processImportPackages;
     }
 
-    private Manifest manfiest;
-
-    Manifest getManifest() {
+    protected Manifest getManifest() {
         if( manfiest == null ) {
             try {
-                manfiest = Manifests.getManfiest(connection.getJarFile());
+                File jarFile = connection.getJarFile();
+                if (jarFile != null && jarFile.exists()) {
+                    manfiest = Manifests.getManfiest(jarFile);
+                }
             } catch (IOException e) {
                 // TODO: warn
                 manfiest = new Manifest();
@@ -326,9 +335,10 @@ public class FabClassPathResolver {
 
     protected String getManfiestProperty(String name) {
         String answer = null;
-        if (true) {
+        Manifest manifest = getManifest();
+        if (manifest != null) {
             // TODO do some caching!!!
-            answer = getManifest().getMainAttributes().getValue(name);
+            answer = manifest.getMainAttributes().getValue(name);
         } else {
             answer = instructions.getProperty(name, "");
         }

@@ -35,7 +35,7 @@ public interface ServiceConstants extends Constants {
     /**
      * URI of the fab file to be processed
      */
-    static final String INSTR_FAB_URL = "FAB-URL";
+    static final String INSTR_FAB_URL = "Fabric-URL";
 
     /**
      * Simple marker property to show that this bundle should be intepreted as a Fabric Bundle.

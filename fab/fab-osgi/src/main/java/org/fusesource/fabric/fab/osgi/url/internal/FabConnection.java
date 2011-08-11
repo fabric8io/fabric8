@@ -10,12 +10,17 @@
 package org.fusesource.fabric.fab.osgi.url.internal;
 
 import aQute.lib.osgi.Analyzer;
+import org.apache.felix.utils.version.VersionCleaner;
+import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
+import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Objects;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
@@ -39,7 +44,7 @@ import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 /**
  * {@link URLConnection} for the "fab" protocol
  */
-public class FabConnection extends URLConnection {
+public class FabConnection extends URLConnection implements FabFacade, VersionResolver {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabConnection.class);
 
     private Configuration configuration;
@@ -50,6 +55,7 @@ public class FabConnection extends URLConnection {
     private boolean startInstalledDependentBundles = ServiceConstants.DEFAULT_START_INSTALLED_DEPENDENCIES;
     private boolean includeSharedResources = true;
     private FabClassPathResolver classPathResolver;
+    private Model model;
 
     public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
@@ -72,6 +78,32 @@ public class FabConnection extends URLConnection {
     public void connect() {
     }
 
+    @Override
+    public DependencyTreeResult collectDependencies(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
+        PomDetails details = resolvePomDetails();
+        Objects.notNull(details, "pomDetails");
+        return getResolver().collectDependencies(details, offline);
+    }
+
+    @Override
+    public VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException {
+        PomDetails pomDetails = resolvePomDetails();
+        if (pomDetails == null || !pomDetails.isValid()) {
+            LOG.warn("Cannot resolve pom.xml for " + getJarFile());
+            return null;
+        }
+        model = pomDetails.getModel();
+        return new VersionedDependencyId(model);
+    }
+
+    @Override
+    public String getProjectDescription() {
+        if (model != null) {
+            return model.getDescription();
+        }
+        return null;
+    }
+
     public BundleContext getBundleContext() {
         return bundleContext;
     }
@@ -88,6 +120,7 @@ public class FabConnection extends URLConnection {
         this.pomDetails = pomDetails;
     }
 
+    @Override
     public File getJarFile() throws IOException {
         return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
     }
@@ -119,7 +152,7 @@ public class FabConnection extends URLConnection {
         PomDetails pomDetails = getPomDetails();
         if (pomDetails == null) {
             File fileJar = getJarFile();
-            pomDetails = resolver.findPomFile(fileJar);
+            pomDetails = getResolver().findPomFile(fileJar);
         }
         return pomDetails;
     }
@@ -151,7 +184,8 @@ public class FabConnection extends URLConnection {
                     OverwriteMode.MERGE,
                     embeddedResources,
                     extraImportPackages,
-                    actualImports);
+                    actualImports,
+                    this);
 
             if (getConfiguration().isInstallMissingDependencies()) {
                 installMissingDependencies(actualImports);
@@ -258,7 +292,8 @@ public class FabConnection extends URLConnection {
         }
     }
 
-    protected Configuration getConfiguration() {
+    @Override
+    public Configuration getConfiguration() {
         return configuration;
     }
 
@@ -284,4 +319,41 @@ public class FabConnection extends URLConnection {
         classPathResolver.resolve();
     }
 
+    @Override
+    public String resolvePackage(String packageName) {
+        List<DependencyTree> dependencies = classPathResolver.getSharedDependencies();
+        for (DependencyTree dependency : dependencies) {
+            try {
+                Set<String> packages = dependency.getPackages();
+                if (packages.contains(packageName)) {
+                    // lets find the export packages and use the version from that
+                    if (dependency.isBundle()) {
+                        String exportPackages = dependency.getManfiestEntry("Export-Package");
+                        if (notEmpty(exportPackages)) {
+                            Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
+                            Map<String, String> map = values.get(packageName);
+                            if (map != null) {
+                                String version = map.get("version");
+                                if (version != null) {
+                                    return version;
+                                }
+                            }
+                        }
+                    }
+                    String version = dependency.getVersion();
+                    if (version != null) {
+                        return toOSGiVersionRange(version);
+                    }
+                }
+            } catch (IOException e) {
+                LOG.warn("Failed to get the packages on dependency: " + dependency + ". " + e, e);
+            }
+        }
+        return null;
+    }
+
+    protected String toOSGiVersionRange(String version) {
+        // TODO generate a range instead!!!
+        return VersionCleaner.clean(version);
+    }
 }

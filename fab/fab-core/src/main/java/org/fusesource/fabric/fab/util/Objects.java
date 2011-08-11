@@ -85,4 +85,17 @@ public class Objects {
         }
         return answer;
     }
+
+    /**
+     * Asserts whether the value is <b>not</b> <tt>null</tt>
+     *
+     * @param value  the value to test
+     * @param name   the key that resolved the value
+     * @throws IllegalArgumentException is thrown if assertion fails
+     */
+    public static void notNull(Object value, String name) {
+        if (value == null) {
+            throw new IllegalArgumentException(name + " must be specified");
+        }
+    }
 }

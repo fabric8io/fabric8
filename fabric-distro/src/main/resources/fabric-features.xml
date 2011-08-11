@@ -73,7 +73,9 @@
 
     <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric.fab/fab-osgi/${project.version}</bundle>
+<!--
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/${karaf-version}</bundle>
+-->
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
