@@ -148,6 +148,14 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         return pomDetails;
     }
 
+    /**
+     * Forces the dependencies to be resolved and returns the resolver
+     */
+    public FabClassPathResolver resolve() throws BundleException, RepositoryException, IOException, XmlPullParserException {
+        Map<String, Object> embeddedResources = new HashMap<String, Object>();
+        Properties instructions = createInstructions(embeddedResources);
+        return classPathResolver;
+    }
 
     /**
      * Returns the input stream denoted by the url

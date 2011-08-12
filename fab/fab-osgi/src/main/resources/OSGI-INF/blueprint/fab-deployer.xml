@@ -66,6 +66,9 @@ set on the SymbolicName osgi header -->
   <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener"/>
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+    <command name="fab/dependencies">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.ArtifactTreeCommand"/>
+    </command>
     <command name="fab/tree">
         <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.TreeCommand"/>
     </command>

@@ -49,7 +49,7 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
      * @throws java.io.IOException if an error occurs or if the URL is malformed.
      */
     @Override
-	public URLConnection openConnection(URL url) throws IOException {
+	public FabConnection openConnection(URL url) throws IOException {
 		if (url.getPath() == null || url.getPath().trim().length() == 0) {
 			throw new MalformedURLException("Path can not be null or empty. Syntax: " + SYNTAX );
 		}
