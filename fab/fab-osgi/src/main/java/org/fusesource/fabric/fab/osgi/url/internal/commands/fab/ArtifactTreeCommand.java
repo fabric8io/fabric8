@@ -17,22 +17,30 @@ import org.fusesource.fabric.fab.osgi.url.internal.FabConnection;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
+import java.io.File;
 import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * Shows the dependency tree of a maven artifact before it is deployed
  */
 @Command(name = "dependencies", scope = "fab", description = "Display the dependency tree of a Maven artifact which is not yet deployed")
-public class ArtifactTreeCommand extends OsgiCommandSupport  {
-    @Argument(index = 0, name = "url", description = "The URL of the FAB jar", required = true)
+public class ArtifactTreeCommand extends OsgiCommandSupport {
+    @Argument(index = 0, name = "jar", description = "The URL or file name of the FAB jar", required = true)
     private String url;
 
     @Override
     protected Object doExecute() throws Exception {
         FabURLHandler handler = findURLHandler();
         if (handler != null) {
-            FabConnection urlConnection = handler.openConnection(new URL("fab:" + url));
+            File file = new File(url);
+            String u = url;
+            if (file.exists()) {
+                u = file.toURI().toURL().toString();
+            }
+            if (!url.startsWith("fab:")) {
+                u = "fab:" + u;
+            }
+            FabConnection urlConnection = handler.openConnection(new URL(u));
             FabClassPathResolver resolver = urlConnection.resolve();
             TreeHelper.write(session.getConsole(), resolver);
         } else {
