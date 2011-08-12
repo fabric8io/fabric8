@@ -8,45 +8,111 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Command(name = "export", scope = "zk", description = "Export data from zookeeper")
 public class Export extends ZooKeeperCommandSupport {
 
+    @Argument(description="path of the directory to export to")
+    String target = "." + File.separator + "export";
+
+    @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to export", multiValued=true)
+    String regex[];
+
+    @Option(name="-p", aliases={"--path"}, description="Top level context to export")
+    String topLevel = "/";
+
+    @Option(name="-d", aliases={"--delete"}, description="Clear target directory before exporting (CAUTION! Performs recursive delete!)")
+    boolean delete;
+
     @Override
     protected Object doExecute() throws Exception {
-        display("/");
+        export(topLevel);
+        System.out.printf("Export to %s completed successfully\n", target);
         return null;
     }
 
-    protected void display(String path) throws Exception {
-        List<String> paths = new ArrayList<String>();
-        for (String child : getZooKeeper().getChildren(path)) {
-            String cp = path.endsWith("/") ? path + child : path + "/" + child;
-            if (getZooKeeper().exists(cp).getEphemeralOwner() == 0) {
-                paths.add(cp);
+    private void delete(File parent) throws Exception {
+        if (!parent.exists()) {
+            return;
+        }
+        if (parent.isDirectory()) {
+            for (File f : parent.listFiles()) {
+                delete(f);
             }
         }
-        String data = getZooKeeper().getStringData(path);
-        if (data != null && !data.isEmpty()) {
-            // truncate long data
-            String sep = System.getProperty("line.separator");
-            String[] lines = data.split(sep);
-            if (lines.length > 10) {
+        parent.delete();
+    }
 
-                data = lines[0] + sep + lines[1] + sep + lines[2] + sep
-                        + " ... (truncated) ..." + sep
-                        + lines[lines.length - 3] + sep + lines[lines.length - 2] + sep + lines[lines.length - 1];
+    protected void export(String path) throws Exception {
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        List<Pattern> patterns = RegexSupport.getPatterns(regex);
+        List<String> paths = getZooKeeper().getAllChildren(path);
+        SortedSet<File> directories = new TreeSet<File>();
+        Map<File, String> settings = new HashMap<File, String>();
+
+        for(String p : paths) {
+            p = path + p;
+            if (!RegexSupport.matches(patterns, p) ) {
+                continue;
+            }
+            byte[] data = getZooKeeper().getData(p);
+            if (data != null) {
+                settings.put(new File(target + File.separator + p + ".cfg"), new String(data));
+            } else {
+                directories.add(new File(target + File.separator + p));
             }
         }
-        if (data != null && !data.isEmpty() || paths.isEmpty()) {
-            System.out.println(data != null && !data.isEmpty() ? path + " = " + data : path);
+
+        if (delete) {
+            delete(new File(target));
         }
-        for (String child : paths) {
-            display(child);
+
+        for (File d : directories) {
+            if (d.exists() && !d.isDirectory()) {
+                throw new IllegalArgumentException("Directory " + d + " exists but is not a directory");
+            }
+            if (!d.exists()) {
+                if (!d.mkdirs()) {
+                    throw new RuntimeException("Failed to create directory " + d);
+                }
+            }
+        }
+        for (File f : settings.keySet()) {
+            if (f.exists() && !f.isFile()) {
+                throw new IllegalArgumentException("File " + f + " exists but is not a file");
+            }
+            if (!f.getParentFile().exists()) {
+                if (!f.getParentFile().mkdirs()) {
+                    throw new RuntimeException("Failed to create directory " + f.getParentFile());
+                }
+            }
+            if (!f.exists()) {
+                try {
+                    if (!f.createNewFile()) {
+                        throw new RuntimeException("Failed to create file " + f);
+                    }
+                } catch (IOException io) {
+                    throw new RuntimeException("Failed to create file " + f + " : " + io);
+                }
+            }
+            FileWriter writer = new FileWriter(f, false);
+            writer.write(settings.get(f));
+            writer.close();
         }
     }
 }
