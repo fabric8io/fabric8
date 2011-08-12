@@ -48,7 +48,7 @@ public abstract class FabCommandSupport extends AbstractBundleCommand {
         doExecute(bundle, resolver);
     }
 
-    protected abstract void doExecute(Bundle bundle, FabClassPathResolver resolver);
+    protected abstract void doExecute(Bundle bundle, FabClassPathResolver resolver) throws Exception;
 
     protected void stopBundle(Bundle bundle) {
         if (bundle.getState() == Bundle.ACTIVE) {

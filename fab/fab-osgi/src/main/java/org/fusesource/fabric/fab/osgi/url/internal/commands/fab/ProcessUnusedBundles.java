@@ -16,6 +16,7 @@ import org.osgi.service.packageadmin.ExportedPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,19 +29,12 @@ public abstract class ProcessUnusedBundles extends FabCommandSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(UninstallCommand.class);
 
     @Override
-    protected void doExecute(Bundle bundle, FabClassPathResolver resolver) {
+    protected void doExecute(Bundle bundle, FabClassPathResolver resolver) throws Exception {
         // lets process the bundles from the deepest dependencies first
         List<DependencyTree> sharedDependencies = resolver.getSharedDependencies();
         List<Bundle> bundles = new ArrayList<Bundle>();
         for (DependencyTree dependency : sharedDependencies) {
-            String name = dependency.getBundleSymbolicName();
-            String version = dependency.getVersion();
-            Bundle b = Bundles.findBundle(bundleContext, name, version);
-            if (b != null) {
-                bundles.add(b);
-            } else {
-                System.out.println("Warning could not find bundle: " + name + " version: " + version);
-            }
+            addBundlesForDependency(dependency, bundles);
         }
         bundles.add(bundle);
 
@@ -49,6 +43,37 @@ public abstract class ProcessUnusedBundles extends FabCommandSupport {
             if (!bundleUsedByOtherBundles(b, bundleSet)) {
                 processBundle(b);
             }
+        }
+    }
+
+    protected void addBundlesForDependency(DependencyTree dependency, List<Bundle> bundles) throws IOException {
+        String name = dependency.getBundleSymbolicName();
+        String version = dependency.getVersion();
+        Bundle bundle = Bundles.findBundle(bundleContext, name, version);
+        if (bundle != null) {
+            bundles.add(bundle);
+        } else {
+            /*
+            boolean found = false;
+            Set<String> packages = dependency.getPackages();
+            for (String packageName : packages) {
+                ExportedPackage[] exportedPackages = getPackageAdmin().getExportedPackages(packageName);
+                if (exportedPackages != null) {
+                    for (ExportedPackage exportedPackage : exportedPackages) {
+                        bundle = exportedPackage.getExportingBundle();
+                        if (bundle != null) {
+                            found = true;
+                            if (!bundles.contains(bundle)) {
+                                bundles.add(bundle);
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                System.out.println("Warning could not find bundle: " + name + " version: " + version);
+            }
+            */
         }
     }
 

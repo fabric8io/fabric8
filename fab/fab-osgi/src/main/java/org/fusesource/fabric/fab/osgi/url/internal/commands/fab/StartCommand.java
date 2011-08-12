@@ -34,8 +34,6 @@ public class StartCommand extends FabCommandSupport {
             Bundle b = Bundles.findBundle(bundleContext, name, version);
             if (b != null) {
                 startBundle(b);
-            } else {
-                System.out.println("Warning could not find bundle: " + name + " version: " + version);
             }
         }
         startBundle(bundle);
