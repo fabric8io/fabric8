@@ -40,6 +40,34 @@ message ProtocolHello {
   
 }
 
+// This is sent by a virtual host in which is going into standby mode 
+// for a master to be able to do quicker failover.
+message StandbyAttachRequest {
+   // Identifies the virtual host..
+   required bytes virtual_host = 1 [java_override_type = "AsciiBuffer"];
+   // The channel that will get opened so that the master can stream
+   // logs to the standby node.
+   required int64 channel = 2;
+}
+
+// When a StandbyAttachRequest is received, the masters sends this 
+// message to let the standby know index snapshot to use and from
+// which position in the log it will start receiving log updates via
+// the channel.  The Slave uses the dfs to download the index, and 
+// all log data before the position.
+message StandbyAttachResponse {
+  required int64 snapshot_pos = 1;
+  required int64 log_pos = 2;
+}
+
+// Once the standby has downloaded via DFS the index and older log data, 
+// it must notify the master since the master will avoid deleting those
+// DFS resources until it receives this notification.
+message StandbySynchornized {
+  required bytes virtual_host = 1 [java_override_type = "AsciiBuffer"];
+  required int64 snapshot = 2;
+}
+
 message ConsumerInfo {
    required int64 consumer_id=1;
    required bytes virtual_host = 2 [java_override_type = "AsciiBuffer"];
