@@ -30,7 +30,7 @@ public class Import extends ZooKeeperCommandSupport {
     @Argument(description = "Location of the file or filesystem to load")
     String source = "." + File.separator + "import";
 
-    @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported (CAUTION!)")
+    @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported, ignored when importing a properties file (CAUTION!)")
     boolean delete = false;
 
     @Option(name="-t", aliases={"--target"}, description="Target location in ZooKeeper tree to import to")
@@ -62,7 +62,6 @@ public class Import extends ZooKeeperCommandSupport {
         if (include.exists() && include.isFile()) {
             regex = merge(include, regex);
         }
-
         if (properties == true) {
             filesystem = false;
         }
@@ -140,12 +139,12 @@ public class Import extends ZooKeeperCommandSupport {
         List<String> paths = new ArrayList<String>();
 
         for(String key : settings.keySet()) {
-            if (!matches(include, key) || matches(exclude, key)) {
-                continue;
-            }
             String data = settings.get(key);
             key = target + key;
             paths.add(key);
+            if (!matches(include, key) || matches(exclude, key)) {
+                continue;
+            }
             if (!dryRun) {
                 getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             } else {
@@ -175,7 +174,8 @@ public class Import extends ZooKeeperCommandSupport {
     }
 
     private void readPropertiesFile() throws Exception {
-        List<Pattern> patterns = getPatterns(regex);
+        List<Pattern> includes = getPatterns(regex);
+        List<Pattern> excludes = getPatterns(nregex);
         InputStream in = new BufferedInputStream(new URL(source).openStream());
         List<String> paths = new ArrayList<String>();
         Properties props = new Properties();
@@ -189,19 +189,15 @@ public class Import extends ZooKeeperCommandSupport {
             if (!name.startsWith("/")) {
                 name = "/" + name;
             }
-            if (!matches(patterns, name)) {
+            name = target + name;
+            if (!matches(includes, name) || matches(excludes, name)) {
                 continue;
             }
-            name = target + name;
-            paths.add(name);
             if (!dryRun) {
                 getZooKeeper().createOrSetWithParents(name, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             } else {
                 System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
             }
-        }
-        if (delete) {
-            deletePathsNotIn(paths);
         }
     }
 
