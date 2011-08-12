@@ -25,7 +25,7 @@ public class Export extends ZooKeeperCommandSupport {
     @Argument(description="path of the directory to export to")
     String target = "." + File.separator + "export";
 
-    @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to export", multiValued=true)
+    @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to export, can specify this option more than once for additional filters", multiValued=true)
     String regex[];
 
     @Option(name="-p", aliases={"--path"}, description="Top level context to export")
@@ -33,6 +33,9 @@ public class Export extends ZooKeeperCommandSupport {
 
     @Option(name="-d", aliases={"--delete"}, description="Clear target directory before exporting (CAUTION! Performs recursive delete!)")
     boolean delete;
+
+    @Option(name="--dry-run", description="Runs the export but instead prints out what's going to happen rather than performing the action")
+    boolean dryRun = false;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -79,7 +82,11 @@ public class Export extends ZooKeeperCommandSupport {
         }
 
         if (delete) {
-            delete(new File(target));
+            if (!dryRun) {
+                delete(new File(target));
+            } else {
+                System.out.printf("Deleting %s and everything under it\n", new File(target));
+            }
         }
 
         for (File d : directories) {
@@ -87,8 +94,12 @@ public class Export extends ZooKeeperCommandSupport {
                 throw new IllegalArgumentException("Directory " + d + " exists but is not a directory");
             }
             if (!d.exists()) {
-                if (!d.mkdirs()) {
-                    throw new RuntimeException("Failed to create directory " + d);
+                if (!dryRun) {
+                    if (!d.mkdirs()) {
+                        throw new RuntimeException("Failed to create directory " + d);
+                    }
+                } else {
+                    System.out.printf("Creating directory path : %s\n", d);
                 }
             }
         }
@@ -97,22 +108,34 @@ public class Export extends ZooKeeperCommandSupport {
                 throw new IllegalArgumentException("File " + f + " exists but is not a file");
             }
             if (!f.getParentFile().exists()) {
-                if (!f.getParentFile().mkdirs()) {
-                    throw new RuntimeException("Failed to create directory " + f.getParentFile());
+                if (!dryRun) {
+                    if (!f.getParentFile().mkdirs()) {
+                        throw new RuntimeException("Failed to create directory " + f.getParentFile());
+                    }
+                } else {
+                    System.out.printf("Creating directory path : %s\n", f);
                 }
             }
             if (!f.exists()) {
                 try {
-                    if (!f.createNewFile()) {
-                        throw new RuntimeException("Failed to create file " + f);
+                    if (!dryRun) {
+                        if (!f.createNewFile()) {
+                            throw new RuntimeException("Failed to create file " + f);
+                        }
+                    } else {
+                        System.out.printf("Creating file : %s\n", f);
                     }
                 } catch (IOException io) {
                     throw new RuntimeException("Failed to create file " + f + " : " + io);
                 }
             }
-            FileWriter writer = new FileWriter(f, false);
-            writer.write(settings.get(f));
-            writer.close();
+            if (!dryRun) {
+                FileWriter writer = new FileWriter(f, false);
+                writer.write(settings.get(f));
+                writer.close();
+            } else {
+                System.out.printf("Writing value \"%s\" to file : %s\n", settings.get(f), f);
+            }
         }
     }
 }

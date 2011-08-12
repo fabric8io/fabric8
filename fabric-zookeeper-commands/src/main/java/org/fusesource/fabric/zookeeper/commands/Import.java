@@ -38,8 +38,11 @@ public class Import extends ZooKeeperCommandSupport {
     @Option(name="-fs", aliases={"--filesystem"}, description="Argument is the top level directory of a local filesystem tree")
     boolean filesystem = true;
 
-    @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to import", multiValued=true)
+    @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to import, can specify this option more than once for additional filters", multiValued=true)
     String regex[];
+
+    @Option(name="--dry-run", description="Runs the import but prints out what's going to happen instead of making any changes")
+    boolean dryRun = false;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -125,7 +128,11 @@ public class Import extends ZooKeeperCommandSupport {
             String data = settings.get(key);
             key = target + key;
             paths.add(key);
-            getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            if (!dryRun) {
+                getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            } else {
+                System.out.printf("Creating path \"%s\" with value \"%s\"\n", key, data);
+            }
         }
 
         if (delete) {
@@ -139,7 +146,11 @@ public class Import extends ZooKeeperCommandSupport {
         for (String path : zkPaths) {
             path = "/" + path;
             if (!paths.contains(path)) {
-                getZooKeeper().deleteWithChildren(path);
+                if (!dryRun) {
+                    getZooKeeper().deleteWithChildren(path);
+                } else {
+                    System.out.printf("Deleting path %s and everything under it\n", path);
+                }
             }
         }
 
@@ -165,7 +176,11 @@ public class Import extends ZooKeeperCommandSupport {
             }
             name = target + name;
             paths.add(name);
-            getZooKeeper().createOrSetWithParents(name, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            if (!dryRun) {
+                getZooKeeper().createOrSetWithParents(name, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            } else {
+                System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
+            }
         }
         if (delete) {
             deletePathsNotIn(paths);
