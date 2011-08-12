@@ -20,6 +20,10 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.matches;
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.merge;
+
 @Command(name = "import", scope = "zk", description = "Import data into zookeeper")
 public class Import extends ZooKeeperCommandSupport {
 
@@ -41,11 +45,24 @@ public class Import extends ZooKeeperCommandSupport {
     @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to import, can specify this option more than once for additional filters", multiValued=true)
     String regex[];
 
+    @Option(name="-rf", aliases={"--reverse-regex"}, description="regex to filter what paths to exclude, can specify this option more than once for additional filters", multiValued=true)
+    String nregex[];
+
     @Option(name="--dry-run", description="Runs the import but prints out what's going to happen instead of making any changes")
     boolean dryRun = false;
 
+    File ignore = new File(".fabricignore");
+    File include = new File(".fabricinclude");
+
     @Override
     protected Object doExecute() throws Exception {
+        if (ignore.exists() && ignore.isFile()) {
+            nregex = merge(ignore, nregex);
+        }
+        if (include.exists() && include.isFile()) {
+            regex = merge(include, regex);
+        }
+
         if (properties == true) {
             filesystem = false;
         }
@@ -110,7 +127,8 @@ public class Import extends ZooKeeperCommandSupport {
         Map<String, String> settings = new TreeMap<String, String>();
         File s = new File(source);
         getCandidates(s, s, settings);
-        List<Pattern> patterns = RegexSupport.getPatterns(regex);
+        List<Pattern> include = getPatterns(regex);
+        List<Pattern> exclude = getPatterns(nregex);
 
         if (!target.endsWith("/")) {
             target = target + "/";
@@ -122,7 +140,7 @@ public class Import extends ZooKeeperCommandSupport {
         List<String> paths = new ArrayList<String>();
 
         for(String key : settings.keySet()) {
-            if (!RegexSupport.matches(patterns, key)) {
+            if (!matches(include, key) || matches(exclude, key)) {
                 continue;
             }
             String data = settings.get(key);
@@ -157,7 +175,7 @@ public class Import extends ZooKeeperCommandSupport {
     }
 
     private void readPropertiesFile() throws Exception {
-        List<Pattern> patterns = RegexSupport.getPatterns(regex);
+        List<Pattern> patterns = getPatterns(regex);
         InputStream in = new BufferedInputStream(new URL(source).openStream());
         List<String> paths = new ArrayList<String>();
         Properties props = new Properties();
@@ -171,7 +189,7 @@ public class Import extends ZooKeeperCommandSupport {
             if (!name.startsWith("/")) {
                 name = "/" + name;
             }
-            if (!RegexSupport.matches(patterns, name)) {
+            if (!matches(patterns, name)) {
                 continue;
             }
             name = target + name;
