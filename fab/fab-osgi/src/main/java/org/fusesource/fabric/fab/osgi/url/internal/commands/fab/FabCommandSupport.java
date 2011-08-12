@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.fab.osgi.url.internal.commands.fab;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.osgi.url.internal.BundleFabFacade;
 import org.fusesource.fabric.fab.osgi.url.internal.FabClassPathResolver;
 import org.fusesource.fabric.fab.osgi.url.internal.FabFacade;
@@ -16,7 +17,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.aether.RepositoryException;
 
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -29,22 +32,7 @@ public abstract class FabCommandSupport extends BundleCommandSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabCommandSupport.class);
 
     protected void doExecute(Bundle bundle) throws Exception {
-        Properties instructions = new Properties();
-        Dictionary headers = bundle.getHeaders();
-        Enumeration e = headers.keys();
-        while (e.hasMoreElements()) {
-            Object key = e.nextElement();
-            Object value = headers.get(key);
-            if (key instanceof String && value instanceof String) {
-                instructions.setProperty((String) key, (String) value);
-            }
-        }
-
-        FabFacade facade = new BundleFabFacade(bundle);
-        Map<String, Object> embeddedResources = new HashMap<String, Object>();
-        FabClassPathResolver resolver = new FabClassPathResolver(facade, instructions, embeddedResources);
-        resolver.resolve();
-
+        FabClassPathResolver resolver = createFabResolver(bundle);
         doExecute(bundle, resolver);
     }
 

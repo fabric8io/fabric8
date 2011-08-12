@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.fab.osgi.url.internal.commands.mod;
+package org.fusesource.fabric.fab.osgi.url.internal.commands.module;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -27,7 +27,7 @@ import java.util.Map;
 
 import static org.fusesource.fabric.fab.util.Strings.join;
 
-@Command(name = "install", scope = "mod", description = "Install a module")
+@Command(name = "install", scope = "module", description = "Install a module")
 public class InstallCommand extends CommandSupport {
 
     @Argument(index = 0, required = true, description = "Name of the module to install")

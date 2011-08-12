@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.fab.osgi.url.internal.commands.mod;
+package org.fusesource.fabric.fab.osgi.url.internal.commands.module;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-@Command(name = "uninstall", scope = "mod", description = "Uninstall a module")
+@Command(name = "uninstall", scope = "module", description = "Uninstall a module")
 public class UninstallCommand extends CommandSupport {
 
     @Argument(index = 0, required = true, description = "Name of the module to uninstall")
