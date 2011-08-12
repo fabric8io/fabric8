@@ -220,6 +220,14 @@ public class FabClassPathResolver {
         return nonSharedDependencies;
     }
 
+    public boolean isOffline() {
+        return offline;
+    }
+
+    public DependencyTree getRootTree() {
+        return rootTree;
+    }
+
     private List<DependencyTree> filterOutDuplicates(List<DependencyTree> list) {
         LinkedHashMap<DependencyId, DependencyTree> map = new LinkedHashMap<DependencyId, DependencyTree>();
         for (DependencyTree tree : list) {
