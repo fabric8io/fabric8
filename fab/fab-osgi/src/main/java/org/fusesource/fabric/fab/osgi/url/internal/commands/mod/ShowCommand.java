@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.fab.osgi.url.internal;
+package org.fusesource.fabric.fab.osgi.url.internal.commands.mod;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -15,14 +15,16 @@ import org.fusesource.fabric.fab.ModuleDescriptor;
 import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.url.internal.Activator;
+import org.fusesource.fabric.fab.osgi.url.internal.OsgiModuleRegistry;
 import org.osgi.framework.Bundle;
 
 import static org.fusesource.fabric.fab.util.Strings.*;
 
 import java.util.*;
 
-@Command(name = "list", scope = "fab", description = "Display details about a module.")
-public class ShowCommand extends FabCommand {
+@Command(name = "list", scope = "mod", description = "Display details about a module.")
+public class ShowCommand extends ModuleCommandSupport {
 
     @Argument(index = 0, required = true, description = "Name of the module to display.")
     private String name;

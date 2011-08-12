@@ -163,11 +163,6 @@ public interface ServiceConstants extends Constants {
     static final boolean DEFAULT_INSTALL_PROVIDED_DEPENDENCIES = true;
 
     /**
-     * Whether we should start installed dependencies by default
-     */
-    static final boolean DEFAULT_START_INSTALLED_DEPENDENCIES = true;
-
-    /**
      * Default resource paths searched when copying resources from shared dependencies into the Bundle-ClassPath
      * to avoid META-INF/services classloader issues
      */

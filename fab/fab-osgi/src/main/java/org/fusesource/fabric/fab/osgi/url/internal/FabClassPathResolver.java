@@ -370,9 +370,6 @@ public class FabClassPathResolver {
 
     private void addChildDependency(DependencyTree child) throws IOException {
         String dependencyId = child.getDependencyId().toString();
-        if( dependencyId.contains("jetty-all-server") ) {
-            LOG.debug("test");
-        }
         if (excludePackageFilter.matches(child)) {
             // ignore
             LOG.debug("Excluded dependency: " + dependencyId);

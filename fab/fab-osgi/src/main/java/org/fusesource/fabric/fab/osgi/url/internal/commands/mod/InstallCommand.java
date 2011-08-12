@@ -6,23 +6,24 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.fab.osgi.url.internal;
+package org.fusesource.fabric.fab.osgi.url.internal.commands.mod;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.url.internal.Activator;
+import org.fusesource.fabric.fab.osgi.url.internal.OsgiModuleRegistry;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
-import java.io.PrintStream;
 import java.util.*;
 
 import static org.fusesource.fabric.fab.util.Strings.join;
 
-@Command(name = "install", scope = "fab", description = "Install a module")
-public class InstallCommand extends FabCommand {
+@Command(name = "install", scope = "mod", description = "Install a module")
+public class InstallCommand extends ModuleCommandSupport {
 
     @Argument(index = 0, required = true, description = "Name of the module to install")
     private String name;

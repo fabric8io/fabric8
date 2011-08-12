@@ -52,7 +52,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     private final BundleContext bundleContext;
     private PomDetails pomDetails;
     private MavenResolver resolver = new MavenResolver();
-    private boolean startInstalledDependentBundles = ServiceConstants.DEFAULT_START_INSTALLED_DEPENDENCIES;
     private boolean includeSharedResources = true;
     private FabClassPathResolver classPathResolver;
     private Model model;
@@ -131,14 +130,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
 
     public void setIncludeSharedResources(boolean includeSharedResources) {
         this.includeSharedResources = includeSharedResources;
-    }
-
-    public boolean isStartInstalledDependentBundles() {
-        return startInstalledDependentBundles;
-    }
-
-    public void setStartInstalledDependentBundles(boolean startInstalledDependentBundles) {
-        this.startInstalledDependentBundles = startInstalledDependentBundles;
     }
 
     public FabConnection createChild(URL url) throws MalformedURLException {
@@ -229,7 +220,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                 }
             }
 
-            List<Bundle> toStart = new ArrayList<Bundle>();
             for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
                 String name = dependency.getBundleSymbolicName();
                 String version = dependency.getVersion();
@@ -265,9 +255,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                                 LOG.info("Installing bundle: " + name + " from: " + installUri);
                                 bundle = bundleContext.installBundle(installUri);
                             }
-                            if (bundle != null && isStartInstalledDependentBundles()) {
-                                toStart.add(bundle);
-                            }
                         } catch (BundleException e) {
                             LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
                             throw e;
@@ -279,14 +266,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                             throw e;
                         }
                     }
-                }
-            }
-            // now lets start the installed bundles
-            for (Bundle bundle : toStart) {
-                try {
-                    bundle.start();
-                } catch (BundleException e) {
-                    LOG.warn("Failed to start " + bundle.getSymbolicName() + ". Reason: " + e, e);
                 }
             }
         }

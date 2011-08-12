@@ -20,17 +20,11 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import java.util.*;
 
 /**
+ * Some bundle helper methods
  */
 public class Bundles {
     public static boolean isInstalled(BundleContext bundleContext, String name, String version) {
-        Version v = new Version(VersionCleaner.clean(version));
-        Bundle[] bundles = bundleContext.getBundles();
-        for (Bundle bundle : bundles) {
-            if (bundle.getSymbolicName().equals(name) && bundle.getVersion().equals(v)) {
-                return true;
-            }
-        }
-        return false;
+        return findBundle(bundleContext, name, version) != null;
     }
 
     public static Set<String> filterInstalled(BundleContext bundleContext, Collection<String> packages) {
@@ -46,5 +40,16 @@ public class Bundles {
             }
         }
         return rc;
+    }
+
+    public static Bundle findBundle(BundleContext bundleContext, String name, String version) {
+        Version v = new Version(VersionCleaner.clean(version));
+        Bundle[] bundles = bundleContext.getBundles();
+        for (Bundle bundle : bundles) {
+            if (bundle.getSymbolicName().equals(name) && bundle.getVersion().equals(v)) {
+                return bundle;
+            }
+        }
+        return null;
     }
 }

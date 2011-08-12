@@ -6,12 +6,13 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.fab.osgi.url.internal;
+package org.fusesource.fabric.fab.osgi.url.internal.commands.mod;
 
 import org.apache.felix.gogo.commands.Command;
+import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 
-@Command(name = "update", scope = "fab", description = "Update the modules")
-public class UpdateCommand extends FabCommand {
+@Command(name = "update", scope = "mod", description = "Update the modules")
+public class UpdateCommand extends ModuleCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {

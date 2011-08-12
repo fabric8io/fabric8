@@ -67,25 +67,35 @@ set on the SymbolicName osgi header -->
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
     <command name="fab/tree">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.TreeCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.TreeCommand"/>
     </command>
-    <command name="fab/show">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.ShowCommand"/>
+    <command name="fab/start">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.StartCommand"/>
     </command>
-    <command name="fab/list">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.ListCommand"/>
-    </command>
-    <command name="fab/search">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.SearchCommand"/>
-    </command>
-    <command name="fab/update">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.UpdateCommand"/>
-    </command>
-    <command name="fab/install">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.InstallCommand"/>
+    <command name="fab/stop">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.StopCommand"/>
     </command>
     <command name="fab/uninstall">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.UninstallCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.UninstallCommand"/>
+    </command>
+
+    <command name="mod/show">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.mod.ShowCommand"/>
+    </command>
+    <command name="mod/list">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.mod.ListCommand"/>
+    </command>
+    <command name="mod/search">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.mod.SearchCommand"/>
+    </command>
+    <command name="mod/update">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.mod.UpdateCommand"/>
+    </command>
+    <command name="mod/install">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.mod.InstallCommand"/>
+    </command>
+    <command name="mod/uninstall">
+        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.mod.UninstallCommand"/>
     </command>
   </command-bundle>
 
