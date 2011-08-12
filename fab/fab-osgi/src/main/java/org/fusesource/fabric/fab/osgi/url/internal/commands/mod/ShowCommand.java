@@ -17,14 +17,23 @@ import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 import org.fusesource.fabric.fab.osgi.url.internal.OsgiModuleRegistry;
+import org.fusesource.fabric.fab.osgi.url.internal.commands.CommandSupport;
 import org.osgi.framework.Bundle;
 
-import static org.fusesource.fabric.fab.util.Strings.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
-import java.util.*;
+import static org.fusesource.fabric.fab.util.Strings.join;
+import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 @Command(name = "list", scope = "mod", description = "Display details about a module.")
-public class ShowCommand extends ModuleCommandSupport {
+public class ShowCommand extends CommandSupport {
 
     @Argument(index = 0, required = true, description = "Name of the module to display.")
     private String name;

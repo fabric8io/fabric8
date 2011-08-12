@@ -10,7 +10,6 @@ package org.fusesource.fabric.fab.osgi.url.internal.commands.fab;
 
 import org.apache.felix.gogo.commands.Command;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

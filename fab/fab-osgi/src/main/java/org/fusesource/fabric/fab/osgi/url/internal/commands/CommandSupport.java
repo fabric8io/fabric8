@@ -6,19 +6,32 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.fab.osgi.url.internal.commands.mod;
+package org.fusesource.fabric.fab.osgi.url.internal.commands;
 
-import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.fusesource.fabric.fab.ModuleRegistry;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
-public abstract class ModuleCommandSupport extends OsgiCommandSupport {
+public abstract class CommandSupport extends OsgiCommandSupport {
+    private PackageAdmin admin;
+
+    protected PackageAdmin getPackageAdmin() {
+        if (admin == null) {
+            ServiceReference ref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
+            if (ref == null) {
+                System.out.println("PackageAdmin service is unavailable.");
+                return null;
+            }
+            // using the getService call ensures that the reference will be released at the end
+            admin = getService(PackageAdmin.class, ref);
+        }
+        return admin;
+    }
 
     protected void println(){
         session.getConsole().println();
@@ -28,12 +41,12 @@ public abstract class ModuleCommandSupport extends OsgiCommandSupport {
         session.getConsole().println(String.format(msg, args));
     }
 
-    static class Table {
+    public static class Table {
         final String format;
         private final int[] col;
         final ArrayList<ArrayList<Object>> table = new ArrayList<ArrayList<Object>>();
 
-        Table(String format, int...col) {
+        public Table(String format, int...col) {
             this.format = format;
             this.col = col;
         }

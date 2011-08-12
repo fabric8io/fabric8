@@ -10,9 +10,10 @@ package org.fusesource.fabric.fab.osgi.url.internal.commands.mod;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.fab.osgi.url.internal.Activator;
+import org.fusesource.fabric.fab.osgi.url.internal.commands.CommandSupport;
 
 @Command(name = "update", scope = "mod", description = "Update the modules")
-public class UpdateCommand extends ModuleCommandSupport {
+public class UpdateCommand extends CommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {

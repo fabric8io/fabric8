@@ -14,13 +14,16 @@ import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 import org.fusesource.fabric.fab.osgi.url.internal.OsgiModuleRegistry;
+import org.fusesource.fabric.fab.osgi.url.internal.commands.CommandSupport;
 import org.fusesource.fabric.fab.util.Strings;
 import org.osgi.framework.Bundle;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 @Command(name = "list", scope = "mod", description = "List the installed modules")
-public class ListCommand extends ModuleCommandSupport {
+public class ListCommand extends CommandSupport {
 
     @Argument(index = 0, required = false, description = "Name of the module to list")
     private String name;

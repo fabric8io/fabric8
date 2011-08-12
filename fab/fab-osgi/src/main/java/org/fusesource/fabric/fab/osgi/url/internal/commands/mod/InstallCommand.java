@@ -15,15 +15,20 @@ import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 import org.fusesource.fabric.fab.osgi.url.internal.OsgiModuleRegistry;
+import org.fusesource.fabric.fab.osgi.url.internal.commands.CommandSupport;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import static org.fusesource.fabric.fab.util.Strings.join;
 
 @Command(name = "install", scope = "mod", description = "Install a module")
-public class InstallCommand extends ModuleCommandSupport {
+public class InstallCommand extends CommandSupport {
 
     @Argument(index = 0, required = true, description = "Name of the module to install")
     private String name;

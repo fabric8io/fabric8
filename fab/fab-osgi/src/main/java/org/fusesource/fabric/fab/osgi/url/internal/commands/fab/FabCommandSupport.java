@@ -8,10 +8,10 @@
  */
 package org.fusesource.fabric.fab.osgi.url.internal.commands.fab;
 
-import org.apache.karaf.shell.dev.AbstractBundleCommand;
 import org.fusesource.fabric.fab.osgi.url.internal.BundleFabFacade;
 import org.fusesource.fabric.fab.osgi.url.internal.FabClassPathResolver;
 import org.fusesource.fabric.fab.osgi.url.internal.FabFacade;
+import org.fusesource.fabric.fab.osgi.url.internal.commands.BundleCommandSupport;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import java.util.Properties;
 
 /**
  */
-public abstract class FabCommandSupport extends AbstractBundleCommand {
+public abstract class FabCommandSupport extends BundleCommandSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabCommandSupport.class);
 
     protected void doExecute(Bundle bundle) throws Exception {

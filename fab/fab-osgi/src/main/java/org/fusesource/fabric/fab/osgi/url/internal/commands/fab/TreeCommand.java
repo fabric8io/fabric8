@@ -9,15 +9,8 @@
 package org.fusesource.fabric.fab.osgi.url.internal.commands.fab;
 
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.osgi.url.internal.FabClassPathResolver;
 import org.osgi.framework.Bundle;
-
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Command(name = "tree", scope = "fab", description = "Display the dependency tree of a deplloyed Fabric Bundle")
 public class TreeCommand extends FabCommandSupport {

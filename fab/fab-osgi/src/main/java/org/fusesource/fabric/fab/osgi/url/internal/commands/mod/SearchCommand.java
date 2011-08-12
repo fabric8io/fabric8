@@ -13,11 +13,12 @@ import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.fab.ModuleRegistry;
 import org.fusesource.fabric.fab.osgi.url.internal.Activator;
 import org.fusesource.fabric.fab.osgi.url.internal.OsgiModuleRegistry;
+import org.fusesource.fabric.fab.osgi.url.internal.commands.CommandSupport;
 
 import java.util.List;
 
 @Command(name = "search", scope = "mod", description = "Search for all the available modules")
-public class SearchCommand extends ModuleCommandSupport {
+public class SearchCommand extends CommandSupport {
 
     @Argument(index = 0, required = false, description = "Name of the module to list")
     private String name;

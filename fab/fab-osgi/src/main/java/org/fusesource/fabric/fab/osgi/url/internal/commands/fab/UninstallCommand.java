@@ -9,19 +9,10 @@
 package org.fusesource.fabric.fab.osgi.url.internal.commands.fab;
 
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.osgi.url.internal.Bundles;
-import org.fusesource.fabric.fab.osgi.url.internal.FabClassPathResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-import org.osgi.service.packageadmin.ExportedPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Command(name = "uninstall", scope = "fab", description = "Uninstalls the Fabric Bundle along with all of its transitive dependencies which are not being used by other bundles")
 public class UninstallCommand extends ProcessUnusedBundles {
