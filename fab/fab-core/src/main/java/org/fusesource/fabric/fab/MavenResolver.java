@@ -260,10 +260,16 @@ public class MavenResolver {
 
         for (Dependency dependency : dependencies) {
             CollectRequest request = new CollectRequest(dependency, repos);
-            DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
-            // Avoid the test scope dependencies.
-            repositorySystem.resolveDependencies(session, node, new ScopeDependencyFilter("test"));
-            pomNode.getChildren().add(node);
+            try {
+                DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
+                // Avoid the test scope dependencies.
+                repositorySystem.resolveDependencies(session, node, new ScopeDependencyFilter("test"));
+                pomNode.getChildren().add(node);
+            } catch (DependencyCollectionException e) {
+                throw new FailedToResolveDependency(dependency, e);
+            } catch (ArtifactResolutionException e) {
+                throw new FailedToResolveDependency(dependency, e);
+            }
         }
 
         // now lets transform the dependency tree to remove different versions for the same artifact
@@ -294,6 +300,7 @@ public class MavenResolver {
         }
         return result;
     }
+
 
     protected MavenRepositorySystemSession createRepositorSystemSession(boolean offline, RepositorySystem repo) {
         final MavenRepositorySystemSession session = new MavenRepositorySystemSession();
