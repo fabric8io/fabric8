@@ -81,7 +81,26 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     public DependencyTreeResult collectDependencies(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
         PomDetails details = resolvePomDetails();
         Objects.notNull(details, "pomDetails");
-        return getResolver().collectDependencies(details, offline);
+        try {
+            return getResolver().collectDependencies(details, offline);
+        } catch (IOException e) {
+            logFailure(e);
+            throw e;
+        } catch (XmlPullParserException e) {
+            logFailure(e);
+            throw e;
+        } catch (RepositoryException e) {
+            logFailure(e);
+            throw e;
+        }
+    }
+
+    protected void logFailure(Exception e) {
+        LOG.error(e.getMessage());
+        Throwable cause = e.getCause();
+        if (cause != null && cause != e) {
+            LOG.error("Caused by: " + e, e);
+        }
     }
 
     @Override
