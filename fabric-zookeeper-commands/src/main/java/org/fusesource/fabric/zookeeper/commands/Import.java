@@ -20,13 +20,17 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.matches;
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.merge;
+
 @Command(name = "import", scope = "zk", description = "Import data into zookeeper")
 public class Import extends ZooKeeperCommandSupport {
 
     @Argument(description = "Location of the file or filesystem to load")
     String source = "." + File.separator + "import";
 
-    @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported (CAUTION!)")
+    @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported, ignored when importing a properties file (CAUTION!)")
     boolean delete = false;
 
     @Option(name="-t", aliases={"--target"}, description="Target location in ZooKeeper tree to import to")
@@ -41,11 +45,23 @@ public class Import extends ZooKeeperCommandSupport {
     @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to import, can specify this option more than once for additional filters", multiValued=true)
     String regex[];
 
+    @Option(name="-rf", aliases={"--reverse-regex"}, description="regex to filter what paths to exclude, can specify this option more than once for additional filters", multiValued=true)
+    String nregex[];
+
     @Option(name="--dry-run", description="Runs the import but prints out what's going to happen instead of making any changes")
     boolean dryRun = false;
 
+    File ignore = new File(".fabricignore");
+    File include = new File(".fabricinclude");
+
     @Override
     protected Object doExecute() throws Exception {
+        if (ignore.exists() && ignore.isFile()) {
+            nregex = merge(ignore, nregex);
+        }
+        if (include.exists() && include.isFile()) {
+            regex = merge(include, regex);
+        }
         if (properties == true) {
             filesystem = false;
         }
@@ -110,7 +126,8 @@ public class Import extends ZooKeeperCommandSupport {
         Map<String, String> settings = new TreeMap<String, String>();
         File s = new File(source);
         getCandidates(s, s, settings);
-        List<Pattern> patterns = RegexSupport.getPatterns(regex);
+        List<Pattern> include = getPatterns(regex);
+        List<Pattern> exclude = getPatterns(nregex);
 
         if (!target.endsWith("/")) {
             target = target + "/";
@@ -122,12 +139,12 @@ public class Import extends ZooKeeperCommandSupport {
         List<String> paths = new ArrayList<String>();
 
         for(String key : settings.keySet()) {
-            if (!RegexSupport.matches(patterns, key)) {
-                continue;
-            }
             String data = settings.get(key);
             key = target + key;
             paths.add(key);
+            if (!matches(include, key) || matches(exclude, key)) {
+                continue;
+            }
             if (!dryRun) {
                 getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             } else {
@@ -157,7 +174,8 @@ public class Import extends ZooKeeperCommandSupport {
     }
 
     private void readPropertiesFile() throws Exception {
-        List<Pattern> patterns = RegexSupport.getPatterns(regex);
+        List<Pattern> includes = getPatterns(regex);
+        List<Pattern> excludes = getPatterns(nregex);
         InputStream in = new BufferedInputStream(new URL(source).openStream());
         List<String> paths = new ArrayList<String>();
         Properties props = new Properties();
@@ -171,19 +189,15 @@ public class Import extends ZooKeeperCommandSupport {
             if (!name.startsWith("/")) {
                 name = "/" + name;
             }
-            if (!RegexSupport.matches(patterns, name)) {
+            name = target + name;
+            if (!matches(includes, name) || matches(excludes, name)) {
                 continue;
             }
-            name = target + name;
-            paths.add(name);
             if (!dryRun) {
                 getZooKeeper().createOrSetWithParents(name, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             } else {
                 System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
             }
-        }
-        if (delete) {
-            deletePathsNotIn(paths);
         }
     }
 
