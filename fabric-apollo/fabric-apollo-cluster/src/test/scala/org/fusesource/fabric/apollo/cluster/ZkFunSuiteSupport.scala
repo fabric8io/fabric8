@@ -38,6 +38,8 @@ class ZkFunSuiteSupport extends FunSuiteSupport with BeforeAndAfterEach {
     zk_server.setTxnLogFactory(new FileTxnSnapLog(data_dir/"zk-log" , data_dir/"zk-data"))
     connector = new NIOServerCnxn.Factory(new InetSocketAddress(0), 100)
     connector.startup(zk_server)
+
+    create_zk_client().close()
     debug("ZooKeeper Started")
   }
 
@@ -50,8 +52,10 @@ class ZkFunSuiteSupport extends FunSuiteSupport with BeforeAndAfterEach {
 
   var zk_clients = List[ZKClient]()
 
+  def zk_url = "localhost:" + connector.getLocalPort
+
   def create_zk_client() = {
-    val client = new ZKClient("localhost:"+connector.getLocalPort, Timespan.parse("30s"), null)
+    val client = new ZKClient(zk_url, Timespan.parse("30s"), null)
     client.start
     zk_clients ::= client
     client.waitForStart(Timespan.parse("30s"))

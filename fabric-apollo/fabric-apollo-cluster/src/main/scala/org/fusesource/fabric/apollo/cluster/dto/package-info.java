@@ -14,6 +14,6 @@
  * of the ActiveMQ Broker.
  */
 @javax.xml.bind.annotation.XmlSchema(
-        namespace = "http://activemq.apache.org/schema/activemq/apollo",
+        namespace = "http://fabric.fusesource.org/apollo-cluster",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.fusesource.fabric.apollo.cluster.dto;

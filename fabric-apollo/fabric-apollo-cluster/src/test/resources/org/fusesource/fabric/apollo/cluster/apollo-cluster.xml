@@ -11,17 +11,26 @@
 
 -->
 
-<cluster_broker xmlns="http://activemq.apache.org/schema/activemq/apollo">
+<broker xmlns="http://activemq.apache.org/schema/activemq/apollo"
+  xmlns:cluster="http://fabric.fusesource.org/apollo-cluster">
   <notes>This broker configuration is what the unit tests in this module load up.</notes>
 
-  <cluster_weight>100</cluster_weight>
-  <security_token>letmein</security_token>
-  <security_token>mutliplesupported</security_token>
+  <cluster:connector
+    id="cluster"
+    node_id="${apollo.cluster.id}"
+    weight="100"
+    zk_url="${zk.url}"
+    zk_group_path="/mygroup"
+    >
 
-  <virtual_host id="default" purge_on_startup="true">
+    <security_token>letmein</security_token>
+    <security_token>mutliplesupported</security_token>
+  </cluster:connector>
+
+  <cluster:virtual_host id="default" purge_on_startup="true">
     <host_name>localhost</host_name>
-  </virtual_host>
+  </cluster:virtual_host>
 
   <connector id="tcp" bind="tcp://0.0.0.0:0"/>
 
-</cluster_broker>
+</broker>

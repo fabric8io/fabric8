@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.cluster
 
 import org.apache.activemq.apollo.util._
-import org.fusesource.fabric.apollo.cluster.dto.ClusterRouterDTO
+import org.fusesource.fabric.apollo.cluster.dto.ClusterVirtualHostDTO
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.broker.security.SecurityContext
 import org.apache.activemq.apollo.dto._
@@ -19,21 +19,7 @@ import org.apache.activemq.apollo.util.path.Path
 import org.fusesource.hawtdispatch._
 import scala.collection.mutable.HashMap
 import org.fusesource.fabric.apollo.cluster.util.HashRing
-
-/**
- * <p>
- * </p>
- *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
- */
-class ClusterRouterFactory extends RouterFactory.Provider {
-
-  def create(host: VirtualHost): Router = host.config.router match {
-    case config:ClusterRouterDTO=>
-      new ClusterRouter(host)
-    case _ => null
-  }
-}
+import java.lang.IllegalStateException
 
 object ClusterRouter extends Log
 
@@ -46,16 +32,19 @@ object ClusterRouter extends Log
 class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
   import ClusterRouter._
 
-  val broker = host.broker.asInstanceOf[ClusterBroker]
-  def cluster = broker.cluster
-  var hash_ring:HashRing[String, String] = broker.hash_ring
+  def broker = host.broker
+
+  var cluster_connector:ClusterConnector = _
+  var hash_ring:HashRing[String, String] = _
 
   val cluster_queue_domain = new ClusterDomain(queue_domain)
   val cluster_topic_domain = new ClusterDomain(topic_domain)
 
-  def on_cluster_change(new_ring:HashRing[String, String]) = {
+  def on_cluster_change(connector: ClusterConnector, new_ring:HashRing[String, String]) = {
     info("Cluster membership changed.")
     assert_executing
+
+    cluster_connector = connector
     hash_ring = new_ring
 
     cluster_queue_domain.destination_by_id.values.foreach { dest =>
@@ -174,12 +163,13 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
 
         val old_master_id = master_id
         master_id = next_master_id
+
         master = if( is_master ) {
           info("I am the master of: %s", id)
           local
         } else {
           info("Master moved from %s to %s for destination %s", old_master_id, master_id, id)
-          new PeerDestination(local, broker.get_or_create_peer(master_id))
+          new PeerDestination(local, cluster_connector.get_or_create_peer(master_id))
         }
 
         // If we are not the master, then any messages that make it into
@@ -197,7 +187,7 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
       }
     }
 
-    def is_master = master_id == broker.id
+    def is_master = cluster_connector.node_id == master_id
 
     def update(on_completed: Runnable) = local.update(on_completed)
   }

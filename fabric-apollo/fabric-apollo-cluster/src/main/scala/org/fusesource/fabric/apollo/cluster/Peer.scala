@@ -35,7 +35,7 @@ object Peer extends Log
  * Multiple connections can exist to a peer broker and this class tracks
  * both the inbound and outbound connections to that peer.
  */
-class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
+class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched {
   import Peer._
 
   val channel_window_size: Int = 64*1024
@@ -105,11 +105,9 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
       handler.die("Peer's id does not match what was expected.")
     }
 
-    val local_tokens:Set[String] = broker.config match {
-      case config:ClusterBrokerDTO =>
-        collection.JavaConversions.collectionAsScalaIterable(config.security_tokens).toSet
-      case _ =>
-        Set()
+    val local_tokens:Set[String] = {
+      import collection.JavaConversions._
+      collectionAsScalaIterable(cluster_connector.config.security_tokens).toSet
     }
 
     // does the client need to give us a matching token?
@@ -136,14 +134,9 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
   def create_hello_frame(handler:ClusterProtocolHandler) = {
     val hello = new ProtocolHello.Bean
     hello.setVersion(PROTOCOL_VERSION)
-    hello.setId(broker.id)
+    hello.setId(cluster_connector.node_id)
     hello.setAddress(handler.connection.transport.getRemoteAddress.toString)
-
-    broker.config match {
-      case config:ClusterBrokerDTO =>
-        hello.addAllSecurityTokens(config.security_tokens)
-      case _ =>
-    }
+    hello.addAllSecurityTokens(cluster_connector.config.security_tokens)
     Frame(COMMAND_HELLO, hello.freeze.toFramedBuffer)
   }
 
@@ -181,7 +174,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
     // Should we try to connect to the peer?
     if( !connecting  && handlers.isEmpty && peer_info.cluster_address!=null ) {
       connecting = true
-      broker.cluster_connector.connect(peer_info.cluster_address) {
+      cluster_connector.connect(peer_info.cluster_address) {
         case Success(connection) =>
           connection.transport.setProtocolCodec(new ClusterProtocolCodec)
           connection.protocol_handler = new ClusterProtocolHandler(this)
@@ -211,7 +204,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
   // Internal support methods.
   //
   //////////////////////////////////////////////////////////////////////////////
-  private def get_virtual_host(host:AsciiBuffer) = broker.get_virtual_host(host).asInstanceOf[ClusterRouterDTO]
+  private def get_virtual_host(host:AsciiBuffer) = cluster_connector.broker.get_virtual_host(host).asInstanceOf[ClusterVirtualHostDTO]
 
   ///////////////////////////////////////////////////////////////////////////////
   //
@@ -339,7 +332,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
       imported_consumers.put(consumer_id, consumer)
 
       reset[Unit,Unit] {
-        val host = broker.get_virtual_host(consumer_info.getVirtualHost)
+        val host = cluster_connector.broker.get_virtual_host(consumer_info.getVirtualHost)
         // assert(host!=null, "Unknown virtual host: "+consumer_info.getVirtualHost)
         val router = host.router.asInstanceOf[ClusterRouter]
         router.bind(consumer.destinations, consumer, null)
@@ -353,7 +346,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
     assert_executing
     imported_consumers.remove(info.getConsumerId.longValue).foreach { consumer=>
       reset {
-        val host = broker.get_virtual_host(consumer.info.getVirtualHost)
+        val host = cluster_connector.broker.get_virtual_host(consumer.info.getVirtualHost)
         if( host!=null ) {
           val router = host.router.asInstanceOf[ClusterRouter]
           router.unbind(consumer.destinations, consumer, false, null)
@@ -765,7 +758,7 @@ class Peer(broker:ClusterBroker, val id:String) extends Dispatched {
         inbound_channels.put(channel_id, sink)
 
         reset {
-          val host = broker.get_virtual_host(open.getVirtualHost)
+          val host = cluster_connector.broker.get_virtual_host(open.getVirtualHost)
 //          if( host==null ) {
 //
 //            // TODO: perhaps cluster config is not consistent across all the nodes.
