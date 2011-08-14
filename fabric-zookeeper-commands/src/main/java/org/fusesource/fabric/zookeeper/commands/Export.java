@@ -19,6 +19,10 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.matches;
+import static org.fusesource.fabric.zookeeper.commands.RegexSupport.merge;
+
 @Command(name = "export", scope = "zk", description = "Export data from zookeeper")
 public class Export extends ZooKeeperCommandSupport {
 
@@ -27,6 +31,9 @@ public class Export extends ZooKeeperCommandSupport {
 
     @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to export, can specify this option more than once for additional filters", multiValued=true)
     String regex[];
+
+    @Option(name="-rf", aliases={"--reverse-regex"}, description="regex to filter what paths to exclude from the export, can specify this option more than once for additional filters", multiValued=true)
+    String nregex[];
 
     @Option(name="-p", aliases={"--path"}, description="Top level context to export")
     String topLevel = "/";
@@ -37,8 +44,17 @@ public class Export extends ZooKeeperCommandSupport {
     @Option(name="--dry-run", description="Runs the export but instead prints out what's going to happen rather than performing the action")
     boolean dryRun = false;
 
+    File ignore = new File(".fabricignore");
+    File include = new File(".fabricinclude");
+
     @Override
     protected Object doExecute() throws Exception {
+        if (ignore.exists() && ignore.isFile()) {
+            nregex = merge(ignore, nregex);
+        }
+        if (include.exists() && include.isFile()) {
+            regex = merge(include, regex);
+        }
         export(topLevel);
         System.out.printf("Export to %s completed successfully\n", target);
         return null;
@@ -63,14 +79,15 @@ public class Export extends ZooKeeperCommandSupport {
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
-        List<Pattern> patterns = RegexSupport.getPatterns(regex);
+        List<Pattern> include = getPatterns(regex);
+        List<Pattern> exclude = getPatterns(nregex);
         List<String> paths = getZooKeeper().getAllChildren(path);
         SortedSet<File> directories = new TreeSet<File>();
         Map<File, String> settings = new HashMap<File, String>();
 
         for(String p : paths) {
             p = path + p;
-            if (!RegexSupport.matches(patterns, p) ) {
+            if (!matches(include, p) || matches(exclude, p)) {
                 continue;
             }
             byte[] data = getZooKeeper().getData(p);

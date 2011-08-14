@@ -20,6 +20,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -117,6 +118,11 @@ public class FabClassPathResolver {
         if (name.length() <= 0) {
             name = rootTree.getBundleSymbolicName();
             instructions.setProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME, name);
+        }
+        String bundleVersion = getManfiestProperty(Analyzer.BUNDLE_VERSION);
+        if (bundleVersion.length() <= 0) {
+            bundleVersion = VersionCleaner.clean(rootTree.getVersion());
+            instructions.setProperty(Analyzer.BUNDLE_VERSION, bundleVersion);
         }
 
         LOG.debug("Resolving Dependencies for: "+rootTree.getDependencyId());
