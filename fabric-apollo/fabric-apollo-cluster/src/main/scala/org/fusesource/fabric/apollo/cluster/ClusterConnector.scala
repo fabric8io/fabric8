@@ -67,6 +67,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
   def node_id:String = config.node_id
   var cluster_weight = 16
   var cluster_address:String = _
+  var cluster_listeners:List[ClusterListener] = Nil
 
   def status: ServiceStatusDTO = {
     val result = new ConnectorStatusDTO
@@ -81,6 +82,8 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
   }
 
   protected def _start(on_completed: Runnable) = {
+
+    cluster_listeners = ClusterListenerFactory.create(this)
 
     import org.apache.activemq.apollo.util.OptionSupport._
     def not_null(value:AnyRef, msg:String) = if (value==null) throw new IllegalArgumentException("The cluster connector's %s was not configured".format(msg))
@@ -126,9 +129,14 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
             }
           case _ =>
         } }
+
         master = false
         master_info = None
         cluster_group = null
+
+        cluster_listeners.foreach {
+          _.on_change
+        }
       }
 
       def onConnected() = dispatch_queue {
@@ -141,7 +149,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
         if( cluster_group==null ) {
           cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory)
           update_cluster_state
-          cluster_group.add(cluster_listener)
+          cluster_group.add(change_listener)
         }
       }
     })
@@ -152,9 +160,11 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
 
   override def _stop(on_completed: Runnable): Unit = {
-    cluster_group.remove(cluster_listener)
+    cluster_group.remove(change_listener)
     cluster_group.leave(node_id)
     zk_client.close()
+    cluster_listeners.foreach(_.close)
+    cluster_listeners = Nil
     on_completed.run()
   }
 
@@ -234,7 +244,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
     }
   }
 
-  val cluster_listener = new ChangeListener() {
+  val change_listener = new ChangeListener() {
 
     def changed(members: Array[Array[Byte]]) {
       on_cluster_change(members.toList.flatMap{ data=>
@@ -332,6 +342,10 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
           peer.close
           remove_peer(id)
         }
+      }
+
+      cluster_listeners.foreach {
+        _.on_change
       }
 
     }
