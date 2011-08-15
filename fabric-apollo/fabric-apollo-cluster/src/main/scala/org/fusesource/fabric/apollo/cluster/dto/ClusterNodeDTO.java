@@ -18,30 +18,34 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-@XmlRootElement(name="cluster_node")
+@XmlRootElement(name = "cluster_node")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ClusterNodeDTO {
 
-    /**
-     */
-    @XmlAttribute
-    public String id;
+  /**
+   * The id of the cluster node.  There can be multiple node with this ID,
+   * but only the first node in the cluster will be the master for for it.
+   */
+  @XmlAttribute
+  public String id;
 
-    /**
-     */
-    @XmlAttribute
-    public int weight;
+  /**
+   * The weight of the node in the cluster.  The higher the weight the
+   * more work that will get assigned to the node.
+   */
+  @XmlAttribute
+  public int weight;
 
-    /**
-     */
-    @XmlAttribute
-    public String cluster_address;
+  /**
+   * The address other cluster nodes should use to connect to the node.
+   */
+  @XmlAttribute(name = "cluster_address")
+  public String cluster_address;
 
-    /**
-     */
-    @XmlAttribute
-    public String client_address;
-
-
+  /**
+   * The address clients should use to connect to the node.
+   */
+  @XmlAttribute(name = "cluster_address")
+  public String client_address;
 
 }

@@ -20,7 +20,7 @@
     node_id="${apollo.cluster.id}"
     weight="100"
     zk_url="${zk.url}"
-    zk_group_path="/mygroup"
+    zk_directory="/mygroup"
     >
 
     <security_token>letmein</security_token>
@@ -31,6 +31,6 @@
     <host_name>localhost</host_name>
   </cluster:virtual_host>
 
-  <connector id="tcp" bind="tcp://0.0.0.0:0"/>
+  <connector id="tcp" bind="tcp://127.0.0.1:0"/>
 
 </broker>

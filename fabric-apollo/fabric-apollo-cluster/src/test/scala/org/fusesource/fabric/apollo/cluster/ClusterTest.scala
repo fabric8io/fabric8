@@ -20,30 +20,21 @@ import java.net.InetSocketAddress
 import org.apache.activemq.apollo.broker.{Broker, Queue}
 import org.apache.activemq.apollo.dto.{BrokerDTO, XmlCodec, QueueDestinationDTO}
 import java.util.Properties
-import org.apache.activemq.apollo.util.{ServiceControl, Dispatched}
-
+import org.apache.activemq.apollo.util.{SocketProxy, ServiceControl, Dispatched}
 /**
  */
-class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
+class ClusterTest extends ZkFunSuiteSupport with ShouldMatchers {
 
   var brokers = List[Broker]()
-  var broker_a:Broker = _
-  var broker_b:Broker = _
-
-  var cluster_a:ClusterConnector = _
-  var cluster_b:ClusterConnector = _
-
   var client = new StompClient
   var clients = List[StompClient]()
 
+  def cluster_connector(broker:Broker) = broker.connectors.values.find(_.isInstanceOf[ClusterConnector]).map(_.asInstanceOf[ClusterConnector]).get
+  def cluster_connectors(a1:Broker, a2:Broker):(ClusterConnector,ClusterConnector) = (cluster_connector(a1), cluster_connector(a1))
+  def cluster_connectors(brokers:List[Broker]):List[ClusterConnector] = brokers.map(cluster_connector(_))
+
   override protected def beforeEach(): Unit = {
     super.beforeEach
-    def cluster_connector(broker:Broker) = broker.connectors.values.find(_.isInstanceOf[ClusterConnector]).map(_.asInstanceOf[ClusterConnector]).get
-
-    broker_a = create_cluster_broker("apollo-cluster.xml", "a")
-    cluster_a = cluster_connector(broker_a)
-    broker_b = create_cluster_broker("apollo-cluster.xml", "b")
-    cluster_b = cluster_connector(broker_b)
   }
 
 
@@ -71,7 +62,7 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
     c
   }
 
-  def create_cluster_broker(file:String, id:String) = {
+  def create_cluster_broker(file:String, id:String, overrides:Map[String,String]=Map()) = {
     val broker = new Broker
     val base = basedir / "node-data" / id
 
@@ -79,6 +70,10 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
     p.setProperty("apollo.base", base.getCanonicalPath)
     p.setProperty("apollo.cluster.id", id)
     p.setProperty("zk.url", zk_url)
+
+    for( (key,value)<-overrides ) {
+      p.setProperty(key, value)
+    }
 
     val config = using(getClass.getResourceAsStream(file)) { is =>
       XmlCodec.decode(classOf[BrokerDTO], is, p)
@@ -94,7 +89,54 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
     broker
   }
 
+  test("starting to brokers with the same node id") {
+
+    // Lets use a socket proxy so we can simulate a network disconnect.
+    val proxy = new SocketProxy(new java.net.URI("tcp://"+zk_url))
+    val proxy_url = "127.0.0.1:"+proxy.getUrl.getPort
+
+    // First broker should become the master..
+    val broker_a = create_cluster_broker("apollo-cluster.xml", "n1", Map("zk.url"->proxy_url))
+    val cluster_a = cluster_connector(broker_a)
+    within(5, SECONDS) ( access(cluster_a){ cluster_a.master } should be === true )
+
+    // 2nd Broker should become the slave..
+    val broker_b = create_cluster_broker("apollo-cluster.xml", "n1")
+    val cluster_b = cluster_connector(broker_b)
+
+    within(5, SECONDS) {
+      val cluster = access(cluster_b){ cluster_b }
+      cluster.master should be === false
+      cluster.master_info.map(_.cluster_address) should be === Some(cluster_a.cluster_address)
+    }
+
+    // simulate a disconnect of the master from zk
+    var start = System.currentTimeMillis()
+    proxy.suspend()
+
+    // Default session timeout is set to 5 seconds..
+    within(10, SECONDS) {
+      val a_master = access(cluster_a){ cluster_a.master }
+      val b_master = access(cluster_b){ cluster_b.master }
+      if (a_master && b_master) {
+        throw new ShortCircuitFailure("a and b cannot be master at the same time.")
+      }
+      a_master should be === false
+    }
+    var end = System.currentTimeMillis()
+    System.out.println("Master shutdown in (ms): "+(end-start))
+
+    start = System.currentTimeMillis()
+    within(10, SECONDS) ( access(cluster_b){ cluster_b.master } should be === true )
+    end = System.currentTimeMillis()
+    System.out.println("Slave startup in (ms): "+(end-start))
+
+  }
+
   test("sending and subscribe on a cluster slave") {
+    val broker_a = create_cluster_broker("apollo-cluster.xml", "a")
+    val broker_b = create_cluster_broker("apollo-cluster.xml", "b")
+    val (cluster_a,cluster_b) = cluster_connectors(broker_a, broker_b)
 
     // Both brokers should establish peer connections ...
     for( broker <- List(cluster_a, cluster_b) ) {
@@ -136,7 +178,6 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
 
     // that message should end up on the the master's queue...
     val master_queue = master_dest.local
-
     within(10, SECONDS) ( access(master_queue){ master_queue.queue_items } should be === MESSAGE_COUNT )
 
     println("============================================================")
@@ -164,6 +205,10 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
   }
 
   ignore("Migrate a queue") {
+
+    val broker_a = create_cluster_broker("apollo-cluster.xml", "a")
+    val broker_b = create_cluster_broker("apollo-cluster.xml", "b")
+    val (cluster_a,cluster_b) = cluster_connectors(broker_a, broker_b)
 
     // Both brokers should establish peer connections ...
     for( broker <- List(cluster_a, cluster_b) ) {
@@ -220,6 +265,8 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
 
   def router(bs:Broker) = bs.default_virtual_host.router.asInstanceOf[ClusterRouter]
 
+  class ShortCircuitFailure(msg:String) extends RuntimeException(msg)
+
   def within[T](timeout:Long, unit:TimeUnit)(func: => Unit ):Unit = {
     val start = System.currentTimeMillis
     var amount = unit.toMillis(timeout)
@@ -233,6 +280,7 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
       func
       return
     } catch {
+      case e:ShortCircuitFailure => throw e
       case e:Throwable => last = e
     }
 
@@ -242,6 +290,7 @@ class ClusterBrokerTest extends ZkFunSuiteSupport with ShouldMatchers {
         func
         return
       } catch {
+        case e:ShortCircuitFailure => throw e
         case e:Throwable => last = e
       }
     }

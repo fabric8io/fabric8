@@ -13,8 +13,8 @@ public class ClusterConnectorDTO extends ConnectorTypeDTO {
   @XmlAttribute(name="zk_url")
   public String zk_url;
 
-  @XmlAttribute(name="zk_group_path")
-  public String zk_group_path;
+  @XmlAttribute(name="zk_directory")
+  public String zk_directory;
 
   @XmlAttribute(name="zk_timeout")
   public String zk_timeout;
