@@ -12,14 +12,11 @@ package org.fusesource.fabric.apollo.cluster.cli
 
 
 import org.apache.felix.gogo.commands.{Action, Option => option, Argument => argument, Command => command}
-import java.io.File
 import org.apache.activemq.apollo.util.FileSupport._
-import org.apache.activemq.apollo.cli.Apollo
 import org.apache.felix.service.command.CommandSession
 import org.apache.activemq.apollo.cli.commands.Helper
 import org.linkedin.zookeeper.client.ZKClient
 import org.linkedin.util.clock.Timespan
-import org.fusesource.fabric.apollo.cluster.ClusterBrokerService
 import org.apache.zookeeper.CreateMode
 import org.apache.zookeeper.ZooDefs.Ids
 

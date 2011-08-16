@@ -10,9 +10,12 @@
     in the license.txt file.
 
 -->
+<broker xmlns="http://activemq.apache.org/schema/activemq/apollo"
+        xmlns:cluster="http://fabric.fusesource.org/apollo-cluster">
 
-<cluster_broker xmlns="http://activemq.apache.org/schema/activemq/apollo">
-  <virtual_host>
-    <cluster_router/>
-  </virtual_host>
-</cluster_broker>
+  <cluster:virtual_host id="foo">
+  </cluster:virtual_host>
+
+  <cluster:connector id="foo">
+  </cluster:connector>
+</broker>

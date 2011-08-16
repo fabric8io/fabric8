@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.cluster.dto;
 
-import org.apache.activemq.apollo.dto.RouterDTO;
+import org.apache.activemq.apollo.dto.VirtualHostDTO;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-@XmlRootElement(name="cluster_router")
+@XmlRootElement(name="virtual_host")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ClusterRouterDTO extends RouterDTO {
+public class ClusterVirtualHostDTO extends VirtualHostDTO {
 
     @Override
     public boolean equals(Object o) {

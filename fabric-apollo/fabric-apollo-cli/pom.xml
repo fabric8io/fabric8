@@ -27,6 +27,10 @@
 
   <name>${project.artifactId}</name>
 
+  <properties>
+    <karaf-version>2.2.2</karaf-version>
+  </properties>
+    
   <dependencies>
     
     <!-- Scala Support -->
