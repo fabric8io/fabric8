@@ -22,7 +22,6 @@ import java.util.zip.ZipEntry;
 
 import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
-import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
@@ -99,27 +98,27 @@ public class FabClassPathResolver {
         DependencyTreeResult result = connection.collectDependencies(offline);
         this.rootTree = result.getTree();
 
-        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
-        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
-        excludeFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
-        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManfiestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
+        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
+        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
+        excludeFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
+        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
         requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
         excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(join(excludeFilterPatterns, " "));
         excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
 
-        bundleClassPath.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
-        requireBundles.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
-        importPackages.addAll(Strings.splitAsList(getManfiestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE), ","));
+        bundleClassPath.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
+        requireBundles.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
+        importPackages.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE), ","));
 
 
-        String name = getManfiestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
+        String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
         if (name.length() <= 0) {
             name = rootTree.getBundleSymbolicName();
             instructions.setProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME, name);
         }
-        String bundleVersion = getManfiestProperty(Analyzer.BUNDLE_VERSION);
+        String bundleVersion = getManifestProperty(Analyzer.BUNDLE_VERSION);
         if (bundleVersion.length() <= 0) {
             bundleVersion = VersionCleaner.clean(rootTree.getVersion());
             instructions.setProperty(Analyzer.BUNDLE_VERSION, bundleVersion);
@@ -248,7 +247,7 @@ public class FabClassPathResolver {
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
-                String value = getManfiestProperty("Fabric-"+key);
+                String value = getManifestProperty("Fabric-" + key);
                 if( Strings.notEmpty(value) ) {
                     moduleProperties.setProperty(key, value);
                 }
@@ -332,7 +331,7 @@ public class FabClassPathResolver {
         return processImportPackages;
     }
 
-    protected Manifest getManifest() {
+    public Manifest getManifest() {
         if( manfiest == null ) {
             try {
                 File jarFile = connection.getJarFile();
@@ -347,7 +346,7 @@ public class FabClassPathResolver {
         return manfiest;
     }
 
-    protected String getManfiestProperty(String name) {
+    public String getManifestProperty(String name) {
         String answer = null;
         Manifest manifest = getManifest();
         if (manifest != null) {

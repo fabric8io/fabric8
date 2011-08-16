@@ -365,7 +365,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
      */
     protected String toVersionRange(String version) {
         int digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
-        String value = classPathResolver.getManfiestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
+        String value = classPathResolver.getManifestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
         if (notEmpty(value)) {
             try {
                 digits = Integer.parseInt(value);

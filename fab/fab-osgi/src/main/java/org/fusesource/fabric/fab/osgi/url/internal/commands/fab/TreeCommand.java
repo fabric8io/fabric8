@@ -11,15 +11,19 @@ package org.fusesource.fabric.fab.osgi.url.internal.commands.fab;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.osgi.FabURLHandler;
 import org.fusesource.fabric.fab.osgi.url.internal.FabClassPathResolver;
 import org.fusesource.fabric.fab.osgi.url.internal.FabConnection;
 import org.fusesource.fabric.fab.osgi.url.internal.commands.CommandSupport;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.sonatype.aether.RepositoryException;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -32,52 +36,11 @@ public class TreeCommand extends CommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabClassPathResolver resolver = null;
-        if (fab.matches("\\d+")) {
-            Long id;
-            try {
-                id = Long.parseLong(fab);
-            } catch (NumberFormatException e) {
-                System.err.println("Failed to parse bundle ID: " + fab + ". Reason: " + e);
-                return null;
-            }
-            Bundle bundle = bundleContext.getBundle(id);
-            if (bundle != null) {
-                resolver = createFabResolver(bundle);
-            } else {
-                System.err.println("Bundle ID " + id + " is invalid");
-            }
-        } else {
-            FabURLHandler handler = findURLHandler();
-            if (handler != null) {
-                File file = new File(fab);
-                String u = fab;
-                if (file.exists()) {
-                    u = file.toURI().toURL().toString();
-                }
-                if (!fab.startsWith("fab:")) {
-                    u = "fab:" + u;
-                }
-                FabConnection urlConnection = handler.openConnection(new URL(u));
-                resolver = urlConnection.resolve();
-            } else {
-                session.getConsole().println("ERROR: could not resolve FabURLHandler service in OSGi");
-            }
-        }
+        FabClassPathResolver resolver = createResolver(fab);
         if (resolver != null) {
             TreeHelper.write(session.getConsole(), resolver);
         }
         return null;
     }
 
-    private FabURLHandler findURLHandler() throws InvalidSyntaxException {
-        ServiceReference[] references = bundleContext.getServiceReferences("org.osgi.service.url.URLStreamHandlerService", null);
-        for (ServiceReference reference : references) {
-            Object service = bundleContext.getService(reference);
-            if (service instanceof FabURLHandler) {
-                return (FabURLHandler) service;
-            }
-        }
-        return null;
-    }
 }

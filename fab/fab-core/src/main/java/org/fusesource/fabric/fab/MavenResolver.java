@@ -90,6 +90,7 @@ public class MavenResolver {
         }
     };
     private boolean offline = false;
+    private boolean throwExceptionsOnResolveDependencyFailure;
 
     public MavenResolver() {
     }
@@ -108,6 +109,14 @@ public class MavenResolver {
 
     public void setRepositorySystem(RepositorySystem repositorySystem) {
         this.repositorySystem = repositorySystem;
+    }
+
+    public boolean isThrowExceptionsOnResolveDependencyFailure() {
+        return throwExceptionsOnResolveDependencyFailure;
+    }
+
+    public void setThrowExceptionsOnResolveDependencyFailure(boolean throwExceptionsOnResolveDependencyFailure) {
+        this.throwExceptionsOnResolveDependencyFailure = throwExceptionsOnResolveDependencyFailure;
     }
 
     public String getLocalRepo() {
@@ -247,6 +256,7 @@ public class MavenResolver {
         List<RemoteRepository> repos = getRemoteRepositories();
 
         ArtifactDescriptorResult artifactDescriptorResult = repositorySystem.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
+        repos.addAll(artifactDescriptorResult.getRepositories());
 
         Dependency rootDependency = new Dependency(root, null);
 
@@ -260,15 +270,16 @@ public class MavenResolver {
 
         for (Dependency dependency : dependencies) {
             CollectRequest request = new CollectRequest(dependency, repos);
+            request.setRequestContext("runtime");
             try {
                 DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
                 // Avoid the test scope dependencies.
                 repositorySystem.resolveDependencies(session, node, new ScopeDependencyFilter("test"));
                 pomNode.getChildren().add(node);
             } catch (DependencyCollectionException e) {
-                throw new FailedToResolveDependency(dependency, e);
+                handleDependencyResolveFailure(pomNode, dependency, e);
             } catch (ArtifactResolutionException e) {
-                throw new FailedToResolveDependency(dependency, e);
+                handleDependencyResolveFailure(pomNode, dependency, e);
             }
         }
 
@@ -299,6 +310,19 @@ public class MavenResolver {
             LOGGER.warn("Duplicate dependency: " + duplicate);
         }
         return result;
+    }
+
+    protected void handleDependencyResolveFailure(DependencyNode pomNode, Dependency dependency, Exception e) throws FailedToResolveDependency {
+        FailedToResolveDependency exception = new FailedToResolveDependency(dependency, e);
+        if (throwExceptionsOnResolveDependencyFailure) {
+            throw exception;
+        } else {
+            LOGGER.warn(exception.getMessage(), e);
+
+            // lets just add the current dependency without its full dependency tree
+            DefaultDependencyNode node = new DefaultDependencyNode(dependency);
+            pomNode.getChildren().add(node);
+        }
     }
 
 
