@@ -15,11 +15,16 @@ import org.apache.felix.gogo.commands.Option;
 @Command(name = "list", scope = "zk", description = "List a node's children")
 public class List extends ZooKeeperCommandSupport {
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "Display children recursively")
-    boolean recursive;
+    @Argument(description = "Path of the node to list")
+    String path = "/";
 
-    @Argument(description = "Path of the node to list", required = true)
-    String path;
+    @Option(name = "-r", aliases = {"--recursive"}, description = "Display children recursively")
+    boolean recursive = false;
+
+    @Option(name="-d", aliases={"--display"}, description="Display a node's value if set")
+    boolean display = false;
+
+    //TODO - Be good to also have an option to show other ZK attributes for a node similar to ls -la
 
     @Override
     protected Object doExecute() throws Exception {
@@ -27,13 +32,33 @@ public class List extends ZooKeeperCommandSupport {
         return null;
     }
 
+    private java.util.List<String> getPaths() throws Exception {
+        if (recursive) {
+            return getZooKeeper().getAllChildren(path);
+        } else {
+            return getZooKeeper().getChildren(path);
+        }
+    }
+
     protected void display(String path) throws Exception {
-        java.util.List<String> children = getZooKeeper().getChildren(path);
-        for (String child : children) {
-            String cp = path.endsWith("/") ? path + child : path + "/" + child;
-            System.out.println(cp);
-            if (recursive) {
-                display(cp);
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        java.util.List<String> paths = getPaths();
+
+        for(String p : paths) {
+            if (display) {
+                byte[] data = getZooKeeper().getData(path + p);
+                if (data != null) {
+                    System.out.printf("%s = %s\n", p, new String(data));
+                } else {
+                    System.out.println(p);
+                }
+            } else {
+                System.out.println(p);
             }
         }
     }

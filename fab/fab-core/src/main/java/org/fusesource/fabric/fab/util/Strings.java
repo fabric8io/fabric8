@@ -32,16 +32,16 @@ public class Strings {
         return text != null && text.length() > 0;
     }
 
-    public  static String nullIfEmpty(String value) {
-        if( value == null || value.length()==0 ) {
+    public static String nullIfEmpty(String value) {
+        if (value == null || value.length() == 0) {
             return null;
         } else {
             return value;
         }
     }
 
-    public  static String emptyIfNull(String value) {
-        if( value == null ) {
+    public static String emptyIfNull(String value) {
+        if (value == null) {
             return "";
         } else {
             return value;
@@ -64,10 +64,10 @@ public class Strings {
      */
     public static List<String> splitAndTrimAsList(String text, String sep) {
         ArrayList<String> answer = new ArrayList<String>();
-        if( text!=null && text.length()>0 ) {
-            for( String v : text.split(sep) ) {
+        if (text != null && text.length() > 0) {
+            for (String v : text.split(sep)) {
                 String trim = v.trim();
-                if( trim.length() > 0 ) {
+                if (trim.length() > 0) {
                     answer.add(trim);
                 }
             }
@@ -91,6 +91,16 @@ public class Strings {
             buffer.append(iter.next());
         }
         return buffer.toString();
+    }
+
+    public static String toString(Object object) {
+        if (object == null) {
+            return "null";
+        } else if (object instanceof Object[]) {
+            return Arrays.asList((Object[]) object).toString();
+        } else {
+            return object.toString();
+        }
     }
 
 }

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-project</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>fabric-website</artifactId>
@@ -148,6 +148,17 @@
           <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-commands</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.obr</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+          <dependency>
+            <groupId>org.fusesource.fabric.fab</groupId>
+            <artifactId>fab-osgi</artifactId>
             <version>${project.version}</version>
             <exclusions>
               <exclusion>

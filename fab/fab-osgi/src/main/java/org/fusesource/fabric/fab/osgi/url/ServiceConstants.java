@@ -17,6 +17,16 @@ import static org.fusesource.fabric.fab.ModuleDescriptor.*;
  */
 public interface ServiceConstants extends Constants {
 
+    /**
+     * The default number of version range digits to use, 0 being exact, 1 being any qualifier range, 2 being micro digits, 3 minor digits and 4 any
+     */
+    static final int DEFAULT_VERSION_DIGITS = 2;
+
+    /**
+     * The maximum number of allowed digit ranges in a version range
+     */
+    static final int MAX_VERSION_DIGITS = 4;
+
     static final String PID = "org.fusesource.fabric.fab.osgi.url";
 
     /**
@@ -35,7 +45,7 @@ public interface ServiceConstants extends Constants {
     /**
      * URI of the fab file to be processed
      */
-    static final String INSTR_FAB_URL = "FAB-URL";
+    static final String INSTR_FAB_URL = "Fabric-URL";
 
     /**
      * Simple marker property to show that this bundle should be intepreted as a Fabric Bundle.
@@ -72,6 +82,20 @@ public interface ServiceConstants extends Constants {
      * You can use wildcards such as "group:artifact group:* *:*"
      */
     static final String INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE = "Fabric-Dependency-Require-Bundle";
+
+    /**
+     * Used to define how many digits are allowed in version ranges.
+     *
+     * For example for a value of "2.5.6.qualifier" the following values transform a version into a range...
+     *
+     * 0 => "[2.5.6.qualifier,2.5.6.qualifier]"       exact only
+     * 1 => "[2.5.6.qualifier,2.5.7)"                 exact only but allowing beta v ga releases etc
+     * 2 => "[2.5.6.qualifier,2.6)"                   patch releases but not 2.6.x or later
+     * 3 => "[2.5.6.qualifier,3)"                     patch and minor releases but not 3.x or later
+     * 4 => "2.5.6.qualifier" or "[2.5.6.qualifier,)" the current OSGi default which just means anything at all >= 2.5.6
+     *
+     */
+    static final String INSTR_FAB_VERSION_RANGE_DIGITS = "Fabric-Version-Range-Digits";
 
     /**
      * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]
@@ -137,11 +161,6 @@ public interface ServiceConstants extends Constants {
      * Whether we should install provided dependencies by default
      */
     static final boolean DEFAULT_INSTALL_PROVIDED_DEPENDENCIES = true;
-
-    /**
-     * Whether we should start installed dependencies by default
-     */
-    static final boolean DEFAULT_START_INSTALLED_DEPENDENCIES = true;
 
     /**
      * Default resource paths searched when copying resources from shared dependencies into the Bundle-ClassPath

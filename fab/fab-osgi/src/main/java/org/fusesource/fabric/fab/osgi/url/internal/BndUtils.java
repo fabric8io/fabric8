@@ -22,12 +22,15 @@ import aQute.lib.osgi.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,6 +63,8 @@ public class BndUtils
     private static final Pattern INSTRUCTIONS_PATTERN =
         Pattern.compile( "([a-zA-Z_0-9-]+)=([-!\"'()*+,.0-9A-Z_a-z%;:=/]+)" );
 
+    private static final String ALLOWED_PACKAGE_CLAUSES = Strings.join(Arrays.asList(Constants.directives), ",") + ",version";
+
     /**
      * Utility class. Ment to be used using static methods
      */
@@ -85,7 +90,7 @@ public class BndUtils
                                             final String jarInfo )
         throws IOException
     {
-        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP, "", new HashSet<String>() );
+        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP, "", new HashSet<String>(), null );
     }
 
     /**
@@ -109,7 +114,8 @@ public class BndUtils
                                            final OverwriteMode overwriteMode,
                                            final Map<String, Object> embeddedResources,
                                            final String extraImportPackages,
-                                           final HashSet<String> actualImports)
+                                           final HashSet<String> actualImports,
+                                           final VersionResolver versionResolver)
         throws IOException
     {
         NullArgumentException.validateNotNull( jarInputStream, "Jar URL" );
@@ -171,9 +177,9 @@ public class BndUtils
             Attributes main = jar.getManifest().getMainAttributes();
             String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
 
-            if (notEmpty(extraImportPackages) ) {
+            Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
 
-                Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
+            if (notEmpty(extraImportPackages) ) {
                 Map<String, Map<String, String>> extra = new Analyzer().parseHeader(extraImportPackages);
 
                 // Merge in the extra imports.
@@ -186,20 +192,35 @@ public class BndUtils
                     }
                     values.put(entry.getKey(), original);
                 }
-                importPackages  = Processor.printClauses(values, "resolution:");
             }
 
-            if (notEmpty(importPackages) ) {
-
-                Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
+            // add any missing version clauses
+            if (versionResolver != null) {
                 for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
-                    String res = entry.getValue().get("resolution:");
-                    if( !"optional".equals(res) ) {
-                        // add all the non-optional deps..
-                        actualImports.add(entry.getKey());
+                    String packageName = entry.getKey();
+                    Map<String, String> packageValues = entry.getValue();
+                    if (!packageValues.containsKey("version")) {
+                        String version = versionResolver.resolvePackage(packageName);
+                        if (version != null) {
+                            packageValues.put("version", version);
+                        }
                     }
                 }
+            }
+            // TODO do we really need to filter out any of the attribute values?
+            // we were filtering out everything bar resolution:
+            //importPackages  = Processor.printClauses(values, "resolution:");
+            importPackages  = Processor.printClauses(values, ALLOWED_PACKAGE_CLAUSES);
 
+            for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
+                String res = entry.getValue().get("resolution:");
+                if( !"optional".equals(res) ) {
+                    // add all the non-optional deps..
+                    actualImports.add(entry.getKey());
+                }
+            }
+
+            if (notEmpty(importPackages)) {
                 main.putValue(Analyzer.IMPORT_PACKAGE, importPackages);
             }
         }

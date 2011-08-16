@@ -10,12 +10,17 @@
 package org.fusesource.fabric.fab.osgi.url.internal;
 
 import aQute.lib.osgi.Analyzer;
+import org.apache.felix.utils.version.VersionCleaner;
+import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
+import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Objects;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
@@ -39,7 +44,7 @@ import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 /**
  * {@link URLConnection} for the "fab" protocol
  */
-public class FabConnection extends URLConnection {
+public class FabConnection extends URLConnection implements FabFacade, VersionResolver {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabConnection.class);
 
     private Configuration configuration;
@@ -47,9 +52,9 @@ public class FabConnection extends URLConnection {
     private final BundleContext bundleContext;
     private PomDetails pomDetails;
     private MavenResolver resolver = new MavenResolver();
-    private boolean startInstalledDependentBundles = ServiceConstants.DEFAULT_START_INSTALLED_DEPENDENCIES;
     private boolean includeSharedResources = true;
     private FabClassPathResolver classPathResolver;
+    private Model model;
 
     public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
@@ -72,6 +77,51 @@ public class FabConnection extends URLConnection {
     public void connect() {
     }
 
+    @Override
+    public DependencyTreeResult collectDependencies(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
+        PomDetails details = resolvePomDetails();
+        Objects.notNull(details, "pomDetails");
+        try {
+            return getResolver().collectDependencies(details, offline);
+        } catch (IOException e) {
+            logFailure(e);
+            throw e;
+        } catch (XmlPullParserException e) {
+            logFailure(e);
+            throw e;
+        } catch (RepositoryException e) {
+            logFailure(e);
+            throw e;
+        }
+    }
+
+    protected void logFailure(Exception e) {
+        LOG.error(e.getMessage());
+        Throwable cause = e.getCause();
+        if (cause != null && cause != e) {
+            LOG.error("Caused by: " + e, e);
+        }
+    }
+
+    @Override
+    public VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException {
+        PomDetails pomDetails = resolvePomDetails();
+        if (pomDetails == null || !pomDetails.isValid()) {
+            LOG.warn("Cannot resolve pom.xml for " + getJarFile());
+            return null;
+        }
+        model = pomDetails.getModel();
+        return new VersionedDependencyId(model);
+    }
+
+    @Override
+    public String getProjectDescription() {
+        if (model != null) {
+            return model.getDescription();
+        }
+        return null;
+    }
+
     public BundleContext getBundleContext() {
         return bundleContext;
     }
@@ -88,6 +138,7 @@ public class FabConnection extends URLConnection {
         this.pomDetails = pomDetails;
     }
 
+    @Override
     public File getJarFile() throws IOException {
         return Files.urlToFile(getURL(), "fabric-tmp-fab-", ".fab");
     }
@@ -98,14 +149,6 @@ public class FabConnection extends URLConnection {
 
     public void setIncludeSharedResources(boolean includeSharedResources) {
         this.includeSharedResources = includeSharedResources;
-    }
-
-    public boolean isStartInstalledDependentBundles() {
-        return startInstalledDependentBundles;
-    }
-
-    public void setStartInstalledDependentBundles(boolean startInstalledDependentBundles) {
-        this.startInstalledDependentBundles = startInstalledDependentBundles;
     }
 
     public FabConnection createChild(URL url) throws MalformedURLException {
@@ -119,11 +162,19 @@ public class FabConnection extends URLConnection {
         PomDetails pomDetails = getPomDetails();
         if (pomDetails == null) {
             File fileJar = getJarFile();
-            pomDetails = resolver.findPomFile(fileJar);
+            pomDetails = getResolver().findPomFile(fileJar);
         }
         return pomDetails;
     }
 
+    /**
+     * Forces the dependencies to be resolved and returns the resolver
+     */
+    public FabClassPathResolver resolve() throws BundleException, RepositoryException, IOException, XmlPullParserException {
+        Map<String, Object> embeddedResources = new HashMap<String, Object>();
+        Properties instructions = createInstructions(embeddedResources);
+        return classPathResolver;
+    }
 
     /**
      * Returns the input stream denoted by the url
@@ -151,7 +202,8 @@ public class FabConnection extends URLConnection {
                     OverwriteMode.MERGE,
                     embeddedResources,
                     extraImportPackages,
-                    actualImports);
+                    actualImports,
+                    this);
 
             if (getConfiguration().isInstallMissingDependencies()) {
                 installMissingDependencies(actualImports);
@@ -195,7 +247,6 @@ public class FabConnection extends URLConnection {
                 }
             }
 
-            List<Bundle> toStart = new ArrayList<Bundle>();
             for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
                 String name = dependency.getBundleSymbolicName();
                 String version = dependency.getVersion();
@@ -231,9 +282,6 @@ public class FabConnection extends URLConnection {
                                 LOG.info("Installing bundle: " + name + " from: " + installUri);
                                 bundle = bundleContext.installBundle(installUri);
                             }
-                            if (bundle != null && isStartInstalledDependentBundles()) {
-                                toStart.add(bundle);
-                            }
                         } catch (BundleException e) {
                             LOG.error("Failed to deploy " + installUri + " due to error: " + e, e);
                             throw e;
@@ -247,18 +295,11 @@ public class FabConnection extends URLConnection {
                     }
                 }
             }
-            // now lets start the installed bundles
-            for (Bundle bundle : toStart) {
-                try {
-                    bundle.start();
-                } catch (BundleException e) {
-                    LOG.warn("Failed to start " + bundle.getSymbolicName() + ". Reason: " + e, e);
-                }
-            }
         }
     }
 
-    protected Configuration getConfiguration() {
+    @Override
+    public Configuration getConfiguration() {
         return configuration;
     }
 
@@ -284,4 +325,58 @@ public class FabConnection extends URLConnection {
         classPathResolver.resolve();
     }
 
+    @Override
+    public String resolvePackage(String packageName) {
+        List<DependencyTree> dependencies = classPathResolver.getSharedDependencies();
+        for (DependencyTree dependency : dependencies) {
+            try {
+                Set<String> packages = dependency.getPackages();
+                if (packages.contains(packageName)) {
+                    // lets find the export packages and use the version from that
+                    if (dependency.isBundle()) {
+                        String exportPackages = dependency.getManfiestEntry("Export-Package");
+                        if (notEmpty(exportPackages)) {
+                            Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
+                            Map<String, String> map = values.get(packageName);
+                            if (map != null) {
+                                String version = map.get("version");
+                                if (version != null) {
+                                    return toVersionRange(version);
+                                }
+                            }
+                        }
+                    }
+                    String version = dependency.getVersion();
+                    if (version != null) {
+                        // lets convert to OSGi
+                        String osgiVersion = VersionCleaner.clean(version);
+                        return toVersionRange(osgiVersion);
+                    }
+                }
+            } catch (IOException e) {
+                LOG.warn("Failed to get the packages on dependency: " + dependency + ". " + e, e);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Lets convert the version to a version range depending on the default or FAB specific version range value
+     */
+    protected String toVersionRange(String version) {
+        int digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
+        String value = classPathResolver.getManifestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
+        if (notEmpty(value)) {
+            try {
+                digits = Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                LOG.warn("Failed to parse manifest header " + ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS + " as a number. Got: '" + value + "' so ignoring it");
+            }
+            if (digits < 0 || digits > 4) {
+                LOG.warn("Invalid value of manifest header " + ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS + " as value " + digits + " is out of range so ignoring it");
+                digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
+            }
+        }
+        return Versions.toVersionRange(version, digits);
+    }
 }

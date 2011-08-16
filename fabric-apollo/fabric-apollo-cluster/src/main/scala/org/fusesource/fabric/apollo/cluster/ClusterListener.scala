@@ -1,0 +1,33 @@
+/**
+ * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ *
+ *     http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
+package org.fusesource.fabric.apollo.cluster
+
+import org.apache.activemq.apollo.util.{Service, ClassFinder}
+
+/**
+ * This is a connector that handles establishing outbound connections.
+ */
+trait ClusterListener {
+  def on_change:Unit
+  def close():Unit
+}
+
+object ClusterListenerFactory {
+
+  trait Provider {
+    def create(connector:ClusterConnector):Option[ClusterListener]
+  }
+
+  val providers = new ClassFinder[Provider]("META-INF/services/org.fusesource.fabric.apollo/cluster-listener-factory.index",classOf[Provider])
+
+  def create(connector:ClusterConnector):List[ClusterListener] = {
+    providers.singletons.flatMap(_.create(connector))
+  }
+}

@@ -95,8 +95,9 @@ public class ReplaceConflictingVersionResolver
 
             group.candidates.put(node, pos);
 
-            if (!node.getVersionConstraint().getRanges().isEmpty()) {
-                group.constraints.add(node.getVersionConstraint());
+            VersionConstraint versionConstraint = node.getVersionConstraint();
+            if (versionConstraint != null && versionConstraint.getRanges() != null && !versionConstraint.getRanges().isEmpty()) {
+                group.constraints.add(versionConstraint);
             }
 
             if (group.version == null || isNearer(pos, node.getVersion(), group.position, group.version)) {
@@ -161,7 +162,8 @@ public class ReplaceConflictingVersionResolver
                 Object key = conflictIds.get(child);
 
                 if (group.key.equals(key)) {
-                    if (!group.pruned && group.position.depth == pos.depth
+                    if (!group.pruned && group.position != null && group.version != null
+                            && group.position.depth == pos.depth
                             && group.version.equals(child.getVersion())) {
                         group.pruned = true;
                     } else {

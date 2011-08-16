@@ -36,9 +36,12 @@ import javax.xml.transform.stream.StreamResult;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
+import org.sonatype.aether.resolution.ArtifactResolutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -55,6 +58,7 @@ import static org.fusesource.fabric.fab.util.Strings.notEmpty;
  * in a shared Map of class loaders
  */
 public class DependencyTree implements Comparable<DependencyTree> {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DependencyTree.class);
     private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
     private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
@@ -116,17 +120,19 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return builder.build();
     }
 
-    public static DependencyTree newInstance(DependencyNode node) throws MalformedURLException {
+    public static DependencyTree newInstance(DependencyNode node, MavenResolver resolver) throws MalformedURLException, ArtifactResolutionException {
         List<DependencyNode> childrenNodes = node.getChildren();
         List<DependencyTree> children = new ArrayList<DependencyTree>();
         for (DependencyNode childNode : childrenNodes) {
-            DependencyTree child = newInstance(childNode);
+            DependencyTree child = newInstance(childNode, resolver);
             children.add(child);
         }
         Artifact artifact = node.getDependency().getArtifact();
-        //DependencyTree dependencyTree = new DependencyTree(DependencyId.newInstance(artifact), artifact.getVersion(), children);
         DependencyTree dependencyTree = new DependencyTree(DependencyId.newInstance(artifact), node.getDependency(), children);
         File file = artifact.getFile();
+        if (file == null) {
+            file = resolver.resolveFile(artifact);
+        }
         if (file != null) {
             String url = file.toURI().toURL().toExternalForm();
             dependencyTree.setUrl(url);
