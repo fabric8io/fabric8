@@ -85,6 +85,7 @@
 
         <activemq-version>5.5.0-fuse-00-43</activemq-version>
         <apollo-version>1.0-SNAPSHOT</apollo-version>
+        <bndlib-version>1.43.0</bndlib-version>
         <cxf-version>2.4.1-fuse-00-43</cxf-version>
         <camel-version>2.7.1-fuse-00-43</camel-version>
         <hawtbuf-version>1.6</hawtbuf-version>

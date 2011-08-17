@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.fab.osgi.url.internal;
 
+import org.apache.aries.util.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.osgi.framework.Version;
 
@@ -39,5 +40,14 @@ public class Versions {
 
     public static boolean isRange(String versionOrRange) {
         return versionOrRange.contains("[") || versionOrRange.contains("(");
+    }
+
+    public static boolean inRange(String versionText, String range) {
+        VersionRange versionRange = VersionRange.parseVersionRange(range);
+        Version version = VersionTable.getVersion(versionText);
+        if (version != null && versionRange != null) {
+            return versionRange.matches(version);
+        }
+        return false;
     }
 }

@@ -11,5 +11,9 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 /**
  */
 public interface VersionResolver {
-    String resolvePackage(String packageName);
+    String resolvePackageVersion(String packageName);
+
+    boolean isPackageOptional(String packageName);
+
+    String resolveExportPackageVersion(String packageName);
 }

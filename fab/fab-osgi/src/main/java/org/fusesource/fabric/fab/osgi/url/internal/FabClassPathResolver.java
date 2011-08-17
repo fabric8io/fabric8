@@ -95,8 +95,7 @@ public class FabClassPathResolver {
         if (moduleId == null) {
             return;
         }
-        DependencyTreeResult result = connection.collectDependencies(offline);
-        this.rootTree = result.getTree();
+        this.rootTree = connection.collectDependencyTree(offline);
 
         sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
         requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
@@ -122,6 +121,14 @@ public class FabClassPathResolver {
         if (bundleVersion.length() <= 0) {
             bundleVersion = VersionCleaner.clean(rootTree.getVersion());
             instructions.setProperty(Analyzer.BUNDLE_VERSION, bundleVersion);
+        }
+
+        // lets copy across all the FAB headers
+        for (String propertyName : ServiceConstants.FAB_PROPERTY_NAMES) {
+            String value = getManifestProperty(propertyName);
+            if (value != null) {
+                instructions.setProperty(propertyName, value);
+            }
         }
 
         LOG.debug("Resolving Dependencies for: "+rootTree.getDependencyId());
@@ -231,6 +238,14 @@ public class FabClassPathResolver {
 
     public DependencyTree getRootTree() {
         return rootTree;
+    }
+
+    /**
+     * Returns a Filter which returns true if the dependency should be treated as optional (and so excluded by default) or false if the dependency matches
+     * the {@link ServiceConstants#INSTR_FAB_OPTIONAL_DEPENDENCY} pattern
+     */
+    public Filter<DependencyTree> getExcludeOptionalFilter() {
+        return excludeOptionalFilter;
     }
 
     private List<DependencyTree> filterOutDuplicates(List<DependencyTree> list) {

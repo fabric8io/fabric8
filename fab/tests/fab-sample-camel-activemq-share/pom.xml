@@ -64,24 +64,68 @@
       <artifactId>xbean-spring</artifactId>
       <version>${xbean-version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
+      <artifactId>spring-tx</artifactId>
       <version>${spring-version}</version>
       <exclusions>
         <exclusion>
           <groupId>javax.ejb</groupId>
           <artifactId>ejb-api</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>javax.resource</groupId>
+          <artifactId>connector-api</artifactId>
+        </exclusion>
       </exclusions>
-    </dependency>   
+    </dependency>
+
+    <!--
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring-version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.ejb</groupId>
+          <artifactId>ejb-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring-version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>${spring-version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+      <version>${spring-version}</version>
+      <scope>provided</scope>
+    </dependency>
+    -->
+
+    <!--
     <dependency>
       <groupId>org.springframework.osgi</groupId>
       <artifactId>spring-osgi-core</artifactId>
       <version>${spring-osgi-version}</version>
       <scope>provided</scope>
     </dependency>
-<!--
     <dependency>
       <groupId>org.springframework.osgi</groupId>
       <artifactId>spring-osgi-extender</artifactId>
@@ -115,11 +159,24 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
+        <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <archive>
+            <index>true</index>
+            <manifestEntries>
+              <Fabric-Provided-Dependency>org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
+              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec</Fabric-Include-Optional-Dependency>
+
+              <!--
+              geronimo-jacc_1.1_spec requires javax.servlet, javax.servlet.http
+
+              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:*</Fabric-Include-Optional-Dependency>
+              -->
+<!--
+              <Fabric-Exclude-Import-Package>javax.xml*</Fabric-Exclude-Import-Package>
+-->
+            </manifestEntries>
+          </archive>
         </configuration>
       </plugin>
 

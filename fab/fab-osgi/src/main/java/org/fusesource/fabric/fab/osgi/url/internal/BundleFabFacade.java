@@ -9,6 +9,7 @@
 package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.ModuleDescriptor;
 import org.fusesource.fabric.fab.PomDetails;
@@ -42,9 +43,8 @@ public class BundleFabFacade extends FabFacadeSupport {
         }
     }
 
-    @Override
-    public DependencyTreeResult collectDependencies(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
-        return getResolver().collectDependencies(dependencyId, offline);
+    public DependencyTree collectDependencyTree(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
+        return getResolver().collectDependencies(dependencyId, offline).getTree();
     }
 
     @Override
