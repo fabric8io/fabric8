@@ -63,7 +63,7 @@ public class DependencyTreeFilters {
         return new Filter<DependencyTree>() {
             @Override
             public boolean matches(DependencyTree tree) {
-                if (tree.isOptional()) {
+                if (tree.isThisOrDescendantOptional()) {
                     if (excludeAll) {
                         return true;
                     } else {

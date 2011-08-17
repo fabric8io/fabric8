@@ -397,7 +397,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         DependencyTree dependency = resolvePackageDependency(packageName);
         if (dependency != null) {
             // mark optional dependencies which are explicitly marked as included as not being optional
-            return dependency.isOptional() && classPathResolver.getExcludeOptionalFilter().matches(dependency);
+            return dependency.isThisOrDescendantOptional() && classPathResolver.getExcludeOptionalFilter().matches(dependency);
         }
         return true;
     }

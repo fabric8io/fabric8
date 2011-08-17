@@ -44,21 +44,40 @@
       <artifactId>activemq-camel</artifactId>
       <version>${activemq-version}</version>
     </dependency>
+<!--
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
       <version>${camel-version}</version>
     </dependency>
+-->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
       <version>${camel-version}</version>
+      <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-blueprint</artifactId>
+      <version>${camel-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+<!--
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core-osgi</artifactId>
+      <version>${camel-version}</version>
+    </dependency>
+-->
+<!--
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
       <version>${camel-version}</version>
     </dependency>
+-->
     <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
@@ -86,7 +105,14 @@
       </exclusions>
     </dependency>
 
-    <!--
+    <!-- use latest JTA -->
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jta_1.1_spec</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
@@ -99,6 +125,14 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.servicemix.specs</groupId>
+      <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
+      <version>1.8.0</version>
+    </dependency>
+
+    <!--
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
@@ -165,7 +199,7 @@
             <index>true</index>
             <manifestEntries>
               <Fabric-Provided-Dependency>org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
-              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec</Fabric-Include-Optional-Dependency>
+              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec</Fabric-Include-Optional-Dependency>
 
               <!--
               geronimo-jacc_1.1_spec requires javax.servlet, javax.servlet.http
