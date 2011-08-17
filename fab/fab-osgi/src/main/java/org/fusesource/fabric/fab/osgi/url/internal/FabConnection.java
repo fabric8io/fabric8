@@ -55,6 +55,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     private boolean includeSharedResources = true;
     private FabClassPathResolver classPathResolver;
     private Model model;
+    private DependencyTree rootTree;
 
     public FabConnection(URL url, Configuration config, BundleContext bundleContext) throws MalformedURLException {
         super(url);
@@ -78,21 +79,28 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     }
 
     @Override
-    public DependencyTreeResult collectDependencies(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
-        PomDetails details = resolvePomDetails();
-        Objects.notNull(details, "pomDetails");
-        try {
-            return getResolver().collectDependencies(details, offline);
-        } catch (IOException e) {
-            logFailure(e);
-            throw e;
-        } catch (XmlPullParserException e) {
-            logFailure(e);
-            throw e;
-        } catch (RepositoryException e) {
-            logFailure(e);
-            throw e;
+    public DependencyTree collectDependencyTree(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
+        if (rootTree == null) {
+            PomDetails details = resolvePomDetails();
+            Objects.notNull(details, "pomDetails");
+            try {
+                rootTree = getResolver().collectDependencies(details, offline).getTree();
+            } catch (IOException e) {
+                logFailure(e);
+                throw e;
+            } catch (XmlPullParserException e) {
+                logFailure(e);
+                throw e;
+            } catch (RepositoryException e) {
+                logFailure(e);
+                throw e;
+            }
         }
+        return rootTree;
+    }
+
+    public void setRootTree(DependencyTree rootTree) {
+        this.rootTree = rootTree;
     }
 
     protected void logFailure(Exception e) {
@@ -212,18 +220,15 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
             }
 
             return rc;
-        } catch (RepositoryException e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (XmlPullParserException e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (BundleException e) {
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
         }
     }
 
 
     protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException {
-
         BundleContext bundleContext = getBundleContext();
         if (bundleContext == null) {
             LOG.warn("No BundleContext available so cannot install provided dependencies");
@@ -258,18 +263,20 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     HashSet<String> p = new HashSet<String>(dependency.getPackages());
                     p.retainAll(actualImports);
 
-                    // Now which of the packages not not exported in the OSGi env?
-                    Set<String> missing = Bundles.filterInstalled(bundleContext, p);
+                    // Now which of the packages are not exported in the OSGi env for this version?
+                    Set<String> missing = Bundles.filterInstalled(bundleContext, p, this);
                     if ( missing.isEmpty() ) {
-                        LOG.info("Bundle packages already installed: " + name );
+                        LOG.info("Bundle non-optional packages already installed for: " + name + " version: " + version + " packages: " + p);
                     } else {
-                        LOG.info("Packages not yet shared: "+missing);
+                        LOG.info("Packages not yet shared: " + missing);
                         URL url = dependency.getJarURL();
                         String installUri = url.toExternalForm();
                         try {
                             Bundle bundle = null;
                             if (!dependency.isBundle()) {
                                 FabConnection childConnection = createChild(url);
+                                // lets install the root dependency tree so we don't have to do the whole resolving again
+                                childConnection.setRootTree(dependency);
                                 PomDetails pomDetails = childConnection.resolvePomDetails();
                                 if (pomDetails != null && pomDetails.isValid()) {
                                     // lets make sure we use a FAB to deploy it
@@ -326,32 +333,85 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     }
 
     @Override
-    public String resolvePackage(String packageName) {
-        List<DependencyTree> dependencies = classPathResolver.getSharedDependencies();
+    public String resolvePackageVersion(String packageName) {
+        DependencyTree dependency = resolvePackageDependency(packageName);
+        if (dependency != null) {
+            // lets find the export packages and use the version from that
+            if (dependency.isBundle()) {
+                String exportPackages = dependency.getManfiestEntry("Export-Package");
+                if (notEmpty(exportPackages)) {
+                    Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
+                    Map<String, String> map = values.get(packageName);
+                    if (map != null) {
+                        String version = map.get("version");
+                        if (version != null) {
+                            return toVersionRange(version);
+                        }
+                    }
+                }
+            }
+            String version = dependency.getVersion();
+            if (version != null) {
+                // lets convert to OSGi
+                String osgiVersion = VersionCleaner.clean(version);
+                return toVersionRange(osgiVersion);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String resolveExportPackageVersion(String packageName) {
+        List<DependencyTree> dependencies = new ArrayList<DependencyTree>(classPathResolver.getSharedDependencies());
+
+        // lets add the root too in case its an exported package we are resolving
+        dependencies.add(classPathResolver.getRootTree());
+
+        DependencyTree dependency = resolvePackageDependency(packageName, dependencies);
+        if (dependency != null) {
+            // lets find the export packages and use the version from that
+            if (dependency.isBundle()) {
+                String exportPackages = dependency.getManfiestEntry("Export-Package");
+                if (notEmpty(exportPackages)) {
+                    Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
+                    Map<String, String> map = values.get(packageName);
+                    if (map != null) {
+                        String version = map.get("version");
+                        if (version != null) {
+                            return version;
+                        }
+                    }
+                }
+            }
+            String version = dependency.getVersion();
+            if (version != null) {
+                // lets convert to OSGi
+                return VersionCleaner.clean(version);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isPackageOptional(String packageName) {
+        DependencyTree dependency = resolvePackageDependency(packageName);
+        if (dependency != null) {
+            // mark optional dependencies which are explicitly marked as included as not being optional
+            return dependency.isOptional() && classPathResolver.getExcludeOptionalFilter().matches(dependency);
+        }
+        return true;
+    }
+
+    public DependencyTree resolvePackageDependency(String packageName) {
+        return resolvePackageDependency(packageName, classPathResolver.getSharedDependencies());
+    }
+
+    protected DependencyTree resolvePackageDependency(String packageName, List<DependencyTree> dependencies) {
         for (DependencyTree dependency : dependencies) {
             try {
                 Set<String> packages = dependency.getPackages();
                 if (packages.contains(packageName)) {
-                    // lets find the export packages and use the version from that
-                    if (dependency.isBundle()) {
-                        String exportPackages = dependency.getManfiestEntry("Export-Package");
-                        if (notEmpty(exportPackages)) {
-                            Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
-                            Map<String, String> map = values.get(packageName);
-                            if (map != null) {
-                                String version = map.get("version");
-                                if (version != null) {
-                                    return toVersionRange(version);
-                                }
-                            }
-                        }
-                    }
-                    String version = dependency.getVersion();
-                    if (version != null) {
-                        // lets convert to OSGi
-                        String osgiVersion = VersionCleaner.clean(version);
-                        return toVersionRange(osgiVersion);
-                    }
+                    return dependency;
                 }
             } catch (IOException e) {
                 LOG.warn("Failed to get the packages on dependency: " + dependency + ". " + e, e);

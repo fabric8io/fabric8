@@ -69,6 +69,14 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_EXCLUDE_DEPENDENCY = "Fabric-Exclude-Dependency";
 
     /**
+     * The space separated list of Import-Package entries to be excluded from the generated manifest via Bnd.
+     * This is useful if you are importing a package which is part of the JDK such as JAXB which you want to avoid importing in OSGi
+     *
+     * You can use wildcards such as "javax.xml* com.acme.foo"
+     */
+    static final String INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE = "Fabric-Exclude-Import-Package";
+
+    /**
      * The space separated list of optional dependencies to be included. By default no optional dependencies are included.
      *
      * You can use wildcards such as "group:artifact group:* *:*"
@@ -110,7 +118,7 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_MODULE_ENABLED_EXTENSIONS = "Fabric-Enabled-Extensions";
 
     /**
-     * All the possible FAB headers on a manfiest, used to detect a FAB
+     * All the possible FAB headers on a manifest, used to detect a FAB
      */
     static final String[] FAB_PROPERTY_NAMES = {
             INSTR_FAB_BUNDLE,
@@ -127,7 +135,6 @@ public interface ServiceConstants extends Constants {
             "Fabric-"+FAB_MODULE_EXTENDS,
             "Fabric-"+FAB_MODULE_ENDORSED_EXTENSIONS
     };
-
 
     // OSGi headers
     static final String INSTR_BUNDLE_CLASSPATH = "Bundle-ClassPath";

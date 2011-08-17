@@ -19,22 +19,25 @@
 package org.fusesource.fabric.fab.osgi.url.internal;
 
 import aQute.lib.osgi.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -52,10 +55,7 @@ import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 public class BndUtils
 {
 
-    /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog( BndUtils.class );
+    private static final Logger LOG = LoggerFactory.getLogger(BndUtils.class);
 
     /**
      * Regex pattern for matching instructions when specified in url.
@@ -88,7 +88,7 @@ public class BndUtils
     public static InputStream createBundle( final InputStream jarInputStream,
                                             final Properties instructions,
                                             final String jarInfo )
-        throws IOException
+        throws Exception
     {
         return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP, "", new HashSet<String>(), null );
     }
@@ -116,7 +116,7 @@ public class BndUtils
                                            final String extraImportPackages,
                                            final HashSet<String> actualImports,
                                            final VersionResolver versionResolver)
-        throws IOException
+        throws Exception
     {
         NullArgumentException.validateNotNull( jarInputStream, "Jar URL" );
         NullArgumentException.validateNotNull( instructions, "Instructions" );
@@ -175,8 +175,8 @@ public class BndUtils
             analyzer.calcManifest();
 
             Attributes main = jar.getManifest().getMainAttributes();
-            String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
 
+            String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
             Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
 
             if (notEmpty(extraImportPackages) ) {
@@ -200,29 +200,93 @@ public class BndUtils
                     String packageName = entry.getKey();
                     Map<String, String> packageValues = entry.getValue();
                     if (!packageValues.containsKey("version")) {
-                        String version = versionResolver.resolvePackage(packageName);
+                        String version = versionResolver.resolvePackageVersion(packageName);
                         if (version != null) {
                             packageValues.put("version", version);
                         }
                     }
                 }
             }
+
+            // lets remove any excluded import packages
+            String excludedPackagesText = main.getValue(ServiceConstants.INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE);
+            if (notEmpty(excludedPackagesText)) {
+                StringTokenizer e = new StringTokenizer(excludedPackagesText);
+                while (e.hasMoreTokens()) {
+                    String expression = e.nextToken();
+                    String ignore = expression;
+                    if (ignore.endsWith("*")) {
+                        do {
+                            ignore = ignore.substring(0, ignore.length() - 1);
+                        } while (ignore.endsWith("*"));
+
+                        if (ignore.length() == 0) {
+                            LOG.debug("Ignoring all imports due to %s value of %s", ServiceConstants.INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE,  expression);
+                            values.clear();
+                        } else {
+                            List<String> packageNames = new ArrayList<String>(values.keySet());
+                            for (String packageName : packageNames) {
+                                if (packageName.equals(ignore) || packageName.startsWith(ignore)) {
+                                    if (LOG.isDebugEnabled()) {
+                                        LOG.debug("Ignoring package " + packageName + " due to " + ServiceConstants.INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE + " value of " + expression);
+                                    }
+                                    values.remove(packageName);
+                                }
+                            }
+                        }
+                    } else {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Ignoring package " + ignore + " due to " + ServiceConstants.INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE + " header");
+                        }
+                        values.remove(ignore);
+                    }
+                }
+            }
+
+            // lets remove optional dependency if they are exported from a non-optional dependency...
+            for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
+                String packageName = entry.getKey();
+                Map<String, String> map = entry.getValue();
+                String res = map.get("resolution:");
+                if ("optional".equals(res)) {
+                    if (!versionResolver.isPackageOptional(packageName)) {
+                        map.remove("resolution:");
+                        res = null;
+                    }
+                }
+                if( !"optional".equals(res) ) {
+                    // add all the non-optional deps..
+                    actualImports.add(packageName);
+                }
+            }
+
             // TODO do we really need to filter out any of the attribute values?
             // we were filtering out everything bar resolution:
             //importPackages  = Processor.printClauses(values, "resolution:");
             importPackages  = Processor.printClauses(values, ALLOWED_PACKAGE_CLAUSES);
-
-            for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
-                String res = entry.getValue().get("resolution:");
-                if( !"optional".equals(res) ) {
-                    // add all the non-optional deps..
-                    actualImports.add(entry.getKey());
-                }
-            }
-
             if (notEmpty(importPackages)) {
                 main.putValue(Analyzer.IMPORT_PACKAGE, importPackages);
             }
+
+
+            String exportPackages = emptyIfNull(main.getValue(Analyzer.EXPORT_PACKAGE));
+            Map<String, Map<String, String>> exports = new Analyzer().parseHeader(exportPackages);
+            for (Map.Entry<String, Map<String, String>> entry : exports.entrySet()) {
+                String packageName = entry.getKey();
+                Map<String, String> map = entry.getValue();
+                String version = map.get("version");
+                if (version == null) {
+                    version = versionResolver.resolveExportPackageVersion(packageName);
+                    if (version != null) {
+                        map.put("version", version);
+                    }
+                }
+            }
+            exportPackages  = Processor.printClauses(exports, ALLOWED_PACKAGE_CLAUSES);
+            if (notEmpty(exportPackages)) {
+                main.putValue(Analyzer.EXPORT_PACKAGE, exportPackages);
+            }
+
         }
         return createInputStream( jar );
     }
@@ -271,7 +335,7 @@ public class BndUtils
                 {
                     jar.write( pout );
                 }
-                catch( IOException e )
+                catch( Exception e )
                 {
                     LOG.warn( "Bundle cannot be generated" );
                 }

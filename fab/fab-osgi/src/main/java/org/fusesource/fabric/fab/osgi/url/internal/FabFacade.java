@@ -9,6 +9,7 @@
 package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
@@ -33,9 +34,9 @@ public interface FabFacade {
 
     boolean isIncludeSharedResources();
 
-    DependencyTreeResult collectDependencies(boolean offline) throws RepositoryException, IOException, XmlPullParserException;
-
     VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException;
 
     String getProjectDescription();
+
+    DependencyTree collectDependencyTree(boolean offline) throws RepositoryException, IOException, XmlPullParserException;
 }
