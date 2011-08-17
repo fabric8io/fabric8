@@ -57,7 +57,7 @@
     <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni</artifactId>
-      <version>1.0</version>
+      <version>1.1-SNAPSHOT</version>
       <classifier>linux64</classifier>
     </dependency>
 
