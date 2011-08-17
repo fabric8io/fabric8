@@ -18,6 +18,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HALevelDBStoreDTO extends LevelDBStoreDTO {
 
+    @XmlAttribute(name = "dfs_url")
+    public String dfs_url;
+
+    @XmlAttribute(name = "dfs_config")
+    public String dfs_config;
+
     @XmlAttribute(name = "dfs_directory")
     public String dfs_directory;
 

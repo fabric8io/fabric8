@@ -43,10 +43,13 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
   var gc_executor:ExecutorService = _
   var read_executor:ExecutorService = _
 
-  val client = create_client
+  var client:LevelDBClient = _
   def create_client = new LevelDBClient(this)
 
-  override def toString = "leveldb store at "+config.directory
+
+  def store_kind = "leveldb"
+
+  override def toString = store_kind+" store at "+config.directory+" (yeah you got the update!)"
 
   def flush_delay = config.flush_delay.getOrElse(100)
   
@@ -65,34 +68,48 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
   }
 
   protected def _start(on_completed: Runnable) = {
-    write_executor = Executors.newFixedThreadPool(1, new ThreadFactory(){
-      def newThread(r: Runnable) = {
-        val rc = new Thread(r, "leveldb store io write")
-        rc.setDaemon(true)
-        rc
+    try {
+      client = create_client
+      write_executor = Executors.newFixedThreadPool(1, new ThreadFactory() {
+        def newThread(r: Runnable) = {
+          val rc = new Thread(r, store_kind + " store io write")
+          rc.setDaemon(true)
+          rc
+        }
+      })
+      gc_executor = Executors.newFixedThreadPool(1, new ThreadFactory() {
+        def newThread(r: Runnable) = {
+          val rc = new Thread(r, store_kind + " store gc")
+          rc.setDaemon(true)
+          rc
+        }
+      })
+      read_executor = Executors.newFixedThreadPool(config.read_threads.getOrElse(10), new ThreadFactory() {
+        def newThread(r: Runnable) = {
+          val rc = new Thread(r, store_kind + " store io read")
+          rc.setDaemon(true)
+          rc
+        }
+      })
+      poll_stats
+      write_executor {
+        try {
+          client.start()
+          next_msg_key.set(client.getLastMessageKey + 1)
+          next_queue_key.set(client.getLastQueueKey + 1)
+          poll_gc
+          on_completed.run
+        } catch {
+          case e:Throwable =>
+            e.printStackTrace()
+            LevelDBStore.error(e, "Store client startup failure: "+e)
+        }
       }
-    })
-    gc_executor = Executors.newFixedThreadPool(1, new ThreadFactory(){
-      def newThread(r: Runnable) = {
-        val rc = new Thread(r, "leveldb store gc")
-        rc.setDaemon(true)
-        rc
-      }
-    })
-    read_executor = Executors.newFixedThreadPool(config.read_threads.getOrElse(10), new ThreadFactory(){
-      def newThread(r: Runnable) = {
-        val rc = new Thread(r, "leveldb store io read")
-        rc.setDaemon(true)
-        rc
-      }
-    })
-    poll_stats
-    write_executor {
-      client.start()
-      next_msg_key.set( client.getLastMessageKey +1 )
-      next_queue_key.set( client.getLastQueueKey +1 )
-      poll_gc
-      on_completed.run
+    }
+    catch {
+      case e:Throwable =>
+        e.printStackTrace()
+        LevelDBStore.error(e, "Store startup failure: "+e)
     }
   }
 

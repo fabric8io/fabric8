@@ -86,7 +86,7 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
     def can_connect_one(path: Path, destination:DestinationDTO, producer: BindableDeliveryProducer, security: SecurityContext): Boolean = actual.can_connect_one(path, destination, producer, security)
     def can_bind_one(path: Path, destination:DestinationDTO, consumer: DeliveryConsumer, security: SecurityContext): Boolean = actual.can_bind_one(path, destination, consumer, security)
 
-    def destroy_destination(path: Path, destination: DestinationDTO) = actual.destroy_destination(path, destination)
+    def destroy_destination(path: Path, destination: DestinationDTO, security: SecurityContext) = actual.destroy_destination(path, destination, security)
 
     def can_destroy_destination(path: Path, destination: DestinationDTO, security: SecurityContext): Option[String] = actual.can_destroy_destination(path, destination,security)
 

@@ -57,7 +57,7 @@ object LevelDBClient extends Log {
   import FileSupport._
   def create_sequence_file(directory:File, id:Long, suffix:String) = directory / ("%016x%s".format(id, suffix))
 
-  def find_sequence_files(directory:File, suffix:String) = {
+  def find_sequence_files(directory:File, suffix:String):TreeMap[Long, File] = {
     TreeMap((directory.list_files.flatMap { f=>
       if( f.getName.endsWith(suffix) ) {
         try {
@@ -166,7 +166,7 @@ class LevelDBClient(store: LevelDBStore) {
     index_options.cache(index_cache)
 
     index_logger = new Logger() {
-      def log(msg: String) = debug("leveldb: "+msg)
+      def log(msg: String) = debug(store.store_kind+": "+msg)
     }
     index_options.infoLog(index_logger)
 
@@ -188,7 +188,7 @@ class LevelDBClient(store: LevelDBStore) {
     }
 
     // Find out what was the last snapshot.
-    val snapshots = find_sequence_files(directory, ".index")
+    val snapshots = find_sequence_files(directory, INDEX_SUFFIX)
     var last_snapshot_index = snapshots.lastOption
     last_index_snapshot_pos = last_snapshot_index.map(_._1).getOrElse(0)
 
@@ -706,7 +706,7 @@ class LevelDBClient(store: LevelDBStore) {
 
     in_gc = true
     val now = System.currentTimeMillis()
-    debug("leveldb gc starting")
+    debug(store.store_kind+" gc starting")
     latency_counter.time {
 
       retry_using_index {
@@ -774,7 +774,7 @@ class LevelDBClient(store: LevelDBStore) {
     last_gc_ts=now
     last_gc_duration = latency_counter.total(TimeUnit.MILLISECONDS)
     in_gc = false
-    debug("leveldb gc ended")
+    debug(store.store_kind+" gc ended")
   }
 
 
