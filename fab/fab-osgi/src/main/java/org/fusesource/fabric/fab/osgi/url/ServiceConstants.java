@@ -141,6 +141,8 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_REQUIRE_BUNDLE = "Require-Bundle";
     static final String INSTR_EXPORT_PACKAGE = "Export-Package";
     static final String INSTR_IMPORT_PACKAGE = "Import-Package";
+    static final String INSTR_BUNDLE_VERSION = "Bundle-Version";
+    static final String INSTR_IMPLEMENTATION_VERSION = "Implementation-Version";
 
 
     /**

@@ -21,6 +21,12 @@ import org.sonatype.aether.RepositoryException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Properties;
+
+import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
  */
@@ -33,9 +39,49 @@ public class BundleFabFacade extends FabFacadeSupport {
         this.bundle = bundle;
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(System.getProperties());
         this.configuration = new Configuration(propertyResolver);
-        Object fabId = bundle.getHeaders().get(ServiceConstants.INSTR_FAB_MODULE_ID);
+        Dictionary headers = bundle.getHeaders();
+        Object fabId = headers.get(ServiceConstants.INSTR_FAB_MODULE_ID);
+        String fabIdString = null;
         if (fabId instanceof String) {
-            String fabIdString = (String) fabId;
+            fabIdString = (String) fabId;
+        } else {
+            // lets try find the pom.properties file inside the bundle as its more reliable than bundle symbolic name
+            Enumeration iter = bundle.findEntries("META-INF", "pom.properties", true);
+            while (iter.hasMoreElements()) {
+                Object value = iter.nextElement();
+                if (value instanceof URL) {
+                    URL url = (URL) value;
+                    Properties properties = new Properties();
+                    try {
+                        properties.load(url.openStream());
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException("Failed to load Properties for " + url + ". " + e.getMessage(), e);
+                    }
+                    String groupId = properties.getProperty("groupId");
+                    String artifactId = properties.getProperty("artifactId");
+                    String version = properties.getProperty("version");
+
+                    if (notEmpty(groupId) && notEmpty(artifactId) && notEmpty(version)) {
+                        fabIdString = groupId + ":" + artifactId + ":" + version + ":jar";
+                    }
+                }
+            }
+
+            if (fabIdString == null) {
+                // lets try make one using the bundle name and implementation version
+                Object bundleName = headers.get(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
+                Object versionValue = headers.get(ServiceConstants.INSTR_IMPLEMENTATION_VERSION);
+                if (bundleName instanceof String && versionValue instanceof String) {
+                    String name = bundleName.toString();
+                    String version = versionValue.toString();
+                    int idx = name.lastIndexOf('.');
+                    if (idx > 0) {
+                        fabIdString = name.substring(0, idx) + ":" + name.substring(idx + 1, name.length()) + ":" + version + ":jar";
+                    }
+                }
+            }
+        }
+        if (fabIdString != null) {
             dependencyId = VersionedDependencyId.fromString(fabIdString);
         }
         if (dependencyId == null) {

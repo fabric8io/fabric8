@@ -53,6 +53,9 @@ public class TreeHelper {
             writer.printf("%-3s", indent ? "|" : "");
         }
         String postfix = "";
+        if (node.isOptional()) {
+            postfix += " (optional)";
+        }
         if (sharedDependencies.contains(node)) {
             postfix = " (shared)";
         }
