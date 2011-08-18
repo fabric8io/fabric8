@@ -39,7 +39,7 @@ public class StartCommand extends FabCommandSupport {
 
         // TODO need to wait for all dependent bundles to be started ideally!
         try {
-            Thread.sleep(100L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             // ignore
         }
