@@ -20,7 +20,7 @@ public interface ServiceConstants extends Constants {
     /**
      * The default number of version range digits to use, 0 being exact, 1 being any qualifier range, 2 being micro digits, 3 minor digits and 4 any
      */
-    static final int DEFAULT_VERSION_DIGITS = 2;
+    static final int DEFAULT_VERSION_DIGITS = 3;
 
     /**
      * The maximum number of allowed digit ranges in a version range
@@ -92,6 +92,14 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE = "Fabric-Dependency-Require-Bundle";
 
     /**
+     * The space separated list of dependencies which should have their Export-Package statements imported so that their classes
+     * can be used inside dependency injection frameworks like blueprint or spring etc.
+     *
+     * You can use wildcards such as "group:artifact group:* *:*"
+     */
+    static final String INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS = "Fabric-Import-Dependency-Exports";
+
+    /**
      * Used to define how many digits are allowed in version ranges.
      *
      * For example for a value of "2.5.6.qualifier" the following values transform a version into a range...
@@ -104,6 +112,7 @@ public interface ServiceConstants extends Constants {
      *
      */
     static final String INSTR_FAB_VERSION_RANGE_DIGITS = "Fabric-Version-Range-Digits";
+
 
     /**
      * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]
@@ -127,6 +136,7 @@ public interface ServiceConstants extends Constants {
             INSTR_FAB_OPTIONAL_DEPENDENCY,
             INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE,
             INSTR_FAB_MODULE_ID,
+            INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS,
             "Fabric-"+FAB_MODULE_NAME,
             "Fabric-"+FAB_MODULE_EXTENSION,
             "Fabric-"+FAB_MODULE_DESCRIPTION,
@@ -176,4 +186,9 @@ public interface ServiceConstants extends Constants {
      * to avoid META-INF/services classloader issues
      */
     static final String[] DEFAULT_PROPERTY_SHARED_RESOURCE_PATHS = { "META-INF/services", "WEB-INF" };
+
+    /**
+     * The available paramters you can specify on an "Import-Package" directive
+     */
+    static final String[] IMPORT_PACKAGE_PARAMETERS = { "version", "specification-version", "resolution:", "bundle-symbolic-name", "bundle-version"};
 }

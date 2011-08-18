@@ -17,6 +17,8 @@ import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 
 import java.io.File;
@@ -31,6 +33,8 @@ import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 /**
  */
 public class BundleFabFacade extends FabFacadeSupport {
+    private static final transient Logger LOG = LoggerFactory.getLogger(BundleFabFacade.class);
+
     private final Bundle bundle;
     private Configuration configuration;
     private VersionedDependencyId dependencyId;
@@ -116,5 +120,27 @@ public class BundleFabFacade extends FabFacadeSupport {
     @Override
     public VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException {
         return dependencyId;
+    }
+
+    @Override
+    public String toVersionRange(String version) {
+        int digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
+        Object o = bundle.getHeaders().get(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
+        if (o instanceof String) {
+            String value = (String) o;
+            if (notEmpty(value)) {
+                try {
+                    digits = Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    LOG.warn("Failed to parse manifest header " + ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS + " as a number. Got: '" + value + "' so ignoring it");
+                }
+                if (digits < 0 || digits > 4) {
+                    LOG.warn("Invalid value of manifest header " + ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS + " as value " + digits + " is out of range so ignoring it");
+                    digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
+                }
+            }
+        }
+        return Versions.toVersionRange(version, digits);
+
     }
 }

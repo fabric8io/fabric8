@@ -33,8 +33,9 @@
 
 
   <modules>
-    <module>fab-sample-camel-spring-share</module>
     <module>fab-sample-camel-activemq-share</module>
+    <module>fab-sample-camel-activemq-broker-share</module>
+    <module>fab-sample-camel-spring-share</module>
 
     <module>fab-sample-camel-blueprint-share</module>
     <module>fab-sample-camel-noshare</module>
