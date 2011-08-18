@@ -344,6 +344,9 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     Map<String, String> map = values.get(packageName);
                     if (map != null) {
                         String version = map.get("version");
+                        if (version == null) {
+                            version = map.get("specification-version");
+                        }
                         if (version != null) {
                             return toVersionRange(version);
                         }
