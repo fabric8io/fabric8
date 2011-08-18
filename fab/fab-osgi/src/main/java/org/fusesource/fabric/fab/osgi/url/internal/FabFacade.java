@@ -39,4 +39,9 @@ public interface FabFacade {
     String getProjectDescription();
 
     DependencyTree collectDependencyTree(boolean offline) throws RepositoryException, IOException, XmlPullParserException;
+
+    /**
+     * Lets convert the version to a version range depending on the default or FAB specific version range value
+     */
+    String toVersionRange(String version);
 }

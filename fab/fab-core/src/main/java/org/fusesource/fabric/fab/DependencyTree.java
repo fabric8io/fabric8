@@ -71,6 +71,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     private File jarFile;
     private boolean optional;
     private HashSet<String> packages;
+    private DependencyTree parent;
 
     public static Builder newBuilder() {
         return new Builder();
@@ -146,6 +147,13 @@ public class DependencyTree implements Comparable<DependencyTree> {
         this(dependencyId, dependency.getArtifact().getVersion(), children);
         this.scope = dependency.getScope();
         this.optional = dependency.isOptional();
+        init(children);
+    }
+
+    private void init(List<DependencyTree> children) {
+        for (DependencyTree child : children) {
+            child.parent = this;
+        }
     }
 
     public DependencyTree(DependencyId dependencyId, String version, List<DependencyTree> children) {
@@ -155,7 +163,9 @@ public class DependencyTree implements Comparable<DependencyTree> {
         Collections.sort(sortedChildren);
         this.children = Collections.unmodifiableList(sortedChildren);
         this.hashCode = Objects.hashCode(dependencyId, version, this.children);
+        init(children);
     }
+
     public URL getJarURL() throws MalformedURLException {
         String url = getUrl();
         if (url == null) {
@@ -216,6 +226,20 @@ public class DependencyTree implements Comparable<DependencyTree> {
      */
     public boolean isValidLibrary() {
         return getUrl()!=null && !getUrl().endsWith(".pom");
+    }
+
+    public DependencyTree getParent() {
+        return parent;
+    }
+
+    public boolean isThisOrDescendantOptional() {
+        if (isOptional()) {
+            return true;
+        }
+        if (parent != null) {
+            return parent.isThisOrDescendantOptional();
+        }
+        return false;
     }
 
     public DependencyTree findDependency(String groupId, String artifactId) {

@@ -14,7 +14,6 @@ import org.apache.felix.utils.version.VersionCleaner;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
@@ -201,7 +200,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                         "Instructions file must contain a property named " + ServiceConstants.INSTR_FAB_URL
                 );
             }
-            String extraImportPackages = classPathResolver.getExtraImportPackages();
             HashSet<String> actualImports = new HashSet<String>();
             InputStream rc = BndUtils.createBundle(
                     URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
@@ -209,7 +207,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     fabUri,
                     OverwriteMode.MERGE,
                     embeddedResources,
-                    extraImportPackages,
+                    classPathResolver.getExtraImportPackages(),
                     actualImports,
                     this);
 
@@ -218,7 +216,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
             } else {
                 LOG.info("Not installing dependencies as not enabled");
             }
-
             return rc;
         } catch (IOException e) {
             throw e;
@@ -233,7 +230,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         if (bundleContext == null) {
             LOG.warn("No BundleContext available so cannot install provided dependencies");
         } else {
-
             for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
                 if (dependency.isBundle()) {
                     // Expand the actual imports list with imports of our dependencies
@@ -247,7 +243,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                                 actualImports.add(entry.getKey());
                             }
                         }
-                        //values.get()
                     }
                 }
             }
@@ -344,6 +339,9 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     Map<String, String> map = values.get(packageName);
                     if (map != null) {
                         String version = map.get("version");
+                        if (version == null) {
+                            version = map.get("specification-version");
+                        }
                         if (version != null) {
                             return toVersionRange(version);
                         }
@@ -397,7 +395,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         DependencyTree dependency = resolvePackageDependency(packageName);
         if (dependency != null) {
             // mark optional dependencies which are explicitly marked as included as not being optional
-            return dependency.isOptional() && classPathResolver.getExcludeOptionalFilter().matches(dependency);
+            return dependency.isThisOrDescendantOptional() && classPathResolver.getOptionalDependencyFilter().matches(dependency);
         }
         return true;
     }
@@ -420,10 +418,8 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         return null;
     }
 
-    /**
-     * Lets convert the version to a version range depending on the default or FAB specific version range value
-     */
-    protected String toVersionRange(String version) {
+    @Override
+    public String toVersionRange(String version) {
         int digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
         String value = classPathResolver.getManifestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
         if (notEmpty(value)) {
