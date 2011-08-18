@@ -26,9 +26,11 @@ import collection.mutable.{HashMap, ListBuffer}
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import java.util.concurrent.atomic.AtomicLong
 import org.fusesource.hawtdispatch._
-import org.fusesource.leveldbjni._
 import org.apache.activemq.apollo.util.{TreeMap=>ApolloTreeMap}
 import collection.immutable.TreeMap
+import org.iq80.leveldb._
+import org.fusesource.leveldbjni.JniDBFactory._
+import org.fusesource.leveldbjni.internal.Util
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -42,7 +44,7 @@ object LevelDBClient extends Log {
   final val message_prefix_array = Array(message_prefix)
   final val queue_prefix_array = Array(queue_prefix)
   final val queue_entry_prefix_array = Array(queue_entry_prefix)
-  final val dirty_index_key = DB.bytes(":dirty")
+  final val dirty_index_key = bytes(":dirty")
 
   final val LOG_ADD_QUEUE           = 1.toByte
   final val LOG_REMOVE_QUEUE        = 2.toByte
@@ -117,8 +119,6 @@ class LevelDBClient(store: LevelDBStore) {
   var log:RecordLog = _
 
   var index:RichDB = _
-  var index_cache:Cache = _
-  var index_logger:Logger = _
   var index_options:Options = _
 
   var last_index_snapshot_pos:Long = _
@@ -156,20 +156,16 @@ class LevelDBClient(store: LevelDBStore) {
     config.paranoid_checks.foreach( index_options.paranoidChecks(_) )
     config.index_write_buffer_size.foreach( index_options.writeBufferSize(_) )
     config.index_block_size.foreach( index_options.blockSize(_) )
-    Option(config.index_compression).foreach(x => index_options.compression( x match {
-      case "snappy" => CompressionType.kSnappyCompression
-      case "none" => CompressionType.kNoCompression
-      case _ => CompressionType.kSnappyCompression
+    Option(config.index_compression).foreach(x => index_options.compressionType( x match {
+      case "snappy" => CompressionType.SNAPPY
+      case "none" => CompressionType.NONE
+      case _ => CompressionType.SNAPPY
     }) )
 
-    index_cache = new Cache(config.index_cache_size.getOrElse(1024*1024*256L))
-    index_options.cache(index_cache)
-
-    index_logger = new Logger() {
+    index_options.cacheSize(config.index_cache_size.getOrElse(1024*1024*256L))
+    index_options.logger(new Logger() {
       def log(msg: String) = debug(store.store_kind+": "+msg)
-    }
-    index_options.infoLog(index_logger)
-
+    })
 
     log = create_log
     log.write_buffer_size = config.log_write_buffer_size.getOrElse(1024*1024*4)
@@ -215,9 +211,9 @@ class LevelDBClient(store: LevelDBStore) {
         }
       }
 
-      index = new RichDB(DB.open(index_options, dirty_index_file));
+      index = new RichDB(factory.open(dirty_index_file, index_options));
       try {
-        index.put(dirty_index_key, DB.bytes("true"))
+        index.put(dirty_index_key, bytes("true"))
         // Update the index /w what was stored on the logs..
         var pos = last_index_snapshot_pos;
 
@@ -264,7 +260,7 @@ class LevelDBClient(store: LevelDBStore) {
       } catch {
         case e:Throwable =>
           // replay failed.. good thing we are in a retry block...
-          index.delete
+          index.close
           throw e;
       }
     }
@@ -275,18 +271,10 @@ class LevelDBClient(store: LevelDBStore) {
     // Suspend also deletes the index.
     suspend()
 
-    if (index_logger != null) {
-      index_logger.delete
-    }
-    if (index_cache != null) {
-      index_cache.delete
-    }
     if (log != null) {
       log.close
     }
     copy_dirty_index_to_snapshot
-    index_logger = null
-    index_cache = null
     log = null
   }
 
@@ -312,8 +300,8 @@ class LevelDBClient(store: LevelDBStore) {
     snapshot_rw_lock.writeLock().lock()
 
     // Close the index so that it's files are not changed async on us.
-    index.put(dirty_index_key, DB.bytes("false"), new WriteOptions().sync(true))
-    index.delete
+    index.put(dirty_index_key, bytes("false"), new WriteOptions().sync(true))
+    index.close
   }
 
   /**
@@ -323,8 +311,8 @@ class LevelDBClient(store: LevelDBStore) {
   def resume() = {
     // re=open it..
     retry {
-      index = new RichDB(DB.open(index_options, dirty_index_file));
-      index.put(dirty_index_key, DB.bytes("true"))
+      index = new RichDB(factory.open(dirty_index_file, index_options));
+      index.put(dirty_index_key, bytes("true"))
     }
     snapshot_rw_lock.writeLock().unlock()
   }

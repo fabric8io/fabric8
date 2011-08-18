@@ -10,8 +10,9 @@
 package org.fusesource.fabric.apollo.broker.store.leveldb
 
 import org.fusesource.hawtbuf._
-import org.fusesource.leveldbjni._
 import java.util.concurrent.TimeUnit
+import org.iq80.leveldb._
+import org.fusesource.leveldbjni.JniDBFactory._
 
 object HelperTrait {
 
@@ -72,37 +73,28 @@ object HelperTrait {
     def getApproximateSizes(ranges:Range*) = db.getApproximateSizes(ranges:_*)
 
     def get(key:Array[Byte], ro:ReadOptions=new ReadOptions):Option[Array[Byte]] = {
-      try {
-        Some(db.get(ro, key))
-      } catch {
-        case e:DB.DBException =>
-          if( e.isNotFound ) {
-            None
-          } else {
-            throw e;
-          }
-      }
+      Option(db.get(key, ro))
     }
 
-    def delete:Unit = db.delete()
+    def close:Unit = db.close()
 
     def delete(key:Array[Byte], wo:WriteOptions=new WriteOptions):Unit = {
-      db.delete(wo, key)
+      db.delete(key, wo)
     }
 
     def put(key:Array[Byte], value:Array[Byte], wo:WriteOptions=new WriteOptions):Unit = {
-      db.put(wo, key, value)
+      db.put(key, value, wo)
     }
 
     def write[T](wo:WriteOptions=new WriteOptions)(func: WriteBatch=>T):T = {
-      val updates = new WriteBatch()
+      val updates = db.createWriteBatch()
       try {
 
         val rc=Some(func(updates))
-        db.write(wo, updates)
+        db.write(updates, wo)
         return rc.get
       } finally {
-        updates.delete();
+        updates.close();
       }
     }
 
@@ -111,7 +103,7 @@ object HelperTrait {
       try {
         func(snapshot)
       } finally {
-        db.releaseSnapshot(snapshot)
+        snapshot.close()
       }
     }
 
@@ -119,11 +111,11 @@ object HelperTrait {
       val iterator = db.iterator(ro)
       iterator.seekToFirst();
       try {
-        while( iterator.isValid && func(iterator.key()) ) {
+        while( iterator.hasNext && func(iterator.peekNext.getKey) ) {
           iterator.next()
         }
       } finally {
-        iterator.delete();
+        iterator.close();
       }
     }
 
@@ -134,11 +126,11 @@ object HelperTrait {
         def check(key:Array[Byte]) = {
           key.startsWith(prefix) && func(key)
         }
-        while( iterator.isValid && check(iterator.key()) ) {
+        while( iterator.hasNext && check(iterator.peekNext.getKey) ) {
           iterator.next()
         }
       } finally {
-        iterator.delete();
+        iterator.close();
       }
     }
 
@@ -147,13 +139,13 @@ object HelperTrait {
       iterator.seek(prefix);
       try {
         def check(key:Array[Byte]) = {
-          key.startsWith(prefix) && func(key, iterator.value())
+          key.startsWith(prefix) && func(key, iterator.peekNext.getValue)
         }
-        while( iterator.isValid && check(iterator.key()) ) {
+        while( iterator.hasNext && check(iterator.peekNext.getKey) ) {
           iterator.next()
         }
       } finally {
-        iterator.delete();
+        iterator.close();
       }
     }
 
@@ -168,11 +160,11 @@ object HelperTrait {
         def check(key:Array[Byte]) = {
           (compare(key,end_excluded) < 0) && func(key)
         }
-        while( iterator.isValid && check(iterator.key()) ) {
+        while( iterator.hasNext && check(iterator.peekNext.getKey) ) {
           iterator.next()
         }
       } finally {
-        iterator.delete();
+        iterator.close();
       }
     }
 
@@ -181,13 +173,13 @@ object HelperTrait {
       iterator.seek(start_included);
       try {
         def check(key:Array[Byte]) = {
-          (compare(key,end_excluded) < 0) && func(key, iterator.value())
+          (compare(key,end_excluded) < 0) && func(key, iterator.peekNext.getValue)
         }
-        while( iterator.isValid && check(iterator.key()) ) {
+        while( iterator.hasNext && check(iterator.peekNext.getKey) ) {
           iterator.next()
         }
       } finally {
-        iterator.delete();
+        iterator.close();
       }
     }
 
@@ -200,14 +192,14 @@ object HelperTrait {
       val iterator = db.iterator(ro)
       try {
         iterator.seek(copy);
-        if ( iterator.isValid ) {
+        if ( iterator.hasPrev ) {
           iterator.prev()
         } else {
           iterator.seekToLast()
         }
         
-        if ( iterator.isValid ) {
-          val key = iterator.key()
+        if ( iterator.hasNext ) {
+          val key = iterator.peekNext.getKey
           if(key.startsWith(prefix)) {
             Some(key)
           } else {
@@ -217,7 +209,7 @@ object HelperTrait {
           None
         }
       } finally {
-        iterator.delete();
+        iterator.close();
       }
     }
   }

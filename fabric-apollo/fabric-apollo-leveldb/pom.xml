@@ -39,26 +39,8 @@
     </dependency>
     <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
-      <artifactId>leveldbjni</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.leveldbjni</groupId>
-      <artifactId>leveldbjni</artifactId>
-      <version>1.0</version>
-      <classifier>osx</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.leveldbjni</groupId>
-      <artifactId>leveldbjni</artifactId>
-      <version>1.0</version>
-      <classifier>linux32</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.leveldbjni</groupId>
-      <artifactId>leveldbjni</artifactId>
+      <artifactId>leveldbjni-all</artifactId>
       <version>1.1-SNAPSHOT</version>
-      <classifier>linux64</classifier>
     </dependency>
 
     <!-- Since we implement a jade template to display the LevelDB status -->
@@ -142,11 +124,7 @@
             <configuration>
               <artifactSet>
                 <includes>
-                  <include>org.fusesource.leveldbjni:leveldbjni</include>
-                  <include>org.fusesource.leveldbjni:leveldbjni:osx</include>
-                  <include>org.fusesource.leveldbjni:leveldbjni:linux32</include>
-                  <include>org.fusesource.leveldbjni:leveldbjni:linux64</include>
-                  <include>org.fusesource.hawtjni:hawtjni-runtime</include>
+                  <include>org.fusesource.leveldbjni:leveldbjni-all</include>
                 </includes>
               </artifactSet>
             </configuration>
