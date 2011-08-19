@@ -260,32 +260,34 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
     val rc = new LevelDBStoreStatusDTO
     fill_store_status(rc)
     rc.message_load_batch_size = message_load_batch_size
-    rc.index_stats = client.index.getProperty("leveldb.stats")
     write_executor {
-      rc.log_append_pos = client.log.appender_limit
-      rc.index_snapshot_pos = client.last_index_snapshot_pos
-      rc.last_gc_duration = client.last_gc_duration
-      rc.last_gc_ts = client.last_gc_ts
-      rc.in_gc = client.in_gc
-      rc.log_stats = {
-        var row_layout = "%-20s | %-10s | %10s/%-10s\n"
-        row_layout.format("File", "Messages", "Used Size", "Total Size")+
-        client.log.log_infos.map(x=> x._1 -> client.gc_detected_log_usage.get(x._1)).toSeq.flatMap { x=>
-          try {
-            val file = LevelDBClient.create_sequence_file(client.directory, x._1, LevelDBClient.LOG_SUFFIX)
-            val size = file.length()
-            val usage = x._2 match {
-              case Some(usage)=>
-                (usage.count.toString, ViewHelper.memory(usage.size))
-              case None=>
-                ("unknown", "unknown")
+      client.using_index {
+        rc.index_stats = client.index.getProperty("leveldb.stats")
+        rc.log_append_pos = client.log.appender_limit
+        rc.index_snapshot_pos = client.last_index_snapshot_pos
+        rc.last_gc_duration = client.last_gc_duration
+        rc.last_gc_ts = client.last_gc_ts
+        rc.in_gc = client.in_gc
+        rc.log_stats = {
+          var row_layout = "%-20s | %-10s | %10s/%-10s\n"
+          row_layout.format("File", "Messages", "Used Size", "Total Size")+
+          client.log.log_infos.map(x=> x._1 -> client.gc_detected_log_usage.get(x._1)).toSeq.flatMap { x=>
+            try {
+              val file = LevelDBClient.create_sequence_file(client.directory, x._1, LevelDBClient.LOG_SUFFIX)
+              val size = file.length()
+              val usage = x._2 match {
+                case Some(usage)=>
+                  (usage.count.toString, ViewHelper.memory(usage.size))
+                case None=>
+                  ("unknown", "unknown")
+              }
+              Some(row_layout.format(file.getName, usage._1, usage._2, ViewHelper.memory(size)))
+            } catch {
+              case e:Throwable =>
+                None
             }
-            Some(row_layout.format(file.getName, usage._1, usage._2, ViewHelper.memory(size)))
-          } catch {
-            case e:Throwable =>
-              None
-          }
-        }.mkString("")
+          }.mkString("")
+        }
       }
       callback(rc)
     }
