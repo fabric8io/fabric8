@@ -90,7 +90,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
     not_null(config.node_id, "node_id")
     not_null(config.zk_url, "zk_url")
-    not_null(config.zk_directory, "zk_group_path")
+    not_null(config.zk_directory, "zk_directory")
 
     cluster_weight = config.weight.getOrElse(16)
     cluster_address = Option(config.address).orElse {
@@ -147,7 +147,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
         hosts_stopped_due_to_disconnect = Nil
 
         if( cluster_group==null ) {
-          cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory)
+          cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory+"/brokers")
           update_cluster_state
           cluster_group.add(change_listener)
         }
@@ -160,8 +160,11 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
 
   override def _stop(on_completed: Runnable): Unit = {
-    cluster_group.remove(change_listener)
-    cluster_group.leave(node_id)
+    if( cluster_group!=null ) {
+      cluster_group.remove(change_listener)
+      cluster_group.leave(node_id)
+      cluster_group = null
+    }
     zk_client.close()
     cluster_listeners.foreach(_.close)
     cluster_listeners = Nil

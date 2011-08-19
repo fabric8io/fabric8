@@ -10,8 +10,8 @@
 
 package org.fusesource.fabric.apollo.cluster
 
+import dto.{ClusterNodeDTO, ClusterVirtualHostDTO}
 import org.apache.activemq.apollo.util._
-import org.fusesource.fabric.apollo.cluster.dto.ClusterVirtualHostDTO
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.broker.security.SecurityContext
 import org.apache.activemq.apollo.dto._
@@ -20,6 +20,8 @@ import org.fusesource.hawtdispatch._
 import scala.collection.mutable.HashMap
 import org.fusesource.fabric.apollo.cluster.util.HashRing
 import java.lang.IllegalStateException
+import org.fusesource.fabric.groups.ZooKeeperGroupFactory
+import javax.swing.event.{ChangeEvent, ChangeListener}
 
 object ClusterRouter extends Log
 
@@ -29,7 +31,7 @@ object ClusterRouter extends Log
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
+class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Router {
   import ClusterRouter._
 
   def broker = host.broker
@@ -64,7 +66,11 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
     val original_remove_destination = actual.remove_destination
 
     actual.add_destination = (path:Path, dest:D) => {
-      this.add_destination(path, new ClusterDestination(dest))
+      val clustered_dest = dest match {
+        case queue:Queue=> new ClusterQueue(queue).asInstanceOf[ClusterDestination[D]]
+        case _ => new ClusterDestination[D](dest)
+      }
+      this.add_destination(path, clustered_dest)
       original_add_destination(path, dest)
     }
 
@@ -100,27 +106,25 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
 
     val dispatch_queue = createQueue()
 
-    var master:DomainDestination = local
+    var tail_destination:DomainDestination = local
+    var tail_node:String = _
 
     def id = local.id
 
     var producers = HashMap[BindableDeliveryProducer, DestinationDTO]()
     var consumers = HashMap[DeliveryConsumer, DestinationDTO]()
 
-    // Pick the right master asap..
-    var master_id:String = _
     on_cluster_change
-
 
     def connect(destination: DestinationDTO, producer: BindableDeliveryProducer) = {
       assert_executing
       producers.put(producer, destination)
-      master.connect(destination, producer)
+      tail_destination.connect(destination, producer)
     }
     def disconnect(producer: BindableDeliveryProducer) = {
       assert_executing
       producers.remove(producer)
-      master.disconnect(producer)
+      tail_destination.disconnect(producer)
     }
 
     def bind(destination: DestinationDTO, consumer: DeliveryConsumer) = {
@@ -132,7 +136,7 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
         case consumer:Peer#ClusterDeliveryConsumer =>
           local.bind(destination, consumer)
         case _ =>
-          master.bind(destination, consumer)
+          tail_destination.bind(destination, consumer)
       }
 
     }
@@ -143,54 +147,58 @@ class ClusterRouter(host: VirtualHost) extends LocalRouter(host) with Router {
         case consumer:Peer#ClusterDeliveryConsumer =>
           local.unbind(consumer, persistent)
         case _ =>
-          master.unbind(consumer, persistent)
+          tail_destination.unbind(consumer, persistent)
       }
     }
 
+    def pick_next_tail = {
+      hash_ring.get(id)
+    }
+
     def on_cluster_change {
-      var next_master_id = hash_ring.get(id)
-      if( next_master_id!=master_id ) {
+      var next_tail_id = pick_next_tail
+      if( next_tail_id!=tail_node ) {
 
-        // Disconnect the clients from the old master..
-        consumers.keys.foreach(x=> master.unbind(x, false) )
-        producers.keys.foreach(x=> master.disconnect(x) )
+        // Disconnect the clients from the old tail..
+        consumers.keys.foreach(x=> tail_destination.unbind(x, false) )
+        producers.keys.foreach(x=> tail_destination.disconnect(x) )
 
-        // old master clean up..
-        master match {
+        // old tail clean up..
+        tail_destination match {
           case x:PeerDestination => x.close()
           case _ =>
         }
 
-        val old_master_id = master_id
-        master_id = next_master_id
+        val old_tail_id = tail_node
+        tail_node = next_tail_id
 
-        master = if( is_master ) {
-          info("I am the master of: %s", id)
+        tail_destination = if( is_tail ) {
+          info("I am the tail node of: %s", id)
           local
         } else {
-          info("Master moved from %s to %s for destination %s", old_master_id, master_id, id)
-          new PeerDestination(local, cluster_connector.get_or_create_peer(master_id))
+          info("Tail node moved from %s to %s for destination %s", old_tail_id, tail_node, id)
+          new PeerDestination(local, cluster_connector.get_or_create_peer(tail_node))
         }
 
-        // If we are not the master, then any messages that make it into
-        // the local queue need to be forwarded to the actual master.
-        if ( ! is_master ) {
-
-
-
-        }
-
-        // reconnect the clients to the new master
-        consumers.foreach(x=> master.bind(x._2, x._1) )
-        producers.foreach(x=> master.connect(x._2, x._1) )
+        // reconnect the clients to the new tail
+        consumers.foreach(x=> tail_destination.bind(x._2, x._1) )
+        producers.foreach(x=> tail_destination.connect(x._2, x._1) )
 
       }
     }
 
-    def is_master = cluster_connector.node_id == master_id
+    def is_tail = cluster_connector.node_id == tail_node
 
     def update(on_completed: Runnable) = local.update(on_completed)
   }
 
+  class ClusterQueue(local:Queue) extends ClusterDestination[Queue](local) {
+
+    local.config
+
+    val zk_path = cluster_connector.config.zk_directory + "/queues/" + local.id
+
+
+  }
 
 }

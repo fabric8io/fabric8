@@ -12,19 +12,32 @@ package org.fusesource.fabric.apollo.cluster.dto;
 
 import org.apache.activemq.apollo.dto.QueueDTO;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-@XmlRootElement(name="cluster_queue")
+@XmlRootElement(name="queue")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ClusterQueueDTO extends ClusterDestinationDTO  {
+public class ClusterQueueDTO extends QueueDTO  {
 
-    @XmlElement(name="config")
-    QueueDTO config;
+    /**
+     * The number of partitions of the queue.  Default to one.
+     * Partitioning a queue horizontally scale the enqueue rate.
+     *
+     * Producers should send a message to only one of the partitions.
+     * Consumers of the queues should consume from all the partitions of
+     * the queue.
+     */
+    @XmlElement(name="partition")
+    public Integer partitions;
+
+    /**
+     * Is the queue strictly FIFO ordered?
+     */
+    @XmlAttribute(name="ordered")
+    Boolean ordered;
 
 }

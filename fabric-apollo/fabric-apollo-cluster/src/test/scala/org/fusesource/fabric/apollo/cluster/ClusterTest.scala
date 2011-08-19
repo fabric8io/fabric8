@@ -196,10 +196,10 @@ class ClusterTest extends ClusterTestSupport {
     val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
     val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
-    (access(router_a)(dest_a.is_master) ^ access(router_b)(dest_b.is_master)) should be === true
+    (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 
     // sort out which is the master and which is the slave..
-    val (master, slave, master_dest, slave_dest) = if (dest_a.is_master) {
+    val (master, slave, master_dest, slave_dest) = if (dest_a.is_tail) {
       (broker_a, broker_b, dest_a, dest_b)
     } else {
       (broker_b, broker_a, dest_b, dest_a)
@@ -268,10 +268,10 @@ class ClusterTest extends ClusterTestSupport {
     val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
     val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
-    (access(router_a)(dest_a.is_master) ^ access(router_b)(dest_b.is_master)) should be === true
+    (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 
     // sort out which is the master and which is the slave..
-    val (master, slave, master_dest, slave_dest) = if (dest_a.is_master) {
+    val (master, slave, master_dest, slave_dest) = if (dest_a.is_tail) {
       (cluster_a, cluster_b, dest_a, dest_b)
     } else {
       (cluster_b, cluster_a, dest_b, dest_a)
