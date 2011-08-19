@@ -23,6 +23,7 @@ import scala.util.continuations._
 import java.io._
 import org.apache.activemq.apollo.web.resources.ViewHelper
 import collection.mutable.ListBuffer
+import org.fusesource.hawtbuf.Buffer
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -171,6 +172,12 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
   }
 
 
+  def get(key: Buffer)(callback: (Option[Buffer]) => Unit) = {
+    read_executor {
+      callback(client.get(key))
+    }
+  }
+
   /**
    * Ges the last queue key identifier stored.
    */
@@ -204,12 +211,12 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
     }
   }
 
-  val load_source = createSource(new ListEventAggregator[(Long, AtomicLong, (Option[MessageRecord])=>Unit)](), dispatch_queue)
+  val load_source = createSource(new ListEventAggregator[(Long, AtomicReference[Array[Byte]], (Option[MessageRecord])=>Unit)](), dispatch_queue)
   load_source.setEventHandler(^{drain_loads});
   load_source.resume
 
 
-  def load_message(messageKey: Long, locator:AtomicLong)(callback: (Option[MessageRecord]) => Unit) = {
+  def load_message(messageKey: Long, locator:AtomicReference[Array[Byte]])(callback: (Option[MessageRecord]) => Unit) = {
     message_load_latency_counter.start { end=>
       load_source.merge((messageKey, locator, { (result)=>
         end()

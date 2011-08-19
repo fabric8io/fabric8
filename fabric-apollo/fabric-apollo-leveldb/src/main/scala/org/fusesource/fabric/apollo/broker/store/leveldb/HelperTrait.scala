@@ -13,6 +13,7 @@ import org.fusesource.hawtbuf._
 import java.util.concurrent.TimeUnit
 import org.iq80.leveldb._
 import org.fusesource.leveldbjni.JniDBFactory._
+import java.io.{DataOutput, DataOutputStream}
 
 object HelperTrait {
 
@@ -33,6 +34,13 @@ object HelperTrait {
     val out = new DataByteArrayOutputStream(9)
     out.writeByte(a1.toInt)
     out.writeLong(a2)
+    out.getData
+  }
+
+  def encode(a1:Byte, a2:Buffer):Array[Byte] = {
+    val out = new DataByteArrayOutputStream(1+a2.length)
+    out.writeByte(a1.toInt)
+    a2.writeTo(out.asInstanceOf[DataOutput])
     out.getData
   }
 
