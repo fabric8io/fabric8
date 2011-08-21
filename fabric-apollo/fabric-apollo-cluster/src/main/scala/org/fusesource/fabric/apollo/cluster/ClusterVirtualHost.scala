@@ -17,7 +17,7 @@ import org.apache.activemq.apollo.util.{Log, BaseService}
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ClusterVirtualHostFactory extends VirtualHostFactory.Provider {
+class ClusterVirtualHostFactory extends VirtualHostFactory {
 
   def create(broker: Broker, dto: VirtualHostDTO): VirtualHost = dto match {
     case dto:ClusterVirtualHostDTO =>

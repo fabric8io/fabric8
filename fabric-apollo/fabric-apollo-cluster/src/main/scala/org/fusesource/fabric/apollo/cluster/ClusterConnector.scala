@@ -29,7 +29,7 @@ import org.apache.activemq.apollo.dto.{ConnectorStatusDTO, ServiceStatusDTO, Con
 import collection.mutable.{ListBuffer, HashMap}
 import java.lang.{Boolean, IllegalArgumentException, String}
 
-object ClusterConnectorFactory extends ConnectorFactory.Provider with Log {
+object ClusterConnectorFactory extends ConnectorFactory with Log {
 
   def create(broker: Broker, dto: ConnectorTypeDTO): Connector = dto match {
     case dto:ClusterConnectorDTO =>
