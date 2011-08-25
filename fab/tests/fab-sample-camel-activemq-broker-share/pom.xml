@@ -27,11 +27,11 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fab-sample-camel-activemq-share</artifactId>
+  <artifactId>fab-sample-camel-activemq-broker-share</artifactId>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FAB :: Sample :: Camel ActiveMQ Share</description>
+  <description>FAB :: Sample :: Camel ActiveMQ Broker Share</description>
 
   <dependencies>
     <dependency>
@@ -39,6 +39,13 @@
       <artifactId>activemq-core</artifactId>
       <version>${activemq-version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <!-- exclude activeqio which right now has a mandatory dependency on howl in the bundle, but the pom says its not! -->
+        <exclusion>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>activeio-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -82,13 +89,11 @@
       <version>${camel-version}</version>
     </dependency>
 -->
-<!--
     <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
       <version>${xbean-version}</version>
     </dependency>
--->
 
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -207,8 +212,17 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
+              <Fabric-Provided-Dependency>org.apache.activemq:* org.apache.camel:* org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
+              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-annotation_1.0_spec</Fabric-Include-Optional-Dependency>
 
+              <!--
+              geronimo-jacc_1.1_spec requires javax.servlet, javax.servlet.http
+
+              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:*</Fabric-Include-Optional-Dependency>
+              -->
+<!--
+              <Fabric-Exclude-Import-Package>javax.xml*</Fabric-Exclude-Import-Package>
+-->
             </manifestEntries>
           </archive>
         </configuration>

@@ -50,7 +50,7 @@ class ClusterProtocolCodecFactory extends ProtocolCodecFactory.Provider {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-object ClusterProtocolFactory extends ProtocolFactory.Provider {
+object ClusterProtocolFactory extends ProtocolFactory {
   def create(config: String) = if(config == PROTOCOL_NAME) {
     ClusterProtocol
   } else {

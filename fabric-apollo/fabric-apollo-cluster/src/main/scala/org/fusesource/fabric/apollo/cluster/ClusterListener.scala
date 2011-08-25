@@ -19,15 +19,14 @@ trait ClusterListener {
   def close():Unit
 }
 
+trait ClusterListenerFactory {
+  def create(connector:ClusterConnector):Option[ClusterListener]
+}
+
 object ClusterListenerFactory {
-
-  trait Provider {
-    def create(connector:ClusterConnector):Option[ClusterListener]
-  }
-
-  val providers = new ClassFinder[Provider]("META-INF/services/org.fusesource.fabric.apollo/cluster-listener-factory.index",classOf[Provider])
+  val finder = new ClassFinder[ClusterListenerFactory]("META-INF/services/org.fusesource.fabric.apollo/cluster-listener-factory.index",classOf[ClusterListenerFactory])
 
   def create(connector:ClusterConnector):List[ClusterListener] = {
-    providers.singletons.flatMap(_.create(connector))
+    finder.singletons.flatMap(_.create(connector))
   }
 }

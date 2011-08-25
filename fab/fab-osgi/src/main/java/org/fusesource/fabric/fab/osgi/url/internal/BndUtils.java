@@ -90,7 +90,7 @@ public class BndUtils
                                             final String jarInfo )
         throws Exception
     {
-        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP, "", new HashSet<String>(), null );
+        return createBundle( jarInputStream, instructions, jarInfo, OverwriteMode.KEEP, Collections.EMPTY_MAP,  Collections.EMPTY_MAP, new HashSet<String>(), null );
     }
 
     /**
@@ -113,7 +113,7 @@ public class BndUtils
                                            final String jarInfo,
                                            final OverwriteMode overwriteMode,
                                            final Map<String, Object> embeddedResources,
-                                           final String extraImportPackages,
+                                           final Map<String, Map<String, String>> extraImportPackages,
                                            final HashSet<String> actualImports,
                                            final VersionResolver versionResolver)
         throws Exception
@@ -141,13 +141,13 @@ public class BndUtils
             // via some other means then getProperty() and so the instructions will not be used at all
             // So, just copy instructions to properties
             final Properties properties = new Properties();
-            properties.putAll( instructions );
+            properties.putAll(instructions);
 
-            properties.put( "Generated-By-Fabric-From", jarInfo );
+            properties.put("Generated-By-Fabric-From", jarInfo);
 
             final Analyzer analyzer = new Analyzer();
-            analyzer.setJar( jar );
-            analyzer.setProperties( properties );
+            analyzer.setJar(jar);
+            analyzer.setProperties(properties);
 
             // now lets add all the new embedded jars
             for (Map.Entry<String, Object> entry : embeddedResources.entrySet()) {
@@ -166,11 +166,10 @@ public class BndUtils
             }
 
 
-            if( manifest != null && OverwriteMode.MERGE == overwriteMode )
-            {
-                analyzer.mergeManifest( manifest );
+            if (manifest != null && OverwriteMode.MERGE == overwriteMode) {
+                analyzer.mergeManifest(manifest);
             }
-            checkMandatoryProperties( analyzer, jar, jarInfo );
+            checkMandatoryProperties(analyzer, jar, jarInfo);
 
             analyzer.calcManifest();
 
@@ -178,21 +177,6 @@ public class BndUtils
 
             String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
             Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
-
-            if (notEmpty(extraImportPackages) ) {
-                Map<String, Map<String, String>> extra = new Analyzer().parseHeader(extraImportPackages);
-
-                // Merge in the extra imports.
-                for (Map.Entry<String, Map<String, String>> entry : extra.entrySet()) {
-                    Map<String, String> original = values.get(entry.getKey());
-                    if( original == null ) {
-                        original = entry.getValue();
-                    } else {
-                        original.putAll(entry.getValue());
-                    }
-                    values.put(entry.getKey(), original);
-                }
-            }
 
             // add any missing version clauses
             if (versionResolver != null) {
@@ -208,6 +192,17 @@ public class BndUtils
                 }
             }
 
+            // Merge in the extra imports - lets not add versions to extra imports as they come from exports which might not have versions.
+            for (Map.Entry<String, Map<String, String>> entry : extraImportPackages.entrySet()) {
+                Map<String, String> original = values.get(entry.getKey());
+                if (original == null) {
+                    original = entry.getValue();
+                } else {
+                    original.putAll(entry.getValue());
+                }
+                values.put(entry.getKey(), original);
+            }
+
             // lets remove any excluded import packages
             String excludedPackagesText = main.getValue(ServiceConstants.INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE);
             if (notEmpty(excludedPackagesText)) {
@@ -221,7 +216,7 @@ public class BndUtils
                         } while (ignore.endsWith("*"));
 
                         if (ignore.length() == 0) {
-                            LOG.debug("Ignoring all imports due to %s value of %s", ServiceConstants.INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE,  expression);
+                            LOG.debug("Ignoring all imports due to %s value of %s", ServiceConstants.INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE, expression);
                             values.clear();
                         } else {
                             List<String> packageNames = new ArrayList<String>(values.keySet());
@@ -254,7 +249,7 @@ public class BndUtils
                         res = null;
                     }
                 }
-                if( !"optional".equals(res) ) {
+                if (!"optional".equals(res)) {
                     // add all the non-optional deps..
                     actualImports.add(packageName);
                 }
@@ -263,7 +258,7 @@ public class BndUtils
             // TODO do we really need to filter out any of the attribute values?
             // we were filtering out everything bar resolution:
             //importPackages  = Processor.printClauses(values, "resolution:");
-            importPackages  = Processor.printClauses(values, ALLOWED_PACKAGE_CLAUSES);
+            importPackages = Processor.printClauses(values, ALLOWED_PACKAGE_CLAUSES);
             if (notEmpty(importPackages)) {
                 main.putValue(Analyzer.IMPORT_PACKAGE, importPackages);
             }
@@ -282,7 +277,7 @@ public class BndUtils
                     }
                 }
             }
-            exportPackages  = Processor.printClauses(exports, ALLOWED_PACKAGE_CLAUSES);
+            exportPackages = Processor.printClauses(exports, ALLOWED_PACKAGE_CLAUSES);
             if (notEmpty(exportPackages)) {
                 main.putValue(Analyzer.EXPORT_PACKAGE, exportPackages);
             }

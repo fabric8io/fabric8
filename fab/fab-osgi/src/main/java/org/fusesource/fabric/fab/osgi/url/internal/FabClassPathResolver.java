@@ -28,6 +28,7 @@ import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.IOHelpers;
 import org.fusesource.fabric.fab.util.Manifests;
+import org.fusesource.fabric.fab.util.Maps;
 import org.fusesource.fabric.fab.util.Strings;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
@@ -55,18 +56,20 @@ public class FabClassPathResolver {
     private ModuleRegistry moduleRegistry;
     private List<String> bundleClassPath = new ArrayList<String>();
     private List<String> requireBundles = new ArrayList<String>();
-    private List<String> importPackages = new ArrayList<String>();
+    private Map<String, Map<String, String>> importPackages = new HashMap<String, Map<String, String>>();
     private boolean offline = false;
 
     HashSet<String> sharedFilterPatterns = new HashSet<String>();
     HashSet<String> requireBundleFilterPatterns = new HashSet<String>();
     HashSet<String> excludeFilterPatterns = new HashSet<String>();
     HashSet<String> optionalDependencyPatterns = new HashSet<String>();
+    HashSet<String> importExportFilterPatterns = new HashSet<String>();
 
     private Filter<DependencyTree> sharedFilter;
     private Filter<DependencyTree> requireBundleFilter;
     private Filter<DependencyTree> excludePackageFilter;
-    private Filter<DependencyTree> excludeOptionalFilter;
+    private Filter<DependencyTree> optionalDependencyFilter;
+    private Filter<DependencyTree> importExportFilter;
 
     private List<DependencyTree> nonSharedDependencies = new ArrayList<DependencyTree>();
     private List<DependencyTree> sharedDependencies = new ArrayList<DependencyTree>();
@@ -101,15 +104,18 @@ public class FabClassPathResolver {
         requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
         excludeFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
         optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
+        importExportFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS)), "\\s+"));
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
         requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
         excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(join(excludeFilterPatterns, " "));
-        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
+        optionalDependencyFilter = DependencyTreeFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
+        importExportFilter  = DependencyTreeFilters.parse(join(importExportFilterPatterns, " "));
 
         bundleClassPath.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
         requireBundles.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
-        importPackages.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE), ","));
+
+        importPackages.putAll(new Analyzer().parseHeader(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE))));
 
 
         String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
@@ -198,7 +204,7 @@ public class FabClassPathResolver {
 
         LOG.debug("resolved: bundleClassPath: " + Strings.join(bundleClassPath, "\t\n"));
         LOG.debug("resolved: requireBundles: " + Strings.join(requireBundles, "\t\n"));
-        LOG.debug("resolved: importPackages: " + Strings.join(importPackages, "\t\n"));
+        LOG.debug("resolved: importPackages: " + Strings.join(importPackages.keySet(), "\t\n"));
 
         instructions.setProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH, Strings.join(bundleClassPath, ","));
         instructions.setProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE, Strings.join(requireBundles, ","));
@@ -244,8 +250,8 @@ public class FabClassPathResolver {
      * Returns a Filter which returns true if the dependency should be treated as optional (and so excluded by default) or false if the dependency matches
      * the {@link ServiceConstants#INSTR_FAB_OPTIONAL_DEPENDENCY} pattern
      */
-    public Filter<DependencyTree> getExcludeOptionalFilter() {
-        return excludeOptionalFilter;
+    public Filter<DependencyTree> getOptionalDependencyFilter() {
+        return optionalDependencyFilter;
     }
 
     private List<DependencyTree> filterOutDuplicates(List<DependencyTree> list) {
@@ -311,7 +317,7 @@ public class FabClassPathResolver {
                         sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
                         requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
                         excludePackageFilter = DependencyTreeFilters.parseExcludeFilter(join(excludeFilterPatterns, " "));
-                        excludeOptionalFilter = DependencyTreeFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
+                        optionalDependencyFilter = DependencyTreeFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
 
                         LOG.debug("Adding extension: " + tree.getDependencyId());
                         if( extensionsString.length()!=0 ) {
@@ -332,12 +338,45 @@ public class FabClassPathResolver {
     }
 
     protected void importAllExportedPackages(DependencyTree dependencyTree) {
-        String text = dependencyTree.getManfiestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
-        if (text != null && text.length() > 0) {
-            List<String> list = new ArrayList<String>();
-            list.addAll(Strings.splitAsList(text, ","));
-            // TODO filter out duplicates
-            importPackages.addAll(list);
+        try {
+            String text = dependencyTree.getManfiestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
+            if (text != null && text.length() > 0) {
+                Map<String, Map<String, String>> map = new Analyzer().parseHeader(text);
+                for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
+                    String key = entry.getKey();
+                    Map<String, String> values = entry.getValue();
+                    // TODO add optional resolution if this dependency is otional??
+
+                    Map<String, String> current = importPackages.get(key);
+                    if (current == null) {
+                        current = new HashMap<String, String>();
+                        importPackages.put(key, current);
+                    }
+
+                    // only copy in the allowable import package parameters
+                    Maps.putAll(current, values, ServiceConstants.IMPORT_PACKAGE_PARAMETERS);
+
+                    // double check for 2 versions
+                    String specVersion = current.get("specification-version");
+                    if (specVersion != null) {
+                        current.remove("specification-version");
+                        String version = current.get("version");
+                        if (version == null) {
+                            current.put("version", connection.toVersionRange(specVersion));
+                        } else {
+                            LOG.warn("Have specification-version " + specVersion + " and version: " + version + " for dependency: " + dependencyTree + " will ignore specification-version");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to find export packages for " + dependencyTree + ". " + e, e);
+        }
+        List<DependencyTree> children = dependencyTree.getChildren();
+        for (DependencyTree child : children) {
+            if (!child.isOptional()) {
+                importAllExportedPackages(child);
+            }
         }
     }
 
@@ -402,7 +441,7 @@ public class FabClassPathResolver {
             // ignore
             LOG.debug("Excluded dependency: " + dependencyId);
             return;
-        } else if (excludeOptionalFilter.matches(child)) {
+        } else if (optionalDependencyFilter.matches(child)) {
             addOptionalDependency(child);
             return;
         } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
@@ -435,8 +474,15 @@ public class FabClassPathResolver {
         LOG.debug("Added shared dependency: " + tree.getDependencyId());
         addPackages(tree);
         sharedDependencies.add(tree);
+        boolean importExports = false;
         if (connection.isIncludeSharedResources()) {
-            includeSharedResources(tree);
+            importExports = includeSharedResources(tree);
+        }
+        if (!importExports && importExportFilter.matches(tree)) {
+            importExports = true;
+        }
+        if (importExports) {
+            importAllExportedPackages(tree);
         }
 
         List<DependencyTree> list = tree.getDescendants();
@@ -444,11 +490,14 @@ public class FabClassPathResolver {
             if (excludePackageFilter.matches(child)) {
                 LOG.debug("Excluded transitive dependency: " + child.getDependencyId());
                 continue;
-            } else if (excludeOptionalFilter.matches(child)) {
+            } else if (optionalDependencyFilter.matches(child)) {
                 LOG.debug("Excluded optional transitive dependency: " + child.getDependencyId());
                 continue;
             } else {
                 sharedDependencies.add(child);
+            }
+            if (importExportFilter.matches(child)) {
+                importAllExportedPackages(child);
             }
         }
         addInstallDependencies(tree);
@@ -460,7 +509,8 @@ public class FabClassPathResolver {
      * containing the shared resources; which are then added to the flat class path to avoid
      * breaking the META-INF/services contracts
      */
-    protected void includeSharedResources(DependencyTree tree) throws IOException {
+    protected boolean includeSharedResources(DependencyTree tree) throws IOException {
+        boolean answer = false;
         if (tree.isValidLibrary()) {
             File file = tree.getJarFile();
             if (file.exists()) {
@@ -500,11 +550,12 @@ public class FabClassPathResolver {
 
                         // lets add the imports from this bundle's exports...
                         // as we are probably using META-INF/services type stuff
-                        importAllExportedPackages(tree);
+                        answer = true;
                     }
                 }
             }
         }
+        return answer;
     }
 
     protected void addBundleClassPath(String path) {
@@ -523,7 +574,7 @@ public class FabClassPathResolver {
             for (DependencyTree child : list) {
                 if (excludePackageFilter.matches(child)) {
                     continue;
-                } else if (excludeOptionalFilter.matches(child)) {
+                } else if (child.isThisOrDescendantOptional() && optionalDependencyFilter.matches(child)) {
                     continue;
                 } else {
                     addInstallDependencies(child);
@@ -534,8 +585,8 @@ public class FabClassPathResolver {
         installDependencies.add(node);
     }
 
-    public String getExtraImportPackages() {
-        return Strings.join(importPackages, ",");
+    public Map<String, Map<String, String>> getExtraImportPackages() {
+        return importPackages;
     }
 
     public Map<String, DependencyTree> getDependenciesByPackage() {

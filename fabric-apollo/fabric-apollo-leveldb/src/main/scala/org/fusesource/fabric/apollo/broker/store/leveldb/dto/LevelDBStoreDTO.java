@@ -55,7 +55,7 @@ public class LevelDBStoreDTO extends StoreDTO {
     public Integer index_block_restart_interval;
 
     @XmlAttribute(name="index_write_buffer_size")
-    public Long index_write_buffer_size;
+    public Integer index_write_buffer_size;
 
     @XmlAttribute(name="index_block_size")
     public Integer index_block_size;
