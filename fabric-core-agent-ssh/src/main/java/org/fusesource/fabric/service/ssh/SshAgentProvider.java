@@ -104,7 +104,7 @@ public class SshAgentProvider implements AgentProvider {
                     break;
                 }
             }
-            if (errorStatus == -1) {
+            if (errorStatus != 0) {
                 throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", username, host,
                         port, executor.getExitStatus(), script, output.toString(), error.toString()));
             }
