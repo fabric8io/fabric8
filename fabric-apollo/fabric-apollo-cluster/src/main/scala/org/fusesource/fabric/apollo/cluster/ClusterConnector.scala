@@ -194,7 +194,6 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
           outbound_connection.stop
         }
       }
-      broker.init_dispatch_queue(outbound_connection.dispatch_queue)
 
       outbound_connection.transport = TransportFactory.connect(location)
       broker.connections.put(outbound_connection.id, outbound_connection)
