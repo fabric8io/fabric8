@@ -8,19 +8,19 @@
  */
 package org.fusesource.fabric.service.ssh;
 
-import java.io.ByteArrayOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.maven.MavenProxy;
+
+import java.io.ByteArrayOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SshAgentProvider implements AgentProvider {
 
@@ -104,7 +104,7 @@ public class SshAgentProvider implements AgentProvider {
                     break;
                 }
             }
-            if (errorStatus == -1) {
+            if (errorStatus != 0) {
                 throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", username, host,
                         port, executor.getExitStatus(), script, output.toString(), error.toString()));
             }
@@ -121,15 +121,16 @@ public class SshAgentProvider implements AgentProvider {
         if (path.startsWith("/~/")) {
             path = path.substring(3);
         }
-        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\n\" ; exit ${rc} ; fi ; }\n");
-        sb.append("run cd").append("\n");
-        sb.append("run pwd").append("\n");
-        sb.append("run mkdir -p ").append(path).append("\n");
-        sb.append("run cd ").append(path).append("\n");
+        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
+        // The following commands are not needed
+        // sb.append("run cd").append("\n");
+        // sb.append("run pwd").append("\n");
+        // sb.append("run mkdir -p ").append(path).append("\n");
+        // sb.append("run cd ").append(path).append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.apache.karaf", "apache-karaf", "2.2.1");
-        sb.append("run cd ").append("apache-karaf-2.2.1").append("\n");
+        extractTargzIntoDirectory(sb, proxy, "org.apache.karaf", "apache-karaf", "2.2.0-fuse-00-43");
+        sb.append("run cd ").append("apache-karaf-2.2.0-fuse-00-43").append("\n");
         List<String> lines = new ArrayList<String>();
         lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-linkedin-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
         lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
