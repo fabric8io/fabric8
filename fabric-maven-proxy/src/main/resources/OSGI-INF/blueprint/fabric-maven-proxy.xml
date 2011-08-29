@@ -14,7 +14,7 @@
         <cm:default-properties>
             <cm:property name="port" value="8040"/>
             <cm:property name="localRepository" value="system" />
-            <cm:property name="remoteRepositories" value="file://${user.home}/.m2/repository,http://repo1.maven.org/maven2"/>
+            <cm:property name="remoteRepositories" value="file://${user.home}/.m2/repository,http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/groups/public"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
