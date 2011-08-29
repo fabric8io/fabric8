@@ -25,6 +25,7 @@ import java.util.List;
 public class SshAgentProvider implements AgentProvider {
 
     private MavenProxy mavenProxy;
+    private boolean debug = false;
 
     public void setMavenProxy(MavenProxy mavenProxy) {
         this.mavenProxy = mavenProxy;
@@ -35,6 +36,9 @@ public class SshAgentProvider implements AgentProvider {
         try {
             String script = buildStartupScript(mavenProxy.getAddress(), name, agentUri.getPath(), zooKeeperUrl);
             String host = agentUri.getHost();
+            if (agentUri.getQuery() != null) {
+                debug = agentUri.getQuery().contains("debug");
+            }
             if (host == null) {
                 throw new IllegalArgumentException("host name must be specified in uri '" + agentUri + "'");
             }
@@ -104,6 +108,10 @@ public class SshAgentProvider implements AgentProvider {
                     break;
                 }
             }
+            if (debug) {
+                System.out.println("Output : " + output.toString());
+                System.out.println("Error : " + error.toString());
+            }
             if (errorStatus != 0) {
                 throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", username, host,
                         port, executor.getExitStatus(), script, output.toString(), error.toString()));
@@ -138,7 +146,7 @@ public class SshAgentProvider implements AgentProvider {
         lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
         appendFile(sb, "etc/startup.properties", lines);
         appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
-        sb.append("run bin/start").append("\n");
+        sb.append("run nohup bin/start").append("\n");
         return sb.toString();
     }
 
@@ -146,7 +154,7 @@ public class SshAgentProvider implements AgentProvider {
         String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version;
         String file = path + "/" + artifactId + "-" + version + "." + type;
         sb.append("run mkdir -p " + "system/").append(path).append("\n");
-        sb.append("run curl --show-error --get --retry 20 --output system/").append(file).append(" ").append(proxy.resolve(file)).append("\n");
+        sb.append("run curl --show-error --silent --get --retry 20 --output system/").append(file).append(" ").append(proxy.resolve(file)).append("\n");
         return file;
     }
 
@@ -162,7 +170,7 @@ public class SshAgentProvider implements AgentProvider {
     private void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
         String file = artifactId + "-" + version + ".tar.gz";
         String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
-        sb.append("run curl --show-error --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
+        sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
     }
 

@@ -39,7 +39,7 @@ public class MavenProxyImpl implements MavenProxy {
     private static final Logger LOGGER = Logger.getLogger(MavenProxyImpl.class.getName());
 
     private int port = 8040;
-    private String localRepository = System.getProperty( "karaf.home" ) + "system";
+    private String localRepository;
     private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public";
 
     private List<RemoteRepository> repositories;
@@ -86,6 +86,9 @@ public class MavenProxyImpl implements MavenProxy {
 
     public synchronized void start() throws IOException {
         if (port >= 0) {
+            if (localRepository.equals("")) {
+                localRepository = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+            }
             if (system == null) {
                 system = newRepositorySystem();
             }
@@ -94,14 +97,13 @@ public class MavenProxyImpl implements MavenProxy {
             }
             repositories = new ArrayList<RemoteRepository>();
             int i = 0;
-            String reps[] = remoteRepositories.split(",");
-            for (String rep : reps) {
+            for (String rep : remoteRepositories.split(",")) {
                 repositories.add(new RemoteRepository( "repo-" + i++, "default", rep ));
             }
 
-            String repos = "";
+            String repos = "local:" + localRepository + " ";
             for (RemoteRepository repo : repositories) {
-                repos += repo.getUrl() + " ";
+                repos += repo + " ";
             }
             repos = repos.trim();
 
@@ -181,7 +183,7 @@ public class MavenProxyImpl implements MavenProxy {
 
                     inputStream = new FileInputStream(result.getArtifact().getFile());
                 } catch (Exception e) {
-                    LOGGER.log(Level.WARNING, String.format("Could not find file : %s", mvn));
+                    LOGGER.log(Level.WARNING, String.format("Could not find file : %s due to %s", mvn, e));
                     output.write("HTTP/1.0 404 File not found.\r\n\r\n".getBytes());
                     return;
                 }
