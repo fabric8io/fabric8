@@ -87,7 +87,7 @@ public class MavenProxyImpl implements MavenProxy {
     public synchronized void start() throws IOException {
         if (port >= 0) {
             if (localRepository.equals("")) {
-                localRepository = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+                localRepository = "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
             }
             if (system == null) {
                 system = newRepositorySystem();
