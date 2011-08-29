@@ -96,6 +96,7 @@ public class MavenProxyImpl implements MavenProxy {
                 session = newSession( system, localRepository );
             }
             repositories = new ArrayList<RemoteRepository>();
+            repositories.add(new RemoteRepository("local", "default", localRepository));
             int i = 0;
             for (String rep : remoteRepositories.split(",")) {
                 repositories.add(new RemoteRepository( "repo-" + i++, "default", rep ));
