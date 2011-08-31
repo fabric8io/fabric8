@@ -8,16 +8,18 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class FabricCommand extends OsgiCommandSupport {
 
     protected FabricService fabricService;
+
+    protected static String AGENT_PID = "org.fusesource.fabric.agent";
 
     public FabricService getFabricService() {
         return fabricService;

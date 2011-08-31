@@ -24,10 +24,10 @@
   <description>FuseSource Fabric :: Archive Bundles :: Tests</description>
 
   <properties>
-<!--
-    <camel-version>2.8-SNAPSHOT</camel-version>
--->
-    <camel-version>2.8.x-fuse-SNAPSHOT</camel-version>
+
+     <camel-version>2.9-SNAPSHOT</camel-version>
+     <activemq-version>5.6-SNAPSHOT</activemq-version>
+
   </properties>
 
 

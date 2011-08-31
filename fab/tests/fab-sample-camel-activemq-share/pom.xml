@@ -39,13 +39,6 @@
       <artifactId>activemq-core</artifactId>
       <version>${activemq-version}</version>
       <scope>provided</scope>
-      <exclusions>
-        <!-- exclude activeqio which right now has a mandatory dependency on howl in the bundle, but the pom says its not! -->
-        <exclusion>
-          <groupId>org.apache.activemq</groupId>
-          <artifactId>activeio-core</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>

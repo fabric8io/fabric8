@@ -17,18 +17,21 @@ import org.fusesource.hawtbuf.proto.PBMessageFactory
 import org.apache.activemq.apollo.broker.store.PBSupport._
 
 import org.apache.activemq.apollo.broker.store._
-import scala.Predef._
-import org.fusesource.hawtbuf.AbstractVarIntSupport
 import java.io._
 import java.util.concurrent.TimeUnit
 import org.apache.activemq.apollo.util._
 import collection.mutable.{HashMap, ListBuffer}
 import java.util.concurrent.locks.ReentrantReadWriteLock
-import java.util.concurrent.atomic.AtomicLong
 import org.fusesource.hawtdispatch._
-import org.fusesource.leveldbjni._
 import org.apache.activemq.apollo.util.{TreeMap=>ApolloTreeMap}
 import collection.immutable.TreeMap
+import org.iq80.leveldb._
+import org.fusesource.leveldbjni.JniDBFactory._
+import org.fusesource.leveldbjni.internal.Util
+import org.fusesource.hawtbuf.{Buffer, AbstractVarIntSupport}
+import java.util.concurrent.atomic.{AtomicReference, AtomicLong}
+import org.apache.activemq.apollo.broker.store.MapEntryPB.Bean
+import org.fusesource.fabric.apollo.broker.store.leveldb.HelperTrait._
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -38,11 +41,13 @@ object LevelDBClient extends Log {
   final val message_prefix = 'm'.toByte
   final val queue_prefix = 'q'.toByte
   final val queue_entry_prefix = 'e'.toByte
+  final val map_prefix = 'p'.toByte
 
   final val message_prefix_array = Array(message_prefix)
   final val queue_prefix_array = Array(queue_prefix)
+  final val map_prefix_array = Array(map_prefix)
   final val queue_entry_prefix_array = Array(queue_entry_prefix)
-  final val dirty_index_key = DB.bytes(":dirty")
+  final val dirty_index_key = bytes(":dirty")
 
   final val LOG_ADD_QUEUE           = 1.toByte
   final val LOG_REMOVE_QUEUE        = 2.toByte
@@ -50,6 +55,7 @@ object LevelDBClient extends Log {
   final val LOG_REMOVE_MESSAGE      = 4.toByte
   final val LOG_ADD_QUEUE_ENTRY     = 5.toByte
   final val LOG_REMOVE_QUEUE_ENTRY  = 6.toByte
+  final val LOG_MAP_ENTRY           = 7.toByte
 
   final val LOG_SUFFIX  = ".log"
   final val INDEX_SUFFIX  = ".index"
@@ -117,8 +123,6 @@ class LevelDBClient(store: LevelDBStore) {
   var log:RecordLog = _
 
   var index:RichDB = _
-  var index_cache:Cache = _
-  var index_logger:Logger = _
   var index_options:Options = _
 
   var last_index_snapshot_pos:Long = _
@@ -156,20 +160,16 @@ class LevelDBClient(store: LevelDBStore) {
     config.paranoid_checks.foreach( index_options.paranoidChecks(_) )
     config.index_write_buffer_size.foreach( index_options.writeBufferSize(_) )
     config.index_block_size.foreach( index_options.blockSize(_) )
-    Option(config.index_compression).foreach(x => index_options.compression( x match {
-      case "snappy" => CompressionType.kSnappyCompression
-      case "none" => CompressionType.kNoCompression
-      case _ => CompressionType.kSnappyCompression
+    Option(config.index_compression).foreach(x => index_options.compressionType( x match {
+      case "snappy" => CompressionType.SNAPPY
+      case "none" => CompressionType.NONE
+      case _ => CompressionType.SNAPPY
     }) )
 
-    index_cache = new Cache(config.index_cache_size.getOrElse(1024*1024*256L))
-    index_options.cache(index_cache)
-
-    index_logger = new Logger() {
+    index_options.cacheSize(config.index_cache_size.getOrElse(1024*1024*256L))
+    index_options.logger(new Logger() {
       def log(msg: String) = debug(store.store_kind+": "+msg)
-    }
-    index_options.infoLog(index_logger)
-
+    })
 
     log = create_log
     log.write_buffer_size = config.log_write_buffer_size.getOrElse(1024*1024*4)
@@ -215,9 +215,9 @@ class LevelDBClient(store: LevelDBStore) {
         }
       }
 
-      index = new RichDB(DB.open(index_options, dirty_index_file));
+      index = new RichDB(factory.open(dirty_index_file, index_options));
       try {
-        index.put(dirty_index_key, DB.bytes("true"))
+        index.put(dirty_index_key, bytes("true"))
         // Update the index /w what was stored on the logs..
         var pos = last_index_snapshot_pos;
 
@@ -249,6 +249,13 @@ class LevelDBClient(store: LevelDBStore) {
                         index.delete(key)
                         true
                     }
+                  case LOG_MAP_ENTRY =>
+                    val entry = MapEntryPB.FACTORY.parseUnframed(data)
+                    if (entry.getValue == null) {
+                      index.delete(encode(map_prefix, entry.getKey))
+                    } else {
+                      index.put(encode(map_prefix, entry.getKey), entry.getValue.toByteArray)
+                    }
                   case _ =>
                   // Skip unknown records like the RecordLog headers.
                 }
@@ -264,7 +271,7 @@ class LevelDBClient(store: LevelDBStore) {
       } catch {
         case e:Throwable =>
           // replay failed.. good thing we are in a retry block...
-          index.delete
+          index.close
           throw e;
       }
     }
@@ -275,18 +282,10 @@ class LevelDBClient(store: LevelDBStore) {
     // Suspend also deletes the index.
     suspend()
 
-    if (index_logger != null) {
-      index_logger.delete
-    }
-    if (index_cache != null) {
-      index_cache.delete
-    }
     if (log != null) {
       log.close
     }
     copy_dirty_index_to_snapshot
-    index_logger = null
-    index_cache = null
     log = null
   }
 
@@ -312,8 +311,8 @@ class LevelDBClient(store: LevelDBStore) {
     snapshot_rw_lock.writeLock().lock()
 
     // Close the index so that it's files are not changed async on us.
-    index.put(dirty_index_key, DB.bytes("false"), new WriteOptions().sync(true))
-    index.delete
+    index.put(dirty_index_key, bytes("false"), new WriteOptions().sync(true))
+    index.close
   }
 
   /**
@@ -323,8 +322,8 @@ class LevelDBClient(store: LevelDBStore) {
   def resume() = {
     // re=open it..
     retry {
-      index = new RichDB(DB.open(index_options, dirty_index_file));
-      index.put(dirty_index_key, DB.bytes("true"))
+      index = new RichDB(factory.open(dirty_index_file, index_options));
+      index.put(dirty_index_key, bytes("true"))
     }
     snapshot_rw_lock.writeLock().unlock()
   }
@@ -456,20 +455,37 @@ class LevelDBClient(store: LevelDBStore) {
         var sync_needed = false
         index.write() { batch =>
           uows.foreach { uow =>
+
+            for((key,value) <- uow.map_actions) {
+              val entry = new MapEntryPB.Bean()
+              entry.setKey(key)
+              if( value==null ) {
+                batch.delete(encode(map_prefix, key))
+              } else {
+                entry.setValue(value)
+                batch.put(encode(map_prefix, key), value.toByteArray)
+              }
+              appender.append(LOG_MAP_ENTRY, entry.freeze().toUnframedByteArray)
+            }
+
             uow.actions.foreach { case (msg, action) =>
               val message_record = action.message_record
               var pos = 0L
+              var pos_buffer:Buffer = null
+
               if (message_record != null) {
                 pos = appender.append(LOG_ADD_MESSAGE, message_record)
+                val pos_encoded = encode(pos)
+                pos_buffer = new Buffer(pos_encoded)
                 if( message_record.locator !=null ) {
-                  message_record.locator.set(pos);
+                  message_record.locator.set(pos_encoded);
                 }
-                batch.put(encode(message_prefix, action.message_record.key), encode(pos))
+                batch.put(encode(message_prefix, action.message_record.key), pos_encoded)
               }
 
               action.dequeues.foreach { entry =>
-                if( pos==0 && entry.message_locator!=0 ) {
-                  pos = entry.message_locator
+                if( pos_buffer==null && entry.message_locator!=null ) {
+                  pos_buffer = entry.message_locator
                 }
                 val key = encode(queue_entry_prefix, entry.queue_key, entry.entry_seq)
                 appender.append(LOG_REMOVE_QUEUE_ENTRY, key)
@@ -477,7 +493,7 @@ class LevelDBClient(store: LevelDBStore) {
               }
 
               action.enqueues.foreach { entry =>
-                entry.message_locator = pos
+                entry.message_locator = pos_buffer
                 val encoded:Array[Byte] = entry
                 appender.append(LOG_ADD_QUEUE_ENTRY, encoded)
                 batch.put(encode(queue_entry_prefix, entry.queue_key, entry.entry_seq), encoded)
@@ -500,7 +516,7 @@ class LevelDBClient(store: LevelDBStore) {
   val metric_load_from_index_counter = new TimeCounter
   var metric_load_from_index = metric_load_from_index_counter(false)
 
-  def loadMessages(requests: ListBuffer[(Long, AtomicLong, (Option[MessageRecord])=>Unit)]):Unit = {
+  def loadMessages(requests: ListBuffer[(Long, AtomicReference[Array[Byte]], (Option[MessageRecord])=>Unit)]):Unit = {
 
     val ro = new ReadOptions
     ro.verifyChecksums(verify_checksums)
@@ -513,21 +529,28 @@ class LevelDBClient(store: LevelDBStore) {
           val (message_key, locator, callback) = x
           val record = metric_load_from_index_counter.time {
             var pos = 0L
+            var pos_array:Array[Byte] = null
             if( locator!=null ) {
-              val t = locator.get().asInstanceOf[java.lang.Long]
-              if( t!=null ) {
-                pos = t.longValue()
+              pos_array = locator.get()
+              if( pos_array!=null ) {
+                pos = decode_long(pos_array)
               }
             }
             if( pos == 0L ) {
-              pos = index.get(encode(message_prefix, message_key), ro).map(decode_long(_)).getOrElse(0L)
+              index.get(encode(message_prefix, message_key), ro) match {
+                case Some(value) =>
+                  pos_array = value
+                  pos = decode_long(pos_array)
+                case None =>
+                  pos = 0L
+              }
             }
             if (pos == 0L ) {
               None
             } else {
               log.read(pos).map { case (prefix, data, _)=>
                 val rc:MessageRecord = data
-                rc.locator = new AtomicLong(pos)
+                rc.locator = new AtomicReference[Array[Byte]](pos_array)
                 rc
               }
             }
@@ -553,11 +576,11 @@ class LevelDBClient(store: LevelDBStore) {
         missing.foreach { x =>
           val (message_key, locator, callback) = x
           val record = metric_load_from_index_counter.time {
-            index.get(encode(message_prefix, message_key), ro).flatMap{ data=>
-              val pos = decode_long(data)
+            index.get(encode(message_prefix, message_key), ro).flatMap{ pos_array=>
+              val pos = decode_long(pos_array)
               log.read(pos).map { case (prefix, data, _)=>
                 val rc:MessageRecord = data
-                rc.locator = new AtomicLong(pos)
+                rc.locator = new AtomicReference[Array[Byte]](pos_array)
                 rc
               }
             }
@@ -663,6 +686,12 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
+  def get(key: Buffer):Option[Buffer] = {
+    retry_using_index {
+      index.get(encode(map_prefix, key)).map(new Buffer(_))
+    }
+  }
+
   def getLastQueueKey:Long = {
     retry_using_index {
       index.last_key(queue_prefix_array).map(decode_long_key(_)._2).getOrElse(0)
@@ -710,60 +739,71 @@ class LevelDBClient(store: LevelDBStore) {
     latency_counter.time {
 
       retry_using_index {
-
-
         index.snapshot { snapshot =>
           ro.snapshot(snapshot)
 
           // Figure out which journal files are still in use by which queues.
           index.cursor_prefixed(queue_entry_prefix_array, ro) { (_,value) =>
             val entry_record:QueueEntryRecord = value
-            val pos = entry_record.message_locator
+            val pos = if(entry_record.message_locator!=null) {
+              decode_long(entry_record.message_locator.toByteArray)
+            } else {
+              index.get(encode(message_prefix, entry_record.message_key)).map(decode_long(_)).getOrElse(0L)
+            }
+
             find_journal(pos) match {
               case Some((key,usageCounter)) =>
                 usageCounter.increment(entry_record.size)
               case None =>
             }
-            true
+
+            // only continue while the service is still running..
+            store.service_state.is_started
           }
 
-          gc_detected_log_usage = Map((collection.JavaConversions.asScalaSet(journal_usage.entrySet()).map { x=>
-            x.getKey -> x.getValue._2
-          }).toSeq : _ * )
+          if (store.service_state.is_started) {
 
-          // Take empty journals out of the map..
-          val empty_journals = ListBuffer[Long]()
+            gc_detected_log_usage = Map((collection.JavaConversions.asScalaSet(journal_usage.entrySet()).map { x=>
+              x.getKey -> x.getValue._2
+            }).toSeq : _ * )
 
-          val i = journal_usage.entrySet().iterator();
-          while( i.hasNext ) {
-            val (info, usageCounter) = i.next().getValue
-            if( usageCounter.count==0 && info.position < append_journal) {
-              empty_journals += info.position
-              i.remove()
+            // Take empty journals out of the map..
+            val empty_journals = ListBuffer[Long]()
+
+            val i = journal_usage.entrySet().iterator();
+            while( i.hasNext ) {
+              val (info, usageCounter) = i.next().getValue
+              if( usageCounter.count==0 && info.position < append_journal) {
+                empty_journals += info.position
+                i.remove()
+              }
             }
-          }
 
-          index.cursor_prefixed(message_prefix_array) { (key,value) =>
-            val pos = decode_long(value)
+            index.cursor_prefixed(message_prefix_array) { (key,value) =>
+              val pos = decode_long(value)
 
-            if ( !find_journal(pos).isDefined ) {
-              // Delete it.
-              index.delete(key)
-              delete_counter += 1
-            } else {
-              active_counter += 1
+              if ( !find_journal(pos).isDefined ) {
+                // Delete it.
+                index.delete(key)
+                delete_counter += 1
+              } else {
+                active_counter += 1
+              }
+              // only continue while the service is still running..
+              store.service_state.is_started
             }
-            true
-          }
 
-          // We don't want to delete any journals that the index has not snapshot'ed or
-          // the the
-          val delete_limit = find_journal(last_index_snapshot_pos).map(_._1).
-                getOrElse(last_index_snapshot_pos).min(log.appender_start)
+            if (store.service_state.is_started) {
+              // We don't want to delete any journals that the index has not snapshot'ed or
+              // the the
+              val delete_limit = find_journal(last_index_snapshot_pos).map(_._1).
+                    getOrElse(last_index_snapshot_pos).min(log.appender_start)
 
-          empty_journals.foreach { id =>
-            if ( id < delete_limit ) {
-              log.delete(id)
+              empty_journals.foreach { id =>
+                if ( id < delete_limit ) {
+                  log.delete(id)
+                }
+              }
             }
           }
         }
@@ -795,6 +835,18 @@ class LevelDBClient(store: LevelDBStore) {
             helper.writeVarInt(value.length)
             stream.write(value);
             true
+          }
+
+          streams.using_map_stream { stream=>
+            index.cursor_prefixed(map_prefix_array, ro) { (key, value) =>
+              val key_buffer = new Buffer(key)
+              key_buffer.moveHead(1)
+              val record = new MapEntryPB.Bean
+              record.setKey(key_buffer)
+              record.setValue(new Buffer(value))
+              record.freeze().writeFramed(stream)
+              true
+            }
           }
 
           streams.using_queue_stream { stream =>
@@ -841,29 +893,35 @@ class LevelDBClient(store: LevelDBStore) {
           } while( !done )
         }
 
-
-        streams.using_queue_stream { stream=>
-          foreach[QueuePB.Buffer](stream, QueuePB.FACTORY) { record=>
-            index.put(encode(queue_prefix, record.key), record.toUnframedByteArray)
-          }
-        }
-
         log.appender { appender =>
+          streams.using_map_stream { stream=>
+            foreach[MapEntryPB.Buffer](stream, MapEntryPB.FACTORY) { pb =>
+              index.put(encode(map_prefix, pb.getKey), pb.getValue.toByteArray)
+            }
+          }
+
+          streams.using_queue_stream { stream=>
+            foreach[QueuePB.Buffer](stream, QueuePB.FACTORY) { record=>
+              index.put(encode(queue_prefix, record.key), record.toUnframedByteArray)
+            }
+          }
+
           streams.using_message_stream { stream=>
             foreach[MessagePB.Buffer](stream, MessagePB.FACTORY) { record=>
               val pos = appender.append(LOG_ADD_MESSAGE, record.toUnframedByteArray)
               index.put(encode(message_prefix, record.key), encode(pos))
             }
           }
-        }
 
-        streams.using_queue_entry_stream { stream=>
-          foreach[QueueEntryPB.Buffer](stream, QueueEntryPB.FACTORY) { record=>
-            index.put(encode(queue_entry_prefix, record.queue_key, record.entry_seq), record.toUnframedByteArray)
+          streams.using_queue_entry_stream { stream=>
+            foreach[QueueEntryPB.Buffer](stream, QueueEntryPB.FACTORY) { record=>
+              index.put(encode(queue_entry_prefix, record.queue_key, record.entry_seq), record.toUnframedByteArray)
+            }
           }
         }
-      }
 
+      }
+      snapshot_index
       Success(Zilch)
 
     } catch {

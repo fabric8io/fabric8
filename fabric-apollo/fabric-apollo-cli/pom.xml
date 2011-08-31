@@ -72,7 +72,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-cluster</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.1-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
 
@@ -119,7 +119,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-leveldb</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -156,44 +156,5 @@
 
   </dependencies>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>${project.basedir}/src/main/resources</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${project.basedir}/src/main/filtered-resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </resource>
-    </resources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.1.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>org.fusesource.fabric.apollo.cli.FabricIDERunner</mainClass>
-          <classpathScope>test</classpathScope>
-          <arguments>
-            <argument>${arg}</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

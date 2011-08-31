@@ -397,10 +397,30 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
         def consumer: DeliveryConsumer = ClusterDeliveryConsumer.this
 
         def remaining_capacity = downstream.map(_.asInstanceOf[OutboundChannelSink].remaining_capacity).getOrElse(0)
+
+        @volatile
+        var enqueue_item_counter = 0L
+        @volatile
+        var enqueue_size_counter = 0L
+        @volatile
+        var enqueue_ts = 0L
+
+        override def offer(value: Delivery) = {
+          if( super.offer(value) ){
+            enqueue_item_counter += 1
+            enqueue_size_counter += value.size
+            enqueue_ts = now
+            true
+          } else {
+            false
+          }
+        }
+
       }
     }
   }
 
+  def now = this.cluster_connector.broker.now
   ///////////////////////////////////////////////////////////////////////////////
   //
   // Channel Management:  A channel provides a flow controlled message
@@ -555,7 +575,7 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
         l.foreach { seq =>
           val delivery = waiting_for_ack.remove(seq.longValue)
           assert(delivery.isDefined)
-          delivery.get.ack(Delivered, null)
+          delivery.get.ack(Consumed, null)
         }
       }
     }

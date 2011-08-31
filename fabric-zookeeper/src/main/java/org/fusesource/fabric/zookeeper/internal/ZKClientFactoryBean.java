@@ -8,9 +8,6 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.zookeeper.Watcher;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -18,6 +15,9 @@ import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.client.ZKClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Factory bean of ZooKeeper client objects
@@ -118,9 +118,24 @@ public class ZKClientFactoryBean {
     // FactoryBean interface
     //-------------------------------------------------------------------------
     public synchronized IZKClient getObject() throws Exception {
-        LOG.debug("Connecting to ZooKeeper on " + connectString);
+        LOG.debug("Connecting to ZooKeeper at " + connectString);
 
         zkClient = new ZKClient(connectString, getTimeout(), watcher);
+        zkClient.registerListener(new LifecycleListener() {
+
+            final String address = connectString;
+
+            @Override
+            public void onConnected() {
+                LOG.debug("Connected to Zookeeper at " + address);
+            }
+
+            @Override
+            public void onDisconnected() {
+                LOG.debug("Disconnected from ZooKeeper at " + address);
+            }
+        });
+
         for (LifecycleListener listener : dynListeners) {
             zkClient.registerListener(listener);
         }

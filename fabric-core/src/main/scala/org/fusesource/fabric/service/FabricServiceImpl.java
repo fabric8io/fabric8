@@ -163,7 +163,9 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void unregisterProvider(String scheme) {
-        providers.remove(scheme);
+        if (providers != null && scheme != null) {
+            providers.remove(scheme);
+        }
     }
 
     public void unregisterProvider(AgentProvider provider, Map<String, Object> properties) {

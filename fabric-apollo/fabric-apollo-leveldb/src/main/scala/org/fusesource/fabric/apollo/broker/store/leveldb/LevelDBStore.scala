@@ -23,6 +23,7 @@ import scala.util.continuations._
 import java.io._
 import org.apache.activemq.apollo.web.resources.ViewHelper
 import collection.mutable.ListBuffer
+import org.fusesource.hawtbuf.Buffer
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -49,7 +50,7 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
 
   def store_kind = "leveldb"
 
-  override def toString = store_kind+" store at "+config.directory+" (yeah you got the update!)"
+  override def toString = store_kind+" store at "+config.directory
 
   def flush_delay = config.flush_delay.getOrElse(100)
   
@@ -171,6 +172,12 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
   }
 
 
+  def get(key: Buffer)(callback: (Option[Buffer]) => Unit) = {
+    read_executor {
+      callback(client.get(key))
+    }
+  }
+
   /**
    * Ges the last queue key identifier stored.
    */
@@ -204,12 +211,12 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
     }
   }
 
-  val load_source = createSource(new ListEventAggregator[(Long, AtomicLong, (Option[MessageRecord])=>Unit)](), dispatch_queue)
+  val load_source = createSource(new ListEventAggregator[(Long, AtomicReference[Array[Byte]], (Option[MessageRecord])=>Unit)](), dispatch_queue)
   load_source.setEventHandler(^{drain_loads});
   load_source.resume
 
 
-  def load_message(messageKey: Long, locator:AtomicLong)(callback: (Option[MessageRecord]) => Unit) = {
+  def load_message(messageKey: Long, locator:AtomicReference[Array[Byte]])(callback: (Option[MessageRecord]) => Unit) = {
     message_load_latency_counter.start { end=>
       load_source.merge((messageKey, locator, { (result)=>
         end()
@@ -260,32 +267,34 @@ class LevelDBStore(val config:LevelDBStoreDTO) extends DelayingStoreSupport {
     val rc = new LevelDBStoreStatusDTO
     fill_store_status(rc)
     rc.message_load_batch_size = message_load_batch_size
-    rc.index_stats = client.index.getProperty("leveldb.stats")
     write_executor {
-      rc.log_append_pos = client.log.appender_limit
-      rc.index_snapshot_pos = client.last_index_snapshot_pos
-      rc.last_gc_duration = client.last_gc_duration
-      rc.last_gc_ts = client.last_gc_ts
-      rc.in_gc = client.in_gc
-      rc.log_stats = {
-        var row_layout = "%-20s | %-10s | %10s/%-10s\n"
-        row_layout.format("File", "Messages", "Used Size", "Total Size")+
-        client.log.log_infos.map(x=> x._1 -> client.gc_detected_log_usage.get(x._1)).toSeq.flatMap { x=>
-          try {
-            val file = LevelDBClient.create_sequence_file(client.directory, x._1, LevelDBClient.LOG_SUFFIX)
-            val size = file.length()
-            val usage = x._2 match {
-              case Some(usage)=>
-                (usage.count.toString, ViewHelper.memory(usage.size))
-              case None=>
-                ("unknown", "unknown")
+      client.using_index {
+        rc.index_stats = client.index.getProperty("leveldb.stats")
+        rc.log_append_pos = client.log.appender_limit
+        rc.index_snapshot_pos = client.last_index_snapshot_pos
+        rc.last_gc_duration = client.last_gc_duration
+        rc.last_gc_ts = client.last_gc_ts
+        rc.in_gc = client.in_gc
+        rc.log_stats = {
+          var row_layout = "%-20s | %-10s | %10s/%-10s\n"
+          row_layout.format("File", "Messages", "Used Size", "Total Size")+
+          client.log.log_infos.map(x=> x._1 -> client.gc_detected_log_usage.get(x._1)).toSeq.flatMap { x=>
+            try {
+              val file = LevelDBClient.create_sequence_file(client.directory, x._1, LevelDBClient.LOG_SUFFIX)
+              val size = file.length()
+              val usage = x._2 match {
+                case Some(usage)=>
+                  (usage.count.toString, ViewHelper.memory(usage.size))
+                case None=>
+                  ("unknown", "unknown")
+              }
+              Some(row_layout.format(file.getName, usage._1, usage._2, ViewHelper.memory(size)))
+            } catch {
+              case e:Throwable =>
+                None
             }
-            Some(row_layout.format(file.getName, usage._1, usage._2, ViewHelper.memory(size)))
-          } catch {
-            case e:Throwable =>
-              None
-          }
-        }.mkString("")
+          }.mkString("")
+        }
       }
       callback(rc)
     }

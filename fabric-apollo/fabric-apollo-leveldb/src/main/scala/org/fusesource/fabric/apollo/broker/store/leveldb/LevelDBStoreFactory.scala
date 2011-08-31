@@ -26,7 +26,7 @@ import org.apache.activemq.apollo.util._
  * 
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class LevelDBStoreFactory extends StoreFactory.Provider {
+class LevelDBStoreFactory extends StoreFactory {
   def create(config: StoreDTO) =  config match {
     case config:LevelDBStoreDTO =>
       if( config.getClass == classOf[LevelDBStoreDTO] ) {

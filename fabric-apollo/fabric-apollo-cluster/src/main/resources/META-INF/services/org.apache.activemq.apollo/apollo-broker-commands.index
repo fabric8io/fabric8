@@ -8,6 +8,5 @@
 # in the license.txt file.
 #
 
-org.fusesource.fabric.apollo.cluster.cli.Cluster
 org.fusesource.fabric.apollo.cluster.cli.ClusterPush
 org.fusesource.fabric.apollo.cluster.cli.ClusterPull
