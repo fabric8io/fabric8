@@ -1,5 +1,5 @@
 echo Add fabric features
-features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
+features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
 echo Install fabric commands
 features:install fabric-commands
@@ -19,19 +19,19 @@ shell:sleep 2000
 
 echo Create dummy karaf profile
 fabric:create-profile --parents default karaf
-zk:create -r /fabric/configs/versions/base/profiles/karaf/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/karaf/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
-echo Create camel 2.7.0 profile
+echo Create camel ${camel-version} profile
 fabric:create-profile --parents karaf camel
-zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/2.7.0/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel camel-core/2.7.0
-zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint/2.7.0
+zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel camel-core/${camel-version}
+zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint/${camel-version}
 
-echo Create activemq 5.5.0 profile
+echo Create activemq ${activemq-version} profile
 fabric:create-profile --parents karaf activemq
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/repository.activemq mvn:org.apache.activemq/activemq-karaf/5.5.0/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq activemq/5.5.0
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq-blueprint activemq-blueprint/5.5.0
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/repository.activemq mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq activemq/${activemq-version}
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq-blueprint activemq-blueprint/${activemq-version}
 
 echo Create nmr 1.4.0 profile
 fabric:create-profile --parents karaf nmr

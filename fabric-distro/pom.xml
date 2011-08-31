@@ -53,6 +53,10 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <resources>
+          <resource>
+              <directory>../etc</directory>
+              <filtering>true</filtering>
+          </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -90,6 +94,26 @@
                                     <file>target/classes/fabric-features.xml</file>
                                     <type>xml</type>
                                     <classifier>features</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/activemq.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>activemq</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/dosgi.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>dosgi</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/profiles.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>profiles</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/loadbalancing.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>loadbalancing</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>
