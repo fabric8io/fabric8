@@ -1,22 +1,3 @@
-echo Add fabric features
-features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
-
-echo Install fabric commands
-features:install fabric-commands
-
-shell:echo Waiting 4 seconds for the fabric-commands to start
-shell:sleep 4000
-
-echo Create default profile node
-zk:create -r /fabric/configs/versions/base/profiles/default base
-
-echo Creating cluster
-fabric:zk-cluster --clean
-fabric:zk-cluster root
-
-shell:echo Waiting 4 seconds to let zookeeper start and form cluster
-shell:sleep 2000
-
 echo Create dummy karaf profile
 fabric:create-profile --parents default karaf
 zk:create -r /fabric/configs/versions/base/profiles/karaf/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features

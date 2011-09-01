@@ -148,12 +148,14 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
     }
 
     public synchronized void deleted(String pid) {
+        debug("Shutting down ZK server %s", pid);
         Object obj = servers.remove(pid);
         ServiceRegistration reg = services.remove(pid);
         if (reg != null) {
             try {
                 reg.unregister();
             } catch (Throwable t) {
+                debug("Caught and am ignoring exception %s while unregistering %s", t, pid);
                 // ignore
             }
         }
@@ -164,6 +166,7 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                 ((NIOServerCnxn.Factory) obj).shutdown();
             }
         } catch (Throwable t) {
+            debug("Caught and am ignoring exception %s while shutting down ZK server %s", t, obj);
             // ignore
         }
     }
