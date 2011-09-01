@@ -39,6 +39,14 @@
       <artifactId>activemq-core</artifactId>
       <version>${activemq-version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <!-- TODO REMOVE ASAP when on AMQ 5.6 or later -->
+        <!-- exclude activeqio which right now has a mandatory dependency on howl in the bundle, but the pom says its not! -->
+        <exclusion>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>activeio-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -46,12 +54,22 @@
       <version>${activemq-version}</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
       <version>${camel-version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- force Camel OSGi to be loaded in OSGi -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-blueprint</artifactId>
+      <version>${camel-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
 
 <!--
     <dependency>
@@ -125,6 +143,9 @@
 
               <!-- make some optional stuff mandatory... -->
               <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-annotation_1.0_spec commons-pool:* org.springframework:*</Fabric-Include-Optional-Dependency>
+<!--
+              <Fabric-Include-Optional-Dependency>*</Fabric-Include-Optional-Dependency>
+-->
 
               <!-- make ActiveMQ pool available to spring -->
               <Fabric-Import-Dependency-Exports>org.apache.activemq:*</Fabric-Import-Dependency-Exports>

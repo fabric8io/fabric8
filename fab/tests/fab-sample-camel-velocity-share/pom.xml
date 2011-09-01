@@ -25,7 +25,9 @@
   <description>FAB :: Sample :: Camel Velocity Share</description>
 
   <properties>
+<!--
     <camel-version>2.9-SNAPSHOT</camel-version>
+-->
   </properties>
 
   <dependencies>
