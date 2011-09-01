@@ -94,27 +94,42 @@
                                     <file>target/classes/fabric-features.xml</file>
                                     <type>xml</type>
                                     <classifier>features</classifier>
-                                </artifact>
-                                <artifact>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/increase-logging.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>enable-logging</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/install-fabric.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>installer</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/add-scala-tools-repo.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>add-scala-tools-repo</classifier>
+                                  </artifact>
+                                  <artifact>
                                     <file>target/classes/activemq.karaf</file>
                                     <type>karaf</type>
                                     <classifier>activemq</classifier>
-                                </artifact>
-                                <artifact>
+                                  </artifact>
+                                  <artifact>
                                     <file>target/classes/dosgi.karaf</file>
                                     <type>karaf</type>
                                     <classifier>dosgi</classifier>
-                                </artifact>
-                                <artifact>
+                                  </artifact>
+                                  <artifact>
                                     <file>target/classes/profiles.karaf</file>
                                     <type>karaf</type>
                                     <classifier>profiles</classifier>
-                                </artifact>
-                                <artifact>
+                                  </artifact>
+                                  <artifact>
                                     <file>target/classes/loadbalancing.karaf</file>
                                     <type>karaf</type>
                                     <classifier>loadbalancing</classifier>
-                                </artifact>
+                                  </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

@@ -1,0 +1,9 @@
+echo Adding scala-tools repo
+config:edit org.ops4j.pax.url.mvn
+config:propappend org.ops4j.pax.url.mvn.repositories ", http://scala-tools.org/repo-releases"
+config:update
+
+osgi:refresh --force "OPS4J Pax Url - mvn:"
+
+sleep 1000
+

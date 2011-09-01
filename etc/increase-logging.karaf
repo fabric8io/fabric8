@@ -1,0 +1,12 @@
+echo Increasing logging
+config:edit org.ops4j.pax.logging
+config:propset log4j.logger.org.fusesource.fabric TRACE
+config:propset log4j.logger.org.apache.zookeeper TRACE
+config:propset log4j.logger.org.linkedin TRACE
+config:update
+
+osgi:refresh --force "OPS4J Pax Logging - Service"
+
+sleep 1000
+
+
