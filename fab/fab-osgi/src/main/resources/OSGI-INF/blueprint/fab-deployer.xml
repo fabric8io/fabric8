@@ -63,7 +63,7 @@ set on the SymbolicName osgi header -->
   <reference id="fabUrlHandlerRef" interface="org.osgi.service.url.URLStreamHandlerService" filter="url.handler.protocol=fab" />
   -->
 
-  <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener"/>
+  <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener" ranking="1"/>
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
     <command name="fab/tree">
