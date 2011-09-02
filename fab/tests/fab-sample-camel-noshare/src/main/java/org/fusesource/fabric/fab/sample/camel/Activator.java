@@ -19,6 +19,9 @@ import org.osgi.framework.BundleContext;
 public class Activator implements BundleActivator {
     private DefaultCamelContext camelContext;
 
+    // package scanning in OSGi was fixed in 2.8.x onwards
+    private boolean packageScanningBroken = false;
+
     public void start(BundleContext context) throws Exception {
         startCamel();
     }
@@ -27,13 +30,17 @@ public class Activator implements BundleActivator {
         System.out.println("Starting my Sample CamelContext");
         camelContext = new DefaultCamelContext();
 
-        // TODO package scannning doesn't work in most containers so lets work around it.
-        // until Camel supports non-package scanning by default...
 
-        CorePackageScanClassResolver corePackageScanClassResolver = new CorePackageScanClassResolver();
-        TypeConverterRegistry typeConverterRegistry = new DefaultTypeConverter(new CorePackageScanClassResolver(),
-                camelContext.getInjector(), camelContext.getFactoryFinder(""));
-        camelContext.setTypeConverterRegistry(typeConverterRegistry);
+        if (packageScanningBroken) {
+            // package scannning broken in pre-2.8.x versions of camel in some containers that
+            // don't use URL class loaders so lets work around it.
+            // until Camel supports non-package scanning by default...
+
+            CorePackageScanClassResolver corePackageScanClassResolver = new CorePackageScanClassResolver();
+            TypeConverterRegistry typeConverterRegistry = new DefaultTypeConverter(new CorePackageScanClassResolver(),
+                    camelContext.getInjector(), camelContext.getFactoryFinder(""));
+            camelContext.setTypeConverterRegistry(typeConverterRegistry);
+        }
 
         camelContext.addRoutes(new RouteBuilder() {
             public void configure() throws Exception {
