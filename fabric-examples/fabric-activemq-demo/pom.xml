@@ -21,8 +21,8 @@
     <groupId>org.fusesource.fabric.fabric-examples</groupId>
     <artifactId>fabric-activemq-demo</artifactId>
     <packaging>bundle</packaging>
-    <name>FuseSource Fabric :: Examples</name>
-    <description>FuseSource Fabric :: Examples</description>
+    <name>${project.artifactId}</name>
+    <description>FuseSource Fabric :: Fabric ActiveMQ Demo</description>
 
     <dependencies>
 
