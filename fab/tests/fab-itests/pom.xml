@@ -45,6 +45,12 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <version>2.2.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.karaf.features</groupId>
+      <artifactId>org.apache.karaf.features.command</artifactId>
+      <version>2.2.1</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
@@ -53,8 +59,24 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <type>pom</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric.fab</groupId>
+      <artifactId>fab-osgi</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- for spring-dm support -->
+    <dependency>
+      <groupId>org.apache.karaf.assemblies.features</groupId>
+      <artifactId>standard</artifactId>
+      <version>2.2.1</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
 
     <!-- test FABs -->
+    <!--
     <dependency>
       <groupId>org.fusesource.fabric.fab.tests</groupId>
       <artifactId>fab-sample-camel-noshare</artifactId>
@@ -73,6 +95,7 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    -->
 
   </dependencies>
 

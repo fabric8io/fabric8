@@ -9,6 +9,7 @@
 package org.fusesource.fabric.fab.osgi.url.internal.commands.fab;
 
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.osgi.url.internal.Bundles;
 import org.fusesource.fabric.fab.osgi.url.internal.FabClassPathResolver;
@@ -22,6 +23,18 @@ import java.util.List;
 @Command(name = "start", scope = "fab", description = "Starts the Fabric Bundle along with its transitive dependencies")
 public class StartCommand extends FabCommandSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(StartCommand.class);
+
+    @Option(name = "--timeout", description = "Maximum time to wait starting the FAB in milliseconds")
+    private long timeout = 30000L;
+
+    private transient long startTime;
+
+    public void start(Bundle bundle) throws Exception {
+        // force lazy construction
+        getPackageAdmin();
+
+        doExecute(bundle);
+    }
 
     @Override
     protected void doExecute(Bundle bundle, FabClassPathResolver resolver) {
@@ -37,13 +50,6 @@ public class StartCommand extends FabCommandSupport {
             }
         }
 
-        // TODO need to wait for all dependent bundles to be started ideally!
-        try {
-            Thread.sleep(1000L);
-        } catch (InterruptedException e) {
-            // ignore
-        }
-
         startBundle(bundle);
     }
 
@@ -53,6 +59,23 @@ public class StartCommand extends FabCommandSupport {
             LOG.debug("Starting bundle %s version %s", bundle.getSymbolicName(), bundle.getVersion());
             try {
                 bundle.start();
+
+                if (startTime == 0L) {
+                    startTime = System.currentTimeMillis();
+                }
+                // lets wait for it to start
+                long end = startTime + timeout;
+                while (true) {
+                    state = bundle.getState();
+                    if (state == Bundle.ACTIVE || state == Bundle.STOPPING || System.currentTimeMillis() > end) {
+                        break;
+                    }
+                    try {
+                        Thread.sleep(500L);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
             } catch (BundleException e) {
                 System.out.println("Failed to start " + bundle.getSymbolicName() + " " + bundle.getVersion() + ". " + e);
                 e.printStackTrace();
