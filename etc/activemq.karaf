@@ -1,7 +1,11 @@
+echo Creating activemq-discovery profile
 fabric:create-profile --parents activemq activemq-discovery
 
-zk:create -r /fabric/configs/versions/base/profiles/activemq-discovery/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples/fabric-activemq-demo/${project.version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/activemq-discovery/org.fusesource.fabric.agent/feature.fabric-activemq fabric-activemq
-zk:create -r /fabric/configs/versions/base/profiles/activemq-discovery/org.fusesource.fabric.agent/feature.fabric-demo fabric-activemq-demo
+echo Adding fabric-activemq-demo feature repository
+fabric:edit-profile -p activemq-discovery --repositories fabric-examples=mvn:org.fusesource.fabric.fabric-examples/fabric-activemq-demo/${project.version}/xml/features
 
+echo Adding fabric-activemq-demo features
+fabric:edit-profile -p activemq-discovery --features fabric-activemq=fabric-activemq fabric-demo=fabric-demo
+
+echo Creating agent with activemq-discovery profile amq1
 fabric:create-agent --parent root --profile activemq-discovery amq1
