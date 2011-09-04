@@ -3,6 +3,20 @@ echo Add fabric features
 features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
 echo Install fabric commands
+
+# -----------------------------------------------
+# TODO - Remove this work-around that allows installation into FUSE ESB 4.4.0-fuse-00-43
+features:install fabric-zookeeper
+features:install fabric-maven-proxy
+osgi:install -s mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}
+osgi:install -s mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}
+osgi:install -s mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}
+osgi:install -s mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}
+osgi:install -s mvn:org.fusesource.fabric/fabric-core/${project.version}
+# -----------------------------------------------
+
+shell:sleep 1000
+
 features:install fabric-commands
 
 shell:echo Waiting 4 seconds for the fabric-commands to start
