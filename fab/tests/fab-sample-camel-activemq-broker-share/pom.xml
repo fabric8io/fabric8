@@ -53,46 +53,17 @@
       <version>${activemq-version}</version>
       <scope>provided</scope>
     </dependency>
-<!--
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
-      <version>${camel-version}</version>
-    </dependency>
--->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
       <version>${camel-version}</version>
       <scope>provided</scope>
     </dependency>
-    <!--
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-blueprint</artifactId>
       <version>${camel-version}</version>
       <scope>provided</scope>
-    </dependency>
-    -->
-
-<!--
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core-osgi</artifactId>
-      <version>${camel-version}</version>
-    </dependency>
--->
-<!--
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-spring</artifactId>
-      <version>${camel-version}</version>
-    </dependency>
--->
-    <dependency>
-      <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-spring</artifactId>
-      <version>${xbean-version}</version>
     </dependency>
 
     <dependency>
@@ -142,63 +113,6 @@
       <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
       <version>1.8.0</version>
     </dependency>
-
-    <!--
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${spring-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-      <version>${spring-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-      <version>${spring-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    -->
-
-    <!--
-    <dependency>
-      <groupId>org.springframework.osgi</groupId>
-      <artifactId>spring-osgi-core</artifactId>
-      <version>${spring-osgi-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.osgi</groupId>
-      <artifactId>spring-osgi-extender</artifactId>
-      <version>${spring-osgi-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.osgi</groupId>
-      <artifactId>spring-osgi-annotation</artifactId>
-      <version>${spring-osgi-version}</version>
-      <scope>provided</scope>
-    </dependency>
--->
-
-<!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.11</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId> 
-      <artifactId>log4j</artifactId> 
-      <version>1.2.16</version> 
-      <scope>test</scope>
-    </dependency>
--->
   </dependencies>
 
   <build>
@@ -212,10 +126,10 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.activemq:* org.apache.camel:* org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
+              <Fabric-Provided-Dependency>org.apache.activemq:* org.apache.xbean:* org.apache.camel:* org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
 
               <!-- make some optional stuff mandatory... -->
-              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-annotation_1.0_spec commons-pool:* org.springframework:*</Fabric-Include-Optional-Dependency>
+              <Fabric-Include-Optional-Dependency>org.apache.xbean:* org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-annotation_1.0_spec commons-pool:* org.springframework:* javax:*</Fabric-Include-Optional-Dependency>
 
               <!-- make ActiveMQ pool available to spring -->
               <Fabric-Import-Dependency-Exports>org.apache.activemq:*</Fabric-Import-Dependency-Exports>
