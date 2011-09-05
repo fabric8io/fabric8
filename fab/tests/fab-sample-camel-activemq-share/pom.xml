@@ -63,7 +63,9 @@
             <manifestEntries>
               <Fabric-Provided-Dependency>org.apache.* org.springframework*</Fabric-Provided-Dependency>
               <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:* commons-pool:* org.springframework:*</Fabric-Include-Optional-Dependency>
-              <Fabric-Exclude-Dependency>javax.ejb:* javax.resource:* org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
+
+              <!-- temporary work around until activeio becomes an optional dependency -->
+              <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
 
               <!-- make ActiveMQ pool available to spring -->
               <Fabric-Import-Dependency-Exports>org.apache.activemq:*</Fabric-Import-Dependency-Exports>
