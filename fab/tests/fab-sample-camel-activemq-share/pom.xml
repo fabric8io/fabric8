@@ -41,26 +41,12 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- override camel version -->
+    <!-- only required to override the camel version -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
       <version>${camel-version}</version>
       <scope>provided</scope>
-    </dependency>
-
-    <!-- use latest JTA -->
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jta_1.1_spec</artifactId>
-      <version>1.1.1</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.servicemix.specs</groupId>
-      <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
-      <version>1.8.0</version>
     </dependency>
   </dependencies>
 
