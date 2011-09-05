@@ -17,6 +17,8 @@
  */
 package org.fusesource.fabric.fab;
 
+import org.fusesource.fabric.fab.util.Filters;
+
 import java.io.File;
 
 /**
@@ -53,7 +55,7 @@ public class Main {
             results = manager.collectDependencies(file, true);
         } else {
             VersionedDependencyId dependencyId = VersionedDependencyId.fromString(pomFile);
-            results = manager.collectDependencies(dependencyId, true);
+            results = manager.collectDependencies(dependencyId, true, Filters.<DependencyTree>falseFilter());
         }
         DependencyTree tree = results.getTree();
         System.out.println(tree.getDescription());

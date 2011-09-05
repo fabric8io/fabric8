@@ -48,13 +48,13 @@ public class DependencyTreeFilters {
      * <p/>
      * By default it excludes all test scoped dependencies.
      */
-    public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText) {
+    public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText, Filter excludeOptionalDependenciesFilter) {
         Filter<DependencyTree> filter = parse(dependencyFilterText);
         // if no filter text then assume it matches nothing
         if (isEmpty(filter)) {
             return testScopeFilter;
         }
-        return Filters.or(testScopeFilter, filter);
+        return Filters.or(testScopeFilter, excludeOptionalDependenciesFilter, filter);
     }
 
     public static Filter<DependencyTree> parseExcludeOptionalFilter(String includeOptionalDependencyFilterText) {
@@ -126,14 +126,39 @@ public class DependencyTreeFilters {
     }
 
     protected static Filter<String> createStringFilter(final String text) {
-        if (text == null || text.length() == 0 || text.startsWith("*")) {
-            return Filters.trueFilter();
+        if (text.startsWith("!")) {
+            String remaining = text.substring(1);
+            return Filters.not(createStringFilter(remaining));
         } else {
-            return new Filter<String>() {
-                public boolean matches(String s) {
-                    return text.equals(s);
+            if (text == null || text.length() == 0 || text.startsWith("*")) {
+                return Filters.trueFilter();
+            } else {
+                if (text.endsWith("*")) {
+                    final String prefix = text.substring(0, text.length() - 1);
+                    return new Filter<String>() {
+                        public boolean matches(String s) {
+                            return s.startsWith(prefix);
+                        }
+
+                        @Override
+                        public String toString() {
+                            return "StartsWith(" + prefix + ")";
+                        }
+                    };
+
+                } else {
+                    return new Filter<String>() {
+                        public boolean matches(String s) {
+                            return text.equals(s);
+                        }
+
+                        @Override
+                        public String toString() {
+                            return "Equals(" + text + ")";
+                        }
+                    };
                 }
-            };
+            }
         }
     }
 }

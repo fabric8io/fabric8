@@ -21,7 +21,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
+  <parent>
     <groupId>org.fusesource.fabric.fab.tests</groupId>
     <artifactId>tests-project</artifactId>
     <version>1.1-SNAPSHOT</version>
@@ -36,86 +36,17 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <version>${activemq-version}</version>
-      <scope>provided</scope>
-      <exclusions>
-        <!-- TODO REMOVE ASAP when on AMQ 5.6 or later -->
-        <!-- exclude activeqio which right now has a mandatory dependency on howl in the bundle, but the pom says its not! -->
-        <exclusion>
-          <groupId>org.apache.activemq</groupId>
-          <artifactId>activeio-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
       <version>${activemq-version}</version>
       <scope>provided</scope>
     </dependency>
 
+    <!-- only required to override the camel version -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
       <version>${camel-version}</version>
       <scope>provided</scope>
-    </dependency>
-
-    <!-- force Camel OSGi to be loaded in OSGi -->
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-blueprint</artifactId>
-      <version>${camel-version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
-      <version>${spring-version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.ejb</groupId>
-          <artifactId>ejb-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.resource</groupId>
-          <artifactId>connector-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!-- use latest JTA -->
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jta_1.1_spec</artifactId>
-      <version>1.1.1</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>${spring-version}</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.ejb</groupId>
-          <artifactId>ejb-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.servicemix.specs</groupId>
-      <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
-      <version>1.8.0</version>
     </dependency>
   </dependencies>
 
@@ -130,13 +61,11 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.activemq:* org.apache.camel:* org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
+              <Fabric-Provided-Dependency>org.apache.* org.springframework*</Fabric-Provided-Dependency>
+              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:* commons-pool:* org.springframework:*</Fabric-Include-Optional-Dependency>
 
-              <!-- make some optional stuff mandatory... -->
-              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-annotation_1.0_spec commons-pool:* org.springframework:*</Fabric-Include-Optional-Dependency>
-<!--
-              <Fabric-Include-Optional-Dependency>*</Fabric-Include-Optional-Dependency>
--->
+              <!-- temporary work around until activeio becomes an optional dependency -->
+              <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
 
               <!-- make ActiveMQ pool available to spring -->
               <Fabric-Import-Dependency-Exports>org.apache.activemq:*</Fabric-Import-Dependency-Exports>

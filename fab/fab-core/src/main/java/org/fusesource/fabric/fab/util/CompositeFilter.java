@@ -22,6 +22,12 @@ public class CompositeFilter<T> implements Filter<T> {
     }
 
     @Override
+    public String toString() {
+        return "CompsiteFilter" + filters;
+
+    }
+
+    @Override
     public boolean matches(T t) {
         for (Filter<T> filter : filters) {
             if (filter.matches(t)) {
