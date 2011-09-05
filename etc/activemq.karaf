@@ -1,11 +1,24 @@
-echo Creating activemq-discovery profile
-fabric:create-profile --parents activemq activemq-discovery
+echo Create activemq ${activemq-version} profile
+fabric:create-profile --parents karaf activemq
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/repository.activemq mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq activemq/${activemq-version}
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq-blueprint activemq-blueprint/${activemq-version}
+zk:create -i -r /fabric/configs/versions/base/profiles/activemq/configuration.xml mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/activemq
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/bundle.config blueprint:zk:/fabric/configs/versions/base/profiles/activemq/configuration.xml
+zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.amq-fabric fabric-activemq/${project.version}
 
-echo Adding fabric-activemq-demo feature repository
-fabric:edit-profile -p activemq-discovery --repositories fabric-examples=mvn:org.fusesource.fabric.fabric-examples/fabric-activemq-demo/${project.version}/xml/features
+echo Profile created! You can now create broker agents with 'fabric:create-agent --profile activemq --parent root broker'
 
-echo Adding fabric-activemq-demo features
-fabric:edit-profile -p activemq-discovery --features fabric-activemq=fabric-activemq fabric-demo=fabric-demo
 
-echo Creating agent with activemq-discovery profile amq1
-fabric:create-agent --parent root --profile activemq-discovery amq1
+### old script - revisit later
+#echo Creating activemq-discovery profile
+#fabric:create-profile --parents activemq activemq-discovery
+#
+#echo Adding fabric-activemq-demo feature repository
+#fabric:edit-profile -p activemq-discovery --repositories fabric-examples=mvn:org.fusesource.fabric.fabric-examples/fabric-activemq-demo/${project.version}/xml/features
+#
+#echo Adding fabric-activemq-demo features
+#fabric:edit-profile -p activemq-discovery --features fabric-activemq=fabric-activemq fabric-demo=fabric-demo
+#
+#echo Creating agent with activemq-discovery profile amq1
+#fabric:create-agent --parent root --profile activemq-discovery amq1
