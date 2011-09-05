@@ -24,7 +24,13 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
 
         assertShareFilter(node, "commons-logging", "commons-logging", false, "");
         assertShareFilter(node, "commons-logging", "commons-logging", true,
+                // prefix wildcards
                 "commons-*:*", "*:commons-*",
+
+                // not wildcard matches
+                "commons-logging:!foo",
+                "!foo:*",
+
                 "*", "commons-logging:*", "*:*", "*:commons-logging", "commons-logging:commons-logging",
                 "foo:bar commons-logging:commons-logging",
                 "foo:bar commons-logging:commons-logging xyz:bar",

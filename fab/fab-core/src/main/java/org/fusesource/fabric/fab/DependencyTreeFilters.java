@@ -126,33 +126,38 @@ public class DependencyTreeFilters {
     }
 
     protected static Filter<String> createStringFilter(final String text) {
-        if (text == null || text.length() == 0 || text.startsWith("*")) {
-            return Filters.trueFilter();
+        if (text.startsWith("!")) {
+            String remaining = text.substring(1);
+            return Filters.not(createStringFilter(remaining));
         } else {
-            if (text.endsWith("*")) {
-                final String prefix = text.substring(0, text.length() - 1);
-                return new Filter<String>() {
-                    public boolean matches(String s) {
-                        return s.startsWith(prefix);
-                    }
-
-                    @Override
-                    public String toString() {
-                        return "StartsWith(" + prefix + ")";
-                    }
-                };
-
+            if (text == null || text.length() == 0 || text.startsWith("*")) {
+                return Filters.trueFilter();
             } else {
-                return new Filter<String>() {
-                    public boolean matches(String s) {
-                        return text.equals(s);
-                    }
+                if (text.endsWith("*")) {
+                    final String prefix = text.substring(0, text.length() - 1);
+                    return new Filter<String>() {
+                        public boolean matches(String s) {
+                            return s.startsWith(prefix);
+                        }
 
-                    @Override
-                    public String toString() {
-                        return "Equals(" + text + ")";
-                    }
-                };
+                        @Override
+                        public String toString() {
+                            return "StartsWith(" + prefix + ")";
+                        }
+                    };
+
+                } else {
+                    return new Filter<String>() {
+                        public boolean matches(String s) {
+                            return text.equals(s);
+                        }
+
+                        @Override
+                        public String toString() {
+                            return "Equals(" + text + ")";
+                        }
+                    };
+                }
             }
         }
     }
