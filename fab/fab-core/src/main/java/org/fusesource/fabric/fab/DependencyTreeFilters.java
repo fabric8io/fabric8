@@ -129,11 +129,31 @@ public class DependencyTreeFilters {
         if (text == null || text.length() == 0 || text.startsWith("*")) {
             return Filters.trueFilter();
         } else {
-            return new Filter<String>() {
-                public boolean matches(String s) {
-                    return text.equals(s);
-                }
-            };
+            if (text.endsWith("*")) {
+                final String prefix = text.substring(0, text.length() - 1);
+                return new Filter<String>() {
+                    public boolean matches(String s) {
+                        return s.startsWith(prefix);
+                    }
+
+                    @Override
+                    public String toString() {
+                        return "StartsWith(" + prefix + ")";
+                    }
+                };
+
+            } else {
+                return new Filter<String>() {
+                    public boolean matches(String s) {
+                        return text.equals(s);
+                    }
+
+                    @Override
+                    public String toString() {
+                        return "Equals(" + text + ")";
+                    }
+                };
+            }
         }
     }
 }

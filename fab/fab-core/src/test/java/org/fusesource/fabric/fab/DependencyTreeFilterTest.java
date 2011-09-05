@@ -24,6 +24,7 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
 
         assertShareFilter(node, "commons-logging", "commons-logging", false, "");
         assertShareFilter(node, "commons-logging", "commons-logging", true,
+                "commons-*:*", "*:commons-*",
                 "*", "commons-logging:*", "*:*", "*:commons-logging", "commons-logging:commons-logging",
                 "foo:bar commons-logging:commons-logging",
                 "foo:bar commons-logging:commons-logging xyz:bar",
