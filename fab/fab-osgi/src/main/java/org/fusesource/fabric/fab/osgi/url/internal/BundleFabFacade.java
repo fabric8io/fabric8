@@ -10,11 +10,10 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.ModuleDescriptor;
-import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
+import org.fusesource.fabric.fab.util.Filter;
 import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -93,8 +92,8 @@ public class BundleFabFacade extends FabFacadeSupport {
         }
     }
 
-    public DependencyTree collectDependencyTree(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
-        return getResolver().collectDependencies(dependencyId, offline).getTree();
+    public DependencyTree collectDependencyTree(boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
+        return getResolver().collectDependencies(dependencyId, offline, excludeDependencyFilter).getTree();
     }
 
     @Override

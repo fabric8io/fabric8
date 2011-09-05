@@ -9,6 +9,7 @@
 package org.fusesource.fabric.fab;
 
 import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.fabric.fab.util.Filters;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class MavenResolverTest extends DependencyTestSupport {
     @Test
     public void testResolveDependenciesByGroupAndArtifactId() throws Exception {
         LOG.info("Resolving " + groupId + "/" + artifactId + "/" + version);
-        DependencyTreeResult result = mavenResolver.collectDependencies(groupId, artifactId, version, extension, classifier, false);
+        DependencyTreeResult result = mavenResolver.collectDependencies(groupId, artifactId, version, extension, classifier, false, Filters.<DependencyTree>falseFilter());
         assertNotNull("result", result);
 
         DependencyTree tree = result.getTree();

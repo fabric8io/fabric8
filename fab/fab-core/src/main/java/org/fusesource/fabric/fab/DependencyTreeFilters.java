@@ -48,13 +48,13 @@ public class DependencyTreeFilters {
      * <p/>
      * By default it excludes all test scoped dependencies.
      */
-    public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText) {
+    public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText, Filter excludeOptionalDependenciesFilter) {
         Filter<DependencyTree> filter = parse(dependencyFilterText);
         // if no filter text then assume it matches nothing
         if (isEmpty(filter)) {
             return testScopeFilter;
         }
-        return Filters.or(testScopeFilter, filter);
+        return Filters.or(testScopeFilter, excludeOptionalDependenciesFilter, filter);
     }
 
     public static Filter<DependencyTree> parseExcludeOptionalFilter(String includeOptionalDependencyFilterText) {
