@@ -61,15 +61,8 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.activemq:* org.apache.camel:* org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
-
-              <!-- make some optional stuff mandatory... -->
-              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec org.apache.geronimo.specs:geronimo-annotation_1.0_spec commons-pool:* org.springframework:*</Fabric-Include-Optional-Dependency>
-<!--
-              <Fabric-Include-Optional-Dependency>*</Fabric-Include-Optional-Dependency>
--->
-
-              <!-- Exclude some unnecessary dependencies -->
+              <Fabric-Provided-Dependency>org.apache.* org.springframework*</Fabric-Provided-Dependency>
+              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:* commons-pool:* org.springframework:*</Fabric-Include-Optional-Dependency>
               <Fabric-Exclude-Dependency>javax.ejb:* javax.resource:* org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
 
               <!-- make ActiveMQ pool available to spring -->
