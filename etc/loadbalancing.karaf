@@ -1,5 +1,5 @@
 fabric:create-profile --parents camel camel-cluster
-zk:create -r /fabric/configs/versions/base/profiles/camel-cluster/org.fusesource.fabric.agent/repository.fabric-loadbalancing mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/1.0-SNAPSHOT/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/camel-cluster/org.fusesource.fabric.agent/repository.fabric-loadbalancing mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/camel-cluster/org.fusesource.fabric.agent/feature.fusefabric-camel fusesource-fabric-camel
 
 

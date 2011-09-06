@@ -20,6 +20,11 @@ public class Filters {
             public boolean matches(T t) {
                 return true;
             }
+
+            @Override
+            public String toString() {
+                return "TrueFilter";
+            }
         };
     }
 
@@ -27,6 +32,11 @@ public class Filters {
         return new Filter<T>() {
             public boolean matches(T t) {
                 return false;
+            }
+
+            @Override
+            public String toString() {
+                return "FalseFilter";
             }
         };
     }
@@ -55,6 +65,19 @@ public class Filters {
             @Override
             public String toString() {
                 return "OrFilter" + Arrays.asList(filters);
+            }
+        };
+    }
+
+    public static <T> Filter<T> not(final Filter<T> filter) {
+        return new Filter<T>() {
+            public boolean matches(T t) {
+                return !filter.matches(t);
+            }
+
+            @Override
+            public String toString() {
+                return "Not(" + filter + ")";
             }
         };
     }

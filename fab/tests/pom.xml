@@ -24,10 +24,18 @@
   <description>FuseSource Fabric :: Archive Bundles :: Tests</description>
 
   <properties>
+    <camel-version>2.8.x-fuse-SNAPSHOT</camel-version>
+<!--
+    <camel-version>2.9-SNAPSHOT</camel-version>
 
+    <activemq-version>5.5.x-fuse-SNAPSHOT</activemq-version>
      <camel-version>2.9-SNAPSHOT</camel-version>
      <activemq-version>5.6-SNAPSHOT</activemq-version>
-
+-->
+<!--
+    <camel-version>2.7.x-fuse-SNAPSHOT</camel-version>
+     <activemq-version>5.6-fuse-SNAPSHOT</activemq-version>
+-->
   </properties>
 
 
@@ -44,7 +52,10 @@
     <module>fab-sample-camel-velocity-require-bundle</module>
 
 <!--
+    TODO missing dependency..
     <module>fab-sample-camel-osgi-share</module>
+
+    TODO we cannot yet start bundles which are not shared
     <module>fab-sample-camel-osgi-noshare</module>
 -->
   </modules>

@@ -9,6 +9,7 @@
 package org.fusesource.fabric.fab;
 
 import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.fabric.fab.util.Filters;
 import org.junit.Test;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 
@@ -23,6 +24,13 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
 
         assertShareFilter(node, "commons-logging", "commons-logging", false, "");
         assertShareFilter(node, "commons-logging", "commons-logging", true,
+                // prefix wildcards
+                "commons-*", "commons-*:*", "*:commons-*",
+
+                // not wildcard matches
+                "commons-logging:!foo",
+                "!foo:*",
+
                 "*", "commons-logging:*", "*:*", "*:commons-logging", "commons-logging:commons-logging",
                 "foo:bar commons-logging:commons-logging",
                 "foo:bar commons-logging:commons-logging xyz:bar",
@@ -66,7 +74,7 @@ public class DependencyTreeFilterTest extends DependencyTestSupport {
 
     protected DependencyTree assertExcludeFilter(DependencyTreeResult result, String groupId, String artifactId, boolean expected, String filterText) throws MalformedURLException, ArtifactResolutionException {
         DependencyTree tree = assertFindDependencyTree(result, groupId, artifactId);
-        Filter<DependencyTree> filter = DependencyTreeFilters.parseExcludeFilter(filterText);
+        Filter<DependencyTree> filter = DependencyTreeFilters.parseExcludeFilter(filterText, Filters.falseFilter());
         boolean actual = filter.matches(tree);
         assertEquals("Filter failed for " + filterText, expected, actual);
         //System.out.println("Testing " + tree + " for filter: " + filterText + " = " + actual);

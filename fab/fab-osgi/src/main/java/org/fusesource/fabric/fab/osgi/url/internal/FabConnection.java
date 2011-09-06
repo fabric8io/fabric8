@@ -19,6 +19,7 @@ import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Objects;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
@@ -78,12 +79,12 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     }
 
     @Override
-    public DependencyTree collectDependencyTree(boolean offline) throws RepositoryException, IOException, XmlPullParserException {
+    public DependencyTree collectDependencyTree(boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
         if (rootTree == null) {
             PomDetails details = resolvePomDetails();
             Objects.notNull(details, "pomDetails");
             try {
-                rootTree = getResolver().collectDependencies(details, offline).getTree();
+                rootTree = getResolver().collectDependencies(details, offline, excludeDependencyFilter).getTree();
             } catch (IOException e) {
                 logFailure(e);
                 throw e;

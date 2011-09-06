@@ -97,18 +97,19 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
             String version = System.getProperty("fabric.version", "base");
-            String profiles = System.getProperty("fabric.profiles", "default");
+            String profiles = System.getProperty("fabric.profiles");
 
-            String versionNode = CONFIG_AGENT.getPath(name);
-            String profileNode = CONFIG_VERSIONS_AGENT.getPath(version, name);
+            if (profiles != null) {
+                String versionNode = CONFIG_AGENT.getPath(name);
+                String profileNode = CONFIG_VERSIONS_AGENT.getPath(version, name);
 
-            if (zooKeeper.exists(versionNode) == null) {
-                zooKeeper.createOrSetWithParents(versionNode, version, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                if (zooKeeper.exists(versionNode) == null) {
+                    zooKeeper.createOrSetWithParents(versionNode, version, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
+                if (zooKeeper.exists(profileNode) == null) {
+                    zooKeeper.createOrSetWithParents(profileNode, profiles, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
             }
-            if (zooKeeper.exists(profileNode) == null) {
-                zooKeeper.createOrSetWithParents(profileNode, profiles, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            }
-
             registerDomains();
         } catch (Exception e) {
             // TODO

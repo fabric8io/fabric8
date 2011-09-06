@@ -34,6 +34,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Objects;
 import org.slf4j.Logger;
@@ -121,12 +122,14 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return builder.build();
     }
 
-    public static DependencyTree newInstance(DependencyNode node, MavenResolver resolver) throws MalformedURLException, ArtifactResolutionException {
+    public static DependencyTree newInstance(DependencyNode node, MavenResolver resolver, Filter<DependencyTree> excludeDependencyFilter) throws MalformedURLException, ArtifactResolutionException {
         List<DependencyNode> childrenNodes = node.getChildren();
         List<DependencyTree> children = new ArrayList<DependencyTree>();
         for (DependencyNode childNode : childrenNodes) {
-            DependencyTree child = newInstance(childNode, resolver);
-            children.add(child);
+            DependencyTree child = newInstance(childNode, resolver, excludeDependencyFilter);
+            if (!excludeDependencyFilter.matches(child)) {
+                children.add(child);
+            }
         }
         Artifact artifact = node.getDependency().getArtifact();
         DependencyTree dependencyTree = new DependencyTree(DependencyId.newInstance(artifact), node.getDependency(), children);
