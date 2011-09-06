@@ -10,6 +10,7 @@ package org.fusesource.fabric.fab.osgi.url.internal;
 
 import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
+import org.fusesource.fabric.fab.util.Objects;
 import org.fusesource.fabric.fab.util.Strings;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -64,7 +65,7 @@ public class Bundles {
         Bundle[] bundles = bundleContext.getBundles();
         for (Bundle bundle : bundles) {
             // TODO should be using ranges here!!
-            if (bundle.getSymbolicName().equals(name) && bundle.getVersion().equals(v)) {
+            if (Objects.equal(bundle.getSymbolicName(), name) && Objects.equal(bundle.getVersion(), v)) {
                 return bundle;
             }
         }
