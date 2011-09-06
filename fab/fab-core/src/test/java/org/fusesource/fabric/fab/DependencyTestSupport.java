@@ -61,8 +61,10 @@ public abstract class DependencyTestSupport {
         File rootPom = new File(resource.getPath());
 
         DependencyTreeResult node = mavenResolver.collectDependencies(rootPom, false);
-        LOG.debug("File: " + pomName);
-        LOG.debug(node.getTreeDescription());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("File: " + pomName);
+            LOG.debug(node.getTreeDescription());
+        }
 
         List<DependencyTree.DuplicateDependency> duplicateDependencies = node.getTree().checkForDuplicateDependencies();
         assertEquals("Should not have duplicates: " + duplicateDependencies, 0, duplicateDependencies.size());
