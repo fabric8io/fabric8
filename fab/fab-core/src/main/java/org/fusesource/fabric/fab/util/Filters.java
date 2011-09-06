@@ -81,4 +81,14 @@ public class Filters {
             }
         };
     }
+
+    public static <T> boolean isEmpty(Filter<T> filter) {
+        boolean empty = false;
+        if (filter instanceof CompositeFilter) {
+            // lets treat empty filters as not matching anything
+            CompositeFilter<T> compositeFilter = (CompositeFilter<T>) filter;
+            empty = compositeFilter.isEmpty();
+        }
+        return empty;
+    }
 }
