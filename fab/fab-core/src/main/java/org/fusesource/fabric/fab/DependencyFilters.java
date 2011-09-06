@@ -11,29 +11,41 @@ package org.fusesource.fabric.fab;
 import org.fusesource.fabric.fab.util.CompositeFilter;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Filters;
+import org.sonatype.aether.graph.Dependency;
+import org.sonatype.aether.graph.DependencyNode;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static org.fusesource.fabric.fab.util.Filters.isEmpty;
+
 /**
  */
 public class DependencyFilters {
-    protected static final Filter<DependencyTree> providedScopeFilter = createScopeFilter("provided");
-    protected static final Filter<DependencyTree> testScopeFilter = createScopeFilter("test");
 
-    protected static final Filter<DependencyTree> createScopeFilter(final String scopeFilter) {
-        return new Filter<DependencyTree>() {
-            public boolean matches(DependencyTree dependencyTree) {
-                String scope = dependencyTree.getScope();
+    public static boolean matches(Dependency dependency, Filter<Dependency> excludeDependencyFilter) {
+        return excludeDependencyFilter == null || excludeDependencyFilter.matches(dependency);
+    }
+
+    public static boolean matches(DependencyNode node, Filter<Dependency> excludeDependencyFilter) {
+        return matches(node.getDependency(), excludeDependencyFilter);
+    }
+
+    public static final Filter<Dependency> testScopeFilter = createScopeFilter("test");
+
+    public static final Filter<Dependency> createScopeFilter(final String scopeFilter) {
+        return new Filter<Dependency>() {
+            public boolean matches(Dependency Dependency) {
+                String scope = Dependency.getScope();
                 return scope != null && scopeFilter.equals(scope);
             }
         };
     }
 
-    public static final Filter<DependencyTree> optionalFilter = new Filter<DependencyTree>() {
-        public boolean matches(DependencyTree tree) {
-            return tree.isThisOrDescendantOptional();
+    public static final Filter<Dependency> optionalFilter = new Filter<Dependency>() {
+        public boolean matches(Dependency tree) {
+            return tree.isOptional();
         }
 
         @Override
@@ -41,16 +53,9 @@ public class DependencyFilters {
             return "OptionalFilter";
         }
     };
-    /**
-     * Parsers a shared dependency filter of the form "" for match none, "*" for all, or a space
-     * separated list of "groupId:artifactId" allowing wildcards.
-     * <p/>
-     * By default it shares all provided scoped dependencies.
-     */
-    public static Filter<DependencyTree> parseShareFilter(String dependencyFilterText) {
-        Filter<DependencyTree> filter = parse(dependencyFilterText);
-        return Filters.or(providedScopeFilter, filter);
-    }
+
+    public static final Filter<Dependency> testScopeOrOptionalFilter = Filters.or(testScopeFilter, optionalFilter);
+
 
     /**
      * Parsers the exclude dependency filter of the form "" for match none, "*" for all, or a space
@@ -58,22 +63,22 @@ public class DependencyFilters {
      * <p/>
      * By default it excludes all test scoped dependencies.
      */
-    public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText, Filter excludeOptionalDependenciesFilter) {
-        Filter<DependencyTree> filter = parse(dependencyFilterText);
+    public static Filter<Dependency> parseExcludeFilter(String dependencyFilterText, Filter excludeOptionalDependenciesFilter) {
+        Filter<Dependency> filter = parse(dependencyFilterText);
         // if no filter text then assume it matches nothing
         if (isEmpty(filter)) {
-            return testScopeFilter;
+            return excludeOptionalDependenciesFilter;
         }
-        return Filters.or(testScopeFilter, excludeOptionalDependenciesFilter, filter);
+        return Filters.or(excludeOptionalDependenciesFilter, filter);
     }
 
-    public static Filter<DependencyTree> parseExcludeOptionalFilter(String includeOptionalDependencyFilterText) {
-        final Filter<DependencyTree> filter = parse(includeOptionalDependencyFilterText);
+    public static Filter<Dependency> parseExcludeOptionalFilter(String includeOptionalDependencyFilterText) {
+        final Filter<Dependency> filter = parse(includeOptionalDependencyFilterText);
         final boolean excludeAll = isEmpty(filter);
-        return new Filter<DependencyTree>() {
+        return new Filter<Dependency>() {
             @Override
-            public boolean matches(DependencyTree tree) {
-                if (tree.isThisOrDescendantOptional()) {
+            public boolean matches(Dependency tree) {
+                if (tree.isOptional()) {
                     if (excludeAll) {
                         return true;
                     } else {
@@ -86,32 +91,22 @@ public class DependencyFilters {
         };
     }
 
-    protected static boolean isEmpty(Filter<DependencyTree> filter) {
-        boolean empty = false;
-        if (filter instanceof CompositeFilter) {
-            // lets treat empty filters as not matching anything
-            CompositeFilter<DependencyTree> compositeFilter = (CompositeFilter<DependencyTree>) filter;
-            empty = compositeFilter.isEmpty();
-        }
-        return empty;
-    }
-
     /**
      * Parses the filter of which bundles should use the Require-Bundle instead of the default Import-Package
      */
-    public static Filter<DependencyTree> parseRequireBundleFilter(String filterText) {
+    public static Filter<Dependency> parseRequireBundleFilter(String filterText) {
         return parse(filterText);
     }
 
     /**
      * Creates a filter from the given String
      */
-    public static Filter<DependencyTree> parse(String dependencyFilterText) {
-        List<Filter<DependencyTree>> filters = new ArrayList<Filter<DependencyTree>>();
+    public static Filter<Dependency> parse(String dependencyFilterText) {
+        List<Filter<Dependency>> filters = new ArrayList<Filter<Dependency>>();
         StringTokenizer iter = new StringTokenizer(dependencyFilterText);
         while (iter.hasMoreElements()) {
             String text = iter.nextToken();
-            Filter<DependencyTree> filter = parseSingleFilter(text);
+            Filter<Dependency> filter = parseSingleFilter(text);
             if (filter != null) {
                 filters.add(filter);
             }
@@ -119,7 +114,7 @@ public class DependencyFilters {
         return Filters.compositeFilter(filters);
     }
 
-    protected static Filter<DependencyTree> parseSingleFilter(String text) {
+    protected static Filter<Dependency> parseSingleFilter(String text) {
         String[] split = text.split(":");
         if (split == null || split.length == 0) {
             return null;
@@ -131,7 +126,7 @@ public class DependencyFilters {
             } else {
                 artifactFilter = createStringFilter(split[1]);
             }
-            return new DependencyTreeFilter(groupFilter, artifactFilter);
+            return new DependencyFilter(groupFilter, artifactFilter);
         }
     }
 

@@ -9,11 +9,13 @@
 package org.fusesource.fabric.fab;
 
 import org.fusesource.fabric.fab.util.Filter;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.graph.Dependency;
 
 /**
- * Matches a {@link org.fusesource.fabric.fab.DependencyTree} using a groupId and artifactId filter
+ * Matches a {@link Dependency} using a groupId and artifactId filter
  */
-public class DependencyFilter implements Filter<DependencyTree> {
+public class DependencyFilter implements Filter<Dependency> {
     private final Filter<String> groupFilter;
     private final Filter<String> artifactFilter;
 
@@ -23,9 +25,15 @@ public class DependencyFilter implements Filter<DependencyTree> {
     }
 
     @Override
-    public boolean matches(DependencyTree dependencyTree) {
-        String groupId = dependencyTree.getGroupId();
-        String artifactId = dependencyTree.getArtifactId();
+    public boolean matches(Dependency dependencyTree) {
+        Artifact artifact = dependencyTree.getArtifact();
+        String groupId = artifact.getGroupId();
+        String artifactId = artifact.getArtifactId();
         return groupFilter.matches(groupId) && artifactFilter.matches(artifactId);
+    }
+
+    @Override
+    public String toString() {
+        return "DependencyFilter(" + groupFilter + ":" + artifactFilter + ")";
     }
 }
