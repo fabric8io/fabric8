@@ -21,9 +21,6 @@ package org.fusesource.fabric.api.monitor
 
 import org.codehaus.jackson.map.ObjectMapper
 import java.io._
-import java.util.Properties
-//import org.fusesource.fabric.monitor.internal.IOSupport._
-//import org.fusesource.fabric.monitor.internal.FilterSupport
 
 
 /**

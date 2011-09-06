@@ -11,6 +11,8 @@
 package org.fusesource.fabric.api.monitor;
 
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.xml.bind.annotation.*;
 import java.util.Arrays;
 
@@ -20,12 +22,15 @@ import java.util.Arrays;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DataSourceViewDTO {
 
+    @JsonProperty
     @XmlAttribute
     public String id;
 
+    @JsonProperty
     @XmlAttribute
     public String label;
 
+    @JsonProperty
     @XmlAttribute
     public String description;
 
@@ -37,9 +42,11 @@ public class DataSourceViewDTO {
      * FIRST: The fist data point is used.
      * TOTAL: The total of the data points is stored.
      */
+    @JsonProperty
     @XmlAttribute
     public String consolidation;
 
+    @JsonProperty
     @XmlElement(name="data")
     public double data[] = new double[]{};
 

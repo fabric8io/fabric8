@@ -11,6 +11,8 @@
 package org.fusesource.fabric.api.monitor;
 
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +24,19 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MonitoredViewDTO {
 
+    @JsonProperty
     @XmlAttribute
     public long start;
 
+    @JsonProperty
     @XmlAttribute
     public long end;
 
+    @JsonProperty
     @XmlAttribute
     public long step;
 
+    @JsonProperty
     @XmlElement(name="data_source")
     public List<DataSourceViewDTO> data_sources = new ArrayList<DataSourceViewDTO>();
 

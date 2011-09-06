@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.api.monitor;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +25,19 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MonitoredSetDTO {
 
+    @JsonProperty
     @XmlAttribute
     public String name;
 
+    @JsonProperty
     @XmlAttribute
     public String step = "1s";
 
+    @JsonProperty
     @XmlElement(name="data_source")
     public List<DataSourceDTO> data_sources = new ArrayList<DataSourceDTO>();
 
+    @JsonProperty
     @XmlElement(name="archive")
     public List<ArchiveDTO> archives = new ArrayList<ArchiveDTO>();
 
