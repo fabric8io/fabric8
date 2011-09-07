@@ -11,6 +11,8 @@
 package org.fusesource.fabric.api.monitor;
 
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.xml.bind.annotation.*;
 
 /**
@@ -31,18 +33,22 @@ public class ArchiveDTO {
      * FIRST: The fist data point is used.
      * TOTAL: The total of the data points is stored.
      */
+    @JsonProperty
     @XmlAttribute
     public String consolidation;
 
     /**
      *
      */
+    @JsonProperty
     @XmlAttribute
     public double xff = 0.5;
 
+    @JsonProperty
     @XmlAttribute
     public String step;
 
+    @JsonProperty
     @XmlAttribute
     public String window;
 

@@ -1,3 +1,6 @@
+Introduction
+=======
+
 These scripts are now filtered as part of the build of the fabric-distro project.  To build the
 scripts cd into "fabric-distro" and run "mvn clean install".  Then you can either source the
 script directly via :
@@ -8,3 +11,27 @@ or better still just do it via maven, for example:
 
 shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
 
+
+Running an ActiveMQ Broker
+=================
+
+To create a profile with default configuration, run:
+
+    shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/activemq-installer
+
+Next you can create, agents with this profile like:
+
+    fabric:create-agent --profile activemq --parent root broker
+
+Wait for a few seconds for the agent to start. Check the status of the agent with:
+
+    fabric:list-agents
+
+You can (optionally) connect to the agent, with
+
+    fabric:connect broker
+
+If you want to start a demo that produces/consumes messages using 'fabric' transport run
+
+    features:addurl mvn:org.fusesource.fabric.fabric-examples/fabric-activemq-demo/1.1-SNAPSHOT/xml/features
+    features:install fabric-activemq-demo
