@@ -24,6 +24,15 @@
     <name>${project.artifactId}</name>
     <description>FuseSource Fabric :: Fabric ActiveMQ Demo</description>
 
+    <properties>
+        <felix-plugin.version>2.1.0</felix-plugin.version>
+        <fabric.osgi.export>org.fusesource.fabric.demo*;-noimport:=true</fabric.osgi.export>
+        <fabric.osgi.split.pkg></fabric.osgi.split.pkg>
+        <fabric.embed.dependency></fabric.embed.dependency>
+        <fabric.osgi.import.pkg>*</fabric.osgi.import.pkg>
+    </properties>
+
+
     <dependencies>
 
         <dependency>
@@ -35,6 +44,13 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+            <version>${osgi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
             <version>${osgi-version}</version>
             <scope>provided</scope>
         </dependency>
@@ -79,9 +95,10 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+				<version>${felix-plugin.version}</version>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>org.fusesource.fabric.activemq.Demo</Bundle-Activator>
+                        <Bundle-Activator>org.fusesource.fabric.demo.activemq.Demo</Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>

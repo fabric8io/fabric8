@@ -14,45 +14,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.activemq;
+package org.fusesource.fabric.demo.activemq;
 
+import org.fusesource.fabric.activemq.JMSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 
-public class ProducerThread extends Thread {
+public class ConsumerThread extends Thread {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProducerThread.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConsumerThread.class);
 
     int messageCount = 1000;
-    Destination dest;
-    protected Session sess;
-    int sleep = 0;
-    int sentCount = 0;
+    int received = 0;
+    String dest;
+    JMSService service;
+    boolean breakOnNull = true;
+    boolean running = false;
 
-    public ProducerThread(Session sess, Destination dest) {
+    public ConsumerThread(JMSService service, String dest) {
         this.dest = dest;
-        this.sess = sess;
+        this.service = service;
     }
 
+    @Override
     public void run() {
-        MessageProducer producer = null;
+      running = true;
+      MessageConsumer consumer = null;
+
         try {
-            producer = sess.createProducer(dest);
-            for (sentCount = 0; sentCount < messageCount; sentCount++) {
-                producer.send(createMessage(sentCount));
-                LOG.info("Sent 'test message: " + sentCount + "'");
-                if (sleep > 0) {
-                    Thread.sleep(sleep);
+            consumer = service.createConsumer(dest);
+            while (running && received < messageCount) {
+                Message msg = consumer.receive(3000);
+                if (msg != null) {
+                    LOG.info("Received " + ((TextMessage)msg).getText());
+                    received++;
+                } else {
+                    if (breakOnNull) {
+                        break;
+                    }
                 }
             }
-        } catch (Exception e) {
+        } catch (JMSException e) {
             e.printStackTrace();
         } finally {
-            if (producer != null) {
+            if (consumer != null) {
                 try {
-                    producer.close();
+                    consumer.close();
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -60,23 +69,15 @@ public class ProducerThread extends Thread {
         }
     }
 
-    protected Message createMessage(int i) throws Exception {
-        return sess.createTextMessage("test message: " + i);
+    public int getReceived() {
+        return received;
     }
 
     public void setMessageCount(int messageCount) {
         this.messageCount = messageCount;
     }
 
-    public void setSleep(int sleep) {
-        this.sleep = sleep;
-    }
-
-    public int getMessageCount() {
-        return messageCount;
-    }
-
-    public int getSentCount() {
-        return sentCount;
+    public void setBreakOnNull(boolean breakOnNull) {
+        this.breakOnNull = breakOnNull;
     }
 }
