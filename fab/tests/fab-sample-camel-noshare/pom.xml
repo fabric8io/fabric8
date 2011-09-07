@@ -59,9 +59,6 @@
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
               <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
-              <!--
-              <Private-Package>META-INF.services.org.apache.camel,META-INF.services.org.apache.camel.component,META-INF.services.org.apache.camel.language</Private-Package>
-              -->
             </manifestEntries>
           </archive>
         </configuration>

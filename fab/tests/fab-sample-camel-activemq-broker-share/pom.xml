@@ -74,9 +74,6 @@
 
               <!-- temporary work around until activeio becomes an optional dependency -->
               <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core  org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec</Fabric-Exclude-Dependency>
-
-              <!-- make ActiveMQ pool available to spring -->
-              <Fabric-Import-Dependency-Exports>org.apache.activemq</Fabric-Import-Dependency-Exports>
             </manifestEntries>
           </archive>
         </configuration>

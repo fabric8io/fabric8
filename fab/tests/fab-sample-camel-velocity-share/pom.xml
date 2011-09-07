@@ -74,12 +74,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -92,7 +86,7 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
+              <Fabric-Provided-Dependency>org.slf4j org.apache.*</Fabric-Provided-Dependency>
             </manifestEntries>
           </archive>
         </configuration>
