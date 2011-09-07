@@ -25,20 +25,7 @@
 
   <properties>
     <camel-version>2.8.x-fuse-SNAPSHOT</camel-version>
-<!--
-    <camel-version>2.9-SNAPSHOT</camel-version>
-
-    <activemq-version>5.5.x-fuse-SNAPSHOT</activemq-version>
-     <camel-version>2.9-SNAPSHOT</camel-version>
-     <activemq-version>5.6-SNAPSHOT</activemq-version>
--->
-<!--
-    <camel-version>2.7.x-fuse-SNAPSHOT</camel-version>
-     <activemq-version>5.6-fuse-SNAPSHOT</activemq-version>
--->
   </properties>
-
-
 
   <modules>
     <module>fab-sample-camel-activemq-share</module>

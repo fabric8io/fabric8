@@ -24,11 +24,6 @@
   <name>${project.artifactId}</name>
   <description>FAB :: Sample :: Camel Velocity Share</description>
 
-  <properties>
-<!--
-    <camel-version>2.9-SNAPSHOT</camel-version>
--->
-  </properties>
 
   <dependencies>
     <dependency>
@@ -71,6 +66,13 @@
       <artifactId>spring-osgi-core</artifactId>
       <version>${spring-osgi-version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <!-- exclude old spring -->
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

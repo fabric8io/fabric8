@@ -18,6 +18,7 @@
 package org.fusesource.fabric.fab;
 
 import org.fusesource.fabric.fab.util.Filter;
+import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 
@@ -31,10 +32,10 @@ import java.util.List;
 public class DependencyTreeResult {
     private final DependencyNode rootNode;
     private final MavenResolver resolver;
-    private final Filter<DependencyTree> excludeDependencyFilter;
+    private final Filter<Dependency> excludeDependencyFilter;
     private DependencyTree tree;
 
-    public DependencyTreeResult(DependencyNode rootNode, MavenResolver resolver, Filter<DependencyTree> excludeDependencyFilter) {
+    public DependencyTreeResult(DependencyNode rootNode, MavenResolver resolver, Filter<Dependency> excludeDependencyFilter) {
         this.rootNode = rootNode;
         this.resolver = resolver;
         this.excludeDependencyFilter = excludeDependencyFilter;
@@ -76,7 +77,8 @@ public class DependencyTreeResult {
     protected void addVersions(Collection<String> versions, DependencyNode node, DependencyId dependencyId) {
         DependencyId thatId = DependencyId.newInstance(node);
         if (dependencyId.equals(thatId)) {
-            versions.add(node.getVersion().toString());
+            String version = node.getVersion().toString();
+            versions.add(version);
         }
         List<DependencyNode> children = node.getChildren();
         for (DependencyNode child : children) {

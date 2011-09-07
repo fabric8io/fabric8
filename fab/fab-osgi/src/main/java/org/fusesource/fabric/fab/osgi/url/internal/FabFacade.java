@@ -16,6 +16,7 @@ import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.util.Filter;
 import org.sonatype.aether.RepositoryException;
+import org.sonatype.aether.graph.Dependency;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public interface FabFacade {
 
     String getProjectDescription();
 
-    DependencyTree collectDependencyTree(boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException;
+    DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException;
 
     /**
      * Lets convert the version to a version range depending on the default or FAB specific version range value

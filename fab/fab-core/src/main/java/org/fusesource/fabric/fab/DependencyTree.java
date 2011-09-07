@@ -43,6 +43,7 @@ import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
+import org.sonatype.aether.util.graph.DefaultDependencyNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -122,12 +123,12 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return builder.build();
     }
 
-    public static DependencyTree newInstance(DependencyNode node, MavenResolver resolver, Filter<DependencyTree> excludeDependencyFilter) throws MalformedURLException, ArtifactResolutionException {
+    public static DependencyTree newInstance(DependencyNode node, MavenResolver resolver, Filter<Dependency> excludeDependencyFilter) throws MalformedURLException, ArtifactResolutionException {
         List<DependencyNode> childrenNodes = node.getChildren();
         List<DependencyTree> children = new ArrayList<DependencyTree>();
         for (DependencyNode childNode : childrenNodes) {
-            DependencyTree child = newInstance(childNode, resolver, excludeDependencyFilter);
-            if (!excludeDependencyFilter.matches(child)) {
+            if (!DependencyFilters.matches(childNode, excludeDependencyFilter) && !node.getDependency().equals(childNode.getDependency())) {
+                DependencyTree child = newInstance(childNode, resolver, excludeDependencyFilter);
                 children.add(child);
             }
         }
@@ -143,8 +144,6 @@ public class DependencyTree implements Comparable<DependencyTree> {
         }
         return dependencyTree;
     }
-
-
 
     public DependencyTree(DependencyId dependencyId, Dependency dependency, List<DependencyTree> children) {
         this(dependencyId, dependency.getArtifact().getVersion(), children);

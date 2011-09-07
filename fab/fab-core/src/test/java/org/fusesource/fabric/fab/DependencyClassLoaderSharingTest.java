@@ -24,16 +24,25 @@ import org.junit.Test;
  */
 public class DependencyClassLoaderSharingTest extends DependencyTestSupport {
 
-
     @Test
-    public void testShareCommonClassesButDifferentOverideClasses() throws Exception {
+    public void testShareCommonClasses() throws Exception {
+        // should be using the same camel and clogging dependencies
+
         DependencyClassLoader cl1 = getClassLoaderForPom("test-override-clogging-1-1-1.pom");
         DependencyClassLoader cl2 = getClassLoaderForPom("test-override-spring.pom");
 
         // these classes should be shared across common class loaders
-        assertSameClasses(cl1, cl2, "org.apache.commons.logging.Log", "org.apache.commons.logging.LogFactory");
+        assertSameClasses(cl1, cl2, "org.apache.commons.logging.Log", "org.apache.commons.logging.LogFactory", "org.apache.camel.CamelContext");
+    }
 
-        // these classes should be different due to the spring dependency change
-        assertDifferentClasses(cl1, cl2, "org.apache.camel.CamelContext");
+    @Test
+    public void testUseDifferentClassesWhenTransientDependenciesChange() throws Exception {
+        // transient dependencies of camel-core are different so can't use same classes for clogging or camel
+
+        DependencyClassLoader cl1 = getClassLoaderForPom("test-override-clogging-1-1-1.pom");
+        DependencyClassLoader cl2 = getClassLoaderForPom("test-override-clogging.pom");
+
+        // these classes should be different due to the transient spring dependency change
+        assertDifferentClasses(cl1, cl2, "org.apache.camel.CamelContext", "org.apache.commons.logging.Log");
     }
 }

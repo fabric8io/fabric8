@@ -15,19 +15,25 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Filters;
 import org.fusesource.fabric.fab.util.IOHelpers;
+import org.fusesource.fabric.fab.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.aether.RepositoryEvent;
 import org.sonatype.aether.RepositoryException;
+import org.sonatype.aether.RepositoryListener;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.collection.CollectRequest;
+import org.sonatype.aether.collection.DependencyCollectionContext;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.collection.DependencyGraphTransformationContext;
 import org.sonatype.aether.collection.DependencyGraphTransformer;
+import org.sonatype.aether.collection.DependencySelector;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.graph.DependencyNode;
+import org.sonatype.aether.repository.ArtifactRepository;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
@@ -40,7 +46,6 @@ import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.util.artifact.ArtifactProperties;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.filter.AndDependencyFilter;
-import org.sonatype.aether.util.filter.ScopeDependencyFilter;
 import org.sonatype.aether.util.graph.DefaultDependencyNode;
 import org.sonatype.aether.util.graph.selector.AndDependencySelector;
 import org.sonatype.aether.util.graph.selector.ExclusionDependencySelector;
@@ -54,7 +59,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -205,7 +216,7 @@ public class MavenResolver {
     /**
      * Collects the dependency tree for the given file by extracting its pom.xml file
      */
-    public DependencyTreeResult collectDependenciesForJar(File jarFile, boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependenciesForJar(File jarFile, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
         // lets find the pom file
         PomDetails pomDetails = findPomFile(jarFile);
         if (pomDetails == null || !pomDetails.isValid()) {
@@ -214,24 +225,24 @@ public class MavenResolver {
         return collectDependencies(pomDetails, offline, excludeDependencyFilter);
     }
 
-    public DependencyTreeResult collectDependencies(PomDetails pomDetails, boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws IOException, XmlPullParserException, RepositoryException {
+    public DependencyTreeResult collectDependencies(PomDetails pomDetails, boolean offline, Filter<Dependency> excludeDependencyFilter) throws IOException, XmlPullParserException, RepositoryException {
         Model model = pomDetails.getModel();
         return collectDependenciesFromPom(pomDetails.getFile(), offline, model, excludeDependencyFilter);
     }
 
 
     public DependencyTreeResult collectDependencies(File pomFile, boolean offline) throws RepositoryException, IOException, XmlPullParserException {
-        return collectDependencies(pomFile, offline, Filters.<DependencyTree>falseFilter());
+        return collectDependencies(pomFile, offline, DependencyFilters.testScopeOrOptionalFilter);
     }
 
-    public DependencyTreeResult collectDependencies(File rootPom, boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependencies(File rootPom, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
         Model model = new MavenXpp3Reader().read(new FileInputStream(rootPom));
 
         return collectDependenciesFromPom(rootPom, offline, model, excludeDependencyFilter);
     }
 
 
-    protected DependencyTreeResult collectDependenciesFromPom(File rootPom, boolean offline, Model model, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, MalformedURLException {
+    protected DependencyTreeResult collectDependenciesFromPom(File rootPom, boolean offline, Model model, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, MalformedURLException {
         Map<String, String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
 
         // lets load the model so we can get the version which is required for the transformer...
@@ -247,16 +258,16 @@ public class MavenResolver {
         return collectDependencies(root, pomVersion, offline, excludeDependencyFilter);
     }
 
-    public DependencyTreeResult collectDependencies(VersionedDependencyId dependencyId, boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependencies(VersionedDependencyId dependencyId, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
         return collectDependencies(dependencyId.getGroupId(), dependencyId.getArtifactId(), dependencyId.getVersion(), dependencyId.getExtension(), dependencyId.getClassifier(), offline, excludeDependencyFilter);
     }
 
-    public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier, boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
         DefaultArtifact artifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
         return collectDependencies(artifact, version, offline, excludeDependencyFilter);
     }
 
-    protected DependencyTreeResult collectDependencies(Artifact root, String pomVersion, boolean offline, final Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, MalformedURLException {
+    protected DependencyTreeResult collectDependencies(Artifact root, String pomVersion, boolean offline, final Filter<Dependency> excludeDependencyFilter) throws RepositoryException, MalformedURLException {
         RepositorySystem repositorySystem = getRepositorySystem();
 
         final MavenRepositorySystemSession session = createRepositorSystemSession(offline, repositorySystem);
@@ -269,39 +280,48 @@ public class MavenResolver {
 
         List<Dependency> dependencies = artifactDescriptorResult.getDependencies();
 
-        DefaultDependencyNode tmpNode = new DefaultDependencyNode(rootDependency);
+        final DefaultDependencyNode rootNode = new DefaultDependencyNode(rootDependency);
         GenericVersionScheme versionScheme = new GenericVersionScheme();
-        tmpNode.setVersion(versionScheme.parseVersion(pomVersion));
-        tmpNode.setVersionConstraint(versionScheme.parseVersionConstraint(pomVersion));
-        DependencyNode pomNode = tmpNode;
+        rootNode.setVersion(versionScheme.parseVersion(pomVersion));
+        rootNode.setVersionConstraint(versionScheme.parseVersionConstraint(pomVersion));
+        DependencyNode pomNode = rootNode;
 
-        for (Dependency dependency : dependencies) {
-            CollectRequest request = new CollectRequest(dependency, repos);
-            request.setRequestContext("runtime");
-            try {
-                DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
-                // Avoid the test scope dependencies.
-                final ScopeDependencyFilter scopeDependencyFilter = new ScopeDependencyFilter("test");
-                //repositorySystem.resolveDependencies(session, node, new ScopeDependencyFilter("test"));
-                repositorySystem.resolveDependencies(session, node, new DependencyFilter() {
+        //final Filter<Dependency> shouldExclude = Filters.or(DependencyFilters.testScopeFilter, excludeDependencyFilter, new NewerVersionExistsFilter(rootNode));
+        final Filter<Dependency> shouldExclude = Filters.or(DependencyFilters.testScopeFilter, excludeDependencyFilter);
+        DependencySelector dependencySelector = new AndDependencySelector(new ScopeDependencySelector("test"),
+                new ExclusionDependencySelector(),
+                new DependencySelector() {
                     @Override
-                    public boolean accept(DependencyNode node, List<DependencyNode> parents) {
-                        if (scopeDependencyFilter.accept(node, parents)) {
-                            try {
-                                DependencyTree t = DependencyTree.newInstance(node, MavenResolver.this, excludeDependencyFilter);
-                                return !excludeDependencyFilter.matches(t);
-                            } catch (Exception e) {
-                                LOGGER.warn("Failed to create DependencyTree for " + node + ". " + e, e);
-                            }
+                    public DependencySelector deriveChildSelector(DependencyCollectionContext context) {
+                        return this;
+                    }
+
+                    @Override
+                    public boolean selectDependency(Dependency dependency) {
+                        try {
+                            boolean answer = DependencyFilters.matches(dependency, shouldExclude);
+                            return !answer;
+                        } catch (Exception e) {
+                            failedToMakeDependencyTree(dependency, e);
+                            return false;
                         }
-                        return false;
                     }
                 });
-                pomNode.getChildren().add(node);
-            } catch (DependencyCollectionException e) {
-                handleDependencyResolveFailure(pomNode, dependency, e);
-            } catch (ArtifactResolutionException e) {
-                handleDependencyResolveFailure(pomNode, dependency, e);
+        session.setDependencySelector(dependencySelector);
+
+        // TODO no idea why we have to iterate through the dependencies; why can't we just
+        // work on the root dependency directly?
+        if (true) {
+            for (Dependency dependency : dependencies) {
+                DependencyNode node = resolveDepedencies(repositorySystem, session, repos, pomNode, dependency, shouldExclude);
+                if (node != null) {
+                    pomNode.getChildren().add(node);
+                }
+            }
+        } else {
+            DependencyNode node = resolveDepedencies(repositorySystem, session, repos, pomNode, rootDependency, shouldExclude);
+            if (node != null) {
+                pomNode = node;
             }
         }
 
@@ -334,6 +354,33 @@ public class MavenResolver {
         return result;
     }
 
+    protected DependencyNode resolveDepedencies(RepositorySystem repositorySystem, MavenRepositorySystemSession session, List<RemoteRepository> repos, DependencyNode pomNode, Dependency dependency, final Filter<Dependency> shouldExclude) throws FailedToResolveDependency {
+        if (!DependencyFilters.matches(dependency, shouldExclude)) {
+            CollectRequest request = new CollectRequest(dependency, repos);
+            //request.setRequestContext("runtime");
+            try {
+                DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
+                repositorySystem.resolveDependencies(session, node, new DependencyFilter() {
+                    @Override
+                    public boolean accept(DependencyNode node, List<DependencyNode> parents) {
+                        boolean answer = !DependencyFilters.matches(node, shouldExclude);
+                        return answer;
+                    }
+                });
+                return node;
+            } catch (DependencyCollectionException e) {
+                handleDependencyResolveFailure(pomNode, dependency, e);
+            } catch (ArtifactResolutionException e) {
+                handleDependencyResolveFailure(pomNode, dependency, e);
+            }
+        }
+        return null;
+    }
+
+    protected void failedToMakeDependencyTree(Object dependency, Exception e) {
+        LOGGER.warn("Failed to make Dependency for " + dependency + ". " + e, e);
+    }
+
     protected void handleDependencyResolveFailure(DependencyNode pomNode, Dependency dependency, Exception e) throws FailedToResolveDependency {
         FailedToResolveDependency exception = new FailedToResolveDependency(dependency, e);
         if (throwExceptionsOnResolveDependencyFailure) {
@@ -353,9 +400,114 @@ public class MavenResolver {
         LocalRepository localRepository = new LocalRepository(getLocalRepo());
         session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
         session.setDependencySelector(
-                new AndDependencySelector(new ScopeDependencySelector("test", "provided"),
-                        new OptionalDependencySelector(), new ExclusionDependencySelector()));
+                new AndDependencySelector(new ScopeDependencySelector("test"),
+                        /*
+                        // includes only immediate child dependencies
+                        new OptionalDependencySelector(),
+                        */
+                        new ExclusionDependencySelector()));
         session.setOffline(offline);
+        session.setRepositoryListener(new RepositoryListener() {
+            @Override
+            public void artifactDescriptorInvalid(RepositoryEvent event) {
+                logException("Invalid artifact descriptor: ", event);
+            }
+
+            @Override
+            public void artifactDescriptorMissing(RepositoryEvent event) {
+                logException("Missing artifact descriptor: ", event);
+            }
+
+            @Override
+            public void metadataInvalid(RepositoryEvent event) {
+                logException("Invalid metadata: ", event);
+            }
+
+            @Override
+            public void artifactResolving(RepositoryEvent event) {
+                LOGGER.debug("Resolving artifact: " + toString(event));
+            }
+
+            @Override
+            public void artifactResolved(RepositoryEvent event) {
+                LOGGER.debug("Resolved artifact: " + toString(event));
+            }
+
+            @Override
+            public void metadataResolving(RepositoryEvent event) {
+                LOGGER.debug("Metadata resolving: " + toString(event));
+            }
+
+            @Override
+            public void metadataResolved(RepositoryEvent event) {
+                LOGGER.debug("Metadata resolved: " + toString(event));
+            }
+
+            @Override
+            public void artifactInstalling(RepositoryEvent event) {
+                LOGGER.debug("Artifact installing: " + toString(event));
+            }
+
+            @Override
+            public void artifactInstalled(RepositoryEvent event) {
+                LOGGER.debug("Artifact installed: " + toString(event));
+            }
+
+            @Override
+            public void metadataInstalling(RepositoryEvent event) {
+                LOGGER.debug("Metadata installing: " + toString(event));
+            }
+
+            @Override
+            public void metadataInstalled(RepositoryEvent event) {
+                LOGGER.debug("Metadata installed: " + toString(event));
+            }
+
+            @Override
+            public void artifactDeploying(RepositoryEvent event) {
+                LOGGER.debug("Artifact deploying: " + toString(event));
+            }
+
+            @Override
+            public void artifactDeployed(RepositoryEvent event) {
+                LOGGER.debug("Artifact deployed: " + toString(event));
+            }
+
+            @Override
+            public void metadataDeploying(RepositoryEvent event) {
+                LOGGER.debug("Metadata deploying: " + toString(event));
+            }
+
+            @Override
+            public void metadataDeployed(RepositoryEvent event) {
+                LOGGER.debug("Metadata deployed: " + toString(event));
+            }
+
+            protected void logException(String message, RepositoryEvent event) {
+                Exception exception = event.getException();
+                List<Exception> exceptions = event.getExceptions();
+                String text = message + toString(event);
+                if (exceptions.isEmpty()) {
+                    LOGGER.warn(text + " " + exception, exception);
+                } else if (exception != null) {
+                    LOGGER.warn(text + " " + exceptions, exception);
+                }
+            }
+
+            protected String toString(RepositoryEvent event) {
+                Object value = event.getArtifact();
+                if (value == null) {
+                    value = event.getMetadata();
+                }
+                ArtifactRepository repository = event.getRepository();
+                String text = "" + value;
+                if (repository != null) {
+                    return text + " on " + repository;
+                } else {
+                    return text;
+                }
+            }
+        });
         return session;
     }
 
@@ -489,4 +641,49 @@ public class MavenResolver {
         }
     }
 
+    private static class NewerVersionExistsFilter implements Filter<Dependency> {
+        private final DefaultDependencyNode rootNode;
+
+        public NewerVersionExistsFilter(DefaultDependencyNode rootNode) {
+            this.rootNode = rootNode;
+        }
+
+        @Override
+        public boolean matches(Dependency dependency) {
+            // lets search the node for a newer version of this dependency...
+            return newerVersionExists(rootNode, dependency);
+        }
+
+        public boolean newerVersionExists(DependencyNode node, Dependency dependency) {
+            if (isNewer(node.getDependency(), dependency)) {
+                return true;
+            };
+            List<DependencyNode> children = node.getChildren();
+            for (DependencyNode child : children) {
+                if (newerVersionExists(child, dependency)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean isNewer(Dependency dep1, Dependency dep2) {
+            return isNewer(dep1.getArtifact(), dep2.getArtifact());
+        }
+
+        private boolean isNewer(Artifact a1, Artifact a2) {
+            if (Objects.equal(a1.getGroupId(), a2.getGroupId()) &&
+                    Objects.equal(a1.getArtifactId(), a2.getArtifactId()) &&
+                    Objects.equal(a1.getExtension(), a2.getExtension()) &&
+                    Objects.equal(a1.getClassifier(), a2.getClassifier())) {
+                String v1 = a1.getVersion();
+                String v2 = a2.getVersion();
+                if (!Objects.equal(v1, v2)) {
+                    int c = v1.compareTo(v2);
+                    return c > 0;
+                }
+            }
+            return false;
+        }
+    }
 }

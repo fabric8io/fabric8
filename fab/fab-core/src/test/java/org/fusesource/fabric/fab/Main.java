@@ -55,7 +55,7 @@ public class Main {
             results = manager.collectDependencies(file, true);
         } else {
             VersionedDependencyId dependencyId = VersionedDependencyId.fromString(pomFile);
-            results = manager.collectDependencies(dependencyId, true, Filters.<DependencyTree>falseFilter());
+            results = manager.collectDependencies(dependencyId, true, DependencyFilters.testScopeOrOptionalFilter);
         }
         DependencyTree tree = results.getTree();
         System.out.println(tree.getDescription());

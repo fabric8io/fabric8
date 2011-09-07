@@ -35,6 +35,7 @@ import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
+import org.sonatype.aether.graph.Dependency;
 
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_ID;
@@ -115,7 +116,11 @@ public class FabClassPathResolver {
 
         importPackages.putAll(new Analyzer().parseHeader(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE))));
 
-        this.rootTree = connection.collectDependencyTree(offline, excludeDependencyFilter);
+
+        Filter<Dependency> optionalFilter = DependencyFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
+        Filter<Dependency> excludeFilter = DependencyFilters.parseExcludeFilter(join(excludeDependencyFilterPatterns, " "), optionalFilter);
+
+        this.rootTree = connection.collectDependencyTree(offline, excludeFilter);
 
         String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
         if (name.length() <= 0) {
@@ -145,7 +150,7 @@ public class FabClassPathResolver {
             registerModule();
         }
 
-        resolveExtensions(rootTree, excludeDependencyFilter);
+        resolveExtensions(rootTree, excludeFilter);
 
         for (DependencyTree dependencyTree : sharedDependencies) {
             if (requireBundleFilter.matches(dependencyTree)) {
@@ -292,7 +297,7 @@ public class FabClassPathResolver {
         }
     }
 
-    protected void resolveExtensions(DependencyTree root, Filter<DependencyTree> excludeDependencyFilter) throws IOException, RepositoryException, XmlPullParserException {
+    protected void resolveExtensions(DependencyTree root, Filter<Dependency> excludeDependencyFilter) throws IOException, RepositoryException, XmlPullParserException {
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
         if( module!=null ) {
             Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
@@ -417,6 +422,8 @@ public class FabClassPathResolver {
     protected void addPackages(DependencyTree tree) {
         try {
             for(String p: tree.getPackages() ) {
+                // TODO should we keep every node for a given package then choose the biggest?
+                // as we could have different archetypes providing a given package...
                 if( !dependenciesByPackage.containsKey(p) ) {
                     dependenciesByPackage.put(p, tree);
                 }
@@ -484,7 +491,7 @@ public class FabClassPathResolver {
             importAllExportedPackages(tree);
         }
 
-        List<DependencyTree> list = tree.getDescendants();
+        List<DependencyTree> list = tree.getChildren();
         for (DependencyTree child : list) {
             if (excludeDependencyFilter.matches(child)) {
                 LOG.debug("Excluded transitive dependency: " + child.getDependencyId());
@@ -493,7 +500,7 @@ public class FabClassPathResolver {
                 LOG.debug("Excluded optional transitive dependency: " + child.getDependencyId());
                 continue;
             } else {
-                sharedDependencies.add(child);
+                addSharedDependency(child);
             }
             if (importExportFilter.matches(child)) {
                 importAllExportedPackages(child);

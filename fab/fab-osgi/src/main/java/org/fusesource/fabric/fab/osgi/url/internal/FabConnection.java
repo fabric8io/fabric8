@@ -30,6 +30,7 @@ import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
+import org.sonatype.aether.graph.Dependency;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +80,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     }
 
     @Override
-    public DependencyTree collectDependencyTree(boolean offline, Filter<DependencyTree> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
+    public DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
         if (rootTree == null) {
             PomDetails details = resolvePomDetails();
             Objects.notNull(details, "pomDetails");

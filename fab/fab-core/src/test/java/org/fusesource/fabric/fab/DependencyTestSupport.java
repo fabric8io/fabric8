@@ -101,7 +101,9 @@ public abstract class DependencyTestSupport {
         LOG.debug("Found class " + class1 + " in " + class1.getClassLoader());
         LOG.debug("Found class " + class2 + " in " + class2.getClassLoader());
 
-        assertSame("Should have loaded same class: " + name + " in class loaders " + cl1 + " and " + cl2 + " when found in " + class1.getClassLoader() + " and " + class2.getClassLoader(), class1, class2);
+        ClassLoader foundClassLoader1 = class1.getClassLoader();
+        ClassLoader foundClassLoader2 = class2.getClassLoader();
+        assertSame("Should have loaded same class: " + name + " in class loaders " + cl1 + " and " + cl2 + " when found in " + foundClassLoader1 + " and " + foundClassLoader2, class1, class2);
         assertEquals("Should have loaded equal class: " + name + " in class loaders " + cl1 + " and " + cl2, class1, class2);
     }
 

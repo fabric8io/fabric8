@@ -59,7 +59,6 @@ public class DependencyClassLoader extends URLClassLoader {
     @Override
     public Class<?> loadClass(String s, boolean b) throws ClassNotFoundException {
         return super.loadClass(s, b);
-
     }
 }
 
