@@ -67,7 +67,7 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.* org.springframework* javax* org.apache.geronimo.specs</Fabric-Provided-Dependency>
+              <Fabric-Provided-Dependency>org.apache.* org.springframework* javax*</Fabric-Provided-Dependency>
 
               <!-- make some optional stuff mandatory... -->
               <Fabric-Include-Optional-Dependency>javax* org.apache.xbean org.apache.geronimo.specs commons-pool org.springframework</Fabric-Include-Optional-Dependency>
