@@ -15,6 +15,14 @@ shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/ac
 Running an ActiveMQ Broker
 =================
 
+Make sure you have
+
+    http://repo.fusesource.com/nexus/content/groups/public/
+
+added to org.ops4j.pax.url.mvn.repositories property in etc/org.ops4j.pax.url.mvn.cfg file.
+
+Start Karaf
+
 To create a profile with default configuration, run:
 
     shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/activemq-installer
