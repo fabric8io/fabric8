@@ -72,7 +72,8 @@ public class DependencyTree implements Comparable<DependencyTree> {
     private String scope;
     private File jarFile;
     private boolean optional;
-    private HashSet<String> packages;
+    private Set<String> packages;
+    private Set<String> hiddenPackages = new HashSet<String>();
     private DependencyTree parent;
 
     public static Builder newBuilder() {
@@ -475,8 +476,8 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     public Set<String> getPackages() throws IOException {
-        if( packages==null ) {
-            if( getExtension().equals("jar") || getExtension().equals("zip") ) {
+        if (packages == null) {
+            if (getExtension().equals("jar") || getExtension().equals("zip")) {
                 aQute.lib.osgi.Jar jar = new aQute.lib.osgi.Jar(getJarFile());
                 try {
                     packages = new HashSet<String>(jar.getPackages());
@@ -488,6 +489,31 @@ public class DependencyTree implements Comparable<DependencyTree> {
             }
         }
         return packages;
+    }
+
+    /**
+     * Adds a specific package as being hidden as its overridden by another dependency which exposes a greater or equal to version
+     */
+    public void addHiddenPackage(String packageName) {
+        hiddenPackages.add(packageName);
+    }
+
+    /**
+     * Returns true if all the non META-INF packages in this dependency are provided by a different dependency
+     */
+    public boolean isAllPackagesHidden() {
+        try {
+            Set<String> nonMetaPackages = getPackages();
+            for (String key : new ArrayList<String>(nonMetaPackages)) {
+                if (key.startsWith("META-INF")) {
+                    nonMetaPackages.remove(key);
+                }
+            }
+            return hiddenPackages.containsAll(nonMetaPackages);
+        } catch (IOException e) {
+            // ignore errors
+            return true;
+        }
     }
 
     // Helper classes

@@ -369,25 +369,8 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
 
         DependencyTree dependency = resolvePackageDependency(packageName, dependencies);
         if (dependency != null) {
-            // lets find the export packages and use the version from that
-            if (dependency.isBundle()) {
-                String exportPackages = dependency.getManfiestEntry("Export-Package");
-                if (notEmpty(exportPackages)) {
-                    Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
-                    Map<String, String> map = values.get(packageName);
-                    if (map != null) {
-                        String version = map.get("version");
-                        if (version != null) {
-                            return version;
-                        }
-                    }
-                }
-            }
-            String version = dependency.getVersion();
-            if (version != null) {
-                // lets convert to OSGi
-                return VersionCleaner.clean(version);
-            }
+            return Versions.getOSGiPackageVersion(dependency, packageName);
+
         }
         return null;
     }

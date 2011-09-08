@@ -419,14 +419,53 @@ public class FabClassPathResolver {
         return answer;
     }
 
+
+    /**
+     * Recursively add all the package information for each node in the tree, before filtering takes place!
+     */
+    protected void addPackagesRecursive(DependencyTree tree) {
+        addPackages(tree);
+
+        List<DependencyTree> children = tree.getChildren();
+        for (DependencyTree child : children) {
+            if (isExcludedDependency(child)) {
+                continue;
+            } else if (isIncludedOptionaDependency(child)) {
+                addPackages(child);
+
+                // lets add all non-excluded descendents
+                List<DependencyTree> descendants = child.getDescendants();
+                for (DependencyTree descendant : descendants) {
+                    if (!isExcludedDependency(descendant)) {
+                        addPackages(descendant);
+                    }
+                }
+            } else {
+                addPackagesRecursive(child);
+            }
+        }
+    }
+
     protected void addPackages(DependencyTree tree) {
         try {
-            for(String p: tree.getPackages() ) {
-                // TODO should we keep every node for a given package then choose the biggest?
-                // as we could have different archetypes providing a given package...
-                if( !dependenciesByPackage.containsKey(p) ) {
-                    dependenciesByPackage.put(p, tree);
+            for (String p : tree.getPackages()) {
+                DependencyTree current = dependenciesByPackage.get(p);
+                if (current != null) {
+                    String version1 = Versions.getOSGiPackageVersion(current, p);
+                    String version2 = Versions.getOSGiPackageVersion(tree, p);
+                    if (Versions.isVersionOlder(version1, version2)) {
+                        // lets mark the current one as invalid
+                        current.addHiddenPackage(p);
+
+                        if (current.isAllPackagesHidden()) {
+                            LOG.debug("Dependency now hidden: " + current + " due to " + tree);
+                        }
+                    } else {
+                        // we already have the best dependency to use
+                        continue;
+                    }
                 }
+                dependenciesByPackage.put(p, tree);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -434,23 +473,24 @@ public class FabClassPathResolver {
     }
 
     protected void addDependencies(DependencyTree tree) throws IOException {
-        addPackages(tree);
+        // lets register all the packages then we can filter out unnecessary dependencies
+        addPackagesRecursive(tree);
+
         List<DependencyTree> children = tree.getChildren();
         for (DependencyTree child : children) {
             addChildDependency(child);
         }
     }
 
+
     private void addChildDependency(DependencyTree child) throws IOException {
         String dependencyId = child.getDependencyId().toString();
-        if (excludeDependencyFilter.matches(child)) {
+        if (isExcludedDependency(child)) {
             // ignore
             LOG.debug("Excluded dependency: " + dependencyId);
-            return;
-        } else if (optionalDependencyFilter.matches(child)) {
+        } else if (isIncludedOptionaDependency(child)) {
             addOptionalDependency(child);
-            return;
-        } else if (sharedFilter.matches(child) || requireBundleFilter.matches(child)) {
+        } else if (isSharedOrRequired(child)) {
             // lets add all the transitive dependencies as shared
             addSharedDependency(child);
         } else {
@@ -461,13 +501,24 @@ public class FabClassPathResolver {
         }
     }
 
+    protected boolean isIncludedOptionaDependency(DependencyTree child) {
+        return optionalDependencyFilter.matches(child);
+    }
+
+    protected boolean isExcludedDependency(DependencyTree child) {
+        return excludeDependencyFilter.matches(child) || child.isAllPackagesHidden();
+    }
+
+    protected boolean isSharedOrRequired(DependencyTree child) {
+        return sharedFilter.matches(child) || requireBundleFilter.matches(child);
+    }
+
     private void addOptionalDependency(DependencyTree tree) {
         LOG.debug("Added optional dependency: " + tree.getDependencyId());
-        addPackages(tree);
         optionalDependencies.add(tree);
         List<DependencyTree> list = tree.getDescendants();
         for (DependencyTree child : list) {
-            if (excludeDependencyFilter.matches(child)) {
+            if (isExcludedDependency(child)) {
                 LOG.debug("Excluded transitive dependency: " + child.getDependencyId());
                 continue;
             } else {
@@ -478,7 +529,6 @@ public class FabClassPathResolver {
 
     protected void addSharedDependency(DependencyTree tree) throws IOException {
         LOG.debug("Added shared dependency: " + tree.getDependencyId());
-        addPackages(tree);
         sharedDependencies.add(tree);
         boolean importExports = false;
         if (connection.isIncludeSharedResources()) {
@@ -493,10 +543,10 @@ public class FabClassPathResolver {
 
         List<DependencyTree> list = tree.getChildren();
         for (DependencyTree child : list) {
-            if (excludeDependencyFilter.matches(child)) {
+            if (isExcludedDependency(child)) {
                 LOG.debug("Excluded transitive dependency: " + child.getDependencyId());
                 continue;
-            } else if (optionalDependencyFilter.matches(child)) {
+            } else if (isIncludedOptionaDependency(child)) {
                 LOG.debug("Excluded optional transitive dependency: " + child.getDependencyId());
                 continue;
             } else {
@@ -578,9 +628,9 @@ public class FabClassPathResolver {
         if (node.isBundle()) {
             List<DependencyTree> list = node.getChildren();
             for (DependencyTree child : list) {
-                if (excludeDependencyFilter.matches(child)) {
+                if (isExcludedDependency(child)) {
                     continue;
-                } else if (child.isThisOrDescendantOptional() && optionalDependencyFilter.matches(child)) {
+                } else if (child.isThisOrDescendantOptional() && isIncludedOptionaDependency(child)) {
                     continue;
                 } else {
                     addInstallDependencies(child);

@@ -48,14 +48,6 @@
       <version>${camel-version}</version>
       <scope>provided</scope>
     </dependency>
-
-    <!-- TODO remove this later! use latest JTA -->
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jta_1.1_spec</artifactId>
-      <version>1.1.1</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -73,7 +65,7 @@
               <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs commons-pool org.springframework</Fabric-Include-Optional-Dependency>
 
               <!-- temporary work around until activeio becomes an optional dependency -->
-              <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec</Fabric-Exclude-Dependency>
+              <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
             </manifestEntries>
           </archive>
         </configuration>

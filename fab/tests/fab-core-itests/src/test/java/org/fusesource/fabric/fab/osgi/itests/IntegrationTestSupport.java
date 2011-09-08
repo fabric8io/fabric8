@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  */
@@ -69,4 +70,15 @@ public class IntegrationTestSupport {
         System.out.println("======================== " + value);
     }
 
+    protected DependencyTree assertDependencyMatching(DependencyTree tree, String filterText) {
+        DependencyTree dependency = tree.findDependency(filterText);
+        assertNotNull("Should have found dependency matching: " + filterText, dependency);
+        return dependency;
+    }
+
+    protected DependencyTree assertNoDependencyMatching(DependencyTree tree, String filterText) {
+        DependencyTree dependency = tree.findDependency(filterText);
+        assertTrue("Should not have found dependency matching: " + filterText + " but found: " + dependency, dependency == null);
+        return dependency;
+    }
 }
