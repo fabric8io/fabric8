@@ -9,6 +9,7 @@
 package org.fusesource.fabric.fab.osgi.internal;
 
 import aQute.lib.osgi.Analyzer;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.util.Objects;
 import org.fusesource.fabric.fab.util.Strings;
 import org.osgi.framework.Bundle;
@@ -75,6 +76,6 @@ public class Bundles {
      * Returns true if the given bundle is a fragment (and so cannot be loaded)
      */
     public static boolean isFragment(Bundle bundle) {
-        return Strings.notEmpty(bundle.getHeaders().get(ServiceConstants.INSTR_FRAGMENT_HOST));
+        return Strings.notEmpty((String) bundle.getHeaders().get(ServiceConstants.INSTR_FRAGMENT_HOST));
     }
 }
