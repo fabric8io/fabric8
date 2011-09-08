@@ -1,8 +1,33 @@
+# -----------------------------------------------
+#  Define helper functions
+# -----------------------------------------------
+config-add-to-list = {
+  config:edit $1 ;
+  a = (config:proplist | grep --color never $2 | tac) ;
+  b = (echo $a | grep --color never "\b$3\b" | tac) ;
+  if { ($b trim) isEmpty } {
+    if { $a isEmpty } {
+      config:propset $2 $3
+    } {
+      config:propappend $2 ,$3
+    } ;
+    config:update
+  } {
+    config:cancel
+  }
+}
+mvn-add-repo = {
+  config-add-to-list org.ops4j.pax.url.mvn org.ops4j.pax.url.mvn.repositories $1
+}
+# -----------------------------------------------
+
 
 echo Add fabric features
 features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
 echo Install fabric commands
+
+mvn-add-repo http://scala-tools.org/repo-releases
 
 # -----------------------------------------------
 # TODO - Remove this work-around that allows installation into FUSE ESB 4.4.0-fuse-00-43
