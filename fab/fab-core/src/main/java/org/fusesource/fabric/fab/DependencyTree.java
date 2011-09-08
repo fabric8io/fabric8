@@ -245,11 +245,20 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     public DependencyTree findDependency(String groupId, String artifactId) {
-        if (Objects.equal(groupId, getGroupId()) && Objects.equal(artifactId, getArtifactId())) {
+        return findDependency(groupId + ":" + artifactId);
+    }
+
+    public DependencyTree findDependency(String filterText) {
+        Filter<DependencyTree> filter = DependencyTreeFilters.parse(filterText);
+        return findDependency(filter);
+    }
+
+    public DependencyTree findDependency(Filter<DependencyTree> filter) {
+        if (filter.matches(this)) {
             return this;
         }
         for (DependencyTree child : children) {
-            DependencyTree dependency = child.findDependency(groupId, artifactId);
+            DependencyTree dependency = child.findDependency(filter);
             if (dependency != null) {
                 return dependency;
             }

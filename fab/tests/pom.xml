@@ -57,6 +57,7 @@
       -->
       <modules>
         <module>fab-itests</module>
+        <module>fab-core-itests</module>
       </modules>
     </profile>
 
