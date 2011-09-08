@@ -71,4 +71,10 @@ public class Bundles {
         return null;
     }
 
+    /**
+     * Returns true if the given bundle is a fragment (and so cannot be loaded)
+     */
+    public static boolean isFragment(Bundle bundle) {
+        return Strings.notEmpty(bundle.getHeaders().get(ServiceConstants.INSTR_FRAGMENT_HOST));
+    }
 }

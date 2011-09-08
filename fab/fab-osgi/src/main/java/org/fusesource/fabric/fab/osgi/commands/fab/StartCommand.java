@@ -55,7 +55,7 @@ public class StartCommand extends FabCommandSupport {
 
     protected void startBundle(Bundle bundle) {
         int state = bundle.getState();
-        if (state == Bundle.INSTALLED || state == Bundle.RESOLVED) {
+        if (state == Bundle.INSTALLED || state == Bundle.RESOLVED && !Bundles.isFragment(bundle)) {
             LOG.debug("Starting bundle %s version %s", bundle.getSymbolicName(), bundle.getVersion());
             try {
                 bundle.start();

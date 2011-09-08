@@ -37,6 +37,7 @@ import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Objects;
+import org.fusesource.fabric.fab.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.artifact.Artifact;
@@ -514,6 +515,13 @@ public class DependencyTree implements Comparable<DependencyTree> {
             // ignore errors
             return true;
         }
+    }
+
+    /**
+     * Returns true if this bundle is a bundle fragment
+     */
+    public boolean isBundleFragment() {
+        return isBundle() && Strings.notEmpty(getManfiestEntry("Fragment-Host"));
     }
 
     // Helper classes

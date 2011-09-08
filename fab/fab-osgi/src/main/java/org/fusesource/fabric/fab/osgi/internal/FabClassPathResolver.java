@@ -457,7 +457,7 @@ public class FabClassPathResolver {
                         // lets mark the current one as invalid
                         current.addHiddenPackage(p);
 
-                        if (current.isAllPackagesHidden()) {
+                        if (current.isAllPackagesHidden() && !current.isBundleFragment()) {
                             LOG.debug("Dependency now hidden: " + current + " due to " + tree);
                         }
                     } else {
@@ -506,7 +506,7 @@ public class FabClassPathResolver {
     }
 
     protected boolean isExcludedDependency(DependencyTree child) {
-        return excludeDependencyFilter.matches(child) || child.isAllPackagesHidden();
+        return excludeDependencyFilter.matches(child) || (child.isAllPackagesHidden() && !child.isBundleFragment());
     }
 
     protected boolean isSharedOrRequired(DependencyTree child) {
