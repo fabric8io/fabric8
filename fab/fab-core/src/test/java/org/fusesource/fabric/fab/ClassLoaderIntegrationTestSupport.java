@@ -45,13 +45,9 @@ public class ClassLoaderIntegrationTestSupport {
     }
 
     protected void testFabricBundle(String artifactId) throws Exception {
-
-
         DependencyTreeResult node = mavenResolver.collectDependencies(groupId, artifactId, version, extension, classifier, offline, DependencyFilters.testScopeOrOptionalFilter);
         DependencyTree tree = node.getTree();
-        StringBuffer buffer = new StringBuffer();
-        tree.dump(buffer);
-        System.out.println((buffer));
+        System.out.println(tree.getDescription());
     }
 
 
