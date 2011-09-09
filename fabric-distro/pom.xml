@@ -201,12 +201,12 @@
                                     <classifier>loadbalancing</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/activemq.xml</file>
+                                    <file>target/classes/distro/etc/activemq.xml</file>
                                     <type>xml</type>
                                     <classifier>activemq</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/install-activemq.karaf</file>
+                                    <file>target/classes/distro/etc/install-activemq.karaf</file>
                                     <type>karaf</type>
                                     <classifier>activemq-installer</classifier>
                                   </artifact>
