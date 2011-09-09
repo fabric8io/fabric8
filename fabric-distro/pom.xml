@@ -56,6 +56,7 @@
           <resource>
               <directory>../etc</directory>
               <filtering>true</filtering>
+              <targetPath>distro/etc</targetPath>
           </resource>
             <resource>
                 <directory>src/main/resources</directory>
@@ -79,6 +80,74 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>features-maven-plugin</artifactId>
+                <version>${karaf-version}</version>
+                <executions>
+                    <execution>
+                        <id>add-features-to-repo</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-features-to-repo</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
+                                <descriptor>file:${basedir}/target/classes/distro/fabric-features.xml</descriptor>
+                            </descriptors>
+                            <features>
+                                <feature>fabric-agent</feature>
+                                <feature>fabric-commands</feature>
+                                <feature>fabric-camel</feature>
+                                <feature>fabric-dosgi</feature>
+                                <feature>fabric-activemq</feature>
+                                <feature>fabric-bundle</feature>
+                                <feature>fabric-monitor</feature>
+                            </features>
+                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                            <repository>target/features-repo</repository>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>unix-bin</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <tarLongFileMode>gnu</tarLongFileMode>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>windows-bin</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
@@ -91,42 +160,42 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>target/classes/fabric-features.xml</file>
+                                    <file>target/classes/distro/fabric-features.xml</file>
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/increase-logging.karaf</file>
+                                    <file>target/classes/distro/etc/increase-logging.karaf</file>
                                     <type>karaf</type>
                                     <classifier>enable-logging</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/install-fabric.karaf</file>
+                                    <file>target/classes/distro/etc/install-fabric.karaf</file>
                                     <type>karaf</type>
                                     <classifier>installer</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/add-scala-tools-repo.karaf</file>
+                                    <file>target/classes/distro/etc/add-scala-tools-repo.karaf</file>
                                     <type>karaf</type>
                                     <classifier>add-scala-tools-repo</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/activemq.karaf</file>
+                                    <file>target/classes/distro/etc/activemq.karaf</file>
                                     <type>karaf</type>
                                     <classifier>activemq</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/dosgi.karaf</file>
+                                    <file>target/classes/distro/etc/dosgi.karaf</file>
                                     <type>karaf</type>
                                     <classifier>dosgi</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/profiles.karaf</file>
+                                    <file>target/classes/distro/etc/profiles.karaf</file>
                                     <type>karaf</type>
                                     <classifier>profiles</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/loadbalancing.karaf</file>
+                                    <file>target/classes/distro/etc/loadbalancing.karaf</file>
                                     <type>karaf</type>
                                     <classifier>loadbalancing</classifier>
                                   </artifact>
