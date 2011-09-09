@@ -17,13 +17,13 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.0-02</version>
     <relativePath>../../fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo</groupId>
   <artifactId>fabric-apollo-cli</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.0.0-02</version>
 
   <name>${project.artifactId}</name>
 
@@ -72,7 +72,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-cluster</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.0.0-02</version>
       <optional>true</optional>
     </dependency>
 
@@ -119,7 +119,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-leveldb</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.0.0-02</version>
       <scope>test</scope>
     </dependency>
     <dependency>

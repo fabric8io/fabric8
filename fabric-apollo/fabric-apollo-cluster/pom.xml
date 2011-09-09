@@ -19,13 +19,13 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.0-02</version>
     <relativePath>../../fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo</groupId>
   <artifactId>fabric-apollo-cluster</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.0.0-02</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-groups</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.0.0-02</version>
     </dependency>
 
     <!--<dependency>-->
