@@ -199,6 +199,16 @@
                                     <type>karaf</type>
                                     <classifier>loadbalancing</classifier>
                                   </artifact>
+                                  <artifact>
+                                    <file>target/classes/activemq.xml</file>
+                                    <type>xml</type>
+                                    <classifier>activemq</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/install-activemq.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>activemq-installer</classifier>
+                                  </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

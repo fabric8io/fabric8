@@ -10,4 +10,5 @@ bin
 *.log
 .project
 .classpath
+*.fmd
 

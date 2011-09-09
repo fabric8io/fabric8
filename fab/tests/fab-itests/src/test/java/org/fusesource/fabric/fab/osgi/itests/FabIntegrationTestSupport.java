@@ -104,6 +104,10 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
                 ) : null,
 
                 mavenBundle("org.apache.felix", "org.apache.felix.configadmin"),
+
+                // Disable management to avoid the JMX port issues
+                mavenBundle("org.apache.karaf", "org.apache.karaf.management").noStart(),
+
                 workingDirectory("target/paxrunner/core/"),
 
                 waitForFrameworkStartup(),

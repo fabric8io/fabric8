@@ -1,0 +1,104 @@
+/**
+ * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
+ * http://fusesource.com
+ *
+ * The software in this package is published under the terms of the
+ * AGPL license a copy of which has been included with this distribution
+ * in the license.txt file.
+ */
+package org.fusesource.fabric.fab.osgi.internal;
+
+import aQute.lib.osgi.Analyzer;
+import org.apache.aries.util.VersionRange;
+import org.apache.felix.utils.version.VersionCleaner;
+import org.apache.felix.utils.version.VersionTable;
+import org.fusesource.fabric.fab.DependencyTree;
+import org.osgi.framework.Version;
+
+import java.util.Map;
+
+import static org.fusesource.fabric.fab.util.Strings.notEmpty;
+
+/**
+ * A helper for creating version ranges from specific versions
+ */
+public class Versions {
+
+    public static String toVersionRange(String versionOrRange, int digitChanges) {
+        if (isRange(versionOrRange)) {
+            // if we are already a version range, leave as it is
+            return versionOrRange;
+        }
+        Version version = VersionTable.getVersion(versionOrRange);
+        Version nextVersion = version;
+        switch (digitChanges) {
+            case 1:
+                return "[" + version + "," + version.getMajor() + "." + version.getMinor() + "." + (version.getMicro() + 1) + ")";
+            case 2:
+                return "[" + version + "," + version.getMajor() + "." + (version.getMinor() + 1) + ")";
+            case 3:
+                return "[" + version + "," + (version.getMajor() + 1) + ")";
+            case 4:
+                return "[" + version + ",)";
+            default:
+                return "[" + version + "," + version + "]";
+        }
+    }
+
+    public static boolean isRange(String versionOrRange) {
+        return versionOrRange.contains("[") || versionOrRange.contains("(");
+    }
+
+    public static boolean inRange(String versionText, String range) {
+        VersionRange versionRange = VersionRange.parseVersionRange(range);
+        Version version = VersionTable.getVersion(versionText);
+        if (version != null && versionRange != null) {
+            return versionRange.matches(version);
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the first maven version is older than the second version
+     */
+    public static boolean isMavenVersionOlder(String version1, String version2) {
+        return isVersionOlder(fromMavenVersion(version1), fromMavenVersion(version2));
+    }
+
+    public static boolean isVersionOlder(String version1, String version2) {
+        return isVersionOlder(new Version(version1), new Version(version2));
+    }
+
+    public static boolean isVersionOlder(Version version1, Version version2) {
+        int value = version1.compareTo(version2);
+        return value < 0;
+    }
+
+    public static Version fromMavenVersion(String version) {
+        return new Version(VersionCleaner.clean(version));
+    }
+
+    public static String getOSGiPackageVersion(DependencyTree dependency, String packageName) {
+        // lets find the export packages and use the version from that
+        if (dependency.isBundle()) {
+            String exportPackages = dependency.getManfiestEntry("Export-Package");
+            if (notEmpty(exportPackages)) {
+                Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
+                Map<String, String> map = values.get(packageName);
+                if (map != null) {
+                    String version = map.get("version");
+                    if (version != null) {
+                        return version;
+                    }
+                }
+            }
+        }
+        String version = dependency.getVersion();
+        if (version != null) {
+            // lets convert to OSGi
+            return VersionCleaner.clean(version);
+        }
+        return null;
+    }
+
+}

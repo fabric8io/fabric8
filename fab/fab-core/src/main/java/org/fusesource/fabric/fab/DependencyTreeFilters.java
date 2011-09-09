@@ -8,7 +8,6 @@
  */
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.CompositeFilter;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Filters;
 
@@ -31,6 +30,16 @@ public class DependencyTreeFilters {
         };
     }
 
+    public static final Filter<DependencyTree> optionalFilter = new Filter<DependencyTree>() {
+        public boolean matches(DependencyTree tree) {
+            return tree.isThisOrDescendantOptional();
+        }
+
+        @Override
+        public String toString() {
+            return "OptionalFilter";
+        }
+    };
     /**
      * Parsers a shared dependency filter of the form "" for match none, "*" for all, or a space
      * separated list of "groupId:artifactId" allowing wildcards.
@@ -51,15 +60,15 @@ public class DependencyTreeFilters {
     public static Filter<DependencyTree> parseExcludeFilter(String dependencyFilterText, Filter excludeOptionalDependenciesFilter) {
         Filter<DependencyTree> filter = parse(dependencyFilterText);
         // if no filter text then assume it matches nothing
-        if (isEmpty(filter)) {
-            return testScopeFilter;
+        if (Filters.isEmpty(filter)) {
+            return Filters.or(testScopeFilter, excludeOptionalDependenciesFilter);
         }
         return Filters.or(testScopeFilter, excludeOptionalDependenciesFilter, filter);
     }
 
     public static Filter<DependencyTree> parseExcludeOptionalFilter(String includeOptionalDependencyFilterText) {
         final Filter<DependencyTree> filter = parse(includeOptionalDependencyFilterText);
-        final boolean excludeAll = isEmpty(filter);
+        final boolean excludeAll = Filters.isEmpty(filter);
         return new Filter<DependencyTree>() {
             @Override
             public boolean matches(DependencyTree tree) {
@@ -74,16 +83,6 @@ public class DependencyTreeFilters {
                 return false;
             }
         };
-    }
-
-    protected static boolean isEmpty(Filter<DependencyTree> filter) {
-        boolean empty = false;
-        if (filter instanceof CompositeFilter) {
-            // lets treat empty filters as not matching anything
-            CompositeFilter<DependencyTree> compositeFilter = (CompositeFilter<DependencyTree>) filter;
-            empty = compositeFilter.isEmpty();
-        }
-        return empty;
     }
 
     /**

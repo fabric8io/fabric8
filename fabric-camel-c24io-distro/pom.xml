@@ -15,8 +15,7 @@
     <maven.test.skip>true</maven.test.skip>
     <createSourcesJar>false</createSourcesJar>
     <shade.version>1.0.1</shade.version>
-    <fabric-version>1.0-SNAPSHOT</fabric-version>
-    <camel-version>2.7.1-fuse-00-39</camel-version>
+    <fabric-version>${project.version}}</fabric-version>
   </properties>
 
   <dependencies>

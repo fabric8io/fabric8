@@ -43,6 +43,9 @@ public class TreeClassLoader extends SecureClassLoader {
             for (DependencyClassLoader childClassLoader : childClassLoaders) {
                 try {
                     c = childClassLoader.loadClass(name, false);
+                    if (c != null) {
+                        break;
+                    }
                 } catch (ClassNotFoundException e) {
                     // ignore
                 }

@@ -1,0 +1,78 @@
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.fabric.fab.tests</groupId>
+    <artifactId>tests-project</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>fabric-core-itests</artifactId>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>FuseSource Fabric :: Archive Bundles :: Core Integration Tests</description>
+
+  <properties>
+    <karaf-version>2.2.1</karaf-version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.fusesource.fabric.fab</groupId>
+      <artifactId>fab-osgi</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.servicemix.tooling</groupId>
+        <artifactId>depends-maven-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <id>generate-depends-file</id>
+            <goals>
+              <goal>generate-depends-file</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkMode>pertest</forkMode>
+          <excludes>
+            <!-- TODO fix ASAP !!!
+            <exclude>**/IntegrationTest.*</exclude>
+            -->
+          </excludes>
+          <!-- set the class loader for custom protocol URL handling in IntegrationTestSupport -->
+          <useSystemClassLoader>true</useSystemClassLoader>
+          <systemProperties>
+            <!-- set the system properties for IntegrationTestSupport -->
+<!--
+            <java.protocol.handler.pkgs>org.ops4j.pax.url|org.fusesource.fabric.fab.osgi.url</java.protocol.handler.pkgs>
+-->
+          </systemProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -29,14 +29,9 @@ public class MavenResolverTest extends DependencyTestSupport {
 
     protected boolean testJarFile = true;
 
-    protected String groupId = "log4j";
-    protected String artifactId = "log4j";
-    protected String version = "1.2.16";
-/*
     protected String groupId = "org.apache.camel";
     protected String artifactId = "camel-core";
     protected String version = "2.7.0";
-*/
     protected String extension = "jar";
     protected String classifier = "";
 
@@ -51,7 +46,7 @@ public class MavenResolverTest extends DependencyTestSupport {
     @Test
     public void testResolveDependenciesByGroupAndArtifactId() throws Exception {
         LOG.info("Resolving " + groupId + "/" + artifactId + "/" + version);
-        DependencyTreeResult result = mavenResolver.collectDependencies(groupId, artifactId, version, extension, classifier, false, Filters.<DependencyTree>falseFilter());
+        DependencyTreeResult result = mavenResolver.collectDependencies(groupId, artifactId, version, extension, classifier, false, DependencyFilters.testScopeOrOptionalFilter);
         assertNotNull("result", result);
 
         DependencyTree tree = result.getTree();

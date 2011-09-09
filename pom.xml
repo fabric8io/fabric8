@@ -87,7 +87,7 @@
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <bndlib-version>1.43.0</bndlib-version>
         <cxf-version>2.4.1-fuse-00-43</cxf-version>
-        <camel-version>2.7.1-fuse-00-43</camel-version>
+        <camel-version>2.8.x-fuse-SNAPSHOT</camel-version>
         <hawtbuf-version>1.6</hawtbuf-version>
         <hawtdispatch-version>1.4</hawtdispatch-version>
         <jackson-version>1.8.0</jackson-version>
@@ -105,6 +105,7 @@
         <log4j-version>1.2.16</log4j-version>
         <logback-version>0.9.28</logback-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
+        <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
         <mvnplugins-version>1.14</mvnplugins-version>
         <ops4j-base.version>1.2.2</ops4j-base.version>
         <ops4j-pax-swissbox-bnd.version>1.3.0</ops4j-pax-swissbox-bnd.version>

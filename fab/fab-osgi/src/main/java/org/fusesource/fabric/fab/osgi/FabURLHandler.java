@@ -17,11 +17,9 @@
  */
 package org.fusesource.fabric.fab.osgi;
 
-import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
-import org.fusesource.fabric.fab.osgi.url.internal.Activator;
-import org.fusesource.fabric.fab.osgi.url.internal.Configuration;
-import org.fusesource.fabric.fab.osgi.url.internal.FabConnection;
-import org.ops4j.util.property.PropertiesPropertyResolver;
+import org.fusesource.fabric.fab.osgi.internal.Activator;
+import org.fusesource.fabric.fab.osgi.internal.Configuration;
+import org.fusesource.fabric.fab.osgi.internal.FabConnection;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.slf4j.Logger;
@@ -30,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Arrays;
 
 public class FabURLHandler extends AbstractURLStreamHandlerService {
@@ -56,8 +53,7 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 		fabJarURL = new URL(url.getPath());
 
 		logger.debug("FAB jar URL is: [" + fabJarURL + "]");
-        PropertiesPropertyResolver resolver = new PropertiesPropertyResolver(System.getProperties());
-        Configuration config = new Configuration(resolver);
+        Configuration config = Configuration.newInstance();
 
         if (mavenRepositories != null) {
             String[] array = Configuration.toArray(mavenRepositories);
@@ -67,7 +63,7 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
         return new FabConnection(fabJarURL, config, getBundleContext());
 	}
 
-	public URL getFabJarURL() {
+    public URL getFabJarURL() {
 		return fabJarURL;
 	}
 

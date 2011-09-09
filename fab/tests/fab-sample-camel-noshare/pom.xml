@@ -24,10 +24,6 @@
   <name>${project.artifactId}</name>
   <description>FAB :: Sample :: Camel NoShare</description>
 
-  <properties>
-    <camel-version>2.8-SNAPSHOT</camel-version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.osgi</groupId>
@@ -59,9 +55,6 @@
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
               <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
-              <!--
-              <Private-Package>META-INF.services.org.apache.camel,META-INF.services.org.apache.camel.component,META-INF.services.org.apache.camel.language</Private-Package>
-              -->
             </manifestEntries>
           </archive>
         </configuration>
@@ -69,7 +62,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-fab-plugin</artifactId>
-        <version>1.16-SNAPSHOT</version>
+        <version>${maven-fab-plugin-version}</version>
         <configuration>
           <descriptor>
             <Long-Description></Long-Description>

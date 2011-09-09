@@ -24,11 +24,6 @@
   <name>${project.artifactId}</name>
   <description>FAB :: Sample :: Camel Velocity Share</description>
 
-  <properties>
-<!--
-    <camel-version>2.9-SNAPSHOT</camel-version>
--->
-  </properties>
 
   <dependencies>
     <dependency>
@@ -71,12 +66,13 @@
       <artifactId>spring-osgi-core</artifactId>
       <version>${spring-osgi-version}</version>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <scope>provided</scope>
+      <exclusions>
+        <!-- exclude old spring -->
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
@@ -90,7 +86,7 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
+              <Fabric-Provided-Dependency>org.slf4j org.apache.*</Fabric-Provided-Dependency>
             </manifestEntries>
           </archive>
         </configuration>
@@ -98,7 +94,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-fab-plugin</artifactId>
-        <version>1.16-SNAPSHOT</version>
+        <version>${maven-fab-plugin-version}</version>
         <configuration>
           <descriptor>
             <Long-Description></Long-Description>

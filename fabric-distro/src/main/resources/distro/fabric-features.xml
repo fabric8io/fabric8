@@ -11,6 +11,7 @@
 <features name="fabric-${project.version}">
 
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
+    <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
@@ -133,6 +134,7 @@
     </feature>
 
     <feature name="fabric-activemq" version="${project.version}" resolver="(obr)">
+        <feature version="5.5.0">activemq</feature>
         <feature>fabric-groups</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-activemq/${project.version}</bundle>
     </feature>

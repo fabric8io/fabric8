@@ -28,4 +28,9 @@ public class DependencyTreeFilter implements Filter<DependencyTree> {
         String artifactId = dependencyTree.getArtifactId();
         return groupFilter.matches(groupId) && artifactFilter.matches(artifactId);
     }
+
+    @Override
+    public String toString() {
+        return "DependencyTreeFilter(" + groupFilter + ":" + artifactFilter + ")";
+    }
 }

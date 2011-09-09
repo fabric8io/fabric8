@@ -8,11 +8,7 @@ zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.
 zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel camel-core/${camel-version}
 zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint/${camel-version}
 
-echo Create activemq ${activemq-version} profile
-fabric:create-profile --parents karaf activemq
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/repository.activemq mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq activemq/${activemq-version}
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq-blueprint activemq-blueprint/${activemq-version}
+shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
 
 echo Create nmr 1.4.0 profile
 fabric:create-profile --parents karaf nmr
