@@ -18,7 +18,6 @@
 package org.fusesource.fabric.fab.osgi;
 
 import org.apache.felix.fileinstall.ArtifactUrlTransformer;
-import org.fusesource.fabric.fab.osgi.url.ServiceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
                         logger.info("Interpreting the non-bundle jar as a FAB: " + artifact);
                     }
                 }
-                //System.out.println("Fab deploy of a jar answer: " + answer + " bundle: " + bundle + " isDeployNonBundles: " + isDeployNonBundles() + " manifest: " + manifest);
+                System.out.println("Fab deploy of a jar answer: " + answer + " bundle: " + bundle + " isDeployNonBundles: " + isDeployNonBundles() + " manifest: " + manifest);
                 // TODO filter out if we can find the pom.xml / properties files
                 // so that we can get PomDetails.isValid()?
                 return answer;
