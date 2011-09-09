@@ -17,7 +17,7 @@ shell:sleep 10000
 
 # Add on karaf root the camel features
 shell:echo Installing camel features repository and deploy camel
-features:addurl mvn:org.apache.camel.karaf/apache-camel/2.7.0/xml/features
+features:addurl mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
 shell:sleep 1000
 
 features:install camel
@@ -34,7 +34,7 @@ fabric:create-profile --parents default fabric-camel-dosgi
 
 # Define nodes of for the profile fabric-camel-cluster
 shell:echo add repositories, features, ... to the fabric-camel-dosgi profile
-zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-dosgi/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/2.7.0/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-dosgi/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-dosgi/org.fusesource.fabric.agent/feature.camel camel
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-dosgi/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-dosgi/org.fusesource.fabric.agent/repository.fabric-example-camel-dosgi mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/1.0-SNAPSHOT/xml/features
