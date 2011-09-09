@@ -23,10 +23,6 @@
   <name>FuseSource Fabric :: Archive Bundles :: Tests</name>
   <description>FuseSource Fabric :: Archive Bundles :: Tests</description>
 
-  <properties>
-    <camel-version>2.8.x-fuse-SNAPSHOT</camel-version>
-  </properties>
-
   <modules>
     <module>fab-sample-camel-activemq-share</module>
     <module>fab-sample-camel-activemq-broker-share</module>
