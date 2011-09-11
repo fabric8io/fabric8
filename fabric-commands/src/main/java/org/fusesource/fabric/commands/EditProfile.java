@@ -85,12 +85,19 @@ public class EditProfile extends FabricCommand {
 
         for(String arg : arguments) {
             if (set) {
-                String[] nameValue = arg.split("=");
+                String[] nameValue = arg.split("=",2);
                 if (nameValue.length != 2) {
-                    throw new IllegalArgumentException(String.format("Argument \"%s\" is invalid, arguments need to be in the form of \"name=value\""));
+                    if (repositories || features || bundles) {
+                        nameValue = new String[]{nameValue[0].replace('/', '_'), nameValue[0]};
+                    } else {
+                        throw new IllegalArgumentException(String.format("Argument \"%s\" is invalid, arguments need to be in the form of \"name=value\""));
+                    }
                 }
                 pidConfig.put(prefix + nameValue[0], nameValue[1]);
             } else if (delete) {
+                if (repositories || features || bundles) {
+                    arg = arg.replace('/', '_');
+                }
                 pidConfig.remove(prefix + arg);
             }
         }
