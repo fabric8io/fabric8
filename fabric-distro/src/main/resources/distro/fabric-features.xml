@@ -12,6 +12,7 @@
 
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
+    <!--repository>mvn:org.jclouds.karaf/feature/${jclouds-version}/xml/features</repository-->
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
@@ -159,5 +160,13 @@
             
         <bundle>mvn:org.fusesource.fabric/fabric-monitor/${project.version}</bundle>
     </feature>
+
+    <!--feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
+        <feature version='${jclouds-version}'>jclouds</feature>
+        <feature version='${jclouds-version}'>jclouds-driver-jschx</feature>
+        <feature version='${jclouds-version}'>jclouds-compute</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-core-agent-jclouds/${project.version}</bundle>
+    </feature-->
+
 
 </features>

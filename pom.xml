@@ -93,6 +93,7 @@
         <jackson-version>1.8.0</jackson-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.6</jaxb-version>
+        <jclouds-version>1.1.1-SNAPSHOT</jclouds-version>
         <jersey-version>1.5</jersey-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
         <jetty-version>7.1.6.v20100715</jetty-version>
@@ -182,6 +183,7 @@
         <module>fabric-zookeeper-commands</module>
         <module>fabric-maven-proxy</module>
         <module>fabric-core-agent-ssh</module>
+        <!--module>fabric-core-agent-jclouds</module-->
         <module>fabric-commands</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>
@@ -635,6 +637,17 @@
               <groupId>org.apache.servicemix.bundles</groupId>
               <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
               <version>${jsch-smx-version}</version>
+          </dependency>
+           <!-- JCLOUDS -->
+            <dependency>
+              <groupId>org.jclouds</groupId>
+              <artifactId>jclouds-compute</artifactId>
+              <version>1.1.1</version>
+          </dependency>
+          <dependency>
+              <groupId>org.jclouds.provider</groupId>
+              <artifactId>aws-ec2</artifactId>
+              <version>1.1.1</version>
           </dependency>
 
         </dependencies>
