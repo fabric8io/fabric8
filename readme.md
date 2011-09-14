@@ -58,6 +58,7 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 * fabric-command : Karaf fabric commands used to create a zookeeper registry, manage agent or profile, admin agent
 * fabric-configadmin : Bridge between osgi configadmin and zookeeper
 * fabric-core : Core API of Fabric, agent and monitoring stuffs (JMX)
+* fabric-core-agent-jclouds : ???
 * fabric-core-agent-ssh : Extension of the Fabric core project to support ssh deployment of agent
 * fabric-cxf fabric-agent-connector for CXF
 * fabric-distro : Generates the features file to deploy Fabric
