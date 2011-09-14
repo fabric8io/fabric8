@@ -1,5 +1,5 @@
 fabric:create-profile --parents karaf dosgi
-zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/$project.version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi
 
 
