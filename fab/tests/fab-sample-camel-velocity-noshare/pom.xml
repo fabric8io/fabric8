@@ -55,6 +55,9 @@
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
               <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
+
+              <!-- exclude some velocity / spring dependencies -->
+              <Fabric-Exclude-Dependency>ant javax.el javax.inject javax.servlet jdom log4j logkit werken-xpath</Fabric-Exclude-Dependency>
             </manifestEntries>
           </archive>
         </configuration>
@@ -63,7 +66,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-fab-plugin</artifactId>
-        <version>1.16-SNAPSHOT</version>
+        <version>${maven-fab-plugin-version}</version>
         <configuration>
           <descriptor>
             <Long-Description></Long-Description>

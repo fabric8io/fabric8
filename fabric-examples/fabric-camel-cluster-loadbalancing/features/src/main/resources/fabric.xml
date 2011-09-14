@@ -10,12 +10,15 @@
 -->
 <features>
 
+    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
+
     <feature name="fusesource-fabric-camel">
         <!-- <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.9-SNAPSHOT</bundle> -->
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-spring/${pom.version}</bundle>
         <feature>fabric-camel</feature>
-        <feature version="${camel.version}">camel</feature>
-        <feature version="${camel.version}">camel-jetty</feature>
+        <feature version="${camel-version}">camel</feature>
+        <feature version="${camel-version}">camel-jetty</feature>
+        <feature version="${camel-version}">camel-blueprint</feature>
     </feature>
 
     <feature name="camel-client" version="${pom.version}">

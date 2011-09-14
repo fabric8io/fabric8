@@ -14,17 +14,29 @@ import org.apache.karaf.testing.Helper;
 import org.junit.Test;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 import org.osgi.service.blueprint.container.BlueprintContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.karaf.testing.Helper.felixProvisionalApis;
 import static org.junit.Assert.assertNotNull;
-import static org.ops4j.pax.exam.CoreOptions.*;
+import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.felix;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.waitForFrameworkStartup;
 import static org.ops4j.pax.exam.OptionUtils.combine;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.*;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.scanFeatures;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.workingDirectory;
 
 /**
  */
 public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
+    private static final transient Logger LOG = LoggerFactory.getLogger(FabIntegrationTestSupport.class);
+
     protected CommandProcessor commandProcessor;
     protected CommandSession commandSession;
 
@@ -63,11 +75,16 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
 
     @Configuration
     public static Option[] configuration() throws Exception {
+        return configuration(false);
+    }
+
+    public static Option[] configuration(boolean useSpringDm) throws Exception {
         Option[] options = combine(
                 // Default karaf environment
                 Helper.getDefaultOptions(
                         // this is how you set the default log level when using pax logging (logProfile)
                         //Helper.setLogLevel("TRACE")
+                        //Helper.setLogLevel("WARN")
                         Helper.setLogLevel("INFO")
                 ),
 
@@ -80,7 +97,17 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
                         "fabric-bundle"
                 ),
 
+                //useSpringDm ? profile("spring-dm") : null,
+                useSpringDm ? scanFeatures(
+                        maven().groupId("org.apache.karaf.assemblies.features").artifactId("standard").type("xml").classifier("features").versionAsInProject(),
+                        "spring-dm"
+                ) : null,
+
                 mavenBundle("org.apache.felix", "org.apache.felix.configadmin"),
+
+                // Disable management to avoid the JMX port issues
+                mavenBundle("org.apache.karaf", "org.apache.karaf.management").noStart(),
+
                 workingDirectory("target/paxrunner/core/"),
 
                 waitForFrameworkStartup(),
@@ -104,11 +131,51 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
         return options;
     }
 
+    protected Bundle assertStartFab(String symbolicName) throws Exception {
+        Bundle bundle = assertInstalledBundle(symbolicName);
+        LOG.info("installed bundle: " + bundle + " is about to start");
+
+        try {
+            commandSession.execute("fab:start " + bundle.getBundleId());
+
+            if (bundle.getState() != Bundle.ACTIVE) {
+                bundle.start();
+            }
+            int state = bundle.getState();
+            if (state != Bundle.ACTIVE) {
+                fail("Bundle " + symbolicName + " did not start - its status is: " + state);
+            }
+            /*
+            StartCommand start = new StartCommand();
+            start.start(bundle);
+            */
+
+            startedBundles.addLast(bundle);
+        } catch (BundleException e) {
+            println("ERROR: " + e, e);
+            throw e;
+        }
+        Thread.sleep(5000);
+        return bundle;
+    }
+
+
+
     protected void doInstallFabricBundle(String artifactId) throws Exception {
         commandSession.execute("osgi:install fab:mvn:org.fusesource.fabric.fab.tests/" + artifactId);
 
         Thread.sleep(1000);
 
-        assertStartBundle("org.fusesource.fabric.fab.tests." + artifactId);
+        assertStartFab("org.fusesource.fabric.fab.tests." + artifactId);
     }
+
+    protected void doInstallSpringDMFabricBundle(String artifactId) throws Exception {
+        Thread.sleep(5000);
+
+        assertStartBundle("org.springframework.osgi.extender");
+
+        doInstallFabricBundle(artifactId);
+    }
+
+
 }

@@ -30,7 +30,6 @@
     <properties>
         <build-helper-maven-plugin.version>1.5</build-helper-maven-plugin.version>
         <felix-plugin.version>2.1.0</felix-plugin.version>
-        <camel.version>2.7.0</camel.version>
 
         <osgi-import-pkg>*</osgi-import-pkg>
         <osgi-export-pkg />
@@ -44,12 +43,12 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
-            <version>${camel.version}</version>
+            <version>${camel-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring</artifactId>
-            <version>${camel.version}</version>
+            <version>${camel-version}</version>
         </dependency>
     </dependencies>
 

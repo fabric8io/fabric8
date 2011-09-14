@@ -8,24 +8,6 @@
  */
 package org.fusesource.fabric.maven.impl;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.apache.maven.wagon.Wagon;
@@ -44,13 +26,21 @@ import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
+import java.io.*;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class MavenProxyImpl implements MavenProxy {
 
     private static final Logger LOGGER = Logger.getLogger(MavenProxyImpl.class.getName());
 
     private int port = 8040;
-    private String localRepository = System.getProperty( "karaf.home" ) + "system";
-    private String remoteRepositories = "repo1.maven.org/maven2";
+    private String localRepository;
+    private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public";
 
     private List<RemoteRepository> repositories;
     private ServerSocket serverSocket;
@@ -96,6 +86,9 @@ public class MavenProxyImpl implements MavenProxy {
 
     public synchronized void start() throws IOException {
         if (port >= 0) {
+            if (localRepository.equals("")) {
+                localRepository = "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+            }
             if (system == null) {
                 system = newRepositorySystem();
             }
@@ -103,14 +96,21 @@ public class MavenProxyImpl implements MavenProxy {
                 session = newSession( system, localRepository );
             }
             repositories = new ArrayList<RemoteRepository>();
+            repositories.add(new RemoteRepository("local", "default", localRepository));
             int i = 0;
             for (String rep : remoteRepositories.split(",")) {
                 repositories.add(new RemoteRepository( "repo-" + i++, "default", rep ));
             }
 
+            String repos = "local:" + localRepository + " ";
+            for (RemoteRepository repo : repositories) {
+                repos += repo + " ";
+            }
+            repos = repos.trim();
+
             serverSocket = new ServerSocket(port);
             new Acceptor(serverSocket).start();
-//            System.out.println("Maven proxy started at: " + getAddress());
+            LOGGER.log(Level.INFO, String.format("Maven proxy started at address : %s with configured repositories : %s", getAddress(), repos));
         }
     }
 
@@ -165,6 +165,7 @@ public class MavenProxyImpl implements MavenProxy {
                 output = new BufferedOutputStream(socket.getOutputStream());
                 String headLine = reader.readLine();
                 if (headLine == null || !headLine.startsWith("GET ") || !headLine.endsWith(" HTTP/1.0") && !headLine.endsWith(" HTTP/1.1")) {
+                    LOGGER.log(Level.WARNING, String.format("Received invalid method : %s", headLine));
                     output.write("HTTP/1.0 405 Invalid method.\r\n\r\n".getBytes());
                     return;
                 }
@@ -174,6 +175,7 @@ public class MavenProxyImpl implements MavenProxy {
                     path = path.substring(1);
                 }
                 String mvn = convertToMavenUrl(path);
+                LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
 
                 try {
                     Artifact artifact = new DefaultArtifact( mvn, null );
@@ -182,10 +184,12 @@ public class MavenProxyImpl implements MavenProxy {
 
                     inputStream = new FileInputStream(result.getArtifact().getFile());
                 } catch (Exception e) {
+                    LOGGER.log(Level.WARNING, String.format("Could not find file : %s due to %s", mvn, e));
                     output.write("HTTP/1.0 404 File not found.\r\n\r\n".getBytes());
                     return;
                 }
 
+                LOGGER.log(Level.INFO, String.format("Writing response for file : %s", mvn));
                 output.write(("HTTP/1.1 200 OK\r\n"
                         + "Date: " + (new Date()).toString() + "\r\n"
                         + "Server: FON Proxy/" + "1.0-SNAPSHOT" + "\r\n"

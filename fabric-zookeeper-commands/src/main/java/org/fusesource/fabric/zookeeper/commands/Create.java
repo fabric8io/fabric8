@@ -19,6 +19,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
@@ -39,6 +40,9 @@ public class Create extends ZooKeeperCommandSupport {
 
     @Option(name = "-a", aliases = {"--acl"}, description = "Node ACLs")
     String acl;
+
+    @Option(name = "-o", aliases = {"--overwrite"}, description = "Overwrite existing entry if it already exists")
+    boolean overwrite;
 
     @Argument(index = 0, required = true, description = "Path of the node to create")
     String path;
@@ -68,10 +72,18 @@ public class Create extends ZooKeeperCommandSupport {
             nodeData = loadUrl(new URL(data));
         }
 
-        if (recursive) {
-            getZooKeeper().createWithParents(path, nodeData, acls, mode);
-        } else {
-            getZooKeeper().create(path, nodeData, acls, mode);
+        try {
+            if (recursive) {
+                getZooKeeper().createWithParents(path, nodeData, acls, mode);
+            } else {
+                getZooKeeper().create(path, nodeData, acls, mode);
+            }
+        } catch (KeeperException.NodeExistsException e) {
+            if(overwrite) {
+                getZooKeeper().setData(path, nodeData);
+            } else {
+                throw e;
+            }
         }
         return null;
     }

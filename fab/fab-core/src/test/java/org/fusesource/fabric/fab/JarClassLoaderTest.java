@@ -9,6 +9,7 @@
 
 package org.fusesource.fabric.fab;
 
+import org.fusesource.fabric.fab.util.Filters;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class JarClassLoaderTest extends DependencyTestSupport {
     @Test
     public void testSlf4jSimpleJar() throws Exception {
         File file = assertResourceFile("jars/slf4j-simple-1.6.1.jar");
-        DependencyTreeResult node = mavenResolver.collectDependenciesForJar(file, false);
+        DependencyTreeResult node = mavenResolver.collectDependenciesForJar(file, false, DependencyFilters.testScopeOrOptionalFilter);
         assertVersions(node, "org.slf4j", "slf4j-api", "1.6.1");
     }
 
@@ -32,7 +33,7 @@ public class JarClassLoaderTest extends DependencyTestSupport {
     public void testCamelJar() throws Exception {
         File file = assertResourceFile("jars/camel-core-2.1.0.jar");
 
-        DependencyTreeResult node = mavenResolver.collectDependenciesForJar(file, false);
+        DependencyTreeResult node = mavenResolver.collectDependenciesForJar(file, false, DependencyFilters.testScopeOrOptionalFilter);
         assertVersions(node, "commons-logging", "commons-logging-api", "1.1.1", "1.1.1");
     }
 

@@ -110,6 +110,24 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
 
         def remaining_capacity = downstream.map(_.asInstanceOf[Peer#OutboundChannelSink].remaining_capacity).getOrElse(0)
 
+        @volatile
+        var enqueue_item_counter = 0L
+        @volatile
+        var enqueue_size_counter = 0L
+        @volatile
+        var enqueue_ts = 0L
+
+        override def offer(value: Delivery) = {
+          if( super.offer(value) ){
+            enqueue_item_counter += 1
+            enqueue_size_counter += value.size
+            enqueue_ts = now
+            true
+          } else {
+            false
+          }
+        }
+
       }
 
     }
@@ -117,7 +135,11 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     override def toString = "cluster destination %s on node %d".format(destination_dto.name("."), peer.id)
   }
 
+  def now = virtual_host.broker.now
+
   def update(on_completed: Runnable) = local_destination.update(on_completed)
+
+  def resource_kind = local_destination.resource_kind
 }
 
 

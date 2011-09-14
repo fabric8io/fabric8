@@ -63,42 +63,42 @@ set on the SymbolicName osgi header -->
   <reference id="fabUrlHandlerRef" interface="org.osgi.service.url.URLStreamHandlerService" filter="url.handler.protocol=fab" />
   -->
 
-  <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener"/>
+  <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener" ranking="1"/>
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
     <command name="fab/tree">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.TreeCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.fab.TreeCommand"/>
     </command>
     <command name="fab/headers">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.HeadersCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.fab.HeadersCommand"/>
     </command>
     <command name="fab/start">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.StartCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.fab.StartCommand"/>
     </command>
     <command name="fab/stop">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.StopCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.fab.StopCommand"/>
     </command>
     <command name="fab/uninstall">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.fab.UninstallCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.fab.UninstallCommand"/>
     </command>
 
     <command name="module/show">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.module.ShowCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.module.ShowCommand"/>
     </command>
     <command name="module/list">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.module.ListCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.module.ListCommand"/>
     </command>
     <command name="module/search">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.module.SearchCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.module.SearchCommand"/>
     </command>
     <command name="module/update">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.module.UpdateCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.module.UpdateCommand"/>
     </command>
     <command name="module/install">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.module.InstallCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.module.InstallCommand"/>
     </command>
     <command name="module/uninstall">
-        <action class="org.fusesource.fabric.fab.osgi.url.internal.commands.module.UninstallCommand"/>
+        <action class="org.fusesource.fabric.fab.osgi.commands.module.UninstallCommand"/>
     </command>
   </command-bundle>
 

@@ -11,6 +11,8 @@
 package org.fusesource.fabric.api.monitor;
 
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.xml.bind.annotation.*;
 
 /**
@@ -22,12 +24,15 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DataSourceDTO {
 
+    @JsonProperty
     @XmlAttribute
     public String id;
 
+    @JsonProperty
     @XmlAttribute
     public String name;
 
+    @JsonProperty
     @XmlAttribute
     public String description;
 
@@ -48,21 +53,26 @@ public class DataSourceDTO {
      *      ABSOLUTE: Is for counters which get reset upon reading.
      * </li>
      */
+    @JsonProperty
     @XmlAttribute
     public String kind;
 
+    @JsonProperty
     @XmlAttribute
     public String heartbeat;
 
+    @JsonProperty
     @XmlAttribute
     public double min = Double.NaN;
 
+    @JsonProperty
     @XmlAttribute
     public double max = Double.NaN;
 
     /**
      * How we get the data...
      */
+    @JsonProperty
     @XmlElement
     public PollDTO poll;
 

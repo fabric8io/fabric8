@@ -24,10 +24,6 @@
   <name>${project.artifactId}</name>
   <description>FAB :: Sample :: Camel Velocity Require Bundle</description>
 
-  <properties>
-    <camel-version>2.8-SNAPSHOT</camel-version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.osgi</groupId>
@@ -49,6 +45,16 @@
       </exclusions>
     </dependency>
 
+    <!-- as the code is using camel osgi api -->
+<!--
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-blueprint</artifactId>
+      <version>${camel-version}</version>
+      <scope>provided</scope>
+    </dependency>
+-->
+
     <!-- lets add a working velocity bundle  -->
     <dependency>
       <groupId>org.apache.servicemix.bundles</groupId>
@@ -69,6 +75,13 @@
       <artifactId>spring-osgi-core</artifactId>
       <version>${spring-osgi-version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <!-- exclude old spring -->
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -103,7 +116,11 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <Fabric-Dependency-Require-Bundle>org.apache.camel:*</Fabric-Dependency-Require-Bundle>
+              <Fabric-Dependency-Require-Bundle>org.apache.camel</Fabric-Dependency-Require-Bundle>
+
+              <!-- exclude some velocity / spring dependencies -->
+              <!-- note we exclude camel-core-xml as its bundled inside camel-spring -->
+              <Fabric-Exclude-Dependency>javax.el javax.inject com.springsource.slf4j* com.springsource.log4j* com.springsource.edu.emory.mathcs.backport org.apache.camel:camel-core-xml</Fabric-Exclude-Dependency>
             </manifestEntries>
           </archive>
         </configuration>
@@ -111,7 +128,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-fab-plugin</artifactId>
-        <version>1.16-SNAPSHOT</version>
+        <version>${maven-fab-plugin-version}</version>
         <configuration>
           <descriptor>
             <Long-Description></Long-Description>

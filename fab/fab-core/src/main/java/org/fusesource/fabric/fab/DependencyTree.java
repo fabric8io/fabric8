@@ -34,14 +34,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Manifests;
 import org.fusesource.fabric.fab.util.Objects;
+import org.fusesource.fabric.fab.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
+import org.sonatype.aether.util.graph.DefaultDependencyNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -70,7 +73,8 @@ public class DependencyTree implements Comparable<DependencyTree> {
     private String scope;
     private File jarFile;
     private boolean optional;
-    private HashSet<String> packages;
+    private Set<String> packages;
+    private Set<String> hiddenPackages = new HashSet<String>();
     private DependencyTree parent;
 
     public static Builder newBuilder() {
@@ -121,12 +125,14 @@ public class DependencyTree implements Comparable<DependencyTree> {
         return builder.build();
     }
 
-    public static DependencyTree newInstance(DependencyNode node, MavenResolver resolver) throws MalformedURLException, ArtifactResolutionException {
+    public static DependencyTree newInstance(DependencyNode node, MavenResolver resolver, Filter<Dependency> excludeDependencyFilter) throws MalformedURLException, ArtifactResolutionException {
         List<DependencyNode> childrenNodes = node.getChildren();
         List<DependencyTree> children = new ArrayList<DependencyTree>();
         for (DependencyNode childNode : childrenNodes) {
-            DependencyTree child = newInstance(childNode, resolver);
-            children.add(child);
+            if (!DependencyFilters.matches(childNode, excludeDependencyFilter) && !node.getDependency().equals(childNode.getDependency())) {
+                DependencyTree child = newInstance(childNode, resolver, excludeDependencyFilter);
+                children.add(child);
+            }
         }
         Artifact artifact = node.getDependency().getArtifact();
         DependencyTree dependencyTree = new DependencyTree(DependencyId.newInstance(artifact), node.getDependency(), children);
@@ -140,8 +146,6 @@ public class DependencyTree implements Comparable<DependencyTree> {
         }
         return dependencyTree;
     }
-
-
 
     public DependencyTree(DependencyId dependencyId, Dependency dependency, List<DependencyTree> children) {
         this(dependencyId, dependency.getArtifact().getVersion(), children);
@@ -243,11 +247,20 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     public DependencyTree findDependency(String groupId, String artifactId) {
-        if (Objects.equal(groupId, getGroupId()) && Objects.equal(artifactId, getArtifactId())) {
+        return findDependency(groupId + ":" + artifactId);
+    }
+
+    public DependencyTree findDependency(String filterText) {
+        Filter<DependencyTree> filter = DependencyTreeFilters.parse(filterText);
+        return findDependency(filter);
+    }
+
+    public DependencyTree findDependency(Filter<DependencyTree> filter) {
+        if (filter.matches(this)) {
             return this;
         }
         for (DependencyTree child : children) {
-            DependencyTree dependency = child.findDependency(groupId, artifactId);
+            DependencyTree dependency = child.findDependency(filter);
             if (dependency != null) {
                 return dependency;
             }
@@ -464,8 +477,8 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     public Set<String> getPackages() throws IOException {
-        if( packages==null ) {
-            if( getExtension().equals("jar") || getExtension().equals("zip") ) {
+        if (packages == null) {
+            if (getExtension().equals("jar") || getExtension().equals("zip")) {
                 aQute.lib.osgi.Jar jar = new aQute.lib.osgi.Jar(getJarFile());
                 try {
                     packages = new HashSet<String>(jar.getPackages());
@@ -477,6 +490,38 @@ public class DependencyTree implements Comparable<DependencyTree> {
             }
         }
         return packages;
+    }
+
+    /**
+     * Adds a specific package as being hidden as its overridden by another dependency which exposes a greater or equal to version
+     */
+    public void addHiddenPackage(String packageName) {
+        hiddenPackages.add(packageName);
+    }
+
+    /**
+     * Returns true if all the non META-INF packages in this dependency are provided by a different dependency
+     */
+    public boolean isAllPackagesHidden() {
+        try {
+            Set<String> nonMetaPackages = getPackages();
+            for (String key : new ArrayList<String>(nonMetaPackages)) {
+                if (key.startsWith("META-INF")) {
+                    nonMetaPackages.remove(key);
+                }
+            }
+            return hiddenPackages.containsAll(nonMetaPackages);
+        } catch (IOException e) {
+            // ignore errors
+            return true;
+        }
+    }
+
+    /**
+     * Returns true if this bundle is a bundle fragment
+     */
+    public boolean isBundleFragment() {
+        return isBundle() && Strings.notEmpty(getManfiestEntry("Fragment-Host"));
     }
 
     // Helper classes

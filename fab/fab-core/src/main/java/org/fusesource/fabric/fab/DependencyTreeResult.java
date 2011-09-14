@@ -17,6 +17,8 @@
  */
 package org.fusesource.fabric.fab;
 
+import org.fusesource.fabric.fab.util.Filter;
+import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 
@@ -30,11 +32,13 @@ import java.util.List;
 public class DependencyTreeResult {
     private final DependencyNode rootNode;
     private final MavenResolver resolver;
+    private final Filter<Dependency> excludeDependencyFilter;
     private DependencyTree tree;
 
-    public DependencyTreeResult(DependencyNode rootNode, MavenResolver resolver) {
+    public DependencyTreeResult(DependencyNode rootNode, MavenResolver resolver, Filter<Dependency> excludeDependencyFilter) {
         this.rootNode = rootNode;
         this.resolver = resolver;
+        this.excludeDependencyFilter = excludeDependencyFilter;
     }
 
     public DependencyNode getRootNode() {
@@ -43,7 +47,7 @@ public class DependencyTreeResult {
 
     public DependencyTree getTree() throws MalformedURLException, ArtifactResolutionException {
         if (tree == null) {
-            tree = DependencyTree.newInstance(getRootNode(), resolver);
+            tree = DependencyTree.newInstance(getRootNode(), resolver, excludeDependencyFilter);
         }
         return tree;
     }
@@ -73,7 +77,8 @@ public class DependencyTreeResult {
     protected void addVersions(Collection<String> versions, DependencyNode node, DependencyId dependencyId) {
         DependencyId thatId = DependencyId.newInstance(node);
         if (dependencyId.equals(thatId)) {
-            versions.add(node.getVersion().toString());
+            String version = node.getVersion().toString();
+            versions.add(version);
         }
         List<DependencyNode> children = node.getChildren();
         for (DependencyNode child : children) {

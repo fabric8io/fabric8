@@ -23,15 +23,6 @@
   <name>FuseSource Fabric :: Archive Bundles :: Tests</name>
   <description>FuseSource Fabric :: Archive Bundles :: Tests</description>
 
-  <properties>
-
-     <camel-version>2.9-SNAPSHOT</camel-version>
-     <activemq-version>5.6-SNAPSHOT</activemq-version>
-
-  </properties>
-
-
-
   <modules>
     <module>fab-sample-camel-activemq-share</module>
     <module>fab-sample-camel-activemq-broker-share</module>
@@ -44,7 +35,10 @@
     <module>fab-sample-camel-velocity-require-bundle</module>
 
 <!--
+    TODO missing dependency..
     <module>fab-sample-camel-osgi-share</module>
+
+    TODO we cannot yet start bundles which are not shared
     <module>fab-sample-camel-osgi-noshare</module>
 -->
   </modules>
@@ -59,6 +53,7 @@
       -->
       <modules>
         <module>fab-itests</module>
+        <module>fab-core-itests</module>
       </modules>
     </profile>
 

@@ -20,11 +20,11 @@
   <artifactId>fab-osgi</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>FuseSource Fabric :: Fabric Bundles for OSGi</description>
 
   <properties>
-    <fabric.osgi.activator>org.fusesource.fabric.fab.osgi.url.internal.Activator</fabric.osgi.activator>
+    <fabric.osgi.activator>org.fusesource.fabric.fab.osgi.internal.Activator</fabric.osgi.activator>
     <fabric.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fabric.embed.dependency>
 
     <fabric.osgi.import.defaults>

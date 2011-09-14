@@ -8,19 +8,7 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.zookeeper.server.NIOServerCnxn;
-import org.apache.zookeeper.server.ServerConfig;
-import org.apache.zookeeper.server.ServerStats;
-import org.apache.zookeeper.server.ZKDatabase;
-import org.apache.zookeeper.server.ZooKeeperServer;
+import org.apache.zookeeper.server.*;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
@@ -29,9 +17,15 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.*;
 
 public class ZKServerFactoryBean implements ManagedServiceFactory {
-
+    private static final transient Logger LOG = LoggerFactory.getLogger(ZKServerFactoryBean.class);
 
     private BundleContext bundleContext;
     private Map<String, Object> servers = new HashMap<String, Object>();
@@ -47,6 +41,13 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
 
     public String getName() {
         return "ZooKeeper Server";
+    }
+
+    // TODO - replace this eventually...
+    public void debug(String str, Object ... args) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format(str, args));
+        }
     }
 
     public synchronized void updated(String pid, Dictionary properties) throws ConfigurationException {
@@ -103,8 +104,11 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                 quorumPeer.setLearnerType(config.getPeerType());
 
                 try {
+                    debug("Starting quorum peer \"%s\" on address %s", quorumPeer.getMyid(), config.getClientPortAddress());
                     quorumPeer.start();
+                    debug("Started quorum peer \"%s\"", quorumPeer.getMyid());
                 } catch (Exception e) {
+                    LOG.warn(String.format("Failed to start quorum peer \"%s\", reason : ", quorumPeer.getMyid(), e));
                     quorumPeer.shutdown();
                     throw e;
                 }
@@ -126,8 +130,11 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                         cfg.getMaxClientCnxns());
 
                 try {
+                    debug("Starting ZooKeeper server on address %s", config.getClientPortAddress());
                     cnxnFactory.startup(zkServer);
+                    LOG.debug("Started ZooKeeper server");
                 } catch (Exception e) {
+                    LOG.warn(String.format("Failed to start ZooKeeper server, reason : %s", e));
                     cnxnFactory.shutdown();
                     throw e;
                 }
@@ -141,15 +148,26 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
     }
 
     public synchronized void deleted(String pid) {
+        debug("Shutting down ZK server %s", pid);
         Object obj = servers.remove(pid);
         ServiceRegistration reg = services.remove(pid);
         if (reg != null) {
-            reg.unregister();
+            try {
+                reg.unregister();
+            } catch (Throwable t) {
+                debug("Caught and am ignoring exception %s while unregistering %s", t, pid);
+                // ignore
+            }
         }
-        if (obj instanceof QuorumPeer) {
-            ((QuorumPeer) obj).shutdown();
-        } else if (obj instanceof NIOServerCnxn.Factory) {
-            ((NIOServerCnxn.Factory) obj).shutdown();
+        try {
+            if (obj instanceof QuorumPeer) {
+                ((QuorumPeer) obj).shutdown();
+            } else if (obj instanceof NIOServerCnxn.Factory) {
+                ((NIOServerCnxn.Factory) obj).shutdown();
+            }
+        } catch (Throwable t) {
+            debug("Caught and am ignoring exception %s while shutting down ZK server %s", t, obj);
+            // ignore
         }
     }
 

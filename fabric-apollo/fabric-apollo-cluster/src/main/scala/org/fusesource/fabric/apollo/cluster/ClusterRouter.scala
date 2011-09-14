@@ -89,14 +89,11 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
       rc.map_success(clustered(_).get)
     }
 
-    def can_connect_one(path: Path, destination:DestinationDTO, producer: BindableDeliveryProducer, security: SecurityContext): Boolean = actual.can_connect_one(path, destination, producer, security)
-    def can_bind_one(path: Path, destination:DestinationDTO, consumer: DeliveryConsumer, security: SecurityContext): Boolean = actual.can_bind_one(path, destination, consumer, security)
-
     def destroy_destination(path: Path, destination: DestinationDTO, security: SecurityContext) = actual.destroy_destination(path, destination, security)
 
-    def can_destroy_destination(path: Path, destination: DestinationDTO, security: SecurityContext): Option[String] = actual.can_destroy_destination(path, destination,security)
-
     def can_create_destination(path: Path, destination: DestinationDTO, security: SecurityContext): Option[String] = actual.can_create_destination(path, destination,security)
+
+    def bind_action(consumer: DeliveryConsumer) = actual.bind_action(consumer)
   }
 
   class ClusterDestination[D <: DomainDestination](val local:D) extends DomainDestination {
@@ -190,6 +187,8 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
     def is_tail = cluster_connector.node_id == tail_node
 
     def update(on_completed: Runnable) = local.update(on_completed)
+
+    def resource_kind = local.resource_kind
   }
 
   class ClusterQueue(local:Queue) extends ClusterDestination[Queue](local) {

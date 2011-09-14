@@ -61,8 +61,10 @@ public abstract class DependencyTestSupport {
         File rootPom = new File(resource.getPath());
 
         DependencyTreeResult node = mavenResolver.collectDependencies(rootPom, false);
-        LOG.debug("File: " + pomName);
-        LOG.debug(node.getTreeDescription());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("File: " + pomName);
+            LOG.debug(node.getTreeDescription());
+        }
 
         List<DependencyTree.DuplicateDependency> duplicateDependencies = node.getTree().checkForDuplicateDependencies();
         assertEquals("Should not have duplicates: " + duplicateDependencies, 0, duplicateDependencies.size());
@@ -99,7 +101,9 @@ public abstract class DependencyTestSupport {
         LOG.debug("Found class " + class1 + " in " + class1.getClassLoader());
         LOG.debug("Found class " + class2 + " in " + class2.getClassLoader());
 
-        assertSame("Should have loaded same class: " + name + " in class loaders " + cl1 + " and " + cl2 + " when found in " + class1.getClassLoader() + " and " + class2.getClassLoader(), class1, class2);
+        ClassLoader foundClassLoader1 = class1.getClassLoader();
+        ClassLoader foundClassLoader2 = class2.getClassLoader();
+        assertSame("Should have loaded same class: " + name + " in class loaders " + cl1 + " and " + cl2 + " when found in " + foundClassLoader1 + " and " + foundClassLoader2, class1, class2);
         assertEquals("Should have loaded equal class: " + name + " in class loaders " + cl1 + " and " + cl2, class1, class2);
     }
 
@@ -131,7 +135,7 @@ public abstract class DependencyTestSupport {
     }
 
     protected Filter<DependencyTree> getExcludeFilter() {
-        return DependencyTreeFilters.parseExcludeFilter("");
+        return DependencyTreeFilters.parseExcludeFilter("", Filters.falseFilter());
     }
 
     protected DependencyClassLoader getClassLoaderForPom(String pomName, Filter<DependencyTree> shareFilter, Filter<DependencyTree> excludeFilter) throws Exception {

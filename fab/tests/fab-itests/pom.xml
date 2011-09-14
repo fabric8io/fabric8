@@ -23,6 +23,10 @@
   <name>${project.artifactId}</name>
   <description>FuseSource Fabric :: Archive Bundles :: Integration Tests</description>
 
+  <properties>
+    <karaf-version>2.2.1</karaf-version>
+  </properties>
+
   <dependencies>
     <!-- This is required to be first so that pax-exam classloader is not messed up with a newer version of felix
 which would lead to java.lang.NoSuchMethodError: org.apache.felix.framework.Logger.<init>(I)V -->
@@ -42,7 +46,13 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
     <dependency>
       <groupId>org.apache.karaf.tooling</groupId>
       <artifactId>org.apache.karaf.tooling.testing</artifactId>
-      <version>2.2.1</version>
+      <version>${karaf-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.karaf.features</groupId>
+      <artifactId>org.apache.karaf.features.command</artifactId>
+      <version>${karaf-version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -53,27 +63,21 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <type>pom</type>
       <scope>test</scope>
     </dependency>
-
-    <!-- test FABs -->
     <dependency>
-      <groupId>org.fusesource.fabric.fab.tests</groupId>
-      <artifactId>fab-sample-camel-noshare</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.fabric.fab.tests</groupId>
-      <artifactId>fab-sample-camel-velocity-noshare</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.fabric.fab.tests</groupId>
-      <artifactId>fab-sample-camel-blueprint-share</artifactId>
+      <groupId>org.fusesource.fabric.fab</groupId>
+      <artifactId>fab-osgi</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- for spring-dm support -->
+    <dependency>
+      <groupId>org.apache.karaf.assemblies.features</groupId>
+      <artifactId>standard</artifactId>
+      <version>${karaf-version}</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
@@ -61,6 +62,8 @@ public class AgentImpl implements Agent {
     public boolean isAlive() {
         try {
             return service.getZooKeeper().exists(ZkPath.AGENT_ALIVE.getPath(id)) != null;
+        } catch (KeeperException.NoNodeException e) {
+            return false;
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -81,6 +84,8 @@ public class AgentImpl implements Agent {
     private String getZkData(ZkPath path) {
         try {
             return service.getZooKeeper().getStringData(path.getPath(id));
+        } catch (KeeperException.NoNodeException e) {
+            return null;
         } catch (Exception e) {
             throw new FabricException(e);
         }

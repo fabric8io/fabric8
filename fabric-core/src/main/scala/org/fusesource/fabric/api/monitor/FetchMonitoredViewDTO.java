@@ -11,6 +11,8 @@
 package org.fusesource.fabric.api.monitor;
 
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -24,21 +26,27 @@ import java.util.Set;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FetchMonitoredViewDTO {
 
+    @JsonProperty
     @XmlElement(name="monitored_set")
     public String monitored_set;
 
+    @JsonProperty
     @XmlElement(name="data_source")
     public List<String> data_sources = new ArrayList<String>();
 
+    @JsonProperty
     @XmlElement(name="consolidation")
     public Set<String> consolidations = new LinkedHashSet<String>();
 
+    @JsonProperty
     @XmlAttribute
     public long start;
 
+    @JsonProperty
     @XmlAttribute
     public long end;
 
+    @JsonProperty
     @XmlAttribute
     public long step;
 

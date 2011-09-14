@@ -20,6 +20,11 @@ public class Filters {
             public boolean matches(T t) {
                 return true;
             }
+
+            @Override
+            public String toString() {
+                return "TrueFilter";
+            }
         };
     }
 
@@ -27,6 +32,11 @@ public class Filters {
         return new Filter<T>() {
             public boolean matches(T t) {
                 return false;
+            }
+
+            @Override
+            public String toString() {
+                return "FalseFilter";
             }
         };
     }
@@ -57,5 +67,28 @@ public class Filters {
                 return "OrFilter" + Arrays.asList(filters);
             }
         };
+    }
+
+    public static <T> Filter<T> not(final Filter<T> filter) {
+        return new Filter<T>() {
+            public boolean matches(T t) {
+                return !filter.matches(t);
+            }
+
+            @Override
+            public String toString() {
+                return "Not(" + filter + ")";
+            }
+        };
+    }
+
+    public static <T> boolean isEmpty(Filter<T> filter) {
+        boolean empty = false;
+        if (filter instanceof CompositeFilter) {
+            // lets treat empty filters as not matching anything
+            CompositeFilter<T> compositeFilter = (CompositeFilter<T>) filter;
+            empty = compositeFilter.isEmpty();
+        }
+        return empty;
     }
 }

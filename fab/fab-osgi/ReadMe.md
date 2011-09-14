@@ -9,6 +9,10 @@ Install Fabric and Camel
     features:addUrl mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features
     features:install fabric-bundle
 
+To install Spring DM support
+
+    features:install spring-dm
+
 Install Camel for shared camel tests...
 
     features:addurl mvn:org.apache.camel.karaf/apache-camel/2.7.1-fuse-00-39/xml/features

@@ -16,7 +16,6 @@ import org.fusesource.fabric.api.Version;
 
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 @Command(name = "display-profile", scope = "fabric", description = "Displays profile information")
@@ -53,13 +52,13 @@ public class DisplayProfile extends FabricCommand {
 
         Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
 
-        if (configuration.containsKey("org.fusesource.fabric.agent")) {
+        if (configuration.containsKey(AGENT_PID)) {
             output.println("\nAgent settings");
-            Map<String, String> agentCfg = configuration.get("org.fusesource.fabric.agent");
+            Map<String, String> agentCfg = configuration.get(AGENT_PID);
 
             displayAgentConfig(agentCfg);
 
-            configuration.remove("org.fusesource.fabric.agent");
+            configuration.remove(AGENT_PID);
         }
 
         output.println("\nConfiguration details");

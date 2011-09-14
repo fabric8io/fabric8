@@ -8,22 +8,6 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerNotification;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -37,6 +21,18 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.*;
 
@@ -101,23 +97,19 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
             String version = System.getProperty("fabric.version", "base");
-            String profiles = System.getProperty("fabric.profiles", "default");
+            String profiles = System.getProperty("fabric.profiles");
 
-            String versionNode = CONFIG_AGENT.getPath(name);
-            String profileNode = CONFIG_VERSIONS_AGENT.getPath(version, name);
+            if (profiles != null) {
+                String versionNode = CONFIG_AGENT.getPath(name);
+                String profileNode = CONFIG_VERSIONS_AGENT.getPath(version, name);
 
-            stat = zooKeeper.exists(versionNode);
-            if (stat != null) {
-                zooKeeper.deleteWithChildren(versionNode);
+                if (zooKeeper.exists(versionNode) == null) {
+                    zooKeeper.createOrSetWithParents(versionNode, version, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
+                if (zooKeeper.exists(profileNode) == null) {
+                    zooKeeper.createOrSetWithParents(profileNode, profiles, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
             }
-            zooKeeper.createOrSetWithParents(versionNode, version, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-
-            stat = zooKeeper.exists(profileNode);
-            if (stat != null) {
-                zooKeeper.deleteWithChildren(profileNode);
-            }
-            zooKeeper.createOrSetWithParents(profileNode, profiles, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-
             registerDomains();
         } catch (Exception e) {
             // TODO
