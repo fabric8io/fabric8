@@ -1,5 +1,5 @@
 Introduction
-=======
+============
 
 These scripts are now filtered as part of the build of the fabric-distro project.  To build the
 scripts cd into "fabric-distro" and run "mvn clean install".  Then you can either source the
@@ -12,8 +12,18 @@ or better still just do it via maven, for example:
 shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
 
 
-Running an ActiveMQ Broker
-=================
+Example to run a Fabric ActiveMQ Broker
+=======================================
+
+1) Before you run Karaf you might like to set these environment variables...
+
+    export JAVA_PERM_MEM=64m
+    export JAVA_MAX_PERM_MEM=512m
+
+
+2) Download and install a fresh version of Karaf 2.2.x from Fuse repo http://repo.fusesource.com/nexus/content/repositories/releases/org/apache/karaf/apache-karaf/
+
+3) Check FuseSource maven repo
 
 Make sure you have
 
@@ -21,7 +31,7 @@ Make sure you have
 
 added to org.ops4j.pax.url.mvn.repositories property in etc/org.ops4j.pax.url.mvn.cfg file.
 
-Start Karaf
+4) Start Karaf
 
 To create a profile with default configuration, run:
 

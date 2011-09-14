@@ -31,6 +31,8 @@
         <build-helper-maven-plugin.version>1.5</build-helper-maven-plugin.version>
         <felix-plugin.version>2.1.0</felix-plugin.version>
 
+        <osgi-bundle-name>${project.name}</osgi-bundle-name>
+        <osgi-symbolic-name>${project.groupId}.${project.artifactId}</osgi-symbolic-name>
         <osgi-import-pkg>*</osgi-import-pkg>
         <osgi-export-pkg />
         <osgi-private-pkg />
@@ -72,10 +74,9 @@
 				<version>${felix-plugin.version}</version>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.version}</Bundle-SymbolicName>
-						<Import-Package>
-                            ${osgi-import-pkg}
-					    </Import-Package>
+						<Bundle-Name>${osgi-bundle-name}</Bundle-Name>
+                        <Bundle-SymbolicName>${osgi-symbolic-name}</Bundle-SymbolicName>
+						<Import-Package>${osgi-import-pkg}</Import-Package>
 						<Export-Package>
                             ${osgi-export-pkg}
 					    </Export-Package>
