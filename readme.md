@@ -72,8 +72,10 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 * fabric-monitor : Monitoring service which will allow using JMX to send information about fabric agents to the FON console ????
 * fabric-scala : Scala maven settings for doing ??
 * fabric-security : Security extensions containing
+
 ** fabric-security-sso-client : A simple utility that uses the OpenAM REST API to provide authentication/authorization
 ** fabric-security-sso-activemq : A single sign-on JAAS module and plugin for ActiveMQ 5.x that delegates authentication and authorization to an OpenAM Server.
+
 * fabric-util : Only contain a target directory ????
 * fabric-website : Content used to generate the web site documentation about Fabric on fabric.fusesource.org
 * fabric-zookeeper : Implementation of Zookeeper for Karaf/OSGI world
