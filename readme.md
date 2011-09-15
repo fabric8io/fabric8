@@ -48,38 +48,64 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 ## Maven modules description
 
 * etc : shell scripts files used by demo/examples to provision/deploy fabric on Apache Karaf
+
 * fab : parent project containing fab modules to deploy Fabric Archive Bundles on Karaf/Service (http://fabric.fusesource.org/documentation/bundle/)
+
 * fabric-activemq : fabric agent connector for ActiveMQ
+
 * fabric-apollo : fabric agent connector for Apollo (Next generation of ActiveMQ Middelware). Facilitate the discovery of AMQ in a fabric
+
 * fabric-camel : fabric agent connector for camel. Allow to loadbalance requests between camel endpoints deployed in different fabric machines
+
 * fabric-camel-c24io : C24 Camel Transformer component
+
 * fabric-camel-c24io-distro : Distro for c24 component
+
 * fabric-camel-dslio : Camel DSL IO Api - Goal ????
+
 * fabric-command : Karaf fabric commands used to create a zookeeper registry, manage agent or profile, admin agent
+
 * fabric-configadmin : Bridge between osgi configadmin and zookeeper
+
 * fabric-core : Core API of Fabric, agent and monitoring stuffs (JMX)
+
 * fabric-core-agent-jclouds : ???
+
 * fabric-core-agent-ssh : Extension of the Fabric core project to support ssh deployment of agent
+
 * fabric-cxf fabric-agent-connector for CXF
+
 * fabric-distro : Generates the features file to deploy Fabric
+
 * fabric-dosgi : Implementation of the specification Distributed OSGI for Fabrix. Uses
+
 * fabric-examples : Examples / demo about Fabric Camel, DOSGI, ActiveMQ, ...
+
 * fabric-groups : Fabric API used to create Zookeeper cluster
+
 * fabric-itests : Integration tests
+
 * fabric-launcher : Sclalate launcher. I need your help
+
 * fabric-linkedin-zookeeper : only contains a pom.xml ????
+
 * fabric-maven-proxy : Maven proxy which can be used by a remote fabric agent to get the artifacts to be deployed
+
 * fabric-monitor : Monitoring service which will allow using JMX to send information about fabric agents to the FON console ????
+
 * fabric-scala : Scala maven settings for doing ??
+
 * fabric-security : Security extensions containing
 
-** fabric-security-sso-client : A simple utility that uses the OpenAM REST API to provide authentication/authorization
-** fabric-security-sso-activemq : A single sign-on JAAS module and plugin for ActiveMQ 5.x that delegates authentication and authorization to an OpenAM Server.
+    * fabric-security-sso-client : A simple utility that uses the OpenAM REST API to provide authentication/authorization
+    * fabric-security-sso-activemq : A single sign-on JAAS module and plugin for ActiveMQ 5.x that delegates authentication and authorization to an OpenAM Server.
 
 * fabric-util : Only contain a target directory ????
+
 * fabric-website : Content used to generate the web site documentation about Fabric on fabric.fusesource.org
+
 * fabric-zookeeper : Implementation of Zookeeper for Karaf/OSGI world
+
 * fabric-zookeeper-commands : Karaf fabric commands used to manage (get/list/delete, ...) zookeeper entries in the registry
+
 * fabric-zookeeper-spring : Zookeeper Spring integration
-
-
