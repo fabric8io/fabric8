@@ -166,8 +166,6 @@ public class JcloudsAgentProvider implements AgentProvider {
         lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
         appendFile(sb, "etc/startup.properties", lines);
         appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
-        sb.append("run whoami > identity").append("\n");
-        sb.append("run echo $PATH > path").append("\n");
         sb.append("run nohup ./bin/start").append("\n");
         return sb.toString();
     }
