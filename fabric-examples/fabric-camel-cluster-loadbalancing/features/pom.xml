@@ -32,6 +32,11 @@
                     <include>**/*</include>
                 </includes>
             </resource>
+            <resource>
+                  <directory>../etc</directory>
+                  <filtering>true</filtering>
+                  <targetPath>distro/etc</targetPath>
+            </resource>
         </resources>
 
         <plugins>
@@ -68,7 +73,7 @@
                                     <classifier>features</classifier>
                                 </artifact>
                                 <artifact>
-                                     <file>../etc/install-fabric-camel.karaf</file>
+                                     <file>target/classes/distro/etc/install-fabric-camel.karaf</file>
                                      <type>karaf</type>
                                      <classifier>installer</classifier>
                               </artifact>

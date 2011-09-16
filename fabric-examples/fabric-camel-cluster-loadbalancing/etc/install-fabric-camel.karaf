@@ -1,6 +1,6 @@
 # install Fabric-camel example
 
-features:addurl mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features
+features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
 # Install fabric commands and monitor
 features:install fabric-commands
@@ -25,7 +25,7 @@ zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fus
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel camel
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint
-zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric-camel-test mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/1.1-SNAPSHOT/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric-camel-test mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.fabric-camel-test camel-server
 
 # Define a new profile extending fabric-camel-cluster to specify the property of the port number used by the server
@@ -56,6 +56,6 @@ features:install camel
 features:install camel-blueprint
 shell:sleep 1000
 shell:echo Installing camel fabric demo features repository and deploy camel-client
-features:addurl mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/1.1-SNAPSHOT/xml/features
+features:addurl mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
 features:install camel-client
 

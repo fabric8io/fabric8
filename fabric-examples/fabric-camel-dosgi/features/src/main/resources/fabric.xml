@@ -12,9 +12,9 @@
 
     <feature name="fabric-example-camel-dosgi">
         <feature>fabric-dosgi</feature>
-        <feature version="${camel.version}">camel</feature>
-        <feature version="${camel.version}">camel-blueprint</feature>
-        <bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/service/${pom.version}</bundle>
+        <feature version="${camel-version}">camel</feature>
+        <feature version="${camel-version}">camel-blueprint</feature>
+        <!--<bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/service/${pom.version}</bundle> -->
         <bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/camel-route/${pom.version}</bundle>
     </feature>
 
