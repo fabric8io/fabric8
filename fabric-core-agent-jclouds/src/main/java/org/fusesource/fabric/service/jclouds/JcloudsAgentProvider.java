@@ -14,6 +14,8 @@ import org.fusesource.fabric.maven.MavenProxy;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.TemplateBuilder;
+import org.jclouds.compute.options.RunScriptOptions;
+import org.jclouds.domain.Credentials;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -34,6 +36,7 @@ public class JcloudsAgentProvider implements AgentProvider {
     private static final String IMAGE_ID = "imageId";
     private static final String LOCATION_ID = "locationId";
     private static final String HARDWARE_ID = "hardwareId";
+    private static final String USER = "user";
     private static final String GROUP = "group";
 
     private static final String INSTANCE_TYPE = "instanceType";
@@ -42,7 +45,6 @@ public class JcloudsAgentProvider implements AgentProvider {
     private static final String FASTEST = "fastest";
 
     private MavenProxy mavenProxy;
-    private boolean debug = false;
 
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
@@ -75,16 +77,16 @@ public class JcloudsAgentProvider implements AgentProvider {
         String hardwareId = null;
         String locationId = null;
         String group = null;
+        String user = null;
         String instanceType = SMALLEST;
+        Credentials credentials = null;
 
         try {
             String providerName = agentUri.getHost();
-
             ComputeService computeService = computeServiceMap.get(providerName);
             if (computeService == null) {
                 throw new FabricException("Not compute Service found for provider:" + providerName);
             }
-
 
             if (agentUri.getQuery() != null) {
                 Map<String, String> parameters = parseQuery(agentUri.getQuery());
@@ -93,6 +95,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                     group = parameters.get(GROUP);
                     locationId = parameters.get(LOCATION_ID);
                     hardwareId = parameters.get(HARDWARE_ID);
+                    user = parameters.get(USER);
                     if (parameters.get(INSTANCE_TYPE) != null) {
                         instanceType = parameters.get(INSTANCE_TYPE);
                     }
@@ -121,13 +124,23 @@ public class JcloudsAgentProvider implements AgentProvider {
             }
 
             Set<? extends NodeMetadata> metadatas = null;
-            String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl);
 
+            if(user != null) {
+                credentials = new Credentials(user,null);
+            }
+
+            String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl);
             metadatas = computeService.createNodesInGroup(group, 1, builder.build());
+
             if (metadatas != null) {
                 for (NodeMetadata nodeMetadata : metadatas) {
                     String id = nodeMetadata.getId();
-                    computeService.runScriptOnNode(id, script);
+                    if(credentials != null) {
+                    computeService.runScriptOnNode(id,script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                    }
+                    else {
+                        computeService.runScriptOnNode(id, script);
+                    }
                 }
             }
         } catch (FabricException e) {
@@ -153,7 +166,9 @@ public class JcloudsAgentProvider implements AgentProvider {
         lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
         appendFile(sb, "etc/startup.properties", lines);
         appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
-        sb.append("run nohup bin/start").append("\n");
+        sb.append("run whoami > identity").append("\n");
+        sb.append("run echo $PATH > path").append("\n");
+        sb.append("run nohup ./bin/start").append("\n");
         return sb.toString();
     }
 
@@ -203,5 +218,4 @@ public class JcloudsAgentProvider implements AgentProvider {
             throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
         }
     }
-
 }
