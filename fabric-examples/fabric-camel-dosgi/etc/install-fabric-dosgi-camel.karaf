@@ -1,3 +1,9 @@
+shell:echo cleanup
+#admin:stop dosgi-camel
+#admin:stop dosgi-provider
+#admin:destroy dosgi-camel
+#admin:destroy dosgi-provider
+
 shell:echo Install Fabric DOSGI Camel example
 shell:echo Add fabric features repository
 features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
@@ -32,6 +38,17 @@ zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.f
 zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/feature.spring spring/3.0.5.RELEASE
 zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/feature.fabric-example-camel-dosgi fabric-example-camel-dosgi
 
+#shell:echo Create profile dosgi-provider-camel
+#fabric:create-profile --parents default dosgi-provider-camel
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.fabric-example-dosgi fabric-example-dosgi
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.spring spring/3.0.5.RELEASE
+#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.fabric-example-camel-dosgi fabric-example-camel-dosgi
+
 shell:echo Creating agents
 
 shell:echo 1. Create provider node
@@ -43,6 +60,11 @@ shell:echo 2. Create camel consumer node
 fabric:create-agent --profile dosgi-camel --parent root dosgi-camel
 shell:echo Wait 10s.. be patient
 shell:sleep 10000
+
+#shell:echo 3. Create camel consumer node and provider
+#fabric:create-agent --profile dosgi-provider-camel --parent root dosgi-provider-camel
+#shell:echo Wait 10s.. be patient
+#shell:sleep 10000
 
 shell:echo done.
 

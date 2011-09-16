@@ -27,6 +27,7 @@
 
     <properties>
         <osgi-import-pkg>
+            org.fusesource.fabric.example.dosgi;resolution:=optional,
             *
          </osgi-import-pkg>
          <osgi-export-pkg />
