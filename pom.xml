@@ -187,6 +187,7 @@
         <module>fabric-commands</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>
+        <module>fabric-jaas</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
         <module>fabric-camel</module>

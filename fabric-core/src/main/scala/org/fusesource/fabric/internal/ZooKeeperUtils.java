@@ -1,9 +1,8 @@
 package org.fusesource.fabric.internal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -92,6 +91,17 @@ public class ZooKeeperUtils {
         if (zooKeeper.exists(path) == null) {
             zooKeeper.createWithParents( path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT );
         }
+    }
+
+    public static Properties getProperties(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
+        String value = zooKeeper.getStringData(path);
+        Properties properties = new Properties();
+        if (value != null) {
+            try {
+                properties.load(new StringReader(value));
+            } catch (IOException ignore) {}
+        }
+        return properties;
     }
 
 }
