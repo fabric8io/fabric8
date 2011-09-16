@@ -15,6 +15,9 @@ fabric:zk-cluster root
 shell:echo Waiting a few seconds to let zookeeper start and form cluster
 shell:sleep 5000
 
+shell:echo Add new repositories to the default profile
+zk:set /fabric/configs/versions/base/profiles/default/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots@noreleases,http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases,http://svn.apache.org/repos/asf/servicemix/m2-repo,http://repository.springsource.com/maven/bundles/release,http://repository.springsource.com/maven/bundles/external,http://scala-tools.org/repo-releases
+
 shell:echo Create fabric-camel-cluster profile in zookeeper
 fabric:create-profile --parents default fabric-camel-cluster
 
