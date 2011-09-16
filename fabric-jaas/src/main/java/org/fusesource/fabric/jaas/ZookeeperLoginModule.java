@@ -68,8 +68,8 @@ public class ZookeeperLoginModule implements LoginModule {
         try {
             IZKClient zookeeper = factory.getObject();
             Thread.sleep(1000);
-            users = ZooKeeperUtils.getProperties(zookeeper, "fabric/configs/versions/base/general/users");
-            groups = ZooKeeperUtils.getProperties(zookeeper, "fabric/configs/versions/base/general/groups");
+            users = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/users");
+            groups = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/groups");
         } catch (Exception e) {
             e.printStackTrace();
         }
