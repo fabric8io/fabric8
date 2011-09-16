@@ -1,61 +1,65 @@
-# install Fabric-camel example
-
+shell:echo Install Fabric-camel example
+shell:echo Add fabric features repository
 features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
-# Install fabric commands and monitor
+shell:echo Install fabric commands
 features:install fabric-commands
-# features:install fabric-monitor
 
-# Wait a bit
-shell:echo Waiting a couple of seconds for the fabric-commands to start
+shell:echo Waiting a few seconds for the fabric-commands to start
 shell:sleep 5000
 
-# Create the initial zookeeper server
+shell:echo Create a zookeeper cluster
+fabric:zk-cluster --clean
 fabric:zk-cluster root
-shell:echo Waiting a couple of seconds for the zookeeper server to start
-shell:sleep 10000
 
-# Create the fabric-camel-cluster profile in zookeeper
-shell:echo Create fabric-camel-cluster profile
+shell:echo Waiting a few seconds to let zookeeper start and form cluster
+shell:sleep 5000
+
+shell:echo Add new repositories to the default profile
+zk:set /fabric/configs/versions/base/profiles/default/org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots@noreleases,http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases,http://svn.apache.org/repos/asf/servicemix/m2-repo,http://repository.springsource.com/maven/bundles/release,http://repository.springsource.com/maven/bundles/external,http://scala-tools.org/repo-releases
+
+shell:echo Create fabric-camel-cluster profile in zookeeper
 fabric:create-profile --parents default fabric-camel-cluster
 
-# Define nodes of for the profile fabric-camel-cluster
 shell:echo add repositories, features, ... to the fabric-camel-cluster profile
-zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/bundle.jaxb-api mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/1.9-SNAPSHOT
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric-camel-cluster mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.spring spring/3.0.5.RELEASE
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel camel
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint
-zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric-camel-test mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/bundle.jaxb-api mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/1.9-SNAPSHOT
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.camel-jetty camel-jetty
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/feature.fabric-camel-test camel-server
 
-# Define a new profile extending fabric-camel-cluster to specify the property of the port number used by the server
-shell:echo Create camel-cluster-port-9090 profile
+shell:echo Create camel-cluster-port-9090 profile extending fabric-camel-cluster to specify the property of the port number used by the server
 fabric:create-profile --parents fabric-camel-cluster camel-cluster-port-9090
 zk:create -r /fabric/configs/versions/base/profiles/camel-cluster-port-9090/fabricCamel/portNumber 9090
 
-# Define a new profile extending fabric-camel-cluster to specify the property of the port number used by the server
-shell:echo Create camel-cluster-port-9191 profile
+shell:echo Create camel-cluster-port-9191 profile extending fabric-camel-cluster
 fabric:create-profile --parents fabric-camel-cluster camel-cluster-port-9191
 zk:create -r /fabric/configs/versions/base/profiles/camel-cluster-port-9191/fabricCamel/portNumber 9191
 
-# Create agents
-shell:echo Create fabric agent camel-9090 and wait 10s that it is created and configured
+shell:echo 1) Create fabric agent camel-9090 and wait 10s that it is created and configured
 fabric:create-agent --profile camel-cluster-port-9090 --parent root camel-9090
 shell:sleep 10000
 
-shell:echo Create fabric agent camel-9191
+shell:echo 2) Create fabric agent camel-9191
 fabric:create-agent --profile camel-cluster-port-9191 --parent root camel-9191
 shell:sleep 10000
 
-# Add on karaf root the camel features
-shell:echo Installing camel features repository and deploy camel
+shell:echo Installing camel features repository and deploy camel on the root instance
 features:addurl mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
-shell:sleep 1000
-
 features:install camel
 features:install camel-blueprint
-shell:sleep 1000
+features:install camel-jetty
+
 shell:echo Installing camel fabric demo features repository and deploy camel-client
 features:addurl mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
+
+shell:echo install camel-client which will connect to the remote instances
 features:install camel-client
+
+shell:echo done
 
