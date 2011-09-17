@@ -131,7 +131,7 @@ public class FabricServiceImpl implements FabricService {
         });
     }
 
-    public Agent createAgent(final String url, final String name) {
+    public Agent createAgent(String url, String name, boolean debugAgent) {
         try {
             final String zooKeeperUrl = getZooKeeperUrl();
             URI uri = URI.create(url);
@@ -140,13 +140,17 @@ public class FabricServiceImpl implements FabricService {
                 throw new FabricException("Unable to find an agent provider supporting uri '" + url + "'");
             }
             createAgentConfig(name);
-            provider.create(uri, name, zooKeeperUrl);
+            provider.create(uri, name, zooKeeperUrl,debugAgent);
             return new AgentImpl(null, name, FabricServiceImpl.this);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    public Agent createAgent(final String url, final String name) {
+        return createAgent(url,name,false);
     }
 
     protected AgentProvider getProvider(final String scheme) {
@@ -173,12 +177,15 @@ public class FabricServiceImpl implements FabricService {
         unregisterProvider(scheme);
     }
 
-    public Agent createAgent(final Agent parent, final String name) {
+    public Agent createAgent(final Agent parent, final String name, final boolean debugAgent) {
         final String zooKeeperUrl = getZooKeeperUrl();
         createAgentConfig(name);
         return getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Agent>() {
             public Agent doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
+                if(debugAgent) {
+                    javaOpts += AgentProvider.DEBUG_AGNET;
+                }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
@@ -186,6 +193,10 @@ public class FabricServiceImpl implements FabricService {
                 return new AgentImpl(parent, name, FabricServiceImpl.this);
             }
         });
+    }
+
+    public Agent createAgent(final Agent parent, final String name) {
+        return createAgent(parent,name,false);
     }
 
     public void destroy(Agent agent) {

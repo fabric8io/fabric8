@@ -31,6 +31,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * A concrete {@link AgentProvider} that creates {@link Agent}s via jclouds {@link ComputeService}.
+ */
 public class JcloudsAgentProvider implements AgentProvider {
 
     private static final String IMAGE_ID = "imageId";
@@ -71,8 +74,14 @@ public class JcloudsAgentProvider implements AgentProvider {
         this.mavenProxy = mavenProxy;
     }
 
-    @Override
-    public void create(URI agentUri, String name, String zooKeeperUrl) {
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     */
+    public void create(URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
         String imageId = null;
         String hardwareId = null;
         String locationId = null;
@@ -129,7 +138,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 credentials = new Credentials(user,null);
             }
 
-            String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl);
+            String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl,debugAgent);
             metadatas = computeService.createNodesInGroup(group, 1, builder.build());
 
             if (metadatas != null) {
@@ -150,8 +159,18 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
     }
 
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     */
+    public void create(URI agentUri, String name, String zooKeeperUrl) {
+        create(agentUri,name,zooKeeperUrl);
+    }
 
-    private String buildStartupScript(URI proxy, String name, String zooKeeperUrl) throws MalformedURLException {
+    private String buildStartupScript(URI proxy, String name, String zooKeeperUrl, boolean debugAgent) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
 
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
@@ -166,6 +185,9 @@ public class JcloudsAgentProvider implements AgentProvider {
         lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
         appendFile(sb, "etc/startup.properties", lines);
         appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
+        if(debugAgent) {
+           sb.append("run export KARAF_DEBUG=true").append("\n");
+        }
         sb.append("run nohup ./bin/start").append("\n");
         return sb.toString();
     }

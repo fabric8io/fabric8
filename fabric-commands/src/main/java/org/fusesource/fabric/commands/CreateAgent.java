@@ -29,6 +29,9 @@ public class CreateAgent extends FabricCommand {
     @Option(name = "--parent", multiValued = false, required = false)
     private String parent;
 
+    @Option(name = "--enable-debuging", multiValued = false, required = false)
+    private Boolean debugAgent = Boolean.FALSE;
+
     @Option(name = "--url", multiValued = false, required = false)
     private String url;
 
@@ -49,7 +52,7 @@ public class CreateAgent extends FabricCommand {
             names = Collections.singletonList("default");
         }
         Profile[] profiles = getProfiles(version, names);
-        Agent child = fabricService.createAgent( url, name );
+        Agent child = fabricService.createAgent( url, name, debugAgent );
         child.setProfiles(profiles);
         return null;
     }

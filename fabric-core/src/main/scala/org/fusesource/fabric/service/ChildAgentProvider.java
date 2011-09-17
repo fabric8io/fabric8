@@ -22,12 +22,22 @@ public class ChildAgentProvider implements AgentProvider {
         this.service = service;
     }
 
-    @Override
-    public void create(final URI agentUri, final String name, final String zooKeeperUrl) {
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param debugAgent   Flag used to enable debugging on the new Agent.
+     */
+    public void create(final URI agentUri, final String name, final String zooKeeperUrl, final boolean debugAgent) {
         final Agent parent = service.getAgent(agentUri.getSchemeSpecificPart());
         service.getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
+                if(debugAgent) {
+                    javaOpts += AgentProvider.DEBUG_AGNET;
+                }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
@@ -35,5 +45,17 @@ public class ChildAgentProvider implements AgentProvider {
                 return null;
             }
         });
+    }
+
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     */
+    @Override
+    public void create(URI agentUri, String name, String zooKeeperUrl) {
+        create(agentUri,name,zooKeeperUrl);
     }
 }
