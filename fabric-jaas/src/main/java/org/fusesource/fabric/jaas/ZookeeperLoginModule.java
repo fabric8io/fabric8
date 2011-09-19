@@ -23,6 +23,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -34,13 +38,16 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import com.sun.org.apache.regexp.internal.RE;
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperLoginModule implements LoginModule {
+public class ZookeeperLoginModule implements LoginModule, LifecycleListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
@@ -50,6 +57,8 @@ public class ZookeeperLoginModule implements LoginModule {
     private boolean debug = false;
     private static Properties users;
     private static Properties groups;
+    private static CountDownLatch connected = new CountDownLatch(1);
+    private static IZKClient zookeeper;
     private String user;
     private Set<Principal> principals = new HashSet<Principal>();
     private boolean loginSucceeded;
@@ -60,21 +69,20 @@ public class ZookeeperLoginModule implements LoginModule {
         this.callbackHandler = callbackHandler;
         loginSucceeded = false;
 
+        if (zookeeper == null) {
+            ZKClientFactoryBean factory = new ZKClientFactoryBean();
+            users = new Properties();
+            groups = new Properties();
+            try {
+                zookeeper = factory.getObject();
+                zookeeper.registerListener(this);
+                connected.await(1, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOG.warn("Failed initializing authentication plugin", e);
+            }
 
-        // TODO cache values
-        ZKClientFactoryBean factory = new ZKClientFactoryBean();
-        users = new Properties();
-        groups = new Properties();
-        try {
-            IZKClient zookeeper = factory.getObject();
-            Thread.sleep(1000);
-            users = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/users");
-            groups = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/groups");
-        } catch (Exception e) {
-            e.printStackTrace();
+            LOG.debug("Using  " + users + " " + groups);
         }
-
-        LOG.debug("Using  " + users + " " + groups);
 
     }
 
@@ -168,5 +176,21 @@ public class ZookeeperLoginModule implements LoginModule {
     private void clear() {
         user = null;
         loginSucceeded = false;
+    }
+
+    @Override
+    public void onConnected() {
+        try {
+            users = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/users");
+            groups = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/groups");
+            connected.countDown();
+        } catch (Exception e) {
+            LOG.warn("Failed initializing authentication plugin", e);
+        }
+    }
+
+    @Override
+    public void onDisconnected() {
+        // do nothing
     }
 }
