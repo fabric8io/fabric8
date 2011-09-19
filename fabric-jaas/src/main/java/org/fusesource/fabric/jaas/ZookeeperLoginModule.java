@@ -25,8 +25,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -38,8 +36,8 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import com.sun.org.apache.regexp.internal.RE;
-import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -47,7 +45,7 @@ import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperLoginModule implements LoginModule, LifecycleListener {
+public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Watcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
@@ -69,6 +67,8 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener {
         this.callbackHandler = callbackHandler;
         loginSucceeded = false;
 
+        debug = "true".equalsIgnoreCase((String)options.get("debug"));
+
         if (zookeeper == null) {
             ZKClientFactoryBean factory = new ZKClientFactoryBean();
             users = new Properties();
@@ -80,8 +80,6 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener {
             } catch (Exception e) {
                 LOG.warn("Failed initializing authentication plugin", e);
             }
-
-            LOG.debug("Using  " + users + " " + groups);
         }
 
     }
@@ -181,8 +179,7 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener {
     @Override
     public void onConnected() {
         try {
-            users = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/users");
-            groups = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/groups");
+            fetchData();
             connected.countDown();
         } catch (Exception e) {
             LOG.warn("Failed initializing authentication plugin", e);
@@ -192,5 +189,26 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener {
     @Override
     public void onDisconnected() {
         // do nothing
+    }
+
+    @Override
+    public void process(WatchedEvent watchedEvent) {
+        if (debug) {
+            LOG.debug("Zookeeper auth data changed. Refreshing!");
+        }
+
+        if (watchedEvent.getType() == Event.EventType.NodeDataChanged
+         || watchedEvent.getType() == Event.EventType.NodeDeleted) {
+            try {
+                fetchData();
+            } catch (Exception e) {
+                LOG.warn("failed refreshing authentication data", e);
+            }
+        }
+    }
+
+    protected void fetchData() throws Exception {
+        users = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/users", this);
+        groups = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/groups", this);
     }
 }

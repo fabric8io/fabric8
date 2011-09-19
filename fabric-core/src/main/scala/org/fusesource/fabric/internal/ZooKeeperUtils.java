@@ -6,8 +6,10 @@ import java.util.*;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.ZKData;
 
 public class ZooKeeperUtils {
 
@@ -93,8 +95,9 @@ public class ZooKeeperUtils {
         }
     }
 
-    public static Properties getProperties(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        String value = zooKeeper.getStringData(path);
+    public static Properties getProperties(IZKClient zooKeeper, String path, Watcher watcher) throws InterruptedException, KeeperException {
+        ZKData<String> zkData = zooKeeper.getZKStringData(path, watcher);
+        String value = zkData.getData();
         Properties properties = new Properties();
         if (value != null) {
             try {
