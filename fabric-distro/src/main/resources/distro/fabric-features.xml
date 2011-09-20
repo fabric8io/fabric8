@@ -161,6 +161,14 @@
         <bundle>mvn:org.fusesource.fabric/fabric-monitor/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-jaas" version="${project.version}}" resolver="(obr)">
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-jaas/${project.version}</bundle>
+    </feature>
+
     <!--feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
         <feature version='${jclouds-version}'>jclouds</feature>
         <feature version='${jclouds-version}'>jclouds-driver-jschx</feature>

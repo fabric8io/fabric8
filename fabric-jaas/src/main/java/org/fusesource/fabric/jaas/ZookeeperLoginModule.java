@@ -16,34 +16,27 @@
  */
 package org.fusesource.fabric.jaas;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean;
+import org.jasypt.util.password.PasswordEncryptor;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.*;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Watcher {
 
@@ -60,6 +53,8 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Wat
     private String user;
     private Set<Principal> principals = new HashSet<Principal>();
     private boolean loginSucceeded;
+
+    private PasswordEncryptor encryptor = new StrongPasswordEncryptor();
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
@@ -110,9 +105,23 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Wat
         if (password == null) {
             throw new FailedLoginException("User does exist");
         }
-        if (!password.equals(new String(tmpPassword))) {
+
+        boolean passwordOK = false;
+
+        if (password.startsWith("(ENC)")) {
+            if (encryptor.checkPassword(new String(tmpPassword), password.substring(5))) {
+                passwordOK = true;
+            }
+        } else {
+            if (password.equals(new String(tmpPassword))) {
+                passwordOK = true;
+            }
+        }
+
+        if (!passwordOK) {
             throw new FailedLoginException("Password does not match");
         }
+
         loginSucceeded = true;
 
         if (debug) {

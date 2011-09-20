@@ -23,6 +23,17 @@
     <name>${project.artifactId}</name>
     <description>FuseSource Fabric :: JAAS</description>
 
+    <properties>
+        <fabric.osgi.export>
+        </fabric.osgi.export>
+        <fabric.osgi.import>
+            *
+        </fabric.osgi.import>
+        <fabric.osgi.private.pkg>
+            org.fusesource.fabric.jaas,
+        </fabric.osgi.private.pkg>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -43,6 +54,11 @@
         <dependency>
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.util-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>${jasypt-version}</version>
         </dependency>
     </dependencies>
 

@@ -27,7 +27,8 @@
     <properties>
         <fabric.osgi.export>
           org.fusesource.fabric.api*;version=${project.version},
-          org.fusesource.fabric.service*;version=${project.version};-noimport:=true
+          org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
+          org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
         </fabric.osgi.export>
         <fabric.osgi.private.pkg>
             org.fusesource.fabric.internal

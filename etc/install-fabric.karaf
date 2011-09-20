@@ -17,6 +17,7 @@ osgi:install -s mvn:org.fusesource.fabric/fabric-core/${project.version}
 shell:sleep 1000
 
 features:install fabric-commands
+features:install fabric-jaas
 
 shell:echo Waiting 4 seconds for the fabric-commands to start
 shell:sleep 4000
