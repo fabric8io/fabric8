@@ -31,9 +31,20 @@
             org.jcraft.jsch.*;-noimport:=true,
             org.apache.zookeeper*;version="3.3.1";-noimport:=true,
         </fabric.osgi.export>
+
+        <!--
+          TODO maybe make a few of these optional?
+          e.g. org.hibernate, org.acegisecurity, org.springframework, javax.servlet?
+          -->
+
         <fabric.osgi.import.before.defaults>
             !org.apache.log4j.jmx,
             !org.apache.log4j.spi,
+            !org.apache.wicket*,
+            !org.hibernate*,
+            !org.springframework*,
+            !javax.servlet*,
+            !org.acegisecurity.providers.encoding*,
             !jline*,
             !org.xml.*,
             !javax.xml.parsers
