@@ -75,11 +75,25 @@
           <artifactId>jackson-mapper-asl</artifactId>
           <version>${jackson-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
             <version>${jasypt-version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.zookeeper-impl</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.util-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
