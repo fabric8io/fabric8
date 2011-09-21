@@ -27,6 +27,8 @@
         <fabric.osgi.export>
             org.linkedin.zookeeper*;version=${linkedin-zookeeper-version};-noimport:=true,
             org.linkedin.util.*;-noimport:=true,
+            org.jasypt.*;-noimport:=true,
+            org.jcraft.jsch.*;-noimport:=true,
             org.apache.zookeeper*;version="3.3.1";-noimport:=true,
         </fabric.osgi.export>
         <fabric.osgi.import.before.defaults>
@@ -55,6 +57,18 @@
             <artifactId>org.linkedin.util-core</artifactId>
             <scope>provided</scope>
         </dependency>
+      <dependency>
+          <groupId>org.jasypt</groupId>
+          <artifactId>jasypt</artifactId>
+          <version>${jasypt-version}</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.jcraft</groupId>
+          <artifactId>jsch</artifactId>
+          <version>0.1.42</version>
+          <scope>provided</scope>
+      </dependency>
     </dependencies>
 
     <build>

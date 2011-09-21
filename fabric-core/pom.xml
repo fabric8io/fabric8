@@ -64,11 +64,13 @@
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.42</version>
         </dependency>
+-->
 
         <dependency>
           <groupId>org.codehaus.jackson</groupId>
@@ -76,10 +78,18 @@
           <version>${jackson-version}</version>
         </dependency>
 
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-linkedin-zookeeper</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+<!--
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
             <version>${jasypt-version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -93,6 +103,7 @@
             <artifactId>org.linkedin.util-core</artifactId>
             <scope>provided</scope>
         </dependency>
+-->
 
     </dependencies>
 

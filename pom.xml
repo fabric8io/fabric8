@@ -181,7 +181,7 @@
     </dependencies>
 
     <modules>
-        <module>fab</module>
+        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-core</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-commands</module>
@@ -194,6 +194,7 @@
         <module>fabric-jaas</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
+        <module>fab</module>
         <module>fabric-camel</module>
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
@@ -201,7 +202,6 @@
         <module>fabric-activemq</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
-        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-groups</module>
         <module>fabric-dosgi</module>
         <module>fabric-distro</module>
