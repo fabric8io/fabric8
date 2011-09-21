@@ -93,6 +93,11 @@
                 <property name="userService" ref="userService"/>
             </action>
         </command>
+        <command name="fabric/create-user">
+            <action class="org.fusesource.fabric.commands.CreateUser">
+                <property name="userService" ref="userService"/>
+            </action>
+        </command>
     </command-bundle>
 
     <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">

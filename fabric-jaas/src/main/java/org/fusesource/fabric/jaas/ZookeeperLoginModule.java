@@ -109,8 +109,8 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Wat
 
         boolean passwordOK = false;
 
-        if (password.startsWith("(ENC)")) {
-            if (encryptor.checkPassword(new String(tmpPassword), password.substring(5))) {
+        if (password.startsWith(UserService.ENCRYPTED_PREFIX)) {
+            if (encryptor.checkPassword(new String(tmpPassword), password.substring(UserService.ENCRYPTED_PREFIX.length()))) {
                 passwordOK = true;
             }
         } else {

@@ -12,6 +12,7 @@ public interface UserService {
 
     public static final String USERS_NODE = "fabric/authentication/users";
     public static final String GROUPS_NODE = "fabric/authentication/groups";
+    public static final String ENCRYPTED_PREFIX = "(ENC)";
 
     public User[] getUsers();
 
