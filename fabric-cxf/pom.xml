@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.0.0-04</version>
     </parent>
 
     <artifactId>fabric-cxf</artifactId>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-groups</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.0.0-04</version>
         </dependency>
 
         <dependency>
