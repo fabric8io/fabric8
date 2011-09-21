@@ -96,7 +96,8 @@
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.6</jaxb-version>
-        <jclouds-version>1.1.1-SNAPSHOT</jclouds-version>
+        <jclouds-version>1.1.1</jclouds-version>
+        <jclouds-karaf-version>1.1.1-SNAPSHOT</jclouds-karaf-version>
         <jersey-version>1.5</jersey-version>
         <jetty-plugin-version>7.2.1.v20101111</jetty-plugin-version>
         <jetty-version>7.1.6.v20100715</jetty-version>
@@ -186,7 +187,7 @@
         <module>fabric-zookeeper-commands</module>
         <module>fabric-maven-proxy</module>
         <module>fabric-core-agent-ssh</module>
-        <!--module>fabric-core-agent-jclouds</module-->
+        <module>fabric-core-agent-jclouds</module>
         <module>fabric-commands</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>

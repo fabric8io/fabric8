@@ -26,6 +26,7 @@ zk:set /fabric/configs/versions/base/profiles/default/org.fusesource.fabric.agen
 
 shell:echo Create profile dosgi
 fabric:create-profile --parents default dosgi
+zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi

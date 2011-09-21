@@ -165,7 +165,9 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.server.stop();
         this.client.stop();
         this.tree.destroy();
-        this.registration.unregister();
+        if (registration != null) {
+            this.registration.unregister();
+        }
         this.bundleContext.removeServiceListener(this);
     }
 
