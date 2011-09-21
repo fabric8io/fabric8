@@ -98,6 +98,11 @@
                 <property name="userService" ref="userService"/>
             </action>
         </command>
+        <command name="fabric/remove-user">
+            <action class="org.fusesource.fabric.commands.RemoveUser">
+                <property name="userService" ref="userService"/>
+            </action>
+        </command>
     </command-bundle>
 
     <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">

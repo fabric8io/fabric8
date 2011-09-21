@@ -18,7 +18,7 @@ public interface UserService {
 
     public User create(String username, String password);
 
-    public void delete(User user);
+    public void delete(String username);
 
     public void changePassword(User user);
 

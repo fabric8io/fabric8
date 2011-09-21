@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.User;
 import org.fusesource.fabric.api.UserService;
@@ -61,8 +62,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(User user) {
-
+    public void delete(String username) {
+        try {
+            Properties props = ZooKeeperUtils.getProperties(service.getZooKeeper(), UserService.USERS_NODE, null);
+            Object pass = props.remove(username);
+            if (pass == null) {
+                throw new FabricException("User " + username + "doesn't exists");
+            }
+            ZooKeeperUtils.setProperties(service.getZooKeeper(), UserService.USERS_NODE, props);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     @Override
