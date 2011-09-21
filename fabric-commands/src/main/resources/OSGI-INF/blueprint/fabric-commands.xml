@@ -12,6 +12,7 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="userService" interface="org.fusesource.fabric.api.UserService"/>
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
@@ -84,6 +85,17 @@
         <command name="fabric/edit-profile">
             <action class="org.fusesource.fabric.commands.EditProfile">
               <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        <!-- User commands -->
+        <command name="fabric/list-users">
+            <action class="org.fusesource.fabric.commands.ListUsers">
+                <property name="userService" ref="userService"/>
+            </action>
+        </command>
+        <command name="fabric/create-user">
+            <action class="org.fusesource.fabric.commands.CreateUser">
+                <property name="userService" ref="userService"/>
             </action>
         </command>
     </command-bundle>

@@ -2,6 +2,7 @@ package org.fusesource.fabric.internal;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.*;
 
 import org.apache.zookeeper.CreateMode;
@@ -105,6 +106,14 @@ public class ZooKeeperUtils {
             } catch (IOException ignore) {}
         }
         return properties;
+    }
+
+    public static void setProperties(IZKClient zooKeeper, String path, Properties properties) throws InterruptedException, KeeperException {
+        StringWriter writer = new StringWriter();
+        try {
+            properties.store(writer, null);
+            zooKeeper.setData(path, writer.toString());
+        } catch (IOException e) {}
     }
 
 }
