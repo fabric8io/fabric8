@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.List;
+
 public interface UserService {
 
     public static final String USERS_NODE = "fabric/authentication/users";
@@ -16,10 +18,10 @@ public interface UserService {
 
     public User[] getUsers();
 
-    public User create(String username, String password);
+    public User create(String username, String password, List groups);
 
     public void delete(String username);
 
-    public void changePassword(User user);
+    public void edit(String username, String password, List groups);
 
 }

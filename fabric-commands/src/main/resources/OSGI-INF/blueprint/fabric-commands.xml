@@ -103,6 +103,11 @@
                 <property name="userService" ref="userService"/>
             </action>
         </command>
+        <command name="fabric/edit-user">
+            <action class="org.fusesource.fabric.commands.EditUser">
+                <property name="userService" ref="userService"/>
+            </action>
+        </command>
     </command-bundle>
 
     <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">

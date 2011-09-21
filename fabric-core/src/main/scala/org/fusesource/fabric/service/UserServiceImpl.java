@@ -8,7 +8,6 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.User;
 import org.fusesource.fabric.api.UserService;
@@ -17,6 +16,7 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class UserServiceImpl implements UserService {
@@ -43,17 +43,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(String username, String password) {
+    public User create(String username, String password, List groups) {
+        //TODO groups
         try {
              Properties props = ZooKeeperUtils.getProperties(service.getZooKeeper(), UserService.USERS_NODE, null);
              if (props.containsKey(username)) {
                  throw new FabricException("User " + username + " already exists");
              }
 
-            if (!password.startsWith(UserService.ENCRYPTED_PREFIX)) {
-                password = UserService.ENCRYPTED_PREFIX + encryptor.encryptPassword(password);
-            }
-            props.put(username, password);
+            props.put(username, encryptPassword(password));
             ZooKeeperUtils.setProperties(service.getZooKeeper(), UserService.USERS_NODE, props);
             return null;
         } catch (Exception e) {
@@ -76,8 +74,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(User user) {
+    public void edit(String username, String password, List groups) {
+        try {
+            if (password != null) {
+                Properties users = ZooKeeperUtils.getProperties(service.getZooKeeper(), UserService.USERS_NODE, null);
+                if (!users.containsKey(username)) {
+                     throw new FabricException("No such user " + username);
+                }
+                users.setProperty(username, encryptPassword(password));
+                ZooKeeperUtils.setProperties(service.getZooKeeper(), UserService.USERS_NODE, users);
+            }
+            //TODO groups
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
 
+    private String encryptPassword(String password) {
+        if (!password.startsWith(UserService.ENCRYPTED_PREFIX)) {
+            password = UserService.ENCRYPTED_PREFIX + encryptor.encryptPassword(password);
+        }
+        return password;
     }
 
     public FabricServiceImpl getService() {
