@@ -27,7 +27,8 @@
     <properties>
         <fabric.osgi.export>
           org.fusesource.fabric.api*;version=${project.version},
-          org.fusesource.fabric.service*;version=${project.version};-noimport:=true
+          org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
+          org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
         </fabric.osgi.export>
         <fabric.osgi.private.pkg>
             org.fusesource.fabric.internal
@@ -73,6 +74,11 @@
           <groupId>org.codehaus.jackson</groupId>
           <artifactId>jackson-mapper-asl</artifactId>
           <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>${jasypt-version}</version>
         </dependency>
     </dependencies>
 

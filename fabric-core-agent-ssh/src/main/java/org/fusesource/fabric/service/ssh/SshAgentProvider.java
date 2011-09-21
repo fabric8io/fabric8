@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A concrete {@link AgentProvider} that builds {@link Agent}s via ssh.
+ */
 public class SshAgentProvider implements AgentProvider {
 
     private MavenProxy mavenProxy;
@@ -31,10 +34,16 @@ public class SshAgentProvider implements AgentProvider {
         this.mavenProxy = mavenProxy;
     }
 
-    @Override
-    public void create(URI agentUri, String name, String zooKeeperUrl) {
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     */
+    public void create(URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent) {
         try {
-            String script = buildStartupScript(mavenProxy.getAddress(), name, agentUri.getPath(), zooKeeperUrl);
+            String script = buildStartupScript(mavenProxy.getAddress(), name, agentUri.getPath(), zooKeeperUrl,debugAgent);
             String host = agentUri.getHost();
             if (agentUri.getQuery() != null) {
                 debug = agentUri.getQuery().contains("debug");
@@ -57,6 +66,17 @@ public class SshAgentProvider implements AgentProvider {
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     */
+    public void create(URI agentUri, String name, String zooKeeperUrl) {
+        create(agentUri,name,zooKeeperUrl,false);
     }
 
     protected void sendScript(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
@@ -124,7 +144,7 @@ public class SshAgentProvider implements AgentProvider {
         }
     }
 
-    private String buildStartupScript(URI proxy, String name, String path, String zooKeeperUrl) throws MalformedURLException {
+    private String buildStartupScript(URI proxy, String name, String path, String zooKeeperUrl, boolean debugAgent) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         if (path.startsWith("/~/")) {
             path = path.substring(3);
@@ -146,6 +166,9 @@ public class SshAgentProvider implements AgentProvider {
         lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
         appendFile(sb, "etc/startup.properties", lines);
         appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
+        if(debugAgent) {
+           sb.append("run export KARAF_DEBUG=true").append("\n");
+        }
         sb.append("run nohup bin/start").append("\n");
         return sb.toString();
     }

@@ -2,12 +2,15 @@ package org.fusesource.fabric.internal;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.*;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.ZKData;
 
 public class ZooKeeperUtils {
 
@@ -93,8 +96,9 @@ public class ZooKeeperUtils {
         }
     }
 
-    public static Properties getProperties(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        String value = zooKeeper.getStringData(path);
+    public static Properties getProperties(IZKClient zooKeeper, String path, Watcher watcher) throws InterruptedException, KeeperException {
+        ZKData<String> zkData = zooKeeper.getZKStringData(path, watcher);
+        String value = zkData.getData();
         Properties properties = new Properties();
         if (value != null) {
             try {
@@ -102,6 +106,14 @@ public class ZooKeeperUtils {
             } catch (IOException ignore) {}
         }
         return properties;
+    }
+
+    public static void setProperties(IZKClient zooKeeper, String path, Properties properties) throws InterruptedException, KeeperException {
+        StringWriter writer = new StringWriter();
+        try {
+            properties.store(writer, null);
+            zooKeeper.setData(path, writer.toString());
+        } catch (IOException e) {}
     }
 
 }
