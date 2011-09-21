@@ -18,6 +18,7 @@ package org.fusesource.fabric.jaas;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.fusesource.fabric.api.UserService;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean;
 import org.jasypt.util.password.PasswordEncryptor;
@@ -217,7 +218,7 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Wat
     }
 
     protected void fetchData() throws Exception {
-        users = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/users", this);
-        groups = ZooKeeperUtils.getProperties(zookeeper, "fabric/authentication/groups", this);
+        users = ZooKeeperUtils.getProperties(zookeeper, UserService.USERS_NODE, this);
+        groups = ZooKeeperUtils.getProperties(zookeeper, UserService.GROUPS_NODE, this);
     }
 }
