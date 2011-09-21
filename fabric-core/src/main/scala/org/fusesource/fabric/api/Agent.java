@@ -10,6 +10,7 @@ package org.fusesource.fabric.api;
 
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
+import org.fusesource.fabric.service.AgentTemplate;
 
 import java.util.List;
 
@@ -46,6 +47,11 @@ public interface Agent {
 
     List<String> getJmxDomains();
 
+    @Deprecated()
     BundleInfo[] getBundles();
+    @Deprecated
     ServiceInfo[] getServices();
+
+    BundleInfo[] getBundles(AgentTemplate template);
+    ServiceInfo[] getServices(AgentTemplate template);
 }

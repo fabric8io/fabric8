@@ -42,13 +42,11 @@ public class AgentImpl implements Agent {
     private final Agent parent;
     private final String id;
     private final FabricServiceImpl service;
-    private AgentTemplate agentTemplate;
 
     public AgentImpl(Agent parent, String id, FabricServiceImpl service) {
         this.parent = parent;
         this.id = id;
         this.service = service;
-        this.agentTemplate = new AgentTemplate(this, true);
     }
 
     public Agent getParent() {
@@ -170,7 +168,28 @@ public class AgentImpl implements Agent {
         }
     }
 
+    //
+    // TODO: remove these deprecated methods in the next release.
+    //
+    @Deprecated
+    private AgentTemplate agentTemplate;
+    @Deprecated
+    public AgentTemplate getAgentTemplate() {
+        if( agentTemplate==null ) {
+            agentTemplate = new AgentTemplate(this, false);
+        }
+        return agentTemplate;
+    }
+    @Deprecated
+    public ServiceInfo[] getServices() {
+        return getServices(getAgentTemplate());
+    }
+    @Deprecated
     public BundleInfo[] getBundles() {
+        return getBundles(agentTemplate);
+    }
+
+    public BundleInfo[] getBundles(AgentTemplate agentTemplate) {
         try {
             return agentTemplate.execute(new AgentTemplate.BundleStateCallback<BundleInfo[]>() {
                 public BundleInfo[] doWithBundleState(BundleStateMBean bundleState) throws Exception {
@@ -193,7 +212,7 @@ public class AgentImpl implements Agent {
         }
     }
 
-    public ServiceInfo[] getServices() {
+    public ServiceInfo[] getServices(AgentTemplate agentTemplate) {
         try {
             return agentTemplate.execute(new AgentTemplate.ServiceStateCallback<ServiceInfo[]>() {
                 public ServiceInfo[] doWithServiceState(ServiceStateMBean serviceState) throws Exception {

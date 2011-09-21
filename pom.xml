@@ -85,7 +85,9 @@
 
         <activemq-version>5.5.0-fuse-00-43</activemq-version>
         <apollo-version>1.0-SNAPSHOT</apollo-version>
+        <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
+       <common-math-version>2.2</common-math-version>
         <cxf-version>2.4.1-fuse-00-43</cxf-version>
         <camel-version>2.8.x-fuse-SNAPSHOT</camel-version>
         <hawtbuf-version>1.6</hawtbuf-version>
@@ -203,6 +205,7 @@
         <module>fabric-dosgi</module>
         <module>fabric-distro</module>
         <module>fabric-examples</module>
+        <module>fabric-eca</module>
     </modules>
 
     <build>
