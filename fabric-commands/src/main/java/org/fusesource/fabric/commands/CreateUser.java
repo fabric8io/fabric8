@@ -11,6 +11,9 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Command(name = "create-user", scope = "fabric", description = "Create a new user")
 public class CreateUser extends UserCommand {
 
@@ -20,9 +23,18 @@ public class CreateUser extends UserCommand {
     @Argument(index = 1, name = "password", description = "Password", required = true, multiValued = false)
     private String password = null;
 
+    @Argument(index = 2, name = "groups", description = "User groups (comma-separated)", required = false, multiValued = false)
+    private String groups = null;
+
+
+
     @Override
     protected Object doExecute() throws Exception {
-        userService.create(username, password);
+        List groupList = null;
+        if (groups != null) {
+            groupList = Arrays.asList(groups.split(","));
+        }
+        userService.create(username, password, groupList);
         return null;
     }
 
