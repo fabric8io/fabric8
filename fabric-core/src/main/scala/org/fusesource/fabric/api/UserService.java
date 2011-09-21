@@ -18,7 +18,7 @@ public interface UserService {
 
     public User[] getUsers();
 
-    public User create(String username, String password, List groups);
+    public User create(String username, String password, List<String> groups);
 
     public void delete(String username);
 

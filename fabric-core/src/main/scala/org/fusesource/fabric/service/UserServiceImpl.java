@@ -16,6 +16,7 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -43,8 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(String username, String password, List groups) {
-        //TODO groups
+    public User create(String username, String password, List<String> groups) {
         try {
              Properties props = ZooKeeperUtils.getProperties(service.getZooKeeper(), UserService.USERS_NODE, null);
              if (props.containsKey(username)) {
@@ -53,10 +53,37 @@ public class UserServiceImpl implements UserService {
 
             props.put(username, encryptPassword(password));
             ZooKeeperUtils.setProperties(service.getZooKeeper(), UserService.USERS_NODE, props);
+            if (groups != null) {
+                Properties groupProps = ZooKeeperUtils.getProperties(service.getZooKeeper(), UserService.GROUPS_NODE, null);
+                for (String group: groups) {
+                    if (groupProps.containsKey(group)) {
+                        String users = groupProps.getProperty(group);
+                        List groupUsers = new ArrayList(Arrays.asList(users.split(",")));
+                        if (!groupUsers.contains(username)) {
+                            groupUsers.add(username);
+                            groupProps.setProperty(group, join(groupUsers));
+                        }
+                    } else {
+                        groupProps.setProperty(group, username);
+                    }
+                }
+                ZooKeeperUtils.setProperties(service.getZooKeeper(), UserService.GROUPS_NODE, groupProps);
+            }
             return null;
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    private String join(List<String> list) {
+        StringBuffer buffer = new StringBuffer();
+        String delimiter = "";
+        for (String item : list) {
+            buffer.append(delimiter);
+            buffer.append(item);
+            delimiter = ",";
+        }
+        return buffer.toString();
     }
 
     @Override
@@ -68,6 +95,7 @@ public class UserServiceImpl implements UserService {
                 throw new FabricException("User " + username + "doesn't exists");
             }
             ZooKeeperUtils.setProperties(service.getZooKeeper(), UserService.USERS_NODE, props);
+            //TODO remove groups
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -84,7 +112,7 @@ public class UserServiceImpl implements UserService {
                 users.setProperty(username, encryptPassword(password));
                 ZooKeeperUtils.setProperties(service.getZooKeeper(), UserService.USERS_NODE, users);
             }
-            //TODO groups
+            //TODO edit groups
         } catch (Exception e) {
             throw new FabricException(e);
         }
