@@ -48,7 +48,7 @@
             !jline*,
             !org.xml.*,
             !javax.xml.parsers,
-            !com.ibm.icu.text
+            !com.ibm.icu.*
         </fabric.osgi.import.before.defaults>
         <fabric.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
