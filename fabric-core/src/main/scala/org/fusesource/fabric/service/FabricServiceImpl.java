@@ -33,6 +33,8 @@ import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import static org.fusesource.fabric.zookeeper.ZkPath.AGENT_ROOT;
+
 public class FabricServiceImpl implements FabricService {
 
     public static final String DEFAULT_VERSION = "base";
@@ -139,7 +141,7 @@ public class FabricServiceImpl implements FabricService {
             if (provider == null) {
                 throw new FabricException("Unable to find an agent provider supporting uri '" + url + "'");
             }
-            createAgentConfig(name);
+            createAgentConfig("", name);
             provider.create(uri, name, zooKeeperUrl,debugAgent);
             return new AgentImpl(null, name, FabricServiceImpl.this);
         } catch (FabricException e) {
@@ -179,7 +181,7 @@ public class FabricServiceImpl implements FabricService {
 
     public Agent createAgent(final Agent parent, final String name, final boolean debugAgent) {
         final String zooKeeperUrl = getZooKeeperUrl();
-        createAgentConfig(name);
+        createAgentConfig(parent.getId(), name);
         return getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Agent>() {
             public Agent doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
@@ -231,11 +233,12 @@ public class FabricServiceImpl implements FabricService {
         }
     }
 
-    private void createAgentConfig(String name) {
+    private void createAgentConfig(String parent, String name) {
         try {
             String configVersion = getDefaultVersion().getName();
             ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(name), configVersion);
             ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_AGENT.getPath(configVersion, name), profile);
+            zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), parent, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
