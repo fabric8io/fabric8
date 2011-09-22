@@ -46,7 +46,7 @@ public class Activator {
             manager = new Manager(this.bundleContext, (IZKClient) this.bundleContext.getService(reference), uri);
             manager.init();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Unable to start DOSGi service: " + e.getMessage(), e);
         }
     }
 
