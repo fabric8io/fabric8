@@ -47,7 +47,8 @@
             !org.acegisecurity.providers.encoding*,
             !jline*,
             !org.xml.*,
-            !javax.xml.parsers
+            !javax.xml.parsers,
+            !com.ibm.icu.text
         </fabric.osgi.import.before.defaults>
         <fabric.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
@@ -72,6 +73,9 @@
           <groupId>org.jasypt</groupId>
           <artifactId>jasypt</artifactId>
           <version>${jasypt-version}</version>
+          <!-- TODO reconsider lite classifier when UserService is moved from fabric-core
+          <classifier>lite</classifier>
+          -->
           <scope>provided</scope>
       </dependency>
       <dependency>
