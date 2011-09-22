@@ -26,33 +26,37 @@ zk:set /fabric/configs/versions/base/profiles/default/org.fusesource.fabric.agen
 
 shell:echo Create profile dosgi
 fabric:create-profile --parents default dosgi
-zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi
 
 shell:echo Create profile dosgi-provider
 fabric:create-profile --parents dosgi dosgi-provider
-zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider/org.fusesource.fabric.agent/feature.fabric-example-dosgi fabric-example-dosgi
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider/org.fusesource.fabric.agent/feature.fabric-example-dosgi fabric-example-dosgi
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider/org.fusesource.fabric.dosgi/port 2544
 
 shell:echo Create profile dosgi-camel
 fabric:create-profile --parents dosgi dosgi-camel
-zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.2/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/feature.spring spring/3.0.5.RELEASE
-zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/bundle.spring-tx mvn:org.springframework/spring-tx/3.0.5.RELEASE
-zk:create -r /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/feature.fabric-example-camel-dosgi fabric-example-camel-dosgi
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.2/xml/features
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/feature.spring spring/3.0.5.RELEASE
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/bundle.spring-tx mvn:org.springframework/spring-tx/3.0.5.RELEASE
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/bundle.woodstox mvn:org.codehaus.woodstox/woodstox-core-asl/4.1.1
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/bundle.stax2 mvn:org.codehaus.woodstox/stax2-api/3.1.1
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.agent/feature.fabric-example-camel-dosgi fabric-example-camel-dosgi
+zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-camel/org.fusesource.fabric.dosgi/port 2545
 
 #shell:echo Create profile dosgi-provider-camel
 #fabric:create-profile --parents default dosgi-provider-camel
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.fabric-example-dosgi fabric-example-dosgi
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.spring spring/3.0.5.RELEASE
-#zk:create -r /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.fabric-example-camel-dosgi fabric-example-camel-dosgi
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.fabric-examples mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.dosgi fabric-dosgi
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.fabric-example-dosgi fabric-example-dosgi
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.spring spring/3.0.5.RELEASE
+#zk:create -r -o /fabric/configs/versions/base/profiles/dosgi-provider-camel/org.fusesource.fabric.agent/feature.fabric-example-camel-dosgi fabric-example-camel-dosgi
 
 shell:echo Creating agents
 

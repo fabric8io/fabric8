@@ -78,9 +78,8 @@ public class Utils {
 
     public static String getEndpointDescriptionXML(EndpointDescription endpoint) throws XMLStreamException {
         Map<String, Object> properties = endpoint.getProperties();
-        XMLOutputFactory factory = XMLOutputFactory.newFactory();
         StringWriter writer = new StringWriter();
-        XMLStreamWriter xml = factory.createXMLStreamWriter(writer);
+        XMLStreamWriter xml = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
 
         xml.setDefaultNamespace(REMOTE_SERVICES_ADMIN_NS);
         xml.writeStartDocument();
@@ -159,7 +158,7 @@ public class Utils {
         String value = null;
         Object val = null;
         String txt = null;
-        XMLStreamReader reader = XMLInputFactory.newFactory().createXMLStreamReader(new StringReader(data));
+        XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(data));
         for (;;) {
             int code = reader.next();
             switch (code) {
