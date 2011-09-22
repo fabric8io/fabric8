@@ -68,7 +68,7 @@ public class FabricServiceImpl implements FabricService {
         try {
             Map<String, Agent> agents = new HashMap<String, Agent>();
 
-            List<String> configs = zooKeeper.getChildren(ZkPath.AGENTS.getPath());
+            List<String> configs = zooKeeper.getChildren(ZkPath.CONFIGS_AGENTS.getPath());
             for (String name : configs) {
                 String root = zooKeeper.getStringData(ZkPath.AGENT_ROOT.getPath(name)).trim();
                 if (root.isEmpty()) {
