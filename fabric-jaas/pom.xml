@@ -31,6 +31,7 @@
         </fabric.osgi.import>
         <fabric.osgi.private.pkg>
             org.fusesource.fabric.jaas,
+            org.apache.felix.utils.properties
         </fabric.osgi.private.pkg>
     </properties>
 
@@ -52,7 +53,11 @@
           <artifactId>fabric-linkedin-zookeeper</artifactId>
           <version>${project.version}</version>
         </dependency>
-<!--
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.zookeeper-impl</artifactId>
@@ -66,7 +71,6 @@
             <artifactId>jasypt</artifactId>
             <version>${jasypt-version}</version>
         </dependency>
--->
     </dependencies>
 
     <build>
