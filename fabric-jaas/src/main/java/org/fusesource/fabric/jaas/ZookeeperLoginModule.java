@@ -1,21 +1,14 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * http://fusesource.com
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * The software in this package is published under the terms of the
+ * CDDL license a copy of which has been included with this distribution
+ * in the license.txt file.
  */
 package org.fusesource.fabric.jaas;
 
+import org.apache.karaf.jaas.modules.*;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.fusesource.fabric.api.UserService;
@@ -39,36 +32,26 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Watcher {
+public class ZookeeperLoginModule extends AbstractKarafLoginModule implements LoginModule, LifecycleListener, Watcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
-    private Subject subject;
-    private CallbackHandler callbackHandler;
-
     private boolean debug = false;
     private static Properties users;
-    private static Properties groups;
     private static CountDownLatch connected = new CountDownLatch(1);
     private static IZKClient zookeeper;
-    private String user;
-    private Set<Principal> principals = new HashSet<Principal>();
-    private boolean loginSucceeded;
 
     private PasswordEncryptor encryptor = new StrongPasswordEncryptor();
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        this.subject = subject;
-        this.callbackHandler = callbackHandler;
-        loginSucceeded = false;
+        super.initialize(subject, callbackHandler, options);
 
         debug = "true".equalsIgnoreCase((String)options.get("debug"));
 
         if (zookeeper == null) {
             ZKClientFactoryBean factory = new ZKClientFactoryBean();
             users = new Properties();
-            groups = new Properties();
             try {
                 zookeeper = factory.getObject();
                 zookeeper.registerListener(this);
@@ -101,89 +84,50 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Wat
         if (user == null) {
             throw new FailedLoginException("user name is null");
         }
-        String password = users.getProperty(user);
+        String userInfos = users.getProperty(user);
 
-        if (password == null) {
+        if (userInfos == null) {
             throw new FailedLoginException("User does exist");
         }
 
-        boolean passwordOK = false;
+        // the password is in the first position
+        String[] infos = userInfos.split(",");
+        String password = infos[0];
 
-        if (password.startsWith(UserService.ENCRYPTED_PREFIX)) {
-            if (encryptor.checkPassword(new String(tmpPassword), password.substring(UserService.ENCRYPTED_PREFIX.length()))) {
-                passwordOK = true;
-            }
-        } else {
-            if (password.equals(new String(tmpPassword))) {
-                passwordOK = true;
-            }
-        }
-
-        if (!passwordOK) {
+        if (!checkPassword(new String(tmpPassword), password)) {
             throw new FailedLoginException("Password does not match");
         }
 
-        loginSucceeded = true;
+        principals = new HashSet<Principal>();
+        principals.add(new org.apache.karaf.jaas.modules.UserPrincipal(user));
+        for (int i = 1; i < infos.length; i++) {
+            principals.add(new RolePrincipal(infos[i]));
+        }
+
+        users.clear();
 
         if (debug) {
-            LOG.debug("login " + user);
+            LOG.debug("Successfully logged in {}", user);
         }
-        return loginSucceeded;
+
+        return true;
     }
 
-    @Override
-    public boolean commit() throws LoginException {
-        boolean result = loginSucceeded;
-        if (result) {
-            principals.add(new UserPrincipal(user));
-
-            for (Enumeration<?> enumeration = groups.keys(); enumeration.hasMoreElements();) {
-                String name = (String)enumeration.nextElement();
-                String[] userList = ((String)groups.getProperty(name) + "").split(",");
-                for (int i = 0; i < userList.length; i++) {
-                    if (user.equals(userList[i])) {
-                        principals.add(new GroupPrincipal(name));
-                        break;
-                    }
-                }
-            }
-
-            subject.getPrincipals().addAll(principals);
-        }
-
-        // will whack loginSucceeded
-        clear();
-
-        if (debug) {
-            LOG.debug("commit, result: " + result);
-        }
-        return result;
-    }
-
-    @Override
     public boolean abort() throws LoginException {
         clear();
-
         if (debug) {
             LOG.debug("abort");
         }
         return true;
     }
 
-    @Override
     public boolean logout() throws LoginException {
         subject.getPrincipals().removeAll(principals);
         principals.clear();
-        clear();
         if (debug) {
             LOG.debug("logout");
         }
         return true;
-    }
-
-    private void clear() {
-        user = null;
-        loginSucceeded = false;
     }
 
     @Override
@@ -219,6 +163,5 @@ public class ZookeeperLoginModule implements LoginModule, LifecycleListener, Wat
 
     protected void fetchData() throws Exception {
         users = ZooKeeperUtils.getProperties(zookeeper, UserService.USERS_NODE, this);
-        groups = ZooKeeperUtils.getProperties(zookeeper, UserService.GROUPS_NODE, this);
     }
 }

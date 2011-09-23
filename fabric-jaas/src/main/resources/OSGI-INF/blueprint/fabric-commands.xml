@@ -9,12 +9,24 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaas="http://karaf.apache.org/xmlns/jaas/v1.1.0">
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="jasypt/encrypt">
             <action class="org.fusesource.fabric.jaas.EncryptPasswordCommand"/>
         </command>
     </command-bundle>
+
+    <jaas:config name="zookeeper">
+        <jaas:module className="org.fusesource.fabric.jaas.ZookeeperLoginModule" flags="required">
+            path = fabric/authentication/users
+        </jaas:module>
+    </jaas:config>
+
+    <!-- The Backing Engine Factory Service for the PropertiesLoginModule -->
+    <service interface="org.apache.karaf.jaas.modules.BackingEngineFactory">
+        <bean class="org.fusesource.fabric.jaas.ZookeeperBackingEngineFactory"/>
+    </service>
 
 </blueprint>
