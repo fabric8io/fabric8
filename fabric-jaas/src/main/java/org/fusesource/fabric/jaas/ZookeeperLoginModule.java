@@ -8,7 +8,7 @@
  */
 package org.fusesource.fabric.jaas;
 
-import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
+import org.apache.karaf.jaas.modules.*;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.fusesource.fabric.api.UserService;
@@ -36,32 +36,22 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
 
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
-    private Subject subject;
-    private CallbackHandler callbackHandler;
-
     private boolean debug = false;
     private static Properties users;
-    private static Properties groups;
     private static CountDownLatch connected = new CountDownLatch(1);
     private static IZKClient zookeeper;
-    private String user;
-    private Set<Principal> principals = new HashSet<Principal>();
-    private boolean loginSucceeded;
 
     private PasswordEncryptor encryptor = new StrongPasswordEncryptor();
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        this.subject = subject;
-        this.callbackHandler = callbackHandler;
-        loginSucceeded = false;
+        super.initialize(subject, callbackHandler, options);
 
         debug = "true".equalsIgnoreCase((String)options.get("debug"));
 
         if (zookeeper == null) {
             ZKClientFactoryBean factory = new ZKClientFactoryBean();
             users = new Properties();
-            groups = new Properties();
             try {
                 zookeeper = factory.getObject();
                 zookeeper.registerListener(this);
@@ -94,34 +84,33 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         if (user == null) {
             throw new FailedLoginException("user name is null");
         }
-        String password = users.getProperty(user);
+        String userInfos = users.getProperty(user);
 
-        if (password == null) {
+        if (userInfos == null) {
             throw new FailedLoginException("User does exist");
         }
 
-        boolean passwordOK = false;
+        // the password is in the first position
+        String[] infos = userInfos.split(",");
+        String password = infos[0];
 
-        if (password.startsWith(UserService.ENCRYPTED_PREFIX)) {
-            if (encryptor.checkPassword(new String(tmpPassword), password.substring(UserService.ENCRYPTED_PREFIX.length()))) {
-                passwordOK = true;
-            }
-        } else {
-            if (password.equals(new String(tmpPassword))) {
-                passwordOK = true;
-            }
-        }
-
-        if (!passwordOK) {
+        if (!checkPassword(new String(tmpPassword), password)) {
             throw new FailedLoginException("Password does not match");
         }
 
-        loginSucceeded = true;
+        principals = new HashSet<Principal>();
+        principals.add(new org.apache.karaf.jaas.modules.UserPrincipal(user));
+        for (int i = 1; i < infos.length; i++) {
+            principals.add(new RolePrincipal(infos[i]));
+        }
+
+        users.clear();
 
         if (debug) {
-            LOG.debug("login " + user);
+            LOG.debug("Successfully logged in {}", user);
         }
-        return loginSucceeded;
+
+        return true;
     }
 
     public boolean abort() throws LoginException {
@@ -174,6 +163,5 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
 
     protected void fetchData() throws Exception {
         users = ZooKeeperUtils.getProperties(zookeeper, UserService.USERS_NODE, this);
-        groups = ZooKeeperUtils.getProperties(zookeeper, UserService.GROUPS_NODE, this);
     }
 }
