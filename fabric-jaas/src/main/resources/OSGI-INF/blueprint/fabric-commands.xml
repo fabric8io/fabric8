@@ -18,9 +18,27 @@
         </command>
     </command-bundle>
 
+    <!-- AdminConfig property place holder for the org.apache.karaf.jaas  -->
+    <cm:property-placeholder persistent-id="org.fusesource.fabric.jaas" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="encryption.name" value=""/>
+            <cm:property name="encryption.enabled" value="false"/>
+            <cm:property name="encryption.prefix" value="{CRYPT}"/>
+            <cm:property name="encryption.suffix" value="{CRYPT}"/>
+            <cm:property name="encryption.algorithm" value="MD5"/>
+            <cm:property name="encryption.encoding" value="hexadecimal"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
     <jaas:config name="zookeeper">
         <jaas:module className="org.fusesource.fabric.jaas.ZookeeperLoginModule" flags="required">
             path = fabric/authentication/users
+            encryption.name = ${encryption.name}
+            encryption.enabled = ${encryption.enabled}
+            encryption.prefix = ${encryption.prefix}
+            encryption.suffix = ${encryption.suffix}
+            encryption.algorithm = ${encryption.algorithm}
+            encryption.encoding = ${encryption.encoding}
         </jaas:module>
     </jaas:config>
 

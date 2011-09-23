@@ -87,7 +87,7 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         String userInfos = users.getProperty(user);
 
         if (userInfos == null) {
-            throw new FailedLoginException("User does exist");
+            throw new FailedLoginException("User doesn't exist");
         }
 
         // the password is in the first position
@@ -103,8 +103,6 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         for (int i = 1; i < infos.length; i++) {
             principals.add(new RolePrincipal(infos[i]));
         }
-
-        users.clear();
 
         if (debug) {
             LOG.debug("Successfully logged in {}", user);

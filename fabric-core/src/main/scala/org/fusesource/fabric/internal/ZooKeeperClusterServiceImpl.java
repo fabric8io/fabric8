@@ -119,7 +119,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             // add auth
             // TODO encrypt passwords
-            ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin=(ENC)Lc9m2I0FAh3LUexk+Is+vLJXUEy8ypyl9y0Mo+5EqyTNnfdw4wW2ocvc7SmL75h8, admin\nsystem=manager, admin");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.jaas/encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
+            ZooKeeperUtils.createDefault(client, "fabric/authentication/encryption.enabled", "false");
+            ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin=admin, admin\nsystem=manager, admin");
 
             Bundle bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.1-SNAPSHOT");
             if (bundle.getState() == Bundle.ACTIVE) {
