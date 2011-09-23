@@ -26,6 +26,11 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
+        <command name="fabric/delete-agent">
+            <action class="org.fusesource.fabric.commands.DeleteAgent">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
         <command name="fabric/list-agents">
             <action class="org.fusesource.fabric.commands.ListAgents">
                 <property name="fabricService" ref="fabricService"/>
