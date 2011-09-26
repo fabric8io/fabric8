@@ -30,16 +30,19 @@ public enum ZkPath {
     CONFIG_VERSIONS_AGENT   ("/fabric/configs/versions/{version}/agents/{agent}"),
 
     // Agent nodes
-    AGENTS          ("/fabric/registry/agents/config"),
-    AGENT           ("/fabric/registry/agents/config/{agent}"),
-    AGENT_DOMAINS   ("/fabric/registry/agents/domains/{agent}"),
-    AGENT_DOMAIN    ("/fabric/registry/agents/domains/{agent}/{domain}"),
-    AGENT_ALIVE     ("/fabric/registry/agents/alive/{agent}"),
-    AGENT_IP        ("/fabric/registry/agents/config/{agent}/ip"),
-    AGENT_ROOT      ("/fabric/registry/agents/config/{agent}/root"),
-    AGENT_JMX       ("/fabric/registry/agents/config/{agent}/jmx"),
-    AGENT_SSH       ("/fabric/registry/agents/config/{agent}/ssh"),
-    AGENT_LOCATION  ("/fabric/registry/agents/config/{agent}/loc");
+    AGENTS                   ("/fabric/registry/agents/config"),
+    AGENT                    ("/fabric/registry/agents/config/{agent}"),
+    AGENT_DOMAINS            ("/fabric/registry/agents/domains/{agent}"),
+    AGENT_DOMAIN             ("/fabric/registry/agents/domains/{agent}/{domain}"),
+    AGENT_ALIVE              ("/fabric/registry/agents/alive/{agent}"),
+    AGENT_PROVISION          ("/fabric/registry/agents/provision/{agent}"),
+    AGENT_PROVISION_RESULT   ("/fabric/registry/agents/provision/{agent}/result"),
+    AGENT_PROVISION_EXCEPTION("/fabric/registry/agents/provision/{agent}/exception"),
+    AGENT_IP                 ("/fabric/registry/agents/config/{agent}/ip"),
+    AGENT_ROOT               ("/fabric/registry/agents/config/{agent}/root"),
+    AGENT_JMX                ("/fabric/registry/agents/config/{agent}/jmx"),
+    AGENT_SSH                ("/fabric/registry/agents/config/{agent}/ssh"),
+    AGENT_LOCATION           ("/fabric/registry/agents/config/{agent}/loc");
 
     /**
      * Path template.

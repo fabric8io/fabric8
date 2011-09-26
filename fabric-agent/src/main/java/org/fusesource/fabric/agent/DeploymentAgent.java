@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -45,14 +48,18 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeatureValidationUtil;
 import org.apache.karaf.features.internal.RepositoryImpl;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.agent.download.DownloadFuture;
 import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.download.FutureListener;
-import org.fusesource.fabric.agent.utils.MultiException;
 import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
 import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
+import org.fusesource.fabric.agent.utils.MultiException;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -78,6 +85,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private PackageAdmin packageAdmin;
     private StartLevel startLevel;
     private ObrResolver obrResolver;
+    private Callable<IZKClient> zkClient;
 
     private final Object refreshLock = new Object();
     private long refreshTimeout = 5000;
@@ -109,6 +117,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return obrResolver;
     }
 
+    public Callable<IZKClient> getZkClient() {
+        return zkClient;
+    }
+
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
@@ -123,6 +135,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     public void setObrResolver(ObrResolver obrResolver) {
         this.obrResolver = obrResolver;
+    }
+
+    public void setZkClient(Callable<IZKClient> zkClient) {
+        this.zkClient = zkClient;
     }
 
     public void start() {
@@ -147,10 +163,34 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     public void updated(final Dictionary props) throws ConfigurationException {
         executor.submit(new Runnable() {
             public void run() {
+                Exception result = null;
                 try {
                     doUpdate(props);
                 } catch (Exception e) {
+                    result = e;
                     LOGGER.error("Unable to update agent", e);
+                }
+                try {
+                    IZKClient zk = zkClient.call();
+                    if (zk != null) {
+                        String name = System.getProperty("karaf.name");
+                        String r, e;
+                        if (result == null) {
+                            r = "success";
+                            e = null;
+                        } else {
+                            StringWriter sw = new StringWriter();
+                            result.printStackTrace(new PrintWriter(sw));
+                            r = "error";
+                            e = sw.toString();
+                        }
+                        zk.createOrSetWithParents(ZkPath.AGENT_PROVISION_RESULT.getPath(name), r, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zk.createOrSetWithParents(ZkPath.AGENT_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    } else {
+                        LOGGER.info("ZooKeeper not available");
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Unable to set provisioning result");
                 }
             }
         });
