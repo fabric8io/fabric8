@@ -25,7 +25,7 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
 
     protected BundleContext bundleContext;
 
-    protected FabricServiceImpl service;
+    protected FabricService service;
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ZookeeperBackingEngineFactory.class);
 
@@ -38,14 +38,16 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
     public BackingEngine build(Map options) {
         ZookeeperBackingEngine engine = null;
         this.bundleContext = (BundleContext) options.get(BundleContext.class.getName());
-        ServiceReference ref = bundleContext.getServiceReference(FabricService.class.getName());
-        service = (FabricServiceImpl) bundleContext.getService(ref);
+        if (bundleContext != null) {
+            ServiceReference ref = bundleContext.getServiceReference(FabricService.class.getName());
+            service = (FabricServiceImpl) bundleContext.getService(ref);
+        }
         String path = (String)options.get("path");
         if (path == null) {
             path = ZookeeperBackingEngine.USERS_NODE;
         }
         try {
-            ZookeeperProperties users = new ZookeeperProperties(service.getZooKeeper(), path);
+            ZookeeperProperties users = new ZookeeperProperties(((FabricServiceImpl)service).getZooKeeper(), path);
             EncryptionSupport encryptionSupport = new EncryptionSupport(options);
             engine = new ZookeeperBackingEngine(users, encryptionSupport);
         } catch (Exception e) {
@@ -53,5 +55,10 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
         } finally {
             return engine;
         }
+    }
+
+    public void setService(FabricService service) {
+        this.service = service;
+
     }
 }
