@@ -8,15 +8,14 @@
  */
 package org.fusesource.fabric.jaas;
 
-import org.apache.karaf.jaas.modules.*;
+import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
+import org.apache.karaf.jaas.modules.Encryption;
+import org.apache.karaf.jaas.modules.RolePrincipal;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.fusesource.fabric.api.UserService;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean;
-import org.jasypt.util.password.PasswordEncryptor;
-import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
@@ -29,7 +28,9 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -166,7 +167,7 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
     }
 
     protected void fetchData() throws Exception {
-        users = ZooKeeperUtils.getProperties(zookeeper, UserService.USERS_NODE, this);
+        users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE, this);
     }
 
     public String getEncryptedPassword(String password) {

@@ -92,27 +92,6 @@
               <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
-        <!-- User commands -->
-<!--        <command name="fabric/list-users">
-            <action class="org.fusesource.fabric.commands.ListUsers">
-                <property name="userService" ref="userService"/>
-            </action>
-        </command>
-        <command name="fabric/create-user">
-            <action class="org.fusesource.fabric.commands.CreateUser">
-                <property name="userService" ref="userService"/>
-            </action>
-        </command>
-        <command name="fabric/remove-user">
-            <action class="org.fusesource.fabric.commands.RemoveUser">
-                <property name="userService" ref="userService"/>
-            </action>
-        </command>
-        <command name="fabric/edit-user">
-            <action class="org.fusesource.fabric.commands.EditUser">
-                <property name="userService" ref="userService"/>
-            </action>
-        </command>-->
     </command-bundle>
 
     <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">
