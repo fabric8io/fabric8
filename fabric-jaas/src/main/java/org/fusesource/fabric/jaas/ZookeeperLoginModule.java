@@ -9,6 +9,7 @@
 package org.fusesource.fabric.jaas;
 
 import org.apache.karaf.jaas.modules.*;
+import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.fusesource.fabric.api.UserService;
@@ -41,11 +42,16 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
     private static CountDownLatch connected = new CountDownLatch(1);
     private static IZKClient zookeeper;
 
-    private PasswordEncryptor encryptor = new StrongPasswordEncryptor();
+    EncryptionSupport encryptionSupport;
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         super.initialize(subject, callbackHandler, options);
+        if (bundleContext != null) {
+            encryptionSupport = new EncryptionSupport(options);
+        } else {
+            encryptionSupport = new BasicEncryptionSupport(options);
+        }
 
         debug = "true".equalsIgnoreCase((String)options.get("debug"));
 
@@ -161,5 +167,50 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
 
     protected void fetchData() throws Exception {
         users = ZooKeeperUtils.getProperties(zookeeper, UserService.USERS_NODE, this);
+    }
+
+    public String getEncryptedPassword(String password) {
+        Encryption encryption = encryptionSupport.getEncryption();
+        String encryptionPrefix = encryptionSupport.getEncryptionPrefix();
+        String encryptionSuffix = encryptionSupport.getEncryptionSuffix();
+
+        if (encryption == null) {
+            return password;
+        } else {
+            boolean prefix = encryptionPrefix == null || password.startsWith(encryptionPrefix);
+            boolean suffix = encryptionSuffix == null || password.endsWith(encryptionSuffix);
+            if (prefix && suffix) {
+                return password;
+            } else {
+                String p = encryption.encryptPassword(password);
+                if (encryptionPrefix != null) {
+                    p = encryptionPrefix + p;
+                }
+                if (encryptionSuffix != null) {
+                    p = p + encryptionSuffix;
+                }
+                return p;
+            }
+        }
+    }
+
+    public boolean checkPassword(String plain, String encrypted) {
+        Encryption encryption = encryptionSupport.getEncryption();
+        String encryptionPrefix = encryptionSupport.getEncryptionPrefix();
+        String encryptionSuffix = encryptionSupport.getEncryptionSuffix();
+
+        if (encryption == null) {
+            return plain.equals(encrypted);
+        } else {
+            boolean prefix = encryptionPrefix == null || encrypted.startsWith(encryptionPrefix);
+            boolean suffix = encryptionSuffix == null || encrypted.endsWith(encryptionSuffix);
+            if (prefix && suffix) {
+                encrypted = encrypted.substring(encryptionPrefix != null ? encryptionPrefix.length() : 0,
+                        encrypted.length() - (encryptionSuffix != null ? encryptionSuffix.length() : 0));
+                return encryption.checkPassword(plain, encrypted);
+            } else {
+                return plain.equals(encrypted);
+            }
+        }
     }
 }

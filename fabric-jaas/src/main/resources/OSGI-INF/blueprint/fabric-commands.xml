@@ -22,7 +22,7 @@
     <cm:property-placeholder persistent-id="org.fusesource.fabric.jaas" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="encryption.name" value=""/>
-            <cm:property name="encryption.enabled" value="false"/>
+            <cm:property name="encryption.enabled" value="true"/>
             <cm:property name="encryption.prefix" value="{CRYPT}"/>
             <cm:property name="encryption.suffix" value="{CRYPT}"/>
             <cm:property name="encryption.algorithm" value="MD5"/>
