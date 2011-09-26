@@ -86,6 +86,8 @@
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric/fabric-linkedin-zookeeper/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper/${project.version}</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
     </feature>
 
     <feature name="fabric-configadmin" version="${project.version}" resolver="(obr)">

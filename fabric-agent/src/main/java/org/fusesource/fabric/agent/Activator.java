@@ -9,9 +9,11 @@
 package org.fusesource.fabric.agent;
 
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
 import org.apache.felix.utils.log.Logger;
+import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -28,6 +30,7 @@ public class Activator implements BundleActivator {
     private DeploymentAgent agent;
     private ServiceTracker packageAdmin;
     private ServiceTracker startLevel;
+    private ServiceTracker zkClient;
     private ServiceRegistration registration;
 
     public void start(BundleContext context) throws Exception {
@@ -36,14 +39,27 @@ public class Activator implements BundleActivator {
         agent.setObrResolver(new ObrResolver(new RepositoryAdminImpl(context, new Logger(context))));
         agent.setPackageAdmin(getPackageAdmin(context));
         agent.setStartLevel(getStartLevel(context));
+        agent.setZkClient(getZkClient(context));
         agent.start();
         Properties props = new Properties();
         props.setProperty(Constants.SERVICE_PID, AGENT_PID);
         registration = context.registerService(ManagedService.class.getName(), agent, props);
     }
 
+    private Callable<IZKClient> getZkClient(BundleContext context) {
+        zkClient = new ServiceTracker(context, IZKClient.class.getName(), null);
+        zkClient.open();
+        return new Callable<IZKClient>() {
+            @Override
+            public IZKClient call() throws Exception {
+                return (IZKClient) zkClient.getService();
+            }
+        };
+    }
+
     private StartLevel getStartLevel(BundleContext context) {
         startLevel = new ServiceTracker(context, StartLevel.class.getName(), null);
+        startLevel.open();
         return (StartLevel) startLevel.getService();
     }
 
@@ -59,6 +75,7 @@ public class Activator implements BundleActivator {
         agent.stop();
         packageAdmin.close();
         startLevel.close();
+        zkClient.close();
     }
 
 }
