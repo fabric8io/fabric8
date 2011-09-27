@@ -10,26 +10,34 @@ package org.fusesource.fabric.jaas;
 
 
 import org.apache.felix.utils.properties.Properties;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.client.ZKData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-public class ZookeeperProperties extends Properties {
+public class ZookeeperProperties extends Properties implements LifecycleListener, Watcher {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ZookeeperProperties.class);
 
     protected String path;
     protected IZKClient zooKeeper;
+    private  CountDownLatch connectedLatch = new CountDownLatch(1);
+    private boolean connected = false;
 
     public ZookeeperProperties(IZKClient zooKeeper, String path) throws Exception {
         this.path = path;
         this.zooKeeper = zooKeeper;
-        ZKData<String> zkData = zooKeeper.getZKStringData(path);
-        String value = zkData.getData();
-        if (value != null) {
-            load(new StringReader(value));
-        }
+        this.zooKeeper.registerListener(this);
+        connectedLatch.await(1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -41,5 +49,43 @@ public class ZookeeperProperties extends Properties {
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public void process(WatchedEvent watchedEvent) {
+        if (watchedEvent.getType() == Event.EventType.NodeDataChanged
+         || watchedEvent.getType() == Event.EventType.NodeDeleted) {
+            try {
+                fetchData();
+            } catch (Exception e) {
+                LOG.warn("failed refreshing authentication data", e);
+            }
+        }
+    }
+
+    protected void fetchData() throws Exception {
+        ZKData<String> zkData = zooKeeper.getZKStringData(path, this);
+        String value = zkData.getData();
+        if (value != null) {
+            load(new StringReader(value));
+        }
+    }
+
+    @Override
+    public void onConnected() {
+        try {
+            if (!connected) {
+                fetchData();
+                connected = true;
+                connectedLatch.countDown();
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed initializing authentication plugin", e);
+        }
+    }
+
+    @Override
+    public void onDisconnected() {
+        connected = false;
     }
 }
