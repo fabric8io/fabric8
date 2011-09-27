@@ -91,7 +91,11 @@ public class ZookeeperBackingEngine implements BackingEngine {
      */
     public void deleteUser(String username) {
         users.remove(username);
-
+        try {
+            users.save();
+        } catch (Exception ex) {
+            LOGGER.error("Cannot remove users file,", ex);
+        }
     }
 
     /**

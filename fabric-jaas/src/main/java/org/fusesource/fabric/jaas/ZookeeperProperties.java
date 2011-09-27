@@ -67,6 +67,7 @@ public class ZookeeperProperties extends Properties implements LifecycleListener
         ZKData<String> zkData = zooKeeper.getZKStringData(path, this);
         String value = zkData.getData();
         if (value != null) {
+            clear();
             load(new StringReader(value));
         }
     }
