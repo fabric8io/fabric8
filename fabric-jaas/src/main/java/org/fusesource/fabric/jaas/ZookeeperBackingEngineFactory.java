@@ -38,9 +38,11 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
     public BackingEngine build(Map options) {
         ZookeeperBackingEngine engine = null;
         this.bundleContext = (BundleContext) options.get(BundleContext.class.getName());
+        EncryptionSupport encryptionSupport = new BasicEncryptionSupport(options);
         if (bundleContext != null) {
             ServiceReference ref = bundleContext.getServiceReference(FabricService.class.getName());
             service = (FabricServiceImpl) bundleContext.getService(ref);
+            encryptionSupport = new EncryptionSupport(options);
         }
         String path = (String)options.get("path");
         if (path == null) {
@@ -48,7 +50,7 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
         }
         try {
             ZookeeperProperties users = new ZookeeperProperties(((FabricServiceImpl)service).getZooKeeper(), path);
-            EncryptionSupport encryptionSupport = new EncryptionSupport(options);
+
             engine = new ZookeeperBackingEngine(users, encryptionSupport);
         } catch (Exception e) {
             LOGGER.warn("Cannot initialize engine", e);
