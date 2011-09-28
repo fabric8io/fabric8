@@ -59,7 +59,7 @@ added to org.ops4j.pax.url.mvn.repositories property in etc/org.ops4j.pax.url.mv
 
 And run the following command in the console
 
-    shell:source mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/1.1-SNAPSHOT/karaf/installer
+        shell:source mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/1.1-SNAPSHOT/karaf/installer
 
 If you want to modify the script before sourcing it, you can find it in the Fabric examples source at ${FABRIC_HOME}/fabric-examples/etc/install-fabric-dosgi-camel.karaf
 So you can source it directly using the following command
