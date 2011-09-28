@@ -8,6 +8,18 @@
  */
 package org.fusesource.fabric.fab.osgi.itests;
 
+import static org.apache.karaf.testing.Helper.felixProvisionalApis;
+import static org.apache.karaf.testing.Helper.mavenBundle;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.felix;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.waitForFrameworkStartup;
+import static org.ops4j.pax.exam.OptionUtils.combine;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.scanFeatures;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.workingDirectory;
+
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.testing.Helper;
@@ -20,18 +32,6 @@ import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.karaf.testing.Helper.felixProvisionalApis;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.felix;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.waitForFrameworkStartup;
-import static org.ops4j.pax.exam.OptionUtils.combine;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.scanFeatures;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
-import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.workingDirectory;
-
 /**
  */
 public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
@@ -41,33 +41,61 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
     protected CommandSession commandSession;
 
     @Test
-    public void testInstallFabricBundles() throws Exception {
-        Thread.sleep(10000);
+    public void testInstallFabricBundles() {
+        // Capture the exceptions so we can tune how the test reacts
+        // to failures.  Start broad dependent and tune from there.
+        try {
+            LOG.info("Starting Fabric Bundles Test");
+            
+            // Configure container with custom settings for tuning output
+            LOG.debug("Configure logging");
+            configurePid("org.ops4j.pax.logging");
 
-        // Make sure the command services are available
-        assertNotNull(getOsgiService(BlueprintContainer.class, "osgi.blueprint.container.symbolicname=org.apache.karaf.shell.obr", 20000));
-        assertNotNull(getOsgiService(BlueprintContainer.class, "osgi.blueprint.container.symbolicname=org.apache.karaf.shell.wrapper", 20000));
+            // Configures the PAX Exam container PAX Maven URL
+            // instance
+            LOG.debug("Configure PAX Maven URL");
+            configurePid("org.ops4j.pax.url.mvn");
+            
+            // Uncomment to tune how fab-osgi is configured
+//            LOG.debug("Configure Fabric OSGi");
+//            configurePid("org.fusesource.fabric.fab.osgi.url");
 
-        commandProcessor = getOsgiService(CommandProcessor.class);
-        commandSession = commandProcessor.createSession(System.in, System.out, System.err);
+            Thread.sleep(15000);
 
-        commandSession.execute("osgi:list");
-        assertStartBundle("org.apache.karaf.shell.log");
+            LOG.debug("Test to ensure the Blueprint OBR is available");
+            // Make sure the command services are available
+            assertNotNull(getOsgiService(BlueprintContainer.class, "osgi.blueprint.container.symbolicname=org.apache.karaf.shell.obr", 20000));
+            
+            LOG.debug("Test to ensure the Blueprint Wrapper is available");
+            assertNotNull(getOsgiService(BlueprintContainer.class, "osgi.blueprint.container.symbolicname=org.apache.karaf.shell.wrapper", 20000));
 
-        assertStartBundle("org.fusesource.fabric.fab.fab-osgi");
-        Thread.sleep(1000);
+            commandProcessor = getOsgiService(CommandProcessor.class, 20000);
+            commandSession = commandProcessor.createSession(System.in, System.out, System.err);
 
-        doInstallFabricBundles();
+            // Print the full list since the default start value is below 
+            // the minimum value of 60 required by the list function
+            commandSession.execute("osgi:list -t 0");
+            assertStartBundle("org.apache.karaf.shell.log");
 
-        Thread.sleep(1000);
+            assertStartBundle("org.fusesource.fabric.fab.fab-osgi");
+            Thread.sleep(5000);
 
-        commandSession.execute("osgi:list");
+            doInstallFabricBundles();
 
-        Thread.sleep(2000);
+            Thread.sleep(5000);
 
-        stopBundles();
+            // Print the full list since the default start value is below 
+            // the minimum value of 60 required by the list function
+            commandSession.execute("osgi:list -t 0");
 
-        commandSession.close();
+            Thread.sleep(5000);
+
+            stopBundles();
+
+            commandSession.close();
+        } catch (Exception e) {
+            LOG.error("Error executing the test probe: " + e.getLocalizedMessage(), e);
+        }
     }
 
     protected abstract void doInstallFabricBundles() throws Exception;
@@ -88,6 +116,9 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
                         Helper.setLogLevel("INFO")
                 ),
 
+                // Make sure that configadmin is provisioned early to allow us to tune the container
+                mavenBundle("org.apache.felix", "org.apache.felix.configadmin"),
+                
                 // add karaf features
                 Helper.loadKarafStandardFeatures("obr", "wrapper"),
 
@@ -103,11 +134,9 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
                         "spring-dm"
                 ) : null,
 
-                mavenBundle("org.apache.felix", "org.apache.felix.configadmin"),
-
                 // Disable management to avoid the JMX port issues
                 mavenBundle("org.apache.karaf", "org.apache.karaf.management").noStart(),
-
+                
                 workingDirectory("target/paxrunner/core/"),
 
                 waitForFrameworkStartup(),
@@ -176,6 +205,5 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
 
         doInstallFabricBundle(artifactId);
     }
-
 
 }

@@ -25,9 +25,29 @@
 
   <properties>
     <karaf-version>2.2.1</karaf-version>
+    <pax-logging.version>1.6.2</pax-logging.version>
+    <slf4j.version>1.6.1</slf4j.version>
   </properties>
 
   <dependencies>
+    <!-- 
+        The SLF4j logging bundles are required for the PAX Exam logging.
+        This instance is what reads the log4j.properties file and renders
+        anything called for the test instance and the configuration.
+     -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
     <!-- This is required to be first so that pax-exam classloader is not messed up with a newer version of felix
 which would lead to java.lang.NoSuchMethodError: org.apache.felix.framework.Logger.<init>(I)V -->
     <dependency>
@@ -42,12 +62,36 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <artifactId>org.apache.felix.bundlerepository</artifactId>
       <version>1.2.1</version>
     </dependency>
-
+    <!-- 
+        Eliminated all other classes that introduce SLF4j libraries.  These
+        transitive dependencies are picked up by the SLF4j instance that
+        is created when running the unit test PAX Exam causing multiple 
+        instance warnings and a lack of control (depending on which library
+        is used first).
+     -->
     <dependency>
       <groupId>org.apache.karaf.tooling</groupId>
       <artifactId>org.apache.karaf.tooling.testing</artifactId>
       <version>${karaf-version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.ops4j.pax.logging</groupId>
+          <artifactId>pax-logging-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ops4j.pax.logging</groupId>
+          <artifactId>pax-logging-service</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.karaf</groupId>
+          <artifactId>org.apache.karaf.client</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.karaf.features</groupId>
@@ -61,12 +105,6 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <artifactId>fabric-distro</artifactId>
       <version>${project.version}</version>
       <type>pom</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.fabric.fab</groupId>
-      <artifactId>fab-osgi</artifactId>
-      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -100,6 +138,7 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <excludes>
             <!-- TODO fix ASAP !!!
             <exclude>**/IntegrationTest.*</exclude>
