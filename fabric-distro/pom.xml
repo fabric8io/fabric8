@@ -210,6 +210,11 @@
                                     <type>karaf</type>
                                     <classifier>activemq-installer</classifier>
                                   </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/wait-for-service.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>wait-for-service</classifier>
+                                  </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

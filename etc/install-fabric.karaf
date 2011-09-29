@@ -1,3 +1,6 @@
+shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/wait-for-service
+shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/add-scala-tools-repo
+
 echo Add fabric features
 features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
@@ -14,22 +17,16 @@ osgi:install -s mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi
 osgi:install -s mvn:org.fusesource.fabric/fabric-core/${project.version}
 # -----------------------------------------------
 
-shell:sleep 1000
-
 features:install fabric-core
+
 features:install fabric-commands
+wait-for-command fabric zk-cluster
+
 features:install fabric-jaas
+wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.apache.karaf.jaas.module=zookeeper))"
 
-shell:echo Waiting 4 seconds for the fabric-commands to start
-shell:sleep 4000
-
-#echo Create default profile node
-#zk:create -r /fabric/configs/versions/base/profiles/default base
-
-echo Creating cluster
+echo Creating initial ZooKeeper cluster
 fabric:zk-cluster --clean
 fabric:zk-cluster root
 
-shell:echo Waiting 4 seconds to let zookeeper start and form cluster
-shell:sleep 2000
 
