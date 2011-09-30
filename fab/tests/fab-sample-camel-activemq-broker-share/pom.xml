@@ -56,18 +56,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <archive>
-            <index>true</index>
-            <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.* org.springframework* javax*</Fabric-Provided-Dependency>
-
-              <!-- make some optional stuff mandatory... -->
-              <Fabric-Include-Optional-Dependency>javax* org.apache.xbean org.apache.geronimo.specs commons-pool org.springframework</Fabric-Include-Optional-Dependency>
-
-              <!-- temporary work around until activeio becomes an optional dependency -->
-              <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
-            </manifestEntries>
-          </archive>
+          <!-- lets use the default META-INF/MANIFEST.MF if its there -->
+          <useDefaultManifestFile>true</useDefaultManifestFile>
         </configuration>
       </plugin>
 
