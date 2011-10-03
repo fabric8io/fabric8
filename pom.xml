@@ -95,7 +95,7 @@
         <jackson-version>1.8.4</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
-        <jaxb-version>2.1.6</jaxb-version>
+        <jaxb-version>2.1.13</jaxb-version>
         <jclouds-version>1.1.1</jclouds-version>
         <jclouds-karaf-version>1.1.1-SNAPSHOT</jclouds-karaf-version>
         <jersey-version>1.5</jersey-version>
