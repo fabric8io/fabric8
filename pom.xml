@@ -88,11 +88,11 @@
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <common-math-version>2.2</common-math-version>
-        <cxf-version>2.4.1-fuse-00-53</cxf-version>
+        <cxf-version>2.4.2-fuse-00-08</cxf-version>
         <camel-version>2.8.0-fuse-00-08</camel-version>
         <hawtbuf-version>1.6</hawtbuf-version>
         <hawtdispatch-version>1.4</hawtdispatch-version>
-        <jackson-version>1.8.0</jackson-version>
+        <jackson-version>1.8.4</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.6</jaxb-version>
@@ -121,11 +121,11 @@
         <pax.url.mvn.version>1.2.6</pax.url.mvn.version>
         <pax.url.mvn.commons.version>1.3.4</pax.url.mvn.commons.version>
         <rrd4j-version>2.0.7</rrd4j-version>
-        <scala-version>2.9.0-1</scala-version>
-        <scala-osgi-version>2.9.0</scala-osgi-version>
-        <scala-plugin-version>2.15.0</scala-plugin-version>
-        <scalate-version>1.5.1</scalate-version>
-        <scalatest-version>1.4.1</scalatest-version>
+        <scala-version>2.9.1</scala-version>
+        <scala-osgi-version>2.9.1</scala-osgi-version>
+        <scala-plugin-version>2.15.1</scala-plugin-version>
+        <scalate-version>1.5.2</scalate-version>
+        <scalatest-version>1.6.1</scalatest-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-version>1.6.1</slf4j-version>
@@ -167,7 +167,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.9.0</artifactId>
+            <artifactId>scalatest_2.9.1</artifactId>
             <version>${scalatest-version}</version>
             <scope>test</scope>
         </dependency>
@@ -205,8 +205,8 @@
         <module>fabric-groups</module>
         <module>fabric-dosgi</module>
         <module>fabric-distro</module>
-        <module>fabric-examples</module>
         <module>fabric-eca</module>
+        <module>fabric-examples</module>
     </modules>
 
     <build>
