@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca;
 
 import java.util.HashMap;
@@ -36,7 +35,6 @@ public class TestBlob {
     public void setQueueDepth(int queueDepth) {
         this.queueDepth = queueDepth;
     }
-
 
     public long getEnqueueTime() {
         return enqueueTime;
@@ -83,6 +81,5 @@ public class TestBlob {
         IntrospectionSupport.getProperties(this, map, "");
         return "TestBlob " + map.toString();
     }
-
 
 }

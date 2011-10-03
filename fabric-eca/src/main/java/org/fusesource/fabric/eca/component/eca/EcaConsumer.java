@@ -73,8 +73,4 @@ public class EcaConsumer extends SedaConsumer implements ExpressionListener {
         getEcaEndpoint().removeExpression(this);
     }
 
-    /**
-     * The expression has a match
-     */
-
 }

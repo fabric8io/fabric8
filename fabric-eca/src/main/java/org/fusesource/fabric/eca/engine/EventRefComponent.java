@@ -38,7 +38,7 @@ public class EventRefComponent extends DefaultComponent {
             FactoryFinder ff = context.getFactoryFinder("META-INF/services/org/fusesource/fabric/eca/engine/");
             if (ff != null) {
                 eventEngine = (EventEngine) ff.newInstance(type);
-                eventEngine.intialize(context, type);
+                eventEngine.initialize(context, type);
                 engineMap.put(type, eventEngine);
                 if (context.getStatus().isStarted() || context.getStatus().isStarting()) {
                     eventEngine.start();

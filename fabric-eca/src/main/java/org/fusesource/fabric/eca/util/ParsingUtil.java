@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.util;
 
 import java.util.regex.Matcher;

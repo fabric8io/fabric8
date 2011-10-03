@@ -17,30 +17,20 @@ package org.fusesource.fabric.eca.eventcache;
 import java.util.concurrent.TimeUnit;
 
 public class SystemEventClock implements EventClock {
-    /**
-     * Get the current time in milliseconds
-     *
-     * @return the current time
-     */
+
     public long currentTimeMillis() {
         return System.currentTimeMillis();
     }
 
-    /**
-     * Set the current time - this will be a no-op on System time implementation
-     */
     public void setCurrentTime(int value, TimeUnit unit) {
+        // noop
     }
 
-    /**
-     * advance the current time - this will be a no-op on System time implementation
-     */
     public void advanceClock(int value, TimeUnit unit) {
+        // noop
     }
 
-    /**
-     * retreat the current time - this will be a no-op on System time implementation
-     */
     public void retreatClock(int value, TimeUnit unit) {
+        // noop
     }
 }

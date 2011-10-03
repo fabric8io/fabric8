@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.processor;
 
 import java.util.EnumSet;
@@ -22,14 +21,12 @@ import java.util.Map;
 enum StatisticsType {
     ALL, MEAN, GEOMETRIC_MEAN, MIN, MAX, VARIANCE, STDDEV, SKEWNESS, KUTOSIS, RATE, COUNT;
 
-    private static final Map<String, StatisticsType> lookup
-            = new HashMap<String, StatisticsType>();
+    private static final Map<String, StatisticsType> lookup = new HashMap<String, StatisticsType>();
 
     static {
         for (StatisticsType s : EnumSet.allOf(StatisticsType.class))
             lookup.put(s.name().toUpperCase(), s);
     }
-
 
     public static StatisticsType getType(String name) {
         StatisticsType result = null;

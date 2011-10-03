@@ -44,7 +44,6 @@ public class TestStat {
         this.queueDepth = queueDepth;
     }
 
-
     public long getEnqueueTime() {
         return enqueueTime;
     }
@@ -82,6 +81,5 @@ public class TestStat {
         IntrospectionSupport.getProperties(this, map, "");
         return "TestStat " + map.toString();
     }
-
 
 }

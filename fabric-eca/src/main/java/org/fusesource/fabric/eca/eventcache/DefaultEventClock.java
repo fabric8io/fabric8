@@ -32,32 +32,18 @@ public class DefaultEventClock implements EventClock {
         }
     }
 
-    /**
-     * Get the current time in milliseconds
-     *
-     * @return the current time
-     */
     public long currentTimeMillis() {
         return eventClock.currentTimeMillis();
     }
 
-    /**
-     * Set the current time - this will be a no-op on System time implementation
-     */
     public void setCurrentTime(int value, TimeUnit unit) {
         eventClock.setCurrentTime(value, unit);
     }
 
-    /**
-     * advance the current time - this will be a no-op on System time implementation
-     */
     public void advanceClock(int value, TimeUnit unit) {
         eventClock.advanceClock(value, unit);
     }
 
-    /**
-     * retreat the current time - this will be a no-op on System time implementation
-     */
     public void retreatClock(int value, TimeUnit unit) {
         eventClock.retreatClock(value, unit);
     }

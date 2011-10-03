@@ -12,13 +12,13 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.parser;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 
 public class ANTLRNoCaseStringStream extends ANTLRStringStream {
+
     public ANTLRNoCaseStringStream(String str) {
         super(str);
     }
@@ -30,11 +30,10 @@ public class ANTLRNoCaseStringStream extends ANTLRStringStream {
         if (i < 0) {
             i++; // e.g., translate LA(-1) to use offset 0
         }
-
         if ((p + i - 1) >= n) {
-
             return CharStream.EOF;
         }
         return Character.toUpperCase(data[p + i - 1]);
     }
+
 }

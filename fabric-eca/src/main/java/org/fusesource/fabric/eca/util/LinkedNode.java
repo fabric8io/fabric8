@@ -12,12 +12,10 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.util;
 
-
+@SuppressWarnings("unchecked")
 public class LinkedNode<T extends LinkedNode> {
-
     protected LinkedNode next = this;
     protected LinkedNode prev = this;
     protected boolean tail = true;
@@ -71,7 +69,6 @@ public class LinkedNode<T extends LinkedNode> {
      * @return this
      */
     public T linkAfter(LinkedNode rightHead) {
-
         if (rightHead == this) {
             throw new IllegalArgumentException("You cannot link to yourself");
         }
@@ -100,7 +97,6 @@ public class LinkedNode<T extends LinkedNode> {
      * @return this
      */
     public T linkBefore(LinkedNode leftHead) {
-
         if (leftHead == this) {
             throw new IllegalArgumentException("You cannot link to yourself");
         }
@@ -124,7 +120,7 @@ public class LinkedNode<T extends LinkedNode> {
      * Removes this node out of the linked list it is chained in.
      */
     public void unlink() {
-        // If we are allready unlinked...
+        // If we are all ready unlinked...
         if (prev == this) {
             reset();
             return;

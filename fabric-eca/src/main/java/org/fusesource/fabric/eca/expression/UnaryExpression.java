@@ -12,22 +12,17 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.expression;
-
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.ServiceSupport;
 import org.apache.camel.util.ServiceHelper;
 
 /**
- * An expression which performs an operation on two expression values.
- *
- * @version $Revision: 1.2 $
+ * An expression which performs an operation on one expression value.
  */
 public abstract class UnaryExpression extends ServiceSupport implements Expression {
     protected Expression letter;
-
 
     public UnaryExpression(Expression letter) {
         this.letter = letter;
@@ -41,10 +36,6 @@ public abstract class UnaryExpression extends ServiceSupport implements Expressi
         this.letter = letter;
     }
 
-
-    /**
-     * @see Object#toString()
-     */
     public String toString() {
         return "(" + letter.toString() + " " + getExpressionSymbol() + " " + letter.toString() + ")";
     }
@@ -64,7 +55,6 @@ public abstract class UnaryExpression extends ServiceSupport implements Expressi
      * @see Object#equals(Object)
      */
     public boolean equals(Object o) {
-
         if (o == null || !this.getClass().equals(o.getClass())) {
             return false;
         }
@@ -73,11 +63,10 @@ public abstract class UnaryExpression extends ServiceSupport implements Expressi
     }
 
     /**
-     * Returns the symbol that represents this binary expression.  For example, addition is
-     * represented by "+"
+     * Returns the symbol that represents this binary expression.
+     * For example, addition is represented by <tt>+</tt>
      */
     public abstract String getExpressionSymbol();
-
 
     public void validate(CamelContext context) {
         if (letter != null) {
@@ -85,9 +74,6 @@ public abstract class UnaryExpression extends ServiceSupport implements Expressi
         }
     }
 
-    /**
-     * @return the key used to create the expression, or multiple, comma separated keys
-     */
     public String getFromIds() {
         String result = "";
         if (letter != null) {
@@ -95,7 +81,6 @@ public abstract class UnaryExpression extends ServiceSupport implements Expressi
         }
         return result;
     }
-
 
     protected void doStart() throws Exception {
         ServiceHelper.startService(letter);

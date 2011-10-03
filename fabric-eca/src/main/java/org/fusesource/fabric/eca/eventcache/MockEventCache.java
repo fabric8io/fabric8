@@ -12,8 +12,8 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.eventcache;
+
 public class MockEventCache<T> extends DefaultEventCache<T> {
 
     public MockEventCache(Object id, String size) {

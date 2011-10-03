@@ -14,7 +14,6 @@
  */
 package org.fusesource.fabric.eca.eventcache;
 
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -103,10 +102,7 @@ public class DefaultEventCache<T> implements EventCache<T> {
         pruneCache(getEventClock().currentTimeMillis());
         List<CacheItem<T>> result = new ArrayList<CacheItem<T>>(size);
         try {
-
             lock.readLock().lock();
-
-
             CacheItemImpl node = root;
             while (node != null) {
                 result.add(node);
@@ -128,7 +124,6 @@ public class DefaultEventCache<T> implements EventCache<T> {
     }
 
     protected void setWindowElement(String text) throws IllegalArgumentException {
-
         Pattern p = Pattern.compile("^\\s*(\\d+)\\s*(b)?\\s*$", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(text);
         if (m.matches()) {
@@ -197,7 +192,6 @@ public class DefaultEventCache<T> implements EventCache<T> {
         this.eventClock = eventClock;
     }
 
-
     protected void pruneCache(long currentTime) {
         try {
             lock.writeLock().lock();
@@ -216,7 +210,6 @@ public class DefaultEventCache<T> implements EventCache<T> {
                     break;
                 }
             }
-
         } finally {
             lock.writeLock().unlock();
         }

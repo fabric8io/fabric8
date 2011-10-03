@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.component.statistics;
 
 import java.util.List;
@@ -26,9 +25,6 @@ import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.CamelTestSupport;
 import org.fusesource.fabric.eca.TestStat;
 
-/**
- * @version $Revision: 1042541 $
- */
 public class StatisticsComponentTest extends CamelTestSupport {
     final int COUNT = 1000;
 
@@ -36,7 +32,6 @@ public class StatisticsComponentTest extends CamelTestSupport {
         final DirectEndpoint de = new DirectEndpoint();
         de.setCamelContext(context);
         de.setEndpointUriIfNotSpecified("direct://foo");
-
 
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -55,16 +50,13 @@ public class StatisticsComponentTest extends CamelTestSupport {
             template.send(de, exchange);
         }
 
-
         mock.assertIsSatisfied(context);
     }
-
 
     public void testStatsWireTap() throws Exception {
         final DirectEndpoint de = new DirectEndpoint();
         de.setCamelContext(context);
         de.setEndpointUriIfNotSpecified("direct://foo");
-
 
         context.addRoutes(new RouteBuilder() {
             @Override
@@ -96,7 +88,6 @@ public class StatisticsComponentTest extends CamelTestSupport {
         de.setCamelContext(context);
         de.setEndpointUriIfNotSpecified("direct://foo");
 
-
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -109,12 +100,10 @@ public class StatisticsComponentTest extends CamelTestSupport {
         MockEndpoint mock = context.getEndpoint("mock:result", MockEndpoint.class);
         mock.expectedMessageCount(COUNT);
 
-
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
             template.send(de, exchange);
         }
-
 
         mock.assertIsSatisfied(context);
 
@@ -129,7 +118,6 @@ public class StatisticsComponentTest extends CamelTestSupport {
         de.setCamelContext(context);
         de.setEndpointUriIfNotSpecified("direct://foo");
 
-
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -142,18 +130,15 @@ public class StatisticsComponentTest extends CamelTestSupport {
         MockEndpoint mock = context.getEndpoint("mock:result", MockEndpoint.class);
         mock.expectedMessageCount(COUNT);
 
-
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
             template.send(de, exchange);
         }
 
-
         mock.assertIsSatisfied(context);
 
         List<Exchange> list = mock.getReceivedExchanges();
         for (Exchange exchange : list) {
-            //System.err.println(exchange.getIn().getBody());
             Object result = exchange.getIn().getBody();
             assertTrue(String.class.isAssignableFrom(result.getClass()));
             String string = result.toString();
@@ -166,7 +151,6 @@ public class StatisticsComponentTest extends CamelTestSupport {
         de.setCamelContext(context);
         de.setEndpointUriIfNotSpecified("direct://foo");
 
-
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -178,25 +162,21 @@ public class StatisticsComponentTest extends CamelTestSupport {
         MockEndpoint mock = context.getEndpoint("mock:result", MockEndpoint.class);
         mock.expectedMessageCount(COUNT);
 
-
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
             template.send(de, exchange);
         }
 
-
         mock.assertIsSatisfied(context);
 
         List<Exchange> list = mock.getReceivedExchanges();
         for (Exchange exchange : list) {
-            //System.err.println(exchange.getIn().getBody());
             Object result = exchange.getIn().getBody();
             assertTrue(String.class.isAssignableFrom(result.getClass()));
             String string = result.toString();
             assertTrue(string.indexOf("mean") >= 0 && string.indexOf("min") >= 0 && string.indexOf("rate") < 0);
         }
     }
-
 
     protected Exchange createExchange(int queueDepth, long enqueueTime) {
         Exchange exchange = new DefaultExchange(context);
@@ -209,6 +189,5 @@ public class StatisticsComponentTest extends CamelTestSupport {
         message.setBody(testStat);
         return exchange;
     }
-
 
 }

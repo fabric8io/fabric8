@@ -12,8 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
-
 package org.fusesource.fabric.eca.expression;
 
 import java.util.List;
@@ -28,7 +26,6 @@ import org.fusesource.fabric.eca.eventcache.EventCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class CepExpression extends ServiceSupport implements Expression {
     private static final transient Logger LOG = LoggerFactory.getLogger(CepExpression.class);
     private final String fromId;
@@ -36,7 +33,6 @@ public class CepExpression extends ServiceSupport implements Expression {
     private final String eventWindow;
     private EventCache<Exchange> eventCache;
     private final String id;
-
 
     /**
      * Create a CepExpression
@@ -46,9 +42,7 @@ public class CepExpression extends ServiceSupport implements Expression {
         this.fromId = fromId;
         this.eventWindow = window;
         this.id = System.identityHashCode(this) + ":" + fromId;
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("CepExpression created for route " + id);
-        }
+        LOG.debug("CepExpression created for route {}", id);
     }
 
     public List<CacheItem<Exchange>> getMatching() throws Exception {
@@ -59,16 +53,11 @@ public class CepExpression extends ServiceSupport implements Expression {
         return result;
     }
 
-
-    /**
-     * @return true if currently matched
-     */
     public boolean isMatch() {
         return !eventCache.isEmpty();
     }
 
     public void validate(CamelContext context) {
-
         //check if a route
         Object result = context.getRouteDefinition(fromId);
         if (result == null) {
@@ -81,9 +70,6 @@ public class CepExpression extends ServiceSupport implements Expression {
 
     }
 
-    /**
-     * @return the key used to create the expression
-     */
     public String getFromIds() {
         return fromId;
     }
@@ -91,7 +77,6 @@ public class CepExpression extends ServiceSupport implements Expression {
     public String toString() {
         return "CepExpression:" + id + "[from:" + fromId + "]";
     }
-
 
     @Override
     protected void doStart() throws Exception {

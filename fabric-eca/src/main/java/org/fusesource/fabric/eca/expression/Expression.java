@@ -12,9 +12,7 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.expression;
-
 
 import java.util.List;
 
@@ -25,19 +23,16 @@ import org.fusesource.fabric.eca.eventcache.CacheItem;
 
 /**
  * Represents an expression
- *
- * @version $Revision: 1.2 $
  */
 public interface Expression extends Service {
 
     /**
-     * If Expression is postive all the exchanges held by the event cache
-     * which matches will be returned
+     * If {@link Expression} is positive all the exchanges held by the event cache
+     * which matches will be returned.
      *
      * @return A list of matching results
      */
     List<CacheItem<Exchange>> getMatching() throws Exception;
-
 
     /**
      * @return true if currently matched
@@ -46,6 +41,8 @@ public interface Expression extends Service {
 
     /**
      * Validate the Expression
+     *
+     * @param context the camel context
      */
     void validate(CamelContext context);
 
@@ -53,6 +50,5 @@ public interface Expression extends Service {
      * @return the key used to create the expression, or multiple, comma separated keys
      */
     String getFromIds();
-
 
 }

@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.model;
 
 import java.util.List;
@@ -25,17 +24,11 @@ public class EcaEventPattern {
 
     public enum TYPE {
         AND, OR, BEFORE, AFTER, WHEN, NOT
-    }
-
-    ;
-
+    };
 
     private final TYPE type;
-
-
     private RouteDefinition route;
     private String targetId;
-
 
     public EcaEventPattern(RouteDefinition route, TYPE type) {
         this.route = route;
@@ -52,7 +45,6 @@ public class EcaEventPattern {
         return type;
     }
 
-
     public String getTargetId() {
         return targetId;
     }
@@ -68,7 +60,6 @@ public class EcaEventPattern {
         return getName() + " " + (this.route != null ? this.route.getId() : this.targetId);
     }
 
-
     public void validate(CamelContext context) {
         if ((targetId == null || targetId.trim().isEmpty()) && route != null) {
             targetId = route.getId();
@@ -77,7 +68,6 @@ public class EcaEventPattern {
         if (route == null) {
             throw new RuntimeCamelException("Failed to find RouteDefinition with id: " + targetId);
         }
-
     }
 
     public static String buildCepEvaluation(List<EcaEventPattern> list) {

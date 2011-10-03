@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.processor;
 
 import java.util.ArrayList;
@@ -36,9 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Calculates statistics on a Number types in a cache of Exchanges
- *
- * @version $Revision: 959391 $
+ * Calculates statistics on a Number types in a cache of {@link Exchange}s
  */
 public class StatisticsCalculator extends ServiceSupport {
     protected final transient Logger LOG = LoggerFactory.getLogger(getClass());
@@ -51,7 +48,6 @@ public class StatisticsCalculator extends ServiceSupport {
     private StatisticsType[] statisticsTypes = {StatisticsType.ALL};
     private String cacheImplementation = "default";
     private String queryString;
-
 
     public StatisticsCalculator(CamelContext camelContext, String cachedId, String eventWindow, String queryString) {
         this.context = camelContext;
@@ -72,7 +68,6 @@ public class StatisticsCalculator extends ServiceSupport {
         ExpressionDefinition[] result = null;
         if (expressionStrings != null) {
             String languageToUse = "simple";
-            List<ExpressionDefinition> list = new ArrayList<ExpressionDefinition>();
             int start = 0;
             if (expressionStrings.length > 1) {
                 //see if the first one is a language definition
@@ -101,7 +96,6 @@ public class StatisticsCalculator extends ServiceSupport {
                 ObjectNode expressionNode = statsNode.putObject(expressionDefinition.getExpression());
                 process(expressionDefinition, exchange, expressionNode);
             }
-
         } else {
             Map<String, Number> map = getNumbersFromExchange(exchange);
             if (map != null) {
@@ -163,7 +157,7 @@ public class StatisticsCalculator extends ServiceSupport {
         return result;
     }
 
-    public void setstatisticsType(String type) {
+    public void setStatisticsType(String type) {
         if (type != null) {
             String[] types = type.split(",");
             this.statisticsTypes = new StatisticsType[types.length];
@@ -176,7 +170,6 @@ public class StatisticsCalculator extends ServiceSupport {
         }
     }
 
-
     @Override
     protected void doStart() throws Exception {
         this.cacheManager = EventHelper.getEventCacheManager(context, getCacheImplementation());
@@ -188,7 +181,6 @@ public class StatisticsCalculator extends ServiceSupport {
     protected void doStop() throws Exception {
         this.cacheManager.removeCache(this.cachedId);
     }
-
 
     protected void process(ExpressionDefinition expressionDefinition, Exchange exchange, ObjectNode statsNode) throws Exception {
         Number value = getNumberFromExchange(expressionDefinition, exchange);
@@ -203,13 +195,10 @@ public class StatisticsCalculator extends ServiceSupport {
         }
     }
 
-
     protected void process(StatisticsType type, Number value, ObjectNode statsNode) throws Exception {
         EventCache<Number> cache = this.eventCache;
         if (value != null && cache != null) {
             cache.add(value);
-
-
             if (type.equals(StatisticsType.RATE)) {
                 calculateRate(statsNode);
             } else {
@@ -277,19 +266,16 @@ public class StatisticsCalculator extends ServiceSupport {
                 time = Math.max(1l, time);
                 int rate = (int) ((1000 * list.size()) / time);
                 node.put("rate/sec", rate);
-
             } else {
                 node.put("rate/sec", 0);
             }
         }
     }
 
-
     protected Number getNumberFromExchange(ExpressionDefinition expressionDefinition, Exchange exchange) throws Exception {
         Number value = null;
         if (expressionDefinition != null) {
             Object object = expressionDefinition.evaluate(exchange);
-
             if (object instanceof Number) {
                 value = (Number) object;
             } else {
@@ -322,12 +308,11 @@ public class StatisticsCalculator extends ServiceSupport {
         if (payload != null) {
             result = PropertyUtil.getValues(Number.class, payload);
         }
-
         return result;
     }
 
-    //some expressions return a value in a List - e.g. sql
     private Number getNumberFromList(Object value) {
+        //some expressions return a value in a List - e.g. sql
         if (value instanceof Number) {
             return (Number) value;
         }

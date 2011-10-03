@@ -12,14 +12,12 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.util;
 
 import java.util.Map;
 
 import junit.framework.TestCase;
 import org.fusesource.fabric.eca.TestStat;
-
 
 public class PropertyUtilTest extends TestCase {
 

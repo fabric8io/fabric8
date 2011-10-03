@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.ServiceSupport;
+import org.apache.camel.util.ServiceHelper;
 import org.fusesource.fabric.eca.eventcache.EventCache;
 import org.fusesource.fabric.eca.eventcache.EventCacheManager;
 import org.fusesource.fabric.eca.expression.Expression;
@@ -34,31 +35,19 @@ public class DefaultEventEngine extends ServiceSupport implements org.fusesource
     private Map<String, List<ExpressionHolder>> fromToExpressionMap = new ConcurrentHashMap<String, List<ExpressionHolder>>();
     private Map<Expression, List<String>> expressionToFromMap = new ConcurrentHashMap<Expression, List<String>>();
 
-    /**
-     * Initialize the engine - which will add itself to the context
-     */
-    public void intialize(CamelContext context, String cacheImplementation) throws Exception {
+    public void initialize(CamelContext context, String cacheImplementation) throws Exception {
         eventCacheManager = EventHelper.getEventCacheManager(context, cacheImplementation);
     }
 
-    /**
-     * Add a route Id
-     */
     public EventCache<Exchange> addRoute(String fromId, String window) {
         EventCache<Exchange> result = eventCacheManager.getCache(Exchange.class, fromId, window);
         return result;
     }
 
-    /**
-     * remove a route
-     */
     public void removeRoute(String routeId) {
         eventCacheManager.removeCache(routeId);
     }
 
-    /**
-     * Process an Exchange
-     */
     public void process(Exchange exchange) {
         if (exchange != null) {
             String fromId = exchange.getFromRouteId();
@@ -84,22 +73,18 @@ public class DefaultEventEngine extends ServiceSupport implements org.fusesource
                         }
                     } else {
                         //ignore - already fired the rule for this exchange
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Ignoring - already fired for exchange: " + exchange);
-                        }
+                        LOG.debug("Ignoring - already fired for exchange: {}", exchange);
                     }
-
                 } else {
-                    LOG.warn("Can't find cache for a route or endpoint named: " + fromId + " for exchange: " + exchange);
+                    LOG.warn("Cannot find cache for a route or endpoint named: {} for exchange: {}", fromId, exchange);
                 }
             } else {
-                LOG.warn("can't process an exchange with no route or endpoint information: ", exchange);
+                LOG.warn("Cannot process an exchange with no route or endpoint information: {}", exchange);
             }
         } else {
             LOG.warn("process() passed null exchange!");
         }
     }
-
 
     /**
      * Add an expression - equivalent of a rule
@@ -156,17 +141,13 @@ public class DefaultEventEngine extends ServiceSupport implements org.fusesource
     @Override
     protected void doStart() throws Exception {
         eventCacheManager.start();
-        for (Expression expression : expressionToFromMap.keySet()) {
-            expression.start();
-        }
+        ServiceHelper.startServices(expressionToFromMap.keySet());
     }
 
     @Override
     protected void doStop() throws Exception {
         eventCacheManager.stop();
-        for (Expression expression : expressionToFromMap.keySet()) {
-            expression.stop();
-        }
+        ServiceHelper.stopServices(expressionToFromMap.keySet());
     }
 
     private static class ExpressionHolder {

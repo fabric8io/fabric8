@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.parser;
 
 import junit.framework.TestCase;
@@ -26,7 +25,6 @@ public class ParserTest extends TestCase {
 
     public void testParser() throws Exception {
         String[] keyvalues2 = {
-
                 "route1 before route3",
                 "route1 And route2",
                 "route3 After routr5",
@@ -51,8 +49,6 @@ public class ParserTest extends TestCase {
         for (int i = 0; i < keyvalues3.length; i++) {
             evaluate(keyvalues3[i], 3);
         }
-
-
     }
 
     public void testFailure() throws Exception {
@@ -60,7 +56,6 @@ public class ParserTest extends TestCase {
                 "route1 AND blob OR AND",
                 "route1 AND (blob OR fred",
                 //"route1 routre2"
-
         };
 
         for (int i = 0; i < values.length; i++) {
@@ -68,7 +63,7 @@ public class ParserTest extends TestCase {
                 evaluate(values[i], 2);
                 fail("Should have failed for " + values[i]);
             } catch (RecognitionException e) {
-
+                // expected
             }
         }
     }
@@ -82,11 +77,8 @@ public class ParserTest extends TestCase {
         Expression exp = parser.evaluate(eventEngine, "30s", "");
         assertNotNull(exp);
         String expressionTokenKeys = exp.getFromIds();
-        //System.err.println("Expression for " + text + " = " + expressionTokenKeys);
         String[] keys = expressionTokenKeys.split(",");
         assertEquals("Incorrect number of Keys", expectedKeyCount, keys.length);
-
-
     }
 
 }

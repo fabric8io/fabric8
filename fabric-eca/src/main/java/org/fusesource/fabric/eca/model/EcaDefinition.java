@@ -37,14 +37,11 @@ import org.fusesource.fabric.eca.parser.ANTLRNoCaseStringStream;
 import org.fusesource.fabric.eca.parser.InsightLexer;
 import org.fusesource.fabric.eca.parser.InsightParser;
 
-
 public class EcaDefinition extends FromDefinition {
     private List<EcaEventPattern> eventPatterns = new ArrayList<EcaEventPattern>();
     private String createdUri;
     private String eventWindow = "30s";
     private String temporalThreshold = "";
-
-
     private String pattern = "";
 
     public EcaDefinition() {
@@ -58,10 +55,11 @@ public class EcaDefinition extends FromDefinition {
         super(endpoint);
     }
 
+    @SuppressWarnings("unchecked")
     public String getUri() {
         String result = super.getUri();
         if (createdUri == null || createdUri.equals(result) == false) {
-            URI u = null;
+            URI u;
             try {
                 u = new URI(UnsafeUriCharactersEncoder.encode(result));
 
@@ -96,15 +94,12 @@ public class EcaDefinition extends FromDefinition {
                 result = scheme + "://" + path + "?" + query;
                 this.createdUri = result;
                 setUri(result);
-
-
             } catch (URISyntaxException e) {
                 throw new RuntimeCamelException("Failed to parse uri: " + result, e);
             }
         }
         return result;
     }
-
 
     public void validate(CamelContext context) {
         for (EcaEventPattern ecaEventPattern : eventPatterns) {
@@ -134,7 +129,6 @@ public class EcaDefinition extends FromDefinition {
         return result;
     }
 
-
     public void addEventPattern(EcaEventPattern eventPattern) {
         eventPatterns.add(eventPattern);
     }
@@ -162,7 +156,6 @@ public class EcaDefinition extends FromDefinition {
     public void setWindow(String window) {
         setEventWindow(window);
     }
-
 
     public String getPattern() {
         return pattern;
@@ -194,20 +187,16 @@ public class EcaDefinition extends FromDefinition {
             InsightLexer lexer = new InsightLexer(in);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             InsightParser parser = new InsightParser(tokens);
-
-
             try {
                 EventEngine eventEngine = EventHelper.getEventEngine(context);
                 Expression exp = parser.evaluate(eventEngine, "30s", "");
                 String expressionTokenKeys = exp.getFromIds();
                 return expressionTokenKeys.split(",");
             } catch (Exception e) {
-                throw new RuntimeCamelException("failed to parse: " + text, e);
+                throw new RuntimeCamelException("Failed to parse: " + text, e);
             }
         }
         return null;
-
     }
-
 
 }

@@ -20,32 +20,18 @@ public class MockEventClock implements EventClock {
 
     private long currentTime;
 
-    /**
-     * Get the current time in milliseconds
-     *
-     * @return the current time
-     */
     public long currentTimeMillis() {
         return currentTime;
     }
 
-    /**
-     * Set the current time - this will be a no-op on System time implementation
-     */
     public void setCurrentTime(int value, TimeUnit unit) {
         currentTime = TimeUnit.MILLISECONDS.convert(value, unit);
     }
 
-    /**
-     * advance the current time - this will be a no-op on System time implementation
-     */
     public void advanceClock(int value, TimeUnit unit) {
         currentTime += TimeUnit.MILLISECONDS.convert(value, unit);
     }
 
-    /**
-     * retreat the current time - this will be a no-op on System time implementation
-     */
     public void retreatClock(int value, TimeUnit unit) {
         currentTime -= TimeUnit.MILLISECONDS.convert(value, unit);
     }

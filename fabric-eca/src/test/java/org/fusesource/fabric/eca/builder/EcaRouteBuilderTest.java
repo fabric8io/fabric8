@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.builder;
 
 import org.apache.camel.Endpoint;
@@ -26,9 +25,6 @@ import org.apache.camel.test.CamelTestSupport;
 import org.fusesource.fabric.eca.TestBlob;
 import org.fusesource.fabric.eca.TestStat;
 
-/**
- * @version $Revision: 1042541 $
- */
 public class EcaRouteBuilderTest extends CamelTestSupport {
 
     final int COUNT = 1000;
@@ -39,13 +35,11 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
         return false;
     }
 
-
     public void XtestCepLookUp() throws Exception {
         context.start();
         Endpoint cep1 = context.getEndpoint("eca:test");
         Endpoint cep2 = context.getEndpoint("eca:test?window=10s");
         assertNotSame(cep1, cep2);
-
     }
 
     public void testSimpleEndpointCep() throws Exception {

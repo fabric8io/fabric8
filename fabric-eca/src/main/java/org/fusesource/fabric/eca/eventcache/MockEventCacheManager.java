@@ -18,8 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MockEventCacheManager implements EventCacheManager {
-    private final Map<Object, EventCache<?>> caches = new
-            HashMap<Object, EventCache<?>>();
+    private final Map<Object, EventCache<?>> caches = new HashMap<Object, EventCache<?>>();
 
     public synchronized <T> EventCache<T> getCache(Class<T> type, Object id, String size) {
         EventCache result = caches.get(id);
@@ -29,11 +28,6 @@ public class MockEventCacheManager implements EventCacheManager {
         return result;
     }
 
-    /**
-     * retrieve an existing cache
-     *
-     * @return the cache or null, if it doesn't exist
-     */
     public <T> EventCache<T> lookupCache(Class<T> type, Object id) {
         EventCache result = caches.get(id);
         return result;
@@ -44,21 +38,11 @@ public class MockEventCacheManager implements EventCacheManager {
         return result != null;
     }
 
-    /**
-     * Starts the service
-     *
-     * @throws Exception is thrown if starting failed
-     */
     public void start() throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // noop
     }
 
-    /**
-     * Stops the service
-     *
-     * @throws Exception is thrown if stopping failed
-     */
     public void stop() throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // noop
     }
 }

@@ -12,9 +12,7 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.expression;
-
 
 import java.util.Collections;
 import java.util.List;
@@ -25,16 +23,10 @@ import org.fusesource.fabric.eca.util.ParsingUtil;
 
 /**
  * A filter performing a comparison of two objects
- *
- * @version $Revision: 1.2 $
  */
 public abstract class LogicExpression extends BinaryExpression {
     private long threshold = 0l;
 
-    /**
-     * @param left
-     * @param right
-     */
     public LogicExpression(String threshold, Expression left, Expression right) {
         super(left, right);
         this.threshold = ParsingUtil.getTimeAsMilliseconds(threshold);
@@ -44,7 +36,6 @@ public abstract class LogicExpression extends BinaryExpression {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
             public List<CacheItem<Exchange>> getMatching() throws Exception {
-
                 List<CacheItem<Exchange>> result = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (result != null) {
@@ -59,7 +50,6 @@ public abstract class LogicExpression extends BinaryExpression {
                 }
                 return result;
             }
-
 
             public boolean isMatch() {
                 if (left != null && left.isMatch()) {
@@ -81,7 +71,6 @@ public abstract class LogicExpression extends BinaryExpression {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
             public List<CacheItem<Exchange>> getMatching() throws Exception {
-
                 List<CacheItem<Exchange>> lv = left.getMatching();
                 List<CacheItem<Exchange>> rv = right.getMatching();
                 if (lv != null && rv != null) {
@@ -89,10 +78,8 @@ public abstract class LogicExpression extends BinaryExpression {
                     Collections.sort(lv);
                     return lv;
                 }
-
                 return null;
             }
-
 
             public boolean isMatch() {
                 if (left != null && left.isMatch()) {
@@ -111,7 +98,6 @@ public abstract class LogicExpression extends BinaryExpression {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
             public List<CacheItem<Exchange>> getMatching() throws Exception {
-
                 List<CacheItem<Exchange>> lv = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (lv != null) {
@@ -142,7 +128,6 @@ public abstract class LogicExpression extends BinaryExpression {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
             public List<CacheItem<Exchange>> getMatching() throws Exception {
-
                 List<CacheItem<Exchange>> lv = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (rv != null) {
@@ -153,7 +138,6 @@ public abstract class LogicExpression extends BinaryExpression {
                 }
                 return null;
             }
-
 
             public boolean isMatch() {
                 boolean lv = left != null ? left.isMatch() : false;
@@ -174,7 +158,6 @@ public abstract class LogicExpression extends BinaryExpression {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
             public List<CacheItem<Exchange>> getMatching() throws Exception {
-
                 List<CacheItem<Exchange>> result = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (result != null) {
@@ -189,7 +172,6 @@ public abstract class LogicExpression extends BinaryExpression {
                 }
                 return result;
             }
-
 
             public boolean isMatch() {
                 if (left != null) {
@@ -207,4 +189,5 @@ public abstract class LogicExpression extends BinaryExpression {
             }
         };
     }
+
 }

@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -21,9 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.camel.model.RouteDefinition;
 
 /**
- * Represents an XML &lt;choice/&gt; element
- *
- * @version $Revision: 885197 $
+ * Represents an XML &lt;fabric.eca/&gt; element
  */
 @XmlRootElement(name = "fabric.eca")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -32,7 +29,6 @@ public class EcaRouteDefinition extends RouteDefinition {
     private final String name;
     private final EcaRoutesDefinition ecaRoutesDefinition;
     private final EcaDefinition ecaDefinition;
-
 
     public static EcaRouteDefinition transform(RouteDefinition original) {
         if (original instanceof EcaRouteDefinition) {
@@ -55,7 +51,6 @@ public class EcaRouteDefinition extends RouteDefinition {
         return result;
     }
 
-
     public EcaRouteDefinition() {
         this.name = null;
         this.ecaRoutesDefinition = null;
@@ -73,7 +68,6 @@ public class EcaRouteDefinition extends RouteDefinition {
         return this.ecaDefinition;
     }
 
-
     @Override
     public String toString() {
         String str = name != null ? "eca(" + name + ")" : "route";
@@ -89,7 +83,6 @@ public class EcaRouteDefinition extends RouteDefinition {
     public String getShortName() {
         return "route";
     }
-
 
     public EcaRouteDefinition window(String str) {
         setEventWindow(str);
@@ -111,7 +104,6 @@ public class EcaRouteDefinition extends RouteDefinition {
         this.eventWindow = eventWindow != null ? eventWindow.trim() : null;
     }
 
-
     public EcaRouteDefinition when(String targetId) {
         RouteDefinition routeDefinition = this.ecaRoutesDefinition.getRouteDefinition(targetId);
         if (routeDefinition != null) {
@@ -121,7 +113,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
             throw cause;
         }
-
         return this;
     }
 
@@ -133,7 +124,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
             throw cause;
         }
-
         return this;
     }
 
@@ -146,7 +136,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
             throw cause;
         }
-
         return this;
     }
 
@@ -158,7 +147,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
             throw cause;
         }
-
         return this;
     }
 
@@ -171,7 +159,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
             throw cause;
         }
-
         return this;
     }
 
@@ -183,7 +170,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
             throw cause;
         }
-
         return this;
     }
 
@@ -196,7 +182,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
             throw cause;
         }
-
         return this;
     }
 
@@ -208,7 +193,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
             throw cause;
         }
-
         return this;
     }
 
@@ -221,7 +205,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
             throw cause;
         }
-
         return this;
     }
 
@@ -233,7 +216,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
             throw cause;
         }
-
         return this;
     }
 
@@ -246,7 +228,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
             throw cause;
         }
-
         return this;
     }
 
@@ -258,7 +239,6 @@ public class EcaRouteDefinition extends RouteDefinition {
             IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
             throw cause;
         }
-
         return this;
     }
 

@@ -14,9 +14,9 @@
  */
 package org.fusesource.fabric.eca.eventcache;
 
-
 public interface CacheItem<T> extends Comparable<CacheItem<T>> {
-    public T getItem();
 
-    public long getTimestamp();
+    T getItem();
+
+    long getTimestamp();
 }

@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.component.eca;
 
 import java.util.Map;
@@ -20,21 +19,10 @@ import java.util.Map;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.seda.SedaComponent;
 
+/**
+ * The ECA component.
+ */
 public class EcaComponent extends SedaComponent {
-
-
-    /**
-     * A factory method allowing derived components to create a new endpoint
-     * from the given URI, remaining path and optional parameters
-     *
-     * @param uri        the full URI of the endpoint
-     * @param remaining  the remaining part of the URI without the query
-     *                   parameters or component prefix
-     * @param parameters the optional parameters passed in
-     * @return a newly created endpoint or null if the endpoint cannot be
-     *         created based on the inputs
-     */
-
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
@@ -44,9 +32,11 @@ public class EcaComponent extends SedaComponent {
             throw new IllegalArgumentException("The limitConcurrentConsumers flag in set to true. ConcurrentConsumers cannot be set at a value greater than "
                     + maxConcurrentConsumers + " was " + consumers);
         }
+
         EcaEndpoint answer = new EcaEndpoint(uri, this, createQueue(uri, parameters), consumers);
         answer.setCepRouteId(remaining);
         answer.configureProperties(parameters);
         return answer;
     }
+
 }

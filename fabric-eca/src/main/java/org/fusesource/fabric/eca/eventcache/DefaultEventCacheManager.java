@@ -21,8 +21,7 @@ import org.apache.camel.impl.ServiceSupport;
 
 public class DefaultEventCacheManager extends ServiceSupport implements EventCacheManager {
 
-    private final Map<Object, EventCache<?>> caches = new
-            HashMap<Object, EventCache<?>>();
+    private final Map<Object, EventCache<?>> caches = new HashMap<Object, EventCache<?>>();
 
     public synchronized <T> EventCache<T> getCache(Class<T> type, Object id, String size) {
         EventCache result = caches.get(id);

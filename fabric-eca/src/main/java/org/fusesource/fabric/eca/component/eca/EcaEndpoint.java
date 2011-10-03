@@ -48,13 +48,12 @@ public class EcaEndpoint extends SedaEndpoint {
     private String pattern = "";
     private String cacheWindow = "30s, 10000";
     private String threshold = "";
-    private boolean rawResults = false;
-    private boolean fullResult = false;
+    private boolean rawResults;
+    private boolean fullResult;
     private String eventEngineImplementation = "default";
     private String cepRouteId = "";
     private EventEngine eventEngine;
     private Expression expression;
-
 
     public EcaEndpoint() {
     }
@@ -99,15 +98,6 @@ public class EcaEndpoint extends SedaEndpoint {
         return new EcaConsumer(this, processor);
     }
 
-    /**
-     * Whether this class supports being singleton or not.
-     *
-     * @return <tt>true</tt> to be a single shared instance, <tt>false</tt> to create new instances.
-     */
-    public boolean isSingleton() {
-        return true;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public String getCacheWindow() {
         return cacheWindow;
     }
@@ -131,7 +121,6 @@ public class EcaEndpoint extends SedaEndpoint {
     public void setWindow(String window) {
         setCacheWindow(window);
     }
-
 
     public String getPattern() {
         return pattern;
@@ -197,11 +186,10 @@ public class EcaEndpoint extends SedaEndpoint {
 
     public void evaluate(Exchange exchange) throws Exception {
         getEventEngine().process(exchange);
-
     }
 
     public Object getEvaluatedResults() throws Exception {
-        Object result = null;
+        Object result;
         if (isFullResult()) {
             result = processFullResults();
         } else {
@@ -218,8 +206,7 @@ public class EcaEndpoint extends SedaEndpoint {
                 result = list;
             }
         } else {
-
-            //turn the results into a json  string
+            //turn the results into a json string
             result = processList(list);
         }
         return result;
@@ -257,7 +244,6 @@ public class EcaEndpoint extends SedaEndpoint {
                 processExchange(mapper, rootList, item);
             }
         }
-
     }
 
     private void processExchange(ObjectMapper mapper, ObjectNode root, CacheItem<Exchange> item) throws IOException {
@@ -268,7 +254,6 @@ public class EcaEndpoint extends SedaEndpoint {
         Object payload = exchange.getIn().getBody();
         String payloadString = mapper.writeValueAsString(payload);
         exchangeNode.put("payload", payloadString);
-
     }
 
     protected EventEngine getEventEngine() throws Exception {
@@ -288,13 +273,11 @@ public class EcaEndpoint extends SedaEndpoint {
                 throw new RuntimeCamelException("Could not parse " + expression, e);
             }
             if (expression == null) {
-                throw new RuntimeCamelException("could not parse " + getPattern());
+                throw new RuntimeCamelException("Could not parse " + getPattern());
             }
-            ;
         }
         return eventEngine;
     }
-
 
     @Override
     protected void doStop() throws Exception {

@@ -21,9 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public interface EventClock {
 
-    enum TYPE {System, Mock}
-
-    ;
+    enum TYPE {System, Mock};
 
     /**
      * Get the current time in milliseconds
@@ -33,17 +31,23 @@ public interface EventClock {
     public long currentTimeMillis();
 
     /**
-     * Set the current time - this will be a no-op on System time implementation
+     * Set the current time.
+     * <p/>
+     * This will be a no-op on System time implementation
      */
     public void setCurrentTime(int value, TimeUnit unit);
 
     /**
-     * advance the current time - this will be a no-op on System time implementation
+     * Advance the current time.
+     * <p/>
+     * This will be a no-op on System time implementation
      */
     public void advanceClock(int value, TimeUnit unit);
 
     /**
-     * retreat the current time - this will be a no-op on System time implementation
+     * Retreat the current time.
+     * <p/>
+     * This will be a no-op on System time implementation
      */
     public void retreatClock(int value, TimeUnit unit);
 }

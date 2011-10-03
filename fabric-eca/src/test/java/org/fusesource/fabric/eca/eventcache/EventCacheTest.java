@@ -12,9 +12,7 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.eventcache;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +68,6 @@ public class EventCacheTest extends TestSupport {
         assertEquals("Expecting ", COUNT, eventCache.size());
         clock.advanceClock(31, TimeUnit.SECONDS);
         assertTrue("Event Cache size = " + eventCache.size(), eventCache.isEmpty());
-
     }
 
     public void testTimeBasedExpirationEdgeCases() throws Exception {
@@ -89,7 +86,6 @@ public class EventCacheTest extends TestSupport {
         String str2 = "test 2";
         eventCache.add(str2);
         assertEquals("Size should be 1", 1, eventCache.size());
-
     }
 
     public void testTimeAndMaxSizeExpiration() throws Exception {
@@ -101,7 +97,6 @@ public class EventCacheTest extends TestSupport {
         eventCache.setWindow("5 s," + LIMIT);
         long windowTime = eventCache.getWindowTime();
         assertEquals((5 * 1000), windowTime);
-
 
         for (int i = 0; i < COUNT; i++) {
             eventCache.add("test " + i);

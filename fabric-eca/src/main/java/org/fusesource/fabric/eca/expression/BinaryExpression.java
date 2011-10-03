@@ -14,20 +14,16 @@
  */
 package org.fusesource.fabric.eca.expression;
 
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.ServiceSupport;
 import org.apache.camel.util.ServiceHelper;
 
 /**
  * An expression which performs an operation on two expression values.
- *
- * @version $Revision: 1.2 $
  */
 public abstract class BinaryExpression extends ServiceSupport implements Expression {
     protected Expression left;
     protected Expression right;
-
 
     public BinaryExpression(Expression left, Expression right) {
         this.left = left;
@@ -42,10 +38,6 @@ public abstract class BinaryExpression extends ServiceSupport implements Express
         return right;
     }
 
-
-    /**
-     * @see Object#toString()
-     */
     public String toString() {
         return "(" + left.toString() + " " + getExpressionSymbol() + " " + right.toString() + ")";
     }
@@ -65,7 +57,6 @@ public abstract class BinaryExpression extends ServiceSupport implements Express
      * @see Object#equals(Object)
      */
     public boolean equals(Object o) {
-
         if (o == null || !this.getClass().equals(o.getClass())) {
             return false;
         }
@@ -74,25 +65,18 @@ public abstract class BinaryExpression extends ServiceSupport implements Express
     }
 
     /**
-     * Returns the symbol that represents this binary expression.  For example, addition is
-     * represented by "+"
+     * Returns the symbol that represents this binary expression.
+     * For example, addition is represented by <tt>+</tt>
      */
     public abstract String getExpressionSymbol();
 
-    /**
-     * @param expression
-     */
     public void setRight(Expression expression) {
         right = expression;
     }
 
-    /**
-     * @param expression
-     */
     public void setLeft(Expression expression) {
         left = expression;
     }
-
 
     public void validate(CamelContext context) {
         Expression left = getLeft();
@@ -123,13 +107,11 @@ public abstract class BinaryExpression extends ServiceSupport implements Express
 
 
     protected void doStart() throws Exception {
-        ServiceHelper.startService(left);
-        ServiceHelper.startService(right);
+        ServiceHelper.startServices(left, right);
     }
 
     protected void doStop() throws Exception {
-        ServiceHelper.stopService(left);
-        ServiceHelper.stopService(right);
+        ServiceHelper.stopServices(left, right);
     }
 
 }

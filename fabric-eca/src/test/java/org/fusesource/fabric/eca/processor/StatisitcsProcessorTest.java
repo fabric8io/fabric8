@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.processor;
 
 import java.util.List;
@@ -27,12 +26,8 @@ import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.CamelTestSupport;
 import org.fusesource.fabric.eca.TestStat;
 
-/**
- * @version $Revision: 1042541 $
- */
 public class StatisitcsProcessorTest extends CamelTestSupport {
     final int COUNT = 10;
-
 
     public void testStatsProcessor() throws Exception {
         final DirectEndpoint de = new DirectEndpoint();
@@ -51,12 +46,10 @@ public class StatisitcsProcessorTest extends CamelTestSupport {
         MockEndpoint mock = context.getEndpoint("mock:result", MockEndpoint.class);
         mock.expectedMessageCount(COUNT);
 
-
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
             template.send(de, exchange);
         }
-
 
         mock.assertIsSatisfied(context);
 
@@ -65,7 +58,6 @@ public class StatisitcsProcessorTest extends CamelTestSupport {
             assertTrue(String.class.isAssignableFrom(exchange.getIn().getBody().getClass()));
         }
     }
-
 
     protected Exchange createExchange(int queueDepth, long enqueueTime) {
         Exchange exchange = new DefaultExchange(context);
@@ -78,6 +70,5 @@ public class StatisitcsProcessorTest extends CamelTestSupport {
         message.setBody(testStat);
         return exchange;
     }
-
 
 }

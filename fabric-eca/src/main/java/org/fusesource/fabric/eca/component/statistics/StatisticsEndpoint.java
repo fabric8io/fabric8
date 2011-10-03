@@ -28,7 +28,7 @@ import org.fusesource.fabric.eca.processor.StatisticsProcessor;
 
 public class StatisticsEndpoint extends SedaEndpoint {
 
-    private StatisticsProcessor statisticsProcessor = null;
+    private StatisticsProcessor statisticsProcessor;
     private String eventWindow = "30s,1000";
     private String batchUpdateTime = "";
     private String cacheImplementation = "default";
@@ -55,7 +55,6 @@ public class StatisticsEndpoint extends SedaEndpoint {
         super(endpointUri, queue, concurrentConsumers);
     }
 
-
     /**
      * Creates a new producer which is used send messages into the endpoint
      *
@@ -79,16 +78,6 @@ public class StatisticsEndpoint extends SedaEndpoint {
     public Consumer createConsumer(Processor processor) throws Exception {
         return new StatisticsConsumer(this, processor);
     }
-
-    /**
-     * Whether this class supports being singleton or not.
-     *
-     * @return <tt>true</tt> to be a single shared instance, <tt>false</tt> to create new instances.
-     */
-    public boolean isSingleton() {
-        return true;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
 
     public String getEventWindow() {
         return eventWindow;
@@ -158,7 +147,6 @@ public class StatisticsEndpoint extends SedaEndpoint {
         this.statisticsType = statisticsType;
     }
 
-
     /**
      * Processes the message exchange.
      * Similar to {@link org.apache.camel.Processor#process}, but the caller supports having the exchange asynchronously processed.
@@ -191,7 +179,6 @@ public class StatisticsEndpoint extends SedaEndpoint {
     public void process(Exchange exchange) throws Exception {
         statisticsProcessor.process(exchange);
     }
-
 
     public synchronized StatisticsProcessor getStatsProcessor() throws Exception {
         if (isStarted()) {

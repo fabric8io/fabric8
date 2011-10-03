@@ -24,9 +24,6 @@ import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.CamelTestSupport;
 import org.fusesource.fabric.eca.TestStat;
 
-/**
- * @version $Revision: 1042541 $
- */
 public class EcaComponentTest extends CamelTestSupport {
     final int COUNT = 1000;
 

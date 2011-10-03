@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.model;
 
 import java.util.HashMap;
@@ -31,16 +30,12 @@ import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.util.EndpointHelper;
 
 /**
- * Represents a collection of routes
- *
- * @version $Revision: 938376 $
+ * Represents a collection of ECA routes
  */
 @XmlRootElement(name = "eca")
 @XmlType(propOrder = {"inputs", "outputs"})
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class EcaRoutesDefinition extends RoutesDefinition {
-
-
     Map<String, EcaRouteDefinition> cepMap = new HashMap<String, EcaRouteDefinition>();
 
     public EcaRoutesDefinition() {
@@ -59,18 +54,16 @@ public class EcaRoutesDefinition extends RoutesDefinition {
 
     @Override
     public String toString() {
-        return "CepRoutes: " + getRoutes();
+        return "EcaRoutes: " + getRoutes();
     }
 
     @Override
     public String getShortName() {
-        return "CepRoutes";
+        return "EcaRoutes";
     }
-
 
     // Fluent API
     //-------------------------------------------------------------------------
-
 
     public synchronized EcaRouteDefinition cep(String name) {
         EcaRouteDefinition route = this.cepMap.get(name);
@@ -89,6 +82,8 @@ public class EcaRoutesDefinition extends RoutesDefinition {
      * @return the builder
      */
     public EcaRouteDefinition route(RouteDefinition route) {
+        // TODO: We may find a better hook to do this
+
         // configure intercept
         for (InterceptDefinition intercept : getIntercepts()) {
             // add as first output so intercept is handled before the actual route and that gives
@@ -135,7 +130,6 @@ public class EcaRoutesDefinition extends RoutesDefinition {
         getRoutes().add(result);
         return result;
     }
-
 
     public RouteDefinition getRouteDefinition(String id) {
         RouteDefinition result = null;

@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.seda.SedaConsumer;
-import org.apache.camel.util.ObjectHelper;
 import org.fusesource.fabric.eca.processor.StatisticsProcessor;
 import org.fusesource.fabric.eca.util.ParsingUtil;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ public class StatisticsConsumer extends SedaConsumer {
     private final ScheduledExecutorService executor;
     private ScheduledFuture<?> future;
 
-
     public StatisticsConsumer(StatisticsEndpoint statisticsEndpoint, Processor processor) {
         super(statisticsEndpoint, processor);
         this.statisticsEndpoint = statisticsEndpoint;
@@ -43,7 +41,6 @@ public class StatisticsConsumer extends SedaConsumer {
         if (polling) {
             this.executor = statisticsEndpoint.getCamelContext().getExecutorServiceStrategy()
                     .newScheduledThreadPool(this, statisticsEndpoint.getEndpointUri(), 1);
-            ObjectHelper.notNull(executor, "executor");
         } else {
             this.executor = null;
         }
@@ -52,7 +49,6 @@ public class StatisticsConsumer extends SedaConsumer {
     public StatisticsEndpoint getStatisticsEndpoint() {
         return this.statisticsEndpoint;
     }
-
 
     protected void sendToConsumers(Exchange exchange) throws Exception {
         Object result = null;
@@ -69,7 +65,6 @@ public class StatisticsConsumer extends SedaConsumer {
         if (!polling) {
             doSuperSendToConsumers(lastGeneratedExchange);
         }
-
     }
 
     protected void doSuperSendToConsumers(Exchange exchange) throws Exception {
@@ -80,24 +75,22 @@ public class StatisticsConsumer extends SedaConsumer {
         super.doStart();
 
         if (polling) {
-
             long scheduleTime = ParsingUtil.getTimeAsMilliseconds(statisticsEndpoint.getBatchUpdateTime());
-            LOG.debug("Scheduled StatisticsConsumer to batch every " + statisticsEndpoint.getBatchUpdateTime());
+            LOG.debug("Scheduled StatisticsConsumer to batch every {}", statisticsEndpoint.getBatchUpdateTime());
             final Runnable runnable = new Runnable() {
                 public void run() {
                     Exchange exchange = lastGeneratedExchange;
                     if (exchange != null) {
                         try {
                             StatisticsConsumer.this.doSuperSendToConsumers(exchange);
-                        } catch (Exception e) {
-                            LOG.error(statisticsEndpoint.getEndpointUri() + " Failed to send batch statistics ", e);
+                        } catch (Throwable e) {
+                            LOG.error(statisticsEndpoint.getEndpointUri() + " Failed to send batch statistics", e);
                         }
                     }
                 }
             };
             future = executor.scheduleAtFixedRate(runnable, scheduleTime, scheduleTime, TimeUnit.MILLISECONDS);
         }
-
     }
 
     @Override

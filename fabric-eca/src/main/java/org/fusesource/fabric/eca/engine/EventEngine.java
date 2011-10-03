@@ -28,7 +28,7 @@ public interface EventEngine extends Service {
     /**
      * Initialize the engine - which will add itself to the context
      */
-    public void intialize(CamelContext context, String cacheImplementation) throws Exception;
+    public void initialize(CamelContext context, String cacheImplementation) throws Exception;
 
     /**
      * Add a route Id
@@ -39,7 +39,6 @@ public interface EventEngine extends Service {
      * remove a route
      */
     public void removeRoute(String fromId);
-
 
     /**
      * Process an Exchange

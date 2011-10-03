@@ -18,8 +18,12 @@ import org.apache.camel.Exchange;
 import org.fusesource.fabric.eca.expression.Expression;
 
 public interface ExpressionListener {
+
     /**
-     * The expression has a match
+     * The expression has a match.
+     *
+     * @param expression the expression
+     * @param exchange   the exchange
      */
     public void expressionFired(Expression expression, Exchange exchange);
 }

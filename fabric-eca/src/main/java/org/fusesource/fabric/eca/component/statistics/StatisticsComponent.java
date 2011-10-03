@@ -19,31 +19,20 @@ import java.util.Map;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.seda.SedaComponent;
 
+/**
+ * The statistics component.
+ * <p/>
+ * Valid properties are:
+ * <ul>
+ * <li>eventWindow - default =  "30s,1000" can be either depth based (numeric value), time based (ms,sec,min) or both</li>
+ * <li>batchUpdateTime - default = null - a time based parameter for how often a stats message should be sent</li>
+ * <li>cacheImplementation = "default" - the name of the cache implementation</li>
+ * <li>queryString can be a comma separated list: If the first parameter equals a language, that will be used to create the query of the exchange,
+ * else it will default to <I>simple<I></li>
+ * <li>statisticsType  default = "ALL" - one of ALL, MEAN, MIN, MAX, VARIANCE, STDDEV, SKEWNESS, KUTOSIS, RATE - or a comma separated list of any of these</li>
+ * </ul>
+ */
 public class StatisticsComponent extends SedaComponent {
-
-    /**
-     * A factory method allowing derived components to create a new endpoint
-     * from the given URI, remaining path and optional parameters
-     *
-     * @param uri        the full URI of the endpoint
-     * @param remaining  the remaining part of the URI without the query
-     *                   parameters or component prefix
-     * @param parameters the optional parameters passed in
-     * @return a newly created endpoint or null if the endpoint cannot be
-     *         created based on the inputs
-     *         <p/>
-     *         <p/>
-     *         Valid properities are:
-     *         <p/>
-     *         eventWindow - default =  "30s,1000" can be either depth based (numeric value), time based (ms,sec,min) or both
-     *         batchUpdateTime - default = null - a time based parameter for how often a stats message should be sent
-     *         cacheImplementation = "default" - the name of the cache implementation
-     *         queryString can be a comma separated list:
-     *         If the first parameter equals a language, that will be used to create the query of the exchange,
-     *         else it will default to <I>simple<I>
-     *         statisticsType  default = "ALL" - one of ALL, MEAN, MIN, MAX, VARIANCE, STDDEV, SKEWNESS, KUTOSIS, RATE - or a comma separated list of any of these
-     */
-
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
@@ -53,8 +42,10 @@ public class StatisticsComponent extends SedaComponent {
             throw new IllegalArgumentException("The limitConcurrentConsumers flag in set to true. ConcurrentConsumers cannot be set at a value greater than "
                     + maxConcurrentConsumers + " was " + consumers);
         }
+
         StatisticsEndpoint answer = new StatisticsEndpoint(uri, this, createQueue(uri, parameters), consumers);
         answer.configureProperties(parameters);
         return answer;
     }
+
 }

@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.builder;
 
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import org.fusesource.fabric.eca.model.EcaRouteDefinition;
 
 public abstract class EcaRouteBuilder extends RouteBuilder {
 
-
     private EcaRoutesDefinition routeCollection = new EcaRoutesDefinition();
 
     public EcaRouteBuilder() {
@@ -52,13 +50,11 @@ public abstract class EcaRouteBuilder extends RouteBuilder {
         return getRouteCollection().toString();
     }
 
-
     public EcaRouteDefinition eca(String name) {
         EcaRouteDefinition answer = getRouteCollection().cep(name);
         configureRoute(answer);
         return answer;
     }
-
 
     public void setRouteCollection(RoutesDefinition routeCollection) {
         this.routeCollection = new EcaRoutesDefinition(routeCollection);
@@ -98,7 +94,6 @@ public abstract class EcaRouteBuilder extends RouteBuilder {
                 RouteDefinition rd = getRouteCollection().getRouteDefinition(targetId);
 
                 if (rd != null) {
-
                     if (!isWired(ecaRouteDefinition.getEcaDefinition(), rd)) {
                         rd.getOutputs().add(new ToDefinition(ecaRouteDefinition.getEcaDefinition().getUri()));
                     }
@@ -115,7 +110,6 @@ public abstract class EcaRouteBuilder extends RouteBuilder {
                             }
                         } else {
                             //create a route for it
-
                             RouteDefinition newRoute = getRouteCollection().from(endpoint);
                             newRoute.setId(targetId);
                             //setup a route
@@ -168,6 +162,5 @@ public abstract class EcaRouteBuilder extends RouteBuilder {
         }
         return false;
     }
-
 
 }

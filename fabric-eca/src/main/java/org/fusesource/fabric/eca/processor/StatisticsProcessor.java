@@ -12,7 +12,6 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.processor;
 
 import org.apache.camel.AsyncCallback;
@@ -26,8 +25,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Calculates statistics on exchanges passed in
- *
- * @version $Revision: 959391 $
  */
 public class StatisticsProcessor extends DelegateAsyncProcessor implements Traceable {
     public final static String STATS_CALCULATED = "statisticsCalculated";
@@ -42,18 +39,10 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
     private String queryString;
     private String cacheImplementation = "default";
 
-
-    /**
-     * Constructor
-     */
     public StatisticsProcessor(CamelContext context) {
         this(context, null);
     }
 
-
-    /**
-     * Constructor
-     */
     public StatisticsProcessor(CamelContext context, Processor processor) {
         this(context, processor, null);
     }
@@ -65,7 +54,6 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
      *                    If the first parameter equals a language, that will be used to create the query of the exchange,
      *                    else it will default to <I>simple<I>
      */
-
     public StatisticsProcessor(CamelContext context, Processor processor, String queryString) {
         this(context, processor, "StatisticsProcessor:" + System.identityHashCode(context), "30s", "", "ALL", queryString);
     }
@@ -76,7 +64,6 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
      *                       If the first parameter equals a language, that will be used to create the query of the exchange,
      *                       else it will default to <I>simple<I>
      */
-
     public StatisticsProcessor(CamelContext context, Processor processor, String statisticsType, String queryString) {
         this(context, processor, "StatisticsProcessor:" + System.identityHashCode(context), "30s", "", statisticsType, queryString);
     }
@@ -117,7 +104,6 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
         }
     }
 
-
     public boolean process(Exchange exchange, AsyncCallback callback) {
         Object statistics = processExchange(exchange);
         if (statistics != null) {
@@ -127,7 +113,6 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
                 exchange.getIn().setBody(statistics);
             }
         }
-
         callback.done(true);
         return true;
     }
@@ -145,7 +130,7 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
 
     @Override
     public String toString() {
-        return "statistics [" + queryString + "]";
+        return "statistics[" + queryString + "]";
     }
 
     public String getTraceLabel() {
@@ -204,7 +189,7 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
         if (isStarted()) {
             if (this.statisticsCalculator == null) {
                 this.statisticsCalculator = new StatisticsCalculator(context, getCacheId(), getEventWindow(), getQueryString());
-                this.statisticsCalculator.setstatisticsType(getStatisticsType());
+                this.statisticsCalculator.setStatisticsType(getStatisticsType());
                 this.statisticsCalculator.setCacheImplementation(getCacheImplementation());
                 this.statisticsCalculator.start();
             }
