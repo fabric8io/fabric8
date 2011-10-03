@@ -1,0 +1,46 @@
+---
+title: Camel ECA Support
+--- name:content
+
+## Camel ECA Support
+
+The Fabric ECA provides event processing, using Apache Camel
+
+TODO: More stuff here
+
+### Installing
+
+TODO: Install in fuse esb using a feature
+
+#### First Example
+
+TODO: A simple first example
+
+### More stuff
+
+TODO: Some more stuff what ECA can do
+
+### Using 
+
+To use this module you need to use the [FUSE Mediation Router](http://fusesource.com/products/enterprise-camel) distribution. Or you could just add the following to your pom.xml, substituting the version number for the latest & greatest release.
+
+{pygmentize:: xml}
+<dependency>
+  <groupId>org.fusesource.fabric</groupId>
+  <artifactId>fabric-eca</artifactId>
+  <version>\${fabric-version}</version>
+</dependency>
+{pygmentize}
+
+And ensure you are pointing at the maven repo
+
+{pygmentize:: xml}
+    <repository>
+      <id>fusesource-releases</id>
+      <name>FuseSource Release Repository</name>
+      <url>http://repo.fusesource.com/nexus/content/groups/public</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+{pygmentize}
+
