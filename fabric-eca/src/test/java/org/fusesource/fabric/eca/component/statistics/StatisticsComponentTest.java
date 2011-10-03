@@ -49,7 +49,6 @@ public class StatisticsComponentTest extends CamelTestSupport {
 
         MockEndpoint mock = context.getEndpoint("mock:result", MockEndpoint.class);
         mock.expectedMinimumMessageCount(1);
-        mock.setMinimumResultWaitTime(1000);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
