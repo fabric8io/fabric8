@@ -49,9 +49,11 @@ public class DefaultEventCacheManager extends ServiceSupport implements EventCac
 
     @Override
     protected void doStart() throws Exception {
+        // noop
     }
 
     @Override
     protected void doStop() throws Exception {
+        caches.clear();
     }
 }

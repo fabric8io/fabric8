@@ -43,6 +43,6 @@ public class MockEventCacheManager implements EventCacheManager {
     }
 
     public void stop() throws Exception {
-        // noop
+        caches.clear();
     }
 }

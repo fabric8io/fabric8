@@ -29,14 +29,14 @@ import org.fusesource.fabric.eca.expression.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultEventEngine extends ServiceSupport implements org.fusesource.fabric.eca.engine.EventEngine {
+public class DefaultEventEngine extends ServiceSupport implements EventEngine {
     private static final transient Logger LOG = LoggerFactory.getLogger(DefaultEventEngine.class);
     private EventCacheManager eventCacheManager;
     private Map<String, List<ExpressionHolder>> fromToExpressionMap = new ConcurrentHashMap<String, List<ExpressionHolder>>();
     private Map<Expression, List<String>> expressionToFromMap = new ConcurrentHashMap<Expression, List<String>>();
 
     public void initialize(CamelContext context, String cacheImplementation) throws Exception {
-        eventCacheManager = EventHelper.getEventCacheManager(context, cacheImplementation);
+        this.eventCacheManager = EventHelper.getEventCacheManager(context, cacheImplementation);
     }
 
     public EventCache<Exchange> addRoute(String fromId, String window) {
@@ -49,46 +49,45 @@ public class DefaultEventEngine extends ServiceSupport implements org.fusesource
     }
 
     public void process(Exchange exchange) {
-        if (exchange != null) {
-            String fromId = exchange.getFromRouteId();
-            if (fromId == null) {
-                fromId = exchange.getFromEndpoint().getEndpointUri();
-            }
-            if (fromId != null) {
-                EventCache<Exchange> eventCache = eventCacheManager.lookupCache(Exchange.class, fromId);
-                if (eventCache == null) {
-                    fromId = exchange.getFromEndpoint().getEndpointKey();
-                    eventCache = eventCacheManager.lookupCache(Exchange.class, fromId);
-                }
-                if (eventCache != null) {
-                    if (eventCache.add(exchange)) {
-                        //Get the matching expressions
-                        List<ExpressionHolder> expressionHolders = fromToExpressionMap.get(fromId);
-                        for (ExpressionHolder expressionHolder : expressionHolders) {
-                            if (expressionHolder.expression.isMatch()) {
-                                if (expressionHolder.listener != null) {
-                                    expressionHolder.listener.expressionFired(expressionHolder.expression, exchange);
-                                }
-                            }
+        if (exchange == null) {
+            return;
+        }
+
+        String fromId = exchange.getFromRouteId();
+        if (fromId == null) {
+            fromId = exchange.getFromEndpoint().getEndpointUri();
+        }
+        if (fromId == null) {
+            LOG.warn("Cannot process an exchange with no route or endpoint information: {}", exchange);
+            return;
+        }
+
+        EventCache<Exchange> eventCache = eventCacheManager.lookupCache(Exchange.class, fromId);
+        if (eventCache == null) {
+            fromId = exchange.getFromEndpoint().getEndpointKey();
+            eventCache = eventCacheManager.lookupCache(Exchange.class, fromId);
+        }
+        if (eventCache != null) {
+            if (eventCache.add(exchange)) {
+                // get the matching expressions
+                List<ExpressionHolder> expressionHolders = fromToExpressionMap.get(fromId);
+                for (ExpressionHolder expressionHolder : expressionHolders) {
+                    if (expressionHolder.expression.isMatch()) {
+                        // fire matched listener
+                        if (expressionHolder.listener != null) {
+                            expressionHolder.listener.expressionFired(expressionHolder.expression, exchange);
                         }
-                    } else {
-                        //ignore - already fired the rule for this exchange
-                        LOG.debug("Ignoring - already fired for exchange: {}", exchange);
                     }
-                } else {
-                    LOG.warn("Cannot find cache for a route or endpoint named: {} for exchange: {}", fromId, exchange);
                 }
             } else {
-                LOG.warn("Cannot process an exchange with no route or endpoint information: {}", exchange);
+                //ignore - already fired the rule for this exchange
+                LOG.debug("Ignoring - already fired for exchange: {}", exchange);
             }
         } else {
-            LOG.warn("process() passed null exchange!");
+            LOG.warn("Cannot find cache for a route or endpoint named: {} for exchange: {}", fromId, exchange);
         }
     }
 
-    /**
-     * Add an expression - equivalent of a rule
-     */
     public void addExpression(Expression expression, ExpressionListener listener) {
         ExpressionHolder expressionHolder = new ExpressionHolder();
         expressionHolder.expression = expression;
@@ -114,9 +113,6 @@ public class DefaultEventEngine extends ServiceSupport implements org.fusesource
         }
     }
 
-    /**
-     * remove an expression
-     */
     public void removeExpression(Expression expression) {
         List<String> routeList = expressionToFromMap.remove(expression);
         if (routeList != null) {
@@ -137,7 +133,6 @@ public class DefaultEventEngine extends ServiceSupport implements org.fusesource
         }
     }
 
-
     @Override
     protected void doStart() throws Exception {
         eventCacheManager.start();
@@ -148,6 +143,7 @@ public class DefaultEventEngine extends ServiceSupport implements org.fusesource
     protected void doStop() throws Exception {
         eventCacheManager.stop();
         ServiceHelper.stopServices(expressionToFromMap.keySet());
+        expressionToFromMap.clear();
     }
 
     private static class ExpressionHolder {

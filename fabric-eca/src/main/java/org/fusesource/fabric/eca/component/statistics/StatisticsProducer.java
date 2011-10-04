@@ -23,23 +23,22 @@ import org.apache.camel.component.seda.SedaProducer;
 import org.fusesource.fabric.eca.processor.StatisticsProcessor;
 
 public class StatisticsProducer extends SedaProducer {
-    private final StatisticsEndpoint statisticsEndpoint;
 
     public StatisticsProducer(StatisticsEndpoint endpoint, BlockingQueue<Exchange> queue, WaitForTaskToComplete waitForTaskToComplete, long timeout) {
         super(endpoint, queue, waitForTaskToComplete, timeout);
-        this.statisticsEndpoint = endpoint;
     }
 
-    public StatisticsEndpoint getStatisticsEndpoint() {
-        return this.statisticsEndpoint;
+    @Override
+    public StatisticsEndpoint getEndpoint() {
+        return (StatisticsEndpoint) super.getEndpoint();
     }
 
     public boolean process(final Exchange exchange, final AsyncCallback callback) {
         Object result = null;
         if (!StatisticsProcessor.isAlreadyProcessedForStatistics(exchange)) {
             try {
-                result = getStatisticsEndpoint().getStatsProcessor().processExchange(exchange);
-            } catch (Exception e) {
+                result = getEndpoint().getStatsProcessor().processExchange(exchange);
+            } catch (Throwable e) {
                 exchange.setException(e);
             }
             if (result != null) {

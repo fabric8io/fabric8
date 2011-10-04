@@ -17,6 +17,9 @@ package org.fusesource.fabric.eca.engine;
 import org.apache.camel.Exchange;
 import org.fusesource.fabric.eca.expression.Expression;
 
+/**
+ * Expression listener.
+ */
 public interface ExpressionListener {
 
     /**

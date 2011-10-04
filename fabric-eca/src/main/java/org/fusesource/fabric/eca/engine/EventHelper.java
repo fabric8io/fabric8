@@ -58,6 +58,6 @@ public class EventHelper {
             eventRefComponent = new EventRefComponent();
             context.addComponent(NAME, eventRefComponent);
         }
-        return eventRefComponent.getEventCachManager(context, type);
+        return eventRefComponent.getEventCacheManager(context, type);
     }
 }

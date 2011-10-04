@@ -24,19 +24,18 @@ import org.slf4j.LoggerFactory;
 
 public class EcaConsumer extends SedaConsumer implements ExpressionListener {
     private static final transient Logger LOG = LoggerFactory.getLogger(EcaConsumer.class);
-    private final EcaEndpoint ecaEndpoint;
 
     public EcaConsumer(EcaEndpoint ecaEndpoint, Processor processor) {
         super(ecaEndpoint, processor);
-        this.ecaEndpoint = ecaEndpoint;
     }
 
-    public EcaEndpoint getEcaEndpoint() {
-        return this.ecaEndpoint;
+    @Override
+    public EcaEndpoint getEndpoint() {
+        return (EcaEndpoint) super.getEndpoint();
     }
 
     protected void sendToConsumers(Exchange exchange) throws Exception {
-        getEcaEndpoint().evaluate(exchange);
+        getEndpoint().evaluate(exchange);
     }
 
     protected void doSendToConsumers(Exchange exchange) throws Exception {
@@ -47,6 +46,7 @@ public class EcaConsumer extends SedaConsumer implements ExpressionListener {
      * Implementation of ExpressionListener
      */
     public void expressionFired(Expression expression, Exchange exchange) {
+        // TODO: Should the code be removed?
         try {
             /*
             Exchange copy = exchange.copy();
@@ -59,18 +59,18 @@ public class EcaConsumer extends SedaConsumer implements ExpressionListener {
             */
             doSendToConsumers(exchange);
         } catch (Exception e) {
-            LOG.warn("Failed to sendToConsumers " + e);
+            LOG.warn("Failed to send to consumers. This exception will be ignored.", e);
         }
     }
 
     protected void doStart() throws Exception {
+        getEndpoint().addExpression(this);
         super.doStart();
-        getEcaEndpoint().addExpression(this);
     }
 
     protected void doStop() throws Exception {
         super.doStop();
-        getEcaEndpoint().removeExpression(this);
+        getEndpoint().removeExpression(this);
     }
 
 }

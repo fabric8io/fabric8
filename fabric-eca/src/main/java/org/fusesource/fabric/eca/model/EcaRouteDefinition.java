@@ -110,7 +110,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.WHEN);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found");
             throw cause;
         }
         return this;
@@ -121,7 +121,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.WHEN);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route is Null");
             throw cause;
         }
         return this;
@@ -133,7 +133,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.AND);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found");
             throw cause;
         }
         return this;
@@ -144,7 +144,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.AND);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route is Null");
             throw cause;
         }
         return this;
@@ -156,7 +156,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.OR);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found");
             throw cause;
         }
         return this;
@@ -167,7 +167,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.OR);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route is Null");
             throw cause;
         }
         return this;
@@ -179,7 +179,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.NOT);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found");
             throw cause;
         }
         return this;
@@ -190,7 +190,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.NOT);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route is Null");
             throw cause;
         }
         return this;
@@ -202,7 +202,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.BEFORE);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found");
             throw cause;
         }
         return this;
@@ -213,7 +213,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.BEFORE);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route is Null");
             throw cause;
         }
         return this;
@@ -225,7 +225,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.AFTER);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route " + targetId + " cannot be found");
             throw cause;
         }
         return this;
@@ -236,7 +236,7 @@ public class EcaRouteDefinition extends RouteDefinition {
             EcaEventPattern ecaEventPattern = new EcaEventPattern(routeDefinition, EcaEventPattern.TYPE.AFTER);
             ecaDefinition.addEventPattern(ecaEventPattern);
         } else {
-            IllegalArgumentException cause = new IllegalArgumentException("Route is Null ");
+            IllegalArgumentException cause = new IllegalArgumentException("Route is Null");
             throw cause;
         }
         return this;

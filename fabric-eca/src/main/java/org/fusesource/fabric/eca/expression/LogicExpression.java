@@ -35,7 +35,7 @@ public abstract class LogicExpression extends BinaryExpression {
     public static Expression createOR(String threshold, Expression lvalue, Expression rvalue) {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
-            public List<CacheItem<Exchange>> getMatching() throws Exception {
+            public List<CacheItem<Exchange>> getMatching() {
                 List<CacheItem<Exchange>> result = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (result != null) {
@@ -70,7 +70,7 @@ public abstract class LogicExpression extends BinaryExpression {
     public static Expression createAND(String threshold, Expression lvalue, Expression rvalue) {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
-            public List<CacheItem<Exchange>> getMatching() throws Exception {
+            public List<CacheItem<Exchange>> getMatching() {
                 List<CacheItem<Exchange>> lv = left.getMatching();
                 List<CacheItem<Exchange>> rv = right.getMatching();
                 if (lv != null && rv != null) {
@@ -97,7 +97,7 @@ public abstract class LogicExpression extends BinaryExpression {
     public static Expression createBEFORE(String threshold, Expression lvalue, Expression rvalue) {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
-            public List<CacheItem<Exchange>> getMatching() throws Exception {
+            public List<CacheItem<Exchange>> getMatching() {
                 List<CacheItem<Exchange>> lv = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (lv != null) {
@@ -127,7 +127,7 @@ public abstract class LogicExpression extends BinaryExpression {
     public static Expression createAFTER(String threshold, Expression lvalue, Expression rvalue) {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
-            public List<CacheItem<Exchange>> getMatching() throws Exception {
+            public List<CacheItem<Exchange>> getMatching() {
                 List<CacheItem<Exchange>> lv = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (rv != null) {
@@ -157,7 +157,7 @@ public abstract class LogicExpression extends BinaryExpression {
     public static Expression createNOT(String threshold, Expression lvalue, Expression rvalue) {
         return new LogicExpression(threshold, lvalue, rvalue) {
 
-            public List<CacheItem<Exchange>> getMatching() throws Exception {
+            public List<CacheItem<Exchange>> getMatching() {
                 List<CacheItem<Exchange>> result = left != null ? left.getMatching() : null;
                 List<CacheItem<Exchange>> rv = right != null ? right.getMatching() : null;
                 if (result != null) {

@@ -30,23 +30,27 @@ public interface Expression extends Service {
      * If {@link Expression} is positive all the exchanges held by the event cache
      * which matches will be returned.
      *
-     * @return A list of matching results
+     * @return A list of matching results, or <tt>null</tt> if no matching results.
      */
-    List<CacheItem<Exchange>> getMatching() throws Exception;
+    List<CacheItem<Exchange>> getMatching();
 
     /**
+     * Determines if currently matched.
+     *
      * @return true if currently matched
      */
     boolean isMatch();
 
     /**
-     * Validate the Expression
+     * Validate the expression
      *
      * @param context the camel context
      */
     void validate(CamelContext context);
 
     /**
+     * Gets the key used to create the expression, or multiple, comma separated keys
+     *
      * @return the key used to create the expression, or multiple, comma separated keys
      */
     String getFromIds();

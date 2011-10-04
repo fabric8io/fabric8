@@ -16,16 +16,18 @@ package org.fusesource.fabric.eca.component.statistics;
 
 import java.util.concurrent.BlockingQueue;
 
-import org.apache.camel.AsyncCallback;
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.component.seda.SedaEndpoint;
+import org.apache.camel.util.ServiceHelper;
 import org.fusesource.fabric.eca.processor.StatisticsProcessor;
 
-
+/**
+ * Statistics endpoint.
+ */
 public class StatisticsEndpoint extends SedaEndpoint {
 
     private StatisticsProcessor statisticsProcessor;
@@ -55,26 +57,10 @@ public class StatisticsEndpoint extends SedaEndpoint {
         super(endpointUri, queue, concurrentConsumers);
     }
 
-    /**
-     * Creates a new producer which is used send messages into the endpoint
-     *
-     * @return a newly created producer
-     * @throws Exception can be thrown
-     */
     public Producer createProducer() throws Exception {
         return new StatisticsProducer(this, getQueue(), getWaitForTaskToComplete(), getTimeout());
     }
 
-    /**
-     * Creates a new <a
-     * href="http://camel.apache.org/event-driven-consumer.html">Event
-     * Driven Consumer</a> which consumes messages from the endpoint using the
-     * given processor
-     *
-     * @param processor the given processor
-     * @return a newly created consumer
-     * @throws Exception can be thrown
-     */
     public Consumer createConsumer(Processor processor) throws Exception {
         return new StatisticsConsumer(this, processor);
     }
@@ -147,56 +133,24 @@ public class StatisticsEndpoint extends SedaEndpoint {
         this.statisticsType = statisticsType;
     }
 
-    /**
-     * Processes the message exchange.
-     * Similar to {@link org.apache.camel.Processor#process}, but the caller supports having the exchange asynchronously processed.
-     * <p/>
-     * If there was a failure processing then the caused {@link Exception} would be set on the {@link org.apache.camel.Exchange}.
-     *
-     * @param exchange the message exchange
-     * @param callback the {@link org.apache.camel.AsyncCallback} will be invoked when the processing of the exchange is completed.
-     *                 If the exchange is completed synchronously, then the callback is also invoked synchronously.
-     *                 The callback should therefore be careful of starting recursive loop.
-     * @return (doneSync) <tt>true</tt> to continue execute synchronously, <tt>false</tt> to continue being executed asynchronously
-     * @see org.apache.camel.util.AsyncProcessorHelper#process(org.apache.camel.AsyncProcessor, org.apache.camel.Exchange, org.apache.camel.AsyncCallback)
-     */
-    public boolean process(Exchange exchange, AsyncCallback callback) {
-        try {
-            return getStatsProcessor().process(exchange, callback);
-        } catch (Exception e) {
-            exchange.setException(e);
-        }
-        callback.done(true);
-        return true;
-    }
-
-    /**
-     * Processes the message exchange
-     *
-     * @param exchange the message exchange
-     * @throws Exception if an internal processing error has occurred.
-     */
-    public void process(Exchange exchange) throws Exception {
-        statisticsProcessor.process(exchange);
-    }
-
-    public synchronized StatisticsProcessor getStatsProcessor() throws Exception {
-        if (isStarted()) {
-            if (this.statisticsProcessor == null) {
-                Processor childProcessor = null;
-                this.statisticsProcessor = new StatisticsProcessor(getCamelContext(), childProcessor, getCacheId(), getEventWindow(), getBatchUpdateTime(), getStatisticsType(), getQueryString());
-                this.statisticsProcessor.setCacheImplementation(getCacheImplementation());
-                this.statisticsProcessor.start();
-            }
-        }
-        return this.statisticsProcessor;
+    public StatisticsProcessor getStatsProcessor() {
+        return statisticsProcessor;
     }
 
     @Override
     protected void doStop() throws Exception {
-        if (statisticsProcessor != null) {
-            statisticsProcessor.stop();
-        }
+        ServiceHelper.stopService(statisticsProcessor);
         super.doStop();
+    }
+
+    @Override
+    protected void doStart() throws Exception {
+        if (this.statisticsProcessor == null) {
+            Processor childProcessor = null;
+            this.statisticsProcessor = new StatisticsProcessor(getCamelContext(), childProcessor, getCacheId(), getEventWindow(), getBatchUpdateTime(), getStatisticsType(), getQueryString());
+            this.statisticsProcessor.setCacheImplementation(getCacheImplementation());
+        }
+        ServiceHelper.startService(statisticsProcessor);
+        super.doStart();
     }
 }

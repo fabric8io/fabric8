@@ -28,26 +28,26 @@ public interface EventClock {
      *
      * @return the current time
      */
-    public long currentTimeMillis();
+    long currentTimeMillis();
 
     /**
      * Set the current time.
      * <p/>
      * This will be a no-op on System time implementation
      */
-    public void setCurrentTime(int value, TimeUnit unit);
+    void setCurrentTime(int value, TimeUnit unit);
 
     /**
      * Advance the current time.
      * <p/>
      * This will be a no-op on System time implementation
      */
-    public void advanceClock(int value, TimeUnit unit);
+    void advanceClock(int value, TimeUnit unit);
 
     /**
      * Retreat the current time.
      * <p/>
      * This will be a no-op on System time implementation
      */
-    public void retreatClock(int value, TimeUnit unit);
+    void retreatClock(int value, TimeUnit unit);
 }

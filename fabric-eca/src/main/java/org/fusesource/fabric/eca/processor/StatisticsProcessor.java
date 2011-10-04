@@ -20,6 +20,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.processor.DelegateAsyncProcessor;
 import org.apache.camel.processor.Traceable;
+import org.apache.camel.util.ServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,10 +91,7 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
     public static boolean isAlreadyProcessedForStatistics(Exchange exchange) {
         boolean result = false;
         if (exchange != null) {
-            Boolean b = (Boolean) exchange.getProperty(StatisticsProcessor.STATS_CALCULATED, Boolean.class);
-            if (b != null && b.booleanValue()) {
-                result = true;
-            }
+            result = exchange.getProperty(StatisticsProcessor.STATS_CALCULATED, Boolean.FALSE, Boolean.class);
         }
         return result;
     }
@@ -122,7 +120,7 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
         try {
             result = getStatisticsCalculator().calculateStatistics(exchange);
             StatisticsProcessor.markProcessedForStatistics(exchange);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             exchange.setException(e);
         }
         return result;
@@ -185,21 +183,23 @@ public class StatisticsProcessor extends DelegateAsyncProcessor implements Trace
         this.cacheImplementation = cacheImplementation;
     }
 
-    public StatisticsCalculator getStatisticsCalculator() throws Exception {
-        if (isStarted()) {
-            if (this.statisticsCalculator == null) {
-                this.statisticsCalculator = new StatisticsCalculator(context, getCacheId(), getEventWindow(), getQueryString());
-                this.statisticsCalculator.setStatisticsType(getStatisticsType());
-                this.statisticsCalculator.setCacheImplementation(getCacheImplementation());
-                this.statisticsCalculator.start();
-            }
-        }
+    public StatisticsCalculator getStatisticsCalculator() {
         return statisticsCalculator;
     }
 
     @Override
+    protected void doStart() throws Exception {
+        super.doStart();
+
+        this.statisticsCalculator = new StatisticsCalculator(context, getCacheId(), getEventWindow(), getQueryString());
+        this.statisticsCalculator.setStatisticsType(getStatisticsType());
+        this.statisticsCalculator.setCacheImplementation(getCacheImplementation());
+        ServiceHelper.startService(statisticsCalculator);
+    }
+
+    @Override
     protected void doStop() throws Exception {
-        this.statisticsCalculator.stop();
+        ServiceHelper.stopService(statisticsCalculator);
         super.doStop();
     }
 

@@ -23,6 +23,8 @@ import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.spi.FactoryFinder;
 import org.fusesource.fabric.eca.eventcache.EventCacheManager;
 
+// TODO: Find alternative way
+
 /**
  * This is  a shameless hack.
  * In order to register or lookup the EventEngine
@@ -48,7 +50,7 @@ public class EventRefComponent extends DefaultComponent {
         return eventEngine;
     }
 
-    public synchronized EventCacheManager getEventCachManager(CamelContext context, String type) throws Exception {
+    public synchronized EventCacheManager getEventCacheManager(CamelContext context, String type) throws Exception {
         EventCacheManager eventCacheManager = cacheMap.get(type);
         if (eventCacheManager == null) {
             FactoryFinder ff = context.getFactoryFinder("META-INF/services/org/fusesource/fabric/eca/eventcache/");

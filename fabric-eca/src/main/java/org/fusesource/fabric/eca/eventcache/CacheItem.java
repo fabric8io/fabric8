@@ -14,6 +14,9 @@
  */
 package org.fusesource.fabric.eca.eventcache;
 
+/**
+ * An item which can be cached.
+ */
 public interface CacheItem<T> extends Comparable<CacheItem<T>> {
 
     T getItem();

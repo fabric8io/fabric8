@@ -12,9 +12,7 @@
  * file and include the License file at resources/META-INF/LICENSE.txt.
  *
  */
-
 package org.fusesource.fabric.eca.eventcache;
-
 
 import java.util.List;
 
@@ -32,7 +30,7 @@ public interface EventCache<T> {
 
 
     /**
-     * Get a List of itms in the Cache
+     * Get a List of items in the Cache
      */
     List<T> getWindow();
 

@@ -14,7 +14,6 @@
  */
 package org.fusesource.fabric.eca.processor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * Calculates statistics on a Number types in a cache of {@link Exchange}s
  */
 public class StatisticsCalculator extends ServiceSupport {
-    protected final transient Logger LOG = LoggerFactory.getLogger(getClass());
+    private final static Logger LOG = LoggerFactory.getLogger(StatisticsCalculator.class);
     private final CamelContext context;
     private final String cachedId;
     private final String eventWindow;
@@ -86,7 +85,7 @@ public class StatisticsCalculator extends ServiceSupport {
     }
 
 
-    String calculateStatistics(Exchange exchange) throws Exception {
+    public String calculateStatistics(Exchange exchange) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
         ObjectNode statsNode = objectNode.putObject("statistics");

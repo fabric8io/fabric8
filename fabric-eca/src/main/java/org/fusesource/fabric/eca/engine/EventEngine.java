@@ -27,31 +27,47 @@ public interface EventEngine extends Service {
 
     /**
      * Initialize the engine - which will add itself to the context
+     *
+     * @param context the Camel context
+     * @param cacheImplementation name of the cache implementation, use <tt>default</tt> for default implementation.
      */
     public void initialize(CamelContext context, String cacheImplementation) throws Exception;
 
     /**
-     * Add a route Id
+     * Add a route
+     *
+     * @param fromId the route id
+     * @param window the window
+     * @return the event cache
      */
     public EventCache<Exchange> addRoute(String fromId, String window);
 
     /**
-     * remove a route
+     * Remove a route
+     *
+     * @param fromId  route id
      */
     public void removeRoute(String fromId);
 
     /**
-     * Process an Exchange
+     * Process an {@link Exchange}
+     *
+     * @param exchange the exchange
      */
     public void process(Exchange exchange);
 
     /**
      * Add an expression - equivalent of a rule
+     *
+     * @param expression the expression
+     * @param listener   the expression listener
      */
-    public void addExpression(Expression expression, org.fusesource.fabric.eca.engine.ExpressionListener listener);
+    public void addExpression(Expression expression, ExpressionListener listener);
 
     /**
-     * remove an expression
+     * Remove an expression
+     *
+     * @param expression the expression
      */
     public void removeExpression(Expression expression);
 }

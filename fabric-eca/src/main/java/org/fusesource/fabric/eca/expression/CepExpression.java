@@ -26,6 +26,9 @@ import org.fusesource.fabric.eca.eventcache.EventCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * CEP {@link Expression}.
+ */
 public class CepExpression extends ServiceSupport implements Expression {
     private static final transient Logger LOG = LoggerFactory.getLogger(CepExpression.class);
     private final String fromId;
@@ -45,7 +48,7 @@ public class CepExpression extends ServiceSupport implements Expression {
         LOG.debug("CepExpression created for route {}", id);
     }
 
-    public List<CacheItem<Exchange>> getMatching() throws Exception {
+    public List<CacheItem<Exchange>> getMatching() {
         List<CacheItem<Exchange>> result = null;
         if (isMatch()) {
             result = eventCache.getCacheItems();
@@ -67,7 +70,6 @@ public class CepExpression extends ServiceSupport implements Expression {
         if (result == null) {
             throw new RuntimeCamelException("Failed to find RouteDefinition with id: " + fromId);
         }
-
     }
 
     public String getFromIds() {
@@ -80,15 +82,11 @@ public class CepExpression extends ServiceSupport implements Expression {
 
     @Override
     protected void doStart() throws Exception {
-        try {
-            this.eventCache = eventEngine.addRoute(fromId, eventWindow);
-        } catch (Exception e) {
-            LOG.error("Could not create the event cache", e);
-            throw e;
-        }
+        this.eventCache = eventEngine.addRoute(fromId, eventWindow);
     }
 
     @Override
     protected void doStop() throws Exception {
+        // noop
     }
 }

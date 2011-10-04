@@ -21,21 +21,20 @@ import org.apache.camel.Service;
  */
 public interface EventCacheManager extends Service {
 
-
     /**
      * Retrieve or create a cache
      */
-    public <T> EventCache<T> getCache(Class<T> type, Object id, String size);
+    <T> EventCache<T> getCache(Class<T> type, Object id, String size);
 
     /**
      * retrieve an existing cache
      *
      * @return the cache or null, if it doesn't exist
      */
-    public <T> EventCache<T> lookupCache(Class<T> type, Object id);
+    <T> EventCache<T> lookupCache(Class<T> type, Object id);
 
     /**
      * Remove a cache
      */
-    public boolean removeCache(Object id);
+    boolean removeCache(Object id);
 }
