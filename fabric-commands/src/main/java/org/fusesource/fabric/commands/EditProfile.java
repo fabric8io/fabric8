@@ -96,9 +96,14 @@ public class EditProfile extends FabricCommand {
                 pidConfig.put(prefix + nameValue[0], nameValue[1]);
             } else if (delete) {
                 if (repositories || features || bundles) {
-                    arg = arg.replace('/', '_');
+                    for (Map.Entry<String, String> entry : pidConfig.entrySet()) {
+                        if(arg.equals(entry.getValue())) {
+                            pidConfig.remove(entry.getKey());
+                        }
+                    }
+                } else {
+                    pidConfig.remove(prefix + arg);
                 }
-                pidConfig.remove(prefix + arg);
             }
         }
 

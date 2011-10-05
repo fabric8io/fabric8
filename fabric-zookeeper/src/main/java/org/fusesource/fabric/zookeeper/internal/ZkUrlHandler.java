@@ -21,6 +21,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.slf4j.Logger;
@@ -88,53 +89,12 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
 
         @Override
         public InputStream getInputStream() throws IOException {
-            ByteArrayInputStream rc = null;
             try {
-              rc = new ByteArrayInputStream(zooKeeper.getData(url.getPath()));
+              return new ByteArrayInputStream(ZkPath.loadURL(zooKeeper, url.toString()));
             } catch (Exception e) {
                 logger.error("Error opening zookeeper url", e);
                 throw (IOException) new IOException("Error opening zookeeper url").initCause(e);
             }
-            if( url.getRef()!=null ) {
-                String path = url.getPath().trim();
-                if( path.endsWith(".properties") ) {
-                    Properties properties = new Properties();
-                    properties.load(rc);
-                    String property = properties.getProperty(url.getRef());
-                    if( property==null ) {
-                        throw  new IOException("Property '"+url.getRef()+"' is not set in the properties file.");
-                    }
-                    rc = new ByteArrayInputStream(property.getBytes("UTF-8"));
-                } else if( path.endsWith(".json") ) {
-                    String[] fields = url.getRef().split("\\.");
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonFactory factory = mapper.getJsonFactory();
-                    JsonParser jp = factory.createJsonParser(rc);
-                    JsonNode node = mapper.readTree(jp);
-                    for(String field: fields) {
-                        if(!field.isEmpty()) {
-                            if( node.isObject() ) {
-                                node = node.get(field);
-                            } else if (node.isArray()) {
-                                node = node.get(Integer.parseInt(field));
-                            } else {
-                                throw  new IOException("Path '"+url.getRef()+"' is not set in the json file.");
-                            }
-                            if( node == null ) {
-                                throw  new IOException("Path '"+url.getRef()+"' is not set in the json file.");
-                            }
-                        }
-                    }
-                    if( node.isContainerNode() ) {
-                        throw new IOException("Path '"+url.getRef()+"' is not a value in the json file.");
-                    }
-                    String textValue = node.getValueAsText();
-                    rc = new ByteArrayInputStream(textValue.getBytes("UTF-8"));
-                } else {
-                    throw new RuntimeException();
-                }
-            }
-            return rc;
         }
     }
 

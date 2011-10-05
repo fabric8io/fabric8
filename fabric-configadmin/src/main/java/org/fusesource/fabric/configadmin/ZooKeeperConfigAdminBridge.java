@@ -8,18 +8,10 @@
  */
 package org.fusesource.fabric.configadmin;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -123,6 +115,19 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         return tree;
     }
 
+    static public Properties toProperties(String source) throws IOException {
+        Properties rc = new Properties();
+        rc.load(new StringReader(source));
+        return rc;
+    }
+
+    static public String stripSuffix(String value, String suffix) {
+        if(value.endsWith(suffix)) {
+            return value.substring(0, value.length() -suffix.length());
+        } else {
+            return value;
+        }
+    }
 
     public Dictionary load(String pid) throws IOException {
         try {
@@ -131,13 +136,10 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
                 public String getValue(String key) {
                     if (key.startsWith("zk:")) {
-                        key = key.substring("zk:".length());
-                        if (key.charAt(0) != '/') {
-                            key = ZkPath.AGENT.getPath(key);
-                        }
                         try {
-                            return zooKeeper.getStringData(key);
+                            new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
                         } catch (Exception e) {
+                            LOGGER.log(Level.WARNING, "Could not load zk value: "+key, e);
                         }
                     }
                     return null;
@@ -158,11 +160,25 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         for (String parent : parents) {
             load(pid, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), dict);
         }
-        TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid) : null;
-        if (cfg != null && !DELETED.equals(cfg.getData())) {
-            for (String key : getChildren(tree, node + "/" + pid)) {
-                TrackedNode<String> n = tree.getTree().get(node + "/" + pid + "/" + key);
-                dict.put(key, n.getData() != null ? n.getData() : "");
+        TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid+".properties") : null;
+        if (cfg != null) {
+        //if (cfg != null && !DELETED.equals(cfg.getData())) {
+            Properties properties = toProperties(cfg.getData());
+
+            // clear out the dict if it had a deleted key.
+            if( properties.remove(DELETED)!=null ) {
+                Enumeration keys = dict.keys();
+                while (keys.hasMoreElements()) {
+                    dict.remove(keys.nextElement());
+                }
+            }
+
+            for (Map.Entry<Object, Object> entry: properties.entrySet()){
+                if( DELETED.equals(entry.getValue()) ) {
+                    dict.remove(entry.getKey());
+                } else {
+                    dict.put(entry.getKey(), entry.getValue());
+                }
             }
         }
     }
@@ -181,13 +197,9 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             getPids(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), pids);
         }
         for (String pid : getChildren(tree, node)) {
-            TrackedNode<String> n = tree.getTree().get(node + "/" + pid);
-            if (n != null) {
-                if (DELETED.equals(n.getData())) {
-                    pids.remove(pid);
-                } else {
-                    pids.add(pid);
-                }
+            if(pid.endsWith(".properties")) {
+                pid = stripSuffix(pid, ".properties");
+                pids.add(pid);
             }
         }
     }
