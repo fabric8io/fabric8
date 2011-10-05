@@ -11,7 +11,7 @@ Getting Started guide for Fabric
 h2
   | Warning
   p
-    | The below getting started only works on Karaf 2.2.1-SNAPSHOT for now.
+    | The below getting started only works on Karaf 2.2.2 or better for now.
 
 .left
   :markdown
@@ -39,7 +39,7 @@ h2
   :&markdown
     To create a ZooKeeper server, run the following commands in Karaf (2.2.x) console:  
   pre
-    | karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/1.0-SNAPSHOT/xml/features
+    | karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features
     | karaf@root> features:install fabric-commands
     | karaf@root> fabric:zk-cluster root
   :&markdown
@@ -81,7 +81,7 @@ h2
   :&markdown
     Let's associate a karaf war feature to the webserver profile:  
   pre
-    | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.1-SNAPSHOT/xml/features
+    | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.2/xml/features
     | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/feature.war war
   :&markdown
     Wait a few seconds, then check that the feature has been deployed:  

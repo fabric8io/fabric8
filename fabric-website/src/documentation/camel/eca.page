@@ -6,11 +6,16 @@ title: Camel ECA Support
 
 The Fabric ECA provides event processing, using Apache Camel
 
-TODO: More stuff here
+TODO: More background stuff here
+
+TODO: A section about each of the components provided by Camel ECA
 
 ### Installing
 
-TODO: Install in fuse esb using a feature
+Camel ECA can be installed as a feature in Fuse ESB / Karaf using the following commands:
+
+    karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features
+    karaf@root> features:install fabric-eca
 
 #### First Example
 
