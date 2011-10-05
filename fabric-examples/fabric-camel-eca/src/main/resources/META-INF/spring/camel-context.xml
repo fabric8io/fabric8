@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <bean id="stockService" class="org.fusesource.example.StockBean"/>
+
+  <camelContext xmlns="http://camel.apache.org/schema/spring">
+
+    <!-- a route which triggers and creates a stock data once per second -->
+    <route>
+      <from uri="timer:foo?period=1s"/>
+      <transform>
+        <method ref="stockService" method="createStock"/>
+      </transform>
+      <wireTap uri="statistics:stat"/>
+      <to uri="log:stock"/>
+    </route>
+
+    <!-- a route which logs stats every 5th second -->
+    <route>
+      <from uri="statistics:stat?batchUpdateTime=5s"/>
+      <to uri="log:stock.statistics"/>
+    </route>
+
+  </camelContext>
+
+</beans>
