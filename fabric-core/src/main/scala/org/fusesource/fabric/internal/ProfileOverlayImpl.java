@@ -8,16 +8,13 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.io.IOException;
-import java.util.*;
-
-import com.sun.tools.javac.resources.version;
-import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.IZKClient;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import static org.fusesource.fabric.internal.ProfileImpl.*;
 
 public class ProfileOverlayImpl implements Profile {
