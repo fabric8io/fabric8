@@ -27,6 +27,15 @@ public interface Profile {
     Profile[] getParents();
     void setParents(Profile[] parents);
 
+    Map<String, byte[]> getFileConfigurations();
+
+    /**
+     * Update configurations of this profile with the new values
+     *
+     * @param configurations
+     */
+    void setFileConfigurations(Map<String, byte[]> configurations);
+
     Map<String, Map<String, String>> getConfigurations();
 
     /**

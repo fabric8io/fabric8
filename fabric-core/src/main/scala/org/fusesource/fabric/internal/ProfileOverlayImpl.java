@@ -8,39 +8,45 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
+import com.sun.tools.javac.resources.version;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
+import static org.fusesource.fabric.internal.ProfileImpl.*;
 
 public class ProfileOverlayImpl implements Profile {
 
-    private final String id;
-    private final String version;
-    private final FabricServiceImpl service;
+    private final ProfileImpl self;
+    private Map<String, Map<String, String>> rc;
 
-
-    public ProfileOverlayImpl(String id, String version, FabricServiceImpl service) {
-        this.id = id;
-        this.version = version;
-        this.service = service;
+    public ProfileOverlayImpl(ProfileImpl self) {
+        this.self = self;
     }
 
     @Override
     public String getId() {
-        return id;
+        return self.getId();
     }
 
     @Override
     public String getVersion() {
-        return version;
+        return self.getVersion();
+    }
+
+    @Override
+    public Profile[] getParents() {
+        return self.getParents();
+    }
+
+    @Override
+    public void setFileConfigurations(Map<String, byte[]> configurations) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 
     @Override
@@ -53,6 +59,10 @@ public class ProfileOverlayImpl implements Profile {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 
+    public void delete() {
+        throw new UnsupportedOperationException("Can not delete an overlay profile");
+    }
+
     @Override
     public Profile getOverlay() {
         return this;
@@ -63,67 +73,91 @@ public class ProfileOverlayImpl implements Profile {
         return true;
     }
 
+    static private class SupplementControl {
+        byte [] data;
+        Properties props;
+    }
+
     @Override
-    public Profile[] getParents() {
+    public Map<String, byte[]> getFileConfigurations() {
         try {
-            IZKClient zooKeeper = service.getZooKeeper();
-            String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
-            String str = zooKeeper.getStringData(node);
-            if (str == null) {
-                return new Profile[0];
+            Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
+            supplement(this, aggregate);
+
+            Map<String, byte[]> rc = new HashMap<String, byte[]>();
+            for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
+                SupplementControl ctrl = entry.getValue();
+                if( ctrl.props!=null ) {
+                    ctrl.data = toBytes(ctrl.props);
+                }
+                rc.put(entry.getKey(), ctrl.data);
             }
-            List<Profile> profiles = new ArrayList<Profile>();
-            for (String p : str.split(" ")) {
-                profiles.add(new ProfileImpl(p, version, service));
-            }
-            return profiles.toArray(new Profile[profiles.size()]);
+            return rc;
         } catch (Exception e) {
             throw new FabricException(e);
+        }
+    }
+
+    private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
+        for (Profile p : getParents()) {
+            supplement(p, aggregate);
+        }
+
+        Map<String, byte[]> configs = profile.getFileConfigurations();
+        for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
+            // we can use fine grained inheritance based updating if it's
+            // a properties file.
+            String fileName = entry.getKey();
+            if( fileName.endsWith(".properties") ) {
+                SupplementControl ctrl = aggregate.get(fileName);
+                if( ctrl!=null ) {
+                    // we can update the file..
+
+                    Properties childMap = toProperties(entry.getValue());
+                    if( childMap.remove(DELETED)!=null ) {
+                        ctrl.props.clear();
+                    }
+
+                    // Update the entries...
+                    for (Map.Entry<Object, Object> p: childMap.entrySet()){
+                        if( DELETED.equals(p.getValue()) ) {
+                            ctrl.props.remove(p.getKey());
+                        } else {
+                            ctrl.props.put(p.getKey(), p.getValue());
+                        }
+                    }
+
+                } else {
+                    // new file..
+                    ctrl.props = toProperties(entry.getValue());
+                    aggregate.put(fileName, ctrl);
+                }
+            } else {
+                // not a properties file? we can only overwrite.
+                SupplementControl ctrl = new SupplementControl();
+                ctrl.data = entry.getValue();
+                aggregate.put(fileName, ctrl);
+            }
         }
     }
 
     @Override
     public Map<String, Map<String, String>> getConfigurations() {
         try {
-            Map<String, Map<String, String>> configs = new HashMap<String, Map<String, String>>();
-            doGetConfigurations(configs, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id));
-            return configs;
+            Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
+            supplement(this, aggregate);
+
+            Map<String, Map<String, String>> rc = new HashMap<String, Map<String, String>>();
+            for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
+                SupplementControl ctrl = entry.getValue();
+                if( ctrl.props!=null ) {
+                    rc.put(stripSuffix(entry.getKey(), ".properties"), toMap(ctrl.props));
+                }
+            }
+            return rc;
         } catch (Exception e) {
             throw new FabricException(e);
         }
-    }
-
-    private void doGetConfigurations(Map<String, Map<String, String>> configs, String node) throws InterruptedException, KeeperException {
-        IZKClient zooKeeper = service.getZooKeeper();
-        String data = zooKeeper.getStringData(node);
-        String[] parents = data != null ? data.split(" ") : new String[0];
-        for (String parent : parents) {
-            doGetConfigurations(configs, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));
-        }
-        for (String pid : zooKeeper.getChildren(node)) {
-            data = zooKeeper.getStringData(node + "/" + pid);
-            if (DELETED.equals(data)) {
-                configs.remove(pid);
-            } else {
-                Map<String, String> cfg = configs.get(pid);
-                if (cfg == null) {
-                    cfg = new HashMap<String, String>();
-                    configs.put(pid, cfg);
-                }
-                for (String key : zooKeeper.getChildren(node + "/" + pid)) {
-                    data = zooKeeper.getStringData(node + "/" + pid + "/" + key);
-                    if (DELETED.equals(data)) {
-                        cfg.remove(key);
-                    } else {
-                        cfg.put(key, data != null ? data : "");
-                    }
-                }
-            }
-        }
-    }
-
-    public void delete() {
-        throw new UnsupportedOperationException("Can not delete an overlay profile");
     }
 
 }
