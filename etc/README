@@ -39,7 +39,7 @@ To create a profile with default configuration, run:
 
 Next you can create, agents with this profile like:
 
-    fabric:create-agent --profile activemq --parent root broker
+    fabric:create-agent --profile activemq --parent $APPLICATION broker
 
 Wait for a few seconds for the agent to start. Check the status of the agent with:
 

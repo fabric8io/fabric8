@@ -1,14 +1,15 @@
 echo Create activemq ${activemq-version} profile
 fabric:create-profile --parents karaf activemq
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/repository.activemq mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq activemq/${activemq-version}
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.activemq-blueprint activemq-blueprint/${activemq-version}
+
+fabric:edit-profile -p activemq --repositories mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features
+fabric:edit-profile -p activemq --features activemq/${activemq-version}
+fabric:edit-profile -p activemq --features activemq-blueprint/${activemq-version}
+fabric:edit-profile -p activemq --features fabric-activemq/${project.version}
+fabric:edit-profile -p activemq --bundles blueprint:zk:/fabric/configs/versions/base/profiles/activemq/configuration.xml
+
+# TODO: enhance fabric:edit-profile to support importing a file as a profile configuration file. 
 zk:create -i -r /fabric/configs/versions/base/profiles/activemq/configuration.xml mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/activemq
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/bundle.config blueprint:zk:/fabric/configs/versions/base/profiles/activemq/configuration.xml
-zk:create -r /fabric/configs/versions/base/profiles/activemq/org.fusesource.fabric.agent/feature.amq-fabric fabric-activemq/${project.version}
-
-echo Profile created! You can now create broker agents with 'fabric:create-agent --profile activemq --parent root broker'
-
+echo Profile created! You can now create broker agents with 'fabric:create-agent --profile activemq --parent $APPLICATION broker'
 
 ### old script - revisit later
 #echo Creating activemq-discovery profile
@@ -21,4 +22,4 @@ echo Profile created! You can now create broker agents with 'fabric:create-agent
 #fabric:edit-profile -p activemq-discovery --features fabric-activemq=fabric-activemq fabric-demo=fabric-demo
 #
 #echo Creating agent with activemq-discovery profile amq1
-#fabric:create-agent --parent root --profile activemq-discovery amq1
+#fabric:create-agent --parent $APPLICATION --profile activemq-discovery amq1

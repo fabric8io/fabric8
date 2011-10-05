@@ -1,25 +1,25 @@
 echo Create dummy karaf profile
 fabric:create-profile --parents default karaf
-zk:create -r /fabric/configs/versions/base/profiles/karaf/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+fabric:edit-profile -p karaf --repositories mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
 echo Create camel ${camel-version} profile
 fabric:create-profile --parents karaf camel
-zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel camel-core/${camel-version}
-zk:create -r /fabric/configs/versions/base/profiles/camel/org.fusesource.fabric.agent/feature.camel-blueprint camel-blueprint/${camel-version}
+fabric:edit-profile -p camel --repositories mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+fabric:edit-profile -p camel --features camel-core/${camel-version}
+fabric:edit-profile -p camel --features camel-blueprint/${camel-version}
 
 shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
 
 echo Create nmr 1.4.0 profile
 fabric:create-profile --parents karaf nmr
-zk:create -r /fabric/configs/versions/base/profiles/nmr/org.fusesource.fabric.agent/repository.nmr mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/1.4.0/xml/features
-zk:create -r /fabric/configs/versions/base/profiles/nmr/org.fusesource.fabric.agent/feature.nmr nmr/1.4.0
+fabric:edit-profile -p nmr --repositories mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/1.4.0/xml/features
+fabric:edit-profile -p nmr --features nmr/1.4.0
 
 echo Create ServiceMix 4.3.0 profile
 fabric:create-profile --parents activemq --parents nmr --parents camel servicemix
-zk:create -r /fabric/configs/versions/base/profiles/servicemix/org.fusesource.fabric.agent/repository.servicemix mvn:org.apache.servicemix/apache-servicemix/4.3.0/xml/features
+fabric:edit-profile -p servicemix --repositories mvn:org.apache.servicemix/apache-servicemix/4.3.0/xml/features
 
 echo Create Apache Ode profile
 fabric:create-profile --parents servicemix ode
-zk:create -r /fabric/configs/versions/base/profiles/ode/org.fusesource.fabric.agent/repository.ode mvn:org.apache.ode/ode-jbi-karaf/1.3.5/xml/features
+fabric:edit-profile -p ode --repositories mvn:org.apache.ode/ode-jbi-karaf/1.3.5/xml/features
 

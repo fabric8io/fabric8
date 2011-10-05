@@ -27,6 +27,6 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
 
 echo Creating initial ZooKeeper cluster
 fabric:zk-cluster --clean
-fabric:zk-cluster root
+fabric:zk-cluster $APPLICATION
 
 

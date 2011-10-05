@@ -9,6 +9,7 @@ shell:sleep 3000
 
 echo Create dummy karaf profile
 fabric:create-profile --parents default karaf
-zk:create -r /fabric/configs/versions/base/profiles/karaf/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+
+fabric:edit-profile -p karaf --repositories mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
 
 shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
