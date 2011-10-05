@@ -9,9 +9,21 @@
  */
 package org.fusesource.fabric.zookeeper;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
+import java.util.Properties;
 
+import org.apache.zookeeper.KeeperException;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
+import org.linkedin.zookeeper.client.IZKClient;
 
 /**
  * Set of paths which are used by fon.
@@ -72,6 +84,58 @@ public enum ZkPath {
      */
     public String getPath(Map<String, String> args) {
         return this.path.bindByName(args);
+    }
+
+    /**
+     * Loads a zoo keeper URL content using the provided ZooKeeper client.
+     */
+    static public byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+        URI uri = new URI(url);
+        String path = uri.getSchemeSpecificPart();
+        path = path.trim();
+        if( !path.startsWith("/") ) {
+            path = ZkPath.AGENT.getPath(path);
+        }
+        String ref = uri.getFragment();
+
+        byte rc [] = zooKeeper.getData(path);
+        if( path.endsWith(".properties") ) {
+            Properties properties = new Properties();
+            properties.load(new ByteArrayInputStream(rc));
+            String property = properties.getProperty(ref);
+            if( property==null ) {
+                throw  new IOException("Property '"+ ref +"' is not set in the properties file.");
+            }
+            rc = property.getBytes("UTF-8");
+        } else if( path.endsWith(".json") ) {
+            String[] fields = ref.split("\\.");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonFactory factory = mapper.getJsonFactory();
+            JsonParser jp = factory.createJsonParser(rc);
+            JsonNode node = mapper.readTree(jp);
+            for(String field: fields) {
+                if(!field.isEmpty()) {
+                    if( node.isObject() ) {
+                        node = node.get(field);
+                    } else if (node.isArray()) {
+                        node = node.get(Integer.parseInt(field));
+                    } else {
+                        throw  new IOException("Path '"+ ref +"' is not set in the json file.");
+                    }
+                    if( node == null ) {
+                        throw  new IOException("Path '"+ ref +"' is not set in the json file.");
+                    }
+                }
+            }
+            if( node.isContainerNode() ) {
+                throw new IOException("Path '"+ ref +"' is not a value in the json file.");
+            }
+            String textValue = node.getValueAsText();
+            rc = textValue.getBytes("UTF-8");
+        } else {
+            throw new RuntimeException();
+        }
+        return rc;
     }
 
 }
