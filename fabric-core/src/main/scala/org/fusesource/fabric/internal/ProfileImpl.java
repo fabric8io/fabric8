@@ -136,7 +136,7 @@ public class ProfileImpl implements Profile {
                 oldCfgs.remove(pid);
                 byte[] newCfg = configurations.get(pid);
                 String configPath =  path + "/" + pid;
-                if (zooKeeper.getChildren(configPath) != null) {
+                if (zooKeeper.exists(configPath) != null && zooKeeper.getChildren(configPath) != null) {
                     List<String> kids = zooKeeper.getChildren(configPath);
                     ArrayList<String> saved = new ArrayList<String>();
                     // old format, we assume that the byte stream is in
@@ -150,9 +150,9 @@ public class ProfileImpl implements Profile {
                             continue;
                         }
                         String newPath = configPath + "/" + name_value[0].trim();
-                        if (zooKeeper.exists(newPath) == null) {
-                            zooKeeper.create(configPath + "/" + name_value[0].trim(), name_value[1].trim(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                        } else {
+                        try {
+                            zooKeeper.createWithParents(newPath, name_value[1].trim(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        } catch (KeeperException.NodeExistsException nee) {
                             zooKeeper.setData(newPath, name_value[1].trim());
                         }
                         saved.add(name_value[0].trim());
@@ -163,9 +163,9 @@ public class ProfileImpl implements Profile {
                         }
                     }
                 } else {
-                    if (zooKeeper.exists(configPath) == null) {
-                        zooKeeper.createBytesNode(configPath, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    } else {
+                    try {
+                        zooKeeper.createBytesNodeWithParents(configPath, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    } catch (KeeperException.NodeExistsException nee) {
                         zooKeeper.setByteData(configPath, newCfg);
                     }
                 }
