@@ -112,7 +112,17 @@ public class ProfileImpl implements Profile {
         if (zooKeeper.exists(path) == null) {
             return null;
         }
-        return zooKeeper.getData(path);
+        if (zooKeeper.getData(path) == null) {
+            List<String> children = zooKeeper.getChildren(path);
+            StringBuffer buf = new StringBuffer();
+            for (String child : children) {
+                String value = zooKeeper.getStringData(path + "/" + child);
+                buf.append(String.format("%s = %s\n", child, value));
+            }
+            return buf.toString().getBytes();
+        } else {
+            return zooKeeper.getData(path);
+        }
     }
 
     @Override
@@ -126,10 +136,38 @@ public class ProfileImpl implements Profile {
                 oldCfgs.remove(pid);
                 byte[] newCfg = configurations.get(pid);
                 String configPath =  path + "/" + pid;
-                if (zooKeeper.exists(configPath) == null) {
-                    zooKeeper.createBytesNode(configPath, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                if (zooKeeper.getChildren(configPath) != null) {
+                    List<String> kids = zooKeeper.getChildren(configPath);
+                    ArrayList<String> saved = new ArrayList<String>();
+                    // old format, we assume that the byte stream is in
+                    // a .properties format
+                    for (String line : new String(newCfg).split("\n")) {
+                        if (line.startsWith("#") || line.length() == 0) {
+                            continue;
+                        }
+                        String name_value[] = line.split("=", 2);
+                        if (name_value.length < 2) {
+                            continue;
+                        }
+                        String newPath = configPath + "/" + name_value[0].trim();
+                        if (zooKeeper.exists(newPath) == null) {
+                            zooKeeper.create(configPath + "/" + name_value[0].trim(), name_value[1].trim(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        } else {
+                            zooKeeper.setData(newPath, name_value[1].trim());
+                        }
+                        saved.add(name_value[0].trim());
+                    }
+                    for ( String kid : kids ) {
+                        if (!saved.contains(kid)) {
+                            zooKeeper.deleteWithChildren(configPath + "/" + kid);
+                        }
+                    }
                 } else {
-                    zooKeeper.setByteData(configPath, newCfg);
+                    if (zooKeeper.exists(configPath) == null) {
+                        zooKeeper.createBytesNode(configPath, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    } else {
+                        zooKeeper.setByteData(configPath, newCfg);
+                    }
                 }
             }
             for (String pid : oldCfgs.keySet()) {
