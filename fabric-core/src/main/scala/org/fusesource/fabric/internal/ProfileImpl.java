@@ -8,11 +8,6 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.*;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -21,6 +16,11 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
 
 public class ProfileImpl implements Profile {
 
@@ -125,11 +125,11 @@ public class ProfileImpl implements Profile {
             for (String pid : configurations.keySet()) {
                 oldCfgs.remove(pid);
                 byte[] newCfg = configurations.get(pid);
-                path =  path + "/" + pid;
-                if (zooKeeper.exists(path) == null) {
-                    zooKeeper.createBytesNode(path, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                String configPath =  path + "/" + pid;
+                if (zooKeeper.exists(configPath) == null) {
+                    zooKeeper.createBytesNode(configPath, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 } else {
-                    zooKeeper.setByteData(path, newCfg);
+                    zooKeeper.setByteData(configPath, newCfg);
                 }
             }
             for (String pid : oldCfgs.keySet()) {
@@ -193,7 +193,7 @@ public class ProfileImpl implements Profile {
         }
         return rc;
     }
-    
+
     static public String stripSuffix(String value, String suffix) throws IOException {
         if(value.endsWith(suffix)) {
             return value.substring(0, value.length() -suffix.length());
@@ -201,7 +201,7 @@ public class ProfileImpl implements Profile {
             return value;
         }
     }
-    
+
 
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
         try {
