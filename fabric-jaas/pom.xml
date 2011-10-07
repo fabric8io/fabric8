@@ -25,12 +25,12 @@
 
     <properties>
         <fabric.osgi.export>
+          org.fusesource.fabric.jaas
         </fabric.osgi.export>
         <fabric.osgi.import>
             *
         </fabric.osgi.import>
         <fabric.osgi.private.pkg>
-            org.fusesource.fabric.jaas,
             org.apache.felix.utils.properties
         </fabric.osgi.private.pkg>
     </properties>
