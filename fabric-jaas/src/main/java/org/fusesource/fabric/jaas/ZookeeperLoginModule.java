@@ -197,8 +197,11 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
 
     public boolean checkPassword(String plain, String encrypted) {
         Encryption encryption = encryptionSupport.getEncryption();
-        String encryptionPrefix = encryptionSupport.getEncryptionPrefix();
-        String encryptionSuffix = encryptionSupport.getEncryptionSuffix();
+        //TODO fix prefix and suffix problem
+        //String encryptionPrefix = encryptionSupport.getEncryptionPrefix();
+        //String encryptionSuffix = encryptionSupport.getEncryptionSuffix();        
+        String encryptionPrefix = "";
+        String encryptionSuffix = "";        
 
         if (encryption == null) {
             return plain.equals(encrypted);
