@@ -27,6 +27,8 @@ public interface Profile {
     Profile[] getParents();
     void setParents(Profile[] parents);
 
+    Agent[] getAssociatedAgents();
+
     Map<String, byte[]> getFileConfigurations();
 
     /**

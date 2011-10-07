@@ -11,6 +11,7 @@ package org.fusesource.fabric.internal;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
@@ -78,6 +79,27 @@ public class ProfileImpl implements Profile {
                 str += parent.getId();
             }
             service.getZooKeeper().setData( ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id), str );
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public Agent[] getAssociatedAgents() {
+        try {
+            ArrayList<Agent> rc = new ArrayList<Agent>();
+            Agent[] agents = service.getAgents();
+            for (Agent agent : agents) {
+                if (!agent.getVersion().getName().equals(getVersion())) {
+                    continue;
+                }
+                for (Profile p : agent.getProfiles()) {
+                    if (this.equals(p)) {
+                        rc.add(agent);
+                        break;
+                    }
+                }
+            }
+            return rc.toArray(new Agent[0]);
         } catch (Exception e) {
             throw new FabricException(e);
         }
