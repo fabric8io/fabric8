@@ -9,6 +9,7 @@ echo Install fabric commands
 # -----------------------------------------------
 # TODO - Remove this work-around that allows installation into FUSE ESB 4.4.0-fuse-00-43
 features:install fabric-zookeeper
+wait-for-service "(objectClass=org.linkedin.zookeeper.client.IZKClient)"
 features:install fabric-maven-proxy
 osgi:install -s mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}
 osgi:install -s mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}

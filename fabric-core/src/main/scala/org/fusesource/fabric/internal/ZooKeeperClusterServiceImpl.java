@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
@@ -90,7 +91,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             client = new ZKClient(connectionUrl, Timespan.ONE_MINUTE, null);
             client.start();
-            client.waitForStart();
+            client.waitForStart(new Timespan(5, Timespan.TimeUnit.SECOND));
 
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
             setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
@@ -136,6 +137,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             }
             bundle.start();
         } catch (Exception e) {
+
             throw new FabricException("Unable to create zookeeper server configuration", e);
         } finally {
             if (client != null) {
@@ -329,8 +331,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 try {
                     src.start();
                     dst.start();
-                    src.waitForStart();
-                    dst.waitForStart();
+                    src.waitForStart(new Timespan(5, Timespan.TimeUnit.SECOND));
+                    dst.waitForStart(new Timespan(5, Timespan.TimeUnit.SECOND));
 
                     ZooKeeperUtils.copy(src, dst, "/fabric/configs");
                     ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", newClusterId);
