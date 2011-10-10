@@ -32,11 +32,8 @@ public class BasicEncryptionSupport extends EncryptionSupport {
                     encOpts.put(key.substring("encryption.".length()), options.get(key).toString());
                 }
             }
-            // TODO handle prefix
-            encOpts.remove("prefix");
-            encOpts.remove("suffix");
-            //setEncryptionPrefix(encOpts.remove("prefix"));
-            //setEncryptionSuffix(encOpts.remove("suffix"));
+            setEncryptionPrefix(encOpts.remove("prefix"));
+            setEncryptionSuffix(encOpts.remove("suffix"));
             boolean enabled = Boolean.parseBoolean(encOpts.remove("enabled"));
             if (enabled) {
                 encryption = new BasicEncryption(encOpts);
