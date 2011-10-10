@@ -11,6 +11,7 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 
@@ -42,13 +43,24 @@ public class DisplayProfile extends FabricCommand {
         return null;
     }
 
+    private String toString(Agent[] agents) {
+        StringBuffer rc = new StringBuffer();
+        for (Agent agent : agents) {
+            rc.append(agent.getId());
+            rc.append(" ");
+        }
+        return rc.toString().trim();
+    }
+
     private void displayProfile(Profile profile) {
         PrintStream output = session.getConsole();
 
         output.println("Profile id: " + profile.getId());
         output.println("Version   : " + profile.getVersion());
 
-        output.println("Parents   : " + toString(profile.getParents()) + "\n");
+        output.println("Parents   : " + toString(profile.getParents()));
+
+        output.printf("Associated Agents : %s\n\n", toString(profile.getAssociatedAgents()));
 
         Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
 

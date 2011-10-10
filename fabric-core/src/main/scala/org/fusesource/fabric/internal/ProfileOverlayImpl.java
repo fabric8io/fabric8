@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 
@@ -39,6 +40,11 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public Profile[] getParents() {
         return self.getParents();
+    }
+
+    @Override
+    public Agent[] getAssociatedAgents() {
+        return self.getAssociatedAgents();
     }
 
     @Override
