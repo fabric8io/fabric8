@@ -13,6 +13,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,6 +41,18 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public Profile[] getParents() {
         return self.getParents();
+    }
+
+    public List<String> getBundles() {
+        return getAgentConfigList(this, ConfigListType.BUNDLES);
+    }
+
+    public List<String> getFeatures() {
+        return getAgentConfigList(this, ConfigListType.FEATURES);
+    }
+
+    public List<String> getRepositories() {
+        return getAgentConfigList(this, ConfigListType.REPOSITORIES);
     }
 
     @Override
