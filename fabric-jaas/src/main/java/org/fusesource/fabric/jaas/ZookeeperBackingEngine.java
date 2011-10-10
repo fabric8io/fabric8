@@ -58,6 +58,12 @@ public class ZookeeperBackingEngine implements BackingEngine {
         //If encryption support is enabled, encrypt password
         if (encryptionSupport != null && encryptionSupport.getEncryption() != null) {
             newPassword = encryptionSupport.getEncryption().encryptPassword(password);
+            if (encryptionSupport.getEncryptionPrefix() != null) {
+                newPassword = encryptionSupport.getEncryptionPrefix() + newPassword;
+            }
+            if (encryptionSupport.getEncryptionSuffix() != null) {
+                newPassword = newPassword + encryptionSupport.getEncryptionSuffix();
+            }
         }
 
         String userInfos = (String) users.get(username);
