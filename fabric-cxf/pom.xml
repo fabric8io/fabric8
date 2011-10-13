@@ -44,6 +44,20 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-bundle</artifactId>
             <version>${cxf-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.equinox</groupId>
+                    <artifactId>app</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>app</artifactId>
+            <version>1.0.0-v20070606</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- testing -->
