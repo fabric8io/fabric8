@@ -26,8 +26,15 @@ wait-for-command fabric zk-cluster
 features:install fabric-jaas
 wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.apache.karaf.jaas.module=zookeeper))"
 
-echo Creating initial ZooKeeper cluster
-fabric:zk-cluster --clean
-fabric:zk-cluster $APPLICATION
-
+ if {$1} {
+    echo "Joining cluster " $1
+    shell:sleep 2000
+    config:edit org.fusesource.fabric.zookeeper
+    config:propset zookeeper.url $1
+    config:update
+} {
+    echo Creating initial ZooKeeper cluster
+    fabric:zk-cluster --clean
+    fabric:zk-cluster $APPLICATION
+}
 
