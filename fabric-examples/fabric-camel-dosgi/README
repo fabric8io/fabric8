@@ -12,35 +12,35 @@ Explanation
 
 The service that we will distribute is a java POJO created using an interface
 
-public interface Service {
+    public interface Service {
 
-    public String messageFrom(String input);
+        public String messageFrom(String input);
 
-}
+    }
 
 and implemented here
 
-public class ServiceImpl implements Service {
+    public class ServiceImpl implements Service {
 
-    @Override
-    public String messageFrom(String input) {
-        return "Message from distributed service to : " + input;
+        @Override
+        public String messageFrom(String input) {
+            return "Message from distributed service to : " + input;
+        }
     }
-}
 
 To register this service (= Interfaces) into the OSGI registry, we use the folowwing Blueprint syntax
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="myService" class="org.fusesource.fabric.example.dosgi.impl.ServiceImpl"/>
+        <bean id="myService" class="org.fusesource.fabric.example.dosgi.impl.ServiceImpl"/>
 
-    <service ref="myService" auto-export="interfaces">
-        <service-properties>
-            <entry key="service.exported.interfaces" value="*"/>
-        </service-properties>
-    </service>
+        <service ref="myService" auto-export="interfaces">
+            <service-properties>
+                <entry key="service.exported.interfaces" value="*"/>
+            </service-properties>
+        </service>
 
-</blueprint>
+    </blueprint>
 
 During this process, Fabrix will publish information in the Zookeeper registry that we will allow another Karaf agent to discover them at runtime
 
