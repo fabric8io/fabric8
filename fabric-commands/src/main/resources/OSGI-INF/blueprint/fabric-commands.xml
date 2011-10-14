@@ -12,13 +12,20 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
-   <!--  <reference id="userService" interface="org.fusesource.fabric.api.UserService"/> -->
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
+    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient" availability="optional"/>
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="fabric/zk-cluster">
             <action class="org.fusesource.fabric.commands.ZkCluster">
                 <property name="service" ref="zooKeeperClusterService"/>
+            </action>
+        </command>
+        <command name="fabric/join-cluster">
+            <action class="org.fusesource.fabric.commands.JoinCluster">
+                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="configurationAdmin" ref="configurationAdmin"/>
             </action>
         </command>
         <command name="fabric/create-agent">
