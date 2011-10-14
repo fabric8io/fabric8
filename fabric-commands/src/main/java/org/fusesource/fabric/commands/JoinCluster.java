@@ -9,6 +9,7 @@
 package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -17,6 +18,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.util.Properties;
 
+@Command(name = "join-cluster", scope = "fabric", description = "Join fabric cluster", detailedDescription = "classpath:join-cluster.txt")
 public class JoinCluster extends OsgiCommandSupport {
 
     ConfigurationAdmin configurationAdmin;
