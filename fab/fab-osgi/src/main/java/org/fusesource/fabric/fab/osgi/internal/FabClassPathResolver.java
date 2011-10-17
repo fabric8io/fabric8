@@ -313,10 +313,10 @@ public class FabClassPathResolver {
                     if (result != null) {
                         DependencyTree tree = result.getTree();
 
-                        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
-                        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
-                        excludeDependencyFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
-                        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManfiestEntry(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
+                        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
+                        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
+                        excludeDependencyFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
+                        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
 
                         sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
                         requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
@@ -343,7 +343,7 @@ public class FabClassPathResolver {
 
     protected void importAllExportedPackages(DependencyTree dependencyTree) {
         try {
-            String text = dependencyTree.getManfiestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
+            String text = dependencyTree.getManifestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
             if (text != null && text.length() > 0) {
                 Map<String, Map<String, String>> map = new Analyzer().parseHeader(text);
                 for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
@@ -394,7 +394,7 @@ public class FabClassPathResolver {
             try {
                 File jarFile = connection.getJarFile();
                 if (jarFile != null && jarFile.exists()) {
-                    manfiest = Manifests.getManfiest(jarFile);
+                    manfiest = Manifests.getManifest(jarFile);
                 }
             } catch (IOException e) {
                 // TODO: warn

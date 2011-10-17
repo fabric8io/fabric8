@@ -8,6 +8,9 @@
  */
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.MavenResolver;
@@ -16,9 +19,6 @@ import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.util.Filter;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Represents a facade to either a jar being deployed or a bundle already installed
