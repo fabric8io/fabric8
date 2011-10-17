@@ -26,6 +26,8 @@ wait-for-command fabric zk-cluster
 features:install fabric-jaas
 wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.apache.karaf.jaas.module=zookeeper))"
 
+# join existing cluster as root node (if first param is set - host:port)
+# or create a new one
  if {$1} {
     echo "Joining cluster " $1
     shell:sleep 2000
@@ -41,4 +43,15 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
     fabric:zk-cluster --clean
     fabric:zk-cluster $APPLICATION
 }
+
+# use zookeeper realm for authenticating access
+config:edit org.apache.karaf.shell
+config:propset sshRealm zookeeper
+config:update
+
+config:edit org.apache.karaf.management
+config:propset jmxRealm zookeeper
+config:update
+
+
 
