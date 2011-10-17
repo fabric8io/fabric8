@@ -20,6 +20,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
+import org.fusesource.fabric.api.CreateAgentArguments;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -144,6 +145,23 @@ public class FabricServiceImpl implements FabricService {
             createAgentConfig("", name);
             provider.create(uri, name, zooKeeperUrl,debugAgent);
             return new AgentImpl(null, name, FabricServiceImpl.this);
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public Agent create(CreateAgentArguments args, String name) {
+        try {
+            final String zooKeeperUrl = getZooKeeperUrl();
+            createAgentConfig("", name);
+            for (AgentProvider provider : providers.values()) {
+                if (provider.create(args, name, zooKeeperUrl)) {
+                    return new AgentImpl(null, name, FabricServiceImpl.this);
+                }
+            }
+            throw new IllegalArgumentException("Unknown CreateAgentArguments " + args + " when creating agent " + name);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {

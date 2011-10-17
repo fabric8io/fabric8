@@ -9,9 +9,12 @@
 package org.fusesource.fabric.service.jclouds;
 
 import org.fusesource.fabric.api.AgentProvider;
+import org.fusesource.fabric.api.CreateAgentArguments;
+import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
@@ -32,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A concrete {@link AgentProvider} that creates {@link Agent}s via jclouds {@link ComputeService}.
+ * A concrete {@link AgentProvider} that creates {@link org.fusesource.fabric.api.Agent}s via jclouds {@link ComputeService}.
  */
 public class JcloudsAgentProvider implements AgentProvider {
 
@@ -92,10 +95,6 @@ public class JcloudsAgentProvider implements AgentProvider {
 
         try {
             String providerName = agentUri.getHost();
-            ComputeService computeService = computeServiceMap.get(providerName);
-            if (computeService == null) {
-                throw new FabricException("Not compute Service found for provider:" + providerName);
-            }
 
             if (agentUri.getQuery() != null) {
                 Map<String, String> parameters = parseQuery(agentUri.getQuery());
@@ -111,47 +110,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            TemplateBuilder builder = computeService.templateBuilder();
-            builder.any();
-            if (SMALLEST.equals(instanceType)) {
-                builder.smallest();
-            }
-            if (FASTEST.equals(INSTANCE_TYPE)) {
-                builder.fastest();
-            }
-            if (BIGGEST.equals(instanceType)) {
-                builder.biggest();
-            }
-            if (locationId != null) {
-                builder.locationId(locationId);
-            }
-            if (imageId != null) {
-                builder.imageId(imageId);
-            }
-            if (hardwareId != null) {
-                builder.hardwareId(hardwareId);
-            }
-
-            Set<? extends NodeMetadata> metadatas = null;
-
-            if(user != null) {
-                credentials = new Credentials(user,null);
-            }
-
-            String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl,debugAgent);
-            metadatas = computeService.createNodesInGroup(group, 1, builder.build());
-
-            if (metadatas != null) {
-                for (NodeMetadata nodeMetadata : metadatas) {
-                    String id = nodeMetadata.getId();
-                    if(credentials != null) {
-                    computeService.runScriptOnNode(id,script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
-                    }
-                    else {
-                        computeService.runScriptOnNode(id, script);
-                    }
-                }
-            }
+            doCreateAgent(name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -159,7 +118,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
     }
 
-    /**
+      /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
      * @param agentUri     The uri that contains required information to build the Agent.
@@ -169,6 +128,73 @@ public class JcloudsAgentProvider implements AgentProvider {
     public void create(URI agentUri, String name, String zooKeeperUrl) {
         create(agentUri,name,zooKeeperUrl);
     }
+
+    @Override
+    public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
+        if (createArgs instanceof CreateJCloudsAgentArguments) {
+            CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
+
+            boolean debugAgent = args.isDebugAgent();
+            String imageId = args.getImageId();
+            String hardwareId = args.getHardwareId();
+            String locationId = args.getLocationId();
+            String group = args.getGroup();
+            String user = args.getUser();
+            String instanceType = args.getInstanceType();
+            Credentials credentials = null;
+            String providerName = args.getProviderName();
+
+            doCreateAgent(name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
+            return true;
+        }
+        return false;
+    }
+
+    protected void doCreateAgent(String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, String instanceType, Credentials credentials, String providerName) throws MalformedURLException, RunNodesException {
+        ComputeService computeService = computeServiceMap.get(providerName);
+        if (computeService == null) {
+            throw new FabricException("Not compute Service found for provider:" + providerName);
+        }
+
+        TemplateBuilder builder = computeService.templateBuilder();
+        builder.any();
+        if (SMALLEST.equals(instanceType)) {
+            builder.smallest();
+        } else if (FASTEST.equals(instanceType)) {
+            builder.fastest();
+        } else if (BIGGEST.equals(instanceType)) {
+            builder.biggest();
+        }
+        if (locationId != null) {
+            builder.locationId(locationId);
+        }
+        if (imageId != null) {
+            builder.imageId(imageId);
+        }
+        if (hardwareId != null) {
+            builder.hardwareId(hardwareId);
+        }
+
+        Set<? extends NodeMetadata> metadatas = null;
+        if (user != null && credentials == null) {
+            credentials = new Credentials(user, null);
+        }
+
+        String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl, debugAgent);
+        metadatas = computeService.createNodesInGroup(group, 1, builder.build());
+
+        if (metadatas != null) {
+            for (NodeMetadata nodeMetadata : metadatas) {
+                String id = nodeMetadata.getId();
+                if (credentials != null) {
+                    computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                } else {
+                    computeService.runScriptOnNode(id, script);
+                }
+            }
+        }
+    }
+
 
     private String buildStartupScript(URI proxy, String name, String zooKeeperUrl, boolean debugAgent) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
