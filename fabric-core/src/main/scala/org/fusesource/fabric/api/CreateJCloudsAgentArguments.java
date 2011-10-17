@@ -8,10 +8,14 @@
  */
 package org.fusesource.fabric.api;
 
+import java.io.Serializable;
+
 /**
  * Arguments for creating a new agent via JClouds
  */
-public class CreateJCloudsAgentArguments implements CreateAgentArguments {
+public class CreateJCloudsAgentArguments implements CreateAgentArguments, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private boolean debugAgent;
     private String imageId;
     private String hardwareId;

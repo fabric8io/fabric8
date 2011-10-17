@@ -8,10 +8,14 @@
  */
 package org.fusesource.fabric.api;
 
+import java.io.Serializable;
+
 /**
  * Arguments for creating a new agent via SSH
  */
-public class CreateSshAgentArguments implements CreateAgentArguments {
+public class CreateSshAgentArguments implements CreateAgentArguments, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String username;
     private String password;
     private String host;
