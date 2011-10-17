@@ -23,7 +23,7 @@ public interface FabricService {
 
     Agent createAgent(Agent parent, String name, boolean debugAgent);
 
-    Agent create(CreateAgentArguments args, String name);
+    Agent createAgent(CreateAgentArguments args, String name);
 
     Version getDefaultVersion();
 

@@ -152,7 +152,7 @@ public class FabricServiceImpl implements FabricService {
         }
     }
 
-    public Agent create(CreateAgentArguments args, String name) {
+    public Agent createAgent(CreateAgentArguments args, String name) {
         try {
             final String zooKeeperUrl = getZooKeeperUrl();
             createAgentConfig("", name);
