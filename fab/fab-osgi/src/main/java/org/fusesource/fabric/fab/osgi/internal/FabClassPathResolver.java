@@ -83,7 +83,7 @@ public class FabClassPathResolver {
     private MavenResolver resolver;
     private VersionedDependencyId moduleId;
 
-    private Manifest manfiest;
+    private Manifest manifest;
 
     public FabClassPathResolver(FabFacade connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
@@ -390,18 +390,18 @@ public class FabClassPathResolver {
     }
 
     public Manifest getManifest() {
-        if( manfiest == null ) {
+        if( manifest == null ) {
             try {
                 File jarFile = connection.getJarFile();
                 if (jarFile != null && jarFile.exists()) {
-                    manfiest = Manifests.getManifest(jarFile);
+                    manifest = Manifests.getManifest(jarFile);
                 }
             } catch (IOException e) {
                 // TODO: warn
-                manfiest = new Manifest();
+                manifest = new Manifest();
             }
         }
-        return manfiest;
+        return manifest;
     }
 
     public String getManifestProperty(String name) {

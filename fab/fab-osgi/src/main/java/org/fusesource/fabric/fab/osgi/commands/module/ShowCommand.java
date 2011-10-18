@@ -8,18 +8,6 @@
  */
 package org.fusesource.fabric.fab.osgi.commands.module;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.fab.ModuleDescriptor;
-import org.fusesource.fabric.fab.ModuleRegistry;
-import org.fusesource.fabric.fab.VersionedDependencyId;
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.fusesource.fabric.fab.osgi.internal.Activator;
-import org.fusesource.fabric.fab.osgi.internal.OsgiModuleRegistry;
-import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
-import org.osgi.framework.Bundle;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,10 +17,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.fab.ModuleDescriptor;
+import org.fusesource.fabric.fab.ModuleRegistry;
+import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
+import org.fusesource.fabric.fab.osgi.internal.Activator;
+import org.fusesource.fabric.fab.osgi.internal.OsgiModuleRegistry;
+import org.osgi.framework.Bundle;
+
 import static org.fusesource.fabric.fab.util.Strings.join;
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
-@Command(name = "list", scope = "module", description = "Display details about a module.")
+@Command(name = "show", scope = "module", description = "Display details about a module.")
 public class ShowCommand extends CommandSupport {
 
     @Argument(index = 0, required = true, description = "Name of the module to display.")

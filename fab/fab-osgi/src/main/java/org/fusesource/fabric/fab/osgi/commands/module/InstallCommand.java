@@ -8,22 +8,22 @@
  */
 package org.fusesource.fabric.fab.osgi.commands.module;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.fab.ModuleRegistry;
-import org.fusesource.fabric.fab.VersionedDependencyId;
-import org.fusesource.fabric.fab.osgi.internal.Activator;
-import org.fusesource.fabric.fab.osgi.internal.OsgiModuleRegistry;
-import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.fab.ModuleRegistry;
+import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
+import org.fusesource.fabric.fab.osgi.internal.Activator;
+import org.fusesource.fabric.fab.osgi.internal.OsgiModuleRegistry;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 
 import static org.fusesource.fabric.fab.util.Strings.join;
 
@@ -42,7 +42,7 @@ public class InstallCommand extends CommandSupport {
     @Option(name = "--force", description = "Force install")
     private boolean force;
 
-    @Option(name = "--no-starte", description = "don't start the module once installed")
+    @Option(name = "--no-start", description = "Do not start the module once installed")
     private boolean noStart;
 
     @Override
