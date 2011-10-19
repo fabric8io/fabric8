@@ -22,8 +22,8 @@ public class CreateJCloudsAgentArguments implements CreateAgentArguments, Serial
     private String locationId;
     private String group;
     private String user;
-    private String instanceType;
     private String providerName;
+    private JCloudsInstanceType instanceType;
 
     @Override
     public String toString() {
@@ -85,19 +85,19 @@ public class CreateJCloudsAgentArguments implements CreateAgentArguments, Serial
         this.user = user;
     }
 
-    public String getInstanceType() {
-        return instanceType;
-    }
-
-    public void setInstanceType(String instanceType) {
-        this.instanceType = instanceType;
-    }
-
     public String getProviderName() {
         return providerName;
     }
 
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    public JCloudsInstanceType getInstanceType() {
+        return instanceType;
+    }
+
+    public void setInstanceType(JCloudsInstanceType instanceType) {
+        this.instanceType = instanceType;
     }
 }

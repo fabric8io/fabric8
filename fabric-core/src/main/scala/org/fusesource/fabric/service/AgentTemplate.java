@@ -45,6 +45,12 @@ public class AgentTemplate {
         }
     }
 
+    public AgentTemplate(Agent agent, boolean cacheJmx, String login, String password) {
+        this(agent, cacheJmx);
+        this.login = login;
+        this.password = password;
+    }
+
     public AgentTemplate(Agent agent, JmxTemplateSupport jmxTemplate) {
         this.jmxTemplate = jmxTemplate;
         this.agent = agent;

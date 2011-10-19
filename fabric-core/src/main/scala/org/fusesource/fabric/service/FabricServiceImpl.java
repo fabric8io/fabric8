@@ -55,6 +55,8 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     private ConfigurationAdmin configurationAdmin;
     private String profile = DEFAULT_PROFILE;
     private ObjectName mbeanName;
+    private String userName = "admin";
+    private String password = "admin";
 
     public FabricServiceImpl() {
         providers = new ConcurrentHashMap<String, AgentProvider>();
@@ -67,6 +69,22 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public ObjectName getMbeanName() throws MalformedObjectNameException {
@@ -203,7 +221,6 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     protected Agent doCreateAgentFromArguments(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
-        System.out.println("Creating agent via " + args);
         for (AgentProvider provider : providers.values()) {
             if (provider.create(args, name, zooKeeperUrl)) {
                 return new AgentImpl(null, name, FabricServiceImpl.this);
@@ -215,7 +232,9 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     @Override
     public Agent createAgent(final Agent parent, final CreateAgentArguments args, final String name) {
         createAgentConfig(parent.getId(), name);
-        if (getAgentTemplate(parent).execute(new AgentTemplate.FabricServiceCallback<Boolean>() {
+        AgentTemplate agentTemplate = getAgentTemplate(parent);
+
+        if (agentTemplate.execute(new AgentTemplate.FabricServiceCallback<Boolean>() {
             public Boolean doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
                 return fabricService.createRemoteAgent(args, name);
             }
@@ -255,21 +274,15 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     public void registerMBeanServer(MBeanServer mbeanServer) {
-        System.out.println("========== registerMbeanServer: " + mbeanServer);
         try {
             ObjectName name = getMbeanName();
-            System.out.println("Registering mbean: " + name);
             ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
-            System.out.println("Registered FabricService: "+ objectInstance);
         } catch (Exception e) {
-            System.out.println("An error occured during mbean server registration: " + e);
             logger.warn("An error occured during mbean server registration: " + e, e);
         }
     }
 
     public void unregisterMBeanServer(MBeanServer mbeanServer) {
-        System.out.println("========== unregisterMBeanServer: " + mbeanServer);
-
         if (mbeanServer != null) {
             try {
                 mbeanServer.unregisterMBean(getMbeanName());
@@ -461,7 +474,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         // there's no point caching the JMX Connector as we are unsure if we'll communicate again with the same agent any time soon
         // though in the future we could possibly pool them
         boolean cacheJmx = false;
-        return new AgentTemplate(agent, cacheJmx);
+        return new AgentTemplate(agent, cacheJmx, userName, password);
     }
 
 }

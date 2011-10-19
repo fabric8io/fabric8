@@ -19,8 +19,8 @@ public class CreateSshAgentArguments implements CreateAgentArguments, Serializab
     private String username;
     private String password;
     private String host;
-    private String path;
     private int port = 22;
+    private String path = "/usr/local/fusesource/agent";
     private int sshRetries = 6;
     private int retryDelay = 1;
     private boolean debugAgent;

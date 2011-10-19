@@ -12,6 +12,7 @@ import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.CreateAgentArguments;
 import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.JCloudsInstanceType;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.RunNodesException;
@@ -46,9 +47,6 @@ public class JcloudsAgentProvider implements AgentProvider {
     private static final String GROUP = "group";
 
     private static final String INSTANCE_TYPE = "instanceType";
-    private static final String SMALLEST = "smalled";
-    private static final String BIGGEST = "biggest";
-    private static final String FASTEST = "fastest";
 
     private MavenProxy mavenProxy;
 
@@ -90,7 +88,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         String locationId = null;
         String group = null;
         String user = null;
-        String instanceType = SMALLEST;
+        JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
         Credentials credentials = null;
 
         try {
@@ -105,7 +103,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                     hardwareId = parameters.get(HARDWARE_ID);
                     user = parameters.get(USER);
                     if (parameters.get(INSTANCE_TYPE) != null) {
-                        instanceType = parameters.get(INSTANCE_TYPE);
+                        instanceType = JCloudsInstanceType.get(parameters.get(INSTANCE_TYPE), instanceType);
                     }
                 }
             }
@@ -140,7 +138,7 @@ public class JcloudsAgentProvider implements AgentProvider {
             String locationId = args.getLocationId();
             String group = args.getGroup();
             String user = args.getUser();
-            String instanceType = args.getInstanceType();
+            JCloudsInstanceType instanceType = args.getInstanceType();
             Credentials credentials = null;
             String providerName = args.getProviderName();
 
@@ -150,7 +148,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         return false;
     }
 
-    protected void doCreateAgent(String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, String instanceType, Credentials credentials, String providerName) throws MalformedURLException, RunNodesException {
+    protected void doCreateAgent(String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, Credentials credentials, String providerName) throws MalformedURLException, RunNodesException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
             throw new FabricException("Not compute Service found for provider:" + providerName);
@@ -158,13 +156,17 @@ public class JcloudsAgentProvider implements AgentProvider {
 
         TemplateBuilder builder = computeService.templateBuilder();
         builder.any();
-        if (SMALLEST.equals(instanceType)) {
-            builder.smallest();
-        } else if (FASTEST.equals(instanceType)) {
-            builder.fastest();
-        } else if (BIGGEST.equals(instanceType)) {
-            builder.biggest();
+        switch (instanceType) {
+            case Smallest:
+                builder.smallest();
+                break;
+            case Biggest:
+                builder.biggest();
+                break;
+            case Fastest:
+                builder.fastest();
         }
+
         if (locationId != null) {
             builder.locationId(locationId);
         }
