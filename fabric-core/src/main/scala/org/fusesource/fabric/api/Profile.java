@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.List;
 import java.util.Map;
 
 public interface Profile {
@@ -28,6 +29,10 @@ public interface Profile {
     void setParents(Profile[] parents);
 
     Agent[] getAssociatedAgents();
+
+    List<String> getBundles();
+    List<String> getFeatures();
+    List<String> getRepositories();
 
     Map<String, byte[]> getFileConfigurations();
 
