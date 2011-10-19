@@ -25,6 +25,18 @@ public class CreateJCloudsAgentArguments implements CreateAgentArguments, Serial
     private String instanceType;
     private String providerName;
 
+    @Override
+    public String toString() {
+        return "CreateJCloudsAgentArguments{" +
+                "imageId='" + imageId + '\'' +
+                ", hardwareId='" + hardwareId + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", group='" + group + '\'' +
+                ", user='" + user + '\'' +
+                ", instanceType='" + instanceType + '\'' +
+                '}';
+    }
+
     public boolean isDebugAgent() {
         return debugAgent;
     }

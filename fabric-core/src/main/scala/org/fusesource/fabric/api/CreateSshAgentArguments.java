@@ -25,6 +25,11 @@ public class CreateSshAgentArguments implements CreateAgentArguments, Serializab
     private int retryDelay = 1;
     private boolean debugAgent;
 
+    @Override
+    public String toString() {
+        return "createSshAgent(" + username + "@" + host + ":" + port + " " + path + ")";
+    }
+
     public boolean isDebugAgent() {
         return debugAgent;
     }

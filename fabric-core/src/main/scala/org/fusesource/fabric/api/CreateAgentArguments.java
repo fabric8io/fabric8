@@ -8,7 +8,9 @@
  */
 package org.fusesource.fabric.api;
 
+import java.io.Serializable;
+
 /**
  */
-public interface CreateAgentArguments {
+public interface CreateAgentArguments extends Serializable {
 }

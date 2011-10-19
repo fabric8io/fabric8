@@ -19,6 +19,10 @@
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
+    <reference interface="javax.management.MBeanServer">
+        <reference-listener ref="fabricService" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
+    </reference>
+
     <reference-list interface="org.fusesource.fabric.api.AgentProvider" availability="optional">
         <reference-listener ref="fabricService" bind-method="registerProvider" unbind-method="unregisterProvider"/>
     </reference-list>
