@@ -44,14 +44,5 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
     fabric:zk-cluster $APPLICATION
 }
 
-# use zookeeper realm for authenticating access
-config:edit org.apache.karaf.shell
-config:propset sshRealm zookeeper
-config:update
-
-config:edit org.apache.karaf.management
-config:propset jmxRealm zookeeper
-config:update
-
 
 

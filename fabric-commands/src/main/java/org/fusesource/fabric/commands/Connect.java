@@ -8,21 +8,21 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.util.List;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
 
+import java.util.List;
+
 @Command(name = "connect", scope = "fabric", description = "Connect to an existing agent")
 public class Connect extends FabricCommand {
 
-    @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: karaf)", required = false, multiValued = false)
-    private String username = "karaf";
+    @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: admin)", required = false, multiValued = false)
+    private String username = "admin";
 
-    @Option(name="-p", aliases={"--password"}, description="Remote user password (Default: karaf)", required = false, multiValued = false)
-    private String password = "karaf";
+    @Option(name="-p", aliases={"--password"}, description="Remote user password (Default: admin)", required = false, multiValued = false)
+    private String password = "admin";
 
     @Argument(index = 0, name="agent", description="The agent name", required = true, multiValued = false)
     private String agent = null;

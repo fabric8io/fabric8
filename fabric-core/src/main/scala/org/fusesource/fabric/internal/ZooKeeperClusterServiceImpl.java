@@ -8,19 +8,6 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.io.*;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
@@ -32,6 +19,15 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.DecimalFormat;
+import java.util.*;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
@@ -120,7 +116,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p.put("repository.fabric", "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features");
             p.put("feature.karaf", "karaf");
             p.put("feature.fabric-agent", "fabric-agent");
+            p.put("feature.fabric-core", "fabric-core");
+            p.put("feature.fabric-jaas", "fabric-jaas");
             p.put("framework", "mvn:org.apache.felix/org.apache.felix.framework/3.0.9-fuse-00-10");
+
             ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
             ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_AGENT.getPath(karafName), version);
@@ -131,6 +130,14 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.createDefault(client, "fabric/authentication/encryption.enabled", "true");
             ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "zookeeper");            
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
+
+            //use zk realm as a default for fabric services
+            p = new Properties();
+            p.put("sshRealm", "zookeeper");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.apache.karaf.shell.properties", toString(p));
+            p = new Properties();
+            p.put("jmxRealm", "zookeeper");
+            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.apache.karaf.management.properties", toString(p));
 
             Bundle bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.1-SNAPSHOT");
             if (bundle.getState() == Bundle.ACTIVE) {
