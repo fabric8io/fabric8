@@ -23,6 +23,14 @@ public interface FabricService {
 
     Agent createAgent(Agent parent, String name, boolean debugAgent);
 
+    Agent createAgent(CreateAgentArguments args, String name);
+
+    /**
+     * Uses the given parent agent to create the new agent (so that locally
+     * we don't have to have all the plugins like ssh and jclouds available)
+     */
+    Agent createAgent(Agent parent, CreateAgentArguments args, String name);
+
     Version getDefaultVersion();
 
     void setDefaultVersion( Version version );
@@ -34,5 +42,4 @@ public interface FabricService {
     Version createVersion(String version);
 
     Version createVersion(Version parent, String version);
-
 }

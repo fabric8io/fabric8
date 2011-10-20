@@ -49,6 +49,59 @@ public class ProfileImpl implements Profile {
         return service;
     }
 
+    public enum ConfigListType {
+
+        BUNDLES("bundle"),
+        FEATURES("feature"),
+        REPOSITORIES("repository");
+
+        private String value;
+
+        private ConfigListType(String value) {
+            this.value = value;
+        }
+        public String toString() {
+            return value;
+        }
+    }
+
+    public List<String> getBundles() {
+        return getAgentConfigList(this, ConfigListType.BUNDLES);
+    }
+
+    public List<String> getFeatures() {
+        return getAgentConfigList(this, ConfigListType.FEATURES);
+    }
+
+    public List<String> getRepositories() {
+        return getAgentConfigList(this, ConfigListType.REPOSITORIES);
+    }
+
+    public static List<String> getAgentConfigList(Profile p, ConfigListType type) {
+        try {
+            Properties agentProps = getAgentProperties(p);
+            ArrayList<String> rc = new ArrayList<String>();
+            for ( Map.Entry<Object, Object> e : agentProps.entrySet() ) {
+                if ( ((String)e.getKey()).startsWith(type + ".") ) {
+                    rc.add((String)e.getValue());
+                }
+            }
+            return rc;
+
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public static Properties getAgentProperties(Profile p) throws IOException {
+        byte[] b = p.getFileConfigurations().get(AGENT_PID + ".properties");
+        if (b != null) {
+            return toProperties(b);
+        } else {
+            return new Properties();
+        }
+    }
+
     public Profile[] getParents() {
         try {
             String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
@@ -128,7 +181,7 @@ public class ProfileImpl implements Profile {
         }
     }
 
-    private byte[] getFileConfiguration(String pid) throws InterruptedException, KeeperException {
+    public byte[] getFileConfiguration(String pid) throws InterruptedException, KeeperException {
         IZKClient zooKeeper = service.getZooKeeper();
         String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/" + pid;
         if (zooKeeper.exists(path) == null) {

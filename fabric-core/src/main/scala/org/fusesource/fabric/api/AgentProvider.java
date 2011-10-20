@@ -35,4 +35,8 @@ public interface AgentProvider {
      */
     void create(URI agentUri, String name, String zooKeeperUrl, boolean debugAgent);
 
+    /**
+     * Creates an agent using a set of arguments
+     */
+    boolean create(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception;
 }

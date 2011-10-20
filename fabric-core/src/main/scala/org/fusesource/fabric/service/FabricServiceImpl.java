@@ -20,6 +20,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
+import org.fusesource.fabric.api.CreateAgentArguments;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -30,12 +31,21 @@ import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.AGENT_ROOT;
 
-public class FabricServiceImpl implements FabricService {
+public class FabricServiceImpl implements FabricService, FabricServiceImplMBean {
+    private transient Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
     public static final String DEFAULT_VERSION = "base";
     private static final String DEFAULT_PROFILE = "default";
@@ -44,6 +54,9 @@ public class FabricServiceImpl implements FabricService {
     private Map<String, AgentProvider> providers;
     private ConfigurationAdmin configurationAdmin;
     private String profile = DEFAULT_PROFILE;
+    private ObjectName mbeanName;
+    private String userName = "admin";
+    private String password = "admin";
 
     public FabricServiceImpl() {
         providers = new ConcurrentHashMap<String, AgentProvider>();
@@ -56,6 +69,33 @@ public class FabricServiceImpl implements FabricService {
 
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public ObjectName getMbeanName() throws MalformedObjectNameException {
+        if (mbeanName == null) {
+            mbeanName = new ObjectName("org.fusesource.fabric:type=FabricService");
+        }
+        return mbeanName;
+    }
+
+    public void setMbeanName(ObjectName mbeanName) {
+        this.mbeanName = mbeanName;
     }
 
     public ConfigurationAdmin getConfigurationAdmin() {
@@ -151,6 +191,60 @@ public class FabricServiceImpl implements FabricService {
         }
     }
 
+    public Agent createAgent(CreateAgentArguments args, String name) {
+        try {
+            final String zooKeeperUrl = getZooKeeperUrl();
+            createAgentConfig("", name);
+            Agent agent = doCreateAgentFromArguments(args, name, zooKeeperUrl);
+            if (agent == null) {
+                throw new IllegalArgumentException("Unknown CreateAgentArguments " + args + " when creating agent " + name);
+            }
+            return agent;
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public boolean createRemoteAgent(CreateAgentArguments args, String name) {
+        try {
+            final String zooKeeperUrl = getZooKeeperUrl();
+            Agent agent = doCreateAgentFromArguments(args, name, zooKeeperUrl);
+            return agent != null;
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    protected Agent doCreateAgentFromArguments(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
+        for (AgentProvider provider : providers.values()) {
+            if (provider.create(args, name, zooKeeperUrl)) {
+                return new AgentImpl(null, name, FabricServiceImpl.this);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Agent createAgent(final Agent parent, final CreateAgentArguments args, final String name) {
+        createAgentConfig(parent.getId(), name);
+        AgentTemplate agentTemplate = getAgentTemplate(parent);
+
+        if (agentTemplate.execute(new AgentTemplate.FabricServiceCallback<Boolean>() {
+            public Boolean doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
+                return fabricService.createRemoteAgent(args, name);
+            }
+        })) {
+            return new AgentImpl(null, name, FabricServiceImpl.this);
+        } else {
+            return null;
+        }
+    }
+
     public Agent createAgent(final String url, final String name) {
         return createAgent(url,name,false);
     }
@@ -177,6 +271,25 @@ public class FabricServiceImpl implements FabricService {
     public void unregisterProvider(AgentProvider provider, Map<String, Object> properties) {
         String scheme = (String) properties.get(AgentProvider.PROTOCOL);
         unregisterProvider(scheme);
+    }
+
+    public void registerMBeanServer(MBeanServer mbeanServer) {
+        try {
+            ObjectName name = getMbeanName();
+            ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
+        } catch (Exception e) {
+            logger.warn("An error occured during mbean server registration: " + e, e);
+        }
+    }
+
+    public void unregisterMBeanServer(MBeanServer mbeanServer) {
+        if (mbeanServer != null) {
+            try {
+                mbeanServer.unregisterMBean(getMbeanName());
+            } catch (Exception e) {
+                logger.warn("An error occured during mbean server registration: " + e, e);
+            }
+        }
     }
 
     public Agent createAgent(final Agent parent, final String name, final boolean debugAgent) {
@@ -361,7 +474,7 @@ public class FabricServiceImpl implements FabricService {
         // there's no point caching the JMX Connector as we are unsure if we'll communicate again with the same agent any time soon
         // though in the future we could possibly pool them
         boolean cacheJmx = false;
-        return new AgentTemplate(agent, cacheJmx);
+        return new AgentTemplate(agent, cacheJmx, userName, password);
     }
 
 }

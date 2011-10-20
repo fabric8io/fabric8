@@ -11,6 +11,7 @@ package org.fusesource.fabric.service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 
@@ -44,6 +45,12 @@ public class AgentTemplate {
         }
     }
 
+    public AgentTemplate(Agent agent, boolean cacheJmx, String login, String password) {
+        this(agent, cacheJmx);
+        this.login = login;
+        this.password = password;
+    }
+
     public AgentTemplate(Agent agent, JmxTemplateSupport jmxTemplate) {
         this.jmxTemplate = jmxTemplate;
         this.agent = agent;
@@ -52,6 +59,12 @@ public class AgentTemplate {
     public interface AdminServiceCallback<T> {
 
         T doWithAdminService(AdminServiceMBean adminService) throws Exception;
+
+    }
+
+    public interface FabricServiceCallback<T> {
+
+        T doWithFabricService(FabricServiceImplMBean fabricService) throws Exception;
 
     }
 
@@ -74,6 +87,15 @@ public class AgentTemplate {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[]{"type", "admin", "name", agent.getId()};
                 return callback.doWithAdminService(jmxTemplate.getMBean(connector, AdminServiceMBean.class, "org.apache.karaf", bean));
+            }
+        });
+    }
+
+    public <T> T execute(final FabricServiceCallback<T> callback) {
+        return jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
+            public T doWithJmxConnector(JMXConnector connector) throws Exception {
+                String[] bean = new String[]{"type", "FabricService"};
+                return callback.doWithFabricService(jmxTemplate.getMBean(connector, FabricServiceImplMBean.class, "org.fusesource.fabric", bean));
             }
         });
     }

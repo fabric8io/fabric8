@@ -16,7 +16,7 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 
 import java.io.PrintStream;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Command(name = "display-profile", scope = "fabric", description = "Displays profile information")
@@ -52,6 +52,14 @@ public class DisplayProfile extends FabricCommand {
         return rc.toString().trim();
     }
 
+    private static void printConfigList(String header, PrintStream out, List<String> list) {
+        out.println(header);
+        for (String str : list) {
+            out.printf("\t%s\n", str);
+        }
+        out.println();
+    }
+
     private void displayProfile(Profile profile) {
         PrintStream output = session.getConsole();
 
@@ -60,20 +68,28 @@ public class DisplayProfile extends FabricCommand {
 
         output.println("Parents   : " + toString(profile.getParents()));
 
-        output.printf("Associated Agents : %s\n\n", toString(profile.getAssociatedAgents()));
+        output.printf("Associated Agents : %s\n", toString(profile.getAssociatedAgents()));
 
         Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
 
         if (configuration.containsKey(AGENT_PID)) {
             output.println("\nAgent settings");
-            Map<String, String> agentCfg = configuration.get(AGENT_PID);
+            output.println("----------------------------");
 
-            displayAgentConfig(agentCfg);
-
+            if (profile.getRepositories().size() > 0) {
+                printConfigList("Repositories : ", output, profile.getRepositories());
+            }
+            if (profile.getFeatures().size() > 0) {
+                printConfigList("Features : ", output, profile.getFeatures());
+            }
+            if (profile.getBundles().size() > 0) {
+                printConfigList("Bundles : ", output, profile.getBundles());
+            }
             configuration.remove(AGENT_PID);
         }
 
         output.println("\nConfiguration details");
+        output.println("----------------------------");
         for (Map.Entry<String, Map<String, String>> cfg : configuration.entrySet()) {
             output.println("PID: " + cfg.getKey());
 
@@ -81,58 +97,6 @@ public class DisplayProfile extends FabricCommand {
                 output.println("  " + values.getKey() + " " + values.getValue());
             }
             output.println("\n");
-        }
-    }
-
-    private Map<String, String> matchKeys(Map<String, String> cfg, String prefix) {
-        Map<String, String> matched = new LinkedHashMap<String, String>();
-
-        for (Map.Entry<String, String> entry : cfg.entrySet()) {
-            if (entry.getKey().startsWith(prefix)) {
-                String key = entry.getKey().substring(prefix.length());
-
-                if (entry.getValue() == null || entry.getValue().isEmpty()) {
-                    matched.put(key, key);
-                } else {
-                    matched.put(key, entry.getValue());
-                }
-            }
-        }
-        return matched;
-    }
-
-    private void displayAgentConfig(Map<String, String> configuration) {
-        PrintStream output = session.getConsole();
-
-        Map<String, String> repositories = matchKeys(configuration, "repository.");
-        Map<String, String> features = matchKeys(configuration, "feature.");
-        Map<String, String> bundles = matchKeys(configuration, "bundle.");
-
-        if (repositories.size() > 0) {
-            output.println("\nRepositories:");
-            for (String key : repositories.keySet()) {
-                output.println(key + " " + repositories.get(key));
-            }
-        } else {
-            output.println("\nNo repositories defined for profile");
-        }
-
-        if (features.size() > 0) {
-            output.println("\nFeatures:");
-            for (String key : features.keySet()) {
-                output.println(key + " " + features.get(key));
-            }
-        } else {
-            output.println("\nNo features defined for profile");
-        }
-
-        if (bundles.size() > 0) {
-            output.println("\nBundles:");
-            for (String key : bundles.keySet()) {
-                output.println(key + " " + bundles.get(key));
-            }
-        } else {
-            output.println("\nNo bundles defined for profile");
         }
     }
 

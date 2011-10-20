@@ -11,6 +11,7 @@ package org.fusesource.fabric.service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
+import org.fusesource.fabric.api.CreateAgentArguments;
 
 import java.net.URI;
 
@@ -57,5 +58,10 @@ public class ChildAgentProvider implements AgentProvider {
     @Override
     public void create(URI agentUri, String name, String zooKeeperUrl) {
         create(agentUri,name,zooKeeperUrl);
+    }
+
+    @Override
+    public boolean create(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
+        return false;
     }
 }

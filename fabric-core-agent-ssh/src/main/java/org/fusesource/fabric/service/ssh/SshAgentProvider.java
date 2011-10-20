@@ -12,6 +12,8 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import org.fusesource.fabric.api.AgentProvider;
+import org.fusesource.fabric.api.CreateAgentArguments;
+import org.fusesource.fabric.api.CreateSshAgentArguments;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.maven.MavenProxy;
 
@@ -43,7 +45,7 @@ public class SshAgentProvider implements AgentProvider {
      */
     public void create(URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent) {
         try {
-            String script = buildStartupScript(mavenProxy.getAddress(), name, agentUri.getPath(), zooKeeperUrl,debugAgent);
+            String path = agentUri.getPath();
             String host = agentUri.getHost();
             if (agentUri.getQuery() != null) {
                 debug = agentUri.getQuery().contains("debug");
@@ -60,12 +62,40 @@ public class SshAgentProvider implements AgentProvider {
             if (uip == null || uip.length != 2) {
                 throw new IllegalArgumentException("user and password must be supplied in the uri '" + agentUri + "'");
             }
-            sendScript(host, port, uip[0], uip[1], script, 6, 1);
+            String username = uip[0];
+            String password = uip[1];
+            int sshRetries = 6;
+            int retryDelay = 1;
+            doCreateAgent(name, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    @Override
+    public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
+        if (createArgs instanceof CreateSshAgentArguments) {
+            CreateSshAgentArguments args = (CreateSshAgentArguments) createArgs;
+            boolean debugAgent = args.isDebugAgent();
+            String path = args.getPath();
+            String host = args.getHost();
+            int port = args.getPort();
+            String username = args.getUsername();
+            String password = args.getPassword();
+            int sshRetries = args.getSshRetries();
+            int retryDelay = args.getRetryDelay();
+            doCreateAgent(name, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected void doCreateAgent(String name, String zooKeeperUrl, boolean debugAgent, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
+        String script = buildStartupScript(mavenProxy.getAddress(), name, path, zooKeeperUrl, debugAgent);
+        createAgent(host, port, username, password, script, sshRetries, retryDelay);
     }
 
     /**
@@ -79,7 +109,7 @@ public class SshAgentProvider implements AgentProvider {
         create(agentUri,name,zooKeeperUrl,false);
     }
 
-    protected void sendScript(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
+    protected void createAgent(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
         Session session = null;
         Exception connectException = null;
         for (int i = 0; i < sshRetries; i++) {
