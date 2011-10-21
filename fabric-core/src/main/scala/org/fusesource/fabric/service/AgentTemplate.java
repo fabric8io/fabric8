@@ -28,8 +28,8 @@ import java.util.Map;
 public class AgentTemplate {
     private final Agent agent;
     private final JmxTemplateSupport jmxTemplate;
-    protected String login = "karaf";
-    protected String password = "karaf";
+    protected String login = "admin";
+    protected String password = "admin";
 
     public AgentTemplate(Agent agent, boolean cacheJmx) {
         this.agent = agent;
