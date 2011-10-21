@@ -71,6 +71,10 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
     }
 
+    public ConcurrentMap<String, ComputeService> getComputeServiceMap() {
+        return computeServiceMap;
+    }
+
     public void setMavenProxy(MavenProxy mavenProxy) {
         this.mavenProxy = mavenProxy;
     }
