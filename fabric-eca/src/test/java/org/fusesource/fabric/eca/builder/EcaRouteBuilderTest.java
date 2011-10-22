@@ -279,8 +279,8 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
         context.addRoutes(new EcaRouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(de2).id("route1").filter(simple("${body.correlationID} == ID:2")).to(testEndPointUri);
-                from(de).id("route2").filter(simple("${in.body.id} == ID:2")).to(testEndPointUri2);
+                from(de2).filter(simple("${body.correlationID} == ID:2")).to(testEndPointUri);
+                from(de).filter(simple("${in.body.id} == ID:2")).to(testEndPointUri2);
                 eca("test").win("30 s").evaluate(testEndPointUri + " and " + testEndPointUri2).to("mock:result");
 
             }
