@@ -10,6 +10,7 @@ package org.fusesource.fabric.service;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -249,8 +250,12 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return createAgent(url,name,false);
     }
 
-    protected AgentProvider getProvider(final String scheme) {
+    public AgentProvider getProvider(final String scheme) {
         return providers.get(scheme);
+    }
+
+    public Map<String, AgentProvider> getProviders() {
+        return Collections.unmodifiableMap(providers);
     }
 
     public void registerProvider(String scheme, AgentProvider provider) {
