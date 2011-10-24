@@ -15,6 +15,8 @@ public interface FabricService {
 
     Agent getAgent(String name);
 
+    Agent createAgent(String name);
+
     Agent createAgent(String url, String name);
 
     Agent createAgent(String url, String name, boolean debugAgent);

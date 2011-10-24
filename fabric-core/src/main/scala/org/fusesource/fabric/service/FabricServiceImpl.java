@@ -110,7 +110,6 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     public Agent[] getAgents() {
         try {
             Map<String, Agent> agents = new HashMap<String, Agent>();
-
             List<String> configs = zooKeeper.getChildren(ZkPath.CONFIGS_AGENTS.getPath());
             for (String name : configs) {
                 String root = zooKeeper.getStringData(ZkPath.AGENT_ROOT.getPath(name)).trim();
@@ -172,6 +171,19 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                 return null;
             }
         });
+    }
+
+
+    public Agent createAgent(String name) {
+        try {
+            final String zooKeeperUrl = getZooKeeperUrl();
+            createAgentConfig("",name);
+            return new AgentImpl(null, name, FabricServiceImpl.this);
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     public Agent createAgent(String url, String name, boolean debugAgent) {
