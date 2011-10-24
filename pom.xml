@@ -207,6 +207,7 @@
         <module>fabric-distro</module>
         <module>fabric-eca</module>
         <module>fabric-examples</module>
+        <module>fabric-security</module>
     </modules>
 
     <build>
