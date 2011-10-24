@@ -14,8 +14,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>fabric-security-project</artifactId>
-    <groupId>org.fusesource.fabric.security</groupId>
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-project</artifactId>
     <version>1.1-SNAPSHOT</version>
   </parent>
 
