@@ -12,6 +12,8 @@ import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.CreateAgentArguments;
 import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.FabricServices;
 import org.fusesource.fabric.api.JCloudsInstanceType;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.jclouds.compute.ComputeService;
@@ -82,11 +84,12 @@ public class JcloudsAgentProvider implements AgentProvider {
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
+     * @param fabricService
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
-    public void create(URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
+    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
         String imageId = null;
         String hardwareId = null;
         String locationId = null;
@@ -112,7 +115,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            doCreateAgent(name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
+            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -123,16 +126,17 @@ public class JcloudsAgentProvider implements AgentProvider {
       /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
-     * @param agentUri     The uri that contains required information to build the Agent.
-     * @param name         The name of the Agent.
-     * @param zooKeeperUrl The url of Zoo Keeper.
-     */
-    public void create(URI agentUri, String name, String zooKeeperUrl) {
-        create(agentUri,name,zooKeeperUrl);
+       * @param fabricService
+       * @param agentUri     The uri that contains required information to build the Agent.
+       * @param name         The name of the Agent.
+       * @param zooKeeperUrl The url of Zoo Keeper.
+       */
+    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl) {
+        create(fabricService, agentUri, name, zooKeeperUrl);
     }
 
     @Override
-    public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
+    public boolean create(FabricService fabricService, CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
         if (createArgs instanceof CreateJCloudsAgentArguments) {
             CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
 
@@ -146,13 +150,13 @@ public class JcloudsAgentProvider implements AgentProvider {
             Credentials credentials = null;
             String providerName = args.getProviderName();
 
-            doCreateAgent(name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
+            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
             return true;
         }
         return false;
     }
 
-    protected void doCreateAgent(String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, Credentials credentials, String providerName) throws MalformedURLException, RunNodesException {
+    protected void doCreateAgent(FabricService fabricService, String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, Credentials credentials, String providerName) throws MalformedURLException, RunNodesException, URISyntaxException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
             throw new FabricException("Not compute Service found for provider:" + providerName);
@@ -186,7 +190,7 @@ public class JcloudsAgentProvider implements AgentProvider {
             credentials = new Credentials(user, null);
         }
 
-        String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl, debugAgent);
+        String script = buildStartupScript(getMavenRepoURI(fabricService), name, zooKeeperUrl, debugAgent);
         metadatas = computeService.createNodesInGroup(group, 1, builder.build());
 
         if (metadatas != null) {
@@ -201,6 +205,13 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
     }
 
+    protected URI getMavenRepoURI(FabricService fabricService) throws URISyntaxException {
+        URI localRepoURI = null;
+        if (mavenProxy != null) {
+            localRepoURI = mavenProxy.getAddress();
+        }
+        return FabricServices.getMavenRepoURI(fabricService, localRepoURI);
+    }
 
     private String buildStartupScript(URI proxy, String name, String zooKeeperUrl, boolean debugAgent) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();

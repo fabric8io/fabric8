@@ -32,7 +32,6 @@ import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -195,7 +194,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                 throw new FabricException("Unable to find an agent provider supporting uri '" + url + "'");
             }
             createAgentConfig("", name);
-            provider.create(uri, name, zooKeeperUrl,debugAgent);
+            provider.create(this, uri, name, zooKeeperUrl,debugAgent);
             return new AgentImpl(null, name, FabricServiceImpl.this);
         } catch (FabricException e) {
             throw e;
@@ -235,7 +234,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     protected Agent doCreateAgentFromArguments(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
         for (AgentProvider provider : providers.values()) {
-            if (provider.create(args, name, zooKeeperUrl)) {
+            if (provider.create(this, args, name, zooKeeperUrl)) {
                 return new AgentImpl(null, name, FabricServiceImpl.this);
             }
         }
@@ -268,6 +267,12 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     public Map<String, AgentProvider> getProviders() {
         return Collections.unmodifiableMap(providers);
+    }
+
+    @Override
+    public URI getMavenRepoURI() {
+        // TODO load from ZK!
+        return null;
     }
 
     public void registerProvider(String scheme, AgentProvider provider) {

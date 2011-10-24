@@ -9,6 +9,8 @@
 
 package org.fusesource.fabric.api;
 
+import java.net.URI;
+
 public interface FabricService {
 
     Agent[] getAgents();
@@ -44,4 +46,9 @@ public interface FabricService {
     Version createVersion(String version);
 
     Version createVersion(Version parent, String version);
+
+    /**
+     * Returns the current maven proxy repository to use to create new agents
+     */
+    URI getMavenRepoURI();
 }

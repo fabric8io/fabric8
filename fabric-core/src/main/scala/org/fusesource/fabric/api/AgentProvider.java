@@ -20,23 +20,25 @@ public interface AgentProvider {
 
     /**
      * Creates an {@link Agent} with the given name pointing to the specified zooKeeperUrl.
+     * @param fabricService
      * @param agentUri The uri that contains required information to build the Agent.
      * @param name The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
-    void create(URI agentUri, String name, String zooKeeperUrl);
+    void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl);
 
     /**
      * Creates an {@link Agent} with the given name pointing to the specified zooKeeperUrl.
+     * @param fabricService
      * @param agentUri The uri that contains required information to build the Agent.
      * @param name The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      * @param debugAgent Flag used to enable debugging on the new Agent.
      */
-    void create(URI agentUri, String name, String zooKeeperUrl, boolean debugAgent);
+    void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent);
 
     /**
      * Creates an agent using a set of arguments
      */
-    boolean create(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception;
+    boolean create(FabricService fabricService, CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception;
 }
