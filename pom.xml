@@ -59,7 +59,7 @@
         <fabric.osgi.import.defaults>
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
-            org.apache.camel.*;version="[2.7,3)",
+            org.apache.camel.*;version="[2.8,3)",
         </fabric.osgi.import.defaults>
         <fabric.osgi.import.before.defaults />
         <fabric.osgi.import.additional />
@@ -83,13 +83,13 @@
         <fabric.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
-        <activemq-version>5.5.1-fuse-00-08</activemq-version>
+        <activemq-version>5.5.1-fuse-01-06</activemq-version>
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <common-math-version>2.2</common-math-version>
-        <cxf-version>2.4.2-fuse-00-08</cxf-version>
-        <camel-version>2.8.0-fuse-00-08</camel-version>
+        <cxf-version>2.4.3-fuse-00-06</cxf-version>
+        <camel-version>2.8.0-fuse-01-06</camel-version>
         <hawtbuf-version>1.6</hawtbuf-version>
         <hawtdispatch-version>1.4</hawtdispatch-version>
         <jackson-version>1.8.4</jackson-version>
@@ -104,7 +104,7 @@
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
-        <karaf-version>2.2.0-fuse-00-53</karaf-version>
+        <karaf-version>2.2.2-fuse-02-06</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
@@ -130,7 +130,7 @@
         <sigar-version>1.6.4</sigar-version>
         <slf4j-version>1.6.1</slf4j-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
-        <spring-version>3.0.5.RELEASE</spring-version>
+        <spring-version>3.0.6.RELEASE</spring-version>
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
@@ -181,8 +181,8 @@
     </dependencies>
 
     <modules>
-        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-core</module>
+        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-commands</module>
         <module>fabric-maven-proxy</module>
@@ -194,7 +194,6 @@
         <module>fabric-jaas</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
-        <module>fab</module>
         <module>fabric-camel</module>
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
@@ -204,8 +203,9 @@
         <module>fabric-launcher</module>
         <module>fabric-groups</module>
         <module>fabric-dosgi</module>
-        <module>fabric-distro</module>
         <module>fabric-eca</module>
+        <module>fabric-security</module>
+        <module>fab</module>
         <module>fabric-examples</module>
     </modules>
 
