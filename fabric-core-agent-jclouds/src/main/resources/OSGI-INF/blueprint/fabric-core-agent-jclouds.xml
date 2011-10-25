@@ -19,7 +19,7 @@
 
     <bean id="jcloudsAgentProvider" class="org.fusesource.fabric.service.jclouds.JcloudsAgentProvider">
         <property name="mavenProxy">
-            <reference interface="org.fusesource.fabric.maven.MavenProxy" />
+          <reference interface="org.fusesource.fabric.maven.MavenProxy" availability="optional"/>
         </property>
     </bean>
 
