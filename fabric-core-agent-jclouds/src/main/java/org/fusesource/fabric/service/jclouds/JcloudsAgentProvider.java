@@ -8,6 +8,9 @@
 
 package org.fusesource.fabric.service.jclouds;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Module;
 import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.CreateAgentArguments;
 import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
@@ -17,11 +20,14 @@ import org.fusesource.fabric.api.FabricServices;
 import org.fusesource.fabric.api.JCloudsInstanceType;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.domain.Credentials;
+import org.jclouds.rest.RestContextFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -33,6 +39,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -53,7 +60,6 @@ public class JcloudsAgentProvider implements AgentProvider {
     private MavenProxy mavenProxy;
 
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
-
 
     public void bind(ComputeService computeService) {
         if(computeService != null) {
@@ -96,7 +102,9 @@ public class JcloudsAgentProvider implements AgentProvider {
         String group = null;
         String user = null;
         JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
-        Credentials credentials = null;
+        String identity = null;
+        String credential = null;
+        String owner = null;
 
         try {
             String providerName = agentUri.getHost();
@@ -115,7 +123,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
+            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -147,19 +155,34 @@ public class JcloudsAgentProvider implements AgentProvider {
             String group = args.getGroup();
             String user = args.getUser();
             JCloudsInstanceType instanceType = args.getInstanceType();
-            Credentials credentials = null;
             String providerName = args.getProviderName();
+            String identity = args.getIdentity();
+            String credential = args.getCredential();
+            String owner = args.getOwner();
 
-            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, credentials, providerName);
+            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
             return true;
         }
         return false;
     }
 
-    protected void doCreateAgent(FabricService fabricService, String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, Credentials credentials, String providerName) throws MalformedURLException, RunNodesException, URISyntaxException {
+    protected void doCreateAgent(FabricService fabricService, String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
-            throw new FabricException("Not compute Service found for provider:" + providerName);
+            //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
+            Iterable<? extends Module> modules = ImmutableSet.of();
+
+            Properties props = new Properties();
+            props.put("provider", providerName);
+            props.put("identity", identity);
+            props.put("credential", credential);
+            if (!Strings.isNullOrEmpty(owner)) {
+                props.put("jclouds.ec2.ami-owners", owner);
+            }
+
+            RestContextFactory restFactory = new RestContextFactory();
+            ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(providerName, identity, credential, modules, props);
+            computeService = context.getComputeService();
         }
 
         TemplateBuilder builder = computeService.templateBuilder();
@@ -186,6 +209,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
 
         Set<? extends NodeMetadata> metadatas = null;
+        Credentials credentials = null;
         if (user != null && credentials == null) {
             credentials = new Credentials(user, null);
         }
