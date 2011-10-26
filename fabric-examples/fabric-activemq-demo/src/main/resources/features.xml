@@ -9,7 +9,7 @@
 
 -->
 <features name="fabric-activemq-demo-${project.version}">
-    <repository>mvn:org.apache.activemq/activemq-karaf/5.5.0/xml/features</repository>
+    <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
     <repository>mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features</repository>
 
     <feature name="fabric-activemq-demo" version="${project.version}" resolver="(obr)">
