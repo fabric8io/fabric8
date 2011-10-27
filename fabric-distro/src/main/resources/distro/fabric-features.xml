@@ -131,6 +131,7 @@
     </feature>
 
     <feature name="fabric-dosgi" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <feature>fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.fusesource.hawtdispatch/hawtdispatch/${hawtdispatch-version}</bundle>
         <bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuf-version}</bundle>
