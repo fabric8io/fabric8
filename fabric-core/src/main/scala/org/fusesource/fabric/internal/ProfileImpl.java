@@ -211,7 +211,7 @@ public class ProfileImpl implements Profile {
                 oldCfgs.remove(pid);
                 byte[] newCfg = configurations.get(pid);
                 String configPath =  path + "/" + pid;
-                if (zooKeeper.exists(configPath) != null && zooKeeper.getChildren(configPath) != null) {
+                if (zooKeeper.exists(configPath) != null && zooKeeper.getChildren(configPath).size() > 0) {
                     List<String> kids = zooKeeper.getChildren(configPath);
                     ArrayList<String> saved = new ArrayList<String>();
                     // old format, we assume that the byte stream is in
