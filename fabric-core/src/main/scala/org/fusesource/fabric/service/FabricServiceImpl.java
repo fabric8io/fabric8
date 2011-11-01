@@ -194,7 +194,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                 throw new FabricException("Unable to find an agent provider supporting uri '" + url + "'");
             }
             createAgentConfig("", name);
-            provider.create(this, uri, name, zooKeeperUrl,debugAgent);
+            provider.create(this, uri, name, zooKeeperUrl, debugAgent);
             return new AgentImpl(null, name, FabricServiceImpl.this);
         } catch (FabricException e) {
             throw e;
@@ -333,7 +333,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     public Agent createAgent(final Agent parent, final String name) {
-        return createAgent(parent,name,false);
+        return createAgent(parent, name, false);
     }
 
     public void destroy(Agent agent) {
@@ -470,6 +470,19 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                 profiles.add(new ProfileImpl(name, version, this));
             }
             return profiles.toArray(new Profile[profiles.size()]);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public Profile getProfile(String version, String name) {
+        try {
+
+            String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name);
+            if (zooKeeper.exists(path) == null) {
+                return null;
+            }
+            return new ProfileImpl(name, version, this);
         } catch (Exception e) {
             throw new FabricException(e);
         }
