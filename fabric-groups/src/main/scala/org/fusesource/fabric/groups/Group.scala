@@ -13,6 +13,7 @@ import internal.ZooKeeperGroup
 import org.linkedin.zookeeper.client.IZKClient
 import org.apache.zookeeper.data.ACL
 import org.apache.zookeeper.ZooDefs.Ids
+import java.util.LinkedHashMap
 
 /**
  * <p>
@@ -24,7 +25,7 @@ object ZooKeeperGroupFactory {
 
   def create(zk: IZKClient, path: String):Group = create(zk, path, Ids.OPEN_ACL_UNSAFE)
   def create(zk: IZKClient, path: String, acl:java.util.List[ACL]):Group = new ZooKeeperGroup(zk, path, acl)
-  def members(zk: IZKClient, path: String):Array[Array[Byte]] = ZooKeeperGroup.members(zk, path)
+  def members(zk: IZKClient, path: String):LinkedHashMap[String, Array[Byte]] = ZooKeeperGroup.members(zk, path)
 }
 
 /**
@@ -42,13 +43,14 @@ object ZooKeeperGroupFactory {
 trait Group {
 
   /**
-   * Adds a member to the group with some associated data.  Both the
-   * id and the data will be visible to anyone listing the members of the
-   * group.
-   *
-   * If you join
+   * Adds a member to the group with some associated data.
    */
-  def join(id:String, data:Array[Byte]):Unit
+  def join(data:Array[Byte]):String
+
+  /**
+   * Updates the data associated with joined member.
+   */
+  def update(id:String, data:Array[Byte]):Unit
 
   /**
    * Removes a previously added member.
@@ -58,7 +60,7 @@ trait Group {
   /**
    * Lists all the members currently in the group.
    */
-  def members():Array[Array[Byte]]
+  def members:java.util.LinkedHashMap[String, Array[Byte]]
 
   /**
    * Registers a change listener which will be called
@@ -80,6 +82,10 @@ trait Group {
    */
   def close:Unit
 
+  /**
+   * Are we connected with the cluster?
+   */
+  def connected:Boolean
 }
 
 /**
@@ -91,10 +97,8 @@ trait Group {
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 trait ChangeListener {
-
-  /**
-   * Processing this change even is not allowed to block for very long.
-   */
-  def changed(members:Array[Array[Byte]]):Unit
+  def changed:Unit
+  def connected:Unit
+  def disconnected:Unit
 }
 

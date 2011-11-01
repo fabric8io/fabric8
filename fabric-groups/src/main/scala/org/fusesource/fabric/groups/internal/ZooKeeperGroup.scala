@@ -12,35 +12,35 @@ package org.fusesource.fabric.groups.internal
 
 import org.apache.zookeeper._
 import java.lang.String
-import collection.JavaConversions._
-import org.linkedin.zookeeper.client.IZKClient
 import org.linkedin.zookeeper.tracker._
 import org.apache.zookeeper.KeeperException.Code
 import org.fusesource.fabric.groups.{ChangeListener, Group}
 import scala.collection.mutable.HashMap
 import org.apache.zookeeper.data.ACL
-import java.util.Collection
+import org.linkedin.zookeeper.client.{LifecycleListener, IZKClient}
+import collection.JavaConversions._
+import java.util.{LinkedHashMap, Collection}
 
 /**
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 object ZooKeeperGroup {
-  def members(zk: IZKClient, path: String):Array[Array[Byte]] = {
-    zk.getAllChildren(path).sortWith((a,b)=> a < b).flatMap { node =>
-      val rc:Option[Array[Byte]] = try {
+  def members(zk: IZKClient, path: String):LinkedHashMap[String, Array[Byte]] = {
+    var rc = new LinkedHashMap[String, Array[Byte]]
+    zk.getAllChildren(path).sortWith((a,b)=> a < b).foreach { node =>
+      try {
         if( node.matches("""0\d+""") ) {
-          Option(zk.getData(path+"/"+node))
+          rc.put(node, zk.getData(path+"/"+node))
         } else {
           None
         }
       } catch {
         case e:Throwable =>
           e.printStackTrace
-          None
       }
-      rc
-    }.toArray
+    }
+    rc
 
   }
 
@@ -51,17 +51,16 @@ object ZooKeeperGroup {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List[ACL]) extends Group {
+class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List[ACL]) extends Group with LifecycleListener with ChangeListenerSupport {
 
   val tree = new ZooKeeperTreeTracker[Array[Byte]](zk, new ZKByteArrayDataReader, root, 1)
-  val joins = HashMap[String, (String,Int)]()
+  val joins = HashMap[String, Int]()
 
-  @volatile
-  var members = Array[Array[Byte]]()
-  @volatile
-  var listeners = List[ChangeListener]()
+  var members = new LinkedHashMap[String, Array[Byte]]
 
   private def member_path_prefix = root + "/0"
+
+  zk.registerListener(this)
 
   create(root)
   tree.track(new NodeEventsListener[Array[Byte]]() {
@@ -71,81 +70,53 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
   })
   fire_cluster_change
 
-  def close = {
-    joins.values.foreach { case (my_path, my_path_version) =>
-      zk.delete(my_path, my_path_version)
+
+  def close = this.synchronized {
+    joins.foreach { case (path, version) =>
+      zk.delete(member_path_prefix+path, version)
     }
     joins.clear
-    // I wish the tree tracker could be stopped...
+    zk.removeListener(this)
   }
 
-  def add(listener: ChangeListener): Unit = {
-    listeners ::= listener
-    listener.changed(members)
+  def connected = zk.isConnected
+  def onConnected() = fireConnected()
+  def onDisconnected() = fireDisconnected()
+
+  def join(data:Array[Byte]=null): String = this.synchronized {
+    val id = zk.create(member_path_prefix, data, acl, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
+    joins.put(id, 0)
+    id
   }
 
-  def remove(listener: ChangeListener): Unit = {
-    listeners = listeners.filterNot(_ == listener)
-  }
-
-  def leave(id:String): Unit = {
-    joins.remove(id).foreach { case (my_path,my_path_version) =>
-      zk.delete(my_path, my_path_version)
+  def update(path:String, data:Array[Byte]=null): Unit = this.synchronized {
+    joins.get(path) match {
+      case Some(ver) =>
+        val stat = zk.setData(member_path_prefix+path, data, ver)
+        joins.put(path, stat.getVersion)
+      case None => throw new IllegalArgumentException("Has not joined locally: "+path)
     }
   }
 
-  def join(id:String, data:Array[Byte]=null): Unit = {
-
-    def action:Unit = {
-      joins.get(id) match {
-        case None =>
-          try {
-            val my_path = zk.create(member_path_prefix, data, acl, CreateMode.EPHEMERAL_SEQUENTIAL)
-            joins.put(id, (my_path, 0))
-          } catch {
-            case e: KeeperException  =>
-              e.code match {
-                case Code.NONODE =>
-                  // crate and try again..
-                  create(root)
-                  action
-                case _ =>
-                  e.printStackTrace
-              }
-          }
-
-        case Some((my_path, my_path_version)) =>
-          try {
-            val stat = zk.setData(my_path, data, my_path_version)
-            joins.put(id, (my_path, stat.getVersion))
-          } catch {
-            case e: KeeperException  =>
-              e.code match {
-                case Code.NONODE =>
-                  // Looks like someone remove our node..  retry
-                  // next time we will try to create it.
-                  joins.remove(id)
-                  action
-                case _ =>
-                  e.printStackTrace
-              }
-          }
-      }
+  def leave(path:String): Unit = this.synchronized {
+    joins.remove(path).foreach { case version =>
+      zk.delete(member_path_prefix+path, version)
     }
-    action
   }
 
   private def fire_cluster_change: Unit = {
-    val t = tree.getTree.toList.filterNot { x =>
+    this.synchronized {
+      val t = tree.getTree.toList.filterNot { x =>
       // don't include the root node, or nodes that don't match our naming convention.
-      (x._1 == root) || !x._1.stripPrefix(root).matches("""/0\d+""")
+        (x._1 == root) || !x._1.stripPrefix(root).matches("""/0\d+""")
+      }
+
+      this.members = new LinkedHashMap()
+      t.sortWith((a,b)=> a._1 < b._1 ).foreach { x=>
+        this.members.put(x._1.stripPrefix(member_path_prefix), x._2.getData)
+      }
     }
-    members = t.sortWith((a,b)=> a._1 < b._1 ).map(_._2).map { x=>
-      x.getData
-    }.toArray
-    for (listener <- listeners) {
-      listener.changed(members)
-    }
+    fireChanged()
   }
 
   private def create(path: String, count : java.lang.Integer = 0): Unit = {

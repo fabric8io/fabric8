@@ -10,6 +10,8 @@
 
 package org.fusesource.fabric.apollo.cluster.dto;
 
+import org.fusesource.fabric.groups.NodeState;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -20,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "cluster_node")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ClusterNodeDTO {
+public class ClusterNodeDTO implements NodeState {
 
   /**
    * The id of the cluster node.  There can be multiple node with this ID,
@@ -48,4 +50,9 @@ public class ClusterNodeDTO {
   @XmlAttribute(name = "cluster_address")
   public String client_address;
 
+  /**
+   */
+  public String id() {
+    return id;
+  }
 }

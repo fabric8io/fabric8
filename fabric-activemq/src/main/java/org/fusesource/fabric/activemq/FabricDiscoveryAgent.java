@@ -11,9 +11,7 @@ package org.fusesource.fabric.activemq;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,6 +54,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private final Object sleepMutex = new Object();
     private long minConnectTime = 5000;
     private String serviceName;
+    private String eid;
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
@@ -78,7 +77,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     public void registerService(String service) throws IOException {
         this.serviceName = service;
         if (startCounter.get() == 1) {
-            group.join(serviceName, serviceName.getBytes("UTF-8"));
+            eid = group.join(serviceName.getBytes("UTF-8"));
         }
     }
 
@@ -164,12 +163,22 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 
             group = ZooKeeperGroupFactory.create(zkClient, "/fabric/activemq-clusters/" + groupName, acl);
             group.add(new ChangeListener() {
-                public void changed(byte[][] members) {
-                    update(members);
+                @Override
+                public void connected() {
+                    changed();
+                }
+
+                @Override
+                public void disconnected() {
+                    update(new ArrayList<byte[]>());
+                }
+
+                public void changed() {
+                    update(group.members().values());
                 }
             });
             if (serviceName != null) {
-                group.join(serviceName, serviceName.getBytes("UTF-8"));
+                eid = group.join(serviceName.getBytes("UTF-8"));
             }
         }
     }
@@ -183,7 +192,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         }
     }
 
-    private void update(byte[][] members) {
+    private void update(Collection<byte[]> members) {
 
         // Find new registered services...
         DiscoveryListener discoveryListener = this.discoveryListener.get();
