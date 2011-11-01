@@ -36,7 +36,7 @@ trait NodeState {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-object ClusteredSingletonBase {
+object ClusteredSupport {
 
   private var mapper: ObjectMapper = new ObjectMapper
 
@@ -61,19 +61,11 @@ object ClusteredSingletonBase {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-abstract class ClusteredSingletonBase[T <: NodeState] extends ChangeListenerSupport {
-  import ClusteredSingletonBase._
+class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends ChangeListenerSupport {
+  import ClusteredSupport._
   
-  private var _group:Group = _
-  private var _eid:String = _
-
-  /** the logical id of the singleton, multiple nodes in the same group using the same id have active/passive relationship  */
-  def id:String
-  /** the ephemeral id of the node is unique within in the group */
-  def eid = _eid
+  protected var _group:Group = _
   def group = _group
-
-  protected def nodeStateClass:Class[T]
 
   private val listener = new ChangeListener() {
     def changed() {
@@ -82,7 +74,7 @@ abstract class ClusteredSingletonBase[T <: NodeState] extends ChangeListenerSupp
       members.foreach {
         case (path, data) =>
           try {
-            val value = decode(nodeStateClass, data)
+            val value = decode(stateClass, data)
             t.put(path, value)
           } catch {
             case e: Throwable =>
@@ -92,16 +84,24 @@ abstract class ClusteredSingletonBase[T <: NodeState] extends ChangeListenerSupp
       changed_decoded(t)
     }
 
-    def connected = ClusteredSingletonBase.this.fireConnected
-    def disconnected = ClusteredSingletonBase.this.fireDisconnected
+    def connected = ClusteredSingletonWatcher.this.fireConnected
+    def disconnected = ClusteredSingletonWatcher.this.fireDisconnected
   }
 
-  def join(group:Group) = this.synchronized {
+
+  def start(group:Group) = this.synchronized {
     if(_group !=null )
-      throw new IllegalStateException("Singleton has alerady joined a group.")
+      throw new IllegalStateException("Already started.")
     _group = group
-    _eid = group.join(encode(state))
-    group.add(listener)
+    _group.add(listener)
+  }
+
+  def stop = this.synchronized {
+    if(_group==null)
+      throw new IllegalStateException("Not started.")
+    _group.remove(listener)
+    _members = HashMap[String, ListBuffer[(String,  T)]]()
+    _group = null
   }
 
   def connected = this.synchronized {
@@ -112,27 +112,7 @@ abstract class ClusteredSingletonBase[T <: NodeState] extends ChangeListenerSupp
     }
   }
 
-  def sendUpdate = this.synchronized {
-    if(_group==null)
-      throw new IllegalStateException("Singleton has not joined a group.")
-    _group.update(_eid, encode(state))
-  }
-  
-  def leave = {
-    this.synchronized {
-      if(_group==null)
-        throw new IllegalStateException("Singleton has not joined a group.")
-      _group.remove(listener)
-      _group.leave(_eid)
-      _members = HashMap[String, ListBuffer[(String,  T)]]()
-      _group = null
-    }
-    fireChanged
-  }
-  
-  def state:T
-
-  private var _members = HashMap[String, ListBuffer[(String,  T)]]()
+  protected var _members = HashMap[String, ListBuffer[(String,  T)]]()
   def members = this.synchronized { _members }
 
   def changed_decoded(m: LinkedHashMap[String, T]) = {
@@ -147,19 +127,79 @@ abstract class ClusteredSingletonBase[T <: NodeState] extends ChangeListenerSupp
     fireChanged
   }
 
-  def active = this.synchronized {
-    val rc = _members.get(id) match {
+  def masters = this.synchronized {
+    _members.mapValues(_.head._2).toArray.map(_._2)
+  }
+
+}
+/**
+ * <p>
+ * </p>
+ *
+ * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
+ */
+class ClusteredSingleton[T <: NodeState](stateClass:Class[T], val id:String) extends ClusteredSingletonWatcher[T](stateClass) {
+  import ClusteredSupport._
+
+  private var _eid:String = _
+  /** the ephemeral id of the node is unique within in the group */
+  def eid = _eid
+
+  override def stop = {
+    this.synchronized {
+      if(_eid==null) {
+        leave
+      }
+      super.stop
+    }
+  }
+
+  def join(state:T):Unit = this.synchronized {
+    if(state==null)
+      throw new IllegalArgumentException("State cannot be null")
+    if(_group==null)
+      throw new IllegalStateException("Not started.")
+    if(_eid!=null)
+      throw new IllegalStateException("Already joined")
+    _eid = group.join(encode(state))
+  }
+
+  def leave:Unit = this.synchronized {
+    if(_group==null)
+      throw new IllegalStateException("Not started.")
+    if(_eid==null)
+      throw new IllegalStateException("Not joined")
+    _group.leave(_eid)
+    _eid = null
+  }
+
+  def update(state:T) = this.synchronized {
+    if(state==null)
+      throw new IllegalArgumentException("State cannot be null")
+    if(_group==null)
+      throw new IllegalStateException("Not started.")
+    if(_eid==null)
+      throw new IllegalStateException("Not joined")
+    _group.update(_eid, encode(state))
+  }
+
+  def isMaster = this.synchronized {
+    _members.get(id) match {
       case Some(nodes) =>
         nodes.headOption.map { x=>
           x._1 == _eid
         }.getOrElse(false)
       case None => false
     }
-    rc
   }
 
-  def activeNodeState = this.synchronized {
-    _members.get(id).flatMap(_.headOption.map(_._2))
+  def master = this.synchronized {
+    _members.get(id).map(_.head._2)
+  }
+
+  def slaves = this.synchronized {
+    val rc = _members.get(id).map(_.toList).getOrElse(List())
+    rc.drop(1).map(_._2)
   }
 
 }

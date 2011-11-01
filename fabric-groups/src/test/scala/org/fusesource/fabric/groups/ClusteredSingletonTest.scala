@@ -13,7 +13,7 @@ class AddressNodeState extends NodeState {
   var address:String = _
 
   override
-  def toString = new String(ClusteredSingletonBase.encode(this), "UTF-8")
+  def toString = new String(ClusteredSupport.encode(this), "UTF-8")
 
 }
 
@@ -23,12 +23,11 @@ class AddressNodeState extends NodeState {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ClusteredSingletonBaseTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
+class ClusteredSingletonTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
 
-  class AddressSingleton(val id:String, var address:String) extends ClusteredSingletonBase[AddressNodeState] {
-
-    protected def nodeStateClass = classOf[AddressNodeState]
-
+  class AddressSingleton(id:String, var address:String) extends ClusteredSingleton[AddressNodeState](classOf[AddressNodeState], id) {
+    def join:Unit= join(state)
+    def update:Unit = update(state)
     def state = {
       val rc = new AddressNodeState
       rc.id = id
@@ -46,20 +45,22 @@ class ClusteredSingletonBaseTest extends ZooKeeperFunSuiteSupport with ShouldMat
     val singleton2 = new AddressSingleton("node", "localhost:81")
 
     // First node in becomes the master.
-    singleton1.join(node1_group)
+    singleton1.start(node1_group)
+    singleton1.join
     within(600, SECONDS) {
-      expect(true)(singleton1.active)
+      expect(true)(singleton1.isMaster)
       expect(1)(singleton1.members.get("node").get.size)
     }
 
     // 2nd node in becomes a slave.
-    singleton2.join(node2_group)
+    singleton2.start(node2_group)
+    singleton2.join
     within(10, SECONDS) {
       // They can never both be masters..
-      breaks_within { expect(false)(singleton1.active && singleton2.active) }
+      breaks_within { expect(false)(singleton1.isMaster && singleton2.isMaster) }
 
-      expect(true)(singleton1.active)
-      expect(false)(singleton2.active)
+      expect(true)(singleton1.isMaster)
+      expect(false)(singleton2.isMaster)
       expect(2)(singleton2.members.get("node").get.size)
     }
 
@@ -71,7 +72,7 @@ class ClusteredSingletonBaseTest extends ZooKeeperFunSuiteSupport with ShouldMat
 
     // Check updating member data...
     singleton1.address = "localhost:82"
-    singleton1.sendUpdate
+    singleton1.update
     within(2, SECONDS) {
       expect(List("localhost:82", "localhost:81"))(singleton1.members.get("node").get.toList.map(_._2.address))
     }
@@ -80,10 +81,10 @@ class ClusteredSingletonBaseTest extends ZooKeeperFunSuiteSupport with ShouldMat
     singleton1.leave
     within(10, SECONDS) {
       // They can never both be masters..
-      breaks_within { expect(false)(singleton1.active && singleton2.active) }
+      breaks_within { expect(false)(singleton1.isMaster && singleton2.isMaster) }
 
-      expect(false)(singleton1.active)
-      expect(true)(singleton2.active)
+      expect(false)(singleton1.isMaster)
+      expect(true)(singleton2.isMaster)
     }
 
   }
