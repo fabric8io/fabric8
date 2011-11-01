@@ -111,7 +111,8 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
     var timeout = Timespan.parse(Option(config.zk_timeout).getOrElse("5s"))
     zk_client = new ZKClient(config.zk_url, timeout, null)
     cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory+"/brokers")
-    cluster_singleton.join(cluster_group)
+    cluster_singleton.start(cluster_group)
+    cluster_singleton.join
     zk_client.start
     on_completed.run
   }
@@ -119,7 +120,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
   override def _stop(on_completed: Runnable): Unit = {
     if( cluster_group!=null ) {
-      cluster_singleton.leave
+      cluster_singleton.stop
       cluster_group = null
     }
     zk_client.close()
@@ -167,11 +168,8 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
   def socket_address: SocketAddress = null
 
-  object cluster_singleton extends ClusteredSingletonBase[ClusterNodeDTO] {
+  object cluster_singleton extends ClusteredSingleton[ClusterNodeDTO](classOf[ClusterNodeDTO],node_id) {
 
-    def id = node_id
-
-    protected def nodeStateClass = classOf[ClusterNodeDTO]
     def state = {
       val rc = new ClusterNodeDTO
       rc.id = node_id
@@ -179,7 +177,10 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
       rc.cluster_address = cluster_address
       rc
     }
-    
+
+    def join:Unit= join(state)
+    def update:Unit = update(state)
+
     add(new ChangeListener(){
       def connected = changed
       def changed = on_cluster_change
@@ -193,7 +194,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
           case _ =>
         } }
 
-        master = false
+        ClusterConnector.this.master = false
         master_info = None
         cluster_listeners.foreach {
           _.on_change
@@ -205,7 +206,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
   def set_cluster_weight(value:Int): Unit = dispatch_queue {
     if( cluster_weight!= value ) {
       cluster_weight = value
-      cluster_singleton.sendUpdate
+      cluster_singleton.update
     }
   }
 
@@ -231,7 +232,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
   def on_cluster_change = dispatch_queue {
     val (active, activeNodeState, members_by_id) = cluster_singleton.synchronized {
-      (cluster_singleton.active, cluster_singleton.activeNodeState, cluster_singleton.members.mapValues(_.map(_._2)))
+      (cluster_singleton.isMaster, cluster_singleton.master, cluster_singleton.members.mapValues(_.map(_._2)))
     }
     master = active
     master_info = activeNodeState
