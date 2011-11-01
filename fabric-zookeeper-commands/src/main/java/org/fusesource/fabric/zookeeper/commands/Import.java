@@ -28,7 +28,7 @@ import static org.fusesource.fabric.zookeeper.commands.RegexSupport.merge;
 public class Import extends ZooKeeperCommandSupport {
 
     @Argument(description = "Location of the file or filesystem to load")
-    String source = "." + File.separator + "import";
+    protected String source = "." + File.separator + "import";
 
     @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported, ignored when importing a properties file (CAUTION!)")
     boolean delete = false;
@@ -46,7 +46,7 @@ public class Import extends ZooKeeperCommandSupport {
     String regex[];
 
     @Option(name="-rf", aliases={"--reverse-regex"}, description="regex to filter what paths to exclude, can specify this option more than once for additional filters", multiValued=true)
-    String nregex[];
+    protected String[] nregex;
 
     @Option(name="--dry-run", description="Runs the import but prints out what's going to happen instead of making any changes")
     boolean dryRun = false;
