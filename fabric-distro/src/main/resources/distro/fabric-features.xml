@@ -107,9 +107,11 @@
     </feature>
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
+        <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
     </feature>
 
@@ -118,8 +120,7 @@
         <feature version="${project.version}">fabric-maven-proxy</feature>
 
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
-
-        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
         <feature version="${project.version}">fabric-core</feature>>
