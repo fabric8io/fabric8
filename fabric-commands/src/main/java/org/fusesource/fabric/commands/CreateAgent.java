@@ -38,6 +38,9 @@ public class CreateAgent extends FabricCommand {
     @Argument(index = 0)
     private String name;
 
+    @Argument(index = 1)
+    private int number = 1;
+
 
     @Override
     protected Object doExecute() throws Exception {
@@ -52,8 +55,10 @@ public class CreateAgent extends FabricCommand {
             names = Collections.singletonList("default");
         }
         Profile[] profiles = getProfiles(version, names);
-        Agent child = fabricService.createAgent( url, name, debugAgent );
-        child.setProfiles(profiles);
+        Agent[] children = fabricService.createAgents( url, name, debugAgent, number );
+        for(Agent child:children) {
+            child.setProfiles(profiles);
+        }
         return null;
     }
 

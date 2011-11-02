@@ -13,10 +13,10 @@ import java.io.Serializable;
 /**
  * Arguments for creating a new agent via JClouds
  */
-public class CreateJCloudsAgentArguments implements CreateAgentArguments, Serializable {
-    private static final long serialVersionUID = 1L;
+public class CreateJCloudsAgentArguments extends BasicCreateAgentArguements implements CreateAgentArguments, Serializable {
+    private static final long serialVersionUID = 4489740280396972109L;
 
-    private boolean debugAgent;
+
     private String imageId;
     private String hardwareId;
     private String locationId;
@@ -40,13 +40,6 @@ public class CreateJCloudsAgentArguments implements CreateAgentArguments, Serial
                 '}';
     }
 
-    public boolean isDebugAgent() {
-        return debugAgent;
-    }
-
-    public void setDebugAgent(boolean debugAgent) {
-        this.debugAgent = debugAgent;
-    }
 
     public String getImageId() {
         return imageId;

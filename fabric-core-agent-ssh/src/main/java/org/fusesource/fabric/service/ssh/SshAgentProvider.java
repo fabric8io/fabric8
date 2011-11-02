@@ -27,10 +27,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.fusesource.fabric.internal.AgentProviderUtils.*;
+
 /**
  * A concrete {@link AgentProvider} that builds {@link Agent}s via ssh.
  */
 public class SshAgentProvider implements AgentProvider {
+
 
     private MavenProxy mavenProxy;
     private boolean debug = false;
@@ -48,6 +51,20 @@ public class SshAgentProvider implements AgentProvider {
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
     public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent) {
+        create(fabricService, agentUri, name, zooKeeperUrl, debugAgent, 1);
+    }
+
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param fabricService
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param debugAgent   Flag to enable debuging on the created Agents.
+     * @param number       The number of Agents to create.
+     */
+    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent, int number) {
         try {
             String path = agentUri.getPath();
             String host = agentUri.getHost();
@@ -70,7 +87,7 @@ public class SshAgentProvider implements AgentProvider {
             String password = uip[1];
             int sshRetries = 6;
             int retryDelay = 1;
-            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
+            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -83,6 +100,7 @@ public class SshAgentProvider implements AgentProvider {
         if (createArgs instanceof CreateSshAgentArguments) {
             CreateSshAgentArguments args = (CreateSshAgentArguments) createArgs;
             boolean debugAgent = args.isDebugAgent();
+            int number = args.getNumber();
             String path = args.getPath();
             String host = args.getHost();
             int port = args.getPort();
@@ -90,16 +108,22 @@ public class SshAgentProvider implements AgentProvider {
             String password = args.getPassword();
             int sshRetries = args.getSshRetries();
             int retryDelay = args.getRetryDelay();
-            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
+            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
             return true;
         } else {
             return false;
         }
     }
 
-    protected void doCreateAgent(FabricService fabricService, String name, String zooKeeperUrl, boolean debugAgent, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
-        String script = buildStartupScript(getMavenRepoURI(fabricService), name, path, zooKeeperUrl, debugAgent);
-        createAgent(host, port, username, password, script, sshRetries, retryDelay);
+    protected void doCreateAgent(FabricService fabricService, String name, int number, String zooKeeperUrl, boolean debugAgent, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
+        for (int i = 0; i < number; i++) {
+            String agentName = name;
+            if (number != 1) {
+                agentName += i + 1;
+            }
+            String script = buildStartupScript(getMavenRepoURI(fabricService), agentName, path, zooKeeperUrl, DEFAULT_SSH_PORT + i, debugAgent);
+            createAgent(host, port, username, password, script, sshRetries, retryDelay);
+        }
     }
 
     protected URI getMavenRepoURI(FabricService fabricService) throws URISyntaxException {
@@ -188,57 +212,5 @@ public class SshAgentProvider implements AgentProvider {
         }
     }
 
-    private String buildStartupScript(URI proxy, String name, String path, String zooKeeperUrl, boolean debugAgent) throws MalformedURLException {
-        StringBuilder sb = new StringBuilder();
-        if (path.startsWith("/~/")) {
-            path = path.substring(3);
-        }
-        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
-        // The following commands are not needed
-        // sb.append("run cd").append("\n");
-        // sb.append("run pwd").append("\n");
-        // sb.append("run mkdir -p ").append(path).append("\n");
-        // sb.append("run cd ").append(path).append("\n");
-        sb.append("run mkdir -p ").append(name).append("\n");
-        sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.apache.karaf", "apache-karaf", "2.2.0-fuse-00-43");
-        sb.append("run cd ").append("apache-karaf-2.2.0-fuse-00-43").append("\n");
-        List<String> lines = new ArrayList<String>();
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-linkedin-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-configadmin", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
-        appendFile(sb, "etc/startup.properties", lines);
-        appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
-        if(debugAgent) {
-           sb.append("run export KARAF_DEBUG=true").append("\n");
-        }
-        sb.append("run nohup bin/start").append("\n");
-        return sb.toString();
-    }
-
-    private String downloadAndStartMavenBundle(StringBuilder sb, URI proxy, String groupId, String artifactId, String version, String type) {
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version;
-        String file = path + "/" + artifactId + "-" + version + "." + type;
-        sb.append("run mkdir -p " + "system/").append(path).append("\n");
-        sb.append("run curl --show-error --silent --get --retry 20 --output system/").append(file).append(" ").append(proxy.resolve(file)).append("\n");
-        return file;
-    }
-
-    private void appendFile(StringBuilder sb, String path, Iterable<String> lines) {
-        final String MARKER = "END_OF_FILE";
-        sb.append("cat >> ").append(path).append(" <<'").append(MARKER).append("'\n");
-        for (String line : lines) {
-            sb.append(line).append("\n");
-        }
-        sb.append(MARKER).append("\n");
-    }
-
-    private void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
-        String file = artifactId + "-" + version + ".tar.gz";
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
-        sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
-        sb.append("run tar -xpzf ").append(file).append("\n");
-    }
 
 }
