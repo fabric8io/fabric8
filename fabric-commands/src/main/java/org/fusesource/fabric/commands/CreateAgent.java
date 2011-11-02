@@ -35,10 +35,10 @@ public class CreateAgent extends FabricCommand {
     @Option(name = "--url", multiValued = false, required = false)
     private String url;
 
-    @Argument(index = 0)
+    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
     private String name;
 
-    @Argument(index = 1)
+    @Argument(index = 1, required = false, description = "The number of agents that should be created")
     private int number = 1;
 
 
