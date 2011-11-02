@@ -9,27 +9,23 @@
  */
 package org.fusesource.fabric.activemq;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.*;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FabricDiscoveryAgent implements DiscoveryAgent {
     
@@ -53,12 +49,30 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private int maxReconnectAttempts = 0;
     private final Object sleepMutex = new Object();
     private long minConnectTime = 5000;
-    private String serviceName;
-    private String eid;
+    private String id;
+    
+    List<String> services = new ArrayList<String>();
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
+    
+    static class ActiveMQNode implements NodeState {
+        String id;
+        String services[];
+        public String id() {
+            return id;
+        }
+    }
+    
+    ActiveMQNode state() {
+        ActiveMQNode state = new ActiveMQNode();
+        state.id = id;
+        state.services = services.toArray(new String[services.size()]);
+        return state;
+    }
+    
+    ClusteredSingleton<ActiveMQNode> singleton;
 
     class SimpleDiscoveryEvent extends DiscoveryEvent {
 
@@ -74,10 +88,16 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 
     }
 
-    public void registerService(String service) throws IOException {
-        this.serviceName = service;
-        if (startCounter.get() == 1) {
-            eid = group.join(serviceName.getBytes("UTF-8"));
+    synchronized public void registerService(String service) throws IOException {
+        services.add(service);
+        updateClusterState();
+    }
+
+    public void updateClusterState() {
+        if (startCounter.get() > 0 ) {
+            if( id==null )
+                throw new IllegalStateException("You must configure the id of the fabric discovery if you want to register services");
+            singleton.update(state());
         }
     }
 
@@ -94,7 +114,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 	                    // We detect a failed connection attempt because the service
 	                    // fails right away.
 	                    if (event.connectTime + minConnectTime > System.currentTimeMillis()) {
-	                        LOG.debug("Failure occured soon after the discovery event was generated.  It will be clasified as a connection failure: "+event);
+	                        LOG.debug("Failure occurred soon after the discovery event was generated.  It will be classified as a connection failure: "+event);
 	
 	                        event.connectFailures++;
 	
@@ -108,7 +128,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 	                                if (!running.get() || event.removed.get()) {
 	                                    return;
 	                                }
-	                                LOG.debug("Waiting "+event.reconnectDelay+" ms before attepting to reconnect.");
+	                                LOG.debug("Waiting "+event.reconnectDelay+" ms before attempting to reconnect.");
 	                                sleepMutex.wait(event.reconnectDelay);
 	                            } catch (InterruptedException ie) {
 	                                Thread.currentThread().interrupt();
@@ -162,23 +182,24 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             }
 
             group = ZooKeeperGroupFactory.create(zkClient, "/fabric/activemq-clusters/" + groupName, acl);
-            group.add(new ChangeListener() {
+            singleton = new ClusteredSingleton<ActiveMQNode>(ActiveMQNode.class, id);
+            singleton.add(new ChangeListener(){
+                @Override
+                public void changed() {
+                    update(singleton.masters());
+                }
+
                 @Override
                 public void connected() {
                     changed();
                 }
-
-                @Override
                 public void disconnected() {
-                    update(new ArrayList<byte[]>());
-                }
-
-                public void changed() {
-                    update(group.members().values());
+                    changed();
                 }
             });
-            if (serviceName != null) {
-                eid = group.join(serviceName.getBytes("UTF-8"));
+            singleton.start(group);
+            if( id!=null ) {
+                singleton.join(state());
             }
         }
     }
@@ -192,16 +213,15 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         }
     }
 
-    private void update(Collection<byte[]> members) {
+    private void update(ActiveMQNode[] members) {
 
         // Find new registered services...
         DiscoveryListener discoveryListener = this.discoveryListener.get();
         if(discoveryListener!=null) {
             HashSet<String> activeServices = new HashSet<String>();
-            for(byte[] m : members) {
-                try {
-                    activeServices.add(new String(m, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
+            for(ActiveMQNode m : members) {
+                for(String service: m.services) {
+                    activeServices.add(service);
                 }
             }
             // If there is error talking the the central server, then activeServices == null
@@ -233,4 +253,35 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         }
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<String> getServices() {
+        return services;
+    }
+
+    public void setServices(String[] services) {
+        this.services.clear();
+        for(String s:services) {
+            this.services.add(s);
+        }
+        updateClusterState();
+    }
+
+    public IZKClient getZkClient() {
+        return zkClient;
+    }
+
+    public void setZkClient(IZKClient zkClient) {
+        this.zkClient = zkClient;
+    }
+
+    public ClusteredSingleton<ActiveMQNode> getSingleton() {
+        return singleton;
+    }
 }

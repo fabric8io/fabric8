@@ -15,8 +15,9 @@
 
   <parent>
     <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-project</artifactId>
+    <artifactId>fabric-scala</artifactId>
     <version>1.1-SNAPSHOT</version>
+    <relativePath>../fabric-scala</relativePath>
   </parent>
 
   <artifactId>fabric-activemq</artifactId>
@@ -35,6 +36,11 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
       <version>${activemq-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-spring</artifactId>
+      <version>3.8</version>
     </dependency>
 
     <dependency>

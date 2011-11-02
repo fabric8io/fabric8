@@ -15,6 +15,9 @@ import org.apache.activemq.util.IOExceptionSupport;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
+
+import static org.apache.activemq.util.URISupport.*;
 
 public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
 
@@ -23,9 +26,14 @@ public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
             
             FabricDiscoveryAgent rc = new FabricDiscoveryAgent();
             if( uri.getSchemeSpecificPart()!=null && uri.getSchemeSpecificPart().length() > 0 ){
-                rc.setGroupName(uri.getSchemeSpecificPart());
+                String ssp = stripPrefix(uri.getSchemeSpecificPart(), "//");
+                Map<String, String> query = parseQuery(ssp);
+                String groupName = ssp.split("\\?")[0];
+                if( query.get("id")!=null ) {
+                    rc.setId(query.get("id"));
+                }
+                rc.setGroupName(groupName);
             }
-
             return rc;
             
         } catch (Throwable e) {
