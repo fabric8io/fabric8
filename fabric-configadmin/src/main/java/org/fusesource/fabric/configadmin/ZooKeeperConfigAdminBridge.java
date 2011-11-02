@@ -137,7 +137,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 public String getValue(String key) {
                     if (key.startsWith("zk:")) {
                         try {
-                            new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
+                            return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
                         } catch (Exception e) {
                             LOGGER.log(Level.WARNING, "Could not load zk value: "+key, e);
                         }

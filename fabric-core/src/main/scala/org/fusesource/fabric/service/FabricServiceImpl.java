@@ -184,8 +184,12 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             throw new FabricException(e);
         }
     }
-
     public Agent createAgent(String url, String name, boolean debugAgent) {
+        return createAgents(url,name,debugAgent,1)[0];
+    }
+
+    public Agent[] createAgents(String url, String name, boolean debugAgent, int number) {
+        Agent[] agents = new Agent[number];
         try {
             final String zooKeeperUrl = getZooKeeperUrl();
             URI uri = URI.create(url);
@@ -193,14 +197,24 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             if (provider == null) {
                 throw new FabricException("Unable to find an agent provider supporting uri '" + url + "'");
             }
-            createAgentConfig("", name);
-            provider.create(this, uri, name, zooKeeperUrl,debugAgent);
-            return new AgentImpl(null, name, FabricServiceImpl.this);
+
+            for (int i = 0; i < number; i++) {
+                String agentName = name;
+                if (number > 1) {
+                    agentName += i + 1;
+                }
+                createAgentConfig("", agentName);
+                agents[i] = new AgentImpl(null, agentName, FabricServiceImpl.this);
+            }
+
+            provider.create(this, uri, name, zooKeeperUrl, debugAgent, number);
+
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
+        return agents;
     }
 
     public Agent createAgent(CreateAgentArguments args, String name) {

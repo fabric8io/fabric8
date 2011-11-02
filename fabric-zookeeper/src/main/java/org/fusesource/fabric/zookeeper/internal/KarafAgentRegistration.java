@@ -140,6 +140,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         if (config.getProperties() != null) {
             String jmx = (String) config.getProperties().get("serviceUrl");
             jmx = jmx.replace("service:jmx:rmi://localhost:", "service:jmx:rmi://" + getLocalHostAddress() + ":");
+            jmx = jmx.replace("jndi/rmi://localhost","jndi/rmi://"  + getLocalHostAddress());
             return jmx;
         } else {
             return null;

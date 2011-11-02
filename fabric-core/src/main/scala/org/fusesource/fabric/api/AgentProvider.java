@@ -37,6 +37,17 @@ public interface AgentProvider {
      */
     void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent);
 
+        /**
+     * Creates an {@link Agent} with the given name pointing to the specified zooKeeperUrl.
+     * @param fabricService
+     * @param agentUri The uri that contains required information to build the Agent.
+     * @param name The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param debugAgent Flag used to enable debugging on the new Agent.
+     * @param number The number of Agents to create.
+     */
+    void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number);
+
     /**
      * Creates an agent using a set of arguments
      */

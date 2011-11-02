@@ -23,6 +23,17 @@ public interface FabricService {
 
     Agent createAgent(String url, String name, boolean debugAgent);
 
+    /**
+     * Creates multiple Agents.
+     * Will create a number of Agents equal to the given number.
+     * @param url
+     * @param name
+     * @param debugAgent
+     * @param number
+     * @return
+     */
+    Agent[] createAgents(String url, String name, boolean debugAgent, int number);
+
     Agent createAgent(Agent parent, String name);
 
     Agent createAgent(Agent parent, String name, boolean debugAgent);
