@@ -145,6 +145,7 @@ public class ProfileOverlayImpl implements Profile {
 
                 } else {
                     // new file..
+                    ctrl = new SupplementControl();
                     ctrl.props = toProperties(entry.getValue());
                     aggregate.put(fileName, ctrl);
                 }
