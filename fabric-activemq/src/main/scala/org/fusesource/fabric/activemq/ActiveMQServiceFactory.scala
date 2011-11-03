@@ -27,6 +27,7 @@ import java.beans.PropertyEditorManager
 import java.net.URI
 import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
+import org.fusesource.fabric.groups.ChangeListener
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -34,11 +35,15 @@ object ActiveMQServiceFactory {
 
   PropertyEditorManager.registerEditor(classOf[URI], classOf[URIEditor])
 
+  def info(str: String, args: AnyRef*) = if (LOG.isInfoEnabled) {
+    LOG.info(String.format(str, args))
+  }
+
   def debug(str: String, args: AnyRef*) = if (LOG.isDebugEnabled) {
     LOG.debug(String.format(str, args))
   }
 
-  def warn(str: String, args: AnyRef*) = if (LOG.isDebugEnabled) {
+  def warn(str: String, args: AnyRef*) = if (LOG.isWarnEnabled) {
     LOG.warn(String.format(str, args))
   }
 
@@ -99,33 +104,55 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val group = Option(properties.getProperty("group")).getOrElse("default")
     val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
 
+    val started = new AtomicBoolean
+    info("Broker %s is waiting to become the master", name)
+
     val discoveryAgent = new FabricDiscoveryAgent
     discoveryAgent.setId(name)
     discoveryAgent.setGroupName(group)
     discoveryAgent.setZkClient(zooKeeper)
-    val started = new AtomicBoolean
+    discoveryAgent.singleton.add(new ChangeListener(){
+      def changed {
+        if( discoveryAgent.singleton.isMaster ) {
+          if(started.compareAndSet(false, true)) {
+            info("Broker %s is now the master, starting the broker.", name)
+            start
+          }
+        } else {
+          if(started.compareAndSet(true, false)) {
+            info("Broker %s is now a slave, stopping the broker.", name)
+            stop
+          }          
+        }
+      }
+      def connected = changed
+      def disconnected = changed
+    })
+    discoveryAgent.start()
 
     @volatile
     var start_thread:Thread = _
     @volatile
     var server:(ResourceXmlApplicationContext, BrokerService) = _
 
+    def close = {
+      discoveryAgent.stop()
+      if(started.compareAndSet(true, false)) {
+        stop
+      }
+    }
+
     def start = {
+      // Startup async so that we do not block the ZK event thread.
       def trystartup:Unit = {
         start_thread = new Thread("Startup for ActiveMQ Broker: "+name) {
           override def run() {
             var start_failure:Throwable = null
             try {
-              discoveryAgent.start()
-
-              // Don't start up until we acquire the master node lock.
-              while( !discoveryAgent.singleton.isMaster ) {
-                Thread.sleep(500)
-              }
-
               // ok boot up the server..
               server = createBroker(config, properties)
               server._2.start()
+              info("Broker %s has started.", name)
 
               // Update the advertised endpoint URIs that clients can use.
               discoveryAgent.setServices( connectors.flatMap { name=>
@@ -140,7 +167,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
 
             } catch {
               case e:Throwable =>
-                // Try again in a little bit.
+                info("Broker %s failed to start.  Will try again in 10 seconds", name)
                 e.printStackTrace()
                 Thread.sleep(1000*10);
                 start_failure = e
@@ -155,44 +182,42 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
         }
         start_thread.start()
       }
-      if(started.compareAndSet(false, true)) {
-        trystartup
-      }
-      this
+      trystartup
     }
     
     def stop = {
-      if(started.compareAndSet(true, false)) {
-        var t = start_thread // working with a volatile
-        while(t!=null) {
-          t.interrupt()
-          t.join()
-          t = start_thread // when the start up thread gives up trying to start this gets set to null.
-        }
+      info("Broker %s is being stoped.", name)
+      new Thread("Startup for ActiveMQ Broker: "+name) {
+        override def run() {
+          var t = start_thread // working with a volatile
+          while(t!=null) {
+            t.interrupt()
+            t.join()
+            t = start_thread // when the start up thread gives up trying to start this gets set to null.
+          }
 
-        val s = server // working with a volatile
-        if( s!=null ) {
-          try {
-            s._2.stop()
-          } catch {
-            case e:Throwable => e.printStackTrace()
+          val s = server // working with a volatile
+          if( s!=null ) {
+            try {
+              s._2.stop()
+            } catch {
+              case e:Throwable => e.printStackTrace()
+            }
+            try {
+              s._1.close()
+            } catch {
+              case e:Throwable => e.printStackTrace()
+            }
+            try {
+              discoveryAgent.stop()
+            } catch {
+              case e:Throwable => e.printStackTrace()
+            }
+            server = null
           }
-          try {
-            s._1.close()
-          } catch {
-            case e:Throwable => e.printStackTrace()
-          }
-          try {
-            discoveryAgent.stop()
-          } catch {
-            case e:Throwable => e.printStackTrace()
-          }
-          server = null
         }
-      }
-      this
+      }.start
     }
-    
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -202,13 +227,13 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   def updated(pid: String, properties: Dictionary[_, _]): Unit = {
     try {
       deleted(pid)
-      configurations.put(pid, ClusteredConfiguration(properties).start)
+      configurations.put(pid, ClusteredConfiguration(properties))
     } catch {
       case e: Exception => throw new ConfigurationException(null, "Unable to parse ActiveMQ configuration: " + e.getMessage).initCause(e).asInstanceOf[ConfigurationException]
     }
   }
   def deleted(pid: String): Unit = {
-    configurations.remove(pid).foreach(_.stop)
+    configurations.remove(pid).foreach(_.close)
   }
   def destroy: Unit = configurations.keys.toArray.foreach(deleted(_))
 

@@ -76,7 +76,25 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         return state;
     }
     
-    ClusteredSingleton<ActiveMQNode> singleton;
+    ClusteredSingleton<ActiveMQNode> singleton = new ClusteredSingleton<ActiveMQNode>(ActiveMQNode.class);
+
+    public FabricDiscoveryAgent() {
+        singleton.add(new ChangeListener(){
+            @Override
+            public void changed() {
+                update(singleton.masters());
+            }
+
+            @Override
+            public void connected() {
+                changed();
+            }
+            public void disconnected() {
+                changed();
+            }
+        });
+    }
+
 
     class SimpleDiscoveryEvent extends DiscoveryEvent {
 
@@ -186,21 +204,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             }
 
             group = ZooKeeperGroupFactory.create(zkClient, "/fabric/activemq-clusters/" + groupName, acl);
-            singleton = new ClusteredSingleton<ActiveMQNode>(ActiveMQNode.class, id);
-            singleton.add(new ChangeListener(){
-                @Override
-                public void changed() {
-                    update(singleton.masters());
-                }
-
-                @Override
-                public void connected() {
-                    changed();
-                }
-                public void disconnected() {
-                    changed();
-                }
-            });
+            singleton.setId(id);
             singleton.start(group);
             if( id!=null ) {
                 singleton.join(state());
@@ -211,8 +215,12 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     synchronized  public void stop() throws Exception {
         if( startCounter.decrementAndGet()==0 ) {
             running.set(false);
-            group.close();
-            zkClient.close();
+            try {
+                group.close();
+                zkClient.close();
+            } catch (Throwable ignore) {
+                // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
+            }
             zkClient = null;
         }
     }

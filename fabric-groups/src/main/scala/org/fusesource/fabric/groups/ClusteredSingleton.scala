@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.ObjectMapper
 import collection.JavaConversions._
 import java.util.LinkedHashMap
 import java.lang.{IllegalStateException, String}
+import reflect.BeanProperty
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -140,8 +141,10 @@ class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], val id:String) extends ClusteredSingletonWatcher[T](stateClass) {
+class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], @BeanProperty var id:String) extends ClusteredSingletonWatcher[T](stateClass) {
   import ClusteredSupport._
+
+  def this(stateClass:Class[T]) = this(stateClass, null)
 
   private var _eid:String = _
   /** the ephemeral id of the node is unique within in the group */
@@ -157,6 +160,8 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], val id:String) ex
   }
 
   def join(state:T):Unit = this.synchronized {
+    if(id==null)
+      throw new IllegalArgumentException("id cannot be null")
     if(state==null)
       throw new IllegalArgumentException("State cannot be null")
     if(_group==null)
@@ -167,6 +172,8 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], val id:String) ex
   }
 
   def leave:Unit = this.synchronized {
+    if(id==null)
+      throw new IllegalArgumentException("id cannot be null")
     if(_group==null)
       throw new IllegalStateException("Not started.")
     if(_eid==null)
@@ -186,6 +193,8 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], val id:String) ex
   }
 
   def isMaster = this.synchronized {
+    if(id==null)
+      throw new IllegalArgumentException("id cannot be null")
     _members.get(id) match {
       case Some(nodes) =>
         nodes.headOption.map { x=>
@@ -196,10 +205,14 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], val id:String) ex
   }
 
   def master = this.synchronized {
+    if(id==null)
+      throw new IllegalArgumentException("id cannot be null")
     _members.get(id).map(_.head._2)
   }
 
   def slaves = this.synchronized {
+    if(id==null)
+      throw new IllegalArgumentException("id cannot be null")
     val rc = _members.get(id).map(_.toList).getOrElse(List())
     rc.drop(1).map(_._2)
   }
