@@ -13,13 +13,12 @@
 
     <parent>
         <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fabric-project</artifactId>
+        <artifactId>fabric-assemblies</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-distro</artifactId>
     <packaging>pom</packaging>
-
     <name>${project.artifactId}</name>
     <description>FuseSource Fabric :: Binary Distribution</description>
 
@@ -54,7 +53,7 @@
         <defaultGoal>install</defaultGoal>
         <resources>
           <resource>
-              <directory>../etc</directory>
+              <directory>../../etc</directory>
               <filtering>true</filtering>
               <targetPath>distro/etc</targetPath>
           </resource>

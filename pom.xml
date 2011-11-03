@@ -210,7 +210,7 @@
         <module>fabric-security</module>
         <module>fab</module>
         <module>fabric-examples</module>
-        <module>fabric-distro</module>
+        <module>fabric-assemblies</module>
     </modules>
 
     <build>
