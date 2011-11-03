@@ -134,9 +134,11 @@
       <xs:extension base="tns:identifiedType">
         <xs:sequence>
           <xs:element name="remote-broker" type="tns:brokerConfig" minOccurs="0"/>
+          <xs:element name="inbound-destinations" type="tns:bridgeDestinationsConfig" minOccurs="0"/>
           <xs:element name="outbound-destinations" type="tns:bridgeDestinationsConfig" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="remoteBrokerRef" type="xs:string"/>
+        <xs:attribute name="inboundDestinationsRef" type="xs:string"/>
         <xs:attribute name="outboundDestinationsRef" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>

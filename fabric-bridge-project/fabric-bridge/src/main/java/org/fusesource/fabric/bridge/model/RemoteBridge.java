@@ -26,7 +26,7 @@ import org.fusesource.fabric.bridge.GatewayConnector;
  */
 @XmlRootElement(name="remote-bridge")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"remoteBrokerConfig", "outboundDestinations"})
+@XmlType(propOrder = {"remoteBrokerConfig", "inboundDestinations", "outboundDestinations"})
 public class RemoteBridge extends IdentifiedType {
 	
 	@XmlElement(name="remote-broker")
@@ -34,9 +34,17 @@ public class RemoteBridge extends IdentifiedType {
 	
 	@XmlAttribute
 	private String remoteBrokerRef;
-	
+
+    // inbound to gateway
+    @XmlElement(name="inbound-destinations")
+    private BridgeDestinationsConfig inboundDestinations;
+
+    // outbound from gateway
 	@XmlElement(name="outbound-destinations")
 	private BridgeDestinationsConfig outboundDestinations;
+
+    @XmlAttribute
+    private String inboundDestinationsRef;
 
 	@XmlAttribute
 	private String outboundDestinationsRef;
@@ -57,6 +65,14 @@ public class RemoteBridge extends IdentifiedType {
 		this.remoteBrokerRef = remoteBrokerRef;
 	}
 
+    public BridgeDestinationsConfig getInboundDestinations() {
+        return inboundDestinations;
+    }
+
+    public void setInboundDestinations(BridgeDestinationsConfig inboundDestinations) {
+        this.inboundDestinations = inboundDestinations;
+    }
+
 	public final BridgeDestinationsConfig getOutboundDestinations() {
 		return outboundDestinations;
 	}
@@ -65,6 +81,14 @@ public class RemoteBridge extends IdentifiedType {
 			BridgeDestinationsConfig outboundDestinations) {
 		this.outboundDestinations = outboundDestinations;
 	}
+
+    public String getInboundDestinationsRef() {
+        return inboundDestinationsRef;
+    }
+
+    public void setInboundDestinationsRef(String inboundDestinationsRef) {
+        this.inboundDestinationsRef = inboundDestinationsRef;
+    }
 
 	public String getOutboundDestinationsRef() {
 		return outboundDestinationsRef;
@@ -93,6 +117,8 @@ public class RemoteBridge extends IdentifiedType {
 			RemoteBridge bridge = (RemoteBridge) obj;
 			return (remoteBrokerConfig != null ? remoteBrokerConfig.equals(bridge.remoteBrokerConfig) : bridge.remoteBrokerConfig == null) &&
 				(remoteBrokerRef != null ? remoteBrokerRef.equals(bridge.remoteBrokerRef) : bridge.remoteBrokerRef == null) && 
+                (inboundDestinations != null ? inboundDestinations.equals(bridge.inboundDestinations) : bridge.inboundDestinations == null) &&
+                (inboundDestinationsRef != null ? inboundDestinationsRef.equals(bridge.inboundDestinationsRef) : bridge.inboundDestinationsRef == null) &&
 				(outboundDestinations != null ? outboundDestinations.equals(bridge.outboundDestinations) : bridge.outboundDestinations == null) &&
 				(outboundDestinationsRef != null ? outboundDestinationsRef.equals(bridge.outboundDestinationsRef) : bridge.outboundDestinationsRef == null);
 		}

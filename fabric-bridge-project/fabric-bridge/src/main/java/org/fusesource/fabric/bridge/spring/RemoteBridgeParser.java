@@ -25,9 +25,14 @@ import org.w3c.dom.NodeList;
  */
 public class RemoteBridgeParser extends AbstractSimpleBeanDefinitionParser {
 
-	private static final String OUTBOUND_DESTINATIONS_PROPERTY = "outboundDestinations";
-	private static final String OUTBOUND_DESTINATIONS_ELEMENT = "outbound-destinations";
-	private static final String OUTBOUND_DESTINATIONS_REF = "outboundDestinationsRef";
+    private static final String INBOUND_DESTINATIONS_PROPERTY = "inboundDestinations";
+    private static final String INBOUND_DESTINATIONS_ELEMENT = "inbound-destinations";
+    private static final String INBOUND_DESTINATIONS_REF = "inboundDestinationsRef";
+
+    private static final String OUTBOUND_DESTINATIONS_PROPERTY = "outboundDestinations";
+    private static final String OUTBOUND_DESTINATIONS_ELEMENT = "outbound-destinations";
+    private static final String OUTBOUND_DESTINATIONS_REF = "outboundDestinationsRef";
+
 	private static final String REMOTE_BROKER_PROPERTY = "remoteBrokerConfig";
 	private static final String REMOTE_BROKER_ELEMENT = "remote-broker";
 	private static final String REMOTE_BROKER_REF = "remoteBrokerRef";
@@ -36,7 +41,7 @@ public class RemoteBridgeParser extends AbstractSimpleBeanDefinitionParser {
 	private final BridgeDestinationsConfigParser bridgeDestinationsConfigParser = new BridgeDestinationsConfigParser(true);
 	private boolean generateIdAsFallback;
 
-	public RemoteBridgeParser(boolean generateIdAsFallback) {
+    public RemoteBridgeParser(boolean generateIdAsFallback) {
 		this.generateIdAsFallback = generateIdAsFallback;
 	}
 
@@ -67,17 +72,29 @@ public class RemoteBridgeParser extends AbstractSimpleBeanDefinitionParser {
 			builder.addPropertyReference(REMOTE_BROKER_PROPERTY, remoteBrokerRef);
 		}
 
-		String outboundDestinationsRef = element.getAttribute(OUTBOUND_DESTINATIONS_REF);
-		if (StringUtils.hasText(outboundDestinationsRef)) {
-			if (element.getElementsByTagNameNS(BridgeNamespaceHandler.BRIDGE_NS, OUTBOUND_DESTINATIONS_ELEMENT).getLength() > 0) {
+		String inboundDestinationsRef = element.getAttribute(INBOUND_DESTINATIONS_REF);
+		if (StringUtils.hasText(inboundDestinationsRef)) {
+			if (element.getElementsByTagNameNS(BridgeNamespaceHandler.BRIDGE_NS, INBOUND_DESTINATIONS_ELEMENT).getLength() > 0) {
 				throw new BeanCreationException(builder.getRawBeanDefinition().getResourceDescription(),
 						element.getAttribute(ID_ATTRIBUTE), "Only one of "
-								+ OUTBOUND_DESTINATIONS_REF + " or "
-								+ OUTBOUND_DESTINATIONS_ELEMENT + " is allowed");
+								+ INBOUND_DESTINATIONS_REF + " or "
+								+ INBOUND_DESTINATIONS_ELEMENT + " is allowed");
 			}
-			builder.addPropertyValue(OUTBOUND_DESTINATIONS_REF, outboundDestinationsRef);
-			builder.addPropertyReference(OUTBOUND_DESTINATIONS_PROPERTY, outboundDestinationsRef);
+			builder.addPropertyValue(INBOUND_DESTINATIONS_REF, inboundDestinationsRef);
+			builder.addPropertyReference(INBOUND_DESTINATIONS_PROPERTY, inboundDestinationsRef);
 		}
+
+        String outboundDestinationsRef = element.getAttribute(OUTBOUND_DESTINATIONS_REF);
+        if (StringUtils.hasText(outboundDestinationsRef)) {
+            if (element.getElementsByTagNameNS(BridgeNamespaceHandler.BRIDGE_NS, OUTBOUND_DESTINATIONS_ELEMENT).getLength() > 0) {
+                throw new BeanCreationException(builder.getRawBeanDefinition().getResourceDescription(),
+                        element.getAttribute(ID_ATTRIBUTE), "Only one of "
+                                + OUTBOUND_DESTINATIONS_REF + " or "
+                                + OUTBOUND_DESTINATIONS_ELEMENT + " is allowed");
+            }
+            builder.addPropertyValue(OUTBOUND_DESTINATIONS_REF, outboundDestinationsRef);
+            builder.addPropertyReference(OUTBOUND_DESTINATIONS_PROPERTY, outboundDestinationsRef);
+        }
 
 		NodeList childNodes = element.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
@@ -89,7 +106,9 @@ public class RemoteBridgeParser extends AbstractSimpleBeanDefinitionParser {
 					builder.addPropertyValue(REMOTE_BROKER_PROPERTY, brokerConfigParser.parse(childElement, parserContext));
 				} else if (localName.equals(OUTBOUND_DESTINATIONS_ELEMENT)) {
 					builder.addPropertyValue(OUTBOUND_DESTINATIONS_PROPERTY, bridgeDestinationsConfigParser.parse(childElement, parserContext));
-				}
+                } else if (localName.equals(INBOUND_DESTINATIONS_ELEMENT)) {
+                    builder.addPropertyValue(INBOUND_DESTINATIONS_PROPERTY, bridgeDestinationsConfigParser.parse(childElement, parserContext));
+                }
 			}
 		}
 
