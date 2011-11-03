@@ -1,6 +1,7 @@
 package org.fusesource.fabric.groups.internal
 
 import org.fusesource.fabric.groups.ChangeListener
+import java.util.concurrent.TimeUnit
 
 /**
  * <p>
@@ -30,23 +31,43 @@ trait ChangeListenerSupport {
 
   def fireConnected() = {
     val listener = this.synchronized { this.listeners }
-    for (listener <- listeners) {
-      listener.connected
+    check_elapsed_time {
+      for (listener <- listeners) {
+        listener.connected
+      }
     }
   }
 
   def fireDisconnected() = {
     val listener = this.synchronized { this.listeners }
-    for (listener <- listeners) {
-      listener.disconnected
+    check_elapsed_time {
+      for (listener <- listeners) {
+        listener.disconnected
+      }
     }
   }
 
   def fireChanged() = {
     val listener = this.synchronized { this.listeners }
-    for (listener <- listeners) {
-      listener.changed
+    val start = System.nanoTime()
+    check_elapsed_time {
+      for (listener <- listeners) {
+        listener.changed
+      }
     }
   }
 
+  def check_elapsed_time[T](func: => T):T = {
+    val start = System.nanoTime()
+    try {
+      func
+    } finally {
+      val end = System.nanoTime()
+      val elapsed = TimeUnit.NANOSECONDS.toMillis(end-start)
+      if( elapsed > 100 ) {
+        println("WARN: listerns are taking too long to process the events")
+      }
+    }
+  }
+  
 }

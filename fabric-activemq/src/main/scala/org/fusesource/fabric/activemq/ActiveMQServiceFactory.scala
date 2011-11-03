@@ -22,12 +22,12 @@ import org.springframework.core.io.Resource
 import org.apache.activemq.spring.Utils
 import org.apache.xbean.spring.context.ResourceXmlApplicationContext
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader
-import java.lang.{ThreadLocal, Thread}
 import java.beans.PropertyEditorManager
 import java.net.URI
 import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
 import org.fusesource.fabric.groups.ChangeListener
+import java.lang.{Thread, ThreadLocal}
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -36,15 +36,16 @@ object ActiveMQServiceFactory {
   PropertyEditorManager.registerEditor(classOf[URI], classOf[URIEditor])
 
   def info(str: String, args: AnyRef*) = if (LOG.isInfoEnabled) {
-    LOG.info(String.format(str, args))
+    println(String.format(str, args:_*))
+    LOG.info(String.format(str, args:_*))
   }
 
   def debug(str: String, args: AnyRef*) = if (LOG.isDebugEnabled) {
-    LOG.debug(String.format(str, args))
+    LOG.debug(String.format(str, args:_*))
   }
 
   def warn(str: String, args: AnyRef*) = if (LOG.isWarnEnabled) {
-    LOG.warn(String.format(str, args))
+    LOG.warn(String.format(str, args:_*))
   }
 
   implicit def toProperties(properties: Dictionary[_, _]) = {
@@ -97,17 +98,64 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   @BeanProperty
   var zooKeeper: IZKClient = null
 
+  var owned_pools = Set[String]()
+  
+  def can_own_pool(cc:ClusteredConfiguration) = this.synchronized {
+    if( cc.pool==null )
+      true
+    else
+      !owned_pools.contains(cc.pool)
+  }
+
+  def take_pool(cc:ClusteredConfiguration) = this.synchronized {
+    if( cc.pool==null ) {
+      true
+    } else {
+      if( owned_pools.contains(cc.pool) ) {
+        false
+      } else {
+        owned_pools += cc.pool
+        true
+      }
+    }
+  }
+
+  def return_pool(cc:ClusteredConfiguration) = this.synchronized {
+    if( cc.pool!=null ) {
+      owned_pools -= cc.pool
+    }
+  }
+  
+  def fire_pool_change(cc:ClusteredConfiguration) = this.synchronized {
+    if( cc.pool!=null ) {
+      new Thread(){
+        override def run() {
+          ActiveMQServiceFactory.this.synchronized {
+            configurations.values.foreach { c=>
+              if ( c!=cc && c.pool == cc.pool ) {
+                c.update_pool_state
+              }
+            }
+          }
+        }
+      }.start
+    }
+  }
+  
+
   case class ClusteredConfiguration(properties:Properties) {
 
     val name = Option(properties.getProperty("name")).getOrElse(arg_error("name property must be set"))
     val config = Option(properties.getProperty("config")).getOrElse(arg_error("config property must be set"))
     val group = Option(properties.getProperty("group")).getOrElse("default")
+    val pool = Option(properties.getProperty("pool")).getOrElse(null)
     val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
 
     val started = new AtomicBoolean
     info("Broker %s is waiting to become the master", name)
 
     val discoveryAgent = new FabricDiscoveryAgent
+    discoveryAgent.setAgent(System.getProperty("karaf.name"))
     discoveryAgent.setId(name)
     discoveryAgent.setGroupName(group)
     discoveryAgent.setZkClient(zooKeeper)
@@ -115,11 +163,17 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       def changed {
         if( discoveryAgent.singleton.isMaster ) {
           if(started.compareAndSet(false, true)) {
-            info("Broker %s is now the master, starting the broker.", name)
-            start
+            if( take_pool(ClusteredConfiguration.this) ) {
+              info("Broker %s is now the master, starting the broker.", name)
+              start
+            } else {
+              update_pool_state
+              started.set(false)
+            }
           }
         } else {
           if(started.compareAndSet(true, false)) {
+            return_pool(ClusteredConfiguration.this)
             info("Broker %s is now a slave, stopping the broker.", name)
             stop
           }          
@@ -128,15 +182,38 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       def connected = changed
       def disconnected = changed
     })
-    discoveryAgent.start()
+    
+    var pool_enabled = false
+    update_pool_state
+    
+    def update_pool_state = this.synchronized {
+      val value = can_own_pool(this)
+      if( pool_enabled != value) {
+        pool_enabled = value
+        if( value ) {
+          if( pool!=null ) {
+            info("Broker %s added to pool %s.", name, pool)
+          }
+          discoveryAgent.start()
+        } else {
+          if( pool!=null ) {
+            info("Broker %s removed from pool %s.", name, pool)
+          }
+          discoveryAgent.stop()
+        }
+      }
+    }
+    
 
     @volatile
     var start_thread:Thread = _
     @volatile
     var server:(ResourceXmlApplicationContext, BrokerService) = _
 
-    def close = {
-      discoveryAgent.stop()
+    def close = this.synchronized {
+      if( pool_enabled ) {
+        discoveryAgent.stop()
+      }
       if(started.compareAndSet(true, false)) {
         stop
       }
@@ -224,7 +301,8 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   // Maintain a registry of configuration based on ManagedServiceFactory events.
   ////////////////////////////////////////////////////////////////////////////
   val configurations = new HashMap[String, ClusteredConfiguration]
-  def updated(pid: String, properties: Dictionary[_, _]): Unit = {
+
+  def updated(pid: String, properties: Dictionary[_, _]): Unit = this.synchronized {
     try {
       deleted(pid)
       configurations.put(pid, ClusteredConfiguration(properties))
@@ -232,10 +310,13 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       case e: Exception => throw new ConfigurationException(null, "Unable to parse ActiveMQ configuration: " + e.getMessage).initCause(e).asInstanceOf[ConfigurationException]
     }
   }
-  def deleted(pid: String): Unit = {
+  def deleted(pid: String): Unit = this.synchronized {
     configurations.remove(pid).foreach(_.close)
   }
-  def destroy: Unit = configurations.keys.toArray.foreach(deleted(_))
+
+  def destroy: Unit = this.synchronized {
+    configurations.keys.toArray.foreach(deleted(_))
+  }
 
   def getName: String = {
     return "ActiveMQ Server Controller"
