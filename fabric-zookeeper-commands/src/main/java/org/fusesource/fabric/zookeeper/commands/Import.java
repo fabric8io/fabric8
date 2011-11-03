@@ -142,7 +142,7 @@ public class Import extends ZooKeeperCommandSupport {
             String data = settings.get(key);
             key = target + key;
             paths.add(key);
-            if (!matches(include, key) || matches(exclude, key)) {
+            if (!matches(include, key, true) || matches(exclude, key, false)) {
                 continue;
             }
             if (!dryRun) {
@@ -190,7 +190,7 @@ public class Import extends ZooKeeperCommandSupport {
                 name = "/" + name;
             }
             name = target + name;
-            if (!matches(includes, name) || matches(excludes, name)) {
+            if (!matches(includes, name, true) || matches(excludes, name, false)) {
                 continue;
             }
             if (!dryRun) {
