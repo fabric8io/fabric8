@@ -55,6 +55,11 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 
 * fabric-apollo : fabric agent connector for Apollo (Next generation of ActiveMQ Middelware). Facilitate the discovery of AMQ in a fabric
 
+* fabric-assemblies : Fabric assembly modules
+
+    * fabric-distro : Generates the features file to deploy Fabric
+    * karaf-distro : Generates a Karaf distribution which has Fabric preinstalled.
+
 * fabric-camel : fabric agent connector for camel. Allow to loadbalance requests between camel endpoints deployed in different fabric machines
 
 * fabric-camel-c24io : C24 Camel Transformer component
@@ -69,13 +74,11 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 
 * fabric-core : Core API of Fabric, agent and monitoring stuffs (JMX)
 
-* fabric-core-agent-jclouds : ???
+* fabric-core-agent-jclouds : An agent provider for creating agents in the cloud via jclouds.
 
 * fabric-core-agent-ssh : Extension of the Fabric core project to support ssh deployment of agent
 
 * fabric-cxf fabric-agent-connector for CXF
-
-* fabric-distro : Generates the features file to deploy Fabric
 
 * fabric-dosgi : Implementation of the specification Distributed OSGI for Fabrix. Uses
 
