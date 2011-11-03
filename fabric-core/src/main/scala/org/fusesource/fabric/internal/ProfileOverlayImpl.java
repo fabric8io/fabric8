@@ -119,6 +119,12 @@ public class ProfileOverlayImpl implements Profile {
             supplement(p, aggregate);
         }
 
+        if (profile instanceof ProfileOverlayImpl) {
+            if (((ProfileOverlayImpl)profile).self.equals(self)) {
+                return;
+            }
+        }
+
         Map<String, byte[]> configs = profile.getFileConfigurations();
         for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
             // we can use fine grained inheritance based updating if it's
