@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class FabricDiscoveryAgent implements DiscoveryAgent {
     
@@ -58,8 +59,11 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     }
     
     static class ActiveMQNode implements NodeState {
+        @JsonProperty
         String id;
+        @JsonProperty
         String services[];
+
         public String id() {
             return id;
         }

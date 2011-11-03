@@ -26,17 +26,20 @@ import java.lang.{ThreadLocal, Thread}
 import java.beans.PropertyEditorManager
 import java.net.URI
 import org.apache.xbean.spring.context.impl.URIEditor
+import org.springframework.beans.factory.FactoryBean
 
-object ClusteredActiveMQServiceFactory {
-  final val LOG= LoggerFactory.getLogger(classOf[ClusteredActiveMQServiceFactory])
+object ActiveMQServiceFactory {
+  final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
   final val CONFIG_PROPERTIES = new ThreadLocal[Properties]()
 
   PropertyEditorManager.registerEditor(classOf[URI], classOf[URIEditor])
 
-  def debug(str: String, args: AnyRef*): Unit = {
-    if (LOG.isDebugEnabled) {
-      LOG.debug(String.format(str, args))
-    }
+  def debug(str: String, args: AnyRef*) = if (LOG.isDebugEnabled) {
+    LOG.debug(String.format(str, args))
+  }
+
+  def warn(str: String, args: AnyRef*) = if (LOG.isDebugEnabled) {
+    LOG.warn(String.format(str, args))
   }
 
   implicit def toProperties(properties: Dictionary[_, _]) = {
@@ -57,6 +60,7 @@ object ClusteredActiveMQServiceFactory {
   def createBroker(uri: String, properties:Properties) = {
     CONFIG_PROPERTIES.set(properties)
     try {
+      Thread.currentThread.setContextClassLoader(classOf[BrokerService].getClassLoader)
       var resource: Resource = Utils.resourceFromString(uri)
       val ctx = new ResourceXmlApplicationContext((resource)) {
         protected override def initBeanDefinitionReader(reader: XmlBeanDefinitionReader): Unit = {
@@ -73,23 +77,30 @@ object ClusteredActiveMQServiceFactory {
 
 }
 
-class ClusteredActiveMQServiceFactory extends ManagedServiceFactory {
+class ConfigurationProperties extends FactoryBean[Properties] {
+  def getObject = new Properties(ActiveMQServiceFactory.CONFIG_PROPERTIES.get())
+  def getObjectType = classOf[Properties]
+  def isSingleton = false
+}
 
-  import ClusteredActiveMQServiceFactory._
+class ActiveMQServiceFactory extends ManagedServiceFactory {
+
+  import ActiveMQServiceFactory._
 
   @BeanProperty
   var bundleContext: BundleContext = null
   @BeanProperty
   var zooKeeper: IZKClient = null
 
-  case class ClusteredConfiguration(id:String, properties:Properties) {
-    
-    val config = Option(properties.getProperty("config")).getOrElse(arg_error("config must be set"))
+  case class ClusteredConfiguration(properties:Properties) {
+
+    val name = Option(properties.getProperty("name")).getOrElse(arg_error("name property must be set"))
+    val config = Option(properties.getProperty("config")).getOrElse(arg_error("config property must be set"))
     val group = Option(properties.getProperty("group")).getOrElse("default")
-    val addresses = Option(properties.getProperty("addresses")).getOrElse("").split("""\s""")
+    val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
 
     val discoveryAgent = new FabricDiscoveryAgent
-    discoveryAgent.setId(id)
+    discoveryAgent.setId(name)
     discoveryAgent.setGroupName(group)
     discoveryAgent.setZkClient(zooKeeper)
     val started = new AtomicBoolean
@@ -101,7 +112,7 @@ class ClusteredActiveMQServiceFactory extends ManagedServiceFactory {
 
     def start = {
       def trystartup:Unit = {
-        start_thread = new Thread("Startup for ActiveMQ Broker: "+id) {
+        start_thread = new Thread("Startup for ActiveMQ Broker: "+name) {
           override def run() {
             var start_failure:Throwable = null
             try {
@@ -116,11 +127,22 @@ class ClusteredActiveMQServiceFactory extends ManagedServiceFactory {
               server = createBroker(config, properties)
               server._2.start()
 
+              // Update the advertised endpoint URIs that clients can use.
+              discoveryAgent.setServices( connectors.flatMap { name=>
+                val connector = server._2.getConnectorByName(name)
+                if ( connector==null ) {
+                  warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name)
+                  None
+                } else {
+                  Some(connector.getPublishableConnectString)
+                }
+              })
+
             } catch {
               case e:Throwable =>
                 // Try again in a little bit.
                 e.printStackTrace()
-                Thread.sleep(1000);
+                Thread.sleep(1000*10);
                 start_failure = e
             } finally {
               if(started.get && start_failure!=null){
@@ -180,7 +202,7 @@ class ClusteredActiveMQServiceFactory extends ManagedServiceFactory {
   def updated(pid: String, properties: Dictionary[_, _]): Unit = {
     try {
       deleted(pid)
-      configurations.put(pid, ClusteredConfiguration(pid, properties).start)
+      configurations.put(pid, ClusteredConfiguration(properties).start)
     } catch {
       case e: Exception => throw new ConfigurationException(null, "Unable to parse ActiveMQ configuration: " + e.getMessage).initCause(e).asInstanceOf[ConfigurationException]
     }
