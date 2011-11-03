@@ -115,8 +115,14 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
-        for (Profile p : getParents()) {
+        for (Profile p : profile.getParents()) {
             supplement(p, aggregate);
+        }
+
+        if (profile instanceof ProfileOverlayImpl) {
+            if (((ProfileOverlayImpl)profile).self.equals(self)) {
+                return;
+            }
         }
 
         Map<String, byte[]> configs = profile.getFileConfigurations();
@@ -145,6 +151,7 @@ public class ProfileOverlayImpl implements Profile {
 
                 } else {
                     // new file..
+                    ctrl = new SupplementControl();
                     ctrl.props = toProperties(entry.getValue());
                     aggregate.put(fileName, ctrl);
                 }
