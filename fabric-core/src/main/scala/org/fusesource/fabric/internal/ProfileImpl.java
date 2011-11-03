@@ -106,7 +106,7 @@ public class ProfileImpl implements Profile {
         try {
             String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
             String str = service.getZooKeeper().getStringData(node);
-            if (str == null) {
+            if (str == null || str.isEmpty()) {
                 return new Profile[0];
             }
             List<Profile> profiles = new ArrayList<Profile>();
