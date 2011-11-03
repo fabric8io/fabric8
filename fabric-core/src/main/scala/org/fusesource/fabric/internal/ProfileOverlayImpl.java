@@ -115,7 +115,7 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
-        for (Profile p : getParents()) {
+        for (Profile p : profile.getParents()) {
             supplement(p, aggregate);
         }
 
