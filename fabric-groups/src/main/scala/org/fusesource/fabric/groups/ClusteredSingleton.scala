@@ -128,7 +128,9 @@ class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends
   }
 
   def masters = this.synchronized {
-    _members.mapValues(_.head._2).toArray.map(_._2)
+    _members.mapValues(_.head._2).toArray.map(_._2).toArray(new ClassManifest[T] {
+      def erasure = stateClass
+    })
   }
 
 }
@@ -138,7 +140,7 @@ class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ClusteredSingleton[T <: NodeState](stateClass:Class[T], val id:String) extends ClusteredSingletonWatcher[T](stateClass) {
+class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], val id:String) extends ClusteredSingletonWatcher[T](stateClass) {
   import ClusteredSupport._
 
   private var _eid:String = _

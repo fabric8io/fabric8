@@ -13,8 +13,9 @@ import java.io.Serializable;
 /**
  * Arguments for creating a new agent via SSH
  */
-public class CreateSshAgentArguments implements CreateAgentArguments, Serializable {
-    private static final long serialVersionUID = 1L;
+public class CreateSshAgentArguments extends BasicCreateAgentArguements implements CreateAgentArguments, Serializable {
+
+    private static final long serialVersionUID = -1171578973712670970L;
 
     private String username;
     private String password;
@@ -23,19 +24,10 @@ public class CreateSshAgentArguments implements CreateAgentArguments, Serializab
     private String path = "/usr/local/fusesource/agent";
     private int sshRetries = 6;
     private int retryDelay = 1;
-    private boolean debugAgent;
 
     @Override
     public String toString() {
         return "createSshAgent(" + username + "@" + host + ":" + port + " " + path + ")";
-    }
-
-    public boolean isDebugAgent() {
-        return debugAgent;
-    }
-
-    public void setDebugAgent(boolean debugAgent) {
-        this.debugAgent = debugAgent;
     }
 
     public String getPath() {

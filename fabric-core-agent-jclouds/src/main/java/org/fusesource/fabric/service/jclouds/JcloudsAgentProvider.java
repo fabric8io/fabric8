@@ -8,6 +8,20 @@
 
 package org.fusesource.fabric.service.jclouds;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
@@ -29,20 +43,7 @@ import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.rest.RestContextFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import static org.fusesource.fabric.internal.AgentProviderUtils.*;
 
 /**
  * A concrete {@link AgentProvider} that creates {@link org.fusesource.fabric.api.Agent}s via jclouds {@link ComputeService}.
@@ -96,6 +97,21 @@ public class JcloudsAgentProvider implements AgentProvider {
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
     public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
+           create(fabricService,agentUri,name,zooKeeperUrl,debugAgent,1);
+    }
+
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param fabricService
+     * @param agentUri      The uri that contains required information to build the Agent.
+     * @param name          The name of the Agent.
+     * @param zooKeeperUrl  The url of Zoo Keeper.
+     * @param debugAgent    Flag used to enable debugging on the new Agent.
+     * @param number        The number of Agents to create.
+     */
+    @Override
+    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number) {
         String imageId = null;
         String hardwareId = null;
         String locationId = null;
@@ -123,7 +139,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
+            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -131,7 +147,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
     }
 
-      /**
+    /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
        * @param fabricService
@@ -149,6 +165,7 @@ public class JcloudsAgentProvider implements AgentProvider {
             CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
 
             boolean debugAgent = args.isDebugAgent();
+            int number = args.getNumber();
             String imageId = args.getImageId();
             String hardwareId = args.getHardwareId();
             String locationId = args.getLocationId();
@@ -160,13 +177,13 @@ public class JcloudsAgentProvider implements AgentProvider {
             String credential = args.getCredential();
             String owner = args.getOwner();
 
-            doCreateAgent(fabricService, name, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
+            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
             return true;
         }
         return false;
     }
 
-    protected void doCreateAgent(FabricService fabricService, String name, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
+    protected void doCreateAgent(FabricService fabricService, String name, int number, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
             //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
@@ -214,12 +231,17 @@ public class JcloudsAgentProvider implements AgentProvider {
             credentials = new Credentials(user, null);
         }
 
-        String script = buildStartupScript(getMavenRepoURI(fabricService), name, zooKeeperUrl, debugAgent);
-        metadatas = computeService.createNodesInGroup(group, 1, builder.build());
+        metadatas = computeService.createNodesInGroup(group, number, builder.build());
 
+        int suffix = 1;
         if (metadatas != null) {
             for (NodeMetadata nodeMetadata : metadatas) {
                 String id = nodeMetadata.getId();
+                String agentName = name;
+                if(number > 1) {
+                    agentName+=suffix++;
+                }
+                String script = buildStartupScript(getMavenRepoURI(fabricService), agentName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT, debugAgent);
                 if (credentials != null) {
                     computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                 } else {
@@ -235,52 +257,6 @@ public class JcloudsAgentProvider implements AgentProvider {
             localRepoURI = mavenProxy.getAddress();
         }
         return FabricServices.getMavenRepoURI(fabricService, localRepoURI);
-    }
-
-    private String buildStartupScript(URI proxy, String name, String zooKeeperUrl, boolean debugAgent) throws MalformedURLException {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
-        sb.append("run mkdir -p ").append(name).append("\n");
-        sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.apache.karaf", "apache-karaf", "2.2.0-fuse-00-43");
-        sb.append("run cd ").append("apache-karaf-2.2.0-fuse-00-43").append("\n");
-        List<String> lines = new ArrayList<String>();
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-linkedin-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-configadmin", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
-        appendFile(sb, "etc/startup.properties", lines);
-        appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
-        if(debugAgent) {
-           sb.append("run export KARAF_DEBUG=true").append("\n");
-        }
-        sb.append("run nohup ./bin/start").append("\n");
-        return sb.toString();
-    }
-
-    private String downloadAndStartMavenBundle(StringBuilder sb, URI proxy, String groupId, String artifactId, String version, String type) {
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version;
-        String file = path + "/" + artifactId + "-" + version + "." + type;
-        sb.append("run mkdir -p " + "system/").append(path).append("\n");
-        sb.append("run curl --show-error --silent --get --retry 20 --output system/").append(file).append(" ").append(proxy.resolve(file)).append("\n");
-        return file;
-    }
-
-    private void appendFile(StringBuilder sb, String path, Iterable<String> lines) {
-        final String MARKER = "END_OF_FILE";
-        sb.append("cat >> ").append(path).append(" <<'").append(MARKER).append("'\n");
-        for (String line : lines) {
-            sb.append(line).append("\n");
-        }
-        sb.append(MARKER).append("\n");
-    }
-
-    private void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
-        String file = artifactId + "-" + version + ".tar.gz";
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
-        sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
-        sb.append("run tar -xpzf ").append(file).append("\n");
     }
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {
