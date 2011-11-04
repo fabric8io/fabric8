@@ -37,6 +37,16 @@
             <includes>
                 <include>bin/*</include>
             </includes>
+            <excludes>
+                <exclude>bin/create</exclude>
+            </excludes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes/bin</directory>
+            <outputDirectory>/bin/</outputDirectory>
+            <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
         </fileSet>
 
