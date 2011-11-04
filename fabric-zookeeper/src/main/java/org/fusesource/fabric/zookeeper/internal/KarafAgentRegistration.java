@@ -94,7 +94,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
                 zooKeeper.createOrSetWithParents(AGENT_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
             zooKeeper.createOrSetWithParents(AGENT_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
             String version = System.getProperty("fabric.version", "base");
             String profiles = System.getProperty("fabric.profiles");
@@ -114,24 +113,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         } catch (Exception e) {
             // TODO
             e.printStackTrace();
-        }
-    }
-
-    private String getRootName() throws IOException {
-        String home = System.getProperty("karaf.home");
-        String base = System.getProperty("karaf.base");
-        if (home.equals(base)) {
-            return "";
-        }
-        File f = new File(home, "etc/system.properties");
-        InputStream is = new FileInputStream(f);
-
-        try {
-            Properties p = new Properties();
-            p.load(is);
-            return p.getProperty("karaf.name");
-        } finally {
-            is.close();
         }
     }
 

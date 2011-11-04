@@ -51,7 +51,7 @@ public enum ZkPath {
     AGENT_PROVISION_RESULT   ("/fabric/registry/agents/provision/{agent}/result"),
     AGENT_PROVISION_EXCEPTION("/fabric/registry/agents/provision/{agent}/exception"),
     AGENT_IP                 ("/fabric/registry/agents/config/{agent}/ip"),
-    AGENT_ROOT               ("/fabric/registry/agents/config/{agent}/root"),
+    AGENT_PARENT             ("/fabric/registry/agents/config/{agent}/parent"),
     AGENT_JMX                ("/fabric/registry/agents/config/{agent}/jmx"),
     AGENT_SSH                ("/fabric/registry/agents/config/{agent}/ssh"),
     AGENT_LOCATION           ("/fabric/registry/agents/config/{agent}/loc");
