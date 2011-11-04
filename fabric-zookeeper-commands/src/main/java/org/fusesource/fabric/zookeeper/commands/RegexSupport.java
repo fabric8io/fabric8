@@ -40,9 +40,9 @@ public class RegexSupport {
         return rc;
     }
 
-    public static boolean matches(java.util.List<Pattern> patterns, String value) {
+    public static boolean matches(List<Pattern> patterns, String value, boolean defaultOnEmpty) {
         if ( patterns.isEmpty() ) {
-            return true;
+            return defaultOnEmpty;
         }
         boolean rc = false;
         for ( Pattern pattern : patterns ) {
