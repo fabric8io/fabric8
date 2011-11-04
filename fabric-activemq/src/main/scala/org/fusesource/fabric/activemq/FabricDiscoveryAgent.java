@@ -16,23 +16,28 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.*;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 public class FabricDiscoveryAgent implements DiscoveryAgent {
     
     private static final Log LOG = LogFactory.getLog(FabricDiscoveryAgent.class);
 
     private IZKClient zkClient;
+    private boolean managedZkClient;
+
     private List<ACL> acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
     private Group group;
     private String groupName = "default";
@@ -51,7 +56,8 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private final Object sleepMutex = new Object();
     private long minConnectTime = 5000;
     private String id;
-    
+    private String agent;
+
     List<String> services = new ArrayList<String>();
 
     public void setGroupName(String groupName) {
@@ -63,6 +69,8 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         String id;
         @JsonProperty
         String services[];
+        @JsonProperty
+        String agent;
 
         public String id() {
             return id;
@@ -72,6 +80,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     ActiveMQNode state() {
         ActiveMQNode state = new ActiveMQNode();
         state.id = id;
+        state.agent = agent;
         state.services = services.toArray(new String[services.size()]);
         return state;
     }
@@ -197,10 +206,13 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             running.set(true);
 
             if (zkClient == null) {
+                managedZkClient = true;
                 ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
                 client.start();
                 client.waitForStart();
                 zkClient = client;
+            } else {
+                managedZkClient = false;
             }
 
             group = ZooKeeperGroupFactory.create(zkClient, "/fabric/activemq-clusters/" + groupName, acl);
@@ -217,11 +229,17 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             running.set(false);
             try {
                 group.close();
-                zkClient.close();
             } catch (Throwable ignore) {
                 // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
             }
-            zkClient = null;
+            if( managedZkClient ) {
+                try {
+                    zkClient.close();
+                } catch (Throwable ignore) {
+                    // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
+                }
+                zkClient = null;
+            }
         }
     }
 
@@ -295,5 +313,13 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 
     public ClusteredSingleton<ActiveMQNode> getSingleton() {
         return singleton;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
     }
 }
