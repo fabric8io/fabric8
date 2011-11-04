@@ -115,6 +115,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
         false
       } else {
         owned_pools += cc.pool
+        fire_pool_change(cc)
         true
       }
     }
@@ -123,23 +124,22 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   def return_pool(cc:ClusteredConfiguration) = this.synchronized {
     if( cc.pool!=null ) {
       owned_pools -= cc.pool
+      fire_pool_change(cc)
     }
   }
   
-  def fire_pool_change(cc:ClusteredConfiguration) = this.synchronized {
-    if( cc.pool!=null ) {
-      new Thread(){
-        override def run() {
-          ActiveMQServiceFactory.this.synchronized {
-            configurations.values.foreach { c=>
-              if ( c!=cc && c.pool == cc.pool ) {
-                c.update_pool_state
-              }
+  def fire_pool_change(cc:ClusteredConfiguration) = {
+    new Thread(){
+      override def run() {
+        ActiveMQServiceFactory.this.synchronized {
+          configurations.values.foreach { c=>
+            if ( c!=cc && c.pool == cc.pool ) {
+              c.update_pool_state
             }
           }
         }
-      }.start
-    }
+      }
+    }.start
   }
   
 

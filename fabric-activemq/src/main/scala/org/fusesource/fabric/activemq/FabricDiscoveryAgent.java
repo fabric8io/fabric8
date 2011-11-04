@@ -80,7 +80,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     ActiveMQNode state() {
         ActiveMQNode state = new ActiveMQNode();
         state.id = id;
-        state.id = agent;
+        state.agent = agent;
         state.services = services.toArray(new String[services.size()]);
         return state;
     }
