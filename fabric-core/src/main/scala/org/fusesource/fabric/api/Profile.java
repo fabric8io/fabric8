@@ -68,4 +68,9 @@ public interface Profile {
 
     void delete();
 
+    void setBundles(List<String> values);
+
+    void setFeatures(List<String> values);
+
+    void setRepositories(List<String> values);
 }

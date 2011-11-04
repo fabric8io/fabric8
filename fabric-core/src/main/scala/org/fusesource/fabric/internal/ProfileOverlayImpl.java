@@ -75,6 +75,21 @@ public class ProfileOverlayImpl implements Profile {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 
+    @Override
+    public void setBundles(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setFeatures(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setRepositories(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
     public void delete() {
         throw new UnsupportedOperationException("Can not delete an overlay profile");
     }
