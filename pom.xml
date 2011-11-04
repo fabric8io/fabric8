@@ -211,6 +211,7 @@
         <module>fab</module>
         <module>fabric-examples</module>
         <module>fabric-assemblies</module>
+        <module>fabric-bridge-project</module>
     </modules>
 
     <build>
