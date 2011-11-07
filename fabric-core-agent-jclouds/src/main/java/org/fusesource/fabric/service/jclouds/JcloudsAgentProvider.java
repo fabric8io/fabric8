@@ -13,10 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -29,10 +26,7 @@ import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.CreateAgentArguments;
 import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.FabricServices;
 import org.fusesource.fabric.api.JCloudsInstanceType;
-import org.fusesource.fabric.maven.MavenProxy;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.ComputeServiceContextFactory;
@@ -43,7 +37,9 @@ import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.rest.RestContextFactory;
 
-import static org.fusesource.fabric.internal.AgentProviderUtils.*;
+
+import static org.fusesource.fabric.internal.AgentProviderUtils.DEFAULT_SSH_PORT;
+import static org.fusesource.fabric.internal.AgentProviderUtils.buildStartupScript;
 
 /**
  * A concrete {@link AgentProvider} that creates {@link org.fusesource.fabric.api.Agent}s via jclouds {@link ComputeService}.
@@ -57,8 +53,6 @@ public class JcloudsAgentProvider implements AgentProvider {
     private static final String GROUP = "group";
 
     private static final String INSTANCE_TYPE = "instanceType";
-
-    private MavenProxy mavenProxy;
 
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
@@ -84,26 +78,20 @@ public class JcloudsAgentProvider implements AgentProvider {
         return computeServiceMap;
     }
 
-    public void setMavenProxy(MavenProxy mavenProxy) {
-        this.mavenProxy = mavenProxy;
-    }
-
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param fabricService
+     * @param proxyUri     The uri of the maven proxy to use.
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
-           create(fabricService,agentUri,name,zooKeeperUrl,debugAgent,1);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
+           create(proxyUri, agentUri,name,zooKeeperUrl,debugAgent,1);
     }
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param fabricService
+     * @param proxyUri      The uri of the maven proxy to use.
      * @param agentUri      The uri that contains required information to build the Agent.
      * @param name          The name of the Agent.
      * @param zooKeeperUrl  The url of Zoo Keeper.
@@ -111,7 +99,7 @@ public class JcloudsAgentProvider implements AgentProvider {
      * @param number        The number of Agents to create.
      */
     @Override
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number) {
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number) {
         String imageId = null;
         String hardwareId = null;
         String locationId = null;
@@ -139,7 +127,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -149,18 +137,17 @@ public class JcloudsAgentProvider implements AgentProvider {
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     *
-       * @param fabricService
-       * @param agentUri     The uri that contains required information to build the Agent.
-       * @param name         The name of the Agent.
-       * @param zooKeeperUrl The url of Zoo Keeper.
-       */
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl) {
-        create(fabricService, agentUri, name, zooKeeperUrl);
+     * @param proxyUri     The uri of the maven proxy to use.
+     * @param agentUri     The uri that contains required information to build the Agent.
+     * @param name         The name of the Agent.
+     * @param zooKeeperUrl The url of Zoo Keeper.
+     */
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
+        create(proxyUri,agentUri, name, zooKeeperUrl);
     }
 
     @Override
-    public boolean create(FabricService fabricService, CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
+    public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
         if (createArgs instanceof CreateJCloudsAgentArguments) {
             CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
 
@@ -176,14 +163,15 @@ public class JcloudsAgentProvider implements AgentProvider {
             String identity = args.getIdentity();
             String credential = args.getCredential();
             String owner = args.getOwner();
+            URI proxyURI = args.getProxyUri();
 
-            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
+            doCreateAgent(proxyURI, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
             return true;
         }
         return false;
     }
 
-    protected void doCreateAgent(FabricService fabricService, String name, int number, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
+    protected void doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
             //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
@@ -241,7 +229,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 if(number > 1) {
                     agentName+=suffix++;
                 }
-                String script = buildStartupScript(getMavenRepoURI(fabricService), agentName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT, debugAgent);
+                String script = buildStartupScript(proxyUri, agentName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT, debugAgent);
                 if (credentials != null) {
                     computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                 } else {
@@ -251,6 +239,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
     }
 
+    /*
     protected URI getMavenRepoURI(FabricService fabricService) throws URISyntaxException {
         URI localRepoURI = null;
         if (mavenProxy != null) {
@@ -258,6 +247,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
         return FabricServices.getMavenRepoURI(fabricService, localRepoURI);
     }
+    */
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {
         //TODO: This is copied form URISupport. We should move URISupport to core so that we don't have to copy stuff arround.

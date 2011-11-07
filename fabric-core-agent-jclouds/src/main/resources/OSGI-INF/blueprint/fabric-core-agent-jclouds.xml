@@ -17,11 +17,7 @@
         </service-properties>
     </service>
 
-    <bean id="jcloudsAgentProvider" class="org.fusesource.fabric.service.jclouds.JcloudsAgentProvider">
-        <property name="mavenProxy">
-          <reference interface="org.fusesource.fabric.maven.MavenProxy" availability="optional"/>
-        </property>
-    </bean>
+    <bean id="jcloudsAgentProvider" class="org.fusesource.fabric.service.jclouds.JcloudsAgentProvider"/>
 
     <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
         <reference-listener ref="jcloudsAgentProvider" bind-method="bind" unbind-method="unbind"/>

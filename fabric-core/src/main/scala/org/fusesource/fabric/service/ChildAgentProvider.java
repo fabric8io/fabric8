@@ -8,13 +8,11 @@
  */
 package org.fusesource.fabric.service;
 
+import java.net.URI;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.CreateAgentArguments;
-import org.fusesource.fabric.api.FabricService;
-
-import java.net.URI;
 
 public class ChildAgentProvider implements AgentProvider {
 
@@ -27,14 +25,14 @@ public class ChildAgentProvider implements AgentProvider {
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
-     * @param fabricService
+     * @param proxyUri
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      * @param debugAgent   Flag used to enable debugging on the new Agent.
      * @param number       The number of Agents to create.
      */
-    public void create(FabricService fabricService, final URI agentUri, final String name, final String zooKeeperUrl, final boolean debugAgent, final int number) {
+    public void create(URI proxyUri, final URI agentUri, final String name, final String zooKeeperUrl, final boolean debugAgent, final int number) {
         final Agent parent = service.getAgent(agentUri.getSchemeSpecificPart());
         service.getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
@@ -61,32 +59,32 @@ public class ChildAgentProvider implements AgentProvider {
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
-     * @param fabricService
+     * @param proxyUri
      * @param agentUri      The uri that contains required information to build the Agent.
      * @param name          The name of the Agent.
      * @param zooKeeperUrl  The url of Zoo Keeper.
      * @param debugAgent    Flag used to enable debugging on the new Agent.
      */
     @Override
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
-        create(fabricService, agentUri, name, zooKeeperUrl,debugAgent,1);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
+        create(proxyUri, agentUri, name, zooKeeperUrl,debugAgent,1);
     }
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
-     * @param fabricService
+     * @param proxyUri
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
     @Override
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl) {
-        create(fabricService, agentUri, name, zooKeeperUrl,false);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
+        create(proxyUri, agentUri, name, zooKeeperUrl,false);
     }
 
     @Override
-    public boolean create(FabricService fabricService, CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
+    public boolean create(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
         return false;
     }
 }

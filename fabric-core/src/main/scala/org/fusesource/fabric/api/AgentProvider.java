@@ -20,36 +20,36 @@ public interface AgentProvider {
 
     /**
      * Creates an {@link Agent} with the given name pointing to the specified zooKeeperUrl.
-     * @param fabricService
+     * @param proxyUri The uri of the maven proxy to use.
      * @param agentUri The uri that contains required information to build the Agent.
      * @param name The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
-    void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl);
+    void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl);
 
     /**
      * Creates an {@link Agent} with the given name pointing to the specified zooKeeperUrl.
-     * @param fabricService
+     * @param proxyUri The uri of the maven proxy to use.
      * @param agentUri The uri that contains required information to build the Agent.
      * @param name The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      * @param debugAgent Flag used to enable debugging on the new Agent.
      */
-    void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent);
+    void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent);
 
-        /**
+    /**
      * Creates an {@link Agent} with the given name pointing to the specified zooKeeperUrl.
-     * @param fabricService
+     * @param proxyUri The uri of the maven proxy to use.
      * @param agentUri The uri that contains required information to build the Agent.
      * @param name The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      * @param debugAgent Flag used to enable debugging on the new Agent.
      * @param number The number of Agents to create.
      */
-    void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number);
+    void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number);
 
     /**
      * Creates an agent using a set of arguments
      */
-    boolean create(FabricService fabricService, CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception;
+    boolean create(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception;
 }

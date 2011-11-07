@@ -13,6 +13,8 @@ import java.net.URI;
 
 public interface FabricService {
 
+    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public";
+
     Agent[] getAgents();
 
     Agent getAgent(String name);

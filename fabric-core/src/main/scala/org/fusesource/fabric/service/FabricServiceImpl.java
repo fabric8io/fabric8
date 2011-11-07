@@ -217,7 +217,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                 agents[i] = new AgentImpl(null, agentName, FabricServiceImpl.this);
             }
 
-            provider.create(this, uri, name, zooKeeperUrl, debugAgent, number);
+            provider.create(getMavenRepoURI(), uri, name, zooKeeperUrl, debugAgent, number);
 
         } catch (FabricException e) {
             throw e;
@@ -258,7 +258,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     protected Agent doCreateAgentFromArguments(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
         for (AgentProvider provider : providers.values()) {
-            if (provider.create(this, args, name, zooKeeperUrl)) {
+            if (provider.create(args, name, zooKeeperUrl)) {
                 return new AgentImpl(null, name, FabricServiceImpl.this);
             }
         }
@@ -295,8 +295,17 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     @Override
     public URI getMavenRepoURI() {
-        // TODO load from ZK!
-        return null;
+        URI uri = null;
+        try {
+            uri = new URI(DEFAULT_REPO_URI);
+            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_REPO.getPath()) != null) {
+                String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_REPO.getPath());
+                uri = new URI(mavenRepo);
+            }
+        } catch (Exception e) {
+            //On exception just return uri.
+        }
+        return uri;
     }
 
     public void registerProvider(String scheme, AgentProvider provider) {

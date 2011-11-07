@@ -88,6 +88,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
             properties = new Properties();
             String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
+            String mavenProxyUrl = "http://"+getLocalHostAddress() + ":" + 8040;
             properties.put("zookeeper.url", connectionUrl);
             config.setBundleLocation(null);
             config.update(properties);
@@ -145,6 +146,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p = new Properties();
             p.put("jmxRealm", "zookeeper");
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.apache.karaf.management.properties", toString(p));
+
+            ZooKeeperUtils.createDefault(client,ZkPath.CONFIGS_MAVEN_REPO.getPath(),mavenProxyUrl);
 
             Bundle bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.1-SNAPSHOT");
             if (bundle.getState() == Bundle.ACTIVE) {

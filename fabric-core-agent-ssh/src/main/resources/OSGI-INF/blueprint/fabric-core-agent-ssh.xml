@@ -17,10 +17,6 @@
         </service-properties>
     </service>
 
-    <bean id="sshAgentProvider" class="org.fusesource.fabric.service.ssh.SshAgentProvider">
-        <property name="mavenProxy">
-            <reference interface="org.fusesource.fabric.maven.MavenProxy" availability="optional"/>
-        </property>
-    </bean>
+    <bean id="sshAgentProvider" class="org.fusesource.fabric.service.ssh.SshAgentProvider"/>
 
 </blueprint>

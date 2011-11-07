@@ -29,19 +29,9 @@ public class AgentProviderUtils {
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.apache.karaf", "apache-karaf", "2.2.0-fuse-00-43");
-        sb.append("run cd ").append("apache-karaf-2.2.0-fuse-00-43").append("\n");
+        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "karaf-distro", "1.1-SNAPSHOT");
+        sb.append("run cd ").append("karaf-distro-1.1-SNAPSHOT").append("\n");
         List<String> lines = new ArrayList<String>();
-
-        //TODO: Need to find a more elegant way to define the bundles.
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.codehaus.jackson", "jackson-core-asl", "1.8.4", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.codehaus.jackson", "jackson-mapper-asl", "1.8.4", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.codehaus.jackson", "jackson-mapper-asl", "1.8.4", "jar") + "=60");
-
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-linkedin-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-configadmin", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
 
         appendFile(sb, "etc/startup.properties", lines);
         replaceLineInFile(sb,"etc/system.properties","karaf.name=root","karaf.name = "+name);
@@ -79,7 +69,7 @@ public class AgentProviderUtils {
     private static void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
         String file = artifactId + "-" + version + ".tar.gz";
         String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
-        sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
+        sb.append("run curl --show-error --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
     }
 }
