@@ -200,7 +200,6 @@
         <module>fabric-camel</module>
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
-        <module>fabric-cxf</module>
         <module>fabric-activemq</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
@@ -211,6 +210,9 @@
         <module>fab</module>
         <module>fabric-examples</module>
         <module>fabric-assemblies</module>
+
+        <!-- TODO fix build of fabric-cxf then move back up a bit :) -->
+        <module>fabric-cxf</module>
     </modules>
 
     <build>
