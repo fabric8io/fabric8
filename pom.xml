@@ -213,6 +213,7 @@
 
         <!-- TODO fix build of fabric-cxf then move back up a bit :) -->
         <module>fabric-cxf</module>
+        <module>fabric-bridge-project</module>
     </modules>
 
     <build>

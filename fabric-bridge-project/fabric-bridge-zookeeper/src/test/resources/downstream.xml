@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<destinations-config id="downstream" xmlns="http://fusesource.org/fabric/bridge"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://fusesource.org/fabric/bridge http://fusesource.org/fabric/bridge/fabric-bridge.xsd">
+  <destination name="source1.out"/>
+  <destination name="source2.out"/>
+  <destination name="source3.out"/>
+</destinations-config>
