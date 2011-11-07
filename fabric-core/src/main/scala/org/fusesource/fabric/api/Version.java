@@ -16,6 +16,13 @@ public interface Version {
 
     Profile[] getProfiles();
 
+    /**
+     * Gets a profile with the given name.
+     * @param name name of the profile to get.
+     * @return {@link Profile} with the given name. Returns <code>null</code> if it doesn't exist.
+     */
+    Profile getProfile(String name);
+
     Profile createProfile(String name);
 
     void delete();

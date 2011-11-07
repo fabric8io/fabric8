@@ -12,6 +12,8 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.service.FabricServiceImpl;
 
+import java.util.Arrays;
+
 public class VersionImpl implements Version {
 
     private final String name;
@@ -35,6 +37,11 @@ public class VersionImpl implements Version {
     @Override
     public Profile[] getProfiles() {
         return service.getProfiles(name);
+    }
+
+    @Override
+    public Profile getProfile(String name) {
+        return service.getProfile(this.name, name);
     }
 
     @Override

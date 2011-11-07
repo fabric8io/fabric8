@@ -1,0 +1,1 @@
+http\://fusesource.org/fabric/bridge/zookeeper=org.fusesource.fabric.bridge.zk.spring.ZkBridgeNamespaceHandler

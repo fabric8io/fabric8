@@ -77,6 +77,22 @@ public class ProfileImpl implements Profile {
         return getAgentConfigList(this, ConfigListType.REPOSITORIES);
     }
 
+    @Override
+    public void setBundles(List<String> values) {
+        setAgentConfigList(this, values, ConfigListType.BUNDLES);
+    }
+
+    @Override
+    public void setFeatures(List<String> values) {
+        setAgentConfigList(this, values, ConfigListType.FEATURES);
+    }
+
+    @Override
+    public void setRepositories(List<String> values) {
+        setAgentConfigList(this, values, ConfigListType.REPOSITORIES);
+    }
+
+
     public static List<String> getAgentConfigList(Profile p, ConfigListType type) {
         try {
             Properties agentProps = getAgentProperties(p);
@@ -93,6 +109,27 @@ public class ProfileImpl implements Profile {
         }
     }
 
+    public static void setAgentConfigList(Profile p, List<String>  values, ConfigListType type) {
+        Map<String,Map<String, String>> config = p.getConfigurations();
+        String prefix = type + ".";
+        Map<String, String> map = config.get(AGENT_PID);
+        if (map == null) {
+            map = new HashMap<String, String>();
+            config.put(AGENT_PID, map);
+        } else {
+            List<String> keys = new ArrayList<String>(map.keySet());
+            for (String key : keys) {
+                if (key.startsWith(prefix)) {
+                    map.remove(key);
+                }
+            }
+        }
+        for (String value : values) {
+            map.put(prefix + value, value);
+        }
+        p.setConfigurations(config);
+    }
+
     public static Properties getAgentProperties(Profile p) throws IOException {
         byte[] b = p.getFileConfigurations().get(AGENT_PID + ".properties");
         if (b != null) {
@@ -106,7 +143,7 @@ public class ProfileImpl implements Profile {
         try {
             String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
             String str = service.getZooKeeper().getStringData(node);
-            if (str == null) {
+            if (str == null || str.isEmpty()) {
                 return new Profile[0];
             }
             List<Profile> profiles = new ArrayList<Profile>();

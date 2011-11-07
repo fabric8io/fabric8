@@ -1,0 +1,111 @@
+#!/bin/sh
+#
+
+DIRNAME=`dirname "$0"`
+PROGNAME=`basename "$0"`
+
+locateHome() {
+    if [ "x$KARAF_HOME" != "x" ]; then
+        warn "Ignoring predefined value for KARAF_HOME"
+    fi
+    
+    # In POSIX shells, CDPATH may cause cd to write to stdout
+    (unset CDPATH) >/dev/null 2>&1 && unset CDPATH
+
+    KARAF_HOME=`cd $DIRNAME/..; pwd`
+    if [ ! -d "$KARAF_HOME" ]; then
+        die "KARAF_HOME is not valid: $KARAF_HOME"
+    fi
+}
+
+pathCanonical() {
+    local dst="${1}"
+    while [ -h "${dst}" ] ; do
+        ls=`ls -ld "${dst}"`
+        link=`expr "$ls" : '.*-> \(.*\)$'`
+        if expr "$link" : '/.*' > /dev/null; then
+            dst="$link"
+        else
+            dst="`dirname "${dst}"`/$link"
+        fi
+    done
+    local bas=`basename "${dst}"`
+    local dir=`dirname "${dst}"`
+    if [ "$bas" != "$dir" ]; then
+        dst="`pathCanonical "$dir"`/$bas"
+    fi
+    echo "${dst}" | sed -e 's#//#/#g' -e 's#/./#/#g' -e 's#/[^/]*/../#/#g'
+}
+
+# Locate the Karaf home directory
+locateHome
+
+TARGET="$(pathCanonical $1)"
+if [ "x$TARGET" == "x" ]; then
+    die "Base folder not set, use bin/create [folder]"
+fi
+mkdir -p $TARGET
+TARGET=`cd $TARGET ; pwd`
+echo "Creating new Karaf root instance ..."
+echo "Home: $KARAF_HOME"
+echo "Base: $TARGET"
+mkdir -p $TARGET/data
+mkdir -p $TARGET/bin
+mkdir -p $TARGET/system
+mkdir -p $TARGET/deploy
+cp -R $KARAF_HOME/etc $TARGET
+chmod -R +w $TARGET
+
+# Would be nice if the JMX ports could be set to 0, so that they get assigned a dynmic port, but that does not seem to work yet.
+# cat $KARAF_HOME/etc/org.apache.karaf.management.cfg | sed 's/44444/0/g' | sed 's/1099/0/g' > $TARGET/etc/org.apache.karaf.management.cfg
+
+# Update the name of the instance..
+INSTANCE_NAME=`basename $TARGET`
+cat $KARAF_HOME/etc/system.properties  | sed "s/karaf\\.name=.*/karaf.name=${INSTANCE_NAME}/g" > $TARGET/etc/system.properties 
+
+cat > $TARGET/bin/karaf <<'EOF'
+#!/bin/sh
+if [ -z "$KARAF_BASE" ] ; then
+
+  ## resolve links - $0 may be a sym link
+  PRG="$0"
+  progname=`basename "$0"`
+  saveddir=`pwd`
+
+  # need this for relative symlinks
+  dirname_prg=`dirname "$PRG"`
+  cd "$dirname_prg"
+
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+    PRG="$link"
+    else
+    PRG=`dirname "$PRG"`"/$link"
+    fi
+  done
+
+  KARAF_BASE=`dirname "$PRG"`
+  cd "$saveddir"
+
+  # make it fully qualified
+  KARAF_BASE=`cd "$KARAF_BASE/.." && pwd`
+  export KARAF_BASE
+fi
+
+if [ -f "${KARAF_BASE}/etc/startup.sh" ] ; then
+  . "${KARAF_BASE}/etc/startup.sh"
+fi
+
+if [ -z "$KARAF_HOME" ] ; then
+EOF
+echo "  KARAF_HOME=$KARAF_HOME" >> $TARGET/bin/karaf
+cat >> $TARGET/bin/karaf <<'EOF'
+fi
+
+cd $KARAF_BASE
+exec $KARAF_HOME/bin/karaf "$@"
+EOF
+
+chmod +x $TARGET/bin/karaf

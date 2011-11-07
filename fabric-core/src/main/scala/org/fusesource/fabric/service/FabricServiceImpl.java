@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
@@ -42,7 +43,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import static org.fusesource.fabric.zookeeper.ZkPath.AGENT_ROOT;
+import static org.fusesource.fabric.zookeeper.ZkPath.AGENT_PARENT;
 
 public class FabricServiceImpl implements FabricService, FabricServiceImplMBean {
     private transient Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
@@ -111,17 +112,17 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             Map<String, Agent> agents = new HashMap<String, Agent>();
             List<String> configs = zooKeeper.getChildren(ZkPath.CONFIGS_AGENTS.getPath());
             for (String name : configs) {
-                String root = zooKeeper.getStringData(ZkPath.AGENT_ROOT.getPath(name)).trim();
-                if (root.isEmpty()) {
+                String parentId = getParentOf(name);
+                if (parentId.isEmpty()) {
                     if (!agents.containsKey(name)) {
                         Agent agent = new AgentImpl(null, name, this);
                         agents.put(name, agent);
                     }
                 } else {
-                    Agent parent = agents.get(root);
+                    Agent parent = agents.get(parentId);
                     if (parent == null) {
-                        parent = new AgentImpl(null, root, this);
-                        agents.put(root, parent);
+                        parent = new AgentImpl(null, parentId, this);
+                        agents.put(parentId, parent);
                     }
                     Agent agent = new AgentImpl(parent, name, this);
                     agents.put(name, agent);
@@ -134,13 +135,22 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    private String getParentOf(String name) throws InterruptedException, KeeperException {
+        try {
+            return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
+        } catch (KeeperException.NoNodeException e) {
+            return "";
+        }
+    }
+
     public Agent getAgent(String name) {
         try {
-            if (zooKeeper.exists(ZkPath.AGENT_ROOT.getPath(name)) == null) {
-                throw new FabricException("Agent '" + name + "' does not exist!");
+            Agent parent = null;
+            String parentId = getParentOf(name);
+            if( !parentId.isEmpty() ) {
+                parent = getAgent(parentId);
             }
-            String root = zooKeeper.getStringData(ZkPath.AGENT_ROOT.getPath(name)).trim();
-            return new AgentImpl(root.isEmpty() ? null : getAgent(root), name, this);
+            return new AgentImpl(parent, name, this);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -347,7 +357,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     public Agent createAgent(final Agent parent, final String name) {
-        return createAgent(parent,name,false);
+        return createAgent(parent, name, false);
     }
 
     public void destroy(Agent agent) {
@@ -387,7 +397,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             String configVersion = getDefaultVersion().getName();
             ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(name), configVersion);
             ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_AGENT.getPath(configVersion, name), profile);
-            zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), parent, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(AGENT_PARENT.getPath(name), parent, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -475,6 +485,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    @Override
     public Profile[] getProfiles(String version) {
         try {
 
@@ -489,6 +500,21 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    @Override
+    public Profile getProfile(String version, String name) {
+        try {
+
+            String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name);
+            if (zooKeeper.exists(path) == null) {
+                return null;
+            }
+            return new ProfileImpl(name, version, this);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
     public Profile createProfile(String version, String name) {
         try {
             ZooKeeperUtils.create(zooKeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name));
@@ -498,6 +524,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    @Override
     public void deleteProfile(Profile profile) {
         try {
             zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(profile.getVersion(), profile.getId()));
