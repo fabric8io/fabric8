@@ -63,12 +63,16 @@
         <dependency>
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.zookeeper-impl</artifactId>
+<!--
             <scope>provided</scope>
+-->
         </dependency>
         <dependency>
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.util-core</artifactId>
+<!--
             <scope>provided</scope>
+-->
         </dependency>
       <dependency>
           <groupId>org.jasypt</groupId>
@@ -77,13 +81,17 @@
           <!-- TODO reconsider lite classifier when UserService is moved from fabric-core
           <classifier>lite</classifier>
           -->
+<!--
           <scope>provided</scope>
+-->
       </dependency>
       <dependency>
           <groupId>com.jcraft</groupId>
           <artifactId>jsch</artifactId>
           <version>0.1.42</version>
+<!--
           <scope>provided</scope>
+-->
       </dependency>
     </dependencies>
 
