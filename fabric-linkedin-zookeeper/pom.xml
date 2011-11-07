@@ -85,11 +85,56 @@
           <version>0.1.42</version>
           <scope>provided</scope>
       </dependency>
+<!--
+      <dependency>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+          <version>${log4j-version}</version>
+          <scope>provided</scope>
+      </dependency>
+-->
     </dependencies>
 
     <build>
         <plugins>
-
+<!--
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.linkedin</groupId>
+                      <artifactId>org.linkedin.zookeeper-impl</artifactId>
+                      <version>${linkedin-zookeeper-version}</version>
+                      <classifier>sources</classifier>
+                      <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.linkedin</groupId>
+                      <artifactId>org.linkedin.util-core</artifactId>
+                      <version>${linkedin-zookeeper-version}</version>
+                      <classifier>sources</classifier>
+                      <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.apache.zookeeper</groupId>
+                      <artifactId>zookeeper</artifactId>
+                      <version>3.3.1</version>
+                      <classifier>sources</classifier>
+                      <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+-->
         </plugins>
     </build>
 
