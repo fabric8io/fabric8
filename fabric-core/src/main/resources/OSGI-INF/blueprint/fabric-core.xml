@@ -29,7 +29,7 @@
 
     <service ref="fabricService" auto-export="interfaces" />
 
-    <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl">
+    <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl" init-method="init">
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>

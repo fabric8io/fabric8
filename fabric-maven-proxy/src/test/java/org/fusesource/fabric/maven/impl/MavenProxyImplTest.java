@@ -57,15 +57,19 @@ public class MavenProxyImplTest {
 
 
     @Test
-    public void testLocalRepoFirst() throws IOException {
+    public void testLocalRepoFirst() throws IOException, InterruptedException {
         int status;
         status = getArtifact(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE);
         assertEquals("Expected http status OK", HttpStatus.SC_OK, status);
         File file = new File(LOCAL_REPO + File.separatorChar + getArtifactPath(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE));
         assertTrue(file.exists());
 
-        proxy.setRemoteRepositories("fake-1,fake-2");
         proxy.stop();
+        proxy.setRemoteRepositories("fake-1,fake-2");
+
+        //Wait for port to close.
+        Thread.sleep(2000);
+
         proxy.start();
         status = getArtifact(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE);
         assertEquals("Expected http status OK", HttpStatus.SC_OK, status);

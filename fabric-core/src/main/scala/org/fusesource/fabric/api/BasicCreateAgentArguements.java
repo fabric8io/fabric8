@@ -9,6 +9,7 @@
 package org.fusesource.fabric.api;
 
 import java.io.Serializable;
+import java.net.URI;
 
 public class BasicCreateAgentArguements implements CreateAgentArguments, Serializable {
 
@@ -16,6 +17,7 @@ public class BasicCreateAgentArguements implements CreateAgentArguments, Seriali
 
     protected boolean debugAgent;
     protected int number = 1;
+    protected URI proxyUri;
 
     public boolean isDebugAgent() {
         return debugAgent;
@@ -31,5 +33,13 @@ public class BasicCreateAgentArguements implements CreateAgentArguments, Seriali
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    public URI getProxyUri() {
+        return proxyUri;
+    }
+
+    public void setProxyUri(URI proxyUri) {
+        this.proxyUri = proxyUri;
     }
 }

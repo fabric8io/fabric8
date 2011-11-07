@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.service.ssh;
 
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -15,56 +17,39 @@ import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.CreateAgentArguments;
 import org.fusesource.fabric.api.CreateSshAgentArguments;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.FabricServices;
-import org.fusesource.fabric.maven.MavenProxy;
 
-import java.io.ByteArrayOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.fusesource.fabric.internal.AgentProviderUtils.*;
+import static org.fusesource.fabric.internal.AgentProviderUtils.DEFAULT_SSH_PORT;
+import static org.fusesource.fabric.internal.AgentProviderUtils.buildStartupScript;
 
 /**
  * A concrete {@link AgentProvider} that builds {@link Agent}s via ssh.
  */
 public class SshAgentProvider implements AgentProvider {
 
-
-    private MavenProxy mavenProxy;
     private boolean debug = false;
-
-    public void setMavenProxy(MavenProxy mavenProxy) {
-        this.mavenProxy = mavenProxy;
-    }
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param fabricService
+     * @param proxyUri     The uri of the maven proxy to use.
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent) {
-        create(fabricService, agentUri, name, zooKeeperUrl, debugAgent, 1);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent) {
+        create(proxyUri, agentUri, name, zooKeeperUrl, debugAgent, 1);
     }
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param fabricService
+     * @param proxyUri     The uri of the maven proxy to use.
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      * @param debugAgent   Flag to enable debuging on the created Agents.
      * @param number       The number of Agents to create.
      */
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent, int number) {
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent, int number) {
         try {
             String path = agentUri.getPath();
             String host = agentUri.getHost();
@@ -87,7 +72,7 @@ public class SshAgentProvider implements AgentProvider {
             String password = uip[1];
             int sshRetries = 6;
             int retryDelay = 1;
-            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -96,7 +81,7 @@ public class SshAgentProvider implements AgentProvider {
     }
 
     @Override
-    public boolean create(FabricService fabricService, CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
+    public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
         if (createArgs instanceof CreateSshAgentArguments) {
             CreateSshAgentArguments args = (CreateSshAgentArguments) createArgs;
             boolean debugAgent = args.isDebugAgent();
@@ -108,43 +93,34 @@ public class SshAgentProvider implements AgentProvider {
             String password = args.getPassword();
             int sshRetries = args.getSshRetries();
             int retryDelay = args.getRetryDelay();
-            doCreateAgent(fabricService, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
+            URI proxyUri = args.getProxyUri();
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
             return true;
         } else {
             return false;
         }
     }
 
-    protected void doCreateAgent(FabricService fabricService, String name, int number, String zooKeeperUrl, boolean debugAgent, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
+    protected void doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean debugAgent, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
         for (int i = 0; i < number; i++) {
             String agentName = name;
             if (number != 1) {
                 agentName += i + 1;
             }
-            String script = buildStartupScript(getMavenRepoURI(fabricService), agentName, path, zooKeeperUrl, DEFAULT_SSH_PORT + i, debugAgent);
+            String script = buildStartupScript(proxyUri, agentName, path, zooKeeperUrl, DEFAULT_SSH_PORT + i, debugAgent);
             createAgent(host, port, username, password, script, sshRetries, retryDelay);
         }
     }
 
-    protected URI getMavenRepoURI(FabricService fabricService) throws URISyntaxException {
-        URI localRepoURI = null;
-        if (mavenProxy != null) {
-            localRepoURI = mavenProxy.getAddress();
-        }
-        return FabricServices.getMavenRepoURI(fabricService, localRepoURI);
-    }
-
-
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
-     * @param fabricService
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
-    public void create(FabricService fabricService, URI agentUri, String name, String zooKeeperUrl) {
-        create(fabricService, agentUri, name, zooKeeperUrl, false);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
+        create(proxyUri, agentUri, name, zooKeeperUrl, false);
     }
 
     protected void createAgent(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
@@ -211,6 +187,4 @@ public class SshAgentProvider implements AgentProvider {
             session.disconnect();
         }
     }
-
-
 }

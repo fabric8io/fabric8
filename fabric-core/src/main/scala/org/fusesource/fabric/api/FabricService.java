@@ -13,6 +13,8 @@ import java.net.URI;
 
 public interface FabricService {
 
+    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public";
+
     Agent[] getAgents();
 
     Agent getAgent(String name);
@@ -62,4 +64,12 @@ public interface FabricService {
      * Returns the current maven proxy repository to use to create new agents
      */
     URI getMavenRepoURI();
+
+    Profile[] getProfiles(String version);
+
+    Profile getProfile(String version, String name);
+
+    Profile createProfile(String version, String name);
+
+    void deleteProfile(Profile profile);
 }
