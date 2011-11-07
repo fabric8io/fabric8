@@ -485,6 +485,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    @Override
     public Profile[] getProfiles(String version) {
         try {
 
@@ -499,6 +500,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    @Override
     public Profile getProfile(String version, String name) {
         try {
 
@@ -512,6 +514,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    @Override
     public Profile createProfile(String version, String name) {
         try {
             ZooKeeperUtils.create(zooKeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name));
@@ -521,6 +524,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
+    @Override
     public void deleteProfile(Profile profile) {
         try {
             zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(profile.getVersion(), profile.getId()));
