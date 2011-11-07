@@ -36,6 +36,13 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private IZKClient zooKeeper;
     private String version = "base";
 
+    public void init() {
+        Boolean autoStart = Boolean.parseBoolean(System.getProperty(CLUSTER_AUTOSTART_PROPERTY));
+        if (autoStart) {
+            createLocalServer();
+        }
+    }
+
     public BundleContext getBundleContext() {
         return bundleContext;
     }
