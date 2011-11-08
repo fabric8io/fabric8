@@ -68,7 +68,7 @@ public class AgentProviderUtils {
 
     private static void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
         String file = artifactId + "-" + version + ".tar.gz";
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
+        String path = "/"+ groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
         sb.append("run curl --show-error --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
     }
