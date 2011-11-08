@@ -75,8 +75,8 @@ public class AgentProviderUtils {
 
         String file = artifactId + "-" + version + ".tar.gz";
         String directory =  groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/";
-        String artifactParentUri = proxy.getHost()+proxy.getPath()+"/"+directory;
-        String artifactUri = proxy.getHost()+proxy.getPath()+"/"+"/"+directory+file;
+        String artifactParentUri = proxy.resolve(directory).toString();
+        String artifactUri = proxy.resolve(directory+file).toString();
 
         //To cover the case of SNAPSHOT dependencies where URL can't be determined we are quering for the availale versions first
         if(version.contains("SNAPSHOT")) {
@@ -84,6 +84,7 @@ public class AgentProviderUtils {
         } else {
             sb.append("run export DISTRO_URL=`").append(artifactUri).append("`").append("\n");
         }
+        sb.append("if [[  \"$DISTRO_URL\" == \"\" ]] ;  then export DISTRO_URL=").append(artifactUri).append("; fi\n");
         sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append("$DISTRO_URL").append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
     }

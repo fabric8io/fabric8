@@ -306,6 +306,9 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             uri = new URI(DEFAULT_REPO_URI);
             if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_REPO.getPath()) != null) {
                 String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_REPO.getPath());
+                if(mavenRepo != null && !mavenRepo.endsWith("/")) {
+                    mavenRepo+="/";
+                }
                 uri = new URI(mavenRepo);
             }
         } catch (Exception e) {
