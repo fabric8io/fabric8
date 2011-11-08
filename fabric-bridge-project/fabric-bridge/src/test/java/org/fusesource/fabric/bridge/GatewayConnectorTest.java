@@ -32,7 +32,8 @@ public class GatewayConnectorTest extends AbstractConnectorTestSupport {
 
 	private static final String TEST_REMOTE2_BROKER_URL = TEST_REMOTE_BROKER_URL.replace("remote", "remote2");
 	private static final String OUTBOUND_SUFFIX = ".outbound";
-	private GatewayConnector connector;
+    private static final String INBOUND_SUFFIX = ".inbound";
+    private GatewayConnector connector;
 
 	@Before
 	public void setUp() throws Exception {
@@ -243,5 +244,83 @@ public class GatewayConnectorTest extends AbstractConnectorTestSupport {
         connector.removeRemoteBridge(remoteBridge);
         assertFalse("Remote bridge not removed", connector.getRemoteBridges().contains(remoteBridge));
 	}
+
+    @Test
+    public void testPerBridgeStagingQueueConfig() throws Exception {
+        // test before start()
+        RemoteBridge remoteBridge = createRemoteBridgeWithInbound();
+        connector.getRemoteBridges().add(remoteBridge);
+        connector.afterPropertiesSet();
+        connector.start();
+
+        testInboundRemoteBridge();
+    }
+
+    @Test
+    public void testPerBridgeStagingQueueAddRemote() throws Exception {
+        // test using addRemoteBridge()
+        connector.afterPropertiesSet();
+        connector.start();
+        connector.addRemoteBridge(createRemoteBridgeWithInbound());
+
+        testInboundRemoteBridge();
+    }
+
+    private void testInboundRemoteBridge() {
+        // send messages to custom staging queue and check if the messages made it to inbound destinations
+        sendMessages(TEST_LOCAL_BROKER_URL,
+            BridgeDestinationsConfig.DEFAULT_STAGING_QUEUE_NAME + INBOUND_SUFFIX,
+            TEST_SOURCES.length * TEST_BATCH_SIZE, new MessageCreator() {
+
+            int index = 0;
+
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                TextMessage message = session.createTextMessage("Test Message " + index);
+                message.setStringProperty(BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER,
+                    TEST_SOURCES[index] + INBOUND_SUFFIX);
+                index = ++index < TEST_SOURCES.length ? index : 0;
+                return message;
+            }
+        });
+
+        for (final String destinationName : TEST_SOURCES) {
+            receiveMessages(TEST_LOCAL_BROKER_URL, destinationName + INBOUND_SUFFIX,
+                TEST_BATCH_SIZE,
+                new BaseMatcher<Message>() {
+
+                @Override
+                public boolean matches(Object message) {
+                    boolean retVal = false;
+                    try {
+                        retVal = (destinationName + INBOUND_SUFFIX).matches(
+                            ((TextMessage)message).getStringProperty(
+                                BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER));
+                    } catch (JMSException e) {
+                        fail(e.getMessage());
+                    }
+                    return retVal;
+                }
+
+                @Override
+                public void describeTo(Description desc) {
+                    desc.appendText("Message contains property " +
+                        BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER);
+                }
+            });
+        }
+    }
+
+    private RemoteBridge createRemoteBridgeWithInbound() {
+        RemoteBridge remoteBridge = new RemoteBridge();
+        BrokerConfig remoteBrokerConfig = new BrokerConfig();
+        remoteBrokerConfig.setBrokerUrl(TEST_REMOTE2_BROKER_URL);
+        remoteBridge.setRemoteBrokerConfig(remoteBrokerConfig);
+        BridgeDestinationsConfig inboundDestinations = new BridgeDestinationsConfig();
+        inboundDestinations.setStagingQueueName(BridgeDestinationsConfig.DEFAULT_STAGING_QUEUE_NAME + INBOUND_SUFFIX);
+        inboundDestinations.setDestinations(createNewDestinations(INBOUND_SUFFIX, null));
+        remoteBridge.setInboundDestinations(inboundDestinations);
+        return remoteBridge;
+    }
 
 }

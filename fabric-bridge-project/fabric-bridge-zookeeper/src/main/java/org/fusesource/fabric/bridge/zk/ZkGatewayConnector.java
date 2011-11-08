@@ -116,8 +116,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 		if (gatewayProfile == null) {
 			LOG.info("Creating profile " + profileName + " under version " + versionName);
 			gatewayProfile = version.createProfile(profileName);
-            // get the default profile and make it the parent
-
+            // TODO get the default profile and make it the parent
 		}
 
 		LOG.info("Registering gateway under profile " + gatewayProfile);

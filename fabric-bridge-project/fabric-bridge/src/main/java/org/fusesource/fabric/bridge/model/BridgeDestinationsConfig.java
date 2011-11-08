@@ -113,7 +113,8 @@ public class BridgeDestinationsConfig extends IdentifiedType {
 				// compare destinations
 				if (destinations == null) {
 					retVal = (config.destinations == null);
-				} else if (destinations.size() == config.destinations.size()) {
+				} else if (config.destinations != null &&
+                    (destinations.size() == config.destinations.size())) {
 					for (BridgedDestination destination : destinations) {
 						if (!config.destinations.contains(destination)) {
 							retVal = false;

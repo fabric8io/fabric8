@@ -9,15 +9,6 @@
  */
 package org.fusesource.fabric.bridge;
 
-import java.rmi.Remote;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.bind.annotation.*;
-
 import org.fusesource.fabric.bridge.internal.AbstractConnector;
 import org.fusesource.fabric.bridge.internal.SourceConnector;
 import org.fusesource.fabric.bridge.internal.TargetConnector;
@@ -29,6 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.UncategorizedJmsException;
+
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Connects {@link BridgeConnector BridgeConnectors} on remote brokers to a
@@ -69,7 +67,9 @@ public class GatewayConnector extends AbstractConnector {
 
 	private final Map<RemoteBridge, SourceConnector> outboundConnectors = new HashMap<RemoteBridge, SourceConnector>();
 	
-	private TargetConnector inboundConnector;
+	private TargetConnector defaultInboundConnector;
+
+    private final Map<RemoteBridge, TargetConnector> inboundConnectors = new HashMap<RemoteBridge, TargetConnector>();
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -77,34 +77,35 @@ public class GatewayConnector extends AbstractConnector {
 			throw new IllegalArgumentException("Property local-broker must be set");
 		}
 		if (inboundDestinations == null && outboundDestinations == null) {
-			throw new IllegalArgumentException("At least one of inbound-destinations or outbound-destinations must be set");
+			throw new IllegalArgumentException(
+                "At least one of inbound-destinations or outbound-destinations must be set");
 		}
 	}
 
-	@Override
+    @Override
 	protected void doInitialize() {
 		// create the inbound connector shared by all bridgeconnectors connected to this gateway
 		if (inboundDestinations != null) {
-			createInboundConnector();
+			createDefaultInboundConnector();
 		}
 		
 		// create outbound connectors for outboundBrokers
-		if (outboundDestinations != null) {
-			createOutboundConnectors();
+		if (remoteBridges != null && !remoteBridges.isEmpty()) {
+			createRemoteBridgeConnectors();
 		}
 
 		LOG.info("Initialized");
 	}
 
-	private void createInboundConnector() {
-		inboundConnector = new TargetConnector();
-		inboundConnector.setAutoStartup(isAutoStartup());
-		inboundConnector.setPhase(getPhase());
+	private void createDefaultInboundConnector() {
+		defaultInboundConnector = new TargetConnector();
+		defaultInboundConnector.setAutoStartup(isAutoStartup());
+		defaultInboundConnector.setPhase(getPhase());
 	
-		inboundConnector.setLocalBrokerConfig(localBrokerConfig);
-		inboundConnector.setInboundDestinations(inboundDestinations);
+		defaultInboundConnector.setLocalBrokerConfig(localBrokerConfig);
+		defaultInboundConnector.setInboundDestinations(inboundDestinations);
 		try {
-			inboundConnector.afterPropertiesSet();
+			defaultInboundConnector.afterPropertiesSet();
 		} catch (Exception e) {
 			String msg = "Error creating inbound connector: " + e.getMessage();
 			LOG.error(msg, e);
@@ -112,16 +113,56 @@ public class GatewayConnector extends AbstractConnector {
 		}
 	}
 
-	private void createOutboundConnectors() {
+	private void createRemoteBridgeConnectors() {
 		for (RemoteBridge remoteBridge : remoteBridges) {
-			SourceConnector outboundConnector = createOutboundConnector(remoteBridge);
-			outboundConnectors.put(remoteBridge, outboundConnector);
+
+            // does the remote bridge use custom inbound destinations??
+            // TODO maybe this should only check for staging queue name or location
+            if (remoteBridge.getInboundDestinations() != null &&
+                !remoteBridge.getInboundDestinations().equals(inboundDestinations)) {
+                TargetConnector inboundConnector = createInboundConnector(remoteBridge);
+                inboundConnectors.put(remoteBridge, inboundConnector);
+            } else {
+                LOG.warn("Remote bridge " + remoteBridge + " does not specify inbound destinations" +
+                    (inboundDestinations == null ? ", it is unidirectional" : ", using default inbound connector"));
+            }
+
+            if ((remoteBridge.getOutboundDestinations() != null) ||
+                (this.outboundDestinations != null)) {
+                SourceConnector outboundConnector = createOutboundConnector(remoteBridge);
+                outboundConnectors.put(remoteBridge, outboundConnector);
+            }
+
 		}
 	}
 
-	private SourceConnector createOutboundConnector(
+    private TargetConnector createInboundConnector(RemoteBridge remoteBridge) {
+        TargetConnector inboundConnector = new TargetConnector();
+        inboundConnector.setId(getId() + "." + remoteBridge.getId() + ".inboundConnector");
+        inboundConnector.setAutoStartup(isAutoStartup());
+        inboundConnector.setPhase(getPhase());
+
+        inboundConnector.setLocalBrokerConfig(localBrokerConfig);
+        // check if the remote broker config should be used
+        if (!remoteBridge.getInboundDestinations().isDefaultStagingLocation()) {
+            inboundConnector.setRemoteBrokerConfig(remoteBridge.getRemoteBrokerConfig());
+        }
+        inboundConnector.setInboundDestinations(remoteBridge.getInboundDestinations());
+
+        try {
+            inboundConnector.afterPropertiesSet();
+        } catch (Exception e) {
+            String msg = "Error creating inbound connector for " + remoteBridge + " : " + e.getMessage();
+            LOG.error(msg, e);
+            throw new IllegalArgumentException(msg, e);
+        }
+        return inboundConnector;
+    }
+
+    private SourceConnector createOutboundConnector(
 			RemoteBridge remoteBridge) {
 		SourceConnector outboundConnector = new SourceConnector();
+        outboundConnector.setId(getId() + "." + remoteBridge.getId() + ".outboundConnector");
 		outboundConnector.setAutoStartup(isAutoStartup());
 		outboundConnector.setPhase(getPhase());
 		
@@ -129,6 +170,9 @@ public class GatewayConnector extends AbstractConnector {
 		outboundConnector.setRemoteBrokerConfig(remoteBridge.getRemoteBrokerConfig());
 		if (remoteBridge.getOutboundDestinations() == null) {
 			// use default destinations
+            LOG.warn("Remote bridge " + remoteBridge + " does not specify outbound destinations" +
+                (outboundDestinations == null ? ", it is unidirectional!" :
+                    ", will load balance messages from default outbound destinations!"));
 			outboundConnector.setOutboundDestinations(outboundDestinations);
 		} else {
 			// completely override outbound destinations for this bridge
@@ -147,12 +191,24 @@ public class GatewayConnector extends AbstractConnector {
 
 	@Override
 	protected void doStart() {
-		if (inboundConnector != null) {
+		if (defaultInboundConnector != null) {
 			// start the shared inbound connector
 			try {
-				inboundConnector.start();
+				defaultInboundConnector.start();
 			} catch (Exception e) {
 				String msg = "Error starting inbound connector : " + e.getMessage();
+				LOG.error(msg, e);
+				throw new IllegalStateException(msg, e);
+			}
+		}
+
+		// start inbound connectors
+		for (Entry<RemoteBridge, TargetConnector> entry : inboundConnectors.entrySet()) {
+			RemoteBridge remoteBridge = entry.getKey();
+			try {
+				entry.getValue().start();
+			} catch (Exception e) {
+				String msg = "Error starting inbound connector for " + remoteBridge + " : " + e.getMessage();
 				LOG.error(msg, e);
 				throw new IllegalStateException(msg, e);
 			}
@@ -175,10 +231,10 @@ public class GatewayConnector extends AbstractConnector {
 
 	@Override
 	protected void doStop() {
-		if (inboundConnector != null) {
+		if (defaultInboundConnector != null) {
 			// stop the shared inbound connector
 			try {
-				inboundConnector.stop();
+				defaultInboundConnector.stop();
 			} catch (Exception e) {
 				String msg = "Error stopping inbound connector : " + e.getMessage();
 				LOG.error(msg, e);
@@ -186,6 +242,18 @@ public class GatewayConnector extends AbstractConnector {
 			}
 		}
 		
+		// stop inbound connectors
+		for (Entry<RemoteBridge, TargetConnector> entry : inboundConnectors.entrySet()) {
+			RemoteBridge remoteBridge = entry.getKey();
+			try {
+				entry.getValue().stop();
+			} catch (Exception e) {
+				String msg = "Error stopping inbound connector for " + remoteBridge + " : " + e.getMessage();
+				LOG.error(msg, e);
+				throw new IllegalStateException(msg, e);
+			}
+		}
+
 		// stop outbound connectors
 		for (Entry<RemoteBridge, SourceConnector> entry : outboundConnectors.entrySet()) {
 			RemoteBridge remoteBridge = entry.getKey();
@@ -203,18 +271,31 @@ public class GatewayConnector extends AbstractConnector {
 
 	@Override
 	protected void doDestroy() throws Exception {
-		if (inboundConnector != null) {
+		if (defaultInboundConnector != null) {
 			// destroy the shared inbound connector
 			try {
-				inboundConnector.destroy();
+				defaultInboundConnector.destroy();
 			} catch (Exception e) {
 				String msg = "Error destroying inbound connector : " + e.getMessage();
 				LOG.error(msg, e);
 				throw new IllegalStateException(msg, e);
 			}
-            inboundConnector = null;
+            defaultInboundConnector = null;
 		}
 		
+		// destroy inbound connectors
+		for (Entry<RemoteBridge, TargetConnector> entry : inboundConnectors.entrySet()) {
+			RemoteBridge remoteBridge = entry.getKey();
+			try {
+				entry.getValue().destroy();
+			} catch (Exception e) {
+				String msg = "Error destroying inbound connector for " + remoteBridge + " : " + e.getMessage();
+				LOG.error(msg, e);
+				throw new IllegalStateException(msg, e);
+			}
+		}
+        inboundConnectors.clear();
+
 		// destroy outbound connectors
 		for (Entry<RemoteBridge, SourceConnector> entry : outboundConnectors.entrySet()) {
 			RemoteBridge remoteBridge = entry.getKey();
@@ -325,12 +406,43 @@ public class GatewayConnector extends AbstractConnector {
 
             remoteBridges.add(remoteBridge);
 
-            // create connector if initialized
+            // create connectors if initialized
             if (isInitialized()) {
 
-                // check if the bridge needs a connector or not
+                // check if the bridge needs an inbound connector or not
+                if ((remoteBridge.getInboundDestinations() != null) &&
+                    !remoteBridge.getInboundDestinations().equals(inboundDestinations)) {
+
+                    TargetConnector inboundConnector;
+                    try {
+                        // create inbound connector
+                        inboundConnector = createInboundConnector(remoteBridge);
+                    } catch (Exception e) {
+                        String msg = "Error creating inbound connector for " + remoteBridge + " : " + e.getMessage();
+                        LOG.error(msg, e);
+                        throw new UncategorizedJmsException(msg , e);
+                    }
+
+                    inboundConnectors.put(remoteBridge, inboundConnector);
+
+                    // start connector if running
+                    if (isRunning()) {
+                        try {
+                            inboundConnector.start();
+                        } catch (Exception e) {
+                            String msg = "Error starting inbound connector for " + remoteBridge + " : " + e.getMessage();
+                            LOG.error(msg, e);
+                            throw new UncategorizedJmsException(msg , e);
+                        }
+                    }
+                } else {
+                    LOG.warn("No inbound destinations in Bridge, " +
+                        "no inbound connector will be created for " + remoteBridge);
+                }
+
+                // check if the bridge needs an outbound connector or not
                 if ((remoteBridge.getOutboundDestinations() != null) ||
-                    (this.outboundDestinations == null)) {
+                    (this.outboundDestinations != null)) {
 
                     SourceConnector outboundConnector;
                     try {
@@ -368,15 +480,28 @@ public class GatewayConnector extends AbstractConnector {
                 throw new UncategorizedJmsException("Not found remote bridge " + remoteBridge);
             }
 
-            // remove and destroy connector if initialized
+            // remove and destroy connectors if initialized
             if (isInitialized()) {
+                TargetConnector inboundConnector = inboundConnectors.remove(remoteBridge);
+                if (inboundConnector != null) {
+                    try {
+                        inboundConnector.destroy();
+                    } catch (Exception e) {
+                        String msg = "Error removing inbound connector for " + remoteBridge + " : " + e.getMessage();
+                        LOG.error(msg, e);
+                        throw new UncategorizedJmsException(msg , e);
+                    }
+                }
+
                 SourceConnector outboundConnector = outboundConnectors.remove(remoteBridge);
-                try {
-                    outboundConnector.destroy();
-                } catch (Exception e) {
-                    String msg = "Error removing outbound connector for " + remoteBridge + " : " + e.getMessage();
-                    LOG.error(msg, e);
-                    throw new UncategorizedJmsException(msg , e);
+                if (outboundConnector != null) {
+                    try {
+                        outboundConnector.destroy();
+                    } catch (Exception e) {
+                        String msg = "Error removing outbound connector for " + remoteBridge + " : " + e.getMessage();
+                        LOG.error(msg, e);
+                        throw new UncategorizedJmsException(msg , e);
+                    }
                 }
             }
 		}

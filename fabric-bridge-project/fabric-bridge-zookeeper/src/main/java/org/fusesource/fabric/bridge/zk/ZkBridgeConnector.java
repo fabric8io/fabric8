@@ -144,11 +144,16 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
         // register the bridge in Zookeeper
         agent = fabricService.getAgent(System.getProperty("karaf.name"));
+
         RemoteBridge remoteBridge = new RemoteBridge();
         remoteBridge.setRemoteBrokerConfig(this.exportedBrokerConfig != null ?
             this.exportedBrokerConfig : super.getLocalBrokerConfig());
+
+        // set the Bridge outbound destinations as the remote Gateway inbound destinations
+        remoteBridge.setInboundDestinations(super.getOutboundDestinations());
         // set the Bridge inbound destinations as the remote Gateway outbound destinations
         remoteBridge.setOutboundDestinations(super.getInboundDestinations());
+
         ZkConfigHelper.registerBridge(((FabricServiceImpl)fabricService).getZooKeeper(), agent, remoteBridge);
     }
 
