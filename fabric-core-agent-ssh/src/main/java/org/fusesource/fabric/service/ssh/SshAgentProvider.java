@@ -35,9 +35,11 @@ public class SshAgentProvider implements AgentProvider {
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param isClusterServer       Marks if the agent will have the role of the cluster server.
+     * @param debugAgent
      */
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent) {
-        create(proxyUri, agentUri, name, zooKeeperUrl, debugAgent, 1);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, final boolean isClusterServer, final boolean debugAgent) {
+        create(proxyUri, agentUri, name, zooKeeperUrl, isClusterServer, debugAgent, 1);
     }
 
     /**
@@ -49,7 +51,7 @@ public class SshAgentProvider implements AgentProvider {
      * @param debugAgent   Flag to enable debuging on the created Agents.
      * @param number       The number of Agents to create.
      */
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, final boolean debugAgent, int number) {
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, final boolean isClusterServer, final boolean debugAgent, int number) {
         try {
             String path = agentUri.getPath();
             String host = agentUri.getHost();
@@ -72,7 +74,8 @@ public class SshAgentProvider implements AgentProvider {
             String password = uip[1];
             int sshRetries = 6;
             int retryDelay = 1;
-            doCreateAgent(proxyUri, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
+
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -84,6 +87,7 @@ public class SshAgentProvider implements AgentProvider {
     public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
         if (createArgs instanceof CreateSshAgentArguments) {
             CreateSshAgentArguments args = (CreateSshAgentArguments) createArgs;
+            boolean isClusterServer = args.isClusterServer();
             boolean debugAgent = args.isDebugAgent();
             int number = args.getNumber();
             String path = args.getPath();
@@ -94,20 +98,20 @@ public class SshAgentProvider implements AgentProvider {
             int sshRetries = args.getSshRetries();
             int retryDelay = args.getRetryDelay();
             URI proxyUri = args.getProxyUri();
-            doCreateAgent(proxyUri, name, number, zooKeeperUrl, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugAgent, path, host, port, username, password, sshRetries, retryDelay);
             return true;
         } else {
             return false;
         }
     }
 
-    protected void doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean debugAgent, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
+    protected void doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
         for (int i = 0; i < number; i++) {
             String agentName = name;
             if (number != 1) {
                 agentName += i + 1;
             }
-            String script = buildStartupScript(proxyUri, agentName, path, zooKeeperUrl, DEFAULT_SSH_PORT + i, debugAgent);
+            String script = buildStartupScript(proxyUri, agentName, path, zooKeeperUrl, DEFAULT_SSH_PORT + i, isClusterServer, debugAgent);
             createAgent(host, port, username, password, script, sshRetries, retryDelay);
         }
     }
@@ -120,7 +124,7 @@ public class SshAgentProvider implements AgentProvider {
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
     public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
-        create(proxyUri, agentUri, name, zooKeeperUrl, false);
+        create(proxyUri, agentUri, name, zooKeeperUrl, false, false);
     }
 
     protected void createAgent(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
@@ -163,7 +167,8 @@ public class SshAgentProvider implements AgentProvider {
             executor.setErrStream(error);
             executor.connect();
             int errorStatus = -1;
-            for (int i = 0; i < sshRetries; i++) {
+
+            for (int i = 0; !executor.isClosed(); i++) {
                 if (i > 0) {
                     long delayMs = (long) (200L * Math.pow(i, 2));
                     Thread.sleep(delayMs);
@@ -176,6 +181,7 @@ public class SshAgentProvider implements AgentProvider {
                 System.out.println("Output : " + output.toString());
                 System.out.println("Error : " + error.toString());
             }
+
             if (errorStatus != 0) {
                 throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", username, host,
                         port, executor.getExitStatus(), script, output.toString(), error.toString()));

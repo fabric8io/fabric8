@@ -15,9 +15,19 @@ public class BasicCreateAgentArguements implements CreateAgentArguments, Seriali
 
     private static final long serialVersionUID = 7806030498786182100L;
 
+    protected boolean clusterServer;
     protected boolean debugAgent;
     protected int number = 1;
     protected URI proxyUri;
+
+
+    public boolean isClusterServer() {
+        return clusterServer;
+    }
+
+    public void setClusterServer(boolean clusterServer) {
+        this.clusterServer = clusterServer;
+    }
 
     public boolean isDebugAgent() {
         return debugAgent;

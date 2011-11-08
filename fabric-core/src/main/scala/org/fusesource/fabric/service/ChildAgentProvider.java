@@ -31,14 +31,19 @@ public class ChildAgentProvider implements AgentProvider {
      * @param zooKeeperUrl The url of Zoo Keeper.
      * @param debugAgent   Flag used to enable debugging on the new Agent.
      * @param number       The number of Agents to create.
+     * @param isClusterServer       Marks if the agent will have the role of the cluster server.
+     * @param debugAgent
      */
-    public void create(URI proxyUri, final URI agentUri, final String name, final String zooKeeperUrl, final boolean debugAgent, final int number) {
+    public void create(URI proxyUri, final URI agentUri, final String name, final String zooKeeperUrl, final boolean isClusterServer, final boolean debugAgent, final int number) {
         final Agent parent = service.getAgent(agentUri.getSchemeSpecificPart());
         service.getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
                 if(debugAgent) {
-                    javaOpts += AgentProvider.DEBUG_AGNET;
+                    javaOpts += DEBUG_AGNET;
+                }
+                if(isClusterServer) {
+                    javaOpts += CLUSTER_SERVER_AGENT;
                 }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features";
@@ -66,8 +71,8 @@ public class ChildAgentProvider implements AgentProvider {
      * @param debugAgent    Flag used to enable debugging on the new Agent.
      */
     @Override
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
-        create(proxyUri, agentUri, name, zooKeeperUrl,debugAgent,1);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent) {
+        create(proxyUri, agentUri, name, zooKeeperUrl,isClusterServer,debugAgent,1);
     }
 
     /**
@@ -80,7 +85,7 @@ public class ChildAgentProvider implements AgentProvider {
      */
     @Override
     public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
-        create(proxyUri, agentUri, name, zooKeeperUrl,false);
+        create(proxyUri, agentUri, name, zooKeeperUrl,false, false);
     }
 
     @Override

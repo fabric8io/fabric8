@@ -16,6 +16,7 @@ import java.net.URI;
 public interface AgentProvider {
 
     static final String DEBUG_AGNET=" -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005";
+    static final String CLUSTER_SERVER_AGENT=" -D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true";
     static final String PROTOCOL = "fabric.agent.protocol";
 
     /**
@@ -33,9 +34,10 @@ public interface AgentProvider {
      * @param agentUri The uri that contains required information to build the Agent.
      * @param name The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param isClusterServer Marks that the Agent will have the role of cluster server.
      * @param debugAgent Flag used to enable debugging on the new Agent.
      */
-    void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent);
+    void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent);
 
     /**
      * Creates an {@link Agent} with the given name pointing to the specified zooKeeperUrl.
@@ -43,10 +45,11 @@ public interface AgentProvider {
      * @param agentUri The uri that contains required information to build the Agent.
      * @param name The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param server Marks that the Agent will have the role of cluster server.
      * @param debugAgent Flag used to enable debugging on the new Agent.
      * @param number The number of Agents to create.
      */
-    void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number);
+    void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, int number);
 
     /**
      * Creates an agent using a set of arguments

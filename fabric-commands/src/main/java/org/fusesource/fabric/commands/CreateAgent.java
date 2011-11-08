@@ -32,6 +32,9 @@ public class CreateAgent extends FabricCommand {
     @Option(name = "--enable-debuging", multiValued = false, required = false)
     private Boolean debugAgent = Boolean.FALSE;
 
+    @Option(name = "--cluster-server", multiValued = false, required = false)
+    private Boolean isClusterServer = Boolean.FALSE;
+
     @Option(name = "--url", multiValued = false, required = false)
     private String url;
 
@@ -54,11 +57,16 @@ public class CreateAgent extends FabricCommand {
         if (names == null || names.isEmpty()) {
             names = Collections.singletonList("default");
         }
-        Profile[] profiles = getProfiles(version, names);
-        Agent[] children = fabricService.createAgents( url, name, debugAgent, number );
-        for(Agent child:children) {
-            child.setProfiles(profiles);
+        Agent[] children = fabricService.createAgents(url, name, isClusterServer, debugAgent, number);
+        try {
+            Profile[] profiles = getProfiles(version, names);
+            for (Agent child : children) {
+                child.setProfiles(profiles);
+            }
+        } catch (Exception ex) {
+
         }
+
         return null;
     }
 

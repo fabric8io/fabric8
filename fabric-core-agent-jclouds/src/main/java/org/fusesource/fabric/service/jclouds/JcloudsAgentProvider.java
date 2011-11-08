@@ -84,9 +84,11 @@ public class JcloudsAgentProvider implements AgentProvider {
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param server       Marks if the agent will have the role of the cluster server.
+     * @param debugAgent
      */
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
-           create(proxyUri, agentUri,name,zooKeeperUrl,debugAgent,1);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean server, boolean debugAgent) {
+           create(proxyUri, agentUri,name,zooKeeperUrl,server,debugAgent,1);
     }
 
     /**
@@ -95,11 +97,12 @@ public class JcloudsAgentProvider implements AgentProvider {
      * @param agentUri      The uri that contains required information to build the Agent.
      * @param name          The name of the Agent.
      * @param zooKeeperUrl  The url of Zoo Keeper.
+     * @param isClusterServer       Marks if the agent will have the role of the cluster server.
      * @param debugAgent    Flag used to enable debugging on the new Agent.
      * @param number        The number of Agents to create.
      */
     @Override
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean debugAgent, int number) {
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, int number) {
         String imageId = null;
         String hardwareId = null;
         String locationId = null;
@@ -127,7 +130,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            doCreateAgent(proxyUri, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -151,6 +154,7 @@ public class JcloudsAgentProvider implements AgentProvider {
         if (createArgs instanceof CreateJCloudsAgentArguments) {
             CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
 
+            boolean isClusterServer = args.isClusterServer();
             boolean debugAgent = args.isDebugAgent();
             int number = args.getNumber();
             String imageId = args.getImageId();
@@ -165,13 +169,13 @@ public class JcloudsAgentProvider implements AgentProvider {
             String owner = args.getOwner();
             URI proxyURI = args.getProxyUri();
 
-            doCreateAgent(proxyURI, name, number, zooKeeperUrl, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
+            doCreateAgent(proxyURI, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
             return true;
         }
         return false;
     }
 
-    protected void doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
+    protected void doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl,boolean isClusterServer, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
             //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
@@ -229,7 +233,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 if(number > 1) {
                     agentName+=suffix++;
                 }
-                String script = buildStartupScript(proxyUri, agentName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT, debugAgent);
+                String script = buildStartupScript(proxyUri, agentName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT,isClusterServer, debugAgent);
                 if (credentials != null) {
                     computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                 } else {
