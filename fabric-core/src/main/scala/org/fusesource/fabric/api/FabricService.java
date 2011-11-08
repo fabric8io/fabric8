@@ -13,7 +13,7 @@ import java.net.URI;
 
 public interface FabricService {
 
-    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public";
+    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public-snapshots/";
 
     Agent[] getAgents();
 
@@ -23,18 +23,19 @@ public interface FabricService {
 
     Agent createAgent(String url, String name);
 
-    Agent createAgent(String url, String name, boolean debugAgent);
+    Agent createAgent(String url, String name, boolean isClusterServer, boolean debugAgent);
 
     /**
      * Creates multiple Agents.
      * Will create a number of Agents equal to the given number.
      * @param url
      * @param name
+     * @param isClusterServer
      * @param debugAgent
      * @param number
      * @return
      */
-    Agent[] createAgents(String url, String name, boolean debugAgent, int number);
+    Agent[] createAgents(String url, String name, boolean isClusterServer, boolean debugAgent, int number);
 
     Agent createAgent(Agent parent, String name);
 

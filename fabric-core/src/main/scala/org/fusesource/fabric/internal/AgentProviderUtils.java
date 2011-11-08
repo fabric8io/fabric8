@@ -13,6 +13,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.fusesource.fabric.api.AgentProvider;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
 
 public class AgentProviderUtils {
 
@@ -24,7 +26,7 @@ public class AgentProviderUtils {
         //Utility Class
     }
 
-    public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean debugAgent) throws MalformedURLException {
+    public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean isClusterServer, boolean debugAgent) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
         sb.append("run mkdir -p ").append(name).append("\n");
@@ -36,7 +38,11 @@ public class AgentProviderUtils {
         appendFile(sb, "etc/startup.properties", lines);
         replaceLineInFile(sb,"etc/system.properties","karaf.name=root","karaf.name = "+name);
         replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+sshPort);
-        appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + zooKeeperUrl));
+        if(isClusterServer) {
+            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true"));
+        } else {
+            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + zooKeeperUrl));
+        }
         if(debugAgent) {
            sb.append("run export KARAF_DEBUG=true").append("\n");
         }
@@ -53,7 +59,6 @@ public class AgentProviderUtils {
     }
 
     private static void replaceLineInFile(StringBuilder sb, String path, String pattern, String line) {
-        final String MARKER = "END_OF_FILE";
         sb.append(String.format(REPLACE_FORMAT,pattern,line,path)).append("\n");
     }
 
@@ -67,9 +72,20 @@ public class AgentProviderUtils {
     }
 
     private static void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
+
         String file = artifactId + "-" + version + ".tar.gz";
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
-        sb.append("run curl --show-error --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
+        String directory =  groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/";
+        String artifactParentUri = proxy.resolve(directory).toString();
+        String artifactUri = proxy.resolve(directory+file).toString();
+
+        //To cover the case of SNAPSHOT dependencies where URL can't be determined we are quering for the availale versions first
+        if(version.contains("SNAPSHOT")) {
+            sb.append("run export DISTRO_URL=`curl --silent ").append(artifactParentUri).append("| grep href | grep \"tar.gz\\\"\" | sed 's/^.*<a href=\"//' | sed 's/\".*$//'  | tail -1`").append("\n");
+        } else {
+            sb.append("run export DISTRO_URL=`").append(artifactUri).append("`").append("\n");
+        }
+        sb.append("if [[  \"$DISTRO_URL\" == \"\" ]] ;  then export DISTRO_URL=").append(artifactUri).append("; fi\n");
+        sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append("$DISTRO_URL").append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
     }
 }
