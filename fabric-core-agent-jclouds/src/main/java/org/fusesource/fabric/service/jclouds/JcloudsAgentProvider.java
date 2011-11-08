@@ -180,9 +180,10 @@ public class JcloudsAgentProvider implements AgentProvider {
     /**
      * Creates a new fabric on a remote JClouds machine, returning the new ZK connection URL
      */
-    public String createFabric(CreateJCloudsAgentArguments createArgs, String name) throws Exception {
+    public String createClusterServer(CreateJCloudsAgentArguments createArgs, String name) throws Exception {
         // TODO how can we get this value from the tarball I wonder, in case it ever changes?
         int zkPort = 2181;
+        createArgs.setClusterServer(true);
         return doCreateAgent(createArgs, name, null, zkPort);
     }
 
@@ -265,16 +266,6 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
         return buffer.toString();
     }
-
-    /*
-    protected URI getMavenRepoURI(FabricService fabricService) throws URISyntaxException {
-        URI localRepoURI = null;
-        if (mavenProxy != null) {
-            localRepoURI = mavenProxy.getAddress();
-        }
-        return FabricServices.getMavenRepoURI(fabricService, localRepoURI);
-    }
-    */
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {
         //TODO: This is copied form URISupport. We should move URISupport to core so that we don't have to copy stuff arround.
