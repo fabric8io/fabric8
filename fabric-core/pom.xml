@@ -82,7 +82,8 @@
       <dependency>
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-linkedin-zookeeper</artifactId>
-         <version>${project.version}</version>
+          <version>${project.version}</version>
+          <scope>provided</scope>
       </dependency>
 
 <!--

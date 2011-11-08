@@ -59,6 +59,7 @@
     <!--</dependency>-->
 
     <!-- for zookeeper integration -->
+<!--
     <dependency>
       <groupId>org.linkedin</groupId>
       <artifactId>org.linkedin.zookeeper-impl</artifactId>
@@ -74,6 +75,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+-->
 
     <!-- for osgi integration -->
     <dependency>
