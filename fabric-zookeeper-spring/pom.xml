@@ -26,8 +26,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.linkedin</groupId>
-            <artifactId>org.linkedin.zookeeper-impl</artifactId>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-linkedin-zookeeper</artifactId>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>

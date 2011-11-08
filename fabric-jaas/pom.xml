@@ -52,19 +52,10 @@
         <dependency>
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-linkedin-zookeeper</artifactId>
-          <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.linkedin</groupId>
-            <artifactId>org.linkedin.zookeeper-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.linkedin</groupId>
-            <artifactId>org.linkedin.util-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jasypt</groupId>

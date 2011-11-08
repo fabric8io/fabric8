@@ -34,8 +34,8 @@
         <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.linkedin</groupId>
-        <artifactId>org.linkedin.zookeeper-impl</artifactId>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-linkedin-zookeeper</artifactId>
     </dependency>
 
     
@@ -50,7 +50,11 @@
       <artifactId>jackson-mapper-asl</artifactId>
       <version>${jackson-version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
   </dependencies>
 
