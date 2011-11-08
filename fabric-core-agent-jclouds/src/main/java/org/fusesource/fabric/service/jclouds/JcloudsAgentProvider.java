@@ -130,7 +130,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            doCreateAgent(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, DEFAULT_SSH_PORT);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -153,29 +153,40 @@ public class JcloudsAgentProvider implements AgentProvider {
     public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
         if (createArgs instanceof CreateJCloudsAgentArguments) {
             CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
-
-            boolean isClusterServer = args.isClusterServer();
-            boolean debugAgent = args.isDebugAgent();
-            int number = args.getNumber();
-            String imageId = args.getImageId();
-            String hardwareId = args.getHardwareId();
-            String locationId = args.getLocationId();
-            String group = args.getGroup();
-            String user = args.getUser();
-            JCloudsInstanceType instanceType = args.getInstanceType();
-            String providerName = args.getProviderName();
-            String identity = args.getIdentity();
-            String credential = args.getCredential();
-            String owner = args.getOwner();
-            URI proxyURI = args.getProxyUri();
-
-            doCreateAgent(proxyURI, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner);
-            return true;
+            return doCreateAgent(args, name, zooKeeperUrl, DEFAULT_SSH_PORT) != null;
         }
         return false;
     }
 
-    protected void doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl,boolean isClusterServer, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner) throws MalformedURLException, RunNodesException, URISyntaxException {
+    protected String doCreateAgent(CreateJCloudsAgentArguments args, String name, String zooKeeperUrl, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
+        boolean isClusterServer = args.isClusterServer();
+        boolean debugAgent = args.isDebugAgent();
+        int number = args.getNumber();
+        String imageId = args.getImageId();
+        String hardwareId = args.getHardwareId();
+        String locationId = args.getLocationId();
+        String group = args.getGroup();
+        String user = args.getUser();
+        JCloudsInstanceType instanceType = args.getInstanceType();
+        String providerName = args.getProviderName();
+        String identity = args.getIdentity();
+        String credential = args.getCredential();
+        String owner = args.getOwner();
+        URI proxyURI = args.getProxyUri();
+
+        return doCreateAgent(proxyURI, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, returnPort);
+    }
+
+    /**
+     * Creates a new fabric on a remote JClouds machine, returning the new ZK connection URL
+     */
+    public String createFabric(CreateJCloudsAgentArguments createArgs, String name) throws Exception {
+        // TODO how can we get this value from the tarball I wonder, in case it ever changes?
+        int zkPort = 2181;
+        return doCreateAgent(createArgs, name, null, zkPort);
+    }
+
+    protected String doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
             //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
@@ -226,9 +237,20 @@ public class JcloudsAgentProvider implements AgentProvider {
         metadatas = computeService.createNodesInGroup(group, number, builder.build());
 
         int suffix = 1;
+        StringBuilder buffer = new StringBuilder();
+        boolean first = true;
         if (metadatas != null) {
             for (NodeMetadata nodeMetadata : metadatas) {
                 String id = nodeMetadata.getId();
+                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+                for (String pa: publicAddresses) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        buffer.append(",");
+                    }
+                    buffer.append(pa + ":" + returnPort);
+                }
                 String agentName = name;
                 if(number > 1) {
                     agentName+=suffix++;
@@ -241,6 +263,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
         }
+        return buffer.toString();
     }
 
     /*
