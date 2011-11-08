@@ -436,7 +436,7 @@ public class GatewayConnector extends AbstractConnector {
                         }
                     }
                 } else {
-                    LOG.warn("No inbound destinations in Bridge, " +
+                    LOG.warn("No custom inbound destinations in Bridge, " +
                         "no inbound connector will be created for " + remoteBridge);
                 }
 
