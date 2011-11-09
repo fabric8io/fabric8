@@ -217,7 +217,13 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                     if (number > 1) {
                         agentName += i + 1;
                     }
-                    createAgentConfig("", agentName);
+
+                    String parent = "";
+                    if( provider instanceof ChildAgentProvider) {
+                        parent = uri.getSchemeSpecificPart();
+                    }
+
+                    createAgentConfig(parent, agentName);
                     agents[i] = new AgentImpl(null, agentName, FabricServiceImpl.this);
                 }
 
