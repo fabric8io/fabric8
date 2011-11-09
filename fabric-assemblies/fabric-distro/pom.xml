@@ -184,11 +184,6 @@
                                     <classifier>add-scala-tools-repo</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/distro/etc/activemq.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>activemq</classifier>
-                                  </artifact>
-                                  <artifact>
                                     <file>target/classes/distro/etc/dosgi.karaf</file>
                                     <type>karaf</type>
                                     <classifier>dosgi</classifier>
@@ -207,11 +202,6 @@
                                     <file>target/classes/distro/etc/activemq.xml</file>
                                     <type>xml</type>
                                     <classifier>activemq</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/install-activemq.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>activemq-installer</classifier>
                                   </artifact>
                                   <artifact>
                                     <file>target/classes/distro/etc/wait-for-service.karaf</file>
