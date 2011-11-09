@@ -10,13 +10,12 @@
 package org.fusesource.fabric.bridge.zk.spring;
 
 import org.fusesource.fabric.bridge.spring.BridgeConnectorParser;
-import org.fusesource.fabric.bridge.spring.BridgeDestinationsConfigParser;
 import org.fusesource.fabric.bridge.spring.GatewayConnectorParser;
 import org.fusesource.fabric.bridge.zk.ZkBridgeConnector;
 import org.fusesource.fabric.bridge.zk.ZkGatewayConnector;
+import org.fusesource.fabric.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
@@ -118,6 +117,13 @@ public class ZkBridgeNamespaceHandler extends NamespaceHandlerSupport {
             if (StringUtils.hasText(id)) {
                 builder.addPropertyValue(ID_ATTRIBUTE, id);
             }
+
+            // convert FabricServiceRef to FabricService bean reference
+            String fabricServiceRef = element.getAttribute(FABRIC_SERVICE_ATTRIBUTE);
+            if (StringUtils.hasText(fabricServiceRef)) {
+                builder.addPropertyReference(FABRIC_SERVICE_PROPERTY, fabricServiceRef);
+            }
+
         }
 
         @Override

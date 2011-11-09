@@ -42,6 +42,14 @@
 
   <dependencies>
     <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+    </dependency>
+    <dependency>
         <groupId>org.fusesource.fabric.bridge</groupId>
         <artifactId>fabric-bridge</artifactId>
         <version>${project.version}</version>

@@ -7,32 +7,35 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.bridge.zk.spring;
+package org.fusesource.fabric.bridge.zk.model;
 
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.zk.model.ZkBridgeDestinationsConfig;
+import org.fusesource.fabric.bridge.model.IdentifiedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.ByteArrayInputStream;
 
 /**
  * @author Dhiraj Bokde
  */
+@XmlRootElement(name = "zkbridge-destinations")
+@XmlAccessorType(XmlAccessType.NONE)
 public class ZkBridgeDestinationsConfigFactory
-    extends ZkBridgeDestinationsConfig
-    implements FactoryBean<BridgeDestinationsConfig>, InitializingBean, ApplicationContextAware {
+    extends IdentifiedType
+    implements FactoryBean<BridgeDestinationsConfig>, InitializingBean {
 
     private static final String BRIDGE_DESTINATIONS_PID = "org.fusesource.fabric.bridge.bridgeDestinationsConfig";
     private static final String PID_EXTENSION = ".xml";
@@ -52,12 +55,11 @@ public class ZkBridgeDestinationsConfigFactory
 
     private FabricService fabricService;
 
-    private ApplicationContext applicationContext;
+    @XmlAttribute(required = true)
+    private String fabricServiceRef;
 
     @Override
     public BridgeDestinationsConfig getObject() throws Exception {
-        // get fabricService
-        fabricService = applicationContext.getBean(getFabricServiceRef(), FabricService.class);
 
         // get current agent
         Agent agent = fabricService.getAgent(System.getProperty("karaf.name"));
@@ -109,13 +111,25 @@ public class ZkBridgeDestinationsConfigFactory
         if (getId() == null) {
             throw new IllegalArgumentException("Property name must be set");
         }
-        if (getFabricServiceRef() == null) {
+        if (getFabricService() == null) {
             throw new IllegalArgumentException("Property fabricService must be set");
         }
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+    public FabricService getFabricService() {
+        return fabricService;
     }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public String getFabricServiceRef() {
+        return fabricServiceRef;
+    }
+
+    public void setFabricServiceRef(String fabricServiceRef) {
+        this.fabricServiceRef = fabricServiceRef;
+    }
+
 }

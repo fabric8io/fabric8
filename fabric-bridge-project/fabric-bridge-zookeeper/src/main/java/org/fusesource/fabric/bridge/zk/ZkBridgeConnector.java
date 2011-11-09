@@ -22,6 +22,7 @@ import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContextAware;
 
 import javax.xml.bind.annotation.*;
 
@@ -34,7 +35,7 @@ import javax.xml.bind.annotation.*;
  */
 @XmlRootElement(name="zkbridge-connector")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ZkBridgeConnector extends BridgeConnector implements LifecycleListener {
+public class ZkBridgeConnector extends BridgeConnector implements LifecycleListener, ApplicationContextAware {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ZkBridgeConnector.class);
 

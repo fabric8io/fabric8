@@ -4,7 +4,7 @@
 
   <xs:element name="zkbridge-connector" type="tns:zkBridgeConnector"/>
 
-  <xs:element name="zkbridge-destinations" type="tns:zkBridgeDestinationsConfig"/>
+  <xs:element name="zkbridge-destinations" type="tns:zkBridgeDestinationsConfigFactory"/>
 
   <xs:element name="zkgateway-connector" type="tns:zkGatewayConnector"/>
 
@@ -37,7 +37,7 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="zkBridgeDestinationsConfig">
+  <xs:complexType name="zkBridgeDestinationsConfigFactory">
     <xs:complexContent>
       <xs:extension base="ns1:identifiedType">
         <xs:sequence/>
