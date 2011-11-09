@@ -23,14 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -130,7 +126,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
 
     private String getSshUrl() throws IOException {
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.shell");
-        if (config != null) {
+        if (config != null && config.getProperties() != null) {
             String host = (String) config.getProperties().get("sshHost");
             String port = (String) config.getProperties().get("sshPort");
             return getExternalAddresses(host, port);
