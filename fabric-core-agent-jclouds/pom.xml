@@ -28,9 +28,9 @@
 
     <properties>
         <fabric.osgi.export>
+          org.fusesource.fabric.service.jclouds
         </fabric.osgi.export>
         <fabric.osgi.private.pkg>
-            org.fusesource.fabric.service.jclouds
         </fabric.osgi.private.pkg>
     </properties>
 
