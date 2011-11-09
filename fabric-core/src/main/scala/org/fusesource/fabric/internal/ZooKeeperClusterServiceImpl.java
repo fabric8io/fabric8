@@ -139,16 +139,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "zookeeper");            
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
 
-            //use zk realm as a default for fabric services
-            // TODO: find a way to start this up, only when Fabric Jaas is installed.
-            //p = new Properties();
-            //p.put("sshRealm", "zookeeper");
-            //ZooKeeperUtils.createDefault(client, defaultProfile + "/org.apache.karaf.shell.properties", toString(p));
-
-            p = new Properties();
-            p.put("jmxRealm", "zookeeper");
-            ZooKeeperUtils.createDefault(client, defaultProfile + "/org.apache.karaf.management.properties", toString(p));
-
             ZooKeeperUtils.createDefault(client,ZkPath.CONFIGS_MAVEN_REPO.getPath(),mavenProxyUrl);
 
             Bundle bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.1-SNAPSHOT");

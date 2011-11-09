@@ -250,7 +250,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                             config.update(props);
                             saveProperties(props);
                         } else {
-                            LOGGER.info(config.getPid() + " - ignoring configuration (no changes)");
+                            LOGGER.fine(config.getPid() + " - ignoring configuration (no changes)");
                         }
                     } else {
                         LOGGER.info(config.getPid() + " - initializing configuration");
