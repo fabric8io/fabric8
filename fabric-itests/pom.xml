@@ -84,7 +84,6 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
             <version>1.2.8</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -134,8 +133,7 @@
         <dependency>
           <groupId>com.googlecode.pojosr</groupId>
           <artifactId>de.kalpatec.pojosr.framework</artifactId>
-          <version>0.1.7-SNAPSHOT</version>
-          <scope>test</scope>
+          <version>0.1.6</version>
         </dependency>
 
         <dependency>
@@ -149,6 +147,13 @@
 
     <build>
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <workingDirectory>target</workingDirectory>
+            </configuration>
+          </plugin>
 
         </plugins>
     </build>
