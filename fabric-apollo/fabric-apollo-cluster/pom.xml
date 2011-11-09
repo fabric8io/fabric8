@@ -51,6 +51,15 @@
       <artifactId>fabric-groups</artifactId>
       <version>1.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-linkedin-zookeeper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!--<dependency>-->
       <!--<groupId>org.fusesource.fabric.apollo</groupId>-->
