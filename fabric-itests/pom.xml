@@ -58,6 +58,18 @@
 
         <dependency>
           <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-configadmin</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+<!--
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-agent</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+-->
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-core</artifactId>
           <version>${project.version}</version>
         </dependency>
@@ -122,7 +134,7 @@
         <dependency>
           <groupId>com.googlecode.pojosr</groupId>
           <artifactId>de.kalpatec.pojosr.framework</artifactId>
-          <version>0.1.6</version>
+          <version>0.1.7-SNAPSHOT</version>
           <scope>test</scope>
         </dependency>
 

@@ -4,14 +4,13 @@ import de.kalpatec.pojosr.framework.launch.BundleDescriptor;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.zookeeper.internal.ZKServerFactoryBean;
 import org.junit.Test;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.*;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +22,8 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 public class FabricServiceImplTest {
+
+    public static int DEFAULT_TIMEOUT = 10000;
 
     private static PojoServiceRegistry registry = null;
     private ZKServerFactoryBean zk;
@@ -47,10 +48,27 @@ public class FabricServiceImplTest {
             registry.addServiceListener(new ServiceListener() {
                 @Override
                 public void serviceChanged(ServiceEvent event) {
-                    log.info("Service changed : " + event.toString());
+                    ServiceReference ref = event.getServiceReference();
+                    Object service = registry.getService(ref);
+                    switch (event.getType()) {
+                        case ServiceEvent.MODIFIED:
+                            log.info("Service modified : " + service);
+                            break;
+                        case ServiceEvent.MODIFIED_ENDMATCH:
+                            log.info("Service modified endmatch : " + service);
+                            break;
+                        case ServiceEvent.REGISTERED:
+                            log.info("Service registering : " + service);
+                            break;
+                        case ServiceEvent.UNREGISTERING:
+                            log.info("Service unregistering : " + service);
+                            break;
+                        default:
+                            log.info("Unknown event : " + event.getType() + " service : " + service);
+                    }
                 }
             });
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         }
         return registry;
     }
@@ -89,15 +107,25 @@ public class FabricServiceImplTest {
         BundleContext bc = registry.getBundleContext();
 
         for (Bundle b : bc.getBundles()) {
-            log.info(String.format("Found bundle : %s in state %s", b.getSymbolicName(), b.getState()));
+            log.info(String.format("Found bundle : %s with version %s in state %s", b.getSymbolicName(), b.getVersion(), b.getState()));
         }
 
         for (ServiceReference ref : bc.getAllServiceReferences(null, null)) {
             log.info(String.format("Found Service reference : %s", ref.toString()));
         }
 
+        /*
+        log.info("Getting zk server managed service factory ref");
+        ManagedServiceFactory msf = getService(ManagedServiceFactory.class, "(service.pid=org.fusesource.fabric.zookeeper.server)", registry);
+        assertNotNull(msf);
+        log.info("done");
+        */
+
+        /*
+        log.info("Getting config admin");
         ConfigurationAdmin ca = getConfigAdmin(registry);
         assertNotNull(ca);
+        log.info("done");
 
         Configuration cfgServer = ca.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
         Properties props = new Properties();
@@ -111,18 +139,62 @@ public class FabricServiceImplTest {
 
         Configuration cfgClient = ca.getConfiguration("org.fusesource.fabric.zookeeper");
         props = new Properties();
-        props.put("zookeeper.url", "localhost:2181");
+        //props.put("zookeeper.url", "localhost:2181");
         cfgClient.setBundleLocation(null);
         cfgClient.update(props);
+        */
 
-        ManagedServiceFactory msf = getService(ManagedServiceFactory.class, "(service.pid=org.fusesource.fabric.zookeeper.server)", registry);
-        assertNotNull(msf);
+        /*
+        log.info("Getting server stats provider service");
+        ServerStats.Provider server = getService(ServerStats.Provider.class, registry);
+        assertNotNull(server);
+        log.info("done");
 
+        log.info("Getting zk client service");
         IZKClient client = getService(IZKClient.class, registry);
         assertNotNull(client);
+        log.info("done");
+        */
+//        log.info("Waiting for a wicked long time...\n\n\n\n");
+        //log.info("Done waiting...\n\n\n\n\n");
 
-        Thread.sleep(1000);
+        log.info("Getting zk cluster service");
+        ZooKeeperClusterService clusterService = getService(ZooKeeperClusterService.class, registry);
+        assertNotNull(clusterService);
+        log.info("done");
 
-        assertNotNull(client.exists(ZkPath.AGENT_ALIVE.getPath(System.getProperty("karaf.name"))));
+        List<String> agents = new ArrayList<String>();
+        agents.add("root");
+        log.info("Creating zk cluster config");
+        clusterService.createCluster(agents);
+
+        Thread.sleep(10000);
+
+        log.info("Getting fabric service");
+        FabricService service = getService(FabricService.class, registry);
+        assertNotNull(service);
+        log.info("Done");
+
+        Thread.sleep(10000);
+        log.info("Profiles :");
+        for (Profile profile : service.getDefaultVersion().getProfiles()) {
+            log.info("Profile : " + profile.getId());
+        }
+
+//        log.info("Waiting a bit...\n\n");
+//        Thread.sleep(20000);
+
+//        log.info("Exiting...\n\n");
+        /*
+
+        log.info("Waiting a bit more...\n\n");
+        Thread.sleep(10000);
+
+        log.info("Waiting even more...\n\n");
+        Thread.sleep(10000);
+
+        */
+
+        //assertNotNull(client.exists(ZkPath.AGENT_ALIVE.getPath(System.getProperty("karaf.name"))));
     }
 }
