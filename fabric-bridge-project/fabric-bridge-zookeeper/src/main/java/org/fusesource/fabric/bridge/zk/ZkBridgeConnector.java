@@ -41,7 +41,7 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
 	private static final String BRIDGE_PID = "org.fusesource.fabric.bridge";
 
-	// a different broker configuration for remote ZkGatewayConnectors
+    // a different broker configuration for remote ZkGatewayConnectors
 	// for example, the local config may use vm transport, but it can't be exported to external ZkGatewayConnectors
 	@XmlElement(name="exported-broker")
 	private BrokerConfig exportedBrokerConfig;
@@ -98,15 +98,15 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
         // get configuration bits from zk to populate connector properties
         RemoteBridge gatewayBridge;
-        int attempts = 0;
+        int attempts = gatewayConnectRetries;
         do {
             gatewayBridge = ZkConfigHelper.getGatewayConfig(gatewayProfile, applicationContext);
             if (gatewayBridge == null) {
                 LOG.warn("Gateway configuration not found in profile " + gatewayProfileName +
-                    ", waiting for " + gatewayStartupDelay + " seconds");
+                    ", waiting for " + gatewayStartupDelay + " seconds, retries remaining " + attempts);
                 Thread.sleep(gatewayStartupDelay * 1000L);
             }
-        } while (++attempts < gatewayConnectRetries);
+        } while (--attempts > 0);
         if (gatewayBridge == null) {
             String msg = "Gateway configuration not found in profile " + gatewayProfileName;
             LOG.error(msg);
@@ -117,7 +117,7 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
         super.setRemoteBrokerConfig(gatewayBridge.getRemoteBrokerConfig());
         // set bridge inbound destinations from either the bridge or the gateway
         if (this.getInboundDestinations() != null) {
-            if (gatewayBridge.getOutboundDestinations() != null) {
+            if (gatewayBridge.getOutboundDestinations() == null) {
                 LOG.info("Using inbound destinations from Bridge, " +
                     "Gateway has no default destinations");
             } else {
@@ -182,6 +182,14 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
     public void onDisconnected() {
         LOG.warn("Bridge disconnected from Fabric Zookeeper service");
         this.connected = false;
+    }
+
+    public BrokerConfig getExportedBrokerConfig() {
+        return exportedBrokerConfig;
+    }
+
+    public void setExportedBrokerConfig(BrokerConfig exportedBrokerConfig) {
+        this.exportedBrokerConfig = exportedBrokerConfig;
     }
 
     public String getVersionName() {
