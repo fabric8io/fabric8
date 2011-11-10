@@ -103,7 +103,8 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
         // create and register a RemoteBridge for this gateway
 		RemoteBridge remoteBridge = new RemoteBridge();
 		remoteBridge.setRemoteBrokerConfig(exportedBrokerConfig != null ? exportedBrokerConfig : super.getLocalBrokerConfig());
-		remoteBridge.setOutboundDestinations(super.getOutboundDestinations());
+        remoteBridge.setInboundDestinations(super.getInboundDestinations());
+        remoteBridge.setOutboundDestinations(super.getOutboundDestinations());
 
 		// find or create a profile
         if (versionName == null) {
