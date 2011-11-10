@@ -6,8 +6,10 @@ import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.*;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,11 +57,27 @@ public class EmbeddedFabricService {
                 }
             }
         });
+        /*
+        log.info("\n\nWaiting for 5 seconds...\n\n");
         Thread.sleep(10000);
+        log.info("\n\nDone waiting...\n\n");
+        */
+        //wait for some key services...
+        getConfigAdmin();
+        getService(javax.management.MBeanServer.class, registry);
+        getZooKeeperClusterService();
+
+        createZooKeeperCluster();
+
+        IZKClient client = getZooKeeperClient();
+        if (!client.isConnected()) {
+            throw new RuntimeException ("Not connected to ZK...");
+        }
+        getFabricService();
 
         dumpBundles();
         dumpServiceReferences();
-        createZooKeeperCluster();
+
 
     }
 
@@ -132,12 +150,26 @@ public class EmbeddedFabricService {
         }
     }
 
-    public static <T> T getService(Class<T> type, PojoServiceRegistry registry) {
+    public static <T> T getService(Class<T> type, final PojoServiceRegistry registry) {
+        ServiceTracker tracker = null;
         ServiceReference ref = registry.getServiceReference(type.getName());
         if ( ref == null ) {
-            return null;
+            tracker = new ServiceTracker(registry.getBundleContext(), type.getName(), null);
+        } else {
+            tracker = new ServiceTracker(registry.getBundleContext(), ref, null);
         }
-        return type.cast(registry.getService(ref));
+        tracker.open(true);
+        Object rc = null;
+        try {
+            rc = tracker.waitForService(60000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Failed to wait for service", e);
+        }
+        if (rc == null) {
+            throw new RuntimeException("Failed to get service");
+        }
+        tracker.close();
+        return type.cast(rc);
     }
 
     public ConfigurationAdmin getConfigAdmin() {
@@ -154,13 +186,14 @@ public class EmbeddedFabricService {
         List<String> agents = new ArrayList<String>();
         agents.add("root");
         clusterService.createCluster(agents);
-
-        Thread.sleep(10000);
     }
 
     public FabricService getFabricService() throws Exception {
         FabricService service = getService(FabricService.class, getRegistry());
-        Thread.sleep(10000);
         return service;
+    }
+
+    public IZKClient getZooKeeperClient() throws Exception {
+        return getService(IZKClient.class, getRegistry());
     }
 }
