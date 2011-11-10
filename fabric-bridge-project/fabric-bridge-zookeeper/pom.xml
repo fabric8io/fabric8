@@ -26,8 +26,6 @@
   <description>FuseSource Fabric :: ActiveMQ Network Bridge Zookeeper Connector</description>
 
   <properties>
-    <!--fon.osgi.activator>org.fusesource.fabric.bridge.Activator</fon.osgi.activator-->
-    <!--fon.osgi.activator>org.fusesource.fabric.bridge.Activator</fon.osgi.activator-->
     <fabric.osgi.import>
         *
     </fabric.osgi.import>
@@ -64,6 +62,8 @@
         <type>test-jar</type>
         <scope>test</scope>
     </dependency>
+
+    <!-- Fabric Dependencies -->
     <dependency>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-core</artifactId>
@@ -86,6 +86,15 @@
         <artifactId>fabric-zookeeper-commands</artifactId>
         <scope>test</scope>
     </dependency>
+
+    <!-- Spring Mock for OSGi testing -->
+    <dependency>
+      <groupId>org.springframework.osgi</groupId>
+      <artifactId>spring-osgi-mock</artifactId>
+      <version>${spring-osgi-version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
     <build>

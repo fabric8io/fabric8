@@ -1,0 +1,29 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+  <ext:property-placeholder/>
+
+  <cm:managed-service-factory id="fabricBridgeServiceFactory" factory-pid="org.fusesource.fabric.bridge">
+    <cm:managed-component class="org.fusesource.fabric.bridge.zk.internal.ZkManagedBridgeServiceFactory" init-method="init"
+                          destroy-method="destroy" ext:field-injection="true">
+      <!--<property name="agentName" value="${karaf.name}"/>-->
+      <property name="bundleContext" ref="blueprintBundleContext"/>
+      <property name="fabricService">
+        <reference interface="org.fusesource.fabric.api.FabricService"/>
+      </property>
+    </cm:managed-component>
+  </cm:managed-service-factory>
+
+</blueprint>
