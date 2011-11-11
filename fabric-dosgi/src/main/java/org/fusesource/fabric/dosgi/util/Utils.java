@@ -81,9 +81,10 @@ public class Utils {
         StringWriter writer = new StringWriter();
         XMLStreamWriter xml = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
 
-        xml.setDefaultNamespace(REMOTE_SERVICES_ADMIN_NS);
         xml.writeStartDocument();
+        xml.setDefaultNamespace(REMOTE_SERVICES_ADMIN_NS);
         xml.writeStartElement(REMOTE_SERVICES_ADMIN_NS, ENDPOINT_DESCRIPTIONS);
+        xml.writeNamespace("", REMOTE_SERVICES_ADMIN_NS);
         xml.writeStartElement(REMOTE_SERVICES_ADMIN_NS, ENDPOINT_DESCRIPTION);
 
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
@@ -109,7 +110,7 @@ public class Utils {
                 handleCollectionValue(xml, (Collection) val);
                 xml.writeEndElement();
             } else {
-                xml.writeAttribute(REMOTE_SERVICES_ADMIN_NS, VALUE, val.toString());
+                xml.writeAttribute(VALUE, val.toString());
                 setValueType(xml, val.getClass().getName());
             }
             xml.writeEndElement();
@@ -139,7 +140,7 @@ public class Utils {
         if (dataType.startsWith("java.lang.")) {
             dataType = dataType.substring("java.lang.".length());
         }
-        xml.writeAttribute(REMOTE_SERVICES_ADMIN_NS, VALUE_TYPE, dataType);
+        xml.writeAttribute(VALUE_TYPE, dataType);
     }
 
     public static EndpointDescription getEndpointDescription(String data) throws XMLStreamException {
