@@ -1,8 +1,6 @@
 package org.fusesource.fabric.bridge.zk.internal;
 
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -16,6 +14,7 @@ import org.springframework.context.SmartLifecycle;
  */
 public class ZkServerSetupBean implements SmartLifecycle {
 
+    private static final String FABRIC_ROOT_PATH = "/fabric";
     private FabricService fabricService;
     private volatile boolean running;
     private static final Logger LOG = LoggerFactory.getLogger(ZkServerSetupBean.class);
@@ -63,6 +62,20 @@ public class ZkServerSetupBean implements SmartLifecycle {
 
     @Override
     public void stop() {
+        // clean up old ZK configuration
+        try {
+            IZKClient client = ((FabricServiceImpl)fabricService).getZooKeeper();
+            client.deleteWithChildren(FABRIC_ROOT_PATH);
+        } catch (InterruptedException e) {
+            String msg = "Error cleaning up old ZK config: " + e.getMessage();
+            LOG.error(msg, e);
+            throw new BeanCreationException(msg, e);
+        } catch (KeeperException e) {
+            String msg = "Error cleaning up old ZK config: " + e.getMessage();
+            LOG.error(msg, e);
+            throw new BeanCreationException(msg, e);
+        }
+
         running = false;
     }
 

@@ -137,7 +137,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 
     protected void doStop() {
         // stop the bridge agent lookup executor
-        bridgeLookupExecutor.shutdownNow();
+        bridgeLookupExecutor.shutdown();
 
         // de-register self as a lifecycle listener
         this.connected = false;
@@ -216,12 +216,12 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 
 							agentBridgeMap.put(agentId, remoteBridge);
 							LOG.info("Added outbound connector for " + agentId);
-						
+
 						} catch (Exception ex) {
 							LOG.error("Error adding outbound conncetor for [" + agentId + "] : " + ex.getMessage(), ex);
 						}
 					}
-	
+
 				} else {
                     if (oldRemoteBridge != null) {
                         LOG.info("Removing outbound connector for " + agentId);
@@ -239,7 +239,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
             } catch (Exception ex) {
 				LOG.error ("Error getting Bridge Configuration for agent [" + agentId + "]: " + ex.getMessage(), ex);
 			}
-		
+
 		}
 	}
 

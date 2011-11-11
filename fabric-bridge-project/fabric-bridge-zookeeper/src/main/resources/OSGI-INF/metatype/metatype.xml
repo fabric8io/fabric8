@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+  -->
+
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
+
+  <!-- Bridge object class definition -->
+  <OCD id="org.fusesource.fabric.bridge.bridgeOCD" name="%bridge.name" description="%bridge.description">
+
+    <!-- Bridge attributes -->
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.versionName" type="String" required="false"
+        name="%versionName.name" description="%versionName.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.gatewayProfileName" type="String" required="true"
+        name="%gatewayProfileName.name" description="%gatewayProfileName.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.gatewayConnectRetries" type="Integer" required="false"
+        name="%gatewayConnectRetries.name" description="%gatewayConnectRetries.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.gatewayStartupDelay" type="Integer" required="false"
+        name="%gatewayStartupDelay.name" description="%gatewayStartupDelay.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.inboundDestinationsRef" type="String" required="false"
+        name="%inboundDestinationsRef.name" description="%inboundDestinationsRef.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.outboundDestinationsRef" type="String" required="false"
+        name="%outboundDestinationsRef.name" description="%outboundDestinationsRef.description"/>
+
+    <!-- local broker attributes -->
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.localBroker.brokerUrl" type="String" required="false"
+        name="%localBroker.brokerUrl.name" description="%localBroker.brokerUrl.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.localBroker.clientId" type="String" required="false"
+        name="%localBroker.clientId.name" description="%localBroker.clientId.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.localBroker.userName" type="String" required="false"
+        name="%localBroker.userName.name" description="%localBroker.userName.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.localBroker.password" type="String" required="false"
+        name="%localBroker.password.name" description="%localBroker.password.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.localBroker.maxConnections" type="Integer" required="false"
+        name="%localBroker.maxConnections.name" description="%localBroker.maxConnections.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.localBroker.connectionFactoryRef" type="String" required="false"
+        name="%localBroker.connectionFactoryRef.name" description="%localBroker.connectionFactoryRef.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.localBroker.destinationResolverRef" type="String" required="false"
+        name="%localBroker.destinationResolverRef.name" description="%localBroker.destinationResolverRef.description"/>
+
+    <!-- exported broker attributes -->
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.exportedBroker.brokerUrl" type="String" required="false"
+        name="%exportedBroker.brokerUrl.name" description="%exportedBroker.brokerUrl.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.exportedBroker.clientId" type="String" required="false"
+        name="%exportedBroker.clientId.name" description="%exportedBroker.clientId.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.exportedBroker.userName" type="String" required="false"
+        name="%exportedBroker.userName.name" description="%exportedBroker.userName.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.exportedBroker.password" type="String" required="false"
+        name="%exportedBroker.password.name" description="%exportedBroker.password.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.exportedBroker.maxConnections" type="Integer" required="false"
+        name="%exportedBroker.maxConnections.name" description="%exportedBroker.maxConnections.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.exportedBroker.connectionFactoryRef" type="String" required="false"
+        name="%exportedBroker.connectionFactoryRef.name" description="%exportedBroker.connectionFactoryRef.description"/>
+    <AD id="org.fusesource.fabric.bridge.bridgeOCD.exportedBroker.destinationResolverRef" type="String" required="false"
+        name="%exportedBroker.destinationResolverRef.name" description="%exportedBroker.destinationResolverRef.description"/>
+
+  </OCD>
+
+  <!-- Gateway object class definition -->
+  <OCD id="org.fusesource.fabric.bridge.gatewayOCD" name="%gateway.name" description="%gateway.description">
+
+    <!-- Gateway attributes -->
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.versionName" type="String" required="false"
+        name="%versionName.name" description="%versionName.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.profileName" type="String" required="true"
+        name="%profileName.name" description="%profileName.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.inboundDestinationsRef" type="String" required="false"
+        name="%inboundDestinationsRef.name" description="%inboundDestinationsRef.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.outboundDestinationsRef" type="String" required="false"
+        name="%outboundDestinationsRef.name" description="%outboundDestinationsRef.description"/>
+
+    <!-- local broker attributes -->
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.localBroker.brokerUrl" type="String" required="false"
+        name="%localBroker.brokerUrl.name" description="%localBroker.brokerUrl.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.localBroker.clientId" type="String" required="false"
+        name="%localBroker.clientId.name" description="%localBroker.clientId.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.localBroker.userName" type="String" required="false"
+        name="%localBroker.userName.name" description="%localBroker.userName.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.localBroker.password" type="String" required="false"
+        name="%localBroker.password.name" description="%localBroker.password.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.localBroker.maxConnections" type="Integer" required="false"
+        name="%localBroker.maxConnections.name" description="%localBroker.maxConnections.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.localBroker.connectionFactoryRef" type="String" required="false"
+        name="%localBroker.connectionFactoryRef.name" description="%localBroker.connectionFactoryRef.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.localBroker.destinationResolverRef" type="String" required="false"
+        name="%localBroker.destinationResolverRef.name" description="%localBroker.destinationResolverRef.description"/>
+
+    <!-- exported broker attributes -->
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.exportedBroker.brokerUrl" type="String" required="false"
+        name="%exportedBroker.brokerUrl.name" description="%exportedBroker.brokerUrl.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.exportedBroker.clientId" type="String" required="false"
+        name="%exportedBroker.clientId.name" description="%exportedBroker.clientId.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.exportedBroker.userName" type="String" required="false"
+        name="%exportedBroker.userName.name" description="%exportedBroker.userName.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.exportedBroker.password" type="String" required="false"
+        name="%exportedBroker.password.name" description="%exportedBroker.password.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.exportedBroker.maxConnections" type="Integer" required="false"
+        name="%exportedBroker.maxConnections.name" description="%exportedBroker.maxConnections.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.exportedBroker.connectionFactoryRef" type="String" required="false"
+        name="%exportedBroker.connectionFactoryRef.name" description="%exportedBroker.connectionFactoryRef.description"/>
+    <AD id="org.fusesource.fabric.bridge.gatewayOCD.exportedBroker.destinationResolverRef" type="String" required="false"
+        name="%exportedBroker.destinationResolverRef.name" description="%exportedBroker.destinationResolverRef.description"/>
+
+  </OCD>
+
+  <!-- Bridge designate ties Bridge ocd to factory pid -->
+  <Designate pid="org.fusesource.fabric.bridge" factoryPid="org.fusesource.fabric.bridge" bundle="*">
+    <Object ocdref="org.fusesource.fabric.bridge.bridgeOCD"/>
+  </Designate>
+
+  <!-- Gateway designate ties Gateway ocd to factory pid -->
+  <Designate pid="org.fusesource.fabric.gateway" factoryPid="org.fusesource.fabric.gateway" bundle="*">
+    <Object ocdref="org.fusesource.fabric.bridge.gatewayOCD"/>
+  </Designate>
+
+</metatype:MetaData>
