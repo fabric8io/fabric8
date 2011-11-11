@@ -19,20 +19,19 @@ import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 /**
  * @author Dhiraj Bokde
  */
-public class SpringOsgiBeanBridge implements InvocationHandler {
+public class OsgiApplicationContextAdapter implements InvocationHandler {
 
     private final String pid;
-    private final ZkManagedBridgeServiceFactory serviceFactory;
+    private final AbstractZkManagedServiceFactory serviceFactory;
 
     private final Method getBeansMethod;
-    private static final Logger LOG = LoggerFactory.getLogger(SpringOsgiBeanBridge.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OsgiApplicationContextAdapter.class);
 
-    public SpringOsgiBeanBridge(String pid, ZkManagedBridgeServiceFactory serviceFactory) {
+    public OsgiApplicationContextAdapter(String pid, AbstractZkManagedServiceFactory serviceFactory) {
         super();
         this.pid = pid;
         this.serviceFactory = serviceFactory;

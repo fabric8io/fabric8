@@ -26,4 +26,15 @@
     </cm:managed-component>
   </cm:managed-service-factory>
 
+  <cm:managed-service-factory id="fabricGatewayServiceFactory" factory-pid="org.fusesource.fabric.gateway">
+    <cm:managed-component class="org.fusesource.fabric.bridge.zk.internal.ZkManagedGatewayServiceFactory" init-method="init"
+                          destroy-method="destroy" ext:field-injection="true">
+      <!--<property name="agentName" value="${karaf.name}"/>-->
+      <property name="bundleContext" ref="blueprintBundleContext"/>
+      <property name="fabricService">
+        <reference interface="org.fusesource.fabric.api.FabricService"/>
+      </property>
+    </cm:managed-component>
+  </cm:managed-service-factory>
+
 </blueprint>

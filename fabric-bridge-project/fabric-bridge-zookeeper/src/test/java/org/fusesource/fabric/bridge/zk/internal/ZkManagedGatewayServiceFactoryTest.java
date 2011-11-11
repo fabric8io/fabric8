@@ -29,7 +29,7 @@ import java.util.Hashtable;
 /**
  * @author Dhiraj Bokde
  */
-public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupport {
+public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSupport {
 
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();
     private static final String DESTINATION_RESOLVER_CLASS_NAME = DestinationResolver.class.getName();
@@ -37,14 +37,15 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
     private static final String REMOTE_FACTORY_FILTER = "(" + Constants.SERVICE_PID + "=remoteCF" + ")";
 
     private static ClassPathXmlApplicationContext applicationContextZkServer;
-    private static ClassPathXmlApplicationContext gatewayContext;
+    // TODO modify test to connect to bridge and verify that messages can be exchanged
+//    private static ClassPathXmlApplicationContext bridgeContext;
 
     private static FabricService fabricService;
     private static BundleContext bundleContext;
-    private static final String TEST_PID = "test-bridge";
+    private static final String TEST_PID = "test-gateway";
     private static final String SERVICE_PROPERTY = "service";
 
-    private ZkManagedBridgeServiceFactory serviceFactory;
+    private ZkManagedGatewayServiceFactory serviceFactory;
 
     @BeforeClass
     public static void setUpClass() {
@@ -80,19 +81,19 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
             }
         };
 
-        // setup test gateway
-        gatewayContext = new ClassPathXmlApplicationContext("test-zkgateway-context.xml");
+        // setup test bridge
+//        bridgeContext = new ClassPathXmlApplicationContext("test-zkbridge-context.xml");
     }
 
     @AfterClass
     public static void tearDownClass() {
-        gatewayContext.destroy();
+//        bridgeContext.destroy();
         applicationContextZkServer.destroy();
     }
 
     @Before
     public void setUp() {
-        serviceFactory = new ZkManagedBridgeServiceFactory();
+        serviceFactory = new ZkManagedGatewayServiceFactory();
         serviceFactory.setFabricService(fabricService);
         serviceFactory.setBundleContext(bundleContext);
     }
@@ -113,15 +114,14 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
         // start
         serviceFactory.init();
 
-        // create a simple broker URL based bridge
+        // create a simple broker URL based gateway
         Hashtable<String, String> properties = getDefaultConfig();
-        properties.put("localBroker.brokerUrl", TEST_LOCAL_BROKER_URL);
-        properties.put("remoteBroker.brokerUrl", TEST_REMOTE_BROKER_URL);
-        properties.put("exportedBroker.brokerUrl", TEST_LOCAL_BROKER_URL);
+        properties.put("localBroker.brokerUrl", TEST_REMOTE_BROKER_URL);
+        properties.put("exportedBroker.brokerUrl", TEST_REMOTE_BROKER_URL);
 
         serviceFactory.updated(TEST_PID, properties);
 
-        // TODO assert that the bridge was started
+        // TODO assert that the gateway was started
     }
 
     @Test
@@ -129,29 +129,25 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
         // start
         serviceFactory.init();
 
-        // create a simple broker URL based bridge
+        // create a simple broker URL based gateway
         Hashtable<String, String> properties = getDefaultConfig();
-        properties.put("localBroker.connectionFactoryRef", "localCF");
-        properties.put("remoteBroker.connectionFactoryRef", "remoteCF");
-        properties.put("exportedBroker.connectionFactoryRef", "localCF");
+        properties.put("localBroker.connectionFactoryRef", "remoteCF");
+        properties.put("exportedBroker.connectionFactoryRef", "remoteCF");
 
         properties.put("localBroker.destinationResolverRef", "localResolver");
-        properties.put("remoteBroker.destinationResolverRef", "remoteResolver");
         properties.put("exportedBroker.destinationResolverRef", "localResolver");
 
         serviceFactory.updated(TEST_PID, properties);
 
-        // TODO assert that the bridge was started
+        // TODO assert that the gateway was started
     }
 
     private Hashtable<String, String> getDefaultConfig() {
         Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("versionName", "base");
-        properties.put("gatewayProfileName", "test-gateway");
-        properties.put("gatewayConnectRetries", "5");
-        properties.put("gatewayStartupDelay", "3");
-        properties.put("inboundDestinationsRef", "downstream");
-        properties.put("outboundDestinationsRef", "upstream");
+        properties.put("profileName", "test-gateway");
+        properties.put("inboundDestinationsRef", "upstream");
+        properties.put("outboundDestinationsRef", "downstream");
         return properties;
     }
 
