@@ -92,6 +92,14 @@
                 <artifactId>depends-maven-plugin</artifactId>
                 <version>1.2</version>
             </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
