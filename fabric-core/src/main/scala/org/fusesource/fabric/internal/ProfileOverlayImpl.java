@@ -13,6 +13,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,6 +43,18 @@ public class ProfileOverlayImpl implements Profile {
         return self.getParents();
     }
 
+    public List<String> getBundles() {
+        return getAgentConfigList(this, ConfigListType.BUNDLES);
+    }
+
+    public List<String> getFeatures() {
+        return getAgentConfigList(this, ConfigListType.FEATURES);
+    }
+
+    public List<String> getRepositories() {
+        return getAgentConfigList(this, ConfigListType.REPOSITORIES);
+    }
+
     @Override
     public Agent[] getAssociatedAgents() {
         return self.getAssociatedAgents();
@@ -59,6 +72,21 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setBundles(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setFeatures(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setRepositories(List<String> values) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 
@@ -102,8 +130,14 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
-        for (Profile p : getParents()) {
+        for (Profile p : profile.getParents()) {
             supplement(p, aggregate);
+        }
+
+        if (profile instanceof ProfileOverlayImpl) {
+            if (((ProfileOverlayImpl)profile).self.equals(self)) {
+                return;
+            }
         }
 
         Map<String, byte[]> configs = profile.getFileConfigurations();
@@ -132,6 +166,7 @@ public class ProfileOverlayImpl implements Profile {
 
                 } else {
                     // new file..
+                    ctrl = new SupplementControl();
                     ctrl.props = toProperties(entry.getValue());
                     aggregate.put(fileName, ctrl);
                 }

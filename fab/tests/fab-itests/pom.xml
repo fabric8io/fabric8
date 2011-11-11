@@ -1,12 +1,14 @@
 <!--
-  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
-  ~ http://fusesource.com
-  ~
-  ~ The software in this package is published under the terms of the
-  ~ CDDL license a copy of which has been included with this distribution
-  ~ in the license.txt file.
-  -->
 
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -147,6 +149,41 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
         </configuration>
       </plugin>
     </plugins>
+    <pluginManagement>
+    	<plugins>
+    		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+    		<plugin>
+    			<groupId>org.eclipse.m2e</groupId>
+    			<artifactId>lifecycle-mapping</artifactId>
+    			<version>1.0.0</version>
+    			<configuration>
+    				<lifecycleMappingMetadata>
+    					<pluginExecutions>
+    						<pluginExecution>
+    							<pluginExecutionFilter>
+    								<groupId>
+    									org.apache.servicemix.tooling
+    								</groupId>
+    								<artifactId>
+    									depends-maven-plugin
+    								</artifactId>
+    								<versionRange>[1.2,)</versionRange>
+    								<goals>
+    									<goal>
+    										generate-depends-file
+    									</goal>
+    								</goals>
+    							</pluginExecutionFilter>
+    							<action>
+    								<ignore></ignore>
+    							</action>
+    						</pluginExecution>
+    					</pluginExecutions>
+    				</lifecycleMappingMetadata>
+    			</configuration>
+    		</plugin>
+    	</plugins>
+    </pluginManagement>
   </build>
 
 </project>

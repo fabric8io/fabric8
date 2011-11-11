@@ -59,7 +59,7 @@
         <fabric.osgi.import.defaults>
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
-            org.apache.camel.*;version="[2.7,3)",
+            org.apache.camel.*;version="[2.8,3)",
         </fabric.osgi.import.defaults>
         <fabric.osgi.import.before.defaults />
         <fabric.osgi.import.additional />
@@ -83,28 +83,31 @@
         <fabric.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
-        <activemq-version>5.5.1-fuse-00-08</activemq-version>
+        <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <common-math-version>2.2</common-math-version>
-        <cxf-version>2.4.2-fuse-00-08</cxf-version>
-        <camel-version>2.8.0-fuse-00-08</camel-version>
+        <cxf-version>2.4.3-fuse-00-06</cxf-version>
+        <camel-version>2.8.0-fuse-01-06</camel-version>
         <hawtbuf-version>1.6</hawtbuf-version>
         <hawtdispatch-version>1.4</hawtdispatch-version>
         <jackson-version>1.8.4</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
-        <jclouds-version>1.1.1</jclouds-version>
-        <jclouds-karaf-version>1.1.1-SNAPSHOT</jclouds-karaf-version>
+        <jclouds-version>1.2.1</jclouds-version>
+        <jclouds-karaf-version>1.2.1_1</jclouds-karaf-version>
         <jersey-version>1.5</jersey-version>
         <jetty-plugin-version>7.4.5.v20110725</jetty-plugin-version>
         <jetty-version>7.4.5.v20110725</jetty-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
+        <karaf-version>2.2.2-fuse-02-06</karaf-version>
+        <!--
         <karaf-version>2.2.0-fuse-00-53</karaf-version>
+        -->
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
@@ -124,13 +127,13 @@
         <scala-version>2.9.1</scala-version>
         <scala-osgi-version>2.9.1</scala-osgi-version>
         <scala-plugin-version>2.15.1</scala-plugin-version>
-        <scalate-version>1.5.2</scalate-version>
+        <scalate-version>1.6.0-SNAPSHOT</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-version>1.6.1</slf4j-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
-        <spring-version>3.0.5.RELEASE</spring-version>
+        <spring-version>3.0.6.RELEASE</spring-version>
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
@@ -181,8 +184,8 @@
     </dependencies>
 
     <modules>
-        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-core</module>
+        <module>fabric-linkedin-zookeeper</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-commands</module>
         <module>fabric-maven-proxy</module>
@@ -194,19 +197,23 @@
         <module>fabric-jaas</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
-        <module>fab</module>
         <module>fabric-camel</module>
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
-        <module>fabric-cxf</module>
         <module>fabric-activemq</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
         <module>fabric-groups</module>
         <module>fabric-dosgi</module>
-        <module>fabric-distro</module>
         <module>fabric-eca</module>
+        <module>fabric-security</module>
+        <module>fab</module>
         <module>fabric-examples</module>
+        <module>fabric-assemblies</module>
+
+        <!-- TODO fix build of fabric-cxf then move back up a bit :) -->
+        <module>fabric-cxf</module>
+        <module>fabric-bridge-project</module>
     </modules>
 
     <build>
@@ -247,14 +254,47 @@
                         </instructions>
                     </configuration>
                 </plugin>
+
+              <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+              <plugin>
+                <groupId>org.eclipse.m2e</groupId>
+                <artifactId>lifecycle-mapping</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                  <lifecycleMappingMetadata>
+                    <pluginExecutions>
+                      <pluginExecution>
+                        <pluginExecutionFilter>
+                          <groupId>
+                            org.apache.felix
+                          </groupId>
+                          <artifactId>
+                            maven-bundle-plugin
+                          </artifactId>
+                          <versionRange>
+                            [2.1.0,)
+                          </versionRange>
+                          <goals>
+                            <goal>cleanVersions</goal>
+                          </goals>
+                        </pluginExecutionFilter>
+                        <action>
+                          <ignore></ignore>
+                        </action>
+                      </pluginExecution>
+                    </pluginExecutions>
+                  </lifecycleMappingMetadata>
+                </configuration>
+              </plugin>
             </plugins>
-        </pluginManagement>
+          </pluginManagement>
+
 
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
+                <version>2.3.2</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -265,7 +305,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.7</version>
             </plugin>
 
 
@@ -457,62 +497,98 @@
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-linkedin-zookeeper</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-configadmin</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-agent</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-camel</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-commands</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-zookeeper-commands</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper-spring</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-util</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-maven-proxy</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-groups</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-monitor</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi-version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
                 <version>${osgi-version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.enterprise</artifactId>
                 <version>${osgi-version}</version>
+                <scope>provided</scope>
             </dependency>
             <!-- LogBack -->
             <dependency>
@@ -525,6 +601,7 @@
                 <groupId>org.linkedin</groupId>
                 <artifactId>org.linkedin.zookeeper-impl</artifactId>
                 <version>${linkedin-zookeeper-version}</version>
+                <scope>provided</scope>
                 <exclusions>
                     <exclusion>
                         <groupId>com.sun.jdmk</groupId>
@@ -536,6 +613,7 @@
                 <groupId>org.linkedin</groupId>
                 <artifactId>org.linkedin.util-core</artifactId>
                 <version>${linkedin-zookeeper-version}</version>
+                <scope>provided</scope>
             </dependency>
             <!-- Log4j -->
             <dependency>

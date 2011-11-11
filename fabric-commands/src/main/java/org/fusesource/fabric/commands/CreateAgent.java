@@ -32,11 +32,17 @@ public class CreateAgent extends FabricCommand {
     @Option(name = "--enable-debuging", multiValued = false, required = false)
     private Boolean debugAgent = Boolean.FALSE;
 
+    @Option(name = "--cluster-server", multiValued = false, required = false)
+    private Boolean isClusterServer = Boolean.FALSE;
+
     @Option(name = "--url", multiValued = false, required = false)
     private String url;
 
-    @Argument(index = 0)
+    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
     private String name;
+
+    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    private int number = 1;
 
 
     @Override
@@ -51,9 +57,16 @@ public class CreateAgent extends FabricCommand {
         if (names == null || names.isEmpty()) {
             names = Collections.singletonList("default");
         }
-        Profile[] profiles = getProfiles(version, names);
-        Agent child = fabricService.createAgent( url, name, debugAgent );
-        child.setProfiles(profiles);
+        Agent[] children = fabricService.createAgents(url, name, isClusterServer, debugAgent, number);
+        try {
+            Profile[] profiles = getProfiles(version, names);
+            for (Agent child : children) {
+                child.setProfiles(profiles);
+            }
+        } catch (Exception ex) {
+
+        }
+
         return null;
     }
 

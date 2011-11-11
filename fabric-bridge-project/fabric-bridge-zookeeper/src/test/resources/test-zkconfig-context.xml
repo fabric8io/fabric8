@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:bridge="http://fusesource.org/fabric/bridge" xmlns:zkbridge="http://fusesource.org/fabric/bridge/zookeeper"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://fusesource.org/fabric/bridge http://fusesource.org/fabric/bridge/fabric-bridge.xsd
+        http://fusesource.org/fabric/bridge/zookeeper http://fusesource.org/fabric/bridge/zookeeper/fabric-bridge-zookeeper.xsd">
+
+  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+    <property name="timeoutText" value="30s"/>
+    <property name="connectString" value="localhost:2181"/>
+  </bean>
+
+  <bean id="fabricservice" class="org.fusesource.fabric.service.FabricServiceImpl">
+    <property name="zooKeeper" ref="zkClient"/>
+  </bean>
+
+  <!-- destinations configured using Fabric -->
+  <zkbridge:zkbridge-destinations id="upstream" fabricServiceRef="fabricservice"/>
+
+  <zkbridge:zkbridge-destinations id="downstream" fabricServiceRef="fabricservice"/>
+
+
+  <!-- Fabric configured gateway, uses Fabric to discover destinations -->
+  <zkbridge:zkgateway-connector id="myzkgateway" inboundDestinationsRef="upstream"
+                                outboundDestinationsRef="downstream" fabricServiceRef="fabricservice"
+                                profileName="test-gateway" phase="1">
+    <bridge:local-broker
+        brokerUrl="vm://remote?broker.persistent=false&amp;broker.brokerName=remote&amp;jms.prefetchPolicy.queuePrefetch=10"/>
+  </zkbridge:zkgateway-connector>
+
+
+  <!-- Fabric configured bridge, uses Fabric to discover destinations -->
+  <zkbridge:zkbridge-connector id="myzkbridge" inboundDestinationsRef="downstream"
+                               outboundDestinationsRef="upstream" fabricServiceRef="fabricservice"
+                               gatewayProfileName="test-gateway">
+    <bridge:local-broker
+        brokerUrl="vm://local?broker.persistent=false&amp;broker.brokerName=local&amp;jms.prefetchPolicy.queuePrefetch=10"/>
+  </zkbridge:zkbridge-connector>
+
+</beans>

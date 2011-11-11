@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface ZooKeeperClusterService {
 
+    static final String CLUSTER_AUTOSTART_PROPERTY="cluster.auto.cluster";
+
     List<String> getClusterAgents();
 
     String getZooKeeperUrl();

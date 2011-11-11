@@ -17,6 +17,7 @@ import org.fusesource.fabric.groups.Group;
 public class FabricServerListener implements ServerLifeCycleListener {
     private static final transient Log LOG = LogFactory.getLog(FabricServerListener.class);
     private final Group group;
+    private String eid;
 
 
     FabricServerListener(Group group) {
@@ -31,7 +32,7 @@ public class FabricServerListener implements ServerLifeCycleListener {
             LOG.debug("The CXF server is start with address " + address);
         }
         try {
-            group.join(address, address.getBytes("UTF-8"));
+            eid = group.join(address.getBytes("UTF-8"));
         } catch (Exception ex) {
             LOG.warn("Cannot bind the address " + address + " to the group, due to ", ex);
         }
@@ -43,6 +44,6 @@ public class FabricServerListener implements ServerLifeCycleListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("The CXF server is stopped with address " + address);
         }
-        group.leave(address);
+        group.leave(eid);
     }
 }

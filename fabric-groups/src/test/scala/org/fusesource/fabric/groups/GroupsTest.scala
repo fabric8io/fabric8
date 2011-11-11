@@ -7,7 +7,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fusemq.cluster
+package org.fusesource.fabric.groups
 
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.zookeeper.server.{ZooKeeperServer, NIOServerCnxn}
@@ -17,11 +17,11 @@ import org.linkedin.util.clock.Timespan
 import java.net.InetSocketAddress
 import scala.collection.immutable.List
 import java.io.File
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite}
 import java.util.concurrent.TimeUnit
+import collection.JavaConversions._
 
 /**
  * <p>
@@ -73,43 +73,14 @@ abstract class ZooKeeperFunSuiteSupport extends FunSuite with BeforeAndAfterAll 
     zk_clients = List()
   }
 
-}
+  private class BreakWithin(e:Throwable) extends RuntimeException(e)
 
-
-class GroupsTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
-
-  test("cluster events") {
-
-    val cluster1 = ZooKeeperGroupFactory.create(create_zk_client, "/example")
-    val cluster2 = ZooKeeperGroupFactory.create(create_zk_client, "/example")
-    import TimeUnit._
-
-    cluster1.join("1", "1".getBytes)
-    within(2, SECONDS) {
-      expect(List("1"))(cluster1.members.map(new String(_)).toList)
+  def breaks_within[T](func: => T) = {
+    try {
+      func
+    } catch {
+      case e:Throwable => throw new BreakWithin(e)
     }
-
-    cluster2.join("2", "2".getBytes)
-    within(2, SECONDS) {
-      expect(List("1", "2"))(cluster1.members.map(new String(_)).toList)
-    }
-
-    // Check the we can get the member list without creating a Group object
-    expect(List("1", "2"))(ZooKeeperGroupFactory.members(create_zk_client, "/example").map(new String(_)).toList)
-
-    // Check updating member data...
-    expect("2")(new String(cluster1.members.apply(1)))
-    cluster2.join("2", "Hello!".getBytes())
-    within(2, SECONDS) {
-      expect("Hello!")(new String(cluster1.members.apply(1)))
-    }
-
-    // Check leaving the cluster
-    cluster1.leave("1")
-    within(2, SECONDS) {
-      expect(List("Hello!"))(cluster1.members.map(new String(_)).toList)
-    }
-
   }
 
   def within[T](timeout:Long, unit:TimeUnit)(func: => Unit ):Unit = {
@@ -121,10 +92,12 @@ class GroupsTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
     if( sleep_amount < 1 ) {
       sleep_amount = 1
     }
+
     try {
       func
       return
     } catch {
+      case e:BreakWithin => throw e.getCause
       case e:Throwable => last = e
     }
 
@@ -134,10 +107,51 @@ class GroupsTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
         func
         return
       } catch {
+        case e:BreakWithin => throw e.getCause
         case e:Throwable => last = e
       }
     }
 
     throw last
   }
+
+}
+
+
+class GroupsTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
+
+  test("cluster events") {
+
+    val cluster1 = ZooKeeperGroupFactory.create(create_zk_client, "/example")
+    val cluster2 = ZooKeeperGroupFactory.create(create_zk_client, "/example")
+    import TimeUnit._
+
+    val c1id1 = cluster1.join("1".getBytes)
+    within(2, SECONDS) {
+      expect(List("1"))(cluster1.members.toMap.values.map(new String(_)).toList)
+    }
+
+    val c2id2 = cluster2.join("2".getBytes)
+    within(2, SECONDS) {
+      expect(List("1", "2"))(cluster1.members.toMap.values.map(new String(_)).toList)
+    }
+
+    // Check the we can get the member list without creating a Group object
+    expect(List("1", "2"))(ZooKeeperGroupFactory.members(create_zk_client, "/example").toMap.values.map(new String(_)).toList)
+
+    // Check updating member data...
+    expect("2")(new String(cluster1.members.get(c2id2)))
+    cluster2.update(c2id2, "Hello!".getBytes())
+    within(2, SECONDS) {
+      expect("Hello!")(new String(cluster1.members.get(c2id2)))
+    }
+
+    // Check leaving the cluster
+    cluster1.leave(c1id1)
+    within(2, SECONDS) {
+      expect(List("Hello!"))(cluster1.members.toMap.values.map(new String(_)).toList)
+    }
+
+  }
+
 }

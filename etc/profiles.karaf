@@ -1,14 +1,20 @@
 echo Create dummy karaf profile
 fabric:create-profile --parents default karaf
+fabric:edit-profile -p karaf --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features
+fabric:edit-profile -p karaf --repositories mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features
 fabric:edit-profile -p karaf --repositories mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+
+echo Create activemq ${activemq-version} profile
+fabric:create-profile --parents karaf activemq
+fabric:edit-profile -p activemq --features fabric-activemq/${project.version}
+zk:create -i -r /fabric/configs/versions/base/profiles/activemq/activemq.xml mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/activemq
+fabric:edit-profile -p activemq --pid org.fusesource.fabric.activemq.server-broker1 name=broker1 config=zk:/fabric/configs/versions/base/profiles/activemq/activemq.xml data=/tmp/broker1 connectors=openwire group=default standby.pool=default
 
 echo Create camel ${camel-version} profile
 fabric:create-profile --parents karaf camel
 fabric:edit-profile -p camel --repositories mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
 fabric:edit-profile -p camel --features camel-core/${camel-version}
 fabric:edit-profile -p camel --features camel-blueprint/${camel-version}
-
-shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
 
 echo Create nmr 1.4.0 profile
 fabric:create-profile --parents karaf nmr

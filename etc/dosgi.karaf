@@ -5,11 +5,13 @@ fabric:edit-profile -p dosgi --features fabric-dosgi
 fabric:create-profile --parents dosgi dosgi-provider
 fabric:edit-profile -p dosgi-provider --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
 fabric:edit-profile -p dosgi-provider --features fabric-example-dosgi
+fabric:edit-profile -p dosgi-provider --pid org.fusesource.fabric.dosgi port=2544
 
 
 fabric:create-profile --parents dosgi dosgi-camel
 fabric:edit-profile -p dosgi-camel --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${project.version}/xml/features
 fabric:edit-profile -p dosgi-camel --features fabric-example-camel-dosgi
+fabric:edit-profile -p dosgi-provider --pid org.fusesource.fabric.dosgi port=2548
 
 shell:echo Creating agents
 

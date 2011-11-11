@@ -96,7 +96,7 @@ public class EditProfile extends FabricCommand {
                 pidConfig.put(prefix + nameValue[0], nameValue[1]);
             } else if (delete) {
                 if (repositories || features || bundles) {
-                    for (Map.Entry<String, String> entry : pidConfig.entrySet()) {
+                    for (Map.Entry<String, String> entry : new HashMap<String,String>(pidConfig).entrySet()) {
                         if(arg.equals(entry.getValue())) {
                             pidConfig.remove(entry.getKey());
                         }

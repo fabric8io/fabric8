@@ -15,12 +15,14 @@ public abstract class FabricLoadBalanceStrategySupport implements LoadBalanceStr
     protected Group group;
     protected List<String> alternateAddressList = new CopyOnWriteArrayList<String>();
 
-    public void setGroup(Group group) {
+    public void setGroup(final Group group) {
         this.group = group;
         group.add(new ChangeListener(){
-            public void changed(byte[][] members) {
+            @Override
+            public void changed() {
+
                 alternateAddressList.clear();
-                for (byte[] uri : members) {
+                for (byte[] uri : group.members().values()) {
                     try {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Added the CXF endpoint address " + new String(uri, "UTF-8"));
@@ -29,6 +31,15 @@ public abstract class FabricLoadBalanceStrategySupport implements LoadBalanceStr
                     } catch (UnsupportedEncodingException ignore) {
                     }
                 }
+            }
+
+            public void connected() {
+                changed();
+            }
+
+            @Override
+            public void disconnected() {
+                changed();
             }
         });
     }

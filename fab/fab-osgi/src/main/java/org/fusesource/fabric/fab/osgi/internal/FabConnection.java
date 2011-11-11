@@ -21,6 +21,7 @@ import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Objects;
+import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
@@ -262,7 +263,22 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
 
                     // Now which of the packages are not exported in the OSGi env for this version?
                     Set<String> missing = Bundles.filterInstalled(bundleContext, p, this);
-                    if ( missing.isEmpty() ) {
+
+                    // we may be dependent on the actual service it exposes rather than packages we import...
+                    boolean hasNoPendingPackagesOrServices = false;
+                    if (missing.isEmpty()) {
+                        String services = dependency.getManfiestEntry("Export-Service");
+
+                        // TODO DIRTY HACK!
+                        // we should be comparing the export services statement with the Import-Service
+                        // generated from bnd
+                        if (Strings.notEmpty(services)) {
+                            LOG.info("Bundle non-optional packages already installed for: " + name + " version: " + version + " but it exposes services so will install: " + services);
+                        } else {
+                            hasNoPendingPackagesOrServices = true;
+                        }
+                    }
+                    if (hasNoPendingPackagesOrServices) {
                         LOG.info("Bundle non-optional packages already installed for: " + name + " version: " + version + " packages: " + p);
                     } else {
                         LOG.info("Packages not yet shared: " + missing);

@@ -33,7 +33,7 @@ public class EcaComponentTest extends CamelTestSupport {
     }
 
 
-    public void testSimpleEvaluationCep() throws Exception {
+    public void testSimpleRouteEvaluationCep() throws Exception {
         final DirectEndpoint de = new DirectEndpoint();
         de.setCamelContext(context);
         de.setEndpointUriIfNotSpecified("direct://foo");
@@ -45,11 +45,46 @@ public class EcaComponentTest extends CamelTestSupport {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                Endpoint cep = getContext().getEndpoint("eca://test?pattern=route1 And route2");
+                Endpoint eca = getContext().getEndpoint("eca://test?pattern=testRoute2 And testRoute1");
 
-                from(de).to(cep);
-                from(de2).to(cep);
-                from(cep.getEndpointUri()).to("mock:result");
+                from(de).to(eca).setId("testRoute1");
+                from(de2).to(eca).setId("testRoute2");
+                from(eca.getEndpointUri()).to("mock:result");
+            }
+        });
+        context.start();
+
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(COUNT);
+
+        for (int i = 0; i < COUNT; i++) {
+            Exchange exchange = createExchange(i, i);
+            template.send(de, exchange);
+        }
+
+        for (int i = 0; i < COUNT; i++) {
+            Exchange exchange = createExchange(i, i);
+            template.send(de2, exchange);
+        }
+    }
+
+    public void testSimpleEndpointEvaluationCep() throws Exception {
+        final DirectEndpoint de = new DirectEndpoint();
+        de.setCamelContext(context);
+        de.setEndpointUriIfNotSpecified("direct://foo");
+
+        final DirectEndpoint de2 = new DirectEndpoint();
+        de2.setCamelContext(context);
+        de2.setEndpointUriIfNotSpecified("direct://foo2");
+
+        context.addRoutes(new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                Endpoint eca = getContext().getEndpoint("eca://test?pattern=direct://foo2 After direct://foo");
+
+                from(de).to(eca);
+                from(de2).to(eca);
+                from(eca.getEndpointUri()).to("mock:result");
             }
         });
         context.start();

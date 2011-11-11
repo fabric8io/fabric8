@@ -1,7 +1,8 @@
 <!--
 
-    Copyright (C) 2009 Progress Software, Inc. All rights reserved.
-    http://fusesource.com
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
 
     The software in this package is published under the terms of the
     CDDL license a copy of which has been included with this distribution
@@ -86,7 +87,9 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <Fabric-Provided-Dependency>org.slf4j org.apache.*</Fabric-Provided-Dependency>
+              <!-- added as its usually installed; though maybe with a newer API? -->
+              <Fabric-Exclude-Dependency>org.slf4j</Fabric-Exclude-Dependency>
+              <Fabric-Provided-Dependency>org.apache.*</Fabric-Provided-Dependency>
             </manifestEntries>
           </archive>
         </configuration>

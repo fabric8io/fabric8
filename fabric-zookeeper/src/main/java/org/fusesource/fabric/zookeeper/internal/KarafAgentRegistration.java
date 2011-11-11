@@ -23,14 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -94,7 +90,6 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
                 zooKeeper.createOrSetWithParents(AGENT_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
             zooKeeper.createOrSetWithParents(AGENT_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(AGENT_ROOT.getPath(name), getRootName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
             String version = System.getProperty("fabric.version", "base");
             String profiles = System.getProperty("fabric.profiles");
@@ -117,29 +112,12 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         }
     }
 
-    private String getRootName() throws IOException {
-        String home = System.getProperty("karaf.home");
-        String base = System.getProperty("karaf.base");
-        if (home.equals(base)) {
-            return "";
-        }
-        File f = new File(home, "etc/system.properties");
-        InputStream is = new FileInputStream(f);
-
-        try {
-            Properties p = new Properties();
-            p.load(is);
-            return p.getProperty("karaf.name");
-        } finally {
-            is.close();
-        }
-    }
-
     private String getJmxUrl() throws IOException {
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.management");
         if (config.getProperties() != null) {
             String jmx = (String) config.getProperties().get("serviceUrl");
             jmx = jmx.replace("service:jmx:rmi://localhost:", "service:jmx:rmi://" + getLocalHostAddress() + ":");
+            jmx = jmx.replace("jndi/rmi://localhost","jndi/rmi://"  + getLocalHostAddress());
             return jmx;
         } else {
             return null;
@@ -148,7 +126,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
 
     private String getSshUrl() throws IOException {
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.shell");
-        if (config != null) {
+        if (config != null && config.getProperties() != null) {
             String host = (String) config.getProperties().get("sshHost");
             String port = (String) config.getProperties().get("sshPort");
             return getExternalAddresses(host, port);

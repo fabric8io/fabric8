@@ -8,31 +8,41 @@
 
 package org.fusesource.fabric.service.jclouds;
 
-import org.fusesource.fabric.api.AgentProvider;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.maven.MavenProxy;
-import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.TemplateBuilder;
-import org.jclouds.compute.options.RunScriptOptions;
-import org.jclouds.domain.Credentials;
-
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Module;
+import org.fusesource.fabric.api.AgentProvider;
+import org.fusesource.fabric.api.CreateAgentArguments;
+import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.JCloudsInstanceType;
+import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.compute.ComputeServiceContextFactory;
+import org.jclouds.compute.RunNodesException;
+import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.TemplateBuilder;
+import org.jclouds.compute.options.RunScriptOptions;
+import org.jclouds.domain.Credentials;
+import org.jclouds.rest.RestContextFactory;
+
+
+import static org.fusesource.fabric.internal.AgentProviderUtils.DEFAULT_SSH_PORT;
+import static org.fusesource.fabric.internal.AgentProviderUtils.buildStartupScript;
 
 /**
- * A concrete {@link AgentProvider} that creates {@link Agent}s via jclouds {@link ComputeService}.
+ * A concrete {@link AgentProvider} that creates {@link org.fusesource.fabric.api.Agent}s via jclouds {@link ComputeService}.
  */
 public class JcloudsAgentProvider implements AgentProvider {
 
@@ -43,14 +53,8 @@ public class JcloudsAgentProvider implements AgentProvider {
     private static final String GROUP = "group";
 
     private static final String INSTANCE_TYPE = "instanceType";
-    private static final String SMALLEST = "smalled";
-    private static final String BIGGEST = "biggest";
-    private static final String FASTEST = "fastest";
-
-    private MavenProxy mavenProxy;
 
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
-
 
     public void bind(ComputeService computeService) {
         if(computeService != null) {
@@ -70,32 +74,47 @@ public class JcloudsAgentProvider implements AgentProvider {
         }
     }
 
-    public void setMavenProxy(MavenProxy mavenProxy) {
-        this.mavenProxy = mavenProxy;
+    public ConcurrentMap<String, ComputeService> getComputeServiceMap() {
+        return computeServiceMap;
     }
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     *
+     * @param proxyUri     The uri of the maven proxy to use.
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
+     * @param server       Marks if the agent will have the role of the cluster server.
+     * @param debugAgent
      */
-    public void create(URI agentUri, String name, String zooKeeperUrl, boolean debugAgent) {
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean server, boolean debugAgent) {
+           create(proxyUri, agentUri,name,zooKeeperUrl,server,debugAgent,1);
+    }
+
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     * @param proxyUri      The uri of the maven proxy to use.
+     * @param agentUri      The uri that contains required information to build the Agent.
+     * @param name          The name of the Agent.
+     * @param zooKeeperUrl  The url of Zoo Keeper.
+     * @param isClusterServer       Marks if the agent will have the role of the cluster server.
+     * @param debugAgent    Flag used to enable debugging on the new Agent.
+     * @param number        The number of Agents to create.
+     */
+    @Override
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, int number) {
         String imageId = null;
         String hardwareId = null;
         String locationId = null;
         String group = null;
         String user = null;
-        String instanceType = SMALLEST;
-        Credentials credentials = null;
+        JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
+        String identity = null;
+        String credential = null;
+        String owner = null;
 
         try {
             String providerName = agentUri.getHost();
-            ComputeService computeService = computeServiceMap.get(providerName);
-            if (computeService == null) {
-                throw new FabricException("Not compute Service found for provider:" + providerName);
-            }
 
             if (agentUri.getQuery() != null) {
                 Map<String, String> parameters = parseQuery(agentUri.getQuery());
@@ -106,52 +125,12 @@ public class JcloudsAgentProvider implements AgentProvider {
                     hardwareId = parameters.get(HARDWARE_ID);
                     user = parameters.get(USER);
                     if (parameters.get(INSTANCE_TYPE) != null) {
-                        instanceType = parameters.get(INSTANCE_TYPE);
+                        instanceType = JCloudsInstanceType.get(parameters.get(INSTANCE_TYPE), instanceType);
                     }
                 }
             }
 
-            TemplateBuilder builder = computeService.templateBuilder();
-            builder.any();
-            if (SMALLEST.equals(instanceType)) {
-                builder.smallest();
-            }
-            if (FASTEST.equals(INSTANCE_TYPE)) {
-                builder.fastest();
-            }
-            if (BIGGEST.equals(instanceType)) {
-                builder.biggest();
-            }
-            if (locationId != null) {
-                builder.locationId(locationId);
-            }
-            if (imageId != null) {
-                builder.imageId(imageId);
-            }
-            if (hardwareId != null) {
-                builder.hardwareId(hardwareId);
-            }
-
-            Set<? extends NodeMetadata> metadatas = null;
-
-            if(user != null) {
-                credentials = new Credentials(user,null);
-            }
-
-            String script = buildStartupScript(mavenProxy.getAddress(), name, zooKeeperUrl,debugAgent);
-            metadatas = computeService.createNodesInGroup(group, 1, builder.build());
-
-            if (metadatas != null) {
-                for (NodeMetadata nodeMetadata : metadatas) {
-                    String id = nodeMetadata.getId();
-                    if(credentials != null) {
-                    computeService.runScriptOnNode(id,script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
-                    }
-                    else {
-                        computeService.runScriptOnNode(id, script);
-                    }
-                }
-            }
+            doCreateAgent(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, DEFAULT_SSH_PORT);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -161,59 +140,131 @@ public class JcloudsAgentProvider implements AgentProvider {
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     *
+     * @param proxyUri     The uri of the maven proxy to use.
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
-    public void create(URI agentUri, String name, String zooKeeperUrl) {
-        create(agentUri,name,zooKeeperUrl);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
+        create(proxyUri,agentUri, name, zooKeeperUrl);
     }
 
-    private String buildStartupScript(URI proxy, String name, String zooKeeperUrl, boolean debugAgent) throws MalformedURLException {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
-        sb.append("run mkdir -p ").append(name).append("\n");
-        sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.apache.karaf", "apache-karaf", "2.2.0-fuse-00-43");
-        sb.append("run cd ").append("apache-karaf-2.2.0-fuse-00-43").append("\n");
-        List<String> lines = new ArrayList<String>();
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-linkedin-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-zookeeper", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-configadmin", "1.1-SNAPSHOT", "jar") + "=60");
-        lines.add(downloadAndStartMavenBundle(sb, proxy, "org.fusesource.fabric", "fabric-agent", "1.1-SNAPSHOT", "jar") + "=60");
-        appendFile(sb, "etc/startup.properties", lines);
-        appendFile(sb, "etc/system.properties", Arrays.asList("karaf.name = " + name, "zookeeper.url = " + zooKeeperUrl));
-        if(debugAgent) {
-           sb.append("run export KARAF_DEBUG=true").append("\n");
+    @Override
+    public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
+        if (createArgs instanceof CreateJCloudsAgentArguments) {
+            CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
+            return doCreateAgent(args, name, zooKeeperUrl, DEFAULT_SSH_PORT) != null;
         }
-        sb.append("run nohup ./bin/start").append("\n");
-        return sb.toString();
+        return false;
     }
 
-    private String downloadAndStartMavenBundle(StringBuilder sb, URI proxy, String groupId, String artifactId, String version, String type) {
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version;
-        String file = path + "/" + artifactId + "-" + version + "." + type;
-        sb.append("run mkdir -p " + "system/").append(path).append("\n");
-        sb.append("run curl --show-error --silent --get --retry 20 --output system/").append(file).append(" ").append(proxy.resolve(file)).append("\n");
-        return file;
+    protected String doCreateAgent(CreateJCloudsAgentArguments args, String name, String zooKeeperUrl, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
+        boolean isClusterServer = args.isClusterServer();
+        boolean debugAgent = args.isDebugAgent();
+        int number = args.getNumber();
+        String imageId = args.getImageId();
+        String hardwareId = args.getHardwareId();
+        String locationId = args.getLocationId();
+        String group = args.getGroup();
+        String user = args.getUser();
+        JCloudsInstanceType instanceType = args.getInstanceType();
+        String providerName = args.getProviderName();
+        String identity = args.getIdentity();
+        String credential = args.getCredential();
+        String owner = args.getOwner();
+        URI proxyURI = args.getProxyUri();
+
+        return doCreateAgent(proxyURI, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, returnPort);
     }
 
-    private void appendFile(StringBuilder sb, String path, Iterable<String> lines) {
-        final String MARKER = "END_OF_FILE";
-        sb.append("cat >> ").append(path).append(" <<'").append(MARKER).append("'\n");
-        for (String line : lines) {
-            sb.append(line).append("\n");
+    /**
+     * Creates a new fabric on a remote JClouds machine, returning the new ZK connection URL
+     */
+    public String createClusterServer(CreateJCloudsAgentArguments createArgs, String name) throws Exception {
+        // TODO how can we get this value from the tarball I wonder, in case it ever changes?
+        int zkPort = 2181;
+        createArgs.setClusterServer(true);
+        return doCreateAgent(createArgs, name, null, zkPort);
+    }
+
+    protected String doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
+        ComputeService computeService = computeServiceMap.get(providerName);
+        if (computeService == null) {
+            //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
+            Iterable<? extends Module> modules = ImmutableSet.of();
+
+            Properties props = new Properties();
+            props.put("provider", providerName);
+            props.put("identity", identity);
+            props.put("credential", credential);
+            if (!Strings.isNullOrEmpty(owner)) {
+                props.put("jclouds.ec2.ami-owners", owner);
+            }
+
+            RestContextFactory restFactory = new RestContextFactory();
+            ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(providerName, identity, credential, modules, props);
+            computeService = context.getComputeService();
         }
-        sb.append(MARKER).append("\n");
-    }
 
-    private void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
-        String file = artifactId + "-" + version + ".tar.gz";
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + file;
-        sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append(proxy.resolve(path)).append("\n");
-        sb.append("run tar -xpzf ").append(file).append("\n");
+        TemplateBuilder builder = computeService.templateBuilder();
+        builder.any();
+        switch (instanceType) {
+            case Smallest:
+                builder.smallest();
+                break;
+            case Biggest:
+                builder.biggest();
+                break;
+            case Fastest:
+                builder.fastest();
+        }
+
+        if (locationId != null) {
+            builder.locationId(locationId);
+        }
+        if (imageId != null) {
+            builder.imageId(imageId);
+        }
+        if (hardwareId != null) {
+            builder.hardwareId(hardwareId);
+        }
+
+        Set<? extends NodeMetadata> metadatas = null;
+        Credentials credentials = null;
+        if (user != null && credentials == null) {
+            credentials = new Credentials(user, null);
+        }
+
+        metadatas = computeService.createNodesInGroup(group, number, builder.build());
+
+        int suffix = 1;
+        StringBuilder buffer = new StringBuilder();
+        boolean first = true;
+        if (metadatas != null) {
+            for (NodeMetadata nodeMetadata : metadatas) {
+                String id = nodeMetadata.getId();
+                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+                for (String pa: publicAddresses) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        buffer.append(",");
+                    }
+                    buffer.append(pa + ":" + returnPort);
+                }
+                String agentName = name;
+                if(number > 1) {
+                    agentName+=suffix++;
+                }
+                String script = buildStartupScript(proxyUri, agentName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT,isClusterServer, debugAgent);
+                if (credentials != null) {
+                    computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                } else {
+                    computeService.runScriptOnNode(id, script);
+                }
+            }
+        }
+        return buffer.toString();
     }
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {

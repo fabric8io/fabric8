@@ -10,7 +10,7 @@
 
 package org.fusesource.fabric.apollo.cluster
 
-import dto.{ClusterVirtualHostDTO, ClusterConnectorDTO, ClusterNodeDTO}
+import dto.{ClusterConnectorDTO, ClusterNodeDTO}
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.broker._
 import java.io.IOException
@@ -21,13 +21,12 @@ import org.apache.activemq.apollo.broker.protocol.{ProtocolHandler, AnyProtocol}
 import org.fusesource.fabric.apollo.cluster.util.{HashRing, Hasher}
 import java.net.SocketAddress
 import org.linkedin.util.clock.Timespan
-import org.fusesource.fabric.groups.{ZooKeeperGroupFactory, ChangeListener, Group}
-import org.apache.zookeeper.{WatchedEvent, Watcher}
-import org.linkedin.zookeeper.client.{LifecycleListener, ZKClient}
-import org.fusesource.hawtbuf.{AsciiBuffer, Buffer}
-import org.apache.activemq.apollo.dto.{ConnectorStatusDTO, ServiceStatusDTO, ConnectorTypeDTO, JsonCodec}
-import collection.mutable.{ListBuffer, HashMap}
-import java.lang.{Boolean, IllegalArgumentException, String}
+import org.linkedin.zookeeper.client.ZKClient
+import org.fusesource.hawtbuf.AsciiBuffer
+import org.apache.activemq.apollo.dto.{ConnectorStatusDTO, ServiceStatusDTO, ConnectorTypeDTO}
+import collection.mutable.HashMap
+import java.lang.{IllegalArgumentException, String}
+import org.fusesource.fabric.groups._
 
 object ClusterConnectorFactory extends ConnectorFactory with Log {
 
@@ -46,7 +45,6 @@ object ClusterConnector extends Log
  * This is a connector that handles establishing outbound connections.
  */
 class ClusterConnector(val broker:Broker, val id:String) extends Connector {
-  import ClusterConnector._
 
   var config:ClusterConnectorDTO = _
 
@@ -56,7 +54,6 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
   var zk_client:ZKClient = _
   var hosts_stopped_due_to_disconnect = List[AsciiBuffer]()
   var cluster_group:Group = _
-  var node_group:Group = _
   var hash_ring:HashRing[String, String] = _
 
   var master = false
@@ -113,47 +110,9 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
     var timeout = Timespan.parse(Option(config.zk_timeout).getOrElse("5s"))
     zk_client = new ZKClient(config.zk_url, timeout, null)
-    zk_client.registerListener(new LifecycleListener {
-
-      def onDisconnected() = dispatch_queue {
-        // TODO:
-        // ZK is a HA service which allows us to resolve network splits,
-        // if we can't stay connected to it, then we might be in a network
-        // split situation so we should shutdown our services.
-
-        // Start all the virtual hosts..
-        broker.virtual_hosts.values.foreach { _ match {
-          case host:ClusterVirtualHost =>
-            host.dispatch_queue {
-              host.make_slave(None)
-            }
-          case _ =>
-        } }
-
-        master = false
-        master_info = None
-        cluster_group = null
-
-        cluster_listeners.foreach {
-          _.on_change
-        }
-      }
-
-      def onConnected() = dispatch_queue {
-
-        hosts_stopped_due_to_disconnect.foreach { id =>
-          broker.virtual_hosts.get(id).foreach(_.start)
-        }
-        hosts_stopped_due_to_disconnect = Nil
-
-        if( cluster_group==null ) {
-          cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory+"/brokers")
-          update_cluster_state
-          cluster_group.add(change_listener)
-        }
-      }
-    })
-
+    cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory+"/brokers")
+    cluster_singleton.start(cluster_group)
+    cluster_singleton.join
     zk_client.start
     on_completed.run
   }
@@ -161,8 +120,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
   override def _stop(on_completed: Runnable): Unit = {
     if( cluster_group!=null ) {
-      cluster_group.remove(change_listener)
-      cluster_group.leave(node_id)
+      cluster_singleton.stop
       cluster_group = null
     }
     zk_client.close()
@@ -210,19 +168,45 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
   def socket_address: SocketAddress = null
 
+  object cluster_singleton extends ClusteredSingleton[ClusterNodeDTO](classOf[ClusterNodeDTO],node_id) {
 
-  def update_cluster_state: Unit = {
-    val my_info = new ClusterNodeDTO
-    my_info.id = node_id
-    my_info.weight = cluster_weight
-    my_info.cluster_address = cluster_address
-    cluster_group.join(node_id, JsonCodec.encode(my_info).toByteArray)
+    def state = {
+      val rc = new ClusterNodeDTO
+      rc.id = node_id
+      rc.weight = cluster_weight
+      rc.cluster_address = cluster_address
+      rc
+    }
+
+    def join:Unit= join(state)
+    def update:Unit = update(state)
+
+    add(new ChangeListener(){
+      def connected = changed
+      def changed = on_cluster_change
+      def disconnected = {
+        // Stop all the virtual hosts..
+        broker.virtual_hosts.values.foreach { _ match {
+          case host:ClusterVirtualHost =>
+            host.dispatch_queue {
+              host.make_slave(None)
+            }
+          case _ =>
+        } }
+
+        ClusterConnector.this.master = false
+        master_info = None
+        cluster_listeners.foreach {
+          _.on_change
+        }
+      }
+    })
   }
 
   def set_cluster_weight(value:Int): Unit = dispatch_queue {
     if( cluster_weight!= value ) {
       cluster_weight = value
-      update_cluster_state
+      cluster_singleton.update
     }
   }
 
@@ -246,111 +230,90 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
     }
   }
 
-  val change_listener = new ChangeListener() {
+  def on_cluster_change = dispatch_queue {
+    val (active, activeNodeState, members_by_id) = cluster_singleton.synchronized {
+      (cluster_singleton.isMaster, cluster_singleton.master, cluster_singleton.members.mapValues(_.map(_._2)))
+    }
+    master = active
+    master_info = activeNodeState
 
-    def changed(members: Array[Array[Byte]]) {
-      on_cluster_change(members.toList.flatMap{ data=>
-        try {
-          Some(JsonCodec.decode(new Buffer(data), classOf[ClusterNodeDTO]))
-        } catch {
-          case _ => None
+    // are we switching to be the master?
+    if( master  ) {
+      master_info = None
+      // notify all the virtual hosts so that they can startup..
+      broker.virtual_hosts.values.foreach { host=>
+        host match {
+          case host:ClusterVirtualHost =>
+            host.dispatch_queue {
+              host.make_master
+            }
+          case _ =>
         }
-      })
+      }
+    } else {
+      master = false
+
+      // notify all the virtual hosts so that they can shutdown..
+      broker.virtual_hosts.values.foreach { host=>
+        host match {
+          case host:ClusterVirtualHost =>
+            host.dispatch_queue {
+              host.make_slave( master_info.flatMap(x=> Option(x.client_address)) )
+            }
+          case _ =>
+        }
+      }
     }
 
-    def on_cluster_change(members: List[ClusterNodeDTO]) = dispatch_queue {
+    if(master) {
 
-      // Group the node entries by node id, only the first is the master,
-      // all others can be ignored.
-      val members_by_id = HashMap[String, ListBuffer[ClusterNodeDTO]]()
-      members.foreach { case node =>
-        members_by_id.getOrElseUpdate(node.id, ListBuffer[ClusterNodeDTO]()).append(node)
+      val now = System.currentTimeMillis
+      peers.values.foreach(x=> x.left_cluster_at = now )
+
+      members_by_id.foreach { case (id, nodes) =>
+        val peer = get_or_create_peer(id)
+        peer.left_cluster_at = 0
+        peer.peer_info = nodes.head
       }
 
-      // Is this node a master??
-      val our_node_members = members_by_id.remove(node_id)
-      master_info = our_node_members.flatMap(_.headOption)
-      val is_master = master_info.map(_.cluster_address == cluster_address).getOrElse(false)
-
-      // are we switching to be the master?
-      if( is_master  ) {
-        master = true
-        master_info = None
-        // notify all the virtual hosts so that they can startup..
-        broker.virtual_hosts.values.foreach { host=>
-          host match {
-            case host:ClusterVirtualHost =>
-              host.dispatch_queue {
-                host.make_master
-              }
-            case _ =>
-          }
-        }
-      } else if( !is_master ) {
-        master = false
-
-        // notify all the virtual hosts so that they can shutdown..
-        broker.virtual_hosts.values.foreach { host=>
-          host match {
-            case host:ClusterVirtualHost =>
-              host.dispatch_queue {
-                host.make_slave( master_info.flatMap(x=> Option(x.client_address)) )
-              }
-            case _ =>
-          }
-        }
-      }
-
-      if(is_master) {
-
-        val now = System.currentTimeMillis
-        peers.values.foreach(x=> x.left_cluster_at = now )
-
-        members_by_id.foreach { case (id, nodes) =>
-          val peer = get_or_create_peer(id)
-          peer.left_cluster_at = 0
-          peer.peer_info = nodes.head
-        }
-
-        // Drop peers that have left the cluster.
-        peers.foreach{ case (id, peer) =>
-          if( peer.left_cluster_at != 0 ) {
-            peer.close
-            remove_peer(id)
-          }
-        }
-
-        val new_ring = create_hash_ring()
-        if( new_ring!=hash_ring ) {
-          hash_ring = new_ring
-          import collection.JavaConversions._
-          println("Cluster membership changed to: "+hash_ring.getNodes.mkString(", "))
-          // notify the hosts of the hash ring update...
-          broker.virtual_hosts.values.foreach { host=>
-            host match {
-              case host:ClusterVirtualHost =>
-                host.dispatch_queue {
-                  host.router.on_cluster_change(ClusterConnector.this, new_ring)
-                }
-              case _ =>
-            }
-          }
-        }
-        peer_check
-
-      } else {
-        // disconnect since we are not the master..
-        peers.foreach{ case (id, peer) =>
+      // Drop peers that have left the cluster.
+      peers.foreach{ case (id, peer) =>
+        if( peer.left_cluster_at != 0 ) {
           peer.close
           remove_peer(id)
         }
       }
 
-      cluster_listeners.foreach {
-        _.on_change
+      val new_ring = create_hash_ring()
+      if( new_ring!=hash_ring ) {
+        hash_ring = new_ring
+        import collection.JavaConversions._
+        println("Cluster membership changed to: "+hash_ring.getNodes.mkString(", "))
+        // notify the hosts of the hash ring update...
+        broker.virtual_hosts.values.foreach { host=>
+          host match {
+            case host:ClusterVirtualHost =>
+              host.dispatch_queue {
+                host.router.on_cluster_change(ClusterConnector.this, new_ring)
+              }
+            case _ =>
+          }
+        }
       }
+      peer_check
 
+    } else {
+      // disconnect since we are not the master..
+      peers.foreach{ case (id, peer) =>
+        peer.close
+        remove_peer(id)
+      }
     }
+
+    cluster_listeners.foreach {
+      _.on_change
+    }
+
   }
 
   def create_hash_ring() = {

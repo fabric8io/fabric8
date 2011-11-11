@@ -4,23 +4,6 @@
 
 The Jclouds Agent Provider allows you to create a Fabric Agent on the Cloud via Jclouds.
 
-## Prerequisites
-### JRE preparation on Karaf
-
-In order to be able to use the jclouds agent provider, you will need to edit the jre.properties of your Karaf installtion and add the following line:
-
-jre-1.6= \
-
-  ...
-
-  javax.annotation;version="1.1"; partial=true; mandatory:=
-
-  ...
-
-
-Note: skipping this step will result in your bundles not being able to import javax.annotation package from jre.
-
-
 ### Account & Image creation on the target cloud provider.
 
 You will need to have an account with one of the supported providers and a java ready image. Java ready means with java installed and available on the basic path (/usr/bin, /usr/local/bin etc).
@@ -42,9 +25,9 @@ karaf@root>config:edit org.jclouds.compute-ec2
 
 karaf@root> config:propset provider aws-ec2
 
-karaf@root> config:propset identiy CLOUD_PROVIDER_ID
+karaf@root> config:propset identiy CLOUD_PROVIDER_ID  (e.g. Access Key ID for Amazon)
 
-karaf@root> config:propset credential CLOUD_PROVIDER_CREDENTIAL
+karaf@root> config:propset credential CLOUD_PROVIDER_CREDENTIAL (e.g. Secret Access Key for Amazon)
 
 karaf@root> config:update
 
@@ -68,7 +51,7 @@ karaf@root>features:install fabric-jclouds
 
 To create a new node using the jclouds agent provider:
 
-fabric:create-agent --url jclouds://<PROVIDER_NAME>2?imageId=<IMAGE_ID>&locationId=<LOCATION_ID>&group=<GROUP>&user=<USER> --profile <FABRIC_PROFILE> <AGENT_ID>
+fabric:create-agent --url jclouds://{PROVIDER_NAME}?imageId={IMAGE_ID}&locationId={LOCATION_ID}&group={GROUP}&user={USER} --profile {FABRIC_PROFILE} {AGENT_ID}
 
 ###Required parameters:
 

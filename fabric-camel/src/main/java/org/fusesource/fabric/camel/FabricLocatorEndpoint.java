@@ -68,14 +68,20 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
             loadBalancer = createLoadBalancer();
         }
         group.add(new ChangeListener(){
-            public void changed(byte[][] members) {
+            public void changed() {
                 // TODO - should we be clearing all the members here???
-                for (byte[] uri : members) {
+                for (byte[] uri : group.members().values()) {
                     try {
                         loadBalancer.addProcessor(getProcessor(new String(uri, "UTF-8")));
                     } catch (UnsupportedEncodingException ignore) {
                     }
                 }
+            }
+            public void connected() {
+                changed();
+            }
+            public void disconnected() {
+                changed();
             }
         });
     }

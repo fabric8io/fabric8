@@ -49,7 +49,7 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
     @Override
     public void start() throws Exception {
         super.start();
-        group.join(child, child.getBytes("UTF-8"));
+        group.join(child.getBytes("UTF-8"));
     }
 
     @Override

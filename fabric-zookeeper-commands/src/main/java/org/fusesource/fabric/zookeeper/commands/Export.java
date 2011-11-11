@@ -87,7 +87,7 @@ public class Export extends ZooKeeperCommandSupport {
 
         for(String p : paths) {
             p = path + p;
-            if (!matches(include, p) || matches(exclude, p)) {
+            if (!matches(include, p, true) || matches(exclude, p, false)) {
                 continue;
             }
             byte[] data = getZooKeeper().getData(p);

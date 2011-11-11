@@ -8,11 +8,11 @@
  */
 package org.fusesource.fabric.service;
 
+import java.net.URI;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
-
-import java.net.URI;
+import org.fusesource.fabric.api.CreateAgentArguments;
 
 public class ChildAgentProvider implements AgentProvider {
 
@@ -25,23 +25,37 @@ public class ChildAgentProvider implements AgentProvider {
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
+     * @param proxyUri
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      * @param debugAgent   Flag used to enable debugging on the new Agent.
+     * @param number       The number of Agents to create.
+     * @param isClusterServer       Marks if the agent will have the role of the cluster server.
+     * @param debugAgent
      */
-    public void create(final URI agentUri, final String name, final String zooKeeperUrl, final boolean debugAgent) {
+    public void create(URI proxyUri, final URI agentUri, final String name, final String zooKeeperUrl, final boolean isClusterServer, final boolean debugAgent, final int number) {
         final Agent parent = service.getAgent(agentUri.getSchemeSpecificPart());
         service.getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
                 if(debugAgent) {
-                    javaOpts += AgentProvider.DEBUG_AGNET;
+                    javaOpts += DEBUG_AGNET;
+                }
+                if(isClusterServer) {
+                    javaOpts += CLUSTER_SERVER_AGENT;
                 }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features";
-                adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
-                adminService.startInstance(name, null);
+
+                for (int i = 1; i <= number; i++) {
+                    String agentName = name;
+                    if (number > 1) {
+                        agentName += i;
+                    }
+                    adminService.createInstance(agentName, 0, 0, 0, null, javaOpts, features, featuresUrls);
+                    adminService.startInstance(agentName, null);
+                }
                 return null;
             }
         });
@@ -50,12 +64,32 @@ public class ChildAgentProvider implements AgentProvider {
     /**
      * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
      *
+     * @param proxyUri
+     * @param agentUri      The uri that contains required information to build the Agent.
+     * @param name          The name of the Agent.
+     * @param zooKeeperUrl  The url of Zoo Keeper.
+     * @param debugAgent    Flag used to enable debugging on the new Agent.
+     */
+    @Override
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent) {
+        create(proxyUri, agentUri, name, zooKeeperUrl,isClusterServer,debugAgent,1);
+    }
+
+    /**
+     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
+     *
+     * @param proxyUri
      * @param agentUri     The uri that contains required information to build the Agent.
      * @param name         The name of the Agent.
      * @param zooKeeperUrl The url of Zoo Keeper.
      */
     @Override
-    public void create(URI agentUri, String name, String zooKeeperUrl) {
-        create(agentUri,name,zooKeeperUrl);
+    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
+        create(proxyUri, agentUri, name, zooKeeperUrl,false, false);
+    }
+
+    @Override
+    public boolean create(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
+        return false;
     }
 }
