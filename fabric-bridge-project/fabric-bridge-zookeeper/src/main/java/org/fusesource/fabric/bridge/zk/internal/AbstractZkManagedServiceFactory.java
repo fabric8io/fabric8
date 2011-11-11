@@ -144,6 +144,7 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
                         throw new ConfigurationException(connectionFactoryRef, msg);
                     }
                     if (serviceReferences != null) {
+                        config.setConnectionFactoryRef(connectionFactoryRef);
                         config.setConnectionFactory((ConnectionFactory) bundleContext.getService(serviceReferences[0]));
                         // remember the service so we can unget it later
                         addServiceReference(pid, serviceReferences[0]);
@@ -168,6 +169,7 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
                         throw new ConfigurationException(destinationResolverRef, msg);
                     }
                     if (serviceReferences != null) {
+                        config.setDestinationResolverRef(destinationResolverRef);
                         config.setDestinationResolver((DestinationResolver) bundleContext.getService(serviceReferences[0]));
                         // remember the service so we can unget it later
                         addServiceReference(pid, serviceReferences[0]);
