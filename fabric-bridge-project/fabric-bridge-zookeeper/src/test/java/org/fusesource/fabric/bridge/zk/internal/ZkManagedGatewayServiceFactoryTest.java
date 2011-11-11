@@ -33,7 +33,6 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
 
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();
     private static final String DESTINATION_RESOLVER_CLASS_NAME = DestinationResolver.class.getName();
-    private static final String LOCAL_FACTORY_FILTER = "(" + Constants.SERVICE_PID + "=localCF" + ")";
     private static final String REMOTE_FACTORY_FILTER = "(" + Constants.SERVICE_PID + "=remoteCF" + ")";
 
     private static ClassPathXmlApplicationContext applicationContextZkServer;
@@ -62,10 +61,10 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
             public ServiceReference[] getServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
                 Hashtable<String, Object> properties = new Hashtable<String, Object>();
                 if (CONNECTION_FACTORY_CLASS_NAME.equals(clazz)) {
-                    if (LOCAL_FACTORY_FILTER.equals(filter)) {
-                        properties.put(SERVICE_PROPERTY, localConnectionFactory);
-                    } else if (REMOTE_FACTORY_FILTER.equals(filter)) {
+                    if (REMOTE_FACTORY_FILTER.equals(filter)) {
                         properties.put(SERVICE_PROPERTY, remoteConnectionFactory);
+                    } else  {
+                        return null;
                     }
                 } else if (DESTINATION_RESOLVER_CLASS_NAME.equals(clazz)) {
                     properties.put(SERVICE_PROPERTY, new DynamicDestinationResolver());

@@ -34,7 +34,6 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();
     private static final String DESTINATION_RESOLVER_CLASS_NAME = DestinationResolver.class.getName();
     private static final String LOCAL_FACTORY_FILTER = "(" + Constants.SERVICE_PID + "=localCF" + ")";
-    private static final String REMOTE_FACTORY_FILTER = "(" + Constants.SERVICE_PID + "=remoteCF" + ")";
 
     private static ClassPathXmlApplicationContext applicationContextZkServer;
     private static ClassPathXmlApplicationContext gatewayContext;
@@ -63,8 +62,8 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
                 if (CONNECTION_FACTORY_CLASS_NAME.equals(clazz)) {
                     if (LOCAL_FACTORY_FILTER.equals(filter)) {
                         properties.put(SERVICE_PROPERTY, localConnectionFactory);
-                    } else if (REMOTE_FACTORY_FILTER.equals(filter)) {
-                        properties.put(SERVICE_PROPERTY, remoteConnectionFactory);
+                    } else {
+                        return null;
                     }
                 } else if (DESTINATION_RESOLVER_CLASS_NAME.equals(clazz)) {
                     properties.put(SERVICE_PROPERTY, new DynamicDestinationResolver());
@@ -116,7 +115,6 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
         // create a simple broker URL based bridge
         Hashtable<String, String> properties = getDefaultConfig();
         properties.put("localBroker.brokerUrl", TEST_LOCAL_BROKER_URL);
-        properties.put("remoteBroker.brokerUrl", TEST_REMOTE_BROKER_URL);
         properties.put("exportedBroker.brokerUrl", TEST_LOCAL_BROKER_URL);
 
         serviceFactory.updated(TEST_PID, properties);
@@ -132,11 +130,9 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
         // create a simple broker URL based bridge
         Hashtable<String, String> properties = getDefaultConfig();
         properties.put("localBroker.connectionFactoryRef", "localCF");
-        properties.put("remoteBroker.connectionFactoryRef", "remoteCF");
         properties.put("exportedBroker.connectionFactoryRef", "localCF");
 
         properties.put("localBroker.destinationResolverRef", "localResolver");
-        properties.put("remoteBroker.destinationResolverRef", "remoteResolver");
         properties.put("exportedBroker.destinationResolverRef", "localResolver");
 
         serviceFactory.updated(TEST_PID, properties);
