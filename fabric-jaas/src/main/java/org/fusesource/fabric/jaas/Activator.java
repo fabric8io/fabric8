@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.jaas;
 
+import java.util.Dictionary;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -15,8 +17,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Dictionary;
 
 public class Activator implements BundleActivator {
 
@@ -33,11 +33,13 @@ public class Activator implements BundleActivator {
             Configuration config = confAdmin.getConfiguration("org.apache.karaf.shell");
             Dictionary props = config.getProperties();
             props.put("sshRealm", "zookeeper");
+            config.setBundleLocation(null);
             config.update(props);
 
             config = confAdmin.getConfiguration("org.apache.karaf.management");
             props = config.getProperties();
             props.put("jmxRealm", "zookeeper");
+            config.setBundleLocation(null);
             config.update(props);
         }
     }
@@ -53,11 +55,13 @@ public class Activator implements BundleActivator {
             Configuration config = confAdmin.getConfiguration("org.apache.karaf.shell");
             Dictionary props = config.getProperties();
             props.put("sshRealm", "karaf");
+            config.setBundleLocation(null);
             config.update(props);
 
             config = confAdmin.getConfiguration("org.apache.karaf.management");
             props = config.getProperties();
             props.put("jmxRealm", "karaf");
+            config.setBundleLocation(null);
             config.update(props);
         }
     }
