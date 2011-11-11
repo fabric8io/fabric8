@@ -267,7 +267,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     // we may be dependent on the actual service it exposes rather than packages we import...
                     boolean hasNoPendingPackagesOrServices = false;
                     if (missing.isEmpty()) {
-                        String services = dependency.getManfiestEntry("Export-Service");
+                        String services = dependency.getManifestEntry("Export-Service");
 
                         // TODO DIRTY HACK!
                         // we should be comparing the export services statement with the Import-Service
