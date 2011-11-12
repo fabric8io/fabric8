@@ -124,6 +124,8 @@
                                    <feature>fabric-activemq</feature>
                                    <feature>fabric-bundle</feature>
                                    <feature>fabric-monitor</feature>
+                                   <feature>insight-log</feature>
+                                   <feature>insight-elasticsearch</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>

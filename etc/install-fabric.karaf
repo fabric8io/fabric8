@@ -26,6 +26,9 @@ wait-for-command fabric zk-cluster
 features:install fabric-jaas
 wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.apache.karaf.jaas.module=zookeeper))"
 
+features:install insight-elasticsearch
+features:install insight-log
+
 # join existing cluster as root node (if first param is set - host:port)
 # or create a new one
  if {$1} {

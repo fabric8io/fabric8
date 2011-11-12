@@ -1,0 +1,36 @@
+<!--
+
+    Copyright (C) 2010 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder />
+    
+	<bean id="nodeFactory" class="org.elasticsearch.pojo.NodeFactory" destroy-method="destroy" depends-on="zookeeper">
+        <property name="bundleContext" ref="blueprintBundleContext" />
+    <property name="zookeeper" ref="zookeeper" />
+		<property name="settings">
+			<map>
+				<entry key="name" value="${karaf.name}" />
+				<entry key="path.home" value="${karaf.data}/elastic" />
+				<entry key="node.data" value="true" />
+				<entry key="cluster.name" value="elasticsearch" />
+			</map>
+		</property>
+	</bean>
+    <service ref="nodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.insight.elasticsearch" />
+        </service-properties>
+    </service>
+
+    <reference id="zookeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
+
+</blueprint>

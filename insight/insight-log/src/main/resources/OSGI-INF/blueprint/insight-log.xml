@@ -1,0 +1,48 @@
+<!--
+
+    Copyright (C) 2010 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
+
+    <cm:property-placeholder persistent-id="org.fusesource.insight.log" update-strategy="reload"/>
+
+    <bean id="appender" class="org.fusesource.insight.log.InsightLogAppender" init-method="init">
+        <property name="name" value="$[karaf.name]" />
+        <property name="index" value="${es.log.index}"/>
+        <property name="type" value="${es.log.type}"/>
+        <property name="sender" ref="sender" />
+    </bean>
+    <service ref="appender" interface="org.ops4j.pax.logging.spi.PaxAppender">
+        <service-properties>
+            <entry key="org.ops4j.pax.logging.appender.name" value="FonLogAppender"/>
+        </service-properties>
+    </service>
+
+    <bean id="handler" class="org.fusesource.insight.log.InsightEventHandler" init-method="init">
+        <property name="name" value="$[karaf.name]" />
+        <property name="index" value="${es.evt.index}"/>
+        <property name="type" value="${es.evt.type}"/>
+        <property name="sender" ref="sender"/>
+    </bean>
+    <service ref="handler" interface="org.osgi.service.event.EventHandler">
+        <service-properties>
+            <entry key="event.topics" value="*" />
+        </service-properties>
+    </service>
+
+    <bean id="sender" class="org.fusesource.insight.log.ElasticSender" init-method="init" destroy-method="destroy">
+        <property name="node">
+            <reference interface="org.elasticsearch.node.Node" />
+        </property>
+    </bean>
+
+</blueprint>

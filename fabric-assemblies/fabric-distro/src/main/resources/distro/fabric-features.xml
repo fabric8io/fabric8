@@ -200,4 +200,46 @@
     </feature>
 
 
+    <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
+        <config name="org.fusesource.insight.elasticsearch-default">
+            #
+            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # http://fusesource.com
+            #
+            # The software in this package is published under the terms of the CDDL license
+            # a copy of which has been included with this distribution in the license.txt file.
+            #
+
+            node.data=true
+            jmx.domain=org.elasticsearch
+            http.enabled=true
+            threadpool.cached.scheduled_size=6
+            #discovery.type=org.elasticsearch.discovery.zookeeper.ZooKeeperDiscoveryModule
+            discovery.zen.ping.multicast.enabled=false
+            discovery.zen.ping.unicast.hosts=localhost
+        </config>
+        <feature>fabric-zookeeper</feature>
+        <feature>fabric-groups</feature>
+        <bundle>mvn:org.fusesource.insight/insight-elasticsearch/${project.version}</bundle>
+    </feature>
+
+    <feature name="insight-log" version="${project.version}" resolver="(obr)">
+        <config name="org.fusesource.insight.log">
+            #
+            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # http://fusesource.com
+            #
+            # The software in this package is published under the terms of the CDDL license
+            # a copy of which has been included with this distribution in the license.txt file.
+            #
+
+            es.log.index=insight
+            es.log.type=log
+            es.evt.index=insight
+            es.evt.type=evt
+        </config>
+        <feature>eventadmin</feature>
+        <feature>insight-elasticsearch</feature>
+        <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
+    </feature>
 </features>

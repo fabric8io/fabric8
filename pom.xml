@@ -208,13 +208,14 @@
         <module>fabric-eca</module>
         <module>fabric-security</module>
         <module>fab</module>
+        <module>insight</module>
+        <module>fabric-bridge-project</module>
         <module>fabric-examples</module>
         <module>fabric-assemblies</module>
         <module>fabric-itests</module>
 
         <!-- TODO fix build of fabric-cxf then move back up a bit :) -->
         <module>fabric-cxf</module>
-        <module>fabric-bridge-project</module>
     </modules>
 
     <build>
