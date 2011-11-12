@@ -23,7 +23,7 @@
     </bean>
     <service ref="appender" interface="org.ops4j.pax.logging.spi.PaxAppender">
         <service-properties>
-            <entry key="org.ops4j.pax.logging.appender.name" value="FonLogAppender"/>
+            <entry key="org.ops4j.pax.logging.appender.name" value="InsightLogAppender"/>
         </service-properties>
     </service>
 
