@@ -1,16 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
-
-        http://fusesource.com
-
-    The software in this package is published under the terms of the
-    CDDL license a copy of which has been included with this distribution
-    in the license.txt file.
-
--->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://fusesource.org/fabric/bridge" elementFormDefault="qualified" version="1.0" targetNamespace="http://fusesource.org/fabric/bridge">
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://fusesource.org/fabric/bridge" elementFormDefault="qualified" version="1.0" targetNamespace="http://fusesource.org/fabric/bridge">
 
   <xs:element name="bridge-connector" type="tns:bridgeConnector"/>
 
