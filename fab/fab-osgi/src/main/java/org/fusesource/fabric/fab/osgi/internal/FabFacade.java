@@ -1,12 +1,15 @@
 /**
- * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
+ * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
  * http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * AGPL license a copy of which has been included with this distribution
+ * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
 package org.fusesource.fabric.fab.osgi.internal;
+
+import java.io.File;
+import java.io.IOException;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
@@ -16,9 +19,6 @@ import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.util.Filter;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Represents a facade to either a jar being deployed or a bundle already installed

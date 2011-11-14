@@ -9,5 +9,5 @@
 \u001B[1mDESCRIPTION\u001B[0m
     This bundle provides support for Fabric JMS Bridge and Gateway connectors.
 
-    This bundle has a dependency on the ZooKeeper service.
+    This bundle has a dependency on the FabricService and ZooKeeper service.
 

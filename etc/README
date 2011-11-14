@@ -1,15 +1,19 @@
 Introduction
 ============
 
+To install Karaf try...
+
+    shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/installer
+
 These scripts are now filtered as part of the build of the fabric-distro project.  To build the
 scripts cd into "fabric-distro" and run "mvn clean install".  Then you can either source the
 script directly via :
 
-shell:source (your fabric source)/fabric-distro/target/classes/script.karaf
+    shell:source (your fabric source)/fabric-distro/target/classes/script.karaf
 
 or better still just do it via maven, for example:
 
-shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
+    shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
 
 
 Example to run a Fabric ActiveMQ Broker

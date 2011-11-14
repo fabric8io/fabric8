@@ -9,16 +9,6 @@
 
 package org.fusesource.fabric.api.monitor
 
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
- *
- *     http://fusesource.com
- *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
- */
-
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller

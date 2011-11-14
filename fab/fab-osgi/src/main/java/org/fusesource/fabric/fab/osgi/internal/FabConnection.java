@@ -236,7 +236,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
             for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
                 if (dependency.isBundle()) {
                     // Expand the actual imports list with imports of our dependencies
-                    String importPackages = dependency.getManfiestEntry(Analyzer.IMPORT_PACKAGE);
+                    String importPackages = dependency.getManifestEntry(Analyzer.IMPORT_PACKAGE);
                     if( notEmpty(importPackages) ) {
                         Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
                         for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
@@ -267,7 +267,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     // we may be dependent on the actual service it exposes rather than packages we import...
                     boolean hasNoPendingPackagesOrServices = false;
                     if (missing.isEmpty()) {
-                        String services = dependency.getManfiestEntry("Export-Service");
+                        String services = dependency.getManifestEntry("Export-Service");
 
                         // TODO DIRTY HACK!
                         // we should be comparing the export services statement with the Import-Service
@@ -351,7 +351,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         if (dependency != null) {
             // lets find the export packages and use the version from that
             if (dependency.isBundle()) {
-                String exportPackages = dependency.getManfiestEntry("Export-Package");
+                String exportPackages = dependency.getManifestEntry("Export-Package");
                 if (notEmpty(exportPackages)) {
                     Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
                     Map<String, String> map = values.get(packageName);

@@ -8,14 +8,14 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -114,10 +114,8 @@ public class EditProfile extends FabricCommand {
     private String getPid() {
         if (pid != null) {
             return pid;
-        } else if (repositories || features || bundles) {
-            return AGENT_PID;
         } else {
-            throw new IllegalArgumentException("Either --pid, --repository, --feature or --bundle must be specified");
+            return AGENT_PID;
         }
     }
 }

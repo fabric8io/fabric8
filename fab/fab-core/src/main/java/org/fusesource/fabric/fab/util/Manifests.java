@@ -20,8 +20,8 @@ public class Manifests {
     /**
      * Returns the entry from the manifest for the given name
      */
-    public static String getManfiestEntry(File file, String attributeName) throws IOException {
-        Manifest manifest = getManfiest(file);
+    public static String getManifestEntry(File file, String attributeName) throws IOException {
+        Manifest manifest = getManifest(file);
         if (manifest != null) {
             return manifest.getMainAttributes().getValue(attributeName);
         }
@@ -31,7 +31,7 @@ public class Manifests {
     /**
      * Returns the entry from the manifest for the given name
      */
-    public static Manifest getManfiest(File file) throws IOException {
+    public static Manifest getManifest(File file) throws IOException {
         JarFile jar = new JarFile(file);
         try {
             // only handle non OSGi jar

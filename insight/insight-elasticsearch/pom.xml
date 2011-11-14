@@ -1,0 +1,115 @@
+<!--
+
+    Copyright (C) 2010 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+		<groupId>org.fusesource.insight</groupId>
+		<artifactId>insight-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+  <artifactId>insight-elasticsearch</artifactId>
+  <name>${project.artifactId}</name>
+  <packaging>bundle</packaging>
+
+  <properties>
+      <fabric.osgi.import.additional>
+          *;resolution:=optional
+      </fabric.osgi.import.additional>
+      <fabric.osgi.export>
+          org.elasticsearch*;-noimport:=true;version=0.14.2
+      </fabric.osgi.export>
+      <fabric.osgi.private.pkg>
+          org.apache.lucene*,
+          org.tartarus*,
+          org.ops4j.peaberry*
+      </fabric.osgi.private.pkg>
+      <fabric.osgi.services.export>
+          org.elasticsearch.node.Node
+      </fabric.osgi.services.export>
+  </properties>
+
+  <dependencies>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-groups</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-linkedin-zookeeper</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+          <version>4.2.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.compendium</artifactId>
+          <version>4.2.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.elasticsearch</groupId>
+          <artifactId>elasticsearch</artifactId>
+          <version>0.16.0</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.lucene</groupId>
+          <artifactId>lucene-core</artifactId>
+          <version>3.1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.lucene</groupId>
+          <artifactId>lucene-analyzers</artifactId>
+          <version>3.1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.lucene</groupId>
+          <artifactId>lucene-highlighter</artifactId>
+          <version>3.1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.lucene</groupId>
+          <artifactId>lucene-memory</artifactId>
+          <version>3.1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.lucene</groupId>
+          <artifactId>lucene-queries</artifactId>
+          <version>3.1.0</version>
+      </dependency>
+
+      <dependency>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+          <version>1.2.16</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.jboss.netty</groupId>
+          <artifactId>netty</artifactId>
+          <version>3.2.3.Final</version>
+      </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+    </plugins>
+  </build>
+
+</project>

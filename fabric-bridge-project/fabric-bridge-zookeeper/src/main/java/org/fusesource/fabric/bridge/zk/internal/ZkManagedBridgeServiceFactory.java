@@ -109,7 +109,6 @@ public class ZkManagedBridgeServiceFactory extends AbstractZkManagedServiceFacto
         }
 
         bridgeConnector.setLocalBrokerConfig(createBrokerConfig(pid, "localBroker", properties));
-        bridgeConnector.setRemoteBrokerConfig(createBrokerConfig(pid, "remoteBroker", properties));
         bridgeConnector.setExportedBrokerConfig(createBrokerConfig(pid, "exportedBroker", properties));
 
 
