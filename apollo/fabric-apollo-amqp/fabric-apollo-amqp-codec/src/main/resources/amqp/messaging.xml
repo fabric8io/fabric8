@@ -5,112 +5,27 @@
   Copyright Notice
   ================
   (c) Copyright Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche
-  Boerse Systems, Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica
-  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress
-  Software, Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST
-  Process Innovations Ltd, VMware Inc. and WS02 Inc. 2006-2011. All rights reserved.
-
-  License
-  =======
-
-  Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche Boerse Systems,
-  Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica Corporation, JPMorgan
-  Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
+  Boerse, Envoy Technologies Inc., Goldman Sachs, HCL Technologies Ltd, IIT Software GmbH, iMatix
+  Corporation, INETCO Systems Limited, Informatica Corporation, JPMorgan Chase & Co., Kaazing
+  Corporation, N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
   Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process Innovations Ltd,
-  VMware Inc. and WS02 Inc. (collectively, the "Authors") each hereby grants to you a worldwide,
-  perpetual, royalty-free, nontransferable, nonexclusive license to (i) copy, display, distribute
-  and implement the Advanced Message Queuing Protocol ("AMQP") Specification and (ii) the Licensed
-  Claims that are held by the Authors, all for the purpose of implementing the Advanced Message
-  Queuing Protocol Specification. Your license and any rights under this Agreement will terminate
-  immediately without notice from any Author if you bring any claim, suit, demand, or action related
-  to the Advanced Message Queuing Protocol Specification against any Author. Upon termination, you
-  shall destroy all copies of the Advanced Message Queuing Protocol Specification in your possession
-  or control.
-
-  As used hereunder, "Licensed Claims" means those claims of a patent or patent application,
-  throughout the world, excluding design patents and design registrations, owned or controlled, or
-  that can be sublicensed without fee and in compliance with the requirements of this Agreement, by
-  an Author or its affiliates now or at any future time and which would necessarily be infringed by
-  implementation of the Advanced Message Queuing Protocol Specification. A claim is necessarily
-  infringed hereunder only when it is not possible to avoid infringing it because there is no
-  plausible non-infringing alternative for implementing the required portions of the Advanced
-  Message Queuing Protocol Specification. Notwithstanding the foregoing, Licensed Claims shall not
-  include any claims other than as set forth above even if contained in the same patent as Licensed
-  Claims; or that read solely on any implementations of any portion of the Advanced Message Queuing
-  Protocol Specification that are not required by the Advanced Message Queuing Protocol
-  Specification, or that, if licensed, would require a payment of royalties by the licensor to
-  unaffiliated third parties. Moreover, Licensed Claims shall not include (i) any enabling
-  technologies that may be necessary to make or use any Licensed Product but are not themselves
-  expressly set forth in the Advanced Message Queuing Protocol Specification (e.g., semiconductor
-  manufacturing technology, compiler technology, object oriented technology, networking technology,
-  operating system technology, and the like); or (ii) the implementation of other published
-  standards developed elsewhere and merely referred to in the body of the Advanced Message Queuing
-  Protocol Specification, or (iii) any Licensed Product and any combinations thereof the purpose or
-  function of which is not required for compliance with the Advanced Message Queuing Protocol
-  Specification. For purposes of this definition, the Advanced Message Queuing Protocol
-  Specification shall be deemed to include both architectural and interconnection requirements
-  essential for interoperability and may also include supporting source code artifacts where such
-  architectural, interconnection requirements and source code artifacts are expressly identified as
-  being required or documentation to achieve compliance with the Advanced Message Queuing Protocol
-  Specification.
-
-  As used hereunder, "Licensed Products" means only those specific portions of products (hardware,
-  software or combinations thereof) that implement and are compliant with all relevant portions of
-  the Advanced Message Queuing Protocol Specification.
-
-  The following disclaimers, which you hereby also acknowledge as to any use you may make of the
-  Advanced Message Queuing Protocol Specification:
-
-  THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION IS PROVIDED "AS IS," AND THE AUTHORS MAKE NO
-  REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR TITLE; THAT THE CONTENTS
-  OF THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION ARE SUITABLE FOR ANY PURPOSE; NOR THAT THE
-  IMPLEMENTATION OF THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION WILL NOT INFRINGE ANY THIRD
-  PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
-
-  THE AUTHORS WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL
-  DAMAGES ARISING OUT OF OR RELATING TO ANY USE, IMPLEMENTATION OR DISTRIBUTION OF THE ADVANCED
-  MESSAGE QUEUING PROTOCOL SPECIFICATION.
-
-  The name and trademarks of the Authors may NOT be used in any manner, including advertising or
-  publicity pertaining to the Advanced Message Queuing Protocol Specification or its contents
-  without specific, written prior permission. Title to copyright in the Advanced Message Queuing
-  Protocol Specification will at all times remain with the Authors.
-
-  No other rights are granted by implication, estoppel or otherwise.
-
-  Upon termination of your license or rights under this Agreement, you shall destroy all copies of
-  the Advanced Message Queuing Protocol Specification in your possession or control.
-
-  Trademarks
-  ==========
-  "JPMorgan", "JPMorgan Chase", "Chase", the JPMorgan Chase logo and the Octagon Symbol are
-  trademarks of JPMorgan Chase & Co.
-
-  RED HAT is a registered trademarks of Red Hat, Inc. in the US and other countries.
-
-  Java, all Java-based trademarks and OpenOffice.org are trademarks of Sun Microsystems, Inc. in the
-  United States, other countries, or both.
-
-  Other company, product, or service names may be trademarks or service marks of others.
-
-  Link to full AMQP specification:
-  =================================
-  http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
+  VMware, Inc., and WS02 Inc.
+  2006-2011. All rights reserved.
 -->
 
 <!DOCTYPE amqp SYSTEM "amqp.dtd">
 
-<amqp xmlns="http://www.amqp.org/schema/amqp.xsd"
-      name="messaging" label="working version">
+<amqp name="messaging" label="the AMQP Messaging Layer">
 
   <section name="introduction" label="introduction to the Messaging layer">
     <doc>
       <p>
-        The messaging layer builds on top of the concepts described in books II and III. The
-        <xref name="transport"/> layer defines a number of extension points suitable for use in a
-        variety of different messaging applications. The messaging layer specifies a standardized
-        use of these to provide interoperable messaging capabilities. This standard covers:
+        The messaging layer builds on top of the concepts described in <xref type="part"
+        name="types"/> and <xref type="part" name="transport"/>. The <xref type="part"
+        name="transport">transport layer</xref> defines a number of extension points suitable for
+        use in a variety of different messaging applications. The messaging layer specifies a
+        standardized use of these to provide interoperable messaging capabilities. This standard
+        covers:
       </p>
 
       <ul>
@@ -187,7 +102,7 @@
 
       <p>
         An <i>annotated message</i> consists of the bare message plus sections for annotation at the
-        head of the bare message. There are two classes of annotations: annotations that
+        head and tail of the bare message. There are two classes of annotations: annotations that
         travel with the message indefinitely, and annotations that are consumed by the next node.
       </p>
 
@@ -274,7 +189,8 @@
         <p>
           The header section carries standard delivery details about the transfer of a Message
           through the AMQP network. If the header section is omitted the receiver MUST assume the
-          appropriate default values for the fields within the <xref name="header"/>.
+          appropriate default values for the fields within the <xref name="header"/> unless other
+          target or node specific defaults have otherwise been set.
         </p>
       </doc>
 
@@ -284,7 +200,11 @@
         <doc>
           <p>
             Durable Messages MUST NOT be lost even if an intermediary is unexpectedly terminated and
-            restarted.
+            restarted. A target which is not capable of fulfilling this guarantee MUST NOT accept
+            messages where the durable header is set to true: if the source allows the <xref
+            name="rejected"/> outcome then the message should be rejected with the <xref type="type"
+            name="amqp-error" choice="precondition-failed"/> error, otherwise the link must be
+            detached by the receiver with the same error.
           </p>
         </doc>
       </field>
@@ -346,7 +266,7 @@
             (or dead lettered). When a message is transmitted by an intermediary that was received
             with a ttl, the transmitted message's header should contain a ttl that is computed as
             the difference between the current time and the formerly computed message expiration
-            time, ie the reduced ttl, so that messages will eventually die if they end up in a
+            time, i.e. the reduced ttl, so that messages will eventually die if they end up in a
             delivery loop.
           </p>
         </doc>
@@ -386,8 +306,8 @@
           may be specific to one implementation, or common to multiple implementations. The
           capabilities negotiated on link <xref name="attach"/> and on the <xref name="source"/> and
           <xref name="target"/> should be used to establish which annotations a peer supports. A
-          registry of defined annotations and their meanings can be found here: <xref type="extern"
-          name="http://www.amqp.org/specification/1.0/delivery-annotations"/>.
+          registry of defined annotations and their meanings is maintained
+          [<xref name="AMQPDELANN">AMQPDELANN</xref>].
         </p>
 
         <p>
@@ -419,8 +339,8 @@
         </p>
 
         <p>
-          A registry of defined annotations and their meanings can be found here:
-          <xref type="extern" name="http://www.amqp.org/specification/1.0/message-annotations"/>.
+          A registry of defined annotations and their meanings is maintained
+          [<xref name="AMQPMESSANN">AMQPMESSANN</xref>].
         </p>
 
         <p>
@@ -503,18 +423,19 @@
       <field name="content-type" type="symbol" label="MIME content type">
         <doc>
           <p>
-            The RFC-2046 MIME type for the Message's application-data section (body).
+            The RFC-2046 [<xref name="RFC2046">RFC2046</xref>] MIME type for the Message's
+            application-data section (body).
           </p>
           <p>
-            As per RFC-2046 this may contain a charset parameter defining
+            As per RFC-2046 [<xref name="RFC2046">RFC2046</xref>] this may contain a charset
+            parameter defining
             the character encoding used: e.g. 'text/plain; charset="utf-8"'. For clarity, the
             correct MIME type for a truly opaque binary section is application/octet-stream.
           </p>
           <p>
             When using an application-data section with a section code other than <i>data</i>,
-            a client MAY omit the content-type, but, if it does not, it should specify an
-            appropriate MIME type of message/x-amqp+?, where '?' is either data,
-            map or list.
+            content-type, if set, SHOULD be set to a MIME type of message/x-amqp+?, where '?' is
+            either data, map or list.
           </p>
         </doc>
       </field>
@@ -532,9 +453,9 @@
             losing the identity of its underlying content type.
           </p>
           <p>
-            Content Encodings are to be interpreted as per Section 3.5 of RFC 2616. Valid Content
-            Encodings are registered at IANA as "Hypertext Transfer Protocol (HTTP) Parameters"
-            (http://www.iana.org/assignments/http-parameters/http-parameters.xml).
+            Content Encodings are to be interpreted as per Section 3.5 of RFC 2616
+            [<xref name="RFC2616">RFC2616</xref>]. Valid Content
+            Encodings are registered at IANA [<xref name="IANAHTTPPARAMS">IANAHTTPPARAMS</xref>].
           </p>
           <p>
             Content-Encoding MUST not be set when the application-data section is other than
@@ -544,11 +465,11 @@
             Implementations MUST NOT use the <i>identity</i> encoding. Instead, implementations
             should not set this property. Implementations SHOULD NOT
             use the <i>compress</i> encoding, except as to remain compatible with messages
-            originally sent with other protocols, eg HTTP or SMTP.
+            originally sent with other protocols, e.g. HTTP or SMTP.
           </p>
           <p>
             Implementations SHOULD NOT specify multiple content encoding values except as to
-            be compatible with messages originally sent with other protocols, eg HTTP or SMTP.
+            be compatible with messages originally sent with other protocols, e.g. HTTP or SMTP.
           </p>
         </doc>
       </field>
@@ -660,8 +581,8 @@
         </p>
 
         <p>
-          A registry of defined footers and their meanings can be found here: <xref type="extern"
-          name="http://www.amqp.org/specification/1.0/footer"/>.
+          A registry of defined footers and their meanings is maintained
+          [<xref name="AMQPFOOTER">AMQPFOOTER</xref>].
         </p>
       </doc>
 
@@ -674,7 +595,7 @@
           The <i>annotations</i> type is a map where the keys are restricted to be of type <xref
           type="type" name="symbol"/> or of type <xref type="type" name="ulong"/>.  All ulong keys,
           and all symbolic keys except those beginning with "x-" are reserved. On receiving an
-          annotations map containing keys or values which it does not recognise, and for which the
+          annotations map containing keys or values which it does not recognize, and for which the
           key does not begin with the string "x-opt-" an AMQP container MUST detach the link with
           the not-implemented <xref name="amqp-error"/>.
         </p>
@@ -698,6 +619,69 @@
         </p>
       </doc>
     </definition>
+  </section>
+
+  <section name="distribution-nodes" title="Distribution Nodes"
+           label="common interface for nodes that store and distribute messages">
+
+    <doc name="message-state" title="Message States">
+      <p>
+        The Messaging layer defines a set of states for Messages stored at a <i>distribution
+        node</i>. Not all Nodes store Messages for distribution, however these definitions permit
+        some standardized interaction with those nodes that do. The transitions between these states
+        are controlled by the transfer of Messages to/from a distribution node and the resulting
+        terminal delivery state. Note that the state of a Message at one distribution node does not
+        affect the state of the same Message at a separate node.
+      </p>
+
+      <p>
+        By default a Message will begin in the AVAILABLE state. Prior to initiating an
+        <i>acquiring</i> transfer, the Message will transition to the ACQUIRED state. Once in the
+        ACQUIRED state, a Message is ineligible for <i>acquiring</i> transfers to any other Links.
+      </p>
+
+      <p>
+        A Message will remain ACQUIRED at the distribution node until the transfer is settled. The
+        delivery state at the receiver determines how the message transitions when the transfer is
+        settled. If the delivery state at the receiver is not yet known, (e.g. the link endpoint is
+        destroyed before recovery occurs) the <i>default-outcome</i> of the source is used.
+      </p>
+
+      <p>
+        State transitions may also occur spontaneously at the distribution node. For example if a
+        Message with a ttl expires, the effect of expiry may be (depending on specific type and
+        configuration of the distribution node) to move spontaneously from the AVAILABLE state into
+        the ARCHIVED state. In this case any transfers of the message are transitioned to a terminal
+        outcome at the distribution node regardless of receiver state.
+      </p>
+
+      <picture title="Message State Transitions"><![CDATA[
+                         +------------+
+                      +->| AVAILABLE  |
+                      |  +------------+
+                      |        |
+                      |        |
+  terminal outcome:   |        |
+  RELEASED/MODIFIED   |        | TRANSFER (acquiring)
+                      |        |
+                      |        |
+                      |       \|/
+                      |  +------------+
+                      +--|  ACQUIRED  |
+                         +------------+
+                               |
+                               |
+                               |   terminal outcome:
+                               |   ACCEPTED/REJECTED
+                               |
+                               |
+                              \|/
+                         +------------+
+                         |  ARCHIVED  |
+                         +------------+
+]]>
+      </picture>
+    </doc>
   </section>
 
   <section name="delivery-state" title="Delivery State"
@@ -748,22 +732,48 @@
 
     <type class="composite" name="received" source="list" provides="delivery-state">
       <descriptor name="amqp:received:list" code="0x00000000:0x00000023"/>
-      <field name="section-number" type="uint">
+      <doc>
+        <p>
+          At the target the <xref name="received"/> state indicates the furthest point in the
+          payload of the message which the target will not need to have resent if the link is
+          resumed. At the source the <xref name="received"/> state represents the earliest point in
+          the payload which the Sender is able to resume transferring at in the case of link
+          resumption. When resuming a delivery, if this state is set on the first <xref type="type"
+          name="transfer"/> performative it indicates the offset in the payload at which the first
+          resumed delivery is starting. The Sender MUST NOT send the <xref name="received"/> state
+          on <xref type="type" name="transfer"/> or <xref type="type" name="disposition"/>
+          performatives except on the first <xref type="type" name="transfer"/> performative on a
+          resumed delivery.
+        </p>
+      </doc>
+      <field name="section-number" type="uint" mandatory="true">
         <doc>
           <p>
-            If set, the terminus considers the delivery only partially transferred. The value
-            indicates the furthest section within the message for which data has been transferred.
-            This value starts at zero and is incremented for each section present in the encoded
-            message. This includes consecutive sections of the same type.
+            When sent by the Sender this indicates the first section of the message (with
+            section-number 0 being the first section) for which data can be resent. Data from
+            sections prior to the given section cannot be retransmitted for this delivery.
+          </p>
+          <p>
+            When sent by the Receiver this indicates the first section of the message for which
+            all data may not yet have been received.
           </p>
         </doc>
       </field>
-      <field name="section-offset" type="ulong">
+      <field name="section-offset" type="ulong" mandatory="true">
         <doc>
           <p>
-            If set, the terminus considers the delivery only partially transferred. The value
-            indicates the furthest offset within the given section-number for which data has been
-            transferred.
+            When sent by the Sender this indicates the first byte of the encoded section data of the
+            section given by section-number for which data can be resent (with section-offset 0
+            being the first byte). Bytes from the same section prior to the given offset section
+            cannot be retransmitted for this delivery.
+          </p>
+          <p>
+            When sent by the Receiver this indicates the first byte of the given section which has
+            not yet been received. Note that if a receiver has received all of section number X
+            (which contains N bytes of data), but none of section number X + 1, then it may indicate
+            this by sending either Received(section-number=X, section-offset=N) or
+            Received(section-number=X+1, section-offset=0). The state Received(section-number=0,
+            section-offset=0) indicates that no message data at all has been transferred.
           </p>
         </doc>
       </field>
@@ -771,28 +781,47 @@
 
     <type class="composite" name="accepted" source="list" provides="delivery-state, outcome"
           label="the accepted outcome">
-      <doc>
-        <p>
-          The accepted outcome is used to indicate that an incoming Message has been successfully
-          processed. The accepted outcome does not increment the <i>delivery-count</i> in the
-          header of the accepted Message.
-        </p>
-      </doc>
 
       <descriptor name="amqp:accepted:list" code="0x00000000:0x00000024"/>
+
+      <doc>
+        <p>
+          At the source the accepted state means that the message has been retired from the node,
+          and transfer of payload data will not be able to be resumed if the link becomes suspended.
+          A delivery may become accepted at the source even before all transfer frames have been
+          sent, this does not imply that the remaining transfers for the delivery will not be sent -
+          only the aborted flag on the <xref type="type" name="transfer"/> performative can be used
+          to indicate a premature termination of the transfer.
+        </p>
+        <p>
+          At the target, the accepted outcome is used to indicate that an incoming Message has been
+          successfully processed, and that the receiver of the Message is expecting the sender to
+          transition the delivery to the accepted state at the source.
+        </p>
+        <p>
+          The accepted outcome does not increment the <i>delivery-count</i> in the header of the
+          accepted Message.
+        </p>
+      </doc>
     </type>
 
     <type class="composite" name="rejected" source="list" provides="delivery-state, outcome"
           label="the rejected outcome">
-      <doc>
-        <p>
-          The rejected outcome is used to indicate that an incoming Message is invalid and therefore
-          unprocessable. The rejected outcome when applied to a Message will cause the
-          <i>delivery-count</i> to be incremented in the header of the rejected Message.
-        </p>
-      </doc>
 
       <descriptor name="amqp:rejected:list" code="0x00000000:0x00000025"/>
+
+      <doc>
+        <p>
+          At the target, the rejected outcome is used to indicate that an incoming Message is
+          invalid and therefore unprocessable. The rejected outcome when applied to a Message will
+          cause the <i>delivery-count</i> to be incremented in the header of the rejected Message.
+        </p>
+        <p>
+          At the source, the rejected outcome means that the target has informed the source that
+          the message was rejected, and the source has taken the required action. The delivery
+          SHOULD NOT ever spontaneously attain the rejected state at the source.
+        </p>
+      </doc>
 
       <field name="error" type="error" label="error that caused the message to be rejected">
         <doc>
@@ -806,20 +835,58 @@
 
     <type class="composite" name="released" source="list" provides="delivery-state, outcome"
           label="the released outcome">
+
+      <descriptor name="amqp:released:list" code="0x00000000:0x00000026"/>
+
       <doc>
         <p>
-          The released outcome is used to indicate that a given transfer was not and will not be
-          acted upon.  An outcome of released MUST NOT cause the <i>delivery-count</i> of the
-          header of the released Message to be incremented.
+          At the source the released outcome means that the message is no longer acquired by the
+          receiver, and has been made available for (re-)delivery to the same or other targets
+          receiving from the node. The message is unchanged at the node (i.e. the
+          <i>delivery-count</i> of the header of the released Message MUST NOT be incremented). As
+          released is a terminal outcome, transfer of payload data will not be able to be resumed
+          if the link becomes suspended. A delivery may become released at the source even before
+          all transfer frames have been sent, this does not imply that the remaining transfers for
+          the delivery will not be sent. The source MAY spontaneously attain the released outcome
+          for a Message (for example the source may implement some sort of time bound acquisition
+          lock, after which the acquisition of a message at a node is revoked to allow for delivery
+          to an alternative consumer).
+        </p>
+        <p>
+          At the target, the released outcome is used to indicate that a given transfer was not and
+          will not be acted upon.
         </p>
       </doc>
 
-      <descriptor name="amqp:released:list" code="0x00000000:0x00000026"/>
     </type>
 
     <type class="composite" name="modified" source="list" provides="delivery-state, outcome"
           label="the modified outcome">
+
       <descriptor name="amqp:modified:list" code="0x00000000:0x00000027"/>
+
+      <doc>
+        <p>
+          At the source the modified outcome means that the message is no longer acquired by the
+          receiver, and has been made available for (re-)delivery to the same or other targets
+          receiving from the node. The message has been changed at the node in the ways indicated by
+          the fields of the outcome. As modified is a terminal outcome, transfer of payload data
+          will not be able to be resumed if the link becomes suspended. A delivery may become
+          modified at the source even before all transfer frames have been sent, this does not imply
+          that the remaining transfers for the delivery will not be sent. The source MAY
+          spontaneously attain the modified outcome for a Message (for example the source may
+          implement some sort of time bound acquisition lock, after which the acquisition of a
+          message at a node is revoked to allow for delivery to an alternative consumer with the
+          message modified in some way to denote the previous failed, e.g. with delivery-failed set
+          to true).
+        </p>
+        <p>
+          At the target, the modified outcome is used to indicate that a given transfer was not and
+          will not be acted upon, and that the message should be modified in the specified ways at
+          the node.
+        </p>
+      </doc>
+
 
       <field name="delivery-failed" type="boolean"
              label="count the transfer as an unsuccessful delivery attempt">
@@ -852,68 +919,243 @@
         </doc>
       </field>
     </type>
-  </section>
 
-  <section name="message-state" title="Distribution Nodes"
-           label="common interface for nodes that store and distribute messages">
-
-    <doc title="Message States">
+    <doc name="more-resuming-deliveries" title="Resuming Deliveries Using Delivery States">
       <p>
-        The Messaging layer defines a set of states for Messages stored at a <i>distribution
-        node</i>. Not all Nodes store Messages for distribution, however these definitions permit
-        some standardized interaction with those nodes that do. The transitions between these states
-        are controlled by the transfer of Messages to/from a distribution node and the resulting
-        terminal delivery state. Note that the state of a Message at one distribution node does not
-        affect the state of the same Message at a separate node.
+        In <xref type="doc" name="resuming-deliveries"/> the general scheme for how two endpoints
+        should re-establish state after link resumption was provided. The concrete delivery states
+        defined above allow for a more comprehensive set of examples of link resumption.
       </p>
+      <picture><![CDATA[
+    Peer                                   Partner
+    =======================================================================
 
-      <p>
-        By default a Message will begin in the AVAILABLE state. Prior to initiating an
-        <i>acquiring</i> transfer, the Message will transition to the ACQUIRED state. Once in the
-        ACQUIRED state, a Messages is ineligible for <i>acquiring</i> transfers to any other Links.
-      </p>
+    ATTACH(name=N, handle=1,   --+     +-- ATTACH(name=N, handle=2,
+           role=sender,           \   /           role=receiver,
+           source=X,               \ /            source=X,
+           target=Y,                x             target=Y,
+           unsettled=              / \            unsettled=
+            { 1 -> null,          /   \            { 2 -> Received(3,0),
+              2 -> null,       <-+     +->           3 -> Accepted,
+              3 -> null,                             4 -> null,
+              4 -> null,                             6 -> Received(2,0),
+              5 -> Received(0,200),                  7 -> Received(0,100),
+              6 -> Received(1,150),                  8 -> Accepted,
+              7 -> Received(0,500),                  9 -> null,
+              8 -> Received(3,5),                   11 -> Received(1,2000),
+              9 -> Received(2,0),                   12 -> Accepted,
+             10 -> Accepted,                        13 -> Released,
+             11 -> Accepted,                        14 -> null }
+             12 -> Accepted,
+             13 -> Accepted,
+             14 -> Accepted }
 
-      <p>
-        A Message will remain ACQUIRED at the distribution node until the transfer is settled. The
-        delivery state at the receiver determines how the message transitions when the transfer is
-        settled. If the delivery state at the receiver is not yet known, (e.g. the link endpoint is
-        destroyed before recovery occurs) the <i>default-outcome</i> of the source is used.
-      </p>
+    -----------------------------------------------------------------------
+    Key:
 
-      <p>
-        State transitions may also occur spontaneously at the distribution node. For example if a
-        Message with a ttl expires, the effect of expiry may be (depending on specific type and
-        configuration of the distribution node) to move spontaneously from the AVAILABLE state into
-        the ARCHIVED state. In this case any transfers of the message are settled by the
-        distribution node regardless of receiver state.
-      </p>
-
-      <picture title="Message State Transitions"><![CDATA[
-                         +------------+
-                      +->| AVAILABLE  |
-                      |  +------------+
-                      |        |
-                      |        |
-settled with outcome: |        |
-  RELEASED/MODIFIED   |        | TRANSFER (acquiring)
-                      |        |
-                      |        |
-                      |       \|/
-                      |  +------------+
-                      +--|  ACQUIRED  |
-                         +------------+
-                               |
-                               |
-                               | settled with outcome:
-                               |   ACCEPTED/REJECTED
-                               |
-                               |
-                              \|/
-                         +------------+
-                         |  ARCHIVED  |
-                         +------------+
+    Received(x,y) means Received(section-number=x, section-offset=y)
 ]]>
       </picture>
+      <p>
+        In this example, for delivery-tags 1 to 4 inclusive the sender indicates that it can resume
+        sending from the start of the message.
+      </p>
+      <p>
+        For delivery-tag 1, the receiver has no record of the delivery. To preserve "at least once",
+        or "at most once" delivery guarantees, the sender MUST resend the message, however the
+        delivery is not being resumed (since the receiver does not remember the delivery tag) so
+        transfers MUST NOT have the resume flag set to true. If the sender were to mark the
+        transfers as resumes then they would be ignored at the receiver.
+      </p>
+      <p>
+        For delivery-tag 2, the receiver has retained some of the data making up the message, but
+        not the whole. In order to complete the delivery the sender must resume sending from some
+        point before or at the next position which the receiver is expecting.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=1,    ----------> ** Append message data not     **
+             delivery-tag=2,               ** seen previously to delivery **
+        (1)  state=Received(3,0),          ** state.                      **
+             resume=true)
+    { ** payload ** }
+
+
+    (1) state could be
+        a) null, meaning that the transfer is being resumed from the first
+           byte of section number 0 (and the receiver MUST ignore all data
+           up to the first position it has not previously received).
+        b) Received with section number 0, 1 or 2 and an offset, indicating
+           that the payload data on the first frame of the resumed delivery
+           starts at the given point, and that the receiver MUST ignore all
+           data up to the first position it has not previously received.
+        c) Received(3,0) indicating that the resumption will start at the
+           first point which the receiver has not previously received.  ]]>   </picture>
+      <p>
+        For delivery-tag 3, the receiver indicates that it has processed the delivery to the point
+        where it desires a terminal outcome (in this case <xref name="accepted"/>). In this case
+        the sender will either apply that outcome at the source, or in the rare case that it cannot
+        apply that outcome, indicate the terminal outcome that has been applied. To do this the
+        sender MUST send a resuming transfer to associate delivery-tag 3 with a delivery-id. On this
+        transfer the sender SHOULD set the delivery-state at the source. If this is the same outcome
+        as at the receiver then the sender MAY also send the resuming transfer as settled.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=2,    ----------> ** Processes confirmation that **
+             delivery-tag=3,               ** was accepted, and settles.  **
+             settled=true,
+             more=false,
+             state=Accepted,
+             resume=true) ]]>   </picture>
+      <p>
+        For delivery-tag 4, the receiver indicates that it is aware that the delivery had begun, but
+        does not provide any indication that it has retained any data about that delivery except
+        the fact of its existence. To preserve "at least once" or "at most once" delivery
+        guarantees, the sender MUST resend the whole message. Unlike the case with delivery-tag 1
+        the resent delivery MUST be sent with the resume flag set to true and the delivery-tag set
+        to 4. (While this use of null in the receivers map is valid, it is discouraged. It is
+        recommended that receiver SHOULD NOT retain such an entry in its map, in which case the
+        situation would be as for delivery-tag 1 in this example).
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=3,    ----------> ** Processes in the same way   **
+             delivery-tag=4,               ** as we be done for a non-    **
+        (1)  state=null,                   ** resumed delivery.           **
+             resume=true)
+    { ** payload ** }
+
+
+    (1) Alternatively (and equivalently) state could be
+        Received(section-number=0, section-offset=0) ]]>   </picture>
+      <p>
+        For delivery-tags 5 to 9 inclusive the sender indicates that it can resume at some point
+        beyond start of the message data. This is usually indicative of the fact that the receiver
+        had previously confirmed reception of message data to the given point, removing
+        responsibility from the sender to retain the ability to resend that data after resuming
+        the link. The sender MAY still retain the ability to resend the message as a new delivery
+        (i.e. it MAY not have completely discarded the data from which the original delivery was
+        generated).
+      </p>
+      <p>
+        For delivery-tag 5, the receiver has no record of the delivery. To preserve "at least once",
+        or "at most once" delivery guarantees, the sender MUST resend the message, however the
+        delivery is not being resumed (since the receiver does not remember the delivery tag) so
+        transfers MUST NOT have the resume flag set to true. If the sender does not enough data to
+        resend the message, then he sender MAY take some action to indicate that it believes there
+        is a possibility that there has been message loss.
+      </p>
+      <p>
+        For delivery-tag 6, the receiver has retained some of the data making up the message, but
+        not the whole. The first position within the message which the receiver has not received is
+        after the first position at which the sender can resume sending. In order to complete the
+        delivery the sender must resume sending from some point before or at the next position which
+        the receiver is expecting.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=4,    ----------> ** Append message data not     **
+             delivery-tag=6,               ** seen previously to delivery **
+        (1)  state=Received(2,0),          ** state.                      **
+             resume=true)
+    { ** payload ** }
+
+
+    (1) state could be any point between Received(1,150) and Received(2,0)
+        inclusive. The receiver MUST ignore all data up to the first
+        position it has not previously received (i.e. section 2 offset 0).  ]]>   </picture>
+      <p>
+        For delivery-tag 7, the receiver has retained some of the data making up the message, but
+        not the whole. The first position within the message which the receiver has not received is
+        before the first position at which the sender can resume sending. It is thus not possible
+        for the sender to resume sending the message to completion. The only option available to the
+        sender is to abort the transfer and to then (if possible) resend as a new delivery or else
+        to report the possible message loss in some way if it cannot.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=5,    ----------> ** Discard any state relating  **
+             delivery-tag=7,               ** to the message delivery.    **
+             resume=true,
+             aborted=true) ]]>   </picture>
+      <p>
+        For delivery-tag 8, the receiver indicates that it has processed the delivery to the point
+        where it desires a terminal outcome (in this case <xref name="accepted"/>). This is the
+        same case as for delivery-tag 3.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=6,    ----------> ** Processes confirmation that **
+             delivery-tag=8,               ** was accepted, and settles.  **
+             settled=true,
+             more=false,
+             state=Accepted,
+             resume=true) ]]>  </picture>
+      <p>
+        For delivery-tag 9, the receiver indicates that it is aware that the delivery had begun, but
+        does not provide any indication that it has retained any data about that delivery except
+        the fact of its existence. This is the same case as for delivery-tag 7.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=7,    ----------> ** Discard any state relating  **
+             delivery-tag=9,               ** to the message delivery.    **
+             resume=true,
+             aborted=true) ]]>   </picture>
+      <p>
+        For delivery-tags 10 to 14 inclusive the sender indicates that it has reached a terminal
+        outcome, namely <xref name="accepted"/>. Once the sender has arrived at a terminal outcome
+        it may not change. As such, if a sender is capable of resuming a delivery (even if the only
+        possible outcome of the delivery is a pre-defined terminal outcome such as <xref
+        name="accepted"/>) it MUST NOT use this state as the value of the state in its unsettled map
+        until it is sure that the receiver will not require the resending of the message data.
+      </p>
+      <p>
+        For delivery-tag 10 the receiver has no record of the delivery. However, in contrast to the
+        cases of delivery-tag 1 and delivery-tag 5, since we know that the sender can only have
+        arrived at this state through knowing that the receiver has received the whole message (or
+        that the sender had spontaneously reached a terminal outcome with no possibility of
+        resumption) we have no need to resend the message.
+      </p>
+      <p>
+        For delivery-tag 11 we have to assume that the sender spontaneously attained the terminal
+        outcome (and is unable to resume). In this case the sender can simply abort the delivery
+        as it cannot be resumed.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=8,    ----------> ** Discard any state relating  **
+             delivery-tag=11,              ** to the message delivery.    **
+             resume=true,
+             aborted=true) ]]>   </picture>
+      <p>
+        For delivery-tag 12 both the sender and receiver have attained the same view of the terminal
+        outcome, but neither has settled. In this case the sender should simply settle the delivery.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=9,    ----------> ** Locally settle the delivery **
+             delivery-tag=12,
+             settled=true,
+             resume=true) ]]>   </picture>
+      <p>
+        For delivery-tag 13 the sender and receiver have both attained terminal outcomes, but the
+        outcomes differ. In this case, since the outcome actually takes effect at the sender, it is
+        the sender's view that is definitive. The sender thus MUST restate this as the terminal
+        outcome, and the receiver should then echo this and settle.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=10    ----------> ** Update any state affected   **
+             delivery-tag=13,              ** by the actual outcome, then **
+             settled=false,                ** settle the delivery         **
+             state=Accepted
+             resume=true)
+                               <---------- DISPOSITION(first=10, last=10,
+                                                       state=Accepted,
+                                                       settled=true) ]]>   </picture>
+      <p>
+        For delivery-tag 14 the case is essentially the same as for delivery-tag 11, as the null
+        state at the receiver is essentially identical to having the state
+        Received{section-number=0, section-offset=0}.
+      </p>
+      <picture><![CDATA[
+    TRANSFER(delivery-id=11,   ----------> ** Discard any state relating  **
+             delivery-tag=14,              ** to the message delivery.    **
+             resume=true,
+             aborted=true) ]]>   </picture>
+
     </doc>
   </section>
 
@@ -945,7 +1187,7 @@ settled with outcome: |        |
 
         <li>
           <p>
-            the behaviour of Messages which have been transferred on the Link, but have not yet
+            the behavior of Messages which have been transferred on the Link, but have not yet
             reached a terminal state at the receiver, when the source is destroyed.
           </p>
         </li>
@@ -968,7 +1210,7 @@ settled with outcome: |        |
         distribution nodes are to behave with respect to the Link. The distribution-mode of a Source
         determines how Messages from a distribution node are distributed among its associated Links.
         There are two defined distribution-modes: <i>move</i> and <i>copy</i>. When specified, the
-        distribution-mode has two related effects on the behaviour of a distribution node with
+        distribution-mode has two related effects on the behavior of a distribution node with
         respect to the Link associated with the Source.
       </p>
 
@@ -992,7 +1234,14 @@ settled with outcome: |        |
 
     <type class="composite" name="source" provides="source" source="list">
       <descriptor name="amqp:source:list" code="0x00000000:0x00000028"/>
-
+      <doc>
+        <p>
+          For containers which do not implement address resolution (and do not admit spontaneous
+          link attachment from their partners) but are instead only used as producers of messages,
+          it is unnecessary to provide spurious detail on the source. For this purpose it is
+          possible to use a "minimal" source in which all the fields are left unset.
+        </p>
+      </doc>
       <field name="address" type="*" requires="address" label="the address of the source">
         <doc>
           <p>
@@ -1005,7 +1254,9 @@ settled with outcome: |        |
             The address of the source MUST be set when sent on a <xref type="type" name="attach"/>
             frame sent by the sending Link Endpoint where the dynamic flag is set to true (that is
             where the sender has created an addressable node at the request of the receiver and is
-            now communicating the address of that created node).
+            now communicating the address of that created node). The generated name of the address
+            SHOULD include the link name and the container-id of the remote container to allow for
+            ease of identification.
           </p>
         </doc>
       </field>
@@ -1021,7 +1272,13 @@ settled with outcome: |        |
       </field>
 
       <field name="expiry-policy" type="terminus-expiry-policy" default="session-end"
-             label="the expiry policy of the Source"/>
+             label="the expiry policy of the Source">
+        <doc>
+          <p>
+            See <xref name="terminus-expiry-policy"/>.
+          </p>
+        </doc>
+      </field>
 
       <field name="timeout" type="seconds" default="0"
              label="duration that an expiring Source will be retained">
@@ -1058,7 +1315,8 @@ settled with outcome: |        |
           <p>
             When set by the receiving Link endpoint, this field contains the desired properties of
             the Node the receiver wishes to be created.  When set by the sending Link endpoint this
-            field contains the actual properties of the dynamically created node.
+            field contains the actual properties of the dynamically created node. See <xref
+            name="node-properties"/>.
           </p>
         </doc>
       </field>
@@ -1075,7 +1333,16 @@ settled with outcome: |        |
       </field>
 
       <field name="filter" type="filter-set"
-             label="a set of predicates to filter the Messages admitted onto the Link" />
+             label="a set of predicates to filter the Messages admitted onto the Link">
+        <doc>
+          <p>
+            See <xref name="filter-set"/>. The receiving endpoint sets its desired filter, the
+            sending endpoint sets the filter actually in place (including any filters defaulted
+            at the node). The receiving endpoint MUST check that the filter in place meets its
+            needs and take responsibility for detaching if it does not.
+          </p>
+        </doc>
+      </field>
 
       <field name="default-outcome" type="*" requires="outcome"
              label="default outcome for unsettled transfers">
@@ -1105,12 +1372,28 @@ settled with outcome: |        |
       </field>
 
       <field name="capabilities" type="symbol" multiple="true"
-                   label="the extension capabilities the sender supports/desires"/>
+                   label="the extension capabilities the sender supports/desires">
+        <doc>
+          <p>
+            A registry of commonly defined source capabilities and their meanings is maintained
+            [<xref name="AMQPSOURCECAP">AMQPSOURCECAP</xref>].
+          </p>
+        </doc>
+      </field>
     </type>
 
     <type class="composite" name="target" provides="target" source="list">
 
       <descriptor name="amqp:target:list" code="0x00000000:0x00000029"/>
+
+      <doc>
+        <p>
+          For containers which do not implement address resolution (and do not admit spontaneous
+          link attachment from their partners) but are instead only used as consumers of messages,
+          it is unnecessary to provide spurious detail on the source. For this purpose it is
+          possible to use a "minimal" target in which all the fields are left unset.
+        </p>
+      </doc>
 
       <field name="address" type="*" requires="address" label="The address of the target.">
         <doc>
@@ -1124,7 +1407,9 @@ settled with outcome: |        |
             The address of the source MUST be set when sent on a <xref type="type" name="attach"/>
             frame sent by the receiving Link Endpoint where the dynamic flag is set to true (that
             is where the receiver has created an addressable node at the request of the sender and
-            is now communicating the address of that created node).
+            is now communicating the address of that created node). The generated name of the
+            address SHOULD include the link name and the container-id of the remote container to
+            allow for ease of identification.
           </p>
         </doc>
       </field>
@@ -1140,7 +1425,13 @@ settled with outcome: |        |
       </field>
 
       <field name="expiry-policy" type="terminus-expiry-policy" default="session-end"
-             label="the expiry policy of the Target"/>
+             label="the expiry policy of the Target">
+        <doc>
+          <p>
+            See <xref name="terminus-expiry-policy"/>.
+          </p>
+        </doc>
+      </field>
 
       <field name="timeout" type="seconds" default="0"
              label="duration that an expiring Target will be retained">
@@ -1177,13 +1468,21 @@ settled with outcome: |        |
           <p>
             When set by the sending Link endpoint, this field contains the desired properties of
             the Node the sender wishes to be created.  When set by the receiving Link endpoint this
-            field contains the actual properties of the dynamically created node.
+            field contains the actual properties of the dynamically created node. See <xref
+            name="node-properties"/>.
           </p>
         </doc>
       </field>
 
       <field name="capabilities" type="symbol" multiple="true"
-                   label="the extension capabilities the sender supports/desires"/>
+                   label="the extension capabilities the sender supports/desires">
+        <doc>
+          <p>
+            A registry of commonly defined target capabilities and their meanings is maintained
+            [<xref name="AMQPTARGETCAP">AMQPTARGETCAP</xref>].
+          </p>
+        </doc>
+      </field>
     </type>
 
     <type class="restricted" name="terminus-durability" source="uint"
@@ -1223,7 +1522,9 @@ settled with outcome: |        |
       <doc>
         <p>
           Determines when the expiry timer of a Terminus starts counting down from the timeout
-          value.
+          value. If the link is subsequently re-attached before the Terminus is expired, then the
+          count down is aborted. If the conditions for the terminus-expiry-policy are subsequently
+          re-met, the expiry timer restarts from its originally configured timeout value.
         </p>
       </doc>
       <choice name="link-detach" value="link-detach">
@@ -1291,9 +1592,9 @@ settled with outcome: |        |
         <p>
           Filter types are a defined extension point. The filter types that a given
           <xref name="source"/> supports will be indicated by the capabilities of the
-          <xref name="source"/>. Common filter types, along with the capabilities they are
-          associated with are registered here: <xref type="extern"
-          name="http://www.amqp.org/specification/1.0/filters"/>.
+          <xref name="source"/>.
+          A registry of commonly defined filter types and their capabilities is maintained
+          [<xref name="AMQPFILTERS">AMQPFILTERS</xref>].
         </p>
       </doc>
     </type>
@@ -1316,8 +1617,9 @@ settled with outcome: |        |
             <p>
               Definitionally, the lifetime will never be less than the lifetime of the link which
               caused its creation, however it is possible to extend the lifetime of dynamically
-              created node using a lifetime policy.  The value of this entry must be one of the
-              defined <i>lifetime-policies</i>: <xref name="delete-on-close"/>,
+              created node using a lifetime policy.  The value of this entry must be of a type
+              which provides the <i>lifetime-policy</i> archetype. The following standard
+              <i>lifetime-policies</i> are defined below: <xref name="delete-on-close"/>,
               <xref name="delete-on-no-links"/>, <xref name="delete-on-no-messages"/> or
               <xref name="delete-on-no-links-or-messages"/>.
             </p>

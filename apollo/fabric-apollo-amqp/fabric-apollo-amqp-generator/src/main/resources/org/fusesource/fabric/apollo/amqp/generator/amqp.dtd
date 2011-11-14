@@ -4,27 +4,29 @@
   Copyright Notice
   ================
   (c) Copyright Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche
-  Boerse Systems, Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica
-  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress
-  Software, Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST
-  Process Innovations Ltd, VMware Inc. and WS02 Inc. 2006-2011. All rights reserved.
+  Boerse, Envoy Technologies Inc., Goldman Sachs, HCL Technologies Ltd, IIT Software GmbH, iMatix
+  Corporation, INETCO Systems Limited, Informatica Corporation, JPMorgan Chase & Co., Kaazing
+  Corporation, N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
+  Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process Innovations Ltd,
+  VMware, Inc., and WS02 Inc.
+  2006-2011. All rights reserved.
 
   License
   =======
 
-  Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche Boerse Systems,
-  Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica Corporation, JPMorgan
-  Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
-  Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process Innovations Ltd,
-  VMware Inc. and WS02 Inc. (collectively, the "Authors") each hereby grants to you a worldwide,
-  perpetual, royalty-free, nontransferable, nonexclusive license to (i) copy, display, distribute
-  and implement the Advanced Message Queuing Protocol ("AMQP") Specification and (ii) the Licensed
-  Claims that are held by the Authors, all for the purpose of implementing the Advanced Message
-  Queuing Protocol Specification. Your license and any rights under this Agreement will terminate
-  immediately without notice from any Author if you bring any claim, suit, demand, or action related
-  to the Advanced Message Queuing Protocol Specification against any Author. Upon termination, you
-  shall destroy all copies of the Advanced Message Queuing Protocol Specification in your possession
-  or control.
+  Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche Boerse, Goldman
+  Sachs, HCL Technologies Ltd, IIT Software GmbH, INETCO Systems Limited, Informatica Corporation,
+  JPMorgan Chase & Co., Kaazing Corporation, N.A, Microsoft Corporation, my-Channels, Novell,
+  Progress Software, Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc.,
+  TWIST Process Innovations Ltd, VMware, Inc., and WS02 Inc. (collectively, the "Authors") each
+  hereby grants to you a worldwide, perpetual, royalty-free, nontransferable, nonexclusive license
+  to (i) copy, display, distribute and implement the Advanced Message Queuing Protocol ("AMQP")
+  Specification and (ii) the Licensed Claims that are held by the Authors, all for the purpose of
+  implementing the Advanced Message Queuing Protocol Specification. Your license and any rights
+  under this Agreement will terminate immediately without notice from any Author if you bring any
+  claim, suit, demand, or action related to the Advanced Message Queuing Protocol Specification
+  against any Author. Upon termination, you shall destroy all copies of the Advanced Message Queuing
+  Protocol Specification in your possession or control.
 
   As used hereunder, "Licensed Claims" means those claims of a patent or patent application,
   throughout the world, excluding design patents and design registrations, owned or controlled, or
@@ -87,9 +89,6 @@
   trademarks of JPMorgan Chase & Co.
 
   RED HAT is a registered trademarks of Red Hat, Inc. in the US and other countries.
-
-  Java, all Java-based trademarks and OpenOffice.org are trademarks of Sun Microsystems, Inc. in the
-  United States, other countries, or both.
 
   Other company, product, or service names may be trademarks or service marks of others.
 
@@ -167,16 +166,27 @@
 	  title CDATA #IMPLIED
 >
 
-<!ELEMENT p (#PCDATA|xref|b|i|term|todo|sup|sub)*>
+<!ELEMENT p (#PCDATA|anchor|xref|b|i|term|todo|sup|sub|br)*>
+<!ATTLIST p
+          title CDATA #IMPLIED
+>
 
 <!ELEMENT xref (#PCDATA)>
 <!ATTLIST xref
           type CDATA #IMPLIED
           name CDATA #REQUIRED
+          choice CDATA #IMPLIED
 >
 
-<!ELEMENT b (#PCDATA|sub|sup|i)*>
-<!ELEMENT i (#PCDATA|sub|sup|b)*>
+<!ELEMENT anchor (#PCDATA)>
+<!ATTLIST anchor
+          name CDATA #REQUIRED
+>
+
+<!ELEMENT br EMPTY>
+
+<!ELEMENT b (#PCDATA|sub|sup|i|br|anchor)*>
+<!ELEMENT i (#PCDATA|sub|sup|b|br|anchor)*>
 <!ELEMENT term (#PCDATA)>
 <!ELEMENT todo (#PCDATA)>
 <!ATTLIST todo
@@ -193,14 +203,14 @@
 	  title CDATA #IMPLIED
 >
 
-<!ELEMENT li (p|ul)*>
+<!ELEMENT li (#PCDATA|p|ul|dl)*>
 
 <!ELEMENT dl (dt, dd)*>
 <!ATTLIST dl
 	  title CDATA #IMPLIED
 >
 <!ELEMENT dt (#PCDATA)>
-<!ELEMENT dd (p)*>
+<!ELEMENT dd (p|picture|ul|ol)*>
 
 <!ELEMENT picture (#PCDATA)>
 <!ATTLIST picture
