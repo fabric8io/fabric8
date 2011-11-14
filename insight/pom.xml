@@ -20,7 +20,7 @@
   <groupId>org.fusesource.insight</groupId>
   <artifactId>insight-project</artifactId>
   <packaging>pom</packaging>
-  <name>Fuse Insight :: Project</name>
+  <name>${project.artifactId}</name>
   <description>Fuse Insight :: Project</description>
 
   <properties>
