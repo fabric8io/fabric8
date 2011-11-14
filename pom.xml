@@ -169,12 +169,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.9.1</artifactId>
-            <version>${scalatest-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j-version}</version>
