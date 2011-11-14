@@ -199,5 +199,24 @@
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-jclouds/${project.version}</bundle>
     </feature>
 
+    <feature name='fabric-bridge' version='${project.version}' resolver="(obr)">
+        <bundle>mvn:org.springframework/spring-core/${spring-version}</bundle>
+        <bundle>mvn:org.springframework/spring-beans/${spring-version}</bundle>
+        <bundle>mvn:org.springframework/spring-context/${spring-version}</bundle>
+        <bundle>mvn:org.springframework/spring-tx/${spring-version}</bundle>
+        <!--<bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>-->
+        <bundle>mvn:org.springframework/spring-jms/${spring-version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-lang3/3.0.1</bundle>
+        <bundle>mvn:commons-pool/commons-pool/1.5.4</bundle>
+        <feature version="${activemq-version}">activemq</feature>
+        <bundle>mvn:org.fusesource.fabric.bridge/fabric-bridge/${project.version}</bundle>
+    </feature>
+
+    <feature name='fabric-bridge-zookeeper' version='${project.version}'>
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-configadmin</feature>
+        <feature version='${project.version}'>fabric-bridge</feature>
+        <bundle>mvn:org.fusesource.fabric.bridge/fabric-bridge-zookeeper/${project.version}</bundle>
+    </feature>
 
 </features>
