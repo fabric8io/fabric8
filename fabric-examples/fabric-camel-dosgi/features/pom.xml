@@ -72,11 +72,6 @@
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                 </artifact>
-                                <artifact>
-                                     <file>target/classes/distro/etc/install-fabric-dosgi-camel.karaf</file>
-                                     <type>karaf</type>
-                                     <classifier>installer</classifier>
-                              </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

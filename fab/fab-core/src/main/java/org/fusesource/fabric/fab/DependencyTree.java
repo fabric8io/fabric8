@@ -44,7 +44,6 @@ import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
-import org.sonatype.aether.util.graph.DefaultDependencyNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -441,15 +440,15 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     protected String getManifestBundleSymbolicName() {
-        return getManfiestEntry(Constants.INSTR_BUNDLE_SYMBOLIC_NAME);
+        return getManifestEntry(Constants.INSTR_BUNDLE_SYMBOLIC_NAME);
     }
 
     /**
      * Returns the entry from the manifest for the given name
      */
-    public String getManfiestEntry(String attributeName) {
+    public String getManifestEntry(String attributeName) {
         try {
-            return Manifests.getManfiestEntry(getJarFile(), attributeName);
+            return Manifests.getManifestEntry(getJarFile(), attributeName);
         } catch (IOException e) {
             // ignore...
             return null;
@@ -521,7 +520,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
      * Returns true if this bundle is a bundle fragment
      */
     public boolean isBundleFragment() {
-        return isBundle() && Strings.notEmpty(getManfiestEntry("Fragment-Host"));
+        return isBundle() && Strings.notEmpty(getManifestEntry("Fragment-Host"));
     }
 
     // Helper classes

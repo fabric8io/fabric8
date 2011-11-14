@@ -22,7 +22,11 @@
     <artifactId>camel-route</artifactId>
 
     <dependencies>
-      <!-- Camel -->
+        <dependency>
+            <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
+            <artifactId>service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>

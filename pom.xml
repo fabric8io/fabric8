@@ -50,7 +50,7 @@
         <maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- OSGi bundles properties -->
-        <fabric.osgi.bundle.name>${project.name}</fabric.osgi.bundle.name>
+        <fabric.osgi.bundle.name>${project.description}</fabric.osgi.bundle.name>
         <fabric.osgi.import.fabric.version>version="[$(version;==;${fabric.osgi.version}),$(version;=+;${fabric.osgi.version}))"
         </fabric.osgi.import.fabric.version>
         <fabric.osgi.import.strict.version>version="[$(version;===;${fabric.osgi.version}),$(version;==+;${fabric.osgi.version}))"
@@ -98,7 +98,7 @@
         <jaxb-version>2.1.13</jaxb-version>
         <jclouds-version>1.2.1</jclouds-version>
         <jclouds-karaf-version>1.2.1_1</jclouds-karaf-version>
-        <jersey-version>1.5</jersey-version>
+        <jersey-version>1.10</jersey-version>
         <jetty-plugin-version>7.4.5.v20110725</jetty-plugin-version>
         <jetty-version>7.4.5.v20110725</jetty-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
@@ -169,12 +169,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.9.1</artifactId>
-            <version>${scalatest-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j-version}</version>
@@ -208,13 +202,14 @@
         <module>fabric-eca</module>
         <module>fabric-security</module>
         <module>fab</module>
+        <module>insight</module>
+        <module>fabric-bridge-project</module>
         <module>fabric-examples</module>
         <module>fabric-assemblies</module>
         <module>fabric-itests</module>
 
         <!-- TODO fix build of fabric-cxf then move back up a bit :) -->
         <module>fabric-cxf</module>
-        <module>fabric-bridge-project</module>
     </modules>
 
     <build>

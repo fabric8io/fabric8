@@ -18,13 +18,23 @@ osgi:install -s mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi
 osgi:install -s mvn:org.fusesource.fabric/fabric-core/${project.version}
 # -----------------------------------------------
 
+# Keep this guy from logging an exception stack trace every second
+config:edit org.ops4j.pax.logging
+config:propset log4j.logger.org.apache.zookeeper.ClientCnxn$SendThread ERROR
+config:update
+osgi:refresh --force "OPS4J Pax Logging - Service"
+
 features:install fabric-core
 
 features:install fabric-commands
+
 wait-for-command fabric zk-cluster
 
 features:install fabric-jaas
 wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.apache.karaf.jaas.module=zookeeper))"
+
+features:install insight-elasticsearch
+features:install insight-log
 
 # join existing cluster as root node (if first param is set - host:port)
 # or create a new one
@@ -42,6 +52,10 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
     echo Creating initial ZooKeeper cluster
     fabric:zk-cluster --clean
     fabric:zk-cluster $APPLICATION
+
+    # Lets define a bunch of default profiles
+    echo Creating some default profiles
+    shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/profiles
 }
 
 

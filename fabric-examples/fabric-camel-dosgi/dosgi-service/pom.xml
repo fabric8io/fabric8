@@ -22,7 +22,11 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-      <!-- Camel -->
+        <dependency>
+            <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
+            <artifactId>service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -30,8 +34,6 @@
             *
          </osgi-import-pkg>
          <osgi-export-pkg>
-             !org.fusesource.fabric.example.dosgi.impl,
-             org.fusesource.fabric.example.dosgi*
          </osgi-export-pkg>
          <osgi-private-pkg>
              org.fusesource.fabric.example.dosgi.impl

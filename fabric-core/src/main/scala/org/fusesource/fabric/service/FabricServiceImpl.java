@@ -220,7 +220,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
                     String parent = "";
                     if( provider instanceof ChildAgentProvider) {
-                        parent = uri.getSchemeSpecificPart();
+                        parent = uri.getHost();
                     }
 
                     createAgentConfig(parent, agentName);
