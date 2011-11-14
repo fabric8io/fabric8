@@ -41,7 +41,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
 
     private static FabricService fabricService;
     private static BundleContext bundleContext;
-    private static final String TEST_PID = "test-gateway";
+    private static final String TEST_PID = "org.fusesource.fabric.gateway.test-gateway";
     private static final String SERVICE_PROPERTY = "service";
 
     private ZkManagedGatewayServiceFactory serviceFactory;
