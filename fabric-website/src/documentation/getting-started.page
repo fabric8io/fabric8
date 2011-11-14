@@ -8,39 +8,34 @@ Getting Started guide for Fabric
 
 --- name:content pipeline:jade
 
-h2
-  | Warning
-  p
-    | The below getting started only works on Karaf 2.2.2 or better for now.
+.left
+  :markdown
+    # Prepare
+.right
+  :&markdown
+    If you use a released version, you can install Fabric directly from the internet.
+    Alternatively, you can [checkout](../source.html) and [build](../building.html) fabric locally.
 
 .left
   :markdown
-    # Checkout Fabric
+    # Install
 .right
   :&markdown
-    Run the following commands:  
+    To install Fabric, run the following commands in Karaf (2.2.x) console:  
   pre
-    | git clone git://github.com/fusesource/fabric.git
-    | cd fabric
-
-.left
-  :markdown
-    # Build Fabric
-.right
-  :&markdown
-    Use the standard maven command to build Fabric:  
-  pre
-    | mvn install
+    | karaf@root> config:edit org.ops4j.pax.url.mvn 
+    | karaf@root> config:propappend org.ops4j.pax.url.mvn.repositories ", http://scala-tools.org/repo-releases"
+    | karaf@root> config:update 
+    | karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/#{project_version}/xml/features
+    | karaf@root> features:install fabric-commands
 
 .left
   :markdown
     # Create a ZooKeeper server
 .right
   :&markdown
-    To create a ZooKeeper server, run the following commands in Karaf (2.2.x) console:  
+    To create an initial ZooKeeper server, run the following commandin the console:  
   pre
-    | karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features
-    | karaf@root> features:install fabric-commands
     | karaf@root> fabric:zk-cluster root
   :&markdown
     You can now use the fabric command and see that the karaf instance has been automatically registered as an agent:  
@@ -81,7 +76,7 @@ h2
   :&markdown
     Let's associate a karaf war feature to the webserver profile:  
   pre
-    | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.2/xml/features
+    | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.1/xml/features
     | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/feature.war war
   :&markdown
     Wait a few seconds, then check that the feature has been deployed:  
