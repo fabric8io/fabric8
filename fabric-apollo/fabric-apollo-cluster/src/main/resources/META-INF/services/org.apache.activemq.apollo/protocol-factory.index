@@ -8,7 +8,4 @@
 # in the license.txt file.
 #
 
-## ---------------------------------------------------------------------------
-##
-## ---------------------------------------------------------------------------
 org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocolFactory
