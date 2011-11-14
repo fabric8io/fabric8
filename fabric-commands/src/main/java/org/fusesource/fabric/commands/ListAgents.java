@@ -8,10 +8,10 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.io.PrintStream;
-
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
+
+import java.io.PrintStream;
 
 @Command(name = "list-agents", scope = "fabric", description = "List existing agents")
 public class ListAgents extends FabricCommand {
@@ -23,14 +23,28 @@ public class ListAgents extends FabricCommand {
         return null;
     }
 
+    protected String getProvisionedStatus(Agent agent) {
+        String provisioned = agent.getProvisionResult();
+        String result = "not provisioned";
+
+        if (provisioned != null) {
+            result = provisioned;
+            if (result.equals("error") && agent.getProvisionException() != null) {
+                result += " - " + agent.getProvisionException().split(System.getProperty("line.separator"))[0];
+            }
+        }
+
+        return result;
+    }
+
     protected void printAgents(Agent[] agents, PrintStream out) {
-        out.println(String.format("%-30s %-10s %s", "[id]", "[alive]", "[profiles]"));
+        out.println(String.format("%-30s %-10s %-30s %-100s", "[id]", "[alive]", "[profiles]", "[provision status]"));
         for (Agent agent : agents) {
             if (agent.isRoot()) {
-                out.println(String.format("%-30s %-10s %s", agent.getId(), agent.isAlive(), toString(agent.getProfiles())));
+                out.println(String.format("%-30s %-10s %-30s %-100s", agent.getId(), agent.isAlive(), toString(agent.getProfiles()), "-"));
                 for (Agent child : agents) {
                     if (child.getParent() == agent) {
-                        out.println(String.format("%-30s %-10s %s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles())));
+                        out.println(String.format("%-30s %-10s %-30s %-100s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), getProvisionedStatus(child)));
                     }
                 }
             }
