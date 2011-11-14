@@ -50,7 +50,7 @@
         <maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- OSGi bundles properties -->
-        <fabric.osgi.bundle.name>${project.name}</fabric.osgi.bundle.name>
+        <fabric.osgi.bundle.name>${project.description}</fabric.osgi.bundle.name>
         <fabric.osgi.import.fabric.version>version="[$(version;==;${fabric.osgi.version}),$(version;=+;${fabric.osgi.version}))"
         </fabric.osgi.import.fabric.version>
         <fabric.osgi.import.strict.version>version="[$(version;===;${fabric.osgi.version}),$(version;==+;${fabric.osgi.version}))"
