@@ -13,13 +13,13 @@ package org.fusesource.fabric.groups.internal
 import org.apache.zookeeper._
 import java.lang.String
 import org.linkedin.zookeeper.tracker._
-import org.apache.zookeeper.KeeperException.Code
 import org.fusesource.fabric.groups.{ChangeListener, Group}
 import scala.collection.mutable.HashMap
 import org.apache.zookeeper.data.ACL
 import org.linkedin.zookeeper.client.{LifecycleListener, IZKClient}
 import collection.JavaConversions._
 import java.util.{LinkedHashMap, Collection}
+import org.apache.zookeeper.KeeperException.{NoNodeException, Code}
 
 /**
  *
@@ -73,7 +73,11 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
 
   def close = this.synchronized {
     joins.foreach { case (path, version) =>
-      zk.delete(member_path_prefix+path, version)
+      try {
+        zk.delete(member_path_prefix + path, version)
+      } catch {
+        case x:NoNodeException => // Already deleted.
+      }
     }
     joins.clear
     zk.removeListener(this)
@@ -100,7 +104,11 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
 
   def leave(path:String): Unit = this.synchronized {
     joins.remove(path).foreach { case version =>
-      zk.delete(member_path_prefix+path, version)
+      try {
+        zk.delete(member_path_prefix + path, version)
+      } catch {
+        case x:NoNodeException => // Already deleted.
+      }
     }
   }
 
