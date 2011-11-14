@@ -1,4 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://fusesource.org/fabric/bridge" xmlns:tns="http://fusesource.org/fabric/bridge/zookeeper" elementFormDefault="qualified" version="1.0" targetNamespace="http://fusesource.org/fabric/bridge/zookeeper">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://fusesource.org/fabric/bridge" xmlns:tns="http://fusesource.org/fabric/bridge/zookeeper" elementFormDefault="qualified" version="1.0" targetNamespace="http://fusesource.org/fabric/bridge/zookeeper">
 
   <xs:import namespace="http://fusesource.org/fabric/bridge" schemaLocation="http://fusesource.org/fabric/bridge/fabric-bridge.xsd"/>
 
