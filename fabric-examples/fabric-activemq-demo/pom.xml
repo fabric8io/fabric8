@@ -92,16 +92,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-				<version>${felix-plugin.version}</version>
-                <configuration>
-                    <instructions>
-                        <Bundle-Activator>org.fusesource.fabric.demo.activemq.Demo</Bundle-Activator>
-                    </instructions>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
