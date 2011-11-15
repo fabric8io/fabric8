@@ -56,7 +56,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
   val tree = new ZooKeeperTreeTracker[Array[Byte]](zk, new ZKByteArrayDataReader, root, 1)
   val joins = HashMap[String, Int]()
 
-  var members = new LinkedHashMap[String, Array[Byte]]
+  var members = ZooKeeperGroup.members(zk, root)
 
   private def member_path_prefix = root + "/0"
 
