@@ -13,8 +13,8 @@ Getting Started guide for Fabric
     # Prepare
 .right
   :&markdown
-    If you use a released version, you can install Fabric directly from the internet.
-    Alternatively, you can [checkout](../source.html) and [build](../building.html) fabric locally.
+    If you use a released version, you can install Fuse Fabric directly from the internet.
+    Alternatively, you can [checkout](../source.html) and [build](../building.html) Fabric locally.
 
 .left
   :markdown

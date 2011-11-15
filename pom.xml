@@ -127,7 +127,7 @@
         <scala-version>2.9.1</scala-version>
         <scala-osgi-version>2.9.1</scala-osgi-version>
         <scala-plugin-version>2.15.1</scala-plugin-version>
-        <scalate-version>1.6.0-SNAPSHOT</scalate-version>
+        <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
