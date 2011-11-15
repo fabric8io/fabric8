@@ -24,7 +24,7 @@
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Monitor</description>
+  <description>Fuse Fabric :: Monitor</description>
 
   <dependencies>
 

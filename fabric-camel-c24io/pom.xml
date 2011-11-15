@@ -22,7 +22,7 @@
 
   <artifactId>fabric-camel-c24io</artifactId>
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Camel C24IO support</description>
+  <description>Fuse Fabric :: Camel C24IO support</description>
 
   <properties>
     <c24.test.version>4.0.1</c24.test.version>

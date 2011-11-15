@@ -22,7 +22,7 @@
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Fabric Bundles for OSGi</description>
+  <description>Fuse Bundles :: OSGi</description>
 
   <properties>
     <fabric.osgi.activator>org.fusesource.fabric.fab.osgi.internal.Activator</fabric.osgi.activator>

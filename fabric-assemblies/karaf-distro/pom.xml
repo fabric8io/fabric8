@@ -24,7 +24,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>karaf-distro</artifactId>
     <name>${project.artifactId}</name>
-       <description>FuseSource Fabric :: Binary Distribution</description>
+       <description>Fuse Fabric :: Binary Distribution</description>
 
        <prerequisites>
            <maven>2.0.9</maven>

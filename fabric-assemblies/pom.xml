@@ -24,7 +24,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-assemblies</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource Fabric :: Assemblies</name>
+    <name>Fuse Fabric :: Assemblies</name>
 
     <modules>
         <module>fabric-distro</module>

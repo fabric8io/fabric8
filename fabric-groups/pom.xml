@@ -26,7 +26,7 @@
   <packaging>bundle</packaging>
   
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Cluster Groups API</description>
+  <description>Fuse Fabric :: Cluster Groups API</description>
 
   <dependencies>
     <dependency>
@@ -54,6 +54,13 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_2.9.1</artifactId>
+      <version>${scalatest-version}</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>

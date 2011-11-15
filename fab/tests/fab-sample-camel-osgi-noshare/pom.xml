@@ -23,7 +23,7 @@
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FAB :: Sample :: Camel OSGi NoShare</description>
+  <description>Fuse Bundles :: Sample :: Camel OSGi NoShare</description>
 
   <dependencies>
     <dependency>

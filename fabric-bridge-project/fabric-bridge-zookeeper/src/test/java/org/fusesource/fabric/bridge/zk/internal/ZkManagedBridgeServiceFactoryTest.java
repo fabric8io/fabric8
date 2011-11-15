@@ -40,7 +40,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
 
     private static FabricService fabricService;
     private static BundleContext bundleContext;
-    private static final String TEST_PID = "test-bridge";
+    private static final String TEST_PID = "org.fusesource.fabric.bridge.test-bridge";
     private static final String SERVICE_PROPERTY = "service";
 
     private ZkManagedBridgeServiceFactory serviceFactory;

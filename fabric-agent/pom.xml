@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Provisioning Agent</description>
+    <description>Fuse Fabric :: Provisioning Agent</description>
 
     <properties>
         <fabric.osgi.import>

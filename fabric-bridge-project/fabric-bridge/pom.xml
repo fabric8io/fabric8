@@ -23,7 +23,7 @@
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: ActiveMQ Network Bridge</description>
+  <description>Fuse Fabric :: ActiveMQ Network Bridge</description>
 
   <properties>
   	<commons-pool-version>1.5.4</commons-pool-version>

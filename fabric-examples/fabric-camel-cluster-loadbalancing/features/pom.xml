@@ -17,7 +17,7 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
 
-    <name>FuseSource Fabric :: Example :: Cluster with Fabric Camel :: Features</name>
+    <name>Fuse Fabric :: Example :: Cluster with Fabric Camel :: Features</name>
     <packaging>jar</packaging>
     <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-cluster</groupId>
     <artifactId>features</artifactId>

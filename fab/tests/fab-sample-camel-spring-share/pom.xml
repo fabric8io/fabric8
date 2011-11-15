@@ -24,7 +24,7 @@
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FAB :: Sample :: Camel Spring Share</description>
+  <description>Fuse Bundles :: Sample :: Camel Spring Share</description>
 
   <dependencies>
     <dependency>
