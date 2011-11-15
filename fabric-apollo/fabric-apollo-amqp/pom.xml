@@ -26,7 +26,7 @@
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Apollo AMQP Modules</description>
+  <description>Fuse Fabric :: Apollo AMQP Modules</description>
 
   <prerequisites>
     <maven>2.1.0</maven>

@@ -22,8 +22,8 @@
   <groupId>org.fusesource.fabric.bridge</groupId>
   <artifactId>fabric-bridge-project</artifactId>
   <packaging>pom</packaging>
-  <name>FuseSource Fabric :: Network Bridge</name>
-  <description>FuseSource Fabric :: Network Bridge</description>
+  <name>Fuse Fabric :: Network Bridge</name>
+  <description>Fuse Fabric :: Network Bridge</description>
 
   <modules>
     <module>fabric-bridge</module>

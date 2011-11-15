@@ -16,7 +16,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>FuseSource Fabric :: Example :: Camel DOSGI :: Service</name>
+    <name>Fuse Fabric :: Example :: Camel DOSGI :: Service</name>
     <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
     <artifactId>service</artifactId>
     <packaging>bundle</packaging>

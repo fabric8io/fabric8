@@ -19,7 +19,7 @@
     <groupId>org.fusesource.fabric.fabric-examples</groupId>
     <artifactId>fabric-camel-cluster</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource Fabric :: Example :: Cluster with Fabric Camel</name>
+    <name>Fuse Fabric :: Example :: Cluster with Fabric Camel</name>
     <description>Example showing a fabric cluster with camel and loadbalancing</description>
 
     <modules>

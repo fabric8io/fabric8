@@ -17,7 +17,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-pax-exam</artifactId>
-    <name>FuseSource Fabric :: Integration Tests :: Pax Exam</name>
+    <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
     <version>1.1-SNAPSHOT</version>
 
     <dependencies>

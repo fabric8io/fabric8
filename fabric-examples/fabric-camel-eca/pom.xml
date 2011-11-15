@@ -20,7 +20,7 @@
   <groupId>org.fusesource.fabric.fabric-examples</groupId>
   <artifactId>fabric-camel-eca</artifactId>
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Example :: Camel ECA</description>
+  <description>Fuse Fabric :: Example :: Camel ECA</description>
   <packaging>bundle</packaging>
 
   <properties>

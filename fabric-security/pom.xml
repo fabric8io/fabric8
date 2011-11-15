@@ -25,7 +25,7 @@
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Security Modules</description>
+  <description>Fuse Fabric :: Security Modules</description>
 
   <modules>
     <module>fabric-security-sso-client</module>

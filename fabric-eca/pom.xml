@@ -21,7 +21,7 @@
   <artifactId>fabric-eca</artifactId>
   <packaging>bundle</packaging>
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: ECA</description>
+  <description>Fuse Fabric :: ECA</description>
 
   <dependencies>
 

@@ -23,7 +23,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-itests</artifactId>
     <version>1.1-SNAPSHOT</version>
-    <name>FuseSource Fabric :: Integration Tests</name>
+    <name>Fuse Fabric :: Integration Tests</name>
     <description>Fabric Integration tests</description>
     <packaging>pom</packaging>
 
