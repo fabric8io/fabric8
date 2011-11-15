@@ -27,7 +27,7 @@ object Website {
   val project_forums_url= "http://fabric.fusesource.org/community.html"
   val project_wiki_url= "http://wiki.github.com/fusesource/fabric/"
   val project_logo= "/images/project-logo.gif"
-  val project_version= "1.0"
+  val project_version= "1.1-SNAPSHOT"
   val project_snapshot_version= "1.1-SNAPSHOT"
   val project_versions = List(
         project_version,
