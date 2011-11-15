@@ -21,13 +21,9 @@ Getting Started guide for Fabric
     # Install
 .right
   :&markdown
-    To install Fabric, run the following commands in Karaf (2.2.x) console:  
+    To install Fabric, [download](../download.html) the Fabric distro - or run the following in an Apache Karaf (2.2.x) console:  
   pre
-    | karaf@root> config:edit org.ops4j.pax.url.mvn 
-    | karaf@root> config:propappend org.ops4j.pax.url.mvn.repositories ", http://scala-tools.org/repo-releases"
-    | karaf@root> config:update 
-    | karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/#{project_version}/xml/features
-    | karaf@root> features:install fabric-commands
+    | karaf@root> shell:source mvn:org.fusesource.fabric/fabric-distro/#{project_version}/karaf/installer
 
 .left
   :markdown
