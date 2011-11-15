@@ -10,36 +10,44 @@ Getting Started guide for Fabric
 
 .left
   :markdown
-    # Prepare
-.right
-  :&markdown
-    If you use a released version, you can install Fuse Fabric directly from the internet.
-    Alternatively, you can [checkout](../source.html) and [build](../building.html) Fabric locally.
-
-.left
-  :markdown
     # Install
 .right
   :&markdown
-    To install Fabric, [download](../download.html) the Fabric distro - or run the following in an Apache Karaf (2.2.x) console:  
+    To install Fabric either
+    
+    * [download](../download.html) the Fabric distro 
+    * [checkout](../source.html) and [build](../building.html) the Fabric distro locally
+    * run the following in an Apache Karaf (2.2.x) console:  
+    
   pre
     | karaf@root> shell:source mvn:org.fusesource.fabric/fabric-distro/#{project_version}/karaf/installer
 
+  :&markdown
+    The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
+    create the initial ZooKeeper server and profiles.
+    
 .left
   :markdown
-    # Create a ZooKeeper server
+    # Create a new agent with an existing profile
 .right
-  :&markdown
-    To create an initial ZooKeeper server, run the following commandin the console:  
   pre
-    | karaf@root> fabric:zk-cluster root
+    | karaf@root> fabric:create-agent --profile activemq --parent root broker1
+    | ...
   :&markdown
-    You can now use the fabric command and see that the karaf instance has been automatically registered as an agent:  
+    Check that the agent has been created (it can take a few seconds):  
   pre
     | karaf@root> fabric:list-agents
     | [id]                           [alive]    [profiles]
     | root                           true       default, zk-server-0000-1
-    | karaf@root>
+    | broker1                        true       activemq
+    
+  :&markdown
+    Wait a few seconds, then check that the feature has been deployed:  
+  pre
+    | karaf@root> fabric:connect broker1
+    | ...
+    | karaf@test> osgi:list
+    | ...
 
 .left
   :markdown
@@ -63,7 +71,7 @@ Getting Started guide for Fabric
     | karaf@root> fabric:list-agents
     | [id]                           [alive]    [profiles]
     | root                           true       default, zk-server-0000-1
-    | &nbsp;&nbsp;test                         true       webserver
+    | test                           true       webserver
 
 .left
   :markdown
