@@ -23,7 +23,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Core</description>
+    <description>Fuse Fabric :: Core</description>
 
     <properties>
         <fabric.osgi.export>

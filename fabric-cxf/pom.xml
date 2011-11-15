@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: CXF Component</description>
+    <description>Fuse Fabric :: CXF Component</description>
 
     <properties>
     </properties>

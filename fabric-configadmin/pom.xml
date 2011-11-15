@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: ZooKeeper ConfigAdmin Bridge</description>
+    <description>Fuse Fabric :: ZooKeeper ConfigAdmin Bridge</description>
 
     <properties>
     </properties>

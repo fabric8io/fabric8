@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Camel Component</description>
+    <description>Fuse Fabric :: Camel Component</description>
 
     <properties>
         <fabric.osgi.export>

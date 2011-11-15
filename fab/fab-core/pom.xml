@@ -22,7 +22,7 @@
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Fabric Bundles Core</description>
+  <description>Fuse Bundles :: Core</description>
 
   <properties>
     <aetherVersion>1.7</aetherVersion>

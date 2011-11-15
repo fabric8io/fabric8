@@ -23,7 +23,7 @@
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: ActiveMQ Network Bridge Zookeeper Connector</description>
+  <description>Fuse Fabric :: ActiveMQ Network Bridge Zookeeper Connector</description>
 
   <properties>
     <fabric.osgi.import>

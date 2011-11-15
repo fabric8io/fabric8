@@ -23,7 +23,7 @@
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Archive Bundles :: Core Integration Tests</description>
+  <description>Fuse Fabric :: Archive Bundles :: Core Integration Tests</description>
 
   <properties>
     <karaf-version>2.2.1</karaf-version>
