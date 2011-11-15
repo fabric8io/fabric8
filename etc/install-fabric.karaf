@@ -53,6 +53,9 @@ features:install insight-log
     fabric:zk-cluster --clean
     fabric:zk-cluster $APPLICATION
 
+    echo Wait a few seconds for the cluster to initialize
+    shell:sleep 5000
+
     # Lets define a bunch of default profiles
     echo Creating some default profiles
     shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/profiles
