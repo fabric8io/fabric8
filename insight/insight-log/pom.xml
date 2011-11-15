@@ -19,6 +19,7 @@
 
   <artifactId>insight-log</artifactId>
   <name>${project.artifactId}</name>
+  <description>Fuse Insight :: Logging</description>
   <packaging>bundle</packaging>
 
   <properties>
@@ -60,9 +61,14 @@
   </dependencies>
 
   <build>
-    <plugins>
+         <defaultGoal>install</defaultGoal>
 
-    </plugins>
+         <resources>
+             <resource>
+                 <directory>src/main/resources</directory>
+                 <filtering>false</filtering>
+             </resource>
+         </resources>
   </build>
 
 </project>

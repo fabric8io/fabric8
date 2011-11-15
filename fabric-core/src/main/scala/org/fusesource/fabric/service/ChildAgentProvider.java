@@ -35,8 +35,19 @@ public class ChildAgentProvider implements AgentProvider {
      * @param debugAgent
      */
     public void create(URI proxyUri, final URI agentUri, final String name, final String zooKeeperUrl, final boolean isClusterServer, final boolean debugAgent, final int number) {
-        final Agent parent = service.getAgent(agentUri.getSchemeSpecificPart());
-        service.getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
+
+        final Agent parent = service.getAgent(agentUri.getHost());
+        AgentTemplate agentTemplate = service.getAgentTemplate(parent);
+
+        //Retrieve the credentials from the URI if available.
+        String ui = agentUri.getUserInfo();
+        String[] uip = ui != null ? ui.split(":") : null;
+        if (uip != null) {
+            agentTemplate.setLogin(uip[0]);
+            agentTemplate.setPassword(uip[1]);
+        }
+
+        agentTemplate.execute(new AgentTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
                 if(debugAgent) {

@@ -54,4 +54,7 @@ public interface Agent {
 
     BundleInfo[] getBundles(AgentTemplate template);
     ServiceInfo[] getServices(AgentTemplate template);
+
+    String getProvisionResult();
+    String getProvisionException();
 }

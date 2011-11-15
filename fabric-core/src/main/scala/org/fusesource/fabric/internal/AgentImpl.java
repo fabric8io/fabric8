@@ -8,11 +8,6 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
@@ -22,7 +17,6 @@ import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.AgentTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.service.NonCachingJmxTemplate;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -31,6 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class AgentImpl implements Agent {
 
@@ -269,4 +267,13 @@ public class AgentImpl implements Agent {
         return "karaf";
     }
 
+    @Override
+    public String getProvisionResult() {
+        return getZkData(ZkPath.AGENT_PROVISION_RESULT);
+    }
+
+    @Override
+    public String getProvisionException() {
+        return getZkData(ZkPath.AGENT_PROVISION_EXCEPTION);
+    }
 }
