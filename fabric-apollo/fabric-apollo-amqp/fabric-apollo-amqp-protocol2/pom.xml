@@ -27,6 +27,11 @@
   <name>${project.artifactId}</name>
   <version>1.1-SNAPSHOT</version>
 
+    <properties>
+        <scala-version>2.9.0-1</scala-version>
+        <scalatest-version>1.4.1</scalatest-version>
+    </properties>
+
   <dependencies>
 
     <dependency>
@@ -34,11 +39,13 @@
       <artifactId>fabric-apollo-amqp-codec</artifactId>
       <version>1.1-SNAPSHOT</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-broker</artifactId>
       <version>${apollo-version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-tcp</artifactId>
@@ -74,12 +81,14 @@
       <scope>test</scope>
       <version>${junit-version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.9.1</artifactId>
-      <version>${scalatest-version}</version>
-      <scope>test</scope>
-    </dependency>
+
+      <dependency>
+          <groupId>org.scalatest</groupId>
+          <artifactId>scalatest_2.9.0</artifactId>
+          <version>${scalatest-version}</version>
+          <scope>test</scope>
+      </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -176,7 +185,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <forkMode>never</forkMode>
+          <forkMode>once</forkMode>
         </configuration>
       </plugin>
     </plugins>

@@ -19,6 +19,7 @@
 
   <artifactId>insight-elasticsearch</artifactId>
   <name>${project.artifactId}</name>
+  <description>Fuse Insight :: Elastic Search</description>
   <packaging>bundle</packaging>
 
   <properties>

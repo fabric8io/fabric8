@@ -19,6 +19,7 @@
 
   <artifactId>insight-log</artifactId>
   <name>${project.artifactId}</name>
+  <description>Fuse Insight :: Logging</description>
   <packaging>bundle</packaging>
 
   <properties>

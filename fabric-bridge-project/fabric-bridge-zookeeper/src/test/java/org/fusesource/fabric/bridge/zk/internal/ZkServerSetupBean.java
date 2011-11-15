@@ -55,7 +55,7 @@ public class ZkServerSetupBean implements SmartLifecycle {
 
         // import ZK contents
         TestImport testImport = new TestImport();
-        testImport.setSource("src/test/resources/zkexport");
+        testImport.setSource("target/test-classes/zkexport");
         testImport.setNRegEx(new String[] {"dummy"});
         testImport.setZooKeeper(client);
         try {

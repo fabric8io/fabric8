@@ -36,7 +36,6 @@ How the website works
     {pygmentize}
 
     You can now surf the site and see changes immediately.
-    The site is running at [localhost](http://localhost:8080/)
 
     If you are on OS X then we highly recommend [TextMate](http://macromates.com/) as a great editor which supports Textile and Markdown
 
