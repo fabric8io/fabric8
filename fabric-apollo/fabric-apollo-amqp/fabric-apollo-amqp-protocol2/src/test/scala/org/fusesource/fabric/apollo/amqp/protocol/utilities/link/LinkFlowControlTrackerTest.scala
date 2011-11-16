@@ -49,7 +49,7 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
         go(i + 1, max)
       }
     }
-    go(0, 10)
+    go(1, 10)
     sent should be (5)
     not_sent should  be (5)
     tracker.link_credit should be (0L)
