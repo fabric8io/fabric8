@@ -19,8 +19,8 @@
 
     <artifactId>fabric-examples</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource Fabric :: Examples</name>
-    <description>FuseSource Fabric :: Examples</description>
+    <name>Fuse Fabric :: Examples</name>
+    <description>Fuse Fabric :: Examples</description>
     
     <modules>
       <module>fabric-camel-cluster-loadbalancing</module>

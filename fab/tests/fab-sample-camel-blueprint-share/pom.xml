@@ -23,7 +23,7 @@
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FAB :: Sample :: Camel Blueprint Share</description>
+  <description>Fuse Bundles :: Sample :: Camel Blueprint Share</description>
 
   <dependencies>
     <dependency>

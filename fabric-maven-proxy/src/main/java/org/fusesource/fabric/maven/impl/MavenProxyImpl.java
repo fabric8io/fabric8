@@ -40,7 +40,7 @@ public class MavenProxyImpl implements MavenProxy {
 
     private int port = 8040;
     private String localRepository;
-    private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public";
+    private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/public-snapshots";
 
     private List<RemoteRepository> repositories;
     private ServerSocket serverSocket;

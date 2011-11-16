@@ -22,7 +22,7 @@
     <artifactId>fabric-activemq-demo</artifactId>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Fabric ActiveMQ Demo</description>
+    <description>Fuse Fabric :: Fabric ActiveMQ Demo</description>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>
@@ -91,16 +91,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-				<version>${felix-plugin.version}</version>
-                <configuration>
-                    <instructions>
-                        <Bundle-Activator>org.fusesource.fabric.demo.activemq.Demo</Bundle-Activator>
-                    </instructions>
-                </configuration>
             </plugin>
         </plugins>
     </build>

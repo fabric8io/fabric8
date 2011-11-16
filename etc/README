@@ -39,7 +39,7 @@ added to org.ops4j.pax.url.mvn.repositories property in etc/org.ops4j.pax.url.mv
 
 To create a profile with default configuration, run:
 
-    shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/activemq-installer
+    shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/installer
 
 Next you can create, agents with this profile like:
 

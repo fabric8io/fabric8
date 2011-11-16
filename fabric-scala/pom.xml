@@ -26,7 +26,7 @@
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Scala Maven Settings</description>
+  <description>Fuse Fabric :: Scala Maven Settings</description>
   
  <dependencies>
 

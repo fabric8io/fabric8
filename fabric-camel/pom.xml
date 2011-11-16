@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Camel Component</description>
+    <description>Fuse Fabric :: Camel Component</description>
 
     <properties>
         <fabric.osgi.export>
@@ -80,11 +80,25 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-linkedin-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-groups</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring-version}</version>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
 

@@ -23,7 +23,7 @@
     <groupId>org.fusesource.fabric.itests</groupId>
     <artifactId>fabric-pojosr</artifactId>
     <version>1.1-SNAPSHOT</version>
-    <name>FuseSource Fabric :: Integration Tests :: PojoSR</name>
+    <name>Fuse Fabric :: Integration Tests :: PojoSR</name>
     <description>Fabric Integration tests with PojoSR</description>
     <packaging>jar</packaging>
 

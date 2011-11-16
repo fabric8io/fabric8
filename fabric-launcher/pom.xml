@@ -24,7 +24,7 @@
   <packaging>war</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource Fabric :: Launcher</description>
+  <description>Fuse Fabric :: Launcher</description>
 
   <properties>
     <jetty-port>8080</jetty-port>

@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Maven Proxy</description>
+    <description>Fuse Fabric :: Maven Proxy</description>
 
     <properties>
         <fabric.osgi.export>

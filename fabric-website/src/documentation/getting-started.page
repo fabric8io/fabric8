@@ -8,47 +8,46 @@ Getting Started guide for Fabric
 
 --- name:content pipeline:jade
 
-h2
-  | Warning
-  p
-    | The below getting started only works on Karaf 2.2.2 or better for now.
-
 .left
   :markdown
-    # Checkout Fabric
+    # Install
 .right
   :&markdown
-    Run the following commands:  
+    To install Fabric either
+    
+    * [download](../download.html) the Fabric distro 
+    * [checkout](../source.html) and [build](../building.html) the Fabric distro locally
+    * run the following in an Apache Karaf (2.2.x) console:  
+    
   pre
-    | git clone git://github.com/fusesource/fabric.git
-    | cd fabric
+    | karaf@root> shell:source mvn:org.fusesource.fabric/fabric-distro/#{project_version}/karaf/installer
 
+  :&markdown
+    The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
+    create the initial ZooKeeper server and profiles.
+    
 .left
   :markdown
-    # Build Fabric
+    # Create a new agent with an existing profile
 .right
-  :&markdown
-    Use the standard maven command to build Fabric:  
   pre
-    | mvn install
-
-.left
-  :markdown
-    # Create a ZooKeeper server
-.right
+    | karaf@root> fabric:create-agent --profile activemq --parent root broker1
+    | ...
   :&markdown
-    To create a ZooKeeper server, run the following commands in Karaf (2.2.x) console:  
-  pre
-    | karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features
-    | karaf@root> features:install fabric-commands
-    | karaf@root> fabric:zk-cluster root
-  :&markdown
-    You can now use the fabric command and see that the karaf instance has been automatically registered as an agent:  
+    Check that the agent has been created (it can take a few seconds):  
   pre
     | karaf@root> fabric:list-agents
     | [id]                           [alive]    [profiles]
     | root                           true       default, zk-server-0000-1
-    | karaf@root>
+    | broker1                        true       activemq
+    
+  :&markdown
+    Wait a few seconds, then check that the feature has been deployed:  
+  pre
+    | karaf@root> fabric:connect broker1
+    | ...
+    | karaf@test> osgi:list
+    | ...
 
 .left
   :markdown
@@ -72,7 +71,7 @@ h2
     | karaf@root> fabric:list-agents
     | [id]                           [alive]    [profiles]
     | root                           true       default, zk-server-0000-1
-    | &nbsp;&nbsp;test                         true       webserver
+    | test                           true       webserver
 
 .left
   :markdown
@@ -81,7 +80,7 @@ h2
   :&markdown
     Let's associate a karaf war feature to the webserver profile:  
   pre
-    | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.2/xml/features
+    | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/2.2.1/xml/features
     | karaf@root> zk:create -r /fabric/configs/versions/base/profiles/webserver/org.fusesource.fabric.agent/feature.war war
   :&markdown
     Wait a few seconds, then check that the feature has been deployed:  

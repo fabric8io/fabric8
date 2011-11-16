@@ -17,20 +17,18 @@ Download it today!
     
     You can download **Fabric** from the [Maven Repository](http://repo.fusesource.com/nexus/content/repositories/public/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/public/org/fusesource/fabric/).
 
-    Download a distribution:
+    Fabric is composed of several components and does not provide any binary distribution to run at the moment.  
 
+    The following version are available:
   - for( version <- project_versions )
     :&markdown
-      * [#{version} zip](http://repo.fusesource.com/nexus/content/repositories/public/org/fusesource/fabric/fabric-distro/#{version}/fabric-distro-#{version}-windows-bin.zip) or [tar.gz](http://repo.fusesource.com/nexus/content/repositories/public/org/fusesource/fabric/fabric-distro/#{version}/fabric-distro-#{version}-unix-bin.tar.gz) - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
+      * #{version} - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
 
   :&markdown
   
     ## Snapshots
 
     You can download a recent snapshot from the [Snapshot Maven Repository](http://repo.fusesource.com/nexus/content/repositories/snapshots/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/snapshots/org/fusesource/fabric/).
-
-    * [#{project_snapshot_version} zip](http://repo.fusesource.com/nexus/service/local/artifact/maven/redirect?r=snapshots&g=org.fusesource.fabric&a=fabric-distro&v=#{project_snapshot_version}&e=zip&c=windows-bin) or [tar.gz](http://repo.fusesource.com/nexus/service/local/artifact/maven/redirect?r=snapshots&g=org.fusesource.fabric&a=fabric-distro&v=#{project_snapshot_version}&e=tar.gz&c=unix-bin)
-
 
 .left
   :markdown
