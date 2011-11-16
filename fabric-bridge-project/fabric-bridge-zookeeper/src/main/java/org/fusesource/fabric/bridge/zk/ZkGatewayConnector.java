@@ -145,11 +145,13 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
         bridgeLookupExecutor.shutdown();
 
         // de-register self as a lifecycle listener
-        this.connected = false;
-        try {
-            zooKeeper.removeListener(this);
-        } catch (Exception e) {
-            LOG.error("Error removing Gateway Connector as ZooKeeper listener: " + e.getMessage(), e);
+        if (this.connected) {
+            try {
+                zooKeeper.removeListener(this);
+                this.connected = false;
+            } catch (Exception e) {
+                LOG.error("Error removing Gateway Connector as ZooKeeper listener: " + e.getMessage(), e);
+            }
         }
 
         super.doStop();

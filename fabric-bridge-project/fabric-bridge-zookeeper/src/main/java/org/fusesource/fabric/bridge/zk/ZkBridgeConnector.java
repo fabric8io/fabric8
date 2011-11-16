@@ -171,6 +171,21 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
         ZkConfigHelper.registerBridge(zooKeeper, agent, remoteBridge);
     }
 
+    protected void doStop() {
+        // de-register self as a lifecycle listener
+        if (this.connected) {
+            try {
+                zooKeeper.removeListener(this);
+                this.connected = false;
+            } catch (Exception e) {
+                LOG.error("Error removing Bridge Connector as ZooKeeper listener: " + e.getMessage(), e);
+            }
+        }
+
+        super.doStop();
+        LOG.info("Stopped");
+    }
+
     @Override
     protected void doDestroy() throws Exception {
         try {
@@ -181,7 +196,12 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
         // remove the bridge from ZK
         if (agent != null) {
-            ZkConfigHelper.removeBridge(zooKeeper, agent);
+            if (this.connected) {
+                ZkConfigHelper.removeBridge(zooKeeper, agent);
+            } else {
+                LOG.error("Bridge disconnected from Fabric Zookeeper service, " +
+                    "unable to remove Bridge runtime configuration");
+            }
         }
     }
 
