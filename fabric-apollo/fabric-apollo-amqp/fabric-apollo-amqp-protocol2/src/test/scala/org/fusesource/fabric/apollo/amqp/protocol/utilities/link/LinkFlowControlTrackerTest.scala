@@ -20,7 +20,13 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
     val tracker = new LinkFlowControlTracker
     var have_no_credit = false
     var visited = false
-    tracker.track {visited = true} {have_no_credit = true}
+    tracker.track((credit) => {
+      if (credit) {
+        visited = true
+      } else {
+        have_no_credit = true
+      }
+    })
     have_no_credit should be (true)
     visited should be (false)
   }
@@ -30,7 +36,13 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
     tracker.sender_flow(new Flow(0L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, false))
     var have_no_credit = false
     var visited = false
-    tracker.track {visited = true} {have_no_credit = true}
+    tracker.track( (credit) => {
+      if (credit) {
+        visited = true
+      } else {
+        have_no_credit = true
+      }
+    })
     have_no_credit should be (false)
     visited should be (true)
     tracker.link_credit should be (0L)
@@ -44,7 +56,13 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
     var sent = 0
     var not_sent = 0
     def go(i:Int,  max:Int): Unit = {
-      tracker.track {sent = sent + 1} { not_sent = not_sent + 1}
+      tracker.track( (credit) => {
+        if (credit) {
+          sent = sent + 1
+        } else {
+          not_sent = not_sent + 1
+        }
+      })
       if (i < max) {
         go(i + 1, max)
       }

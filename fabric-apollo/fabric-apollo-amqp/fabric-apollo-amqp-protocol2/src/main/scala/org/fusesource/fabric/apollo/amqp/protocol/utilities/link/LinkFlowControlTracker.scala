@@ -19,19 +19,19 @@ class LinkFlowControlTracker {
   var available = 0L
   var drain = false
 
-  def track(credit: => Unit)(no_credit: => Unit) = {
+  def track(func:(Boolean) => Unit) = {
     if (link_credit <= 0) {
       available = available + 1
-      no_credit
+      func(false)
     } else {
       advance_delivery_count
       if (available > 0) {
         available = available - 1
       }
-      credit
+      func(true)
     }
   }
-  
+
   def drain_link_credit:Unit = {
     if (drain && link_credit > 0) {
       advance_delivery_count
