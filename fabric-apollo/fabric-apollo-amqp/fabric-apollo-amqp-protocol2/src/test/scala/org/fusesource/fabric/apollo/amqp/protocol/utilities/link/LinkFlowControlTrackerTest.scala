@@ -11,13 +11,13 @@
 package org.fusesource.fabric.apollo.amqp.protocol.utilities.link
 
 import org.scalatest.matchers.ShouldMatchers
-import org.fusesource.fabric.apollo.amqp.codec.types.Flow
 import org.apache.activemq.apollo.util.FunSuiteSupport
+import org.fusesource.fabric.apollo.amqp.codec.types.{Role, Flow}
 
 class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
   
   test("Track with no link credit") {
-    val tracker = new LinkFlowControlTracker
+    val tracker = new LinkFlowControlTracker(Role.SENDER)
     var have_no_credit = false
     var visited = false
     tracker.track((credit) => {
@@ -32,8 +32,8 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
   }
   
   test("Track with link credit") {
-    val tracker = new LinkFlowControlTracker
-    tracker.sender_flow(new Flow(0L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, false))
+    val tracker = new LinkFlowControlTracker(Role.SENDER)
+    tracker.flow(new Flow(0L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, false))
     var have_no_credit = false
     var visited = false
     tracker.track( (credit) => {
@@ -51,8 +51,8 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
   }
   
   test("Track several units, run out of link credit") {
-    val tracker = new LinkFlowControlTracker
-    tracker.sender_flow(new Flow(0L, 0L, 0L, 0L, 0L, 0L, 5L, 0L, false))
+    val tracker = new LinkFlowControlTracker(Role.SENDER)
+    tracker.flow(new Flow(0L, 0L, 0L, 0L, 0L, 0L, 5L, 0L, false))
     var sent = 0
     var not_sent = 0
     def go(i:Int,  max:Int): Unit = {

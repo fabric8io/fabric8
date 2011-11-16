@@ -10,9 +10,10 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol.utilities.link
 
-import org.fusesource.fabric.apollo.amqp.codec.types.Flow
+import org.fusesource.fabric.apollo.amqp.codec.types.{Role, Flow}
 
-class LinkFlowControlTracker {
+
+class LinkFlowControlTracker(val role:Role) {
 
   var link_credit = 0L
   var delivery_count = 0L
@@ -52,16 +53,15 @@ class LinkFlowControlTracker {
     flow
   }
 
-  def receiver_flow(flow:Flow) = {
-    delivery_count = flow.getDeliveryCount
-    available = flow.getAvailable
-
+  def flow(flow:Flow) = {
+    role match {
+      case Role.RECEIVER =>
+        delivery_count = Option[Long](flow.getDeliveryCount).getOrElse(0L)
+        available = Option[Long](flow.getAvailable).getOrElse(0L)
+      case Role.SENDER =>
+        link_credit = Option[Long](flow.getLinkCredit).getOrElse(Long.MaxValue)
+        drain = Option[Boolean](flow.getDrain).getOrElse(false)
+    }
   }
-
-  def sender_flow(flow:Flow) = {
-    link_credit = flow.getLinkCredit
-    drain = flow.getDrain
-  }
-
 
 }
