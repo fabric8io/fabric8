@@ -56,12 +56,19 @@ public class OsgiApplicationContextAdapter implements InvocationHandler {
         String beanName = String.valueOf(args[0]);
         Class beanClass = (Class) args[1];
         String filter = "(" + Constants.SERVICE_PID + "=" + beanName + ")";
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("OSGi service lookup for class [%s] with filter [%s]", beanClass.getName(), filter));
+        }
         ServiceReference[] references = bundleContext.getServiceReferences(beanClass.getName(), filter);
         if (references != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("Found %d OSGi services", references.length));
+            }
             Object service = bundleContext.getService(references[0]);
             serviceFactory.addServiceReference(pid, references[0]);
             return service;
         }
+        LOG.error("OSGi service not found for class [%s] with filter [%s]", beanClass.getName(), filter);
         throw new NoSuchBeanDefinitionException(beanName, " no such OSGi service");
     }
 
