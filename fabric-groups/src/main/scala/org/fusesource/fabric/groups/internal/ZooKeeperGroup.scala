@@ -56,13 +56,14 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
   val tree = new ZooKeeperTreeTracker[Array[Byte]](zk, new ZKByteArrayDataReader, root, 1)
   val joins = HashMap[String, Int]()
 
+  create(root)
+
   var members = ZooKeeperGroup.members(zk, root)
 
   private def member_path_prefix = root + "/0"
 
   zk.registerListener(this)
 
-  create(root)
   tree.track(new NodeEventsListener[Array[Byte]]() {
     def onEvents(events: Collection[NodeEvent[Array[Byte]]]): Unit = {
       fire_cluster_change
