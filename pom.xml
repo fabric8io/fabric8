@@ -651,6 +651,11 @@
                 <version>${karaf-version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.log</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.karaf.features</groupId>
                 <artifactId>org.apache.karaf.features.core</artifactId>
                 <version>${karaf-version}</version>
