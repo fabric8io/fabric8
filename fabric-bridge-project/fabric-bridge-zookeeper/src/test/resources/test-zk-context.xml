@@ -27,8 +27,8 @@
   </bean>
 
   <!-- explicitly configured gateway, uses fabric for runtime configuration and bridge discovery -->
-  <zkbridge:zkgateway-connector id="myzkgateway" fabricServiceRef="fabricservice" profileName="test-gateway"
-                                phase="1000">
+  <zkbridge:zkgateway-connector id="myzkgateway" zooKeeperRef="zkClient" fabricServiceRef="fabricservice"
+                                profileName="test-gateway" phase="1000">
     <bridge:local-broker
         brokerUrl="vm://remote?broker.persistent=false&amp;broker.brokerName=remote&amp;jms.prefetchPolicy.queuePrefetch=10"/>
     <bridge:inbound-destinations/>
@@ -40,7 +40,8 @@
   </zkbridge:zkgateway-connector>
 
   <!-- explicitly configured bridge, uses fabric for runtime configuration and gateway discovery -->
-  <zkbridge:zkbridge-connector id="myzkbridge" fabricServiceRef="fabricservice" gatewayProfileName="test-gateway">
+  <zkbridge:zkbridge-connector id="myzkbridge" zooKeeperRef="zkClient" fabricServiceRef="fabricservice"
+                               gatewayProfileName="test-gateway">
     <bridge:local-broker
         brokerUrl="vm://local?broker.persistent=false&amp;broker.brokerName=local&amp;jms.prefetchPolicy.queuePrefetch=10"/>
     <bridge:outbound-destinations>

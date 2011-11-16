@@ -13,6 +13,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
+import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -44,6 +45,8 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
+    private IZKClient zooKeeper;
+
     private FabricService fabricService;
 
     private BundleContext bundleContext;
@@ -51,6 +54,9 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
     protected Map<String, List<ServiceReference>> serviceReferenceMap = new ConcurrentHashMap<String, List<ServiceReference>>();
 
     public final void init() throws Exception {
+        if (zooKeeper == null) {
+            throw new IllegalArgumentException("Property zooKeeper must be set!");
+        }
         if (fabricService == null) {
             throw new IllegalArgumentException("Property fabricService must be set!");
         }
@@ -91,6 +97,8 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
                 bundleContext.ungetService(reference);
             }
         }
+
+        LOG.info("Removed " + pid);
     }
 
     protected abstract void doDeleted(String pid);
@@ -102,14 +110,18 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
         factory.setFabricService(fabricService);
         factory.setId(destinationsRef);
         try {
-            return factory.getObject();
+            BridgeDestinationsConfig destinationsConfig = factory.getObject();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Found [" + pid + "." + destinationsRef + "]: " + destinationsConfig);
+            }
+
+            return destinationsConfig;
         } catch (Exception e) {
             String msg = "Error getting destinations for " +
-                pid + "." + destinationsRef + " : " + e.getMessage();
+            pid + "." + destinationsRef + " : " + e.getMessage();
             LOG.error(msg, e);
             throw new ConfigurationException(destinationsRef, msg, e);
         }
-
     }
 
     protected BrokerConfig createBrokerConfig(String pid, String prefix, Dictionary<String, String> properties) throws ConfigurationException {
@@ -205,6 +217,14 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
         return (ApplicationContext) Proxy.newProxyInstance(ApplicationContext.class.getClassLoader(),
             new Class[]{ApplicationContext.class},
             new OsgiApplicationContextAdapter(pid, this));
+    }
+
+    public IZKClient getZooKeeper() {
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
     }
 
     public final FabricService getFabricService() {

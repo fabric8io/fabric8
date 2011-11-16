@@ -16,7 +16,6 @@ import org.fusesource.fabric.bridge.internal.TargetConnector;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
 import org.fusesource.fabric.bridge.zk.internal.ZkConfigHelper;
-import org.fusesource.fabric.service.FabricServiceImpl;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
@@ -57,6 +56,11 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 	private String profileName;
 
     @XmlAttribute(required = true)
+    private String zooKeeperRef;
+
+    private IZKClient zooKeeper;
+
+    @XmlAttribute(required = true)
     private String fabricServiceRef;
 
     private FabricService fabricService;
@@ -88,15 +92,16 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
         }
 
         if (profileName == null) {
-			throw new IllegalArgumentException("Property profile must be set");
+			throw new IllegalArgumentException("Property profileName must be set");
 		}
-
+        if (zooKeeper == null) {
+            throw new IllegalArgumentException("Property zooKeeper must be set");
+        }
 		if (fabricService == null) {
 			throw new IllegalArgumentException("Property fabricService must be set");
 		}
 
         // configure self as a lifecycle listener
-        IZKClient zooKeeper = ((FabricServiceImpl) fabricService).getZooKeeper();
         zooKeeper.registerListener(this);
         this.connected = true;
 
@@ -142,7 +147,6 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
         // de-register self as a lifecycle listener
         this.connected = false;
         try {
-            IZKClient zooKeeper = ((FabricServiceImpl) fabricService).getZooKeeper();
             zooKeeper.removeListener(this);
         } catch (Exception e) {
             LOG.error("Error removing Gateway Connector as ZooKeeper listener: " + e.getMessage(), e);
@@ -187,8 +191,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 			try {
                 // get the Bridge configuration for this agent
                 RemoteBridge remoteBridge = ZkConfigHelper.getBridgeConfig(
-                ((FabricServiceImpl) fabricService).getZooKeeper(),
-                agent, applicationContext);
+                    zooKeeper, agent, applicationContext);
 
                 // check if we have an existing Bridge for this agent
                 RemoteBridge oldRemoteBridge = agentBridgeMap.get(agentId);
@@ -278,6 +281,22 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 	public void setProfileName(String profileName) {
 		this.profileName = profileName;
 	}
+
+    public String getZooKeeperRef() {
+        return zooKeeperRef;
+    }
+
+    public void setZooKeeperRef(String zooKeeperRef) {
+        this.zooKeeperRef = zooKeeperRef;
+    }
+
+    public IZKClient getZooKeeper() {
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
+    }
 
     public String getFabricServiceRef() {
         return fabricServiceRef;

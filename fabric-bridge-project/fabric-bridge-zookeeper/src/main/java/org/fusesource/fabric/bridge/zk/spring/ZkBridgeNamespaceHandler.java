@@ -31,6 +31,8 @@ public class ZkBridgeNamespaceHandler extends NamespaceHandlerSupport {
     private static final String ZKBRIDGE_NS = "http://fusesource.org/fabric/bridge/zookeeper";
     private static final String FABRIC_SERVICE_ATTRIBUTE = "fabricServiceRef";
     private static final String FABRIC_SERVICE_PROPERTY = "fabricService";
+    private static final String ZOOKEEPER_ATTRIBUTE = "zooKeeperRef";
+    private static final String ZOOKEEPER_PROPERTY = "zooKeeper";
     private static final String EXPORTED_BROKER_PROPERTY = "exportedBrokerConfig";
     private static final String EXPORTED_BROKER_ELEMENT = "exported-broker";
 
@@ -67,6 +69,12 @@ public class ZkBridgeNamespaceHandler extends NamespaceHandlerSupport {
 
             // gatewayProfileName is set by base class AbstractSimpleBeanDefinitionParser
 
+            // convert ZooKeeperRef to ZooKeeper bean reference
+            String zooKeeperRef = element.getAttribute(ZOOKEEPER_ATTRIBUTE);
+            if (StringUtils.hasText(zooKeeperRef)) {
+                builder.addPropertyReference(ZOOKEEPER_PROPERTY, zooKeeperRef);
+            }
+
             // convert FabricServiceRef to FabricService bean reference
             String fabricServiceRef = element.getAttribute(FABRIC_SERVICE_ATTRIBUTE);
             if (StringUtils.hasText(fabricServiceRef)) {
@@ -94,6 +102,12 @@ public class ZkBridgeNamespaceHandler extends NamespaceHandlerSupport {
             if (nodes != null && nodes.getLength() == 1) {
                 Element exportedBroker = (Element) nodes.item(0);
                 builder.addPropertyValue(EXPORTED_BROKER_PROPERTY, brokerConfigParser.parse(element, parserContext));
+            }
+
+            // convert ZooKeeperRef to ZooKeeper bean reference
+            String zooKeeperRef = element.getAttribute(ZOOKEEPER_ATTRIBUTE);
+            if (StringUtils.hasText(zooKeeperRef)) {
+                builder.addPropertyReference(ZOOKEEPER_PROPERTY, zooKeeperRef);
             }
 
             // convert FabricServiceRef to FabricService bean reference

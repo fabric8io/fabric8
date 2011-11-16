@@ -47,6 +47,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
         if (gatewayConnectorMap.containsKey(pid)) {
             // destroy and recreate gateway connector
+            LOG.info("Refreshing Gateway " + pid);
             deleted(pid);
         }
 
@@ -61,7 +62,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
         // create and add gateway connector
         gatewayConnectorMap.put(pid, createGatewayConnector(pid, properties));
-
+        LOG.info("Started Gateway " + pid);
     }
 
     @Override
@@ -72,6 +73,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
             try {
                 gatewayConnector.destroy();
+                LOG.info("Destroyed Gateway " + pid);
             } catch (Exception e) {
                 LOG.error("Error destroying gateway " + pid + " : " + e.getMessage(), e);
             }
@@ -84,6 +86,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
     private ZkGatewayConnector createGatewayConnector(String pid, Dictionary<String, String> properties) throws ConfigurationException {
         ZkGatewayConnector gatewayConnector = new ZkGatewayConnector();
+        gatewayConnector.setZooKeeper(getZooKeeper());
         gatewayConnector.setFabricService(getFabricService());
         gatewayConnector.setId(pid);
 

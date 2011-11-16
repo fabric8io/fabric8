@@ -18,6 +18,7 @@
         <xs:attribute name="gatewayProfileName" type="xs:string"/>
         <xs:attribute name="gatewayStartupDelay" type="xs:int"/>
         <xs:attribute name="gatewayConnectRetries" type="xs:int"/>
+        <xs:attribute name="zooKeeperRef" type="xs:string"/>
         <xs:attribute name="fabricServiceRef" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
@@ -31,6 +32,7 @@
         </xs:sequence>
         <xs:attribute name="versionName" type="xs:string"/>
         <xs:attribute name="profileName" type="xs:string"/>
+        <xs:attribute name="zooKeeperRef" type="xs:string"/>
         <xs:attribute name="fabricServiceRef" type="xs:string"/>
         <xs:attribute name="updateInterval" type="xs:long"/>
       </xs:extension>

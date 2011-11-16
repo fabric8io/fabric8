@@ -12,6 +12,7 @@ package org.fusesource.fabric.bridge.zk.internal;
 import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
+import org.fusesource.fabric.service.FabricServiceImpl;
 import org.junit.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -92,6 +93,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
     @Before
     public void setUp() {
         serviceFactory = new ZkManagedBridgeServiceFactory();
+        serviceFactory.setZooKeeper(((FabricServiceImpl)fabricService).getZooKeeper());
         serviceFactory.setFabricService(fabricService);
         serviceFactory.setBundleContext(bundleContext);
     }
@@ -123,11 +125,11 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
     }
 
     @Test
-    public void testUpdatedRefs() throws Exception {
+    public void testUpdatedRefsBridge() throws Exception {
         // start
         serviceFactory.init();
 
-        // create a simple broker URL based bridge
+        // create a simple OSGi references based bridge
         Hashtable<String, String> properties = getDefaultConfig();
         properties.put("localBroker.connectionFactoryRef", "localCF");
         properties.put("exportedBroker.connectionFactoryRef", "localCF");

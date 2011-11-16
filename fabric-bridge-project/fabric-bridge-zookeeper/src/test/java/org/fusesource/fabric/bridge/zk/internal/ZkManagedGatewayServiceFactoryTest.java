@@ -12,6 +12,7 @@ package org.fusesource.fabric.bridge.zk.internal;
 import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
+import org.fusesource.fabric.service.FabricServiceImpl;
 import org.junit.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -93,6 +94,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
     @Before
     public void setUp() {
         serviceFactory = new ZkManagedGatewayServiceFactory();
+        serviceFactory.setZooKeeper(((FabricServiceImpl)fabricService).getZooKeeper());
         serviceFactory.setFabricService(fabricService);
         serviceFactory.setBundleContext(bundleContext);
     }
@@ -109,7 +111,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
     }
 
     @Test
-    public void testUpdatedBrokerUrlBridge() throws Exception {
+    public void testUpdatedBrokerUrlGateway() throws Exception {
         // start
         serviceFactory.init();
 
@@ -124,11 +126,11 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
     }
 
     @Test
-    public void testUpdatedRefs() throws Exception {
+    public void testUpdatedRefsGateway() throws Exception {
         // start
         serviceFactory.init();
 
-        // create a simple broker URL based gateway
+        // create a simple OSGi references based gateway
         Hashtable<String, String> properties = getDefaultConfig();
         properties.put("localBroker.connectionFactoryRef", "remoteCF");
         properties.put("exportedBroker.connectionFactoryRef", "remoteCF");
@@ -152,7 +154,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
 
     @Test
     public void testDeleted() throws Exception {
-        testUpdatedBrokerUrlBridge();
+        testUpdatedBrokerUrlGateway();
 
         serviceFactory.deleted(TEST_PID);
     }

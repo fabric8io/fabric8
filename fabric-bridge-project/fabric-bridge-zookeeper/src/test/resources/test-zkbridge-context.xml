@@ -34,7 +34,7 @@
   <!-- Fabric configured bridge, uses Fabric to discover destinations -->
   <zkbridge:zkbridge-connector id="myzkbridge" inboundDestinationsRef="downstream"
                                outboundDestinationsRef="upstream" fabricServiceRef="fabricservice"
-                               gatewayProfileName="test-gateway">
+                               zooKeeperRef="zkClient" gatewayProfileName="test-gateway">
     <bridge:local-broker
         brokerUrl="vm://local?broker.persistent=false&amp;broker.brokerName=local&amp;jms.prefetchPolicy.queuePrefetch=10"/>
   </zkbridge:zkbridge-connector>
