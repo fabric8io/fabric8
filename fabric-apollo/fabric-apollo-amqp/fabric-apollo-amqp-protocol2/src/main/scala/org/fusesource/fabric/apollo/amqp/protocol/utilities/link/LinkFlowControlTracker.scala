@@ -15,52 +15,57 @@ import org.fusesource.fabric.apollo.amqp.codec.types.{Role, Flow}
 
 class LinkFlowControlTracker(val role:Role) {
 
-  var link_credit = 0L
-  var delivery_count = 0L
-  var available = 0L
-  var drain = false
+  private var _link_credit = 0L
+  private var _delivery_count = 0L
+  private var _available = 0L
+  private var _drain = false
 
   def track(func:(Boolean) => Unit) = {
-    if (link_credit <= 0) {
-      available = available + 1
+    if (credit) {
+      _available = _available + 1
       func(false)
     } else {
       advance_delivery_count
-      if (available > 0) {
-        available = available - 1
+      if (_available > 0) {
+        _available = _available - 1
       }
       func(true)
     }
   }
 
   def drain_link_credit:Unit = {
-    if (drain && link_credit > 0) {
+    if (_drain && _link_credit > 0) {
       advance_delivery_count
       drain_link_credit
     }
   }
 
   private def advance_delivery_count = {
-    link_credit = link_credit - 1
-    delivery_count = delivery_count + 1
+    _link_credit = _link_credit - 1
+    _delivery_count = _delivery_count + 1
   }
+
+  def credit = _link_credit > 0
+
+  def available = _available
+  def available_=(a:Long) = _available = a
   
   def init_flow(flow:Flow = new Flow()):Flow = {
-    flow.setDeliveryCount(delivery_count)
-    flow.setAvailable(available)
-    flow.setLinkCredit(link_credit)
-    flow.setDrain(drain)
+    flow.setDeliveryCount(_delivery_count)
+    flow.setAvailable(_available)
+    flow.setLinkCredit(_link_credit)
+    flow.setDrain(_drain)
     flow
   }
 
   def flow(flow:Flow) = {
     role match {
       case Role.RECEIVER =>
-        delivery_count = Option[Long](flow.getDeliveryCount).getOrElse(0L)
-        available = Option[Long](flow.getAvailable).getOrElse(0L)
+        _delivery_count = Option[Long](flow.getDeliveryCount).getOrElse(0L)
+        _available = Option[Long](flow.getAvailable).getOrElse(0L)
       case Role.SENDER =>
-        link_credit = Option[Long](flow.getLinkCredit).getOrElse(Long.MaxValue)
-        drain = Option[Boolean](flow.getDrain).getOrElse(false)
+        _link_credit = Option[Long](flow.getLinkCredit).getOrElse(Long.MaxValue)
+        _drain = Option[Boolean](flow.getDrain).getOrElse(false)
     }
   }
 

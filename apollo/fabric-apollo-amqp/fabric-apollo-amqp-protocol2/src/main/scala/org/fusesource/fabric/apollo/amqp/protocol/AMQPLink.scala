@@ -12,12 +12,15 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{Session, Link}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Source, Target}
+import utilities.link.LinkFlowControlTracker
 
 /**
  *
  */
 
 trait AMQPLink extends Link {
+
+  val tracker = new LinkFlowControlTracker(getRole)
 
   var name:Option[String] = None
   var max_message_size:Long = 0L

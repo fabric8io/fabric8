@@ -18,6 +18,8 @@ import org.fusesource.fabric.apollo.amqp.codec.api.{AnnotatedMessage, BareMessag
 import org.fusesource.hawtbuf.Buffer
 import org.fusesource.fabric.apollo.amqp.codec.types.{Role, SenderSettleMode}
 import utilities.execute
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport._
+import utilities.link.LinkFlowControlTracker
 
 /**
  *
@@ -31,13 +33,40 @@ object AMQPSender {
 }
 
 class AMQPSender extends Interceptor with Sender with AMQPLink {
-  def full() = false
 
-  def offer(message: Buffer) = false
+  def full() = getSession.sufficientSessionCredit() && tracker.credit
 
-  def offer(message: AnnotatedMessage) = false
+  def offer(message: Buffer):Boolean = {
+    if (!getSession.sufficientSessionCredit()) {
+      false
+    } else {
+      var rc = false
+      tracker.track((credit) => {
+        if (credit) {
 
-  def offer(message: BareMessage[_]) = false
+          rc = true
+
+        }
+      })
+      rc
+    }
+  }
+
+  def offer(message: AnnotatedMessage):Boolean = {
+    if (!full()) {
+      offer(toBuffer(message))      
+    } else {
+      false
+    }
+  }
+
+  def offer(message: BareMessage[_]):Boolean = {
+    if (!full()) {
+      offer(toBuffer(message))
+    } else {
+      false
+    }
+  }
 
   def setTagger(tagger: DeliveryTagger) {}
 
