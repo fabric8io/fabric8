@@ -28,7 +28,17 @@
   <modules>
     <module>fabric-bridge</module>
     <module>fabric-bridge-zookeeper</module>
+    <!--module>fabric-bridge-itests</module-->
   </modules>
+
+  <profiles>
+    <profile>
+      <id>itests</id>
+      <modules>
+        <module>fabric-bridge-itests</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <build>
   	<pluginManagement>
