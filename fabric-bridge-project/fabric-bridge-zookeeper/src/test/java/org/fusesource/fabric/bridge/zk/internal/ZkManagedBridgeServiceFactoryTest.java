@@ -110,7 +110,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
     }
 
     @Test
-    public void testUpdatedBrokerUrlBridge() throws Exception {
+    public void testBrokerUrlBridgeUpdate() throws Exception {
         // start
         serviceFactory.init();
 
@@ -125,7 +125,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
     }
 
     @Test
-    public void testUpdatedRefsBridge() throws Exception {
+    public void testRefsBridgeUpdate() throws Exception {
         // start
         serviceFactory.init();
 
@@ -155,7 +155,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
 
     @Test
     public void testDeleted() throws Exception {
-        testUpdatedBrokerUrlBridge();
+        testBrokerUrlBridgeUpdate();
 
         serviceFactory.deleted(TEST_PID);
     }

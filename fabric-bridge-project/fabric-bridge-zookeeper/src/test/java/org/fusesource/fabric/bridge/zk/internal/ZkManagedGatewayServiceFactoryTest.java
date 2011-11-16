@@ -111,7 +111,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
     }
 
     @Test
-    public void testUpdatedBrokerUrlGateway() throws Exception {
+    public void testBrokerUrlGatewayUpdate() throws Exception {
         // start
         serviceFactory.init();
 
@@ -126,7 +126,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
     }
 
     @Test
-    public void testUpdatedRefsGateway() throws Exception {
+    public void testRefsGatewayUpdate() throws Exception {
         // start
         serviceFactory.init();
 
@@ -154,7 +154,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
 
     @Test
     public void testDeleted() throws Exception {
-        testUpdatedBrokerUrlGateway();
+        testBrokerUrlGatewayUpdate();
 
         serviceFactory.deleted(TEST_PID);
     }
