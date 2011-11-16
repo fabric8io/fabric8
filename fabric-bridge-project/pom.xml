@@ -28,7 +28,6 @@
   <modules>
     <module>fabric-bridge</module>
     <module>fabric-bridge-zookeeper</module>
-    <module>fabric-bridge-itests</module>
   </modules>
 
   <build>
