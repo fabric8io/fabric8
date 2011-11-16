@@ -51,7 +51,7 @@ public class CreateAgent extends FabricCommand {
             throw new Exception("Either an url or a parent must be specified");
         }
         if (url == null && parent != null) {
-            url = "child:" + parent;
+            url = "child://" + parent;
         }
         List<String> names = this.profiles;
         if (names == null || names.isEmpty()) {
