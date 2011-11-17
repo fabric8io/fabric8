@@ -11,7 +11,6 @@ package org.fusesource.fabric.api.log;
 import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.fusesource.fabric.internal.Bundles;
 import org.fusesource.fabric.internal.log.Logs;
@@ -19,6 +18,8 @@ import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class LogQuery implements LogQueryMBean {
     private VmLogAppender appender;
     private ObjectName mbeanName;
     private ObjectMapper mapper = new ObjectMapper();
+    private ServiceTracker serviceTracker;
 
     public LogQuery() {
         mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
@@ -49,34 +51,15 @@ public class LogQuery implements LogQueryMBean {
         if (bundleContext == null) {
             throw new IllegalArgumentException("No bundleContext injected!");
         }
-
-        // lets try make sure the log bundle starts first..
-        try {
-            Bundles.startBundle(bundleContext, "org.apache.karaf.shell.log");
-        } catch (Exception e) {
-            logger.warn("Failed to start karaf shell log bundle: " + e, e);
-        }
-
-        tryFindAppender("org.ops4j.pax.logging.spi.PaxAppender");
-        if (this.appender == null) {
-            tryFindAppender(VmLogAppender.class.getName());
-        }
-        if (this.appender == null) {
-            throw new IllegalArgumentException("No VmLogAppender found!");
-        }
+        ServiceTrackerCustomizer customizer = null;
+        serviceTracker = new ServiceTracker(bundleContext, "org.ops4j.pax.logging.spi.PaxAppender", customizer);
+        serviceTracker.open();
     }
 
-    protected void tryFindAppender(String clazz) throws InvalidSyntaxException {
-        ServiceReference[] refs = bundleContext.getServiceReferences(clazz, null);
-        if (refs == null) {
-            System.out.println("No available services for: " + clazz);
-        } else {
-            for (ServiceReference ref : refs) {
-                Object service = bundleContext.getService(ref);
-                if (service instanceof VmLogAppender) {
-                    this.appender = (VmLogAppender) service;
-                }
-            }
+    public void destroy() throws Exception {
+        if (serviceTracker != null) {
+            serviceTracker.close();
+            serviceTracker = null;
         }
     }
 
@@ -133,8 +116,9 @@ public class LogQuery implements LogQueryMBean {
 
     protected List<LogEvent> getLogEventList(int count) {
         List<LogEvent> answer = new ArrayList<LogEvent>();
-        if (appender != null) {
-            LruList events = appender.getEvents();
+        VmLogAppender a = getAppender();
+        if (a != null) {
+            LruList events = a.getEvents();
             Iterable<PaxLoggingEvent> iterable;
             if (count > 0) {
                 iterable = events.getElements(count);
@@ -144,7 +128,27 @@ public class LogQuery implements LogQueryMBean {
             for (PaxLoggingEvent event : iterable) {
                 answer.add(Logs.newInstance(event));
             }
+        } else {
+            logger.warn("No VmLogAppender available!");
         }
         return answer;
+    }
+
+    public VmLogAppender getAppender() {
+        if (appender == null && serviceTracker != null) {
+            Object[] services = serviceTracker.getServices();
+            if (services != null) {
+                for (Object service : services) {
+                    if (service instanceof VmLogAppender) {
+                        return (VmLogAppender) service;
+                    }
+                }
+            }
+        }
+        return appender;
+    }
+
+    public void setAppender(VmLogAppender appender) {
+        this.appender = appender;
     }
 }
