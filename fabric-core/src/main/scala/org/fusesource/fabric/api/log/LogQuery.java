@@ -11,6 +11,8 @@ package org.fusesource.fabric.api.log;
 import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.fusesource.fabric.internal.Bundles;
 import org.fusesource.fabric.internal.log.Logs;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -37,6 +39,11 @@ public class LogQuery implements LogQueryMBean {
     private BundleContext bundleContext;
     private VmLogAppender appender;
     private ObjectName mbeanName;
+    private ObjectMapper mapper = new ObjectMapper();
+
+    public LogQuery() {
+        mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
+    }
 
     public void init() throws Exception {
         if (bundleContext == null) {
@@ -115,7 +122,6 @@ public class LogQuery implements LogQueryMBean {
     public String getLogEvents(int count) throws IOException {
         try {
             List<LogEvent> answer = getLogEventList(count);
-            ObjectMapper mapper = new ObjectMapper();
             StringWriter writer = new StringWriter();
             mapper.writeValue(writer, answer);
             return writer.toString();
