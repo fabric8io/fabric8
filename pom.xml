@@ -83,7 +83,10 @@
         <fabric.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
+        <activemq-version>5.5.1-fuse-01-06</activemq-version>
+<!--
         <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
+-->
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
@@ -92,7 +95,7 @@
         <camel-version>2.8.0-fuse-01-06</camel-version>
         <hawtbuf-version>1.6</hawtbuf-version>
         <hawtdispatch-version>1.4</hawtdispatch-version>
-        <jackson-version>1.8.4</jackson-version>
+        <jackson-version>1.9.2</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
@@ -127,10 +130,12 @@
         <scala-version>2.9.1</scala-version>
         <scala-osgi-version>2.9.1</scala-osgi-version>
         <scala-plugin-version>2.15.1</scala-plugin-version>
+        <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
+        <slf4j-api-version>1.6.1</slf4j-api-version>
         <slf4j-version>1.6.1</slf4j-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
         <spring-version>3.0.6.RELEASE</spring-version>

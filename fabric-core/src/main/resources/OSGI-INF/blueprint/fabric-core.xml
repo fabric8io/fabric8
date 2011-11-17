@@ -19,7 +19,7 @@
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
-    <bean id="logQueryService" class="org.fusesource.fabric.api.log.LogQuery" init-method="init">
+    <bean id="logQueryService" class="org.fusesource.fabric.api.log.LogQuery" init-method="init" destroy-method="destroy">
       <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
