@@ -36,37 +36,11 @@ class AMQPSender extends Interceptor with Sender with AMQPLink {
 
   def full() = getSession.sufficientSessionCredit() && tracker.credit
 
-  def offer(message: Buffer):Boolean = {
-    if (!getSession.sufficientSessionCredit()) {
-      false
-    } else {
-      var rc = false
-      tracker.track((credit) => {
-        if (credit) {
+  def offer(message: Buffer):Boolean = false
 
-          rc = true
+  def offer(message: AnnotatedMessage):Boolean = false
 
-        }
-      })
-      rc
-    }
-  }
-
-  def offer(message: AnnotatedMessage):Boolean = {
-    if (!full()) {
-      offer(toBuffer(message))      
-    } else {
-      false
-    }
-  }
-
-  def offer(message: BareMessage[_]):Boolean = {
-    if (!full()) {
-      offer(toBuffer(message))
-    } else {
-      false
-    }
-  }
+  def offer(message: BareMessage[_]):Boolean = false
 
   def setTagger(tagger: DeliveryTagger) {}
 
