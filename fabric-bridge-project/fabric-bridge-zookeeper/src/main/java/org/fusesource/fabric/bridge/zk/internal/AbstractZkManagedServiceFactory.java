@@ -34,8 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Base {@link ManagedServiceFactory} for Fabric {@link org.fusesource.fabric.bridge.zk.ZkBridgeConnector} and {@link org.fusesource.fabric.bridge.zk.ZkGatewayConnector}.
  *
- * @see {@link ZkManagedBridgeServiceFactory}
- * @see {@link ZkManagedGatewayServiceFactory}
+ * @see ZkManagedBridgeServiceFactory
+ * @see ZkManagedGatewayServiceFactory
  * @author Dhiraj Bokde
  */
 public abstract class AbstractZkManagedServiceFactory implements ManagedServiceFactory {

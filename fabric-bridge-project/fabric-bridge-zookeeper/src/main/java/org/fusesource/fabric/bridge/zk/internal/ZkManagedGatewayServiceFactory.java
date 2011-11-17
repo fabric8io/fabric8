@@ -11,6 +11,7 @@ package org.fusesource.fabric.bridge.zk.internal;
 
 import org.fusesource.fabric.bridge.zk.ZkGatewayConnector;
 import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedServiceFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.Dictionary;
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
- * A {@link org.osgi.service.cm.ManagedServiceFactory} for creating {@link org.fusesource.fabric.bridge.zk.ZkGatewayConnector ZkGatewayConnectors}.
+ * A {@link ManagedServiceFactory} for creating {@link ZkGatewayConnector ZkGatewayConnectors}.
  *
  * @author Dhiraj Bokde
  */
