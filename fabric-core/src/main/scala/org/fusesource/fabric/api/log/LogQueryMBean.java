@@ -21,8 +21,16 @@ public interface LogQueryMBean {
      * Returns the recent log events as JSON
      *
      * @param count maximum number to return o <0 for all of them
-     * @return the log events as a blob of JSON
+     * @return the log events as a blob of JSON using {@link LogEvent}
      */
     public String getLogEvents(int count) throws IOException;
+
+
+    /**
+     * Filters the list of log events using the JSON encoding of {@link LogFilter}
+     *
+     * @return the log events as a blob of JSON using {@link LogEvent}
+     */
+    public String filterLogEvents(String jsonFiler) throws IOException;
 
 }

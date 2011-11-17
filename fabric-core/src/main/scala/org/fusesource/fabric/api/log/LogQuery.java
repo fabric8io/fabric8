@@ -12,12 +12,10 @@ import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.fusesource.fabric.internal.Bundles;
+import org.fusesource.fabric.internal.Predicate;
 import org.fusesource.fabric.internal.log.Logs;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
@@ -102,9 +100,20 @@ public class LogQuery implements LogQueryMBean {
     }
 
     @Override
+    public String filterLogEvents(String jsonFilter) throws IOException {
+        LogFilter filter = jsonToLogFilter(jsonFilter);
+        List<LogEvent> events = getLogEventList(filter);
+        return toJSON(events);
+    }
+
+    @Override
     public String getLogEvents(int count) throws IOException {
+        List<LogEvent> events = getLogEventList(count, null);
+        return toJSON(events);
+    }
+
+    protected String toJSON(List<LogEvent> answer) throws IOException {
         try {
-            List<LogEvent> answer = getLogEventList(count);
             StringWriter writer = new StringWriter();
             mapper.writeValue(writer, answer);
             return writer.toString();
@@ -114,7 +123,28 @@ public class LogQuery implements LogQueryMBean {
         }
     }
 
-    protected List<LogEvent> getLogEventList(int count) {
+    protected LogFilter jsonToLogFilter(String json) throws IOException {
+        if (json == null) {
+            return null;
+        }
+        json = json.trim();
+        if (json.length() == 0 || json.equals("{}")) {
+            return null;
+        }
+        return mapper.reader(LogFilter.class).readValue(json);
+    }
+
+
+    public  List<LogEvent> getLogEventList(LogFilter filter) {
+        Predicate<PaxLoggingEvent> predicate = Logs.createPredicate(filter);
+        int count = -1;
+        if (filter != null) {
+            count = filter.getCount();
+        }
+        return getLogEventList(count, predicate);
+    }
+
+    public List<LogEvent> getLogEventList(int count, Predicate<PaxLoggingEvent> predicate) {
         List<LogEvent> answer = new ArrayList<LogEvent>();
         VmLogAppender a = getAppender();
         if (a != null) {
@@ -126,7 +156,9 @@ public class LogQuery implements LogQueryMBean {
                 iterable = events.getElements();
             }
             for (PaxLoggingEvent event : iterable) {
-                answer.add(Logs.newInstance(event));
+                if (predicate == null || predicate.matches(event)) {
+                    answer.add(Logs.newInstance(event));
+                }
             }
         } else {
             logger.warn("No VmLogAppender available!");
