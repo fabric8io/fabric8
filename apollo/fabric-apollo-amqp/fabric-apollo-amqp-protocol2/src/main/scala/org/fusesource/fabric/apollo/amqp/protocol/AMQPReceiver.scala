@@ -12,14 +12,23 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{CreditHandler, MessageHandler, Receiver}
 import interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.Outcome
-import org.fusesource.fabric.apollo.amqp.codec.types.{Role, ReceiverSettleMode}
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Target, Outcome}
+import org.fusesource.fabric.apollo.amqp.codec.types.{Source, Attach, Role, ReceiverSettleMode}
 
 
 object AMQPReceiver {
   def create(name:String) = {
     val rc = new AMQPReceiver
     rc.setName(name)
+    rc
+  }
+
+  def create(attach:Attach) = {
+    val rc = new AMQPReceiver
+    rc.setName(attach.getName)
+    rc.setTarget(attach.getTarget.asInstanceOf[Target])
+    rc.setSource(attach.getSource.asInstanceOf[Source])
+    rc.setMaxMessageSize(attach.getMaxMessageSize.longValue)
     rc
   }
 }

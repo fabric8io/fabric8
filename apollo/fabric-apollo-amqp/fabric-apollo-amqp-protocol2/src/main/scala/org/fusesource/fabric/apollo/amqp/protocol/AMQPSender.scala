@@ -12,14 +12,14 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{DeliveryTagger, AvailableHandler, AckHandler, Sender}
 import interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.api.{AnnotatedMessage, BareMessage}
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fabric.apollo.amqp.codec.types.{Role, SenderSettleMode}
 import utilities.execute
 import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport._
 import utilities.link.LinkFlowControlTracker
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Target, AMQPFrame}
+import org.fusesource.fabric.apollo.amqp.codec.types.{Source, Attach, Role, SenderSettleMode}
 
 /**
  *
@@ -28,6 +28,15 @@ object AMQPSender {
   def create(name:String) = {
     val rc = new AMQPSender
     rc.setName(name)
+    rc
+  }
+  
+  def create(attach:Attach) = {
+    val rc = new AMQPSender
+    rc.setName(attach.getName)
+    rc.setTarget(attach.getTarget.asInstanceOf[Target])
+    rc.setSource(attach.getSource.asInstanceOf[Source])
+    rc.setMaxMessageSize(attach.getMaxMessageSize.longValue)
     rc
   }
 }

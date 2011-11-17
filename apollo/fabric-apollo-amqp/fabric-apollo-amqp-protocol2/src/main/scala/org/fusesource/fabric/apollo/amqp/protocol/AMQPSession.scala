@@ -68,7 +68,25 @@ class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession 
   val link_map = new HashMap[String, Interceptor]()
 
   _links.interceptor_factory = Option((frame:AMQPTransportFrame) => {
-    null.asInstanceOf[Interceptor]
+    frame.getPerformative match {
+      case a:Attach =>
+        null.asInstanceOf[Interceptor]
+      _ =>
+        throw new RuntimeException("Incoming frame for non-existant link : {" + frame + "}")
+
+    }
+  })
+  _links.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => {
+    frame.getPerformative match {
+      case a:Attach =>
+        a.setHandle(channel.asInstanceOf[Int])
+      case d:Detach =>
+        d.setHandle(channel.asInstanceOf[Int])
+      case f:Flow =>
+        f.setHandle(channel.asInstanceOf[Int])
+      case t:Transfer =>
+        t.setHandle(channel.asInstanceOf[Int])
+    }
   })
 
   _links.channel_selector = Option((frame:AMQPTransportFrame) => {

@@ -11,6 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{Session, Link}
+import interceptors.link.{AttachInterceptor, DetachInterceptor}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Source, Target}
 import utilities.link.LinkFlowControlTracker
 
@@ -21,6 +22,8 @@ import utilities.link.LinkFlowControlTracker
 trait AMQPLink extends Link {
 
   val tracker = new LinkFlowControlTracker(getRole)
+  val _attach = new AttachInterceptor
+  val _detach = new DetachInterceptor
 
   var name:Option[String] = None
   var max_message_size:Long = 0L
