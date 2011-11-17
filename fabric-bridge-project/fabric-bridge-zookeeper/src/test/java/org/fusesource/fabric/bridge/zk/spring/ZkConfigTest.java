@@ -8,7 +8,6 @@
  */
 package org.fusesource.fabric.bridge.zk.spring;
 
-import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
