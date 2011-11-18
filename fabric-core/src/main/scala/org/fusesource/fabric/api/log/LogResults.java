@@ -9,7 +9,6 @@
 package org.fusesource.fabric.api.log;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,8 +16,8 @@ import java.util.List;
  */
 public class LogResults {
     private List<LogEvent> events;
-    private Date fromTimestamp;
-    private Date toTimestamp;
+    private Long fromTimestamp;
+    private Long toTimestamp;
 
     public void addEvent(LogEvent event) {
         if (events == null) {
@@ -35,19 +34,19 @@ public class LogResults {
         this.events = events;
     }
 
-    public Date getFromTimestamp() {
+    public Long getFromTimestamp() {
         return fromTimestamp;
     }
 
-    public void setFromTimestamp(Date fromTimestamp) {
+    public void setFromTimestamp(Long fromTimestamp) {
         this.fromTimestamp = fromTimestamp;
     }
 
-    public Date getToTimestamp() {
+    public Long getToTimestamp() {
         return toTimestamp;
     }
 
-    public void setToTimestamp(Date toTimestamp) {
+    public void setToTimestamp(Long toTimestamp) {
         this.toTimestamp = toTimestamp;
     }
 }

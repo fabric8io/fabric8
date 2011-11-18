@@ -170,8 +170,8 @@ public class LogQuery implements LogQueryMBean {
                     }
                 }
             }
-            answer.setFromTimestamp(new Date(from));
-            answer.setToTimestamp(new Date(to));
+            answer.setFromTimestamp(from);
+            answer.setToTimestamp(to);
         } else {
             logger.warn("No VmLogAppender available!");
         }
