@@ -11,6 +11,8 @@ package org.fusesource.fabric.service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.log.LogQueryCallback;
+import org.fusesource.fabric.api.log.LogQueryMBean;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -44,8 +46,17 @@ public abstract class JmxTemplateSupport {
 
     public abstract <T> T execute(JmxConnectorCallback<T> callback);
 
+    public <T> T execute(final LogQueryCallback<T> callback) {
+        return execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
+            public T doWithJmxConnector(JMXConnector connector) throws Exception {
+                String[] bean = new String[]{"type", "LogQuery"};
+                return callback.doWithLogQuery(getMBean(connector, LogQueryMBean.class, "org.fusesource.fabric", bean));
+            }
+        });
+    }
 
-    // mBean specific callbacks
+
+    // MBean specific callbacks
 
     public static ObjectName safeObjectName(String domain, String ... args) {
         if ((args.length % 2) != 0) {

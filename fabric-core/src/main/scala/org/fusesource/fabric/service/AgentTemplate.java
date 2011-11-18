@@ -11,7 +11,7 @@ package org.fusesource.fabric.service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.log.LogQueryCallback;
 import org.fusesource.fabric.api.log.LogQueryMBean;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -69,12 +69,6 @@ public class AgentTemplate {
 
     }
 
-    public interface LogQueryCallback<T> {
-
-        T doWithLogQuery(LogQueryMBean mbean) throws Exception;
-
-    }
-
     public interface BundleStateCallback<T> {
 
         T doWithBundleState(BundleStateMBean bundleState) throws Exception;
@@ -88,6 +82,13 @@ public class AgentTemplate {
     public <T> T execute(JmxTemplateSupport.JmxConnectorCallback<T> callback) {
         return jmxTemplate.execute(callback);
     }
+
+    public <T> T execute(final LogQueryCallback<T> callback) {
+        return jmxTemplate.execute(callback);
+    }
+
+    // TODO we could refactor all these execute() methods to work at the JmxTemplate level and just delegate to them
+    // then folks could use these APIs using a JmxTemplate only
 
     public <T> T execute(final AdminServiceCallback<T> callback) {
         return jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
@@ -103,15 +104,6 @@ public class AgentTemplate {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[]{"type", "FabricService"};
                 return callback.doWithFabricService(jmxTemplate.getMBean(connector, FabricServiceImplMBean.class, "org.fusesource.fabric", bean));
-            }
-        });
-    }
-
-    public <T> T execute(final LogQueryCallback<T> callback) {
-        return jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
-            public T doWithJmxConnector(JMXConnector connector) throws Exception {
-                String[] bean = new String[]{"type", "LogQuery"};
-                return callback.doWithLogQuery(jmxTemplate.getMBean(connector, LogQueryMBean.class, "org.fusesource.fabric", bean));
             }
         });
     }
