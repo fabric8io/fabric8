@@ -27,6 +27,7 @@ import java.util.Set;
 public class Logs {
     public static LogEvent newInstance(PaxLoggingEvent event) {
         LogEvent answer = new LogEvent();
+        answer.setLevel(toString(event.getLevel()));
         answer.setMessage(event.getMessage());
         answer.setLogger(event.getLoggerName());
         answer.setTimestamp(new Date(event.getTimeStamp()));
