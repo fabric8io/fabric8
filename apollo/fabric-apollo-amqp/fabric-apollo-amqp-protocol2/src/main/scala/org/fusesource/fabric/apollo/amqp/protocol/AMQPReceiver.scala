@@ -35,9 +35,15 @@ object AMQPReceiver {
 /**
  *
  */
-class AMQPReceiver extends FrameInterceptor[LinkCommand] with Receiver with AMQPLink with Logging {
+class AMQPReceiver extends Interceptor with Receiver with AMQPLink with Logging {
   
   trace("Constructed AMQP receiver chain : %s", display_chain(this))
+  
+  override def configure_attach(attach:Attach):Attach = {
+    val a = super.configure_attach(attach)
+    trace("Configured receiver attach : %s", a)
+    a
+  }
 
   def setCreditHandler(handler: CreditHandler) {}
 
@@ -55,11 +61,4 @@ class AMQPReceiver extends FrameInterceptor[LinkCommand] with Receiver with AMQP
 
   def established() = false
 
-  override protected def send_frame(frame: LinkCommand, tasks: Queue[() => Unit]) {
-
-  }
-
-  override protected def receive_frame(frame: LinkCommand, tasks: Queue[() => Unit]) {
-
-  }
 }

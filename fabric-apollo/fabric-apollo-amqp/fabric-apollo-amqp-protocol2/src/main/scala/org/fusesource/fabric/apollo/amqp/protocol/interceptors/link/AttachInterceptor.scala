@@ -10,13 +10,14 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.link
  * in the license.txt file
  */
 
-import org.fusesource.fabric.apollo.amqp.protocol.interfaces.PerformativeInterceptor
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtbuf.Buffer
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPLink
 import org.fusesource.fabric.apollo.amqp.protocol.utilities.{Tasks, execute}
 import org.fusesource.fabric.apollo.amqp.codec.types._
+import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{FrameInterceptor, PerformativeInterceptor}
+import org.fusesource.fabric.apollo.amqp.protocol.commands.{AttachReceived, ChainAttached, AttachSent}
 
 /**
  *
@@ -25,19 +26,41 @@ class AttachInterceptor extends PerformativeInterceptor[Attach] with Logging {
 
   var sent = false
   var received = false
+  var configure_attach:Option[(Attach) => Attach] = None
 
-  def send_attach(link:AMQPLink) = {
-    val attach = new Attach(link.getName, 0, link.getRole.getValue)
-    attach.setTarget(link.getTarget)
-    attach.setSource(link.getSource)
-    send(attach, null, Tasks())
-
+  val attach_detector = new FrameInterceptor[ChainAttached] {
+    override protected def receive_frame(frame: ChainAttached, tasks: Queue[() => Unit]) {
+      send_attach
+      execute(tasks)
+    }
   }
 
+
+  override protected def adding_to_chain = {
+    before(attach_detector)
+  }
+
+  override protected def removing_from_chain = {
+    if(attach_detector.connected) {
+      attach_detector.remove
+    }
+  }
+
+  def send_attach:Unit = {
+    configure_attach match {
+      case Some(init) =>
+        send(new AMQPTransportFrame(init(new Attach)), Tasks())
+      case None =>
+        throw new RuntimeException("Link not configured")
+    }
+  }
 
   override protected def send(performative: Attach, payload: Buffer, tasks: Queue[() => Unit]) = {
     if (!sent) {
       sent = true
+      tasks.enqueue( () => {
+        receive(AttachSent(), Tasks())
+      })
       false
     } else {
       execute(tasks)
@@ -49,10 +72,11 @@ class AttachInterceptor extends PerformativeInterceptor[Attach] with Logging {
   override protected def receive(performative: Attach, payload: Buffer, tasks: Queue[() => Unit]) = {
     if (!received) {
       received = true
+      receive(AttachReceived(), Tasks())
       execute(tasks)
       true
     } else {
-      val detach = new Detach(0, true, new Error(AMQPError.ILLEGAL_STATE.getValue, "D{ouble attach"))
+      val detach = new Detach(0, true, new Error(AMQPError.ILLEGAL_STATE.getValue, "Double attach"))
       send(new AMQPTransportFrame(detach), tasks)
       true
     }

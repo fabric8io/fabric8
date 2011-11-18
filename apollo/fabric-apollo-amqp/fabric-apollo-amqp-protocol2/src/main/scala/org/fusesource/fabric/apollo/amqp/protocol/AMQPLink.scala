@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{Session, Link}
-import commands.{ChainReleased, ChainAttached}
+import commands.{LinkCommand, ChainReleased, ChainAttached}
 import interceptors.link.{AttachInterceptor, DetachInterceptor}
 import interfaces.{FrameInterceptor, Interceptor}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Source, Target}
@@ -50,7 +50,7 @@ object AMQPLink {
  *
  */
 
-trait AMQPLink extends Interceptor with Link with Logging {
+trait AMQPLink extends FrameInterceptor[LinkCommand] with Link with Logging {
 
   val tracker = new LinkFlowControlTracker(getRole)
   val _attach = new AttachInterceptor
@@ -83,8 +83,18 @@ trait AMQPLink extends Interceptor with Link with Logging {
 
   before(attach_detector)
   before(released_detector)
+  
+  _attach.configure_attach = Option(configure_attach)
 
   var session:Option[Session] = None
+  
+  def configure_attach(attach:Attach):Attach = {
+    attach.setName(getName)
+    attach.setSource(getSource)
+    attach.setTarget(getTarget)
+    attach.setRole(getRole.getValue)
+    attach
+  }
 
   def getName = name.getOrElse(throw new RuntimeException("No name has been set for this link"))
 
@@ -107,4 +117,9 @@ trait AMQPLink extends Interceptor with Link with Logging {
   def onDetach(task: Runnable) = on_detach = Option(task)
 
   def getSession = session.getOrElse(throw new RuntimeException("This link is not currently attached to a session"))
+
+  override protected def receive_frame(frame: LinkCommand, tasks: Queue[() => Unit]) {
+
+  }
+
 }
