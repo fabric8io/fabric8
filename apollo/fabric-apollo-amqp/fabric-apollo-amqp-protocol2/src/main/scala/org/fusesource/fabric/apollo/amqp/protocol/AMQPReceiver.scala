@@ -11,9 +11,13 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{CreditHandler, MessageHandler, Receiver}
-import interfaces.Interceptor
+import commands.LinkCommand
+import interfaces.{Interceptor, FrameInterceptor}
+import Interceptor._
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Target, Outcome}
 import org.fusesource.fabric.apollo.amqp.codec.types.{Source, Attach, Role, ReceiverSettleMode}
+import org.apache.activemq.apollo.util.Logging
+import collection.mutable.Queue
 
 
 object AMQPReceiver {
@@ -25,17 +29,15 @@ object AMQPReceiver {
 
   def create(attach:Attach) = {
     val rc = new AMQPReceiver
-    rc.setName(attach.getName)
-    rc.setTarget(attach.getTarget.asInstanceOf[Target])
-    rc.setSource(attach.getSource.asInstanceOf[Source])
-    rc.setMaxMessageSize(attach.getMaxMessageSize.longValue)
-    rc
+    AMQPLink.initialize(rc, attach)
   }
 }
 /**
  *
  */
-class AMQPReceiver extends Interceptor with Receiver with AMQPLink {
+class AMQPReceiver extends FrameInterceptor[LinkCommand] with Receiver with AMQPLink with Logging {
+  
+  trace("Constructed AMQP receiver chain : %s", display_chain(this))
 
   def setCreditHandler(handler: CreditHandler) {}
 
@@ -52,4 +54,12 @@ class AMQPReceiver extends Interceptor with Receiver with AMQPLink {
   def getRole = Role.RECEIVER
 
   def established() = false
+
+  override protected def send_frame(frame: LinkCommand, tasks: Queue[() => Unit]) {
+
+  }
+
+  override protected def receive_frame(frame: LinkCommand, tasks: Queue[() => Unit]) {
+
+  }
 }

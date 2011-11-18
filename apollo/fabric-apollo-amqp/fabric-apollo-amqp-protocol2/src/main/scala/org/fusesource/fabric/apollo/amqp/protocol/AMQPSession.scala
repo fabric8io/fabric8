@@ -13,7 +13,6 @@ package org.fusesource.fabric.apollo.amqp.protocol
 import api.{Connection, Link}
 import interfaces.{FrameInterceptor, Interceptor}
 import org.fusesource.hawtdispatch._
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import org.fusesource.fabric.apollo.amqp.protocol.commands._
 import Interceptor._
 import org.apache.activemq.apollo.util.Logging
@@ -70,8 +69,12 @@ class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession 
   _links.interceptor_factory = Option((frame:AMQPTransportFrame) => {
     frame.getPerformative match {
       case a:Attach =>
-        null.asInstanceOf[Interceptor]
-      _ =>
+        if (a.getRole == Role.SENDER.getValue) {
+          AMQPReceiver.create(a).head
+        } else {
+          AMQPSender.create(a).head
+        }
+      case _ =>
         throw new RuntimeException("Incoming frame for non-existant link : {" + frame + "}")
 
     }
@@ -79,26 +82,28 @@ class AMQPSession extends FrameInterceptor[SessionCommand] with AbstractSession 
   _links.outgoing_channel_setter = Option((channel:Int, frame:AMQPTransportFrame) => {
     frame.getPerformative match {
       case a:Attach =>
-        a.setHandle(channel.asInstanceOf[Int])
+        a.setHandle(channel)
       case d:Detach =>
-        d.setHandle(channel.asInstanceOf[Int])
+        d.setHandle(channel)
       case f:Flow =>
-        f.setHandle(channel.asInstanceOf[Int])
+        f.setHandle(channel)
       case t:Transfer =>
-        t.setHandle(channel.asInstanceOf[Int])
+        t.setHandle(channel)
     }
   })
+  
+  _links.channel_mapper = Option((frame:AMQPTransportFrame) => {None})
 
   _links.channel_selector = Option((frame:AMQPTransportFrame) => {
     frame.getPerformative match {
       case a:Attach =>
-        a.getHandle.asInstanceOf[Int]
+        a.getHandle.intValue()
       case d:Detach =>
-        d.getHandle.asInstanceOf[Int]
+        d.getHandle.intValue()
       case f:Flow =>
-        f.getHandle.asInstanceOf[Int]
+        f.getHandle.intValue()
       case t:Transfer =>
-        t.getHandle.asInstanceOf[Int]
+        t.getHandle.intValue()
     }
   })
 

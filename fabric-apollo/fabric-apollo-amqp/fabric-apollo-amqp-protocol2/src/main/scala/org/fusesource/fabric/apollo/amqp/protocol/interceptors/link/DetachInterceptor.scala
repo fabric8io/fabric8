@@ -13,10 +13,17 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.link
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.fabric.apollo.amqp.codec.types.Detach
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.PerformativeInterceptor
+import org.fusesource.hawtbuf.Buffer
+import collection.mutable.Queue
+import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
 
 /**
  *
  */
 class DetachInterceptor extends PerformativeInterceptor[Detach] with Logging {
+  override protected def receive(performative: Detach, payload: Buffer, tasks: Queue[() => Unit]) = {
+    execute(tasks)
+    true
+  }
 
 }

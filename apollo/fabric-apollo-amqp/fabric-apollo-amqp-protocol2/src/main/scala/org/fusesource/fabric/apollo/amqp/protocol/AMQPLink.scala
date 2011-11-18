@@ -11,15 +11,46 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{Session, Link}
+import commands.{ChainReleased, ChainAttached}
 import interceptors.link.{AttachInterceptor, DetachInterceptor}
+import interfaces.{FrameInterceptor, Interceptor}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Source, Target}
+import utilities.execute
+import utilities.execute._
+import utilities.fire_function._
+import utilities.fire_runnable._
 import utilities.link.LinkFlowControlTracker
+import org.fusesource.fabric.apollo.amqp.codec.types.Attach
+import collection.mutable.Queue
+import org.apache.activemq.apollo.util.Logging
 
+object AMQPLink {
+  def initialize(link:AMQPLink, attach:Attach) = {
+    link.setName(attach.getName)
+    Option(attach.getTarget) match {
+      case Some(t) =>
+        link.setTarget(t.asInstanceOf[Target])
+      case None =>
+    }
+    Option(attach.getSource) match {
+      case Some(s) =>
+        link.setSource(s.asInstanceOf[Source])
+      case None =>
+    }
+    Option(attach.getMaxMessageSize) match {
+      case Some(m) =>
+        link.setMaxMessageSize(m.longValue)
+      case None =>
+    }
+    link
+
+  }
+}
 /**
  *
  */
 
-trait AMQPLink extends Link {
+trait AMQPLink extends Interceptor with Link with Logging {
 
   val tracker = new LinkFlowControlTracker(getRole)
   val _attach = new AttachInterceptor
@@ -33,6 +64,25 @@ trait AMQPLink extends Link {
 
   var on_attach:Option[Runnable] = None
   var on_detach:Option[Runnable] = None
+
+  val attach_detector = new FrameInterceptor[ChainAttached] {
+    override protected def receive_frame(c:ChainAttached, tasks:Queue[() => Unit]) = {
+      trace("Link attached to session")
+      execute(tasks)
+    }
+  }
+
+  val released_detector = new FrameInterceptor[ChainReleased] {
+    override protected def receive_frame(c:ChainReleased, tasks:Queue[() => Unit]) = {
+      trace("Link detached from session")
+      execute(tasks)
+    }
+  }
+  head.outgoing = _detach
+  head.outgoing = _attach
+
+  before(attach_detector)
+  before(released_detector)
 
   var session:Option[Session] = None
 

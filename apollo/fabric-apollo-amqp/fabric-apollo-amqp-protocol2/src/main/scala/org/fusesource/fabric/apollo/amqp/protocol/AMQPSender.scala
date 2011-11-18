@@ -12,6 +12,7 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{DeliveryTagger, AvailableHandler, AckHandler, Sender}
 import interfaces.Interceptor
+import Interceptor._
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.api.{AnnotatedMessage, BareMessage}
 import org.fusesource.hawtbuf.Buffer
@@ -20,6 +21,7 @@ import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport._
 import utilities.link.LinkFlowControlTracker
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Target, AMQPFrame}
 import org.fusesource.fabric.apollo.amqp.codec.types.{Source, Attach, Role, SenderSettleMode}
+import org.apache.activemq.apollo.util.Logging
 
 /**
  *
@@ -33,15 +35,13 @@ object AMQPSender {
   
   def create(attach:Attach) = {
     val rc = new AMQPSender
-    rc.setName(attach.getName)
-    rc.setTarget(attach.getTarget.asInstanceOf[Target])
-    rc.setSource(attach.getSource.asInstanceOf[Source])
-    rc.setMaxMessageSize(attach.getMaxMessageSize.longValue)
-    rc
+    AMQPLink.initialize(rc, attach)
   }
 }
 
-class AMQPSender extends Interceptor with Sender with AMQPLink {
+class AMQPSender extends Interceptor with Sender with AMQPLink with Logging {
+
+  trace("Constructed AMQP sender chain : %s", display_chain(this))
 
   def full() = getSession.sufficientSessionCredit() && tracker.credit
 

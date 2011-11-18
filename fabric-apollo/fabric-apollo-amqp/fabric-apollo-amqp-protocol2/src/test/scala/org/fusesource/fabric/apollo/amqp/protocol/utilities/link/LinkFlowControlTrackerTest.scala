@@ -45,8 +45,8 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
     })
     have_no_credit should be (false)
     visited should be (true)
-    tracker.link_credit should be (0L)
-    tracker.delivery_count should be (1L)
+    tracker.init_flow().getLinkCredit should be (0L)
+    tracker.init_flow().getDeliveryCount should be (1L)
     tracker.available should be (0L)
   }
   
@@ -70,8 +70,8 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
     go(1, 10)
     sent should be (5)
     not_sent should  be (5)
-    tracker.link_credit should be (0L)
-    tracker.delivery_count should be (5L)
+    tracker.init_flow().getLinkCredit should be (0L)
+    tracker.init_flow().getDeliveryCount should be (5L)
     tracker.available should be (5L)
   }
 
