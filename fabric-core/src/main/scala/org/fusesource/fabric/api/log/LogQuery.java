@@ -28,6 +28,7 @@ import javax.management.ObjectName;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -102,17 +103,17 @@ public class LogQuery implements LogQueryMBean {
     @Override
     public String filterLogEvents(String jsonFilter) throws IOException {
         LogFilter filter = jsonToLogFilter(jsonFilter);
-        List<LogEvent> events = getLogEventList(filter);
+        LogResults events = getLogEventList(filter);
         return toJSON(events);
     }
 
     @Override
     public String getLogEvents(int count) throws IOException {
-        List<LogEvent> events = getLogEventList(count, null);
+        LogResults events = getLogEventList(count, null);
         return toJSON(events);
     }
 
-    protected String toJSON(List<LogEvent> answer) throws IOException {
+    protected String toJSON(LogResults answer) throws IOException {
         try {
             StringWriter writer = new StringWriter();
             mapper.writeValue(writer, answer);
@@ -135,7 +136,7 @@ public class LogQuery implements LogQueryMBean {
     }
 
 
-    public  List<LogEvent> getLogEventList(LogFilter filter) {
+    public  LogResults getLogEventList(LogFilter filter) {
         Predicate<PaxLoggingEvent> predicate = Logs.createPredicate(filter);
         int count = -1;
         if (filter != null) {
@@ -144,22 +145,33 @@ public class LogQuery implements LogQueryMBean {
         return getLogEventList(count, predicate);
     }
 
-    public List<LogEvent> getLogEventList(int count, Predicate<PaxLoggingEvent> predicate) {
-        List<LogEvent> answer = new ArrayList<LogEvent>();
+    public LogResults getLogEventList(int count, Predicate<PaxLoggingEvent> predicate) {
+        LogResults answer = new LogResults();
         VmLogAppender a = getAppender();
         if (a != null) {
             LruList events = a.getEvents();
-            Iterable<PaxLoggingEvent> iterable;
-            if (count > 0) {
-                iterable = events.getElements(count);
-            } else {
-                iterable = events.getElements();
-            }
+            Iterable<PaxLoggingEvent> iterable =  events.getElements();
+            int matched = 0;
+            long from = Long.MAX_VALUE;
+            long to = Long.MIN_VALUE;
             for (PaxLoggingEvent event : iterable) {
+                long timestamp = event.getTimeStamp();
+                if (timestamp > to) {
+                    to = timestamp;
+                }
+                if (timestamp < from) {
+                    from = timestamp;
+                }
                 if (predicate == null || predicate.matches(event)) {
-                    answer.add(Logs.newInstance(event));
+                    answer.addEvent(Logs.newInstance(event));
+                    matched += 1;
+                    if (count > 0 && matched >= count) {
+                        break;
+                    }
                 }
             }
+            answer.setFromTimestamp(new Date(from));
+            answer.setToTimestamp(new Date(to));
         } else {
             logger.warn("No VmLogAppender available!");
         }

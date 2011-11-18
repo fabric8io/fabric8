@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.api.log;
+package org.fusesource.fabric.api.log.elastic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
