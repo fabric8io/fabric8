@@ -21,6 +21,10 @@ import org.fusesource.fabric.apollo.amqp.protocol.utilities.execute
  *
  */
 class DetachInterceptor extends PerformativeInterceptor[Detach] with Logging {
+
+  var sent = false
+  var received = false
+
   override protected def receive(performative: Detach, payload: Buffer, tasks: Queue[() => Unit]) = {
     execute(tasks)
     true

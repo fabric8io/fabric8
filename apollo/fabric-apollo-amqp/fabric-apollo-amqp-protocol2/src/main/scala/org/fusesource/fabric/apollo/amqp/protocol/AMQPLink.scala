@@ -11,11 +11,10 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{Session, Link}
-import commands.{LinkCommand, ChainReleased, ChainAttached}
+import commands._
 import interceptors.link.{AttachInterceptor, DetachInterceptor}
 import interfaces.{FrameInterceptor, Interceptor}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Source, Target}
-import utilities.execute
 import utilities.execute._
 import utilities.fire_function._
 import utilities.fire_runnable._
@@ -23,6 +22,7 @@ import utilities.link.LinkFlowControlTracker
 import org.fusesource.fabric.apollo.amqp.codec.types.Attach
 import collection.mutable.Queue
 import org.apache.activemq.apollo.util.Logging
+import utilities.{fire_runnable, execute}
 
 object AMQPLink {
   def initialize(link:AMQPLink, attach:Attach) = {
@@ -65,9 +65,13 @@ trait AMQPLink extends FrameInterceptor[LinkCommand] with Link with Logging {
   var on_attach:Option[Runnable] = None
   var on_detach:Option[Runnable] = None
 
+  var _established = false
+
   val attach_detector = new FrameInterceptor[ChainAttached] {
     override protected def receive_frame(c:ChainAttached, tasks:Queue[() => Unit]) = {
       trace("Link attached to session")
+      _established = true
+      _attach.send_attach
       execute(tasks)
     }
   }
@@ -75,6 +79,7 @@ trait AMQPLink extends FrameInterceptor[LinkCommand] with Link with Logging {
   val released_detector = new FrameInterceptor[ChainReleased] {
     override protected def receive_frame(c:ChainReleased, tasks:Queue[() => Unit]) = {
       trace("Link detached from session")
+      _established = false
       execute(tasks)
     }
   }
@@ -87,6 +92,8 @@ trait AMQPLink extends FrameInterceptor[LinkCommand] with Link with Logging {
   _attach.configure_attach = Option(configure_attach)
 
   var session:Option[Session] = None
+
+  def established() = _attach.sent && _attach.received && !_detach.sent && !_detach.received && _established
   
   def configure_attach(attach:Attach):Attach = {
     attach.setName(getName)
@@ -117,8 +124,35 @@ trait AMQPLink extends FrameInterceptor[LinkCommand] with Link with Logging {
   def onDetach(task: Runnable) = on_detach = Option(task)
 
   def getSession = session.getOrElse(throw new RuntimeException("This link is not currently attached to a session"))
+  
+  def attach_sent_or_received = {
+    if (_attach.sent && _attach.received) {
+      info("Attach frames exchanged")
+      fire_runnable(on_attach)
+    }
+  }
+
+  def detach_sent_or_received = {
+    if (_detach.sent && _detach.received) {
+      info("Detach frames exchanged")
+      fire_runnable(on_detach)
+    }
+
+  }
 
   override protected def receive_frame(frame: LinkCommand, tasks: Queue[() => Unit]) {
+    frame match {
+      case x:AttachReceived =>
+        attach_sent_or_received
+        execute(tasks)
+      case x:AttachSent =>
+        attach_sent_or_received
+        execute(tasks)
+      case x:DetachReceived =>
+        execute(tasks)
+      case x:DetachSent =>
+        execute(tasks)
+    }
 
   }
 

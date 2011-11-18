@@ -28,24 +28,6 @@ class AttachInterceptor extends PerformativeInterceptor[Attach] with Logging {
   var received = false
   var configure_attach:Option[(Attach) => Attach] = None
 
-  val attach_detector = new FrameInterceptor[ChainAttached] {
-    override protected def receive_frame(frame: ChainAttached, tasks: Queue[() => Unit]) {
-      send_attach
-      execute(tasks)
-    }
-  }
-
-
-  override protected def adding_to_chain = {
-    before(attach_detector)
-  }
-
-  override protected def removing_from_chain = {
-    if(attach_detector.connected) {
-      attach_detector.remove
-    }
-  }
-
   def send_attach:Unit = {
     configure_attach match {
       case Some(init) =>

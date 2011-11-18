@@ -35,7 +35,7 @@ object AMQPReceiver {
 /**
  *
  */
-class AMQPReceiver extends Interceptor with Receiver with AMQPLink with Logging {
+class AMQPReceiver extends AMQPLink with Receiver with Logging {
   
   trace("Constructed AMQP receiver chain : %s", display_chain(this))
   
@@ -58,7 +58,5 @@ class AMQPReceiver extends Interceptor with Receiver with AMQPLink with Logging 
   def drainLinkCredit() {}
 
   def getRole = Role.RECEIVER
-
-  def established() = false
 
 }

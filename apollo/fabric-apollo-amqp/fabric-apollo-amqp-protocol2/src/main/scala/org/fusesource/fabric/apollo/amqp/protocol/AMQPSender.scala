@@ -39,7 +39,7 @@ object AMQPSender {
   }
 }
 
-class AMQPSender extends Interceptor with Sender with AMQPLink with Logging {
+class AMQPSender extends AMQPLink with Sender with Logging {
 
   trace("Constructed AMQP sender chain : %s", display_chain(this))
 
@@ -63,9 +63,6 @@ class AMQPSender extends Interceptor with Sender with AMQPLink with Logging {
 
   def getLinkCredit = 0
 
-  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = execute(tasks)
-
   def getRole = Role.SENDER
 
-  def established() = false
 }
