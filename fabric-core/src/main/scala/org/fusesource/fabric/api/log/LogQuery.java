@@ -27,6 +27,8 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -147,6 +149,12 @@ public class LogQuery implements LogQueryMBean {
 
     public LogResults getLogEventList(int count, Predicate<PaxLoggingEvent> predicate) {
         LogResults answer = new LogResults();
+        try {
+            answer.setHost(InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            logger.warn("Failed to get host name: " + e, e);
+        }
+
         VmLogAppender a = getAppender();
         if (a != null) {
             LruList events = a.getEvents();

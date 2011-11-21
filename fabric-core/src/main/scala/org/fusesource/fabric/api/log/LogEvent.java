@@ -9,13 +9,13 @@
 package org.fusesource.fabric.api.log;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.fusesource.fabric.internal.Objects;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class LogEvent {
+public class LogEvent implements Comparable<LogEvent> {
 	private String host;
 	private Long seq;
 	private Date timestamp;
@@ -37,7 +37,56 @@ public class LogEvent {
 		return null;
 	}
 
-	public String getHost() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LogEvent logEvent = (LogEvent) o;
+
+        if (host != null ? !host.equals(logEvent.host) : logEvent.host != null) return false;
+        if (logger != null ? !logger.equals(logEvent.logger) : logEvent.logger != null) return false;
+        if (message != null ? !message.equals(logEvent.message) : logEvent.message != null) return false;
+        if (seq != null ? !seq.equals(logEvent.seq) : logEvent.seq != null) return false;
+        if (thread != null ? !thread.equals(logEvent.thread) : logEvent.thread != null) return false;
+        if (timestamp != null ? !timestamp.equals(logEvent.timestamp) : logEvent.timestamp != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int compareTo(LogEvent that) {
+        int answer = Objects.compare(this.timestamp, that.timestamp);
+        if (answer == 0) {
+            answer = Objects.compare(this.seq, that.seq);
+            if (answer == 0) {
+                answer = Objects.compare(this.host, that.host);
+                if (answer == 0) {
+                    answer = Objects.compare(this.thread, that.thread);
+                    if (answer == 0) {
+                        answer = Objects.compare(this.logger, that.logger);
+                        if (answer == 0) {
+                            answer = Objects.compare(this.message, that.message);
+                        }
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = host != null ? host.hashCode() : 0;
+        result = 31 * result + (seq != null ? seq.hashCode() : 0);
+        result = 31 * result + (timestamp != null ? timestamp.hashCode() : 0);
+        result = 31 * result + (logger != null ? logger.hashCode() : 0);
+        result = 31 * result + (thread != null ? thread.hashCode() : 0);
+        result = 31 * result + (message != null ? message.hashCode() : 0);
+        return result;
+    }
+
+    public String getHost() {
 		return host;
 	}
 

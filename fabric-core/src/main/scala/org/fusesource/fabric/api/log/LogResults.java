@@ -18,6 +18,7 @@ public class LogResults {
     private List<LogEvent> events;
     private Long fromTimestamp;
     private Long toTimestamp;
+    private String host;
 
     public void addEvent(LogEvent event) {
         if (events == null) {
@@ -48,5 +49,13 @@ public class LogResults {
 
     public void setToTimestamp(Long toTimestamp) {
         this.toTimestamp = toTimestamp;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 }
