@@ -56,6 +56,7 @@ public class LogEvent implements Comparable<LogEvent> {
 
     @Override
     public int compareTo(LogEvent that) {
+        // use reverse order for timestamp and seq
         int answer = Objects.compare(this.timestamp, that.timestamp);
         if (answer == 0) {
             answer = Objects.compare(this.seq, that.seq);
