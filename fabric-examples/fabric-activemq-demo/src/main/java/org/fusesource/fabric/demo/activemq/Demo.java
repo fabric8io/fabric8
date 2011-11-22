@@ -9,30 +9,19 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fusesource.fabric.activemq.JMSService;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
 
-import javax.jms.Connection;
-import javax.jms.Queue;
-import javax.jms.Session;
+public class Demo {
 
-public class Demo implements BundleActivator {
+    private JMSService service;
+    private BundleContext bundleContext;
 
-    JMSService service;
-
-    public void start(BundleContext bundleContext) throws Exception {
+    public void registerJmsService(ServiceReference reference) throws Exception {
         System.out.println("Starting ActiveMQ Demo");
-
-        ServiceTracker tracker = new ServiceTracker(bundleContext, JMSService.class.getName(), null);
-        tracker.open();
-
-        service = (JMSService)tracker.getService();
+        service = (JMSService)bundleContext.getService(reference);
         service.start();
-
 
         ProducerThread producer = new ProducerThread(service, "queue://TEST");
         producer.setSleep(500);
@@ -44,9 +33,19 @@ public class Demo implements BundleActivator {
         consumer.start();
 
         System.out.println("Consumer Started");
+
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
-       System.out.println("Stopping ActiveMQ Demo");
+
+    public void unregisterJmsService(ServiceReference reference) throws Exception {
+        System.out.println("Stopping ActiveMQ Demo");
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }

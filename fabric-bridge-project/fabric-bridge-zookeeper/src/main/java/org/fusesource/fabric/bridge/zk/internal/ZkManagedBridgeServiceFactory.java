@@ -48,6 +48,7 @@ public class ZkManagedBridgeServiceFactory extends AbstractZkManagedServiceFacto
 
         if (bridgeConnectorMap.containsKey(pid)) {
             // destroy and recreate bridge connector
+            LOG.info("Refreshing Bridge " + pid);
             deleted(pid);
         }
 
@@ -62,7 +63,7 @@ public class ZkManagedBridgeServiceFactory extends AbstractZkManagedServiceFacto
 
         // create and add bridge connector
         bridgeConnectorMap.put(pid, createBridgeConnector(pid, properties));
-
+        LOG.info("Started Bridge " + pid);
     }
 
     @Override
@@ -73,6 +74,7 @@ public class ZkManagedBridgeServiceFactory extends AbstractZkManagedServiceFacto
 
             try {
                 bridgeConnector.destroy();
+                LOG.info("Destroyed Bridge " + pid);
             } catch (Exception e) {
                 LOG.error("Error destroying bridge " + pid + " : " + e.getMessage(), e);
             }
@@ -85,6 +87,7 @@ public class ZkManagedBridgeServiceFactory extends AbstractZkManagedServiceFacto
 
     private ZkBridgeConnector createBridgeConnector(String pid, Dictionary<String, String> properties) throws ConfigurationException {
         ZkBridgeConnector bridgeConnector = new ZkBridgeConnector();
+        bridgeConnector.setZooKeeper(getZooKeeper());
         bridgeConnector.setFabricService(getFabricService());
         bridgeConnector.setId(pid);
 

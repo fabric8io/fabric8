@@ -21,7 +21,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Karaf Commands</description>
+    <description>Fuse Fabric :: Karaf Commands</description>
 
     <properties>
         <fabric.osgi.export>

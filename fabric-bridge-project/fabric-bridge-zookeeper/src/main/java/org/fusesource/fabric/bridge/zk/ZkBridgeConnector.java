@@ -17,7 +17,6 @@ import org.fusesource.fabric.bridge.BridgeConnector;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
 import org.fusesource.fabric.bridge.zk.internal.ZkConfigHelper;
-import org.fusesource.fabric.service.FabricServiceImpl;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
@@ -60,6 +59,11 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
     private int gatewayConnectRetries = 5;
 
     @XmlAttribute(required = true)
+    private String zooKeeperRef;
+
+    private IZKClient zooKeeper;
+
+    @XmlAttribute(required = true)
     private String fabricServiceRef;
 
     private FabricService fabricService;
@@ -72,8 +76,17 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        if (gatewayProfileName == null) {
+			throw new IllegalArgumentException("Property profile must be set");
+		}
+        if (zooKeeper == null) {
+            throw new IllegalArgumentException("Property zooKeeper must be set");
+        }
+        if (fabricService == null) {
+            throw new IllegalArgumentException("Property fabricService must be set");
+        }
+
         // configure self as a lifecycle listener
-        IZKClient zooKeeper = ((FabricServiceImpl) fabricService).getZooKeeper();
         zooKeeper.registerListener(this);
         this.connected = true;
 
@@ -155,7 +168,22 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
         // set the Bridge inbound destinations as the remote Gateway outbound destinations
         remoteBridge.setOutboundDestinations(super.getInboundDestinations());
 
-        ZkConfigHelper.registerBridge(((FabricServiceImpl)fabricService).getZooKeeper(), agent, remoteBridge);
+        ZkConfigHelper.registerBridge(zooKeeper, agent, remoteBridge);
+    }
+
+    protected void doStop() {
+        // de-register self as a lifecycle listener
+        if (this.connected) {
+            try {
+                zooKeeper.removeListener(this);
+                this.connected = false;
+            } catch (Exception e) {
+                LOG.error("Error removing Bridge Connector as ZooKeeper listener: " + e.getMessage(), e);
+            }
+        }
+
+        super.doStop();
+        LOG.info("Stopped");
     }
 
     @Override
@@ -168,7 +196,12 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
         // remove the bridge from ZK
         if (agent != null) {
-            ZkConfigHelper.removeBridge(((FabricServiceImpl)fabricService).getZooKeeper(), agent);
+            if (this.connected) {
+                ZkConfigHelper.removeBridge(zooKeeper, agent);
+            } else {
+                LOG.error("Bridge disconnected from Fabric Zookeeper service, " +
+                    "unable to remove Bridge runtime configuration");
+            }
         }
     }
 
@@ -212,6 +245,22 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
      */
     public void setGatewayProfileName(String gatewayProfileName) {
         this.gatewayProfileName = gatewayProfileName;
+    }
+
+    public String getZooKeeperRef() {
+        return zooKeeperRef;
+    }
+
+    public void setZooKeeperRef(String zooKeeperRef) {
+        this.zooKeeperRef = zooKeeperRef;
+    }
+
+    public IZKClient getZooKeeper() {
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
     }
 
     public FabricService getFabricService() {

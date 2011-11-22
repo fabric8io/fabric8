@@ -85,8 +85,15 @@ class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends
       changed_decoded(t)
     }
 
-    def connected = ClusteredSingletonWatcher.this.fireConnected
-    def disconnected = ClusteredSingletonWatcher.this.fireDisconnected
+    def connected = {
+      changed
+      ClusteredSingletonWatcher.this.fireConnected
+    }
+
+    def disconnected = {
+      changed
+      ClusteredSingletonWatcher.this.fireDisconnected
+    }
   }
 
 

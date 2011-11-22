@@ -18,7 +18,7 @@
 
     <groupId>org.fusesource.fabric.fabric-examples</groupId>
     <artifactId>fabric-camel-dosgi</artifactId>
-    <description>FuseSource Fabric :: Example :: Camel DOSGI</description>
+    <description>Fuse Fabric :: Example :: Camel DOSGI</description>
     <packaging>pom</packaging>
     <modules>
         <module>service</module>

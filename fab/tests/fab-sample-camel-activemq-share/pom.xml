@@ -24,7 +24,7 @@
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FAB :: Sample :: Camel ActiveMQ Share</description>
+  <description>Fuse Bundles :: Sample :: Camel ActiveMQ Share</description>
 
   <dependencies>
     <dependency>

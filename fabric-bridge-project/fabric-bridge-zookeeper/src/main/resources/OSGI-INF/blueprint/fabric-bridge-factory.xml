@@ -15,7 +15,7 @@
 
   <ext:property-placeholder/>
 
-  <service ref="fabricBridgeServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+  <service id="fabricBridgeService" ref="fabricBridgeServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
     <service-properties>
       <entry key="service.pid" value="org.fusesource.fabric.bridge"/>
     </service-properties>
@@ -26,12 +26,15 @@
         destroy-method="destroy">
     <!--<property name="agentName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
+    <property name="zooKeeper">
+      <reference interface="org.linkedin.zookeeper.client.IZKClient"/>
+    </property>
     <property name="fabricService">
       <reference interface="org.fusesource.fabric.api.FabricService"/>
     </property>
   </bean>
 
-  <service ref="fabricGatewayServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+  <service id="fabricGatewayService" ref="fabricGatewayServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
     <service-properties>
       <entry key="service.pid" value="org.fusesource.fabric.gateway"/>
     </service-properties>
@@ -42,6 +45,9 @@
         destroy-method="destroy">
     <!--<property name="agentName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
+    <property name="zooKeeper">
+      <reference interface="org.linkedin.zookeeper.client.IZKClient"/>
+    </property>
     <property name="fabricService">
       <reference interface="org.fusesource.fabric.api.FabricService"/>
     </property>

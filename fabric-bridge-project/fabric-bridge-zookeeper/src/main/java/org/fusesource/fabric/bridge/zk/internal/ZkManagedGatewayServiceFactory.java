@@ -11,6 +11,7 @@ package org.fusesource.fabric.bridge.zk.internal;
 
 import org.fusesource.fabric.bridge.zk.ZkGatewayConnector;
 import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedServiceFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.Dictionary;
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
- * A {@link org.osgi.service.cm.ManagedServiceFactory} for creating {@link org.fusesource.fabric.bridge.zk.ZkGatewayConnector ZkGatewayConnectors}.
+ * A {@link ManagedServiceFactory} for creating {@link ZkGatewayConnector ZkGatewayConnectors}.
  *
  * @author Dhiraj Bokde
  */
@@ -47,6 +48,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
         if (gatewayConnectorMap.containsKey(pid)) {
             // destroy and recreate gateway connector
+            LOG.info("Refreshing Gateway " + pid);
             deleted(pid);
         }
 
@@ -61,7 +63,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
         // create and add gateway connector
         gatewayConnectorMap.put(pid, createGatewayConnector(pid, properties));
-
+        LOG.info("Started Gateway " + pid);
     }
 
     @Override
@@ -72,6 +74,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
             try {
                 gatewayConnector.destroy();
+                LOG.info("Destroyed Gateway " + pid);
             } catch (Exception e) {
                 LOG.error("Error destroying gateway " + pid + " : " + e.getMessage(), e);
             }
@@ -84,6 +87,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
     private ZkGatewayConnector createGatewayConnector(String pid, Dictionary<String, String> properties) throws ConfigurationException {
         ZkGatewayConnector gatewayConnector = new ZkGatewayConnector();
+        gatewayConnector.setZooKeeper(getZooKeeper());
         gatewayConnector.setFabricService(getFabricService());
         gatewayConnector.setId(pid);
 

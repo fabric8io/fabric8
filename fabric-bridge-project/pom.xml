@@ -22,13 +22,23 @@
   <groupId>org.fusesource.fabric.bridge</groupId>
   <artifactId>fabric-bridge-project</artifactId>
   <packaging>pom</packaging>
-  <name>FuseSource Fabric :: Network Bridge</name>
-  <description>FuseSource Fabric :: Network Bridge</description>
+  <name>Fuse Fabric :: Network Bridge</name>
+  <description>Fuse Fabric :: Network Bridge</description>
 
   <modules>
     <module>fabric-bridge</module>
     <module>fabric-bridge-zookeeper</module>
+    <!--module>fabric-bridge-itests</module-->
   </modules>
+
+  <profiles>
+    <profile>
+      <id>itests</id>
+      <modules>
+        <module>fabric-bridge-itests</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <build>
   	<pluginManagement>

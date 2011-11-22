@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: ZooKeeper / Spring integration</description>
+    <description>Fuse Fabric :: ZooKeeper :: Spring integration</description>
 
     <dependencies>
         <dependency>

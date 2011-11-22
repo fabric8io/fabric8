@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: Core Agent SSH</description>
+    <description>Fuse Fabric :: Core Agent SSH</description>
 
     <properties>
         <fabric.osgi.export>

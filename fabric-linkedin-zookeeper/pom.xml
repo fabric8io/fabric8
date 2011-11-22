@@ -22,7 +22,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: ZooKeeper Service</description>
+    <description>Fuse Fabric :: LinkedIn ZooKeeper Bundle</description>
 
     <properties>
         <fabric.osgi.export>

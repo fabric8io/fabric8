@@ -23,7 +23,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource Fabric :: ActiveMQ Bundle</description>
+    <description>Fuse Fabric :: ActiveMQ Bundle</description>
 
     <properties>
     <!--              
