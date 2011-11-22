@@ -38,7 +38,6 @@
   <modules>
     <module>fabric-apollo-cluster</module>
     <module>fabric-apollo-cli</module>
-    <module>fabric-apollo-leveldb</module>
     <!--
     <module>fabric-apollo-amqp</module>
     -->
