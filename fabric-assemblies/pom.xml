@@ -27,8 +27,9 @@
     <name>Fuse Fabric :: Assemblies</name>
 
     <modules>
-        <module>fabric-distro</module>
+        <module>fabric-branding</module>
         <module>karaf-distro</module>
+        <module>fabric-distro</module>
     </modules>
 
 </project>

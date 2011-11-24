@@ -51,4 +51,9 @@
         </file>
     </files>
 
+
+    <componentDescriptors>
+      <componentDescriptor>src/main/descriptors/common-bin.xml</componentDescriptor>
+    </componentDescriptors>
+
 </assembly>

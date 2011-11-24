@@ -24,6 +24,8 @@
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>**/demos/**</exclude>
+                <exclude>bin/create</exclude>
+                <exclude>bin/karaf</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
                 <exclude>LICENSE</exclude>

@@ -18,7 +18,7 @@
     </formats>
 
     <fileSets>
-        <!-- Expanded ServiceMix Runtime -->
+        <!-- Expanded Karaf Runtime -->
         <fileSet>
             <directory>target/dependencies/unix/apache-karaf-${karaf-version}</directory>
             <outputDirectory>/</outputDirectory>
@@ -44,6 +44,7 @@
             </includes>
             <excludes>
                 <exclude>bin/create</exclude>
+                <exclude>bin/karaf</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -68,5 +69,27 @@
         </fileSet>
 
     </fileSets>
+    
+    <files>
+        <file>
+            <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/karaf</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fabric</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <!--
+        <file>
+            <source>${basedir}/target/dependencies/fabric-version.jar</source>
+            <outputDirectory>/lib/</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        -->
+    </files>
+    
+
+    <componentDescriptors>
+      <componentDescriptor>src/main/descriptors/common-bin.xml</componentDescriptor>
+    </componentDescriptors>
 
 </assembly>
