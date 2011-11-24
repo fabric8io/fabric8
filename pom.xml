@@ -84,9 +84,11 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <perfectus-build>06</perfectus-build>
-        <activemq-version>5.5.1-fuse-01-${perfectus-build}</activemq-version>
-<!--
+
+        <!-- TODO this is required for some AMQ OSGi fixes -->
         <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
+<!--
+        <activemq-version>5.5.1-fuse-01-${perfectus-build}</activemq-version>
 -->
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
