@@ -1,5 +1,5 @@
 shell:echo Installing Fabric
-shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/installer
+shell:source mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/karaf/installer
 
 shell:echo Creating profiles
 
@@ -20,7 +20,7 @@ fabric:create-profile --parents default karaf
 fabric:edit-profile -p karaf --repositories mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features
 fabric:edit-profile -p karaf --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features
 fabric:edit-profile -p karaf --repositories mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features
-fabric:edit-profile -p karaf --repositories mvn:org.fusesource.fabric/fabric-distro/${fabric.version}/xml/features
+fabric:edit-profile -p karaf --repositories mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features
 
 fabric:create-profile --parents karaf --parents jre15 dosgi
 fabric:edit-profile -p dosgi --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features

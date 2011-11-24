@@ -104,7 +104,7 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
 
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fabric-distro</artifactId>
+      <artifactId>fuse-fabric</artifactId>
       <version>${project.version}</version>
       <type>pom</type>
       <scope>test</scope>

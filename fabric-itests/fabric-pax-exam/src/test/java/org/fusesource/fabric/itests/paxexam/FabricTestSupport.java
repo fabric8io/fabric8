@@ -43,7 +43,7 @@ public class FabricTestSupport {
     static final Long DEFAULT_WAIT = 10000L;
 
     static final String GROUP_ID = "org.fusesource.fabric";
-    static final String ARTIFACT_ID = "karaf-distro";
+    static final String ARTIFACT_ID = "fuse-fabric";
 
     static final String KARAF_GROUP_ID = "org.apache.karaf";
     static final String KARAF_ARTIFACT_ID = "apache-karaf";

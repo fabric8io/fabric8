@@ -36,7 +36,7 @@
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>karaf-distro</artifactId>
+            <artifactId>fuse-fabric</artifactId>
             <version>${project.version}</version>
             <type>tar.gz</type>
             <scope>test</scope>
