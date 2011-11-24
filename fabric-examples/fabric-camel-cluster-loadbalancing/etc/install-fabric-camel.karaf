@@ -9,8 +9,7 @@ shell:echo Waiting a few seconds for the fabric-commands to start
 shell:sleep 5000
 
 shell:echo Create a zookeeper cluster
-fabric:zk-cluster --clean
-fabric:zk-cluster root
+fabric:cluster --clean root
 
 shell:echo Waiting a few seconds to let zookeeper start and form cluster
 shell:sleep 5000

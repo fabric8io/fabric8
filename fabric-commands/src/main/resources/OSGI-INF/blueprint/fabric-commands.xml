@@ -17,8 +17,8 @@
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
-        <command name="fabric/zk-cluster">
-            <action class="org.fusesource.fabric.commands.ZkCluster">
+        <command name="fabric/cluster">
+            <action class="org.fusesource.fabric.commands.Cluster">
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
         </command>

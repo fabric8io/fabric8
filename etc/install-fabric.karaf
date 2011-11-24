@@ -52,8 +52,7 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
     #zk:create /fabric/configs/versions/base/agents/$APPLICATION default
 } {
     echo Creating initial ZooKeeper cluster
-    fabric:zk-cluster --clean
-    fabric:zk-cluster $APPLICATION
+    fabric:cluster --clean $APPLICATION
 
     echo Wait a few seconds for the cluster to initialize
     shell:sleep 5000

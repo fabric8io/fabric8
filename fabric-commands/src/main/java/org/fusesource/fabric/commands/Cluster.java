@@ -16,8 +16,8 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 
-@Command(name = "zk-cluster", scope = "fabric", description = "Create a ZooKeeper cluster", detailedDescription = "classpath:zk-cluster.txt")
-public class ZkCluster extends OsgiCommandSupport {
+@Command(name = "cluster", scope = "fabric", description = "Create or modify a ZooKeeper cluster", detailedDescription = "classpath:cluster.txt")
+public class Cluster extends OsgiCommandSupport {
 
     private ZooKeeperClusterService service;
 
@@ -44,14 +44,19 @@ public class ZkCluster extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         if (clean) {
-            if ((agents != null && agents.isEmpty()) || add || remove) {
-               throw new IllegalArgumentException("Invalid syntax.  zk-cluster --clean should be used without any other arguments");
+            if (add || remove) {
+               throw new IllegalArgumentException("Invalid syntax.  zk-cluster --clean should be used without add or remove options");
             }
             service.clean();
+
+            // TODO we may have a timing issue here so we may want to wait a little bit
+            if (agents != null && !agents.isEmpty()) {
+                service.createCluster(agents);
+            }
         } else if (agents == null || agents.isEmpty()) {
             List<String> cluster = service.getClusterAgents();
             if (cluster == null || cluster.isEmpty()) {
-                throw new IllegalStateException("No ZooKeeper server set up.  Use \"fabric:zk-cluster " + System.getProperty("karaf.name") + "\" to set up one.");
+                throw new IllegalStateException("No ZooKeeper server set up.  Use \"fabric:cluster " + System.getProperty("karaf.name") + "\" to set up one.");
 
             } else {
                 System.out.println("ZooKeeper cluster url:");
