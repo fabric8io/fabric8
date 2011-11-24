@@ -45,7 +45,7 @@
             <excludes>
                 <exclude>bin/create</exclude>
                 <exclude>bin/karaf</exclude>
-                <exclude>bin/fabric</exclude>
+                <exclude>bin/fusefabric</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -73,7 +73,7 @@
     
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fabric</source>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fusemq</destName>
             <fileMode>0755</fileMode>

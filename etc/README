@@ -3,17 +3,17 @@ Introduction
 
 To install Karaf try...
 
-    shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/installer
+    shell:source mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/karaf/installer
 
-These scripts are now filtered as part of the build of the fabric-distro project.  To build the
-scripts cd into "fabric-distro" and run "mvn clean install".  Then you can either source the
+These scripts are now filtered as part of the build of the fuse-fabric project.  To build the
+scripts cd into "fuse-fabric" and run "mvn clean install".  Then you can either source the
 script directly via :
 
-    shell:source (your fabric source)/fabric-distro/target/classes/script.karaf
+    shell:source (your fabric source)/fuse-fabric/target/classes/script.karaf
 
 or better still just do it via maven, for example:
 
-    shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/activemq
+    shell:source mvn:org.fusesource.fabric/fuse-fabric/${project.version}/karaf/activemq
 
 
 Example to run a Fabric ActiveMQ Broker
@@ -39,7 +39,7 @@ added to org.ops4j.pax.url.mvn.repositories property in etc/org.ops4j.pax.url.mv
 
 To create a profile with default configuration, run:
 
-    shell:source mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/karaf/installer
+    shell:source mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/karaf/installer
 
 Next you can create, agents with this profile like:
 

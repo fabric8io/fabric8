@@ -57,7 +57,7 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 
 * fabric-assemblies : Fabric assembly modules
 
-    * fabric-distro : Generates the features file to deploy Fabric
+    * fuse-fabric : Generates the features file to deploy Fabric
     * karaf-distro : Generates a Karaf distribution which has Fabric preinstalled.
 
 * fabric-camel : fabric agent connector for camel. Allow to loadbalance requests between camel endpoints deployed in different fabric machines

@@ -57,7 +57,7 @@ public class ChildAgentProvider implements AgentProvider {
                     javaOpts += CLUSTER_SERVER_AGENT;
                 }
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features";
 
                 for (int i = 1; i <= number; i++) {
                     String agentName = name;

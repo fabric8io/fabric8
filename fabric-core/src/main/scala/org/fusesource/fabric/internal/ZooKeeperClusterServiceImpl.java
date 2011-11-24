@@ -121,7 +121,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p = getProperties(client, defaultProfile + "/org.fusesource.fabric.agent.properties", new Properties());
             p.put("org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
             p.put("org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://scala-tools.org/repo-releases");
-            p.put("repository.fabric", "mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features");
+            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features");
             p.put("feature.karaf", "karaf");
             p.put("feature.fabric-agent", "fabric-agent");
             p.put("feature.fabric-core", "fabric-core");

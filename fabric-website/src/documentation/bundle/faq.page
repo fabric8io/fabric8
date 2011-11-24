@@ -96,7 +96,7 @@ Just install the **fabric-bundle** feature in your OSGi container.
 For example in an Apache Karaf distro run
 
 {pygmentize:: text}
-features:addUrl mvn:org.fusesource.fabric/fabric-distro/${project_version}/xml/features
+features:addUrl mvn:org.fusesource.fabric/fuse-fabric/${project_version}/xml/features
 features:install fabric-bundle
 {pygmentize}
 

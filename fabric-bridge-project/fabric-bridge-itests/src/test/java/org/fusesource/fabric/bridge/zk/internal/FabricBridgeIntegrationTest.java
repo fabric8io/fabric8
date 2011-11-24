@@ -95,7 +95,7 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
             },            // add bridge features
 
             scanFeatures(
-                    maven().groupId("org.fusesource.fabric").artifactId("fabric-distro").type("xml").classifier("features").versionAsInProject(),
+                    maven().groupId("org.fusesource.fabric").artifactId("fuse-fabric").type("xml").classifier("features").versionAsInProject(),
                     "fabric-commands", "fabric-bridge-zookeeper"
             ),
 

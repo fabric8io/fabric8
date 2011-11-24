@@ -1,6 +1,6 @@
 shell:echo Install Fabric-camel example
 shell:echo Add fabric features repository
-features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+features:addurl mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features
 
 shell:echo Install fabric commands
 features:install fabric-commands
@@ -22,7 +22,7 @@ shell:echo Create fabric-camel-cluster profile in zookeeper
 fabric:create-profile --parents default fabric-camel-cluster
 
 shell:echo add repositories, features, ... to the fabric-camel-cluster profile
-zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.camel mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.fabric-camel-cluster mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
 zk:create -r /fabric/configs/versions/base/profiles/fabric-camel-cluster/org.fusesource.fabric.agent/repository.karaf mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features

@@ -136,7 +136,7 @@ Probably one of the most common things you want to do is event correlation - and
 
 Camel ECA can be installed as a feature in Fuse ESB / Karaf using the following commands:
 
-    karaf@root> features:addurl mvn:org.fusesource.fabric/fabric-distro/1.1-SNAPSHOT/xml/features
+    karaf@root> features:addurl mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features
     karaf@root> features:install fabric-eca
 
 

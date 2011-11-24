@@ -24,7 +24,7 @@
   <description>Fuse MQ :: Project</description>
 
   <modules>
-    <module>fusemq-branding</module>
+    <module>mq-branding</module>
     <module>fuse-mq</module>
   </modules>
 

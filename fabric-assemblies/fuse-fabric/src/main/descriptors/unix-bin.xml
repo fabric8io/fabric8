@@ -81,7 +81,7 @@
         <file>
             <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/karaf</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>fabric</destName>
+            <destName>fusefabric</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
