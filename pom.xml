@@ -206,6 +206,7 @@
         <module>fabric-security</module>
         <module>fab</module>
         <module>insight</module>
+        <module>mq</module>
         <module>fabric-bridge-project</module>
         <module>fabric-examples</module>
         <module>fabric-assemblies</module>
@@ -574,7 +575,6 @@
                 <groupId>org.fusesource.fabric</groupId>
 			          <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
                 <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <!-- OSGi -->
             <dependency>
