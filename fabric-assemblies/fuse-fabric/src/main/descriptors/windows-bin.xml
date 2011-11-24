@@ -44,6 +44,13 @@
         </fileSet>
 
         <fileSet>
+            <directory>target/classes/distro</directory>
+            <outputDirectory>/</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <fileSet>
             <directory>${basedir}/target/features-repo</directory>
             <outputDirectory>system</outputDirectory>
         </fileSet>
@@ -51,7 +58,7 @@
     </fileSets>
 
     <componentDescriptors>
-      <componentDescriptor>src/main/descriptors/common-bin.xml</componentDescriptor>
+      <componentDescriptor>${basedir}/src/main/descriptors/common-bin.xml</componentDescriptor>
     </componentDescriptors>
     
 </assembly>

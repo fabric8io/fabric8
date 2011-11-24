@@ -15,16 +15,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>fabric-project</artifactId>
         <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-assemblies</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.fusesource.fabric</groupId>
-    <artifactId>karaf-distro</artifactId>
-    <name>${project.artifactId}</name>
-       <description>Fuse Fabric :: Binary Distribution</description>
+    <artifactId>fuse-fabric</artifactId>
+    <name>Fuse Fabric :: Binary Distribution</name>
+    <description>Fuse Fabric :: Binary Distribution</description>
 
        <prerequisites>
            <maven>2.0.9</maven>
@@ -123,7 +123,7 @@
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features</descriptor>
+                                   <descriptor>file:${basedir}/target/classes/distro/fabric-features.xml</descriptor>
                                </descriptors>
                                <features>
                                    <feature>fabric-agent</feature>
@@ -179,6 +179,68 @@
                        </execution>
                    </executions>
                </plugin>
+               <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/distro/fabric-features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/increase-logging.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>enable-logging</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/install-fabric.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>installer</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/add-scala-tools-repo.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>add-scala-tools-repo</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/dosgi.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>dosgi</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/profiles.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>profiles</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/loadbalancing.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>loadbalancing</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/activemq.xml</file>
+                                    <type>xml</type>
+                                    <classifier>activemq</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/wait-for-service.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>wait-for-service</classifier>
+                                  </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-dependency-plugin</artifactId>
