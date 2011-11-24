@@ -17,10 +17,10 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-distro</artifactId>
+    <artifactId>fabric-karaf-overlay</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Binary Distribution</description>
+    <description>Fuse Fabric :: Karaf Overlay</description>
 
     <prerequisites>
         <maven>2.0.9</maven>
@@ -97,7 +97,7 @@
                             <descriptors>
                                 <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
-							    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
+							                  <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                 <descriptor>file:${basedir}/target/classes/distro/fabric-features.xml</descriptor>
                             </descriptors>
                             <features>

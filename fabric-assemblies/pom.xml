@@ -28,8 +28,7 @@
 
     <modules>
         <module>fabric-branding</module>
-        <module>karaf-distro</module>
-        <module>fabric-distro</module>
+        <module>fuse-fabric</module>
     </modules>
 
 </project>
