@@ -13,15 +13,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.fusesource.fabric</groupId>
+  <parent>
+      <groupId>org.fusesource.fabric.itests</groupId>
+      <artifactId>fabric-itests</artifactId>
+      <version>1.1-SNAPSHOT</version>
+      <relativePath>../</relativePath>
+  </parent>
+
     <artifactId>fabric-pax-exam</artifactId>
     <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
     <version>1.1-SNAPSHOT</version>
 
     <dependencies>
-
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-mvn</artifactId>
@@ -39,16 +44,22 @@
             <artifactId>fuse-fabric</artifactId>
             <version>${project.version}</version>
             <type>tar.gz</type>
+<!--
             <scope>test</scope>
+-->
         </dependency>
 
         <!-- Fabric Dependencies -->
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-linkedin-zookeeper</artifactId>
         </dependency>
 
+      <!--
         <dependency>
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.zookeeper-impl</artifactId>
@@ -68,6 +79,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.openengsb.labs.paxexam.karaf</groupId>
@@ -97,15 +109,23 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.5</version>
+                <version>${surefire-version}</version>
                 <configuration>
+                    <forkMode>once</forkMode>
+                    <useSystemClassLoader>true</useSystemClassLoader>
+                    <useManifestOnlyJar>false</useManifestOnlyJar>
                     <failIfNoTests>false</failIfNoTests>
+                    <includes>
+                        <include>**/*Test.*</include>
+                    </includes>
+                    <excludes>
+                    </excludes>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
+  <!--
     <repositories>
         <repository>
             <id>repo1.maven</id>
@@ -124,5 +144,6 @@
             </releases>
         </repository>
     </repositories>
+    -->
 
 </project>
