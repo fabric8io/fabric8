@@ -11,14 +11,10 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
 import org.fusesource.fabric.api.JCloudsInstanceType;
-import org.fusesource.fabric.api.Profile;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 
 @Command(name = "agent-create-cloud", scope = "fabric", description = "Creates one or more new agents on the cloud")
 public class CreateAgentJclouds extends CreateAgentSupport {
@@ -45,6 +41,10 @@ public class CreateAgentJclouds extends CreateAgentSupport {
     private String group;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
+    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    protected String name;
+    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {

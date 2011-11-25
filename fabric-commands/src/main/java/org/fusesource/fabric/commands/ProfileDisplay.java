@@ -10,6 +10,7 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.Profile;
@@ -28,7 +29,8 @@ public class ProfileDisplay extends FabricCommand {
     @Option(name = "--overlay", aliases = "-o")
     private Boolean overlay = false;
 
-    @Argument(index = 0)
+    @Argument(index = 0, required = true, name = "profile")
+    @CompleterValues(index = 0)
     private String name;
 
     @Override

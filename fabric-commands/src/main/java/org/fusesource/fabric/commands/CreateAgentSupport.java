@@ -26,11 +26,6 @@ public abstract class CreateAgentSupport extends FabricCommand {
     @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the agent should be a new ZooKeeper ensemble server")
     protected Boolean isClusterServer = Boolean.FALSE;
 
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
-    protected String name;
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
-    protected int number = 1;
-
     public List<String> getProfileNames() {
         List<String> names = this.profiles;
         if (names == null || names.isEmpty()) {

@@ -21,16 +21,28 @@
             <action class="org.fusesource.fabric.commands.EnsembleCreate">
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
         </command>
         <command name="fabric/ensemble-add">
             <action class="org.fusesource.fabric.commands.EnsembleAdd">
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
         </command>
         <command name="fabric/ensemble-remove">
             <action class="org.fusesource.fabric.commands.EnsembleRemove">
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
         </command>
         <command name="fabric/ensemble-list">
             <action class="org.fusesource.fabric.commands.EnsembleList">
@@ -50,6 +62,15 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
+        <command name="fabric/agent-create-child">
+            <action class="org.fusesource.fabric.commands.CreateAgentChild">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+        </command>
         <command name="fabric/agent-create-cloud">
             <action class="org.fusesource.fabric.commands.CreateAgentJclouds">
                 <property name="fabricService" ref="fabricService"/>
@@ -64,6 +85,10 @@
             <action class="org.fusesource.fabric.commands.AgentDelete">
                 <property name="fabricService" ref="fabricService"/>
             </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
         </command>
         <command name="fabric/agent-list">
             <action class="org.fusesource.fabric.commands.AgentList">
@@ -122,15 +147,31 @@
             <action class="org.fusesource.fabric.commands.ProfileDisplay">
                 <property name="fabricService" ref="fabricService"/>
             </action>
+          <completers>
+              <ref component-id="profileCompleter" />
+              <null/>
+          </completers>
         </command>
         <command name="fabric/profile-edit">
             <action class="org.fusesource.fabric.commands.ProfileEdit">
               <property name="fabricService" ref="fabricService"/>
             </action>
+          <completers>
+            <!--
+            TODO requires Karaf 3.0.x or later
+            See: https://issues.apache.org/jira/browse/KARAF-1029
+
+              <ref key="-p" value-ref="profileCompleter" />
+            -->
+              <null/>
+          </completers>
         </command>
     </command-bundle>
 
     <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+    <bean id="profileCompleter" class="org.fusesource.fabric.commands.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 

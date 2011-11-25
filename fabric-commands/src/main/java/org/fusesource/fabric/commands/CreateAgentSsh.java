@@ -8,6 +8,7 @@
  */
 package org.fusesource.fabric.commands;
 
+import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateSshAgentArguments;
@@ -31,6 +32,10 @@ public class CreateAgentSsh extends CreateAgentSupport {
     private Integer sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
+    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    protected String name;
+    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {
