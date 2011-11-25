@@ -20,10 +20,10 @@ import org.fusesource.fabric.api.Profile;
 @Command(name = "agent-create", scope = "fabric", description = "Creates one or more new agents")
 public class CreateAgent extends CreateAgentSupport {
 
-    @Option(name = "--parent", multiValued = false, required = false)
+    @Option(name = "--parent", multiValued = false, required = false, description = "Parent agent ID")
     private String parent;
 
-    @Option(name = "--url", multiValued = false, required = false)
+    @Option(name = "--url", multiValued = false, required = false, description = "The URL")
     private String url;
 
     @Override

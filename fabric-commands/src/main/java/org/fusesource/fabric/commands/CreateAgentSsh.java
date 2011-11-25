@@ -17,19 +17,19 @@ import java.net.URI;
 @Command(name = "agent-create-ssh", scope = "fabric", description = "Creates one or more new agents via SSH")
 public class CreateAgentSsh extends CreateAgentSupport {
 
-    @Option(name = "--host", required = true)
+    @Option(name = "--host", required = true, description = "Host name to SSH into")
     private String host;
-    @Option(name = "--path")
+    @Option(name = "--path", description = "Path to use to install the agent")
     private String path;
-    @Option(name = "--user")
+    @Option(name = "--user", description = "User name")
     private String user;
-    @Option(name = "--password")
+    @Option(name = "--password", description = "Password")
     private String password;
-    @Option(name = "--port")
+    @Option(name = "--port", description = "The port number to use to connect over SSH")
     private Integer port;
-    @Option(name = "--ssh-retries")
+    @Option(name = "--ssh-retries", description = "Number of retries to connect on SSH")
     private Integer sshRetries;
-    @Option(name = "--proxy-uri")
+    @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
 
     @Override
