@@ -6,14 +6,14 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.insight.log;
+package org.fusesource.insight.log.elasticsearch;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import static org.fusesource.insight.log.ElasticSender.quote;
+import static org.fusesource.insight.log.elasticsearch.ElasticSender.quote;
 
 public class InsightEventHandler implements EventHandler {
 
