@@ -8,6 +8,9 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.zookeeper.Watcher;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -16,16 +19,13 @@ import org.linkedin.zookeeper.client.ZKClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Factory bean of ZooKeeper client objects
  */
 public class ZKClientFactoryBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(ZKClientFactoryBean.class);
 
-    private String connectString = "localhost:2181";
+    private String connectString = "";
     private String timeoutText = "30s";
     private Watcher watcher;
     private List<LifecycleListener> listeners = new ArrayList<LifecycleListener>();
@@ -121,6 +121,12 @@ public class ZKClientFactoryBean {
         LOG.debug("Connecting to ZooKeeper at " + connectString);
 
         zkClient = new ZKClient(connectString, getTimeout(), watcher);
+
+        if (connectString.length() == 0) {
+            LOG.info("No ZooKeeper URL provided. No connection attempted.");
+            return zkClient;
+        }
+
         zkClient.registerListener(new LifecycleListener() {
 
             final String address = connectString;

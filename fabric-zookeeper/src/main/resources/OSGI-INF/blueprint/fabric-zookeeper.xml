@@ -15,7 +15,7 @@
 
     <ext:property-placeholder placeholder-prefix="\$[" placeholder-suffix="]">
         <ext:default-properties>
-            <ext:property name="zookeeper.url" value="localhost:2181"/>
+            <ext:property name="zookeeper.url" value=""/>
         </ext:default-properties>
     </ext:property-placeholder>
 
