@@ -19,8 +19,8 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
-@Command(name = "display-profile", scope = "fabric", description = "Displays profile information")
-public class DisplayProfile extends FabricCommand {
+@Command(name = "profile-display", scope = "fabric", description = "Displays profile information")
+public class ProfileDisplay extends FabricCommand {
 
     @Option(name = "--version")
     private String version = "base";

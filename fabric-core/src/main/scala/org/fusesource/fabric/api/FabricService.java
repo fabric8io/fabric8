@@ -44,6 +44,11 @@ public interface FabricService {
     Agent createAgent(CreateAgentArguments args, String name);
 
     /**
+     * Create multiple agents where the name is used as a prefix
+     */
+    Agent[] createAgents(CreateAgentArguments args, String name, int number);
+
+    /**
      * Uses the given parent agent to create the new agent (so that locally
      * we don't have to have all the plugins like ssh and jclouds available)
      */
@@ -73,4 +78,5 @@ public interface FabricService {
     Profile createProfile(String version, String name);
 
     void deleteProfile(Profile profile);
+
 }

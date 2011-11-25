@@ -239,6 +239,25 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return agents;
     }
 
+    @Override
+    public Agent[] createAgents(CreateAgentArguments args, String name, int number) {
+        Agent[] agents = new Agent[number];
+        try {
+            for (int i = 0; i < number; i++) {
+                String agentName = name;
+                if (number > 1) {
+                    agentName += i + 1;
+                }
+                agents[i] = createAgent(args, agentName);
+            }
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+        return agents;
+    }
+
     public Agent createAgent(CreateAgentArguments args, String name) {
         try {
             final String zooKeeperUrl = getZooKeeperUrl();

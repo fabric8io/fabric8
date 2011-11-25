@@ -35,7 +35,7 @@ public class ContainerStartupTest extends FabricCommandsTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        executeCommand("fabric:cluster --clean root");
+        executeCommand("fabric:ensemble-create --clean root");
 
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);

@@ -17,33 +17,14 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.Profile;
 
-@Command(name = "create-agents", scope = "fabric", description = "Create a new agent")
-public class CreateAgent extends FabricCommand {
-
-    @Option(name = "--version")
-    private String version = "base";
-
-    @Option(name = "--profile", multiValued = true, required = false)
-    private List<String> profiles;
+@Command(name = "agent-create", scope = "fabric", description = "Creates one or more new agents")
+public class CreateAgent extends CreateAgentSupport {
 
     @Option(name = "--parent", multiValued = false, required = false)
     private String parent;
 
-    @Option(name = "--enable-debuging", multiValued = false, required = false)
-    private Boolean debugAgent = Boolean.FALSE;
-
-    @Option(name = "--cluster-server", multiValued = false, required = false)
-    private Boolean isClusterServer = Boolean.FALSE;
-
     @Option(name = "--url", multiValued = false, required = false)
     private String url;
-
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
-    private String name;
-
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
-    private int number = 1;
-
 
     @Override
     protected Object doExecute() throws Exception {
@@ -53,20 +34,8 @@ public class CreateAgent extends FabricCommand {
         if (url == null && parent != null) {
             url = "child://" + parent;
         }
-        List<String> names = this.profiles;
-        if (names == null || names.isEmpty()) {
-            names = Collections.singletonList("default");
-        }
         Agent[] children = fabricService.createAgents(url, name, isClusterServer, debugAgent, number);
-        try {
-            Profile[] profiles = getProfiles(version, names);
-            for (Agent child : children) {
-                child.setProfiles(profiles);
-            }
-        } catch (Exception ex) {
-
-        }
-
+        setProfiles(children);
         return null;
     }
 

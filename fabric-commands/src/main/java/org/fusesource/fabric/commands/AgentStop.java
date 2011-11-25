@@ -12,19 +12,18 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
 
-@Command(name = "delete-agent", scope = "fabric", description = "Delete an existing agent")
-public class DeleteAgent extends FabricCommand {
+@Command(name = "agent-stop", scope = "fabric", description = "Stop an existing agent")
+public class AgentStop extends FabricCommand {
 
-    @Argument(index = 0)
-    private String name;
+    @Argument(index = 0, name="agent", description="The agent name", required = true, multiValued = false)
+    private String agent = null;
 
-    @Override
     protected Object doExecute() throws Exception {
-        Agent agent = fabricService.getAgent(name);
-        if( agent==null ) {
-            throw new IllegalArgumentException("Agent does not exist: "+name);
+        Agent a = fabricService.getAgent(agent);
+        if (a == null) {
+            throw new IllegalArgumentException("Agent " + agent + " does not exist.");
         }
-        agent.destroy();
+        a.stop();
         return null;
     }
 

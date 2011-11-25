@@ -139,7 +139,7 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
         try {
             // create test cluster
             assertNotNull("FabricService not found", getOsgiService(FabricService.class));
-            session.execute("fabric:cluster --clean root");
+            session.execute("fabric:ensemble-create --clean root");
 
             // wait for zookeeper service to become available
             Thread.sleep(DEFAULT_TIMEOUT);

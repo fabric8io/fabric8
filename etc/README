@@ -43,15 +43,15 @@ To create a profile with default configuration, run:
 
 Next you can create, agents with this profile like:
 
-    fabric:create-agent --profile activemq --parent $APPLICATION broker
+    fabric:agent-create --profile activemq --parent $APPLICATION broker
 
 Wait for a few seconds for the agent to start. Check the status of the agent with:
 
-    fabric:list-agents
+    fabric:agent-list
 
 You can (optionally) connect to the agent, with
 
-    fabric:connect broker
+    fabric:agent-connect broker
 
 If you want to start a demo that produces/consumes messages using 'fabric' transport run
 

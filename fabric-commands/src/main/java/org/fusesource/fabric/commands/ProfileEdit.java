@@ -20,8 +20,8 @@ import org.fusesource.fabric.api.Version;
 /**
  *
  */
-@Command(name = "edit-profile", scope = "fabric", description = "Edit a profile")
-public class EditProfile extends FabricCommand {
+@Command(name = "profile-edit", scope = "fabric", description = "Edit a profile")
+public class ProfileEdit extends FabricCommand {
 
     @Option(name = "-v", aliases = { "--version"}, description = "The version of the profile to edit")
     private String version = "base";

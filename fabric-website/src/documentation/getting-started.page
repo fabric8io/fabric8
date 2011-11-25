@@ -31,7 +31,7 @@ Getting Started guide for Fabric
     # Create a new agent with an existing profile
 .right
   pre
-    | karaf@root> fabric:create-agent --profile activemq --parent root broker1
+    | karaf@root> fabric:agent-create --profile activemq --parent root broker1
     | ...
   :&markdown
     Check that the agent has been created (it can take a few seconds):  
@@ -63,7 +63,7 @@ Getting Started guide for Fabric
     # Create a new agent with this profile
 .right
   pre
-    | karaf@root> fabric:create-agent --profile webserver --parent root test
+    | karaf@root> fabric:agent-create --profile webserver --parent root test
     | ...
   :&markdown
     Check that the agent has been created (it can take a few seconds):  

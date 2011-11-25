@@ -15,8 +15,8 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 
-@Command(name = "create-profile", scope = "fabric", description = "Create a new profile")
-public class CreateProfile extends FabricCommand {
+@Command(name = "profile-create", scope = "fabric", description = "Create a new profile")
+public class ProfileCreate extends FabricCommand {
 
     @Option(name = "--version")
     private String version = "base";

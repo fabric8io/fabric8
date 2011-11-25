@@ -13,8 +13,8 @@ import org.fusesource.fabric.api.Agent;
 
 import java.io.PrintStream;
 
-@Command(name = "list-agents", scope = "fabric", description = "List existing agents")
-public class ListAgents extends FabricCommand {
+@Command(name = "agent-list", scope = "fabric", description = "List existing agents")
+public class AgentList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {

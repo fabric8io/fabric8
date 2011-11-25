@@ -44,7 +44,7 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        executeCommand("fabric:edit-profile -p default --features war");
+        executeCommand("fabric:profile-edit -p default --features war");
         Thread.sleep(DEFAULT_WAIT);
 
         FeaturesService featuresService = getOsgiService(FeaturesService.class);

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
  * http://fusesource.com
  *
@@ -12,18 +12,19 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
 
-@Command(name = "start", scope = "fabric", description = "Start an existing agent")
-public class Start extends FabricCommand {
+@Command(name = "agent-delete", scope = "fabric", description = "Delete an existing agent")
+public class AgentDelete extends FabricCommand {
 
-    @Argument(index = 0, name="agent", description="The agent name", required = true, multiValued = false)
-    private String agent = null;
+    @Argument(index = 0)
+    private String name;
 
+    @Override
     protected Object doExecute() throws Exception {
-        Agent a = fabricService.getAgent(agent);
-        if (a == null) {
-            throw new IllegalArgumentException("Agent " + agent + " does not exist.");
+        Agent agent = fabricService.getAgent(name);
+        if( agent==null ) {
+            throw new IllegalArgumentException("Agent does not exist: "+name);
         }
-        a.start();
+        agent.destroy();
         return null;
     }
 

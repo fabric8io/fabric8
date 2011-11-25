@@ -51,7 +51,7 @@ karaf@root>features:install fabric-jclouds
 
 To create a new node using the jclouds agent provider:
 
-fabric:create-agent --url jclouds://{PROVIDER_NAME}?imageId={IMAGE_ID}&locationId={LOCATION_ID}&group={GROUP}&user={USER} --profile {FABRIC_PROFILE} {AGENT_ID}
+fabric:agent-create --url jclouds://{PROVIDER_NAME}?imageId={IMAGE_ID}&locationId={LOCATION_ID}&group={GROUP}&user={USER} --profile {FABRIC_PROFILE} {AGENT_ID}
 
 ###Required parameters:
 

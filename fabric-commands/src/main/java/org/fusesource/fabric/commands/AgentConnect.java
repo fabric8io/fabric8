@@ -15,8 +15,8 @@ import org.fusesource.fabric.api.Agent;
 
 import java.util.List;
 
-@Command(name = "connect", scope = "fabric", description = "Connect to an existing agent")
-public class Connect extends FabricCommand {
+@Command(name = "agent-connect", scope = "fabric", description = "Connect to a remote fabric agent")
+public class AgentConnect extends FabricCommand {
 
     @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: admin)", required = false, multiValued = false)
     private String username = "admin";
