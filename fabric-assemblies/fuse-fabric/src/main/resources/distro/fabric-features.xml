@@ -112,6 +112,7 @@
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
     </feature>
 
@@ -159,6 +160,7 @@
         <feature version="${activemq-version}">activemq</feature>
         <feature version="${activemq-version}">activemq-spring</feature>
         <feature version="${activemq-version}">activemq-blueprint</feature>
+        <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-activemq/${project.version}</bundle>
     </feature>
 
@@ -242,8 +244,8 @@
         <bundle>mvn:org.fusesource.insight/insight-elasticsearch/${project.version}</bundle>
     </feature>
 
-    <feature name="insight-log" version="${project.version}" resolver="(obr)">
-        <config name="org.fusesource.insight.log">
+    <feature name="insight-log-elasticsearch" version="${project.version}" resolver="(obr)">
+        <config name="org.fusesource.insight.log.elasticsearch">
             #
             # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
             # http://fusesource.com
@@ -259,6 +261,6 @@
         </config>
         <feature>eventadmin</feature>
         <feature>insight-elasticsearch</feature>
-        <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.insight/insight-log-elasticsearch/${project.version}</bundle>
     </feature>
 </features>

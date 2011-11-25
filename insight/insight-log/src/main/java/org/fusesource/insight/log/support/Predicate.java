@@ -6,7 +6,7 @@
  * AGPL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.internal;
+package org.fusesource.insight.log.support;
 
 /**
  * Applies a predicate to a type; can be replaced by the Predicate from Guava later maybe?

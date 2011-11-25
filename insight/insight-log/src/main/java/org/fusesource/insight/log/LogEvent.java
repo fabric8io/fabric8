@@ -6,10 +6,10 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.api.log;
+package org.fusesource.insight.log;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.fusesource.fabric.internal.Objects;
+import org.fusesource.insight.log.support.Objects;
 
 import java.util.Date;
 import java.util.Map;

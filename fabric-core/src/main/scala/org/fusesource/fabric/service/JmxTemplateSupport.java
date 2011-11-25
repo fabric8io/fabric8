@@ -8,13 +8,11 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.karaf.admin.management.AdminServiceMBean;
-import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.log.LogQueryCallback;
-import org.fusesource.fabric.api.log.LogQueryMBean;
-import org.osgi.jmx.framework.BundleStateMBean;
-import org.osgi.jmx.framework.ServiceStateMBean;
+import org.fusesource.insight.log.*;
+
+import org.fusesource.insight.log.service.LogQueryCallback;
+import org.fusesource.insight.log.service.LogQueryMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,13 +20,9 @@ import javax.management.JMX;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 
 /**
  * Utility class which contains code related to JMX connectivity.
@@ -50,7 +44,7 @@ public abstract class JmxTemplateSupport {
         return execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[]{"type", "LogQuery"};
-                return callback.doWithLogQuery(getMBean(connector, LogQueryMBean.class, "org.fusesource.fabric", bean));
+                return callback.doWithLogQuery(getMBean(connector, LogQueryMBean.class, "org.fusesource.insight", bean));
             }
         });
     }

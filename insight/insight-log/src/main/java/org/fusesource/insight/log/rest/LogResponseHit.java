@@ -6,11 +6,11 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.api.log.elastic;
+package org.fusesource.insight.log.rest;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.api.log.LogEvent;
+import org.fusesource.insight.log.LogEvent;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class LogResponseHit {

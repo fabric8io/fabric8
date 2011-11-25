@@ -578,6 +578,11 @@
 			          <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>

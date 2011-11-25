@@ -31,11 +31,6 @@
           org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
           org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
         </fabric.osgi.export>
-        <fabric.osgi.import>
-            org.apache.karaf.shell.log*;resolution:=optional,
-            org.ops4j.pax.logging.spi*;resolution:=optional,
-            *
-        </fabric.osgi.import>
         <fabric.osgi.private.pkg>
             org.fusesource.fabric.internal
         </fabric.osgi.private.pkg>
@@ -74,6 +69,10 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.insight</groupId>
+            <artifactId>insight-log</artifactId>
         </dependency>
 
 <!--

@@ -36,7 +36,7 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
 # lets not use elastic search just yet
 #
 # features:install insight-elasticsearch
-# features:install insight-log
+# features:install insight-log-elasticsearch
 
 # join existing cluster as root node (if first param is set - host:port)
 # or create a new one

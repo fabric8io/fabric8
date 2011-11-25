@@ -3,20 +3,17 @@
  * http://fusesource.com
  *
  * The software in this package is published under the terms of the
- * AGPL license a copy of which has been included with this distribution
+ * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.internal.log;
+package org.fusesource.insight.log.service;
 
-import org.fusesource.fabric.api.log.LogEvent;
-import org.fusesource.fabric.api.log.LogFilter;
-import org.fusesource.fabric.internal.Predicate;
+import org.fusesource.insight.log.*;
+import org.fusesource.insight.log.support.Predicate;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLocationInfo;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

@@ -11,8 +11,7 @@ package org.fusesource.fabric.service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.log.LogQueryCallback;
-import org.fusesource.fabric.api.log.LogQueryMBean;
+import org.fusesource.insight.log.service.LogQueryCallback;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 

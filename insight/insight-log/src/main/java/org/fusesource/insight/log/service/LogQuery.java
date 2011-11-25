@@ -6,14 +6,15 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.api.log;
+package org.fusesource.insight.log.service;
 
 import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.fusesource.fabric.internal.Predicate;
-import org.fusesource.fabric.internal.log.Logs;
+import org.fusesource.insight.log.LogFilter;
+import org.fusesource.insight.log.LogResults;
+import org.fusesource.insight.log.support.Predicate;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -29,9 +30,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  */
@@ -74,7 +72,7 @@ public class LogQuery implements LogQueryMBean {
 
     public ObjectName getMbeanName() throws MalformedObjectNameException {
         if (mbeanName == null) {
-            mbeanName = new ObjectName("org.fusesource.fabric:type=LogQuery");
+            mbeanName = new ObjectName("org.fusesource.insight:type=LogQuery");
         }
         return mbeanName;
     }
