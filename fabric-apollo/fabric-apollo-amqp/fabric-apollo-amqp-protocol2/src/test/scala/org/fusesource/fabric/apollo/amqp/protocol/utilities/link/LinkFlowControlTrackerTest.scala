@@ -16,7 +16,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.{Role, Flow}
 
 class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
   
-  test("Track with no link credit") {
+  ignore("Track with no link credit") {
     val tracker = new LinkFlowControlTracker(Role.SENDER)
     var have_no_credit = false
     var visited = false
@@ -31,7 +31,7 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
     visited should be (false)
   }
   
-  test("Track with link credit") {
+  ignore("Track with link credit") {
     val tracker = new LinkFlowControlTracker(Role.SENDER)
     tracker.flow(new Flow(0L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, false))
     var have_no_credit = false
@@ -50,7 +50,7 @@ class LinkFlowControlTrackerTest extends FunSuiteSupport with ShouldMatchers {
     tracker.available should be (0L)
   }
   
-  test("Track several units, run out of link credit") {
+  ignore("Track several units, run out of link credit") {
     val tracker = new LinkFlowControlTracker(Role.SENDER)
     tracker.flow(new Flow(0L, 0L, 0L, 0L, 0L, 0L, 5L, 0L, false))
     var sent = 0
