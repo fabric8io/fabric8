@@ -8,22 +8,22 @@
  */
 package org.fusesource.fabric.zookeeper.spring;
 
-import org.apache.zookeeper.server.NIOServerCnxn;
+import java.io.File;
+import java.net.InetSocketAddress;
+
+import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.io.File;
-import java.net.InetSocketAddress;
-
 /**
  * A simple ZK server for testing ZK related code in unit tests
  */
 public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, InitializingBean, DisposableBean {
     private ZooKeeperServer zooKeeperServer = new ZooKeeperServer();
-    private NIOServerCnxn.Factory connectionFactory;
+    private NIOServerCnxnFactory connectionFactory;
     private File dataLogDir;
     private File dataDir;
     protected int tickTime = ZooKeeperServer.DEFAULT_TICK_TIME;
@@ -57,7 +57,8 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
         zooKeeperServer.setTickTime(getTickTime());
         zooKeeperServer.setMinSessionTimeout(getMinSessionTimeout());
         zooKeeperServer.setMaxSessionTimeout(getMaxSessionTimeout());
-        connectionFactory = new NIOServerCnxn.Factory(getClientPortAddress(), getMaxClientConnections());
+        connectionFactory = new NIOServerCnxnFactory();
+        connectionFactory.configure(getClientPortAddress(), getMaxClientConnections());
         connectionFactory.startup(zooKeeperServer);
     }
 
@@ -79,7 +80,7 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
         return zooKeeperServer;
     }
 
-    public NIOServerCnxn.Factory getConnectionFactory() {
+    public NIOServerCnxnFactory getConnectionFactory() {
         return connectionFactory;
     }
 
@@ -127,7 +128,7 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
         this.clientPortAddress = clientPortAddress;
     }
 
-    public void setConnectionFactory(NIOServerCnxn.Factory connectionFactory) {
+    public void setConnectionFactory(NIOServerCnxnFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
