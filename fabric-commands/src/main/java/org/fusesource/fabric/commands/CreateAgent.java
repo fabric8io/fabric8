@@ -8,23 +8,23 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.api.Profile;
 
 @Command(name = "agent-create", scope = "fabric", description = "Creates one or more new agents")
 public class CreateAgent extends CreateAgentSupport {
 
-    @Option(name = "--parent", multiValued = false, required = false)
+    @Option(name = "--parent", multiValued = false, required = false, description = "Parent agent ID")
     private String parent;
 
-    @Option(name = "--url", multiValued = false, required = false)
+    @Option(name = "--url", multiValued = false, required = false, description = "The URL")
     private String url;
+    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    protected String name;
+    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {

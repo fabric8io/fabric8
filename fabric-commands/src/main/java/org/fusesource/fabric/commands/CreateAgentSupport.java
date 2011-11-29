@@ -17,19 +17,14 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class CreateAgentSupport extends FabricCommand {
-    @Option(name = "--version")
+    @Option(name = "--version", description = "The version id in the registry")
     protected String version = "base";
-    @Option(name = "--profile", multiValued = true, required = false)
+    @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new agent(s)")
     protected List<String> profiles;
-    @Option(name = "--enable-debuging", multiValued = false, required = false)
+    @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")
     protected Boolean debugAgent = Boolean.FALSE;
-    @Option(name = "--cluster-server", multiValued = false, required = false)
+    @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the agent should be a new ZooKeeper ensemble server")
     protected Boolean isClusterServer = Boolean.FALSE;
-
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
-    protected String name;
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
-    protected int number = 1;
 
     public List<String> getProfileNames() {
         List<String> names = this.profiles;

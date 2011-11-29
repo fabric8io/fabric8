@@ -26,7 +26,7 @@ public class ProfileEdit extends FabricCommand {
     @Option(name = "-v", aliases = { "--version"}, description = "The version of the profile to edit")
     private String version = "base";
 
-    @Option(name = "-p", aliases = {"--profile"}, description = "The target profile to edit")
+    @Option(name = "-p", aliases = "--profile", description = "The target profile to edit")
     private String target = "default";
 
     @Argument(index = 0, multiValued = true)
