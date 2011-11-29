@@ -15,8 +15,12 @@ import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.url.URLStreamHandlerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServiceRegistrationListener implements LifecycleListener, ZooKeeperAware {
+
+    private transient Logger logger = LoggerFactory.getLogger(ServiceRegistrationListener.class);
 
     private IZKClient zooKeeper;
     private String zooKeeperUrl;
@@ -48,7 +52,7 @@ public class ServiceRegistrationListener implements LifecycleListener, ZooKeeper
         this.bundleContext = bundleContext;
     }
 
-    public void onConnected() {
+    public synchronized void onConnected() {
         Properties props = new Properties();
         props.put("url", zooKeeperUrl);
         clientRegistration = bundleContext.registerService(IZKClient.class.getName(), zooKeeper, props);
@@ -59,12 +63,24 @@ public class ServiceRegistrationListener implements LifecycleListener, ZooKeeper
                 new ZkUrlHandler(zooKeeper), props);
     }
 
-    public void onDisconnected() {
+    public synchronized void onDisconnected() {
         if (clientRegistration != null) {
-            clientRegistration.unregister();
+            try {
+                clientRegistration.unregister();
+            } catch (Exception e) {
+                logger.warn("An error occured during service unregistration", e);
+            } finally {
+                clientRegistration = null;
+            }
         }
         if (handlerRegistration != null) {
-            handlerRegistration.unregister();
+            try {
+                handlerRegistration.unregister();
+            } catch (Exception e) {
+                logger.warn("An error occured during service unregistration", e);
+            } finally {
+                handlerRegistration = null;
+            }
         }
     }
 }

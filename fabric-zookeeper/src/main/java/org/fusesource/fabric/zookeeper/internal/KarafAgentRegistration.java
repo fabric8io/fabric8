@@ -8,6 +8,18 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerNotification;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -21,14 +33,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.*;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.*;
 
@@ -107,8 +111,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             }
             registerDomains();
         } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
+            logger.warn("Error updating Fabric Agent informations", e);
         }
     }
 
@@ -149,15 +152,18 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
         return null;
     }
 
-    public void onDisconnected() {
-        connected = false;
+    public void destroy() {
         try {
             unregisterDomains();
         } catch (ServiceException e) {
-            logger.trace("Mbean server is no longer available", e);
+            logger.trace("ZooKeeper is no longer available", e);
         } catch (Exception e) {
             logger.warn("An error occured during disconnecting to zookeeper", e);
         }
+    }
+
+    public void onDisconnected() {
+        connected = false;
     }
 
     public void registerMBeanServer(ServiceReference ref) {
@@ -167,7 +173,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
             registerDomains();
         } catch (Exception e) {
-            logger.warn("An error occured during mbean server registration");
+            logger.warn("An error occured during mbean server registration", e);
         }
     }
 
@@ -176,7 +182,7 @@ public class KarafAgentRegistration implements LifecycleListener, ZooKeeperAware
             mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
             unregisterDomains();
         } catch (Exception e) {
-            logger.warn("An error occured during mbean server unregistration");
+            logger.warn("An error occured during mbean server unregistration", e);
         }
         mbeanServer = null;
         bundleContext.ungetService(ref);

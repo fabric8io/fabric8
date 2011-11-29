@@ -8,7 +8,19 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
-import org.apache.zookeeper.server.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.zookeeper.server.NIOServerCnxnFactory;
+import org.apache.zookeeper.server.ServerConfig;
+import org.apache.zookeeper.server.ServerStats;
+import org.apache.zookeeper.server.ZKDatabase;
+import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
@@ -19,10 +31,6 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.*;
 
 public class ZKServerFactoryBean implements ManagedServiceFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(ZKServerFactoryBean.class);
@@ -81,9 +89,8 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
             QuorumPeerConfig config = new QuorumPeerConfig();
             config.parseProperties(props);
             if (!config.getServers().isEmpty()) {
-                NIOServerCnxn.Factory cnxnFactory =
-                        new NIOServerCnxn.Factory(config.getClientPortAddress(),
-                                config.getMaxClientCnxns());
+                NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
+                cnxnFactory.configure(config.getClientPortAddress(), config.getMaxClientCnxns());
 
                 QuorumPeer quorumPeer = new QuorumPeer();
                 quorumPeer.setClientPortAddress(config.getClientPortAddress());
@@ -126,8 +133,8 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                 zkServer.setTickTime(cfg.getTickTime());
                 zkServer.setMinSessionTimeout(cfg.getMinSessionTimeout());
                 zkServer.setMaxSessionTimeout(cfg.getMaxSessionTimeout());
-                NIOServerCnxn.Factory cnxnFactory = new NIOServerCnxn.Factory(cfg.getClientPortAddress(),
-                        cfg.getMaxClientCnxns());
+                NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
+                cnxnFactory.configure(cfg.getClientPortAddress(), cfg.getMaxClientCnxns());
 
                 try {
                     debug("Starting ZooKeeper server on address %s", config.getClientPortAddress());
@@ -151,6 +158,18 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
         debug("Shutting down ZK server %s", pid);
         Object obj = servers.remove(pid);
         ServiceRegistration reg = services.remove(pid);
+        try {
+            if (obj instanceof QuorumPeer) {
+                ((QuorumPeer) obj).shutdown();
+                ((QuorumPeer) obj).join();
+            } else if (obj instanceof NIOServerCnxnFactory) {
+                ((NIOServerCnxnFactory) obj).shutdown();
+                ((NIOServerCnxnFactory) obj).join();
+            }
+        } catch (Throwable t) {
+            debug("Caught and am ignoring exception %s while shutting down ZK server %s", t, obj);
+            // ignore
+        }
         if (reg != null) {
             try {
                 reg.unregister();
@@ -158,16 +177,6 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                 debug("Caught and am ignoring exception %s while unregistering %s", t, pid);
                 // ignore
             }
-        }
-        try {
-            if (obj instanceof QuorumPeer) {
-                ((QuorumPeer) obj).shutdown();
-            } else if (obj instanceof NIOServerCnxn.Factory) {
-                ((NIOServerCnxn.Factory) obj).shutdown();
-            }
-        } catch (Throwable t) {
-            debug("Caught and am ignoring exception %s while shutting down ZK server %s", t, obj);
-            // ignore
         }
     }
 

@@ -30,7 +30,7 @@
             org.linkedin.util.*;-noimport:=true,
             org.jasypt.*;-noimport:=true,
             org.jcraft.jsch.*;-noimport:=true,
-            org.apache.zookeeper*;version="3.3.1";-noimport:=true,
+            org.apache.zookeeper*;version="${zookeeper-version}";-noimport:=true,
         </fabric.osgi.export>
 
         <!--
@@ -49,7 +49,10 @@
             !jline*,
             !org.xml.*,
             !javax.xml.parsers,
-            !com.ibm.icu.*
+            !com.ibm.icu.*,
+            !com.sun.management,
+            !org.jboss.netty*,
+            !sun.security.krb5
         </fabric.osgi.import.before.defaults>
         <fabric.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
@@ -68,6 +71,11 @@
         <dependency>
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.util-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
             <scope>compile</scope>
         </dependency>
       <dependency>

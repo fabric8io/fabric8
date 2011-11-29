@@ -37,7 +37,7 @@
         </property>
     </bean>
 
-    <bean id="karafAgentRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafAgentRegistration" destroy-method="onDisconnected">
+    <bean id="karafAgentRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafAgentRegistration" destroy-method="destroy" depends-on="zkServerFactory">
         <property name="configurationAdmin">
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>

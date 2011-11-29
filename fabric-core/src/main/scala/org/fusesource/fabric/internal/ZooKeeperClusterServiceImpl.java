@@ -8,6 +8,20 @@
  */
 package org.fusesource.fabric.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
@@ -19,15 +33,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.DecimalFormat;
-import java.util.*;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
@@ -75,21 +80,21 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         ZKClient client = null;
         try {
             String karafName = System.getProperty("karaf.name");
-            Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
+            Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
             Properties properties = new Properties();
+            String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
+            String mavenProxyUrl = "http://"+getLocalHostAddress() + ":" + 8040;
+            properties.put("zookeeper.url", connectionUrl);
+            config.setBundleLocation(null);
+            config.update(properties);
+            config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
+            properties = new Properties();
             properties.put("tickTime",  "2000");
             properties.put("initLimit", "10");
             properties.put("syncLimit", "5");
             properties.put("dataDir", "data/zookeeper/0000");
             properties.put("clientPort", Integer.toString(port));
             properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper.server-0000");
-            config.setBundleLocation(null);
-            config.update(properties);
-            config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-            properties = new Properties();
-            String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
-            String mavenProxyUrl = "http://"+getLocalHostAddress() + ":" + 8040;
-            properties.put("zookeeper.url", connectionUrl);
             config.setBundleLocation(null);
             config.update(properties);
 
@@ -169,10 +174,15 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void clean() {
         try {
-            Configuration[] configs = configurationAdmin.listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
-            if (configs != null) {
-                for (Configuration config : configs) {
-                    config.delete();
+            for (;;) {
+                Configuration[] configs = configurationAdmin.listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
+                if (configs != null && configs.length > 0) {
+                    for (Configuration config : configs) {
+                        config.delete();
+                    }
+                    Thread.sleep(100);
+                } else {
+                    break;
                 }
             }
             File zkDir = new File("data/zookeeper");
