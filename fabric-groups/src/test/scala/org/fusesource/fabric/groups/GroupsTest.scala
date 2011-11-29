@@ -10,7 +10,7 @@
 package org.fusesource.fabric.groups
 
 import org.scalatest.matchers.ShouldMatchers
-import org.apache.zookeeper.server.{ZooKeeperServer, NIOServerCnxn}
+import org.apache.zookeeper.server.{ZooKeeperServer, NIOServerCnxnFactory}
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog
 import org.linkedin.zookeeper.client.ZKClient
 import org.linkedin.util.clock.Timespan
@@ -32,7 +32,7 @@ import collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 abstract class ZooKeeperFunSuiteSupport extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach {
 
-  var connector : NIOServerCnxn.Factory = _
+  var connector : NIOServerCnxnFactory = _
 
   override protected def beforeAll() = {
     println("Starting ZooKeeper")
@@ -40,7 +40,8 @@ abstract class ZooKeeperFunSuiteSupport extends FunSuite with BeforeAndAfterAll 
     val data_dir = new File(new File("target"), "test-data")
 
     zk_server.setTxnLogFactory(new FileTxnSnapLog(new File(data_dir, "zk-log"), new File(data_dir, "zk-data")))
-    connector = new NIOServerCnxn.Factory(new InetSocketAddress(0), 100)
+    connector = new NIOServerCnxnFactory
+    connector.configure(new InetSocketAddress(0), 100)
     connector.startup(zk_server)
     println("ZooKeeper Started")
   }
