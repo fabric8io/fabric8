@@ -11,6 +11,7 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.commands.support.FabricCommand;
 
 @Command(name = "agent-stop", scope = "fabric", description = "Stop an existing agent")
 public class AgentStop extends FabricCommand {

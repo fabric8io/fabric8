@@ -12,9 +12,10 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.commands.support.AgentCreateSupport;
 
 @Command(name = "agent-create", scope = "fabric", description = "Creates one or more new agents")
-public class CreateAgent extends CreateAgentSupport {
+public class AgentCreate extends AgentCreateSupport {
 
     @Option(name = "--parent", multiValued = false, required = false, description = "Parent agent ID")
     private String parent;

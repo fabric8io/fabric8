@@ -9,6 +9,7 @@
 package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
+import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
 import java.io.PrintStream;
 import java.util.List;

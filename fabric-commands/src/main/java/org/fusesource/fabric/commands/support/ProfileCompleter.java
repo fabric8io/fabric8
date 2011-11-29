@@ -6,7 +6,7 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.commands;
+package org.fusesource.fabric.commands.support;
 
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;

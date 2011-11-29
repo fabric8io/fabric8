@@ -16,6 +16,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.commands.support.FabricCommand;
 
 /**
  *

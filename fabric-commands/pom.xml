@@ -30,7 +30,7 @@
             *
         </fabric.osgi.import>
         <fabric.osgi.private.pkg>
-            org.fusesource.fabric.commands,
+            org.fusesource.fabric.commands*,
         </fabric.osgi.private.pkg>
     </properties>
 

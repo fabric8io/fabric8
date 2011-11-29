@@ -8,15 +8,16 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.net.URI;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateSshAgentArguments;
-
-import java.net.URI;
+import org.fusesource.fabric.commands.support.AgentCreateSupport;
 
 @Command(name = "agent-create-ssh", scope = "fabric", description = "Creates one or more new agents via SSH")
-public class CreateAgentSsh extends CreateAgentSupport {
+public class AgentCreateSsh extends AgentCreateSupport {
 
     @Option(name = "--host", required = true, description = "Host name to SSH into")
     private String host;

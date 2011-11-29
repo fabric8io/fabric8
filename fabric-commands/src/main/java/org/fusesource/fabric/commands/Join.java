@@ -19,7 +19,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import java.util.Properties;
 
 @Command(name = "join", scope = "fabric", description = "Join fabric cluster", detailedDescription = "classpath:join.txt")
-public class FabricJoin extends OsgiCommandSupport {
+public class Join extends OsgiCommandSupport {
 
     ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;

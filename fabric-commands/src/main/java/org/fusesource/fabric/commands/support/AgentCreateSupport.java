@@ -6,17 +6,16 @@
  * AGPL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.commands;
-
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.api.Profile;
+package org.fusesource.fabric.commands.support;
 
 import java.util.Collections;
 import java.util.List;
 
-public abstract class CreateAgentSupport extends FabricCommand {
+import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Profile;
+
+public abstract class AgentCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
     protected String version = "base";
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new agent(s)")

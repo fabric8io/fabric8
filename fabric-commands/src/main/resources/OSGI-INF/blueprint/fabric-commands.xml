@@ -51,19 +51,19 @@
         </command>
 
         <command name="fabric/join">
-            <action class="org.fusesource.fabric.commands.FabricJoin">
+            <action class="org.fusesource.fabric.commands.Join">
                 <property name="zooKeeper" ref="zooKeeper"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
             </action>
         </command>
 
         <command name="fabric/agent-create">
-            <action class="org.fusesource.fabric.commands.CreateAgent">
+            <action class="org.fusesource.fabric.commands.AgentCreate">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/agent-create-child">
-            <action class="org.fusesource.fabric.commands.CreateAgentChild">
+            <action class="org.fusesource.fabric.commands.AgentCreateChild">
                 <property name="fabricService" ref="fabricService"/>
             </action>
           <completers>
@@ -72,12 +72,12 @@
           </completers>
         </command>
         <command name="fabric/agent-create-cloud">
-            <action class="org.fusesource.fabric.commands.CreateAgentJclouds">
+            <action class="org.fusesource.fabric.commands.AgentCreateCloud">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/agent-create-ssh">
-            <action class="org.fusesource.fabric.commands.CreateAgentSsh">
+            <action class="org.fusesource.fabric.commands.AgentCreateSsh">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
@@ -168,10 +168,10 @@
         </command>
     </command-bundle>
 
-    <bean id="agentCompleter" class="org.fusesource.fabric.commands.AgentCompleter">
+    <bean id="agentCompleter" class="org.fusesource.fabric.commands.support.AgentCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
-    <bean id="profileCompleter" class="org.fusesource.fabric.commands.ProfileCompleter">
+    <bean id="profileCompleter" class="org.fusesource.fabric.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 

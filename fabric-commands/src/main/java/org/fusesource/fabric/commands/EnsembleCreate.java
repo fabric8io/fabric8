@@ -8,11 +8,12 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-
-import java.util.List;
+import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
 @Command(name = "ensemble-create", scope = "fabric", description = "Create a new ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleCreate extends EnsembleCommandSupport {
@@ -27,9 +28,6 @@ public class EnsembleCreate extends EnsembleCommandSupport {
     protected Object doExecute() throws Exception {
         if (clean) {
             service.clean();
-
-            // TODO we may have a timing issue here so we may want to wait a little bit
-            Thread.sleep(1000);
         } else {
             if (agents == null || agents.isEmpty()) {
                 throw new IllegalStateException("No agents specified.");

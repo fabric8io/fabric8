@@ -8,16 +8,17 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.net.URI;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
 import org.fusesource.fabric.api.JCloudsInstanceType;
-
-import java.net.URI;
+import org.fusesource.fabric.commands.support.AgentCreateSupport;
 
 @Command(name = "agent-create-cloud", scope = "fabric", description = "Creates one or more new agents on the cloud")
-public class CreateAgentJclouds extends CreateAgentSupport {
+public class AgentCreateCloud extends AgentCreateSupport {
 
     @Option(name = "--provider", required = true, description = "JClouds provider name")
     private String providerName;

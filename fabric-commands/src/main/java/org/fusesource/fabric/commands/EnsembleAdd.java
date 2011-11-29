@@ -10,7 +10,7 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
 

@@ -15,6 +15,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.commands.support.FabricCommand;
 
 import java.io.PrintStream;
 import java.util.List;
