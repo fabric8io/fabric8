@@ -19,7 +19,7 @@
   <dependencySets>
   <dependencySet>
       <outputDirectory>/lib</outputDirectory>
-      <outputFileNameMapping>fabric-version.jar</outputFileNameMapping>
+      <outputFileNameMapping>mq-version.jar</outputFileNameMapping>
       <fileMode>0644</fileMode>
       <includes>
           <include>org.fusesource.mq:org.fusesource.mq.karaf.branding</include>
