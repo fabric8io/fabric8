@@ -25,23 +25,22 @@ object Website {
   val project_jira_key= "FABRIC"
   val project_issue_url= "http://fusesource.com/issues/browse/FABRIC"
   val project_forums_url= "http://fabric.fusesource.org/community.html"
-  val project_wiki_url= "http://wiki.github.com/fusesource/fabric/"
+  val project_wiki_url= "http://wiki.github.com/fusesource/fuse/"
   val project_logo= "/images/project-logo.gif"
   val project_version= "1.1-SNAPSHOT"
   val project_snapshot_version= "1.1-SNAPSHOT"
   val project_versions = List(
-        project_version,
-        "1.0")  
+        project_version)  
 
-  val github_page= "http://github.com/fusesource/fabric"
-  val git_user_url= "git://github.com/fusesource/fabric.git"
-  val git_commiter_url= "git@github.com:fusesource/fabric.git"
+  val github_page= "http://github.com/fusesource/fuse"
+  val git_user_url= "git://github.com/fusesource/fuse.git"
+  val git_commiter_url= "git@github.com:fusesource/fuse.git"
 
   // -------------------------------------------------------------------
   val project_svn_url= "http://fusesource.com/forge/svn/%s/trunk".format(project_id)
   val project_svn_branches_url= "http://fusesource.com/forge/svn/%s/branches".format(project_id)
   val project_svn_tags_url= "http://fusesource.com/forge/svn/%s/tags".format(project_id)
   val project_maven_groupId= "org.fusesource.%s".format(project_id)
-  val project_maven_artifactId= "fabric-agent"
+  val project_maven_artifactId= "fuse-fabric"
 
 }
