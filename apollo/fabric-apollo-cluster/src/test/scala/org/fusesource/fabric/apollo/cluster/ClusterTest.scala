@@ -14,7 +14,6 @@ import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.FileSupport._
 import org.fusesource.hawtdispatch._
 import java.util.concurrent.TimeUnit._
-import java.util.concurrent.TimeUnit
 import org.apache.activemq.apollo.stomp.StompClient
 import java.net.InetSocketAddress
 import org.apache.activemq.apollo.broker.{Broker, Queue}
@@ -92,39 +91,6 @@ class ClusterTestSupport extends ZkFunSuiteSupport with ShouldMatchers {
 
   def router(bs:Broker) = bs.default_virtual_host.router.asInstanceOf[ClusterRouter]
 
-  class ShortCircuitFailure(msg:String) extends RuntimeException(msg)
-
-  def within[T](timeout:Long, unit:TimeUnit)(func: => Unit ):Unit = {
-    val start = System.currentTimeMillis
-    var amount = unit.toMillis(timeout)
-    var sleep_amount = amount / 100
-    var last:Throwable = null
-
-    if( sleep_amount < 1 ) {
-      sleep_amount = 1
-    }
-    try {
-      func
-      return
-    } catch {
-      case e:ShortCircuitFailure => throw e
-      case e:Throwable => last = e
-    }
-
-    while( (System.currentTimeMillis-start) < amount ) {
-      Thread.sleep(sleep_amount)
-      try {
-        func
-        return
-      } catch {
-        case e:ShortCircuitFailure => throw e
-        case e:Throwable => last = e
-      }
-    }
-
-    throw last
-  }
-
   def access[T](d:Dispatched)(action: =>T) = {
     (d.dispatch_queue !! { action }).await()
   }
@@ -163,7 +129,7 @@ class ClusterTest extends ClusterTestSupport {
       val a_master = access(cluster_a){ cluster_a.master }
       val b_master = access(cluster_b){ cluster_b.master }
       if (a_master && b_master) {
-        throw new ShortCircuitFailure("a and b cannot be master at the same time.")
+        exit_within_with_failure("a and b cannot be master at the same time.")
       }
       a_master should be === false
     }
