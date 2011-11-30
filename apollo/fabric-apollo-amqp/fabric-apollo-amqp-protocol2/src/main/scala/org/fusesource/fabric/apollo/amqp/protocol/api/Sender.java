@@ -18,7 +18,7 @@ import org.fusesource.hawtbuf.Buffer;
 /**
  *
  */
-public interface Sender {
+public interface Sender extends Link {
 
     /**
      * Returns whether or not link credit is available to send messages

@@ -11,9 +11,13 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{CreditHandler, MessageHandler, Receiver}
-import interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.Outcome
-import org.fusesource.fabric.apollo.amqp.codec.types.{Role, ReceiverSettleMode}
+import commands.LinkCommand
+import interfaces.{Interceptor, FrameInterceptor}
+import Interceptor._
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Target, Outcome}
+import org.fusesource.fabric.apollo.amqp.codec.types.{Source, Attach, Role, ReceiverSettleMode}
+import org.apache.activemq.apollo.util.Logging
+import collection.mutable.Queue
 
 
 object AMQPReceiver {
@@ -22,11 +26,24 @@ object AMQPReceiver {
     rc.setName(name)
     rc
   }
+
+  def create(attach:Attach) = {
+    val rc = new AMQPReceiver
+    AMQPLink.initialize(rc, attach)
+  }
 }
 /**
  *
  */
-class AMQPReceiver extends Interceptor with Receiver with AMQPLink {
+class AMQPReceiver extends AMQPLink with Receiver with Logging {
+  
+  trace("Constructed AMQP receiver chain : %s", display_chain(this))
+  
+  override def configure_attach(attach:Attach):Attach = {
+    val a = super.configure_attach(attach)
+    trace("Configured receiver attach : %s", a)
+    a
+  }
 
   def setCreditHandler(handler: CreditHandler) {}
 
@@ -42,5 +59,4 @@ class AMQPReceiver extends Interceptor with Receiver with AMQPLink {
 
   def getRole = Role.RECEIVER
 
-  def established() = false
 }

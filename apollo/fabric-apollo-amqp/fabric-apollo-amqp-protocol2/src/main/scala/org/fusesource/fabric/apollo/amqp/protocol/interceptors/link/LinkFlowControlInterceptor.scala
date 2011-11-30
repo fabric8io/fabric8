@@ -21,12 +21,5 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{PerformativeInterc
 
 class LinkFlowControlInterceptor extends PerformativeInterceptor[Flow] {
 
-  var link_credit = Option(0L)
-  var delivery_count = 0L
-  var available = 0L
-
-
-
-
 
 }

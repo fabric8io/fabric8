@@ -16,7 +16,7 @@ import org.fusesource.fabric.apollo.amqp.codec.types.ReceiverSettleMode;
 /**
  *
  */
-public interface Receiver {
+public interface Receiver extends Link {
 
     public void setCreditHandler(CreditHandler handler);
 

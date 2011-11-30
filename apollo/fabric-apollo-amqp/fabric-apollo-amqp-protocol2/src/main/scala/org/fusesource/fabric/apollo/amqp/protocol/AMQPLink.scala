@@ -11,13 +11,50 @@
 package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{Session, Link}
+import commands._
+import interceptors.link.{AttachInterceptor, DetachInterceptor}
+import interfaces.{FrameInterceptor, Interceptor}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Source, Target}
+import utilities.execute._
+import utilities.fire_function._
+import utilities.fire_runnable._
+import utilities.link.LinkFlowControlTracker
+import org.fusesource.fabric.apollo.amqp.codec.types.Attach
+import collection.mutable.Queue
+import org.apache.activemq.apollo.util.Logging
+import utilities.{fire_runnable, execute}
 
+object AMQPLink {
+  def initialize(link:AMQPLink, attach:Attach) = {
+    link.setName(attach.getName)
+    Option(attach.getTarget) match {
+      case Some(t) =>
+        link.setTarget(t.asInstanceOf[Target])
+      case None =>
+    }
+    Option(attach.getSource) match {
+      case Some(s) =>
+        link.setSource(s.asInstanceOf[Source])
+      case None =>
+    }
+    Option(attach.getMaxMessageSize) match {
+      case Some(m) =>
+        link.setMaxMessageSize(m.longValue)
+      case None =>
+    }
+    link
+
+  }
+}
 /**
  *
  */
 
-trait AMQPLink extends Link {
+trait AMQPLink extends FrameInterceptor[LinkCommand] with Link with Logging {
+
+  val tracker = new LinkFlowControlTracker(getRole)
+  val _attach = new AttachInterceptor
+  val _detach = new DetachInterceptor
 
   var name:Option[String] = None
   var max_message_size:Long = 0L
@@ -28,7 +65,43 @@ trait AMQPLink extends Link {
   var on_attach:Option[Runnable] = None
   var on_detach:Option[Runnable] = None
 
+  var _established = false
+
+  val attach_detector = new FrameInterceptor[ChainAttached] {
+    override protected def receive_frame(c:ChainAttached, tasks:Queue[() => Unit]) = {
+      trace("Link attached to session")
+      _established = true
+      _attach.send_attach
+      execute(tasks)
+    }
+  }
+
+  val released_detector = new FrameInterceptor[ChainReleased] {
+    override protected def receive_frame(c:ChainReleased, tasks:Queue[() => Unit]) = {
+      trace("Link detached from session")
+      _established = false
+      execute(tasks)
+    }
+  }
+  head.outgoing = _detach
+  head.outgoing = _attach
+
+  before(attach_detector)
+  before(released_detector)
+  
+  _attach.configure_attach = Option(configure_attach)
+
   var session:Option[Session] = None
+
+  def established() = _attach.sent && _attach.received && !_detach.sent && !_detach.received && _established
+  
+  def configure_attach(attach:Attach):Attach = {
+    attach.setName(getName)
+    attach.setSource(getSource)
+    attach.setTarget(getTarget)
+    attach.setRole(getRole.getValue)
+    attach
+  }
 
   def getName = name.getOrElse(throw new RuntimeException("No name has been set for this link"))
 
@@ -51,4 +124,36 @@ trait AMQPLink extends Link {
   def onDetach(task: Runnable) = on_detach = Option(task)
 
   def getSession = session.getOrElse(throw new RuntimeException("This link is not currently attached to a session"))
+  
+  def attach_sent_or_received = {
+    if (_attach.sent && _attach.received) {
+      info("Attach frames exchanged")
+      fire_runnable(on_attach)
+    }
+  }
+
+  def detach_sent_or_received = {
+    if (_detach.sent && _detach.received) {
+      info("Detach frames exchanged")
+      fire_runnable(on_detach)
+    }
+
+  }
+
+  override protected def receive_frame(frame: LinkCommand, tasks: Queue[() => Unit]) {
+    frame match {
+      case x:AttachReceived =>
+        attach_sent_or_received
+        execute(tasks)
+      case x:AttachSent =>
+        attach_sent_or_received
+        execute(tasks)
+      case x:DetachReceived =>
+        execute(tasks)
+      case x:DetachSent =>
+        execute(tasks)
+    }
+
+  }
+
 }

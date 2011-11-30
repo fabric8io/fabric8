@@ -110,11 +110,16 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
     var timeout = Timespan.parse(Option(config.zk_timeout).getOrElse("5s"))
     zk_client = new ZKClient(config.zk_url, timeout, null)
-    cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory+"/brokers")
-    cluster_singleton.start(cluster_group)
-    cluster_singleton.join
-    zk_client.start
-    on_completed.run
+    Broker.BLOCKABLE_THREAD_POOL {
+      zk_client.start
+      zk_client.waitForStart()
+      cluster_group = ZooKeeperGroupFactory.create(zk_client, config.zk_directory+"/brokers")
+      cluster_singleton.start(cluster_group)
+      cluster_singleton.join
+      dispatch_queue {
+        on_completed.run
+      }
+    }
   }
 
 
