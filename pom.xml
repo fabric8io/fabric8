@@ -17,8 +17,8 @@
         <version>1.8</version>
     </parent>
 
-    <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-project</artifactId>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fuse-project</artifactId>
     <packaging>pom</packaging>
     <version>1.1-SNAPSHOT</version>
 
@@ -184,39 +184,11 @@
     </dependencies>
 
     <modules>
-        <module>fabric-core</module>
-        <module>fabric-linkedin-zookeeper</module>
-        <module>fabric-zookeeper</module>
-        <module>fabric-zookeeper-commands</module>
-        <module>fabric-maven-proxy</module>
-        <module>fabric-core-agent-ssh</module>
-        <module>fabric-core-agent-jclouds</module>
-        <module>fabric-commands</module>
-        <module>fabric-agent</module>
-        <module>fabric-scala</module>
-        <module>fabric-jaas</module>
-        <module>fabric-zookeeper-spring</module>
-        <module>fabric-configadmin</module>
-        <module>fabric-camel</module>
-        <module>fabric-camel-c24io</module>
-        <module>fabric-camel-dslio</module>
-        <module>fabric-activemq</module>
-        <module>fabric-monitor</module>
-        <module>fabric-launcher</module>
-        <module>fabric-groups</module>
-        <module>fabric-dosgi</module>
-        <module>fabric-eca</module>
-        <module>fabric-security</module>
+        <module>fabric</module>
         <module>fab</module>
         <module>insight</module>
         <module>mq</module>
-        <module>fabric-bridge-project</module>
-        <module>fabric-examples</module>
-        <module>fabric-assemblies</module>
-        <module>fabric-itests</module>
-
-        <!-- TODO fix build of fabric-cxf then move back up a bit :) -->
-        <module>fabric-cxf</module>
+        <module>stream</module>
     </modules>
 
     <build>
@@ -311,6 +283,11 @@
                 <version>2.7</version>
             </plugin>
 
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>build-helper-maven-plugin</artifactId>
+              <version>1.5</version>
+            </plugin>
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -767,7 +744,7 @@
       <id>apollo</id>
 
       <modules>
-        <module>fabric-apollo</module>
+        <module>apollo</module>
       </modules>
     </profile>
         
@@ -775,7 +752,6 @@
       <id>distro</id>
 
       <modules>
-        <!-- <module>fabric-apollo</module> -->
         <module>fabric-website</module>
       </modules>
     </profile>

@@ -14,16 +14,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-project</artifactId>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fuse-project</artifactId>
     <version>1.1-SNAPSHOT</version>
   </parent>
 
   <groupId>org.fusesource.fabric.bridge</groupId>
   <artifactId>fabric-bridge-project</artifactId>
   <packaging>pom</packaging>
-  <name>Fuse Fabric :: Network Bridge</name>
-  <description>Fuse Fabric :: Network Bridge</description>
+  <name>Fuse Stream :: Project</name>
+  <description>Fuse Stream :: Project</description>
 
   <modules>
     <module>fabric-bridge</module>
