@@ -5,108 +5,21 @@
   Copyright Notice
   ================
   (c) Copyright Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche
-  Boerse Systems, Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica
-  Corporation, JPMorgan Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress
-  Software, Red Hat Inc., Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST
-  Process Innovations Ltd, VMware Inc. and WS02 Inc. 2006-2011. All rights reserved.
-
-  License
-  =======
-
-  Bank of America, N.A., Barclays Bank PLC, Cisco Systems, Credit Suisse, Deutsche Boerse Systems,
-  Goldman Sachs, HCL Technologies Ltd, INETCO Systems Limited, Informatica Corporation, JPMorgan
-  Chase Bank Inc. N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
+  Boerse, Envoy Technologies Inc., Goldman Sachs, HCL Technologies Ltd, IIT Software GmbH, iMatix
+  Corporation, INETCO Systems Limited, Informatica Corporation, JPMorgan Chase & Co., Kaazing
+  Corporation, N.A, Microsoft Corporation, my-Channels, Novell, Progress Software, Red Hat Inc.,
   Software AG, Solace Systems Inc., StormMQ Ltd., Tervela Inc., TWIST Process Innovations Ltd,
-  VMware Inc. and WS02 Inc. (collectively, the "Authors") each hereby grants to you a worldwide,
-  perpetual, royalty-free, nontransferable, nonexclusive license to (i) copy, display, distribute
-  and implement the Advanced Message Queuing Protocol ("AMQP") Specification and (ii) the Licensed
-  Claims that are held by the Authors, all for the purpose of implementing the Advanced Message
-  Queuing Protocol Specification. Your license and any rights under this Agreement will terminate
-  immediately without notice from any Author if you bring any claim, suit, demand, or action related
-  to the Advanced Message Queuing Protocol Specification against any Author. Upon termination, you
-  shall destroy all copies of the Advanced Message Queuing Protocol Specification in your possession
-  or control.
-
-  As used hereunder, "Licensed Claims" means those claims of a patent or patent application,
-  throughout the world, excluding design patents and design registrations, owned or controlled, or
-  that can be sublicensed without fee and in compliance with the requirements of this Agreement, by
-  an Author or its affiliates now or at any future time and which would necessarily be infringed by
-  implementation of the Advanced Message Queuing Protocol Specification. A claim is necessarily
-  infringed hereunder only when it is not possible to avoid infringing it because there is no
-  plausible non-infringing alternative for implementing the required portions of the Advanced
-  Message Queuing Protocol Specification. Notwithstanding the foregoing, Licensed Claims shall not
-  include any claims other than as set forth above even if contained in the same patent as Licensed
-  Claims; or that read solely on any implementations of any portion of the Advanced Message Queuing
-  Protocol Specification that are not required by the Advanced Message Queuing Protocol
-  Specification, or that, if licensed, would require a payment of royalties by the licensor to
-  unaffiliated third parties. Moreover, Licensed Claims shall not include (i) any enabling
-  technologies that may be necessary to make or use any Licensed Product but are not themselves
-  expressly set forth in the Advanced Message Queuing Protocol Specification (e.g., semiconductor
-  manufacturing technology, compiler technology, object oriented technology, networking technology,
-  operating system technology, and the like); or (ii) the implementation of other published
-  standards developed elsewhere and merely referred to in the body of the Advanced Message Queuing
-  Protocol Specification, or (iii) any Licensed Product and any combinations thereof the purpose or
-  function of which is not required for compliance with the Advanced Message Queuing Protocol
-  Specification. For purposes of this definition, the Advanced Message Queuing Protocol
-  Specification shall be deemed to include both architectural and interconnection requirements
-  essential for interoperability and may also include supporting source code artifacts where such
-  architectural, interconnection requirements and source code artifacts are expressly identified as
-  being required or documentation to achieve compliance with the Advanced Message Queuing Protocol
-  Specification.
-
-  As used hereunder, "Licensed Products" means only those specific portions of products (hardware,
-  software or combinations thereof) that implement and are compliant with all relevant portions of
-  the Advanced Message Queuing Protocol Specification.
-
-  The following disclaimers, which you hereby also acknowledge as to any use you may make of the
-  Advanced Message Queuing Protocol Specification:
-
-  THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION IS PROVIDED "AS IS," AND THE AUTHORS MAKE NO
-  REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR TITLE; THAT THE CONTENTS
-  OF THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION ARE SUITABLE FOR ANY PURPOSE; NOR THAT THE
-  IMPLEMENTATION OF THE ADVANCED MESSAGE QUEUING PROTOCOL SPECIFICATION WILL NOT INFRINGE ANY THIRD
-  PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
-
-  THE AUTHORS WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL
-  DAMAGES ARISING OUT OF OR RELATING TO ANY USE, IMPLEMENTATION OR DISTRIBUTION OF THE ADVANCED
-  MESSAGE QUEUING PROTOCOL SPECIFICATION.
-
-  The name and trademarks of the Authors may NOT be used in any manner, including advertising or
-  publicity pertaining to the Advanced Message Queuing Protocol Specification or its contents
-  without specific, written prior permission. Title to copyright in the Advanced Message Queuing
-  Protocol Specification will at all times remain with the Authors.
-
-  No other rights are granted by implication, estoppel or otherwise.
-
-  Upon termination of your license or rights under this Agreement, you shall destroy all copies of
-  the Advanced Message Queuing Protocol Specification in your possession or control.
-
-  Trademarks
-  ==========
-  "JPMorgan", "JPMorgan Chase", "Chase", the JPMorgan Chase logo and the Octagon Symbol are
-  trademarks of JPMorgan Chase & Co.
-
-  RED HAT is a registered trademarks of Red Hat, Inc. in the US and other countries.
-
-  Java, all Java-based trademarks and OpenOffice.org are trademarks of Sun Microsystems, Inc. in the
-  United States, other countries, or both.
-
-  Other company, product, or service names may be trademarks or service marks of others.
-
-  Link to full AMQP specification:
-  =================================
-  http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
+  VMware, Inc., and WS02 Inc.
+  2006-2011. All rights reserved.
 -->
 
 <!DOCTYPE amqp SYSTEM "amqp.dtd">
 
-<amqp xmlns="http://www.amqp.org/schema/amqp.xsd"
-      name="transactions" label="working version">
+<amqp name="transactions" label="the AMQP Transactions Layer">
 
   <!-- == Section: transactions ================================================================ -->
 
-  <section name="transactions" label="transactional messaging">
+  <section name="transactions" title="Transactional Messaging">
     <doc>
       <p>
         Transactional messaging allows for the coordinated outcome of otherwise independent
@@ -122,38 +35,165 @@
       </p>
 
       <p>
+        The <i>transactional controller</i> and <i>transactional resource</i> communicate over a
+        <i>control link</i> which is established by the <i>transactional controller</i>.  The <xref
+        name="declare"/> and <xref name="discharge"/> messages are sent by the <i>transactional
+        controller</i> over the <i>control link</i> to allocate and complete transactions
+        respectively (they do not represent the demarcation of transactional work). No transactional
+        work is allowed on the <i>control link</i>. Each transactional operation requested is
+        explicitly identified with the desired transaction-id and therefore may occur on any link
+        within the controlling Session, or, if permitted by the capabilities of the controller, any
+        link on the controlling Connection. If the <i>control link</i> is closed while there exist
+        non-discharged transactions it created, then all such transactions are immediately rolled
+        back, and attempts to perform further transactional work on them will lead to failure.
+      </p>
+    </doc>
+  </section>
+
+  <section name="txn-declare" title="Declaring a Transaction">
+    <doc>
+      <p>
         The container acting as the transactional resource defines a special target that functions
         as a <xref name="coordinator">transaction coordinator</xref>. The <i>transaction
-        controller</i> establishes a link to this target and is allocated a transaction id (txn-id)
-        by sending a message whose body consists of the <xref name="declare"/> type. If this
-        declaration is successful, the coordinator responds with a disposition outcome of <xref
-        name="declared"/> which carries the allocated txn-id. The controller will subsequently end
-        the transaction by sending a <xref name="discharge"/> message to the coordinator. Should
-        the coordinator fail to perform the <xref name="declare"/> or <xref name="discharge"/> as
-        specified in the message, the message will be <xref name="rejected"/> with a <xref
-        name="transaction-error"/> indicating the failure condition that occurred.
+        controller</i> establishes a control link to this target. Note that links to the <xref
+        name="coordinator"/> cannot be resumed.
+      </p>
+      <p>
+        To begin transactional work, the transaction controller must obtain a transaction identifier
+        from the resource. It does this by sending a message to the <xref name="coordinator"/> whose
+        body consists of the <xref name="declare"/> type in a single <xref type="type"
+        name="amqp-value"/> section. Other standard message sections such as the header section
+        SHOULD be ignored. This message MUST NOT be sent settled as the sender is required to
+        receive and interpret the outcome of the declare at the receiver. If the coordinator
+        receives a <xref type="type" name="transfer"/> that has been settled by the sender, it
+        should <xref type="type" name="detach"/> with an appropriate error.
+      </p>
+      <p>
+        If the declaration is successful, the coordinator responds with a disposition outcome of
+        <xref name="declared"/> which carries the assigned identifier for the transaction.
+      </p>
+      <p>
+        If the coordinator was unable to perform the <xref name="declare"/> as specified by
+        the transaction controller, the transaction coordinator MUST convey the error to the
+        controller as a <xref name="transaction-error"/>. If the <xref name="source"/> for the link
+        to the <xref name="coordinator"/> supports the <xref name="rejected"/> outcome, then the
+        message MUST be <xref name="rejected"/> with this outcome carrying the <xref
+        name="transaction-error"/>.  If the <xref name="source"/> does not support the <xref
+        name="rejected"/> outcome, the <i>transactional resource</i> MUST <xref name="detach"/> the
+        link to the coordinator, with the <xref name="detach"/> performative carrying the <xref
+        name="transaction-error"/>.
+      </p>
+      <p>
+        Transaction controllers SHOULD establish a control link that allows the
+        <xref name="rejected"/> outcome.
+      </p>
+      <picture title="Declaring a Transaction"><![CDATA[
+Transaction Controller                  Transactional Resource
+===============================================================================
+
+ATTACH(name=txn-ctl,          --------->
+       ...,
+       target=
+         Coordinator(
+           capabilities=
+             "amqp:local-transactions")
+      )
+
+                             <--------- ATTACH(name=txn-ctl,
+                                               ...,
+                                               target=
+                                                 Coordinator(
+                                                   capabilities=
+                                                     ["amqp:local-transactions",
+                                                      "amqp:multi-txns-per-ssn"]
+                                                            )
+                                              )
+
+                             <--------- FLOW(...,handle=1, link-credit=1)
+
+TRANSFER(delivery-id=0, ...) --------->
+{ AmqpValue( Declare() ) }
+
+                             <--------- DISPOSITION(first=0, last=0,
+                                                    state=Declared(txn-id=0) )
+
+-------------------------------------------------------------------------------
+]]>
+      </picture>
+    </doc>
+  </section>
+
+  <section name="txn-discharge" title="Discharging a Transaction">
+    <doc>
+      <p>
+        The controller will conclude the transactional work by sending a <xref name="discharge"/>
+        message (encoded in a single <xref type="type" name="amqp-value"/> section) to the
+        coordinator. The controller indicates that it wishes to commit or rollback the transactional
+        work by setting the <i>fail</i> flag on the <xref name="discharge"/> body. As with the <xref
+        type="type" name="declare"/> message, it is an error if the sender sends the <xref
+        type="type" name="transfer"/> pre-settled.
+      </p>
+      <p>
+        Should the coordinator be unable to complete the <xref name="discharge"/>, the coordinator
+        MUST convey the error to the controller as a <xref name="transaction-error"/>. If the <xref
+        type="type" name="source"/> for the link to the <xref name="coordinator"/> supports the
+        <xref type="type" name="rejected"/> outcome, then the message MUST be <xref type="type"
+        name="rejected"/> with this outcome carrying the <xref name="transaction-error"/>.  If the
+        <xref type="type" name="source"/> does not support the <xref type="type" name="rejected"/>
+        outcome, the <i>transactional resource</i> MUST <xref type="type" name="detach"/> the link
+        to the coordinator, with the <xref type="type" name="detach"/> performative carrying the
+        <xref name="transaction-error"/>.  Note that the coordinator MUST always be able to complete
+        a <xref name="discharge"/> where the fail flag is set to true (since coordinator failure
+        leads to rollback, which is what the controller is asking for).
       </p>
 
-      <p>
-        The <xref name="declare"/> and <xref name="discharge"/> message bodies MUST be encoded as a
-        single <xref name="amqp-value"/> section.
-      </p>
+      <picture title="Discharging a Transaction"><![CDATA[
+Transaction Controller                  Transactional Resource
+===============================================================================
 
+TRANSFER(delivery-id=0, ...) --------->
+{ AmqpValue( Declare() ) }
+
+                             <--------- DISPOSITION(first=0, last=0,
+                                                    state=Declared(txn-id=0) )
+
+                                  :
+                          Transactional Work
+                                  :
+
+
+TRANSFER(delivery-id=57, ...) --------->
+{ AmqpValue(
+    Discharge(txn-id=0,
+              fail=false)
+           ) }
+
+                             <--------- DISPOSITION(first=57, last=57,
+                                                    state=Accepted() )
+
+-------------------------------------------------------------------------------
+]]>
+      </picture>
+    </doc>
+  </section>
+
+  <section name="txn-work" title="Transactional Work">
+    <doc>
       <p>
-        Transactional work is described in terms of the message states defined in the
-        <xref name="message-state"/> section of the <xref name="messaging"/> book. Transactional
-        work is formally defined to be composed of the following operations:
+        Transactional work is described in terms of the message states defined in <xref type="doc"
+        name="message-state"/>. Transactional work is formally defined to be composed of the
+        following operations:
       </p>
 
       <ul>
         <li>
-          <p><i>posting</i> a message at a node, i.e. making it <i>available</i></p>
+          <p><i>posting</i> a message at a target, i.e. making it <i>available</i></p>
         </li>
         <li>
-          <p><i>acquiring</i> a message at a node, i.e. transitioning it to <i>acquired</i></p>
+          <p><i>acquiring</i> a message at a source, i.e. transitioning it to <i>acquired</i></p>
         </li>
         <li>
-          <p><i>retiring</i> a message at a node, i.e. transitioning it to <i>archived</i></p>
+          <p><i>retiring</i> a message at a source, i.e. applying the terminal outcome</p>
         </li>
       </ul>
 
@@ -165,17 +205,20 @@
       <ul>
         <li>
           <p>
-            <i>posting</i> messages is initiated by incoming <xref name="transfer"/> frames
+            <i>posting</i> messages is initiated by incoming <xref type="type" name="transfer"/>
+            frames
           </p>
         </li>
         <li>
           <p>
-            <i>acquiring</i> messages is initiated by incoming <xref name="flow"/> frames
+            <i>acquiring</i> messages is initiated by incoming <xref type="type" name="flow"/>
+            frames
           </p>
         </li>
         <li>
           <p>
-            <i>retiring</i> messages is initiated by incoming <xref name="disposition"/> frames
+            <i>retiring</i> messages is initiated by incoming <xref type="type" name="disposition"/>
+            frames
           </p>
         </li>
       </ul>
@@ -184,38 +227,172 @@
         In each case, it is the responsibility of the transaction controller to identify the
         transaction with which the requested work is to be associated. This is done with the
         transactional delivery state <xref name="transactional-state"/> that combines a txn-id
-        together with one of the terminal delivery states defined in the <xref
-        name="delivery-state"/> section of the messaging specification. The <xref
-        name="transactional-state"/> is carried by both the <xref name="transfer"/> and the <xref
-        name="disposition"/> frames allowing both the <i>posting</i> and <i>retiring</i> of messages
-        to be associated with a transaction.
+        together with one of the terminal delivery states defined in <xref type="section"
+        name="delivery-state"/> of the messaging specification. The <xref
+        name="transactional-state"/> is carried by both the <xref type="type" name="transfer"/> and
+        the <xref type="type" name="disposition"/> frames allowing both the <i>posting</i> and
+        <i>retiring</i> of messages to be associated with a transaction.
       </p>
 
       <p>
-        The <xref name="transfer"/>, <xref name="disposition"/>, and <xref name="flow"/> frames may
-        travel in either direction, i.e. both from the controller to the resource and from the
-        resource to the controller. When these frames travel from the controller to the resource,
-        any embedded txn-ids are requesting that the resource assigns transactional work to the
-        indicated transaction. When traveling in the other direction, from resource to controller,
-        the <xref name="transfer"/> and <xref name="disposition"/> frames indicate work performed,
-        and the txn-ids included MUST correctly indicate with which (if any) transaction this work
-        is associated. In the case of the <xref name="flow"/> frame traveling from resource to
-        controller, the txn-id does not indicate work that has been performed, but indicates with
-        which transaction future transfers from that link will be performed.
+        The <xref type="type" name="transfer"/>, <xref type="type" name="disposition"/>, and <xref
+        type="type" name="flow"/> frames may travel in either direction, i.e. both from the
+        controller to the resource and from the resource to the controller. When these frames travel
+        from the controller to the resource, any embedded txn-ids are requesting that the resource
+        assigns transactional work to the indicated transaction. When traveling in the other
+        direction, from resource to controller, the <xref type="type" name="transfer"/> and <xref
+        type="type" name="disposition"/> frames indicate work performed, and the txn-ids included
+        MUST correctly indicate with which (if any) transaction this work is associated. In the case
+        of the <xref type="type" name="flow"/> frame traveling from resource to controller, the
+        txn-id does not indicate work that has been performed, but indicates with which transaction
+        future transfers from that link will be performed.
+      </p>
+    </doc>
+
+    <doc title="Transactional Posting">
+
+      <p>
+        If the transaction controller wishes to associate an outgoing <xref name="transfer"/> with a
+        transaction, it must set the state of the transfer with a <xref name="transactional-state"/>
+        carrying the appropriate transaction identifier. Note that if delivery is split across
+        several <xref name="transfer"/> frames then all frames MUST be explicitly associated with
+        the same transaction. It is an error for the controller to attempt to discharge a
+        transaction against which a partial delivery has been posted. Should this happen, the
+        control link MUST be terminated with the <xref name="transaction-error"
+        choice="transaction-rollback"/> error.
+      </p>
+
+      <p>
+        The effect of transactional posting is that the message does not become available at the
+        destination node within the transactional resource until after the transaction has been
+        (successfully) discharged.
+      </p>
+
+      <picture title="Transactional Publish"><![CDATA[
+Transaction Controller                  Transactional Resource
+===============================================================================
+
+TRANSFER(handle=0,           --------->
+         delivery-id=0, ...)
+{ AmqpValue( Declare() ) }
+
+                             <--------- DISPOSITION(first=0, last=0,
+                                                    state=Declared(txn-id=0) )
+
+
+TRANSFER(handle=1,           --------->
+         delivery-id=1,
+         state=
+           TransactionalState(
+             txn-id=0) )
+{ ... payload ... }
+
+                             <--------- DISPOSITION(first=1, last=1,
+                                                    state=TransactionalState(
+                                                            txn-id=0,
+                                                            outcome=Accepted())
+                                                   )
+
+-------------------------------------------------------------------------------
+]]>
+      </picture>
+
+      <p>
+        On receiving a non-settled delivery associated with a live transaction, the transactional
+        resource must inform the controller of the presumptive terminal outcome before it can
+        successfully discharge the transaction. That is the resource must send a <xref type="type"
+        name="disposition"/> performative which covers the posted transfer with the state of the
+        delivery being a <xref name="transactional-state"/> with the correct transaction identified,
+        and a terminal outcome. This informs the controller of the outcome that will be in effect at
+        the point that the transaction is successfully discharged.
+      </p>
+    </doc>
+
+    <doc title="Transactional Retirement">
+
+      <p>
+        The transaction controller may wish to associate the outcome of a delivery with a
+        transaction. The delivery itself need not be associated with the same transaction as the
+        outcome, or indeed with any transaction at all. However, the delivery MUST NOT be associated
+        with a different <i>non discharged</i> transaction than the outcome. If this happens then
+        the control link MUST be terminated with a <xref name="transaction-error"
+        choice="transaction-rollback"/> error.
+      </p>
+
+      <p>
+        To associate an outcome with a transaction the controller sends a <xref type="type"
+        name="disposition"/> performative which sets the state of the delivery to a <xref
+        name="transactional-state"/> with the desired transaction identifier and the outcome to be
+        applied upon a successful discharge.
+      </p>
+
+      <picture title="Transactional Receive"><![CDATA[
+Transaction Controller                  Transactional Resource
+===============================================================================
+
+TRANSFER(handle=0,           --------->
+         delivery-id=0, ...)
+{ AmqpValue( Declare() ) }
+
+                             <--------- DISPOSITION(first=0, last=0,
+                                                    state=Declared(txn-id=0) )
+FLOW(handle=2,               --------->
+     link-credit=10)
+
+                             <--------- TRANSFER(handle=2,
+                                                 delivery-id=11,
+                                                 state=null,
+                                        { ... payload ... }
+
+                                  :
+                                  :
+
+                             <--------- TRANSFER(handle=2,
+                                                 delivery-id=20,
+                                                 state=null,
+                                        { ... payload ... }
+
+
+DISPOSITION(first=11,        --------->
+            last=20,
+            state=TransactionalState(
+                    txn-id=0,
+                    outcome=Accepted())
+           )
+
+-------------------------------------------------------------------------------
+]]>
+      </picture>
+
+      <p>
+        On a successful <xref name="discharge"/>, the resource will apply the given outcome and may
+        immediately settle the transfers. In the event of a controller initiated rollback (a <xref
+        name="discharge"/> where the fail flag is set to true) or a resource initiated rollback (the
+        <xref name="discharge"/> message being rejected, or the link to the <xref
+        name="coordinator"/> being detached with an error), the outcome will not be applied, and the
+        deliveries will still be "live" and will remain acquired by the controller - i.e. the
+        resource should expect the controller to request a disposition for the delivery (either
+        transactionally on a new transaction, or non-transactionally).
       </p>
     </doc>
 
     <doc title="Transactional Acquisition">
       <p>
-        In the case of the <xref name="flow"/> frame, the transactional work is not necessarily
-        directly initiated or entirely determined when the <xref name="flow"/> frame arrives at the
-        resource, but may in fact occur at some later point and in ways not necessarily anticipated
-        by the controller. To accomodate this, the resource associates an additional piece of state
-        with outgoing link endpoints, an optional <i>txn-id</i> that identifies the transaction with
-        which <i>acquired</i> messages will be associated. This state is determined by the
-        controller by specifying a <i>txn-id</i> entry in the <i>properties</i> map of the flow
-        frame.  When a transaction is discharged, the <i>txn-id</i> of any link endpoints will be
+        In the case of the <xref type="type" name="flow"/> frame, the transactional work is not
+        necessarily directly initiated or entirely determined when the <xref type="type"
+        name="flow"/> frame arrives at the resource, but may in fact occur at some later point and
+        in ways not necessarily anticipated by the controller. To accommodate this, the resource
+        associates an additional piece of state with outgoing link endpoints, an optional
+        <i>txn-id</i> that identifies the transaction with which <i>acquired</i> messages will be
+        associated. This state is determined by the controller by specifying a <i>txn-id</i> entry
+        in the <i>properties</i> map of the flow frame. When a transaction is discharged, the
+        <i>txn-id</i> of any link endpoints will be
         cleared.
+      </p>
+
+      <p>
+        If the link endpoint does not support transactional acquisition, the link MUST be terminated
+        with a <xref type="type" name="amqp-error" choice="not-implemented"/> error.
       </p>
 
       <p>
@@ -233,11 +410,152 @@
         but has not been fully sent (i.e. the delivery of the message will require more than one
         <xref name="transfer"/> frame and at least one, but not all, such frames have been sent)
         then the resource MUST interpret this to mean that the fate of the acquisition is fully
-        decided by the discharge. If the <xref name="discharge"/> unambiguously determines the
-        <i>outcome</i> of the transfer (e.g. the <xref name="discharge"/> indicates the failure of
-        the transaction, or the <xref name="transfer"/> has a single pre-determined outcome), the
-        resource MAY decide not to abort sending the remainder of the message.
+        decided by the discharge. If the <xref name="discharge"/> indicates the failure of the
+        transaction the resource MUST abort or complete the sending the remainder of the message
+        before completing the discharge.
       </p>
+
+      <picture title="Transactional Acquisition"><![CDATA[
+Transaction Controller                  Transactional Resource
+===============================================================================
+
+TRANSFER(handle=0,           --------->
+         delivery-id=0, ...)
+{ AmqpValue( Declare() ) }
+
+                             <--------- DISPOSITION(first=0, last=0,
+                                                    state=Declared(txn-id=0) )
+FLOW(handle=2,               --------->
+     link-credit=10,
+     drain=true,
+     properties={
+       txn-id=0
+     })
+
+                             <--------- TRANSFER(handle=2,
+                                                 delivery-id=11,
+                                                 state=
+                                                   TransactionalState(txn-id=0),
+                                        { ... payload ... }
+
+                                  :
+                                  :
+
+                             <--------- TRANSFER(handle=2,
+                                                 delivery-id=20,
+                                                 state=
+                                                   TransactionalState(txn-id=0),
+                                        { ... payload ... }
+
+
+DISPOSITION(first=11,        --------->
+            last=20,
+            state=TransactionalState(
+                    txn-id=0,
+                    outcome=Accepted())
+           )
+
+-------------------------------------------------------------------------------
+]]>
+      </picture>
+
+    </doc>
+
+    <doc title="Interaction of Settlement with Transactions">
+      <p>
+        The Transport layer defines a notion of <i>settlement</i> which refers to the point at which
+        the association of a delivery-tag to a delivery attempt is forgotten. Transactions do not in
+        themselves change this notion, however the fact that transactional work may be rolled back
+        does have implications for deliveries which the endpoint has marked as settled (and for
+        which it therefore can no longer exchange state information using the previously allocated
+        transport level identifiers).
+      </p>
+
+      <doc title="Transactional Posting">
+        <dl>
+          <dt>Delivery Sent Settled By Controller</dt>
+          <dd><p>The delivered message will not be made available at the node until the transaction
+              has been successfully discharged. If the transaction is rolled back then the delivery
+              is not made available. Should the resource be unable to process the delivery it MUST
+              NOT allow the successful discharge of the associated transaction. This may be
+              communicated by immediately destroying the controlling link on which the transaction
+              was declared, or by rejecting any attempt to discharge the transaction where the fail
+              flag is not set to true.
+            </p>
+          </dd>
+          <dt>Delivery Sent Unsettled By Controller; Resource Settles</dt>
+          <dd><p>The resource MUST determine the outcome of the delivery before committing the
+              transaction, and this MUST be communicated to the controller before the acceptance of
+              a successful discharge. The outcome communicated by the resource MUST be associated
+              with the same transaction with which the <xref name="transfer"/> from controller to
+              resource was associated.
+            </p>
+            <p>
+              If the transaction is rolled back then the delivery is not made available at the
+              target. If the resource can no longer apply the outcome that it originally indicated
+              would be the result of a successful discharge then it MUST NOT allow the successful
+              discharge of the associated transaction. This may be communicated by immediately
+              destroying the controlling link on which the transaction was declared, or by rejecting
+              any attempt to discharge the transaction where the fail flag is not set to true.
+            </p>
+          </dd>
+          <dt>Delivery Sent Unsettled By Controller; Resource Does Not Settle</dt>
+          <dd><p>Behavior prior to discharge is the same as the previous case.</p>
+            <p>
+              After a successful discharge, the state of unsettled deliveries at the resource MUST
+              reflect the outcome that was applied. If the discharge was unsuccessful then no
+              outcome should be associated with the unsettled deliveries. The controller SHOULD
+              settle any outstanding unsettled deliveries in a timely fashion after the transaction
+              has discharged.
+            </p>
+          </dd>
+        </dl>
+      </doc>
+      <doc title="Transactional Retirement">
+        <p>
+          Here we consider the cases where the resource has sent messages to the controller in a
+          non-transactional fashion. For the cases where the resource sends the messages
+          transactionally, see <b>Transactional Acquisition</b> below.
+        </p>
+        <dl>
+          <dt>Delivery Sent Unsettled By Resource; Controller Settles</dt>
+          <dd><p>Upon a successful discharge the outcome specified by the controller is applied at
+              the source. Should the controller request a rollback or the discharge attempt be
+              unsuccessful, then the outcome is not applied. At this point the controller can no
+              longer influence the state of the delivery as it is settled, and the resource MUST
+              apply the default outcome.
+            </p>
+          </dd>
+          <dt>Delivery Sent Unsettled By Resource; Controller Does Not Settle</dt>
+          <dd><p>The resource may or may not settle the delivery before the transaction is
+              discharged. If the resource settles the delivery before the discharge then the
+              behavior after discharge is the same as the case above.
+            </p>
+            <p>
+              Upon a successful discharge the outcome is applied.  Otherwise the state reverts to
+              that which occurred before the controller sent its (transactional) disposition. The
+              controller is free to update the state using subsequent transactional or
+              non-transactional updates.
+            </p>
+          </dd>
+        </dl>
+      </doc>
+      <doc title="Transactional Acquisition">
+        <dl>
+          <dt>Delivery Sent Settled By Resource</dt>
+          <dd><p>In the event of a successful discharge the outcome applies at the resource,
+              otherwise the acquisition and outcome are rolled back.
+            </p>
+          </dd>
+          <dt>Delivery Sent Unsettled By Resource; Controller Sends Outcome</dt>
+          <dd><p>An outcome sent by the controller before the transaction has discharged MUST
+              be associated with the same transaction. In the even of a successful discharge the
+              outcome is applied at the source, otherwise both the acquisition and outcome are
+              rolled back.
+            </p>
+          </dd>
+        </dl>
+      </doc>
     </doc>
   </section>
 
@@ -247,15 +565,24 @@
       <doc>
         <p>
           The coordinator type defines a special target used for establishing a link with a
-          transaction coordinator. The transaction controller indicates the desired capabilities
-          using the fields specified in this type. The transaction coordinator will indicate the
-          actual capabilities using these same fields.
+          transaction coordinator.
         </p>
       </doc>
 
       <descriptor name="amqp:coordinator:list" code="0x00000000:0x00000030"/>
 
-      <field name="capabilities" type="symbol" requires="txn-capability" multiple="true"/>
+      <field name="capabilities" type="symbol" requires="txn-capability" multiple="true"
+             label="the capabilities supported at the coordinator">
+        <doc>
+          <p>
+            When sent by the transaction controller (the sending endpoint), indicates the desired
+            capabilities of the coordinator. When sent by the resource (the receiving endpoint),
+            defined the actual capabilities of the coordinator. Note that it is the responsibility
+            of the transaction controller to verify that the capabilities of the controller meet its
+            requirements. See <xref name="txn-capability"/>.
+        </p>
+        </doc>
+      </field>
 
     </type>
 
@@ -265,8 +592,7 @@
         <p>
           The declare type defines the message body sent to the coordinator to declare a
           transaction. The txn-id allocated for this transaction is chosen by the transaction
-          controller and identified in the <xref name="delivery-state"/> associated with the
-          containing message.
+          controller and identified in the <xref name="declared"/> resulting outcome.
         </p>
       </doc>
 
@@ -275,9 +601,12 @@
       <field name="global-id" type="*" requires="global-tx-id" label="global transaction id">
         <doc>
           <p>
-            Specifies that the txn-id allocated by this declare will associated work with the
+            Specifies that the txn-id allocated by this declare MUST be associated work with the
             indicated global transaction. If not set, the allocated txn-id will associated work with
-            a local transaction.
+            a local transaction. This field MUST NOT be set if the Coordinator does not have the
+            <xref name="txn-capability" choice="distributed-transactions"/> capability. Note that
+            the details of distributed transactions within AMQP 1.0 will be provided
+            in a separate specification.
           </p>
         </doc>
       </field>
@@ -305,7 +634,9 @@
             and the controller wishes the transaction to be rolled back. If the transaction is
             associated with a global-id this will render the global transaction rollback-only. If
             the transaction is a local transaction, then this flag controls whether the transaction
-            is committed or aborted when it is discharged.
+            is committed or aborted when it is discharged. (Note that the specification for
+            distributed transactions within AMQP 1.0 will be provided separately in Book 6
+            Distributed Transactions).
           </p>
         </doc>
       </field>
@@ -345,7 +676,8 @@
 
       <descriptor name="amqp:transactional-state:list" code="0x00000000:0x00000034"/>
 
-      <field name="txn-id" type="*" mandatory="true" requires="txn-id"/>
+      <field name="txn-id" type="*" mandatory="true" requires="txn-id"
+             label="identifies the transaction with which the state is associated"/>
       <field name="outcome" type="*" requires="outcome" label="provisional outcome">
         <doc>
           <p>

@@ -154,12 +154,12 @@
         <bundle>mvn:org.fusesource.fabric/fabric-camel/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-activemq" version="${project.version}" resolver="(obr)">
+    <feature name="mq-fabric" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="${activemq-version}">activemq</feature>
         <feature version="${activemq-version}">activemq-spring</feature>
         <feature version="${activemq-version}">activemq-blueprint</feature>
-        <bundle>mvn:org.fusesource.fabric/fabric-activemq/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/mq-fabric/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">

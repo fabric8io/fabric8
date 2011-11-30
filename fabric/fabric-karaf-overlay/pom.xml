@@ -105,7 +105,7 @@
                                 <feature>fabric-commands</feature>
                                 <feature>fabric-camel</feature>
                                 <feature>fabric-dosgi</feature>
-                                <feature>fabric-activemq</feature>
+                                <feature>mq-fabric</feature>
                                 <feature>fabric-bundle</feature>
                                 <feature>fabric-monitor</feature>
                             </features>

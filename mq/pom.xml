@@ -24,6 +24,10 @@
   <description>Fuse MQ :: Project</description>
 
   <modules>
+    <module>mq-fabric</module>
+    <!-- no longer required? 
+    <module>mq-bundle</module>
+    -->
     <module>mq-branding</module>
     <module>fuse-mq</module>
   </modules>

@@ -74,9 +74,6 @@ public class FabricTestSupport {
         Agent parent = agents[0];
         assertEquals("Expected to find the root agent", "root", parent.getId());
 
-        ((FabricServiceImpl) fabricService).setUserName("karaf");
-        ((FabricServiceImpl) fabricService).setPassword("karaf");
-
         Agent child = fabricService.createAgent(parent, "child1");
         return child;
     }

@@ -51,6 +51,13 @@
                <artifactId>org.fusesource.mq.karaf.branding</artifactId>
 			         <version>${project.version}</version>
            </dependency>
+
+           <!-- Scala support -->
+           <dependency>
+             <groupId>org.scala-lang</groupId>
+             <artifactId>scala-library</artifactId>
+             <scope>compile</scope>
+           </dependency>
        </dependencies>
 
        <build>

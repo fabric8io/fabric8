@@ -12,12 +12,16 @@ package org.fusesource.fabric.apollo.amqp.protocol
 
 import api.{DeliveryTagger, AvailableHandler, AckHandler, Sender}
 import interfaces.Interceptor
-import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
+import Interceptor._
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.api.{AnnotatedMessage, BareMessage}
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.fabric.apollo.amqp.codec.types.{Role, SenderSettleMode}
 import utilities.execute
+import org.fusesource.fabric.apollo.amqp.codec.marshaller.MessageSupport._
+import utilities.link.LinkFlowControlTracker
+import org.fusesource.fabric.apollo.amqp.codec.interfaces.{Target, AMQPFrame}
+import org.fusesource.fabric.apollo.amqp.codec.types.{Source, Attach, Role, SenderSettleMode}
+import org.apache.activemq.apollo.util.Logging
 
 /**
  *
@@ -28,16 +32,24 @@ object AMQPSender {
     rc.setName(name)
     rc
   }
+  
+  def create(attach:Attach) = {
+    val rc = new AMQPSender
+    AMQPLink.initialize(rc, attach)
+  }
 }
 
-class AMQPSender extends Interceptor with Sender with AMQPLink {
-  def full() = false
+class AMQPSender extends AMQPLink with Sender with Logging {
 
-  def offer(message: Buffer) = false
+  trace("Constructed AMQP sender chain : %s", display_chain(this))
 
-  def offer(message: AnnotatedMessage) = false
+  def full() = getSession.sufficientSessionCredit() && tracker.credit
 
-  def offer(message: BareMessage[_]) = false
+  def offer(message: Buffer):Boolean = false
+
+  def offer(message: AnnotatedMessage):Boolean = false
+
+  def offer(message: BareMessage[_]):Boolean = false
 
   def setTagger(tagger: DeliveryTagger) {}
 
@@ -51,9 +63,6 @@ class AMQPSender extends Interceptor with Sender with AMQPLink {
 
   def getLinkCredit = 0
 
-  override protected def _receive(frame: AMQPFrame, tasks: Queue[() => Unit]) = execute(tasks)
-
   def getRole = Role.SENDER
 
-  def established() = false
 }

@@ -45,7 +45,6 @@
         <module>fabric-camel</module>
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
-        <module>fabric-activemq</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
         <module>fabric-groups</module>
