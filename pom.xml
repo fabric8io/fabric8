@@ -261,6 +261,45 @@
                   </lifecycleMappingMetadata>
                 </configuration>
               </plugin>
+
+              <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${scala-plugin-version}</version>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>compile</goal>
+                      <goal>testCompile</goal>
+                    </goals>
+                    <configuration>
+                      <args>
+                        <arg>-deprecation</arg>
+                        <arg>-P:continuations:enable</arg>
+                      </args>
+                      <compilerPlugins>
+                        <compilerPlugin>
+                          <groupId>org.scala-lang.plugins</groupId>
+                          <artifactId>continuations</artifactId>
+                          <version>${scala-version}</version>
+                        </compilerPlugin>
+                        <compilerPlugin>
+                          <groupId>org.fusesource.jvmassert</groupId>
+                          <artifactId>jvmassert</artifactId>
+                          <version>1.1</version>
+                        </compilerPlugin>
+                      </compilerPlugins>
+                    </configuration>
+                  </execution>
+                </executions>
+                <configuration>
+                  <jvmArgs>
+                    <jvmArg>-Xmx1024m</jvmArg>
+                    <jvmArg>-Xss8m</jvmArg>
+                  </jvmArgs>
+                  <scalaVersion>${scala-version}</scalaVersion>
+                </configuration>
+              </plugin>
             </plugins>
           </pluginManagement>
 
@@ -561,6 +600,11 @@
                 <artifactId>insight-log</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.fusesource.mq</groupId>
+                <artifactId>mq-fabric</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -676,6 +720,11 @@
                 <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
                 <artifactId>scala-library</artifactId>
                 <version>${scala-osgi-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.scala-lang</groupId>
+              <artifactId>scala-library</artifactId>
+              <version>${scala-version}</version>
             </dependency>
 
             <!-- Others -->

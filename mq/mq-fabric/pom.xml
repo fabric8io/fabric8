@@ -14,10 +14,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-scala</artifactId>
+    <groupId>org.fusesource.mq</groupId>
+    <artifactId>mq-project</artifactId>
     <version>1.1-SNAPSHOT</version>
-    <relativePath>../fabric/fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.mq</groupId>
@@ -71,4 +70,16 @@
 
   </dependencies>
 
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <sourceDirectory>src/main/scala</sourceDirectory>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+
+    <plugins>
+      <plugin>
+        <groupId>org.scala-tools</groupId>
+        <artifactId>maven-scala-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
