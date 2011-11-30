@@ -76,6 +76,10 @@
 			         <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
 			         <version>${project.version}</version>
            </dependency>
+           <dependency>
+               <groupId>org.fusesource.mq</groupId>
+               <artifactId>mq-fabric</artifactId>
+           </dependency>
        </dependencies>
 
        <build>
@@ -130,9 +134,9 @@
                                    <feature>fabric-commands</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>
-                                   <feature>fabric-activemq</feature>
                                    <feature>fabric-bundle</feature>
                                    <feature>fabric-monitor</feature>
+                                   <feature>mq-fabric</feature>
                                    <feature>insight-elasticsearch</feature>
                                    <feature>insight-log-elasticsearch</feature>
                                </features>

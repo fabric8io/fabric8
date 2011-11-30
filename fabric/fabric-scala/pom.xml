@@ -35,7 +35,6 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <scope>compile</scope>
-      <version>${scala-version}</version>
     </dependency>
 
   </dependencies>
@@ -67,40 +66,6 @@
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>
-        <version>${scala-plugin-version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>testCompile</goal>
-            </goals>
-            <configuration>
-              <args>
-                <arg>-deprecation</arg>
-                <arg>-P:continuations:enable</arg>
-              </args>
-              <compilerPlugins>
-                <compilerPlugin>
-                  <groupId>org.scala-lang.plugins</groupId>
-                  <artifactId>continuations</artifactId>
-                  <version>${scala-version}</version>
-                </compilerPlugin>
-                <compilerPlugin>
-                  <groupId>org.fusesource.jvmassert</groupId>
-                  <artifactId>jvmassert</artifactId>
-                  <version>1.1</version>
-                </compilerPlugin>
-              </compilerPlugins>
-            </configuration>
-          </execution>
-        </executions>
-        <configuration>
-          <jvmArgs>
-            <jvmArg>-Xmx1024m</jvmArg>
-            <jvmArg>-Xss8m</jvmArg>
-          </jvmArgs>
-          <scalaVersion>${scala-version}</scalaVersion>
-        </configuration>
       </plugin>
       
       <plugin>
