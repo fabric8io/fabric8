@@ -752,7 +752,7 @@
       <id>distro</id>
 
       <modules>
-        <module>fabric-website</module>
+        <module>website</module>
       </modules>
     </profile>
 

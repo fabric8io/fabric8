@@ -11,7 +11,7 @@
 package org.fusesource.fabric.apollo.cluster
 
 import org.scalatest.BeforeAndAfterEach
-import org.apache.zookeeper.server.{ZooKeeperServer, NIOServerCnxn}
+import org.apache.zookeeper.server.{ZooKeeperServer, NIOServerCnxnFactory}
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog
 import org.apache.activemq.apollo.util._
 import FileSupport._
@@ -27,7 +27,7 @@ import scala.collection.immutable.List
  */
 class ZkFunSuiteSupport extends FunSuiteSupport with BeforeAndAfterEach {
 
-  var connector : NIOServerCnxn.Factory = _
+  var connector : NIOServerCnxnFactory = _
 
   override protected def beforeAll() = {
     debug("Starting ZooKeeper")
@@ -36,7 +36,8 @@ class ZkFunSuiteSupport extends FunSuiteSupport with BeforeAndAfterEach {
     data_dir.recursive_delete
 
     zk_server.setTxnLogFactory(new FileTxnSnapLog(data_dir/"zk-log" , data_dir/"zk-data"))
-    connector = new NIOServerCnxn.Factory(new InetSocketAddress(0), 100)
+    connector = new NIOServerCnxnFactory
+    connector.configure(new InetSocketAddress(0), 100)
     connector.startup(zk_server)
 
     create_zk_client().close()
