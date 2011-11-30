@@ -20,11 +20,10 @@ Getting Started guide for Fabric
     * run the following in an Apache Karaf (2.2.x) console:  
     
   pre
-    | karaf@root> shell:source mvn:org.fusesource.fabric/fuse-fabric/#{project_version}/karaf/installer
+    | karaf@root> fabric:ensemble-create
 
   :&markdown
-    The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
-    create the initial ZooKeeper server and profiles.
+    The above command will create the initial ZooKeeper server and profiles.
     
 .left
   :markdown
@@ -36,7 +35,7 @@ Getting Started guide for Fabric
   :&markdown
     Check that the agent has been created (it can take a few seconds):  
   pre
-    | karaf@root> fabric:list-agents
+    | karaf@root> fabric:agent-list
     | [id]                           [alive]    [profiles]
     | root                           true       default, zk-server-0000-1
     | broker1                        true       activemq
@@ -44,7 +43,7 @@ Getting Started guide for Fabric
   :&markdown
     Wait a few seconds, then check that the feature has been deployed:  
   pre
-    | karaf@root> fabric:connect broker1
+    | karaf@root> fabric:agent-connect broker1
     | ...
     | karaf@test> osgi:list
     | ...
@@ -56,7 +55,7 @@ Getting Started guide for Fabric
   :&markdown
     Now, let's create a profile webserver, inheriting the default profile:  
   pre
-    | karaf@root> fabric:create-profile --parents default webserver
+    | karaf@root> fabric:profile-create --parents default webserver
 
 .left
   :markdown
@@ -68,7 +67,7 @@ Getting Started guide for Fabric
   :&markdown
     Check that the agent has been created (it can take a few seconds):  
   pre
-    | karaf@root> fabric:list-agents
+    | karaf@root> fabric:agent-list
     | [id]                           [alive]    [profiles]
     | root                           true       default, zk-server-0000-1
     | test                           true       webserver
@@ -85,9 +84,24 @@ Getting Started guide for Fabric
   :&markdown
     Wait a few seconds, then check that the feature has been deployed:  
   pre
-    | karaf@root> fabric:connect test
+    | karaf@root> fabric:agent-connect test
     | ...
     | karaf@test> osgi:list
     | ...
+
+.left
+  :markdown
+    # Install Fabric in a vanilla Apache Karaf or ServiceMix container
+.right
+  :&markdown
+    Run the following in an Apache Karaf (2.2.x) or ServiecMix (4.x) console:  
+
+  pre
+    | karaf@root> shell:source mvn:org.fusesource.fabric/fabric-distro/#{project_version}/karaf/installer
+
+  :&markdown
+    The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
+    create the initial ZooKeeper server and profiles.
+
 
 
