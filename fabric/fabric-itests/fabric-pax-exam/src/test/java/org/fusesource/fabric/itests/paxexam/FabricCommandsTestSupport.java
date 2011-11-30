@@ -30,6 +30,7 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
         CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
         CommandSession commandSession = commandProcessor.createSession(System.in, printStream, System.err);
         try {
+            System.err.println(command);
             commandSession.execute(command);
         } catch (Exception e) {
             e.printStackTrace(System.err);

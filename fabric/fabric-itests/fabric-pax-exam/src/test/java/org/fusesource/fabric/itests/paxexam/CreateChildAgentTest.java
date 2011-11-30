@@ -11,6 +11,7 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -33,6 +34,10 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.d
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class CreateChildAgentTest extends FabricTestSupport {
 
+    @After
+    public void tearDown() throws InterruptedException {
+       destroyChildAgent("child1");
+    }
 
     @Test
     public void testAgentCreation() throws Exception {
@@ -52,6 +57,6 @@ public class CreateChildAgentTest extends FabricTestSupport {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
                 new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
-                logLevel(LogLevelOption.LogLevel.INFO)};
+                logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

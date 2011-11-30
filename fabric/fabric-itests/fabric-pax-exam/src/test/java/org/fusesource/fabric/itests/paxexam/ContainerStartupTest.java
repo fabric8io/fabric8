@@ -55,6 +55,6 @@ public class ContainerStartupTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder()
-                , logLevel(LogLevelOption.LogLevel.INFO)};
+                ,logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

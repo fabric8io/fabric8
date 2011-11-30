@@ -52,6 +52,6 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
                 new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
-                logLevel(LogLevelOption.LogLevel.INFO)};
+                logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

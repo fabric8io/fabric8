@@ -13,6 +13,7 @@ import org.apache.karaf.features.FeaturesService;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -30,27 +31,36 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class FabricFeaturesTest extends FabricCommandsTestSupport {
 
+    @After
+    public void tearDown() throws InterruptedException {
+       destroyChildAgent("child1");
+    }
 
     @Test
-    public void testAgentCreation() throws Exception {
+    public void testFeatureProvisioning() throws Exception {
          //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        executeCommand("fabric:profile-edit -p default --features war");
+        createChildAgent("child1");
+        Thread.sleep(DEFAULT_WAIT);
+        executeCommand("fabric:profile-edit -p default --features eventadmin");
+        System.err.println(executeCommand("fabric:profile-display default"));
         Thread.sleep(DEFAULT_WAIT);
 
         FeaturesService featuresService = getOsgiService(FeaturesService.class);
-        Feature warFeature = featuresService.getFeature("war");
-        Boolean isWarInstalled = featuresService.isInstalled(warFeature);
-        //assertTrue(isWarInstalled);
+        System.err.println(executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0"));
+        String evenAdminBundleCount = executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i eventadmin");
+        int count = Integer.parseInt(evenAdminBundleCount.trim());
+        //assertTrue("At least one eventadmin bundle is expected", count >= 1);
     }
 
     @Configuration
@@ -59,6 +69,6 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
                 new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
                 //debugConfiguration("5005",true) ,
-                logLevel(LogLevelOption.LogLevel.INFO)};
+                logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

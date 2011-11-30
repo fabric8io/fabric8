@@ -78,6 +78,18 @@ public class FabricTestSupport {
         return child;
     }
 
+    protected void destroyChildAgent(String name) throws InterruptedException {
+        //Wait for zookeeper service to become available.
+        IZKClient zooKeeper = getOsgiService(IZKClient.class);
+
+        FabricService fabricService = getOsgiService(FabricService.class);
+        assertNotNull(fabricService);
+
+        Thread.sleep(DEFAULT_WAIT);
+        Agent agent = fabricService.getAgent(name);
+        agent.destroy();
+    }
+
     /**
      * Returns the Version of Karaf to be used.
      *

@@ -519,7 +519,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     public Version getVersion(String name) {
         try {
-            if (zooKeeper.exists(ZkPath.CONFIG_VERSION.getPath(name)) == null) {
+            if (zooKeeper != null && zooKeeper.isConnected() && zooKeeper.exists(ZkPath.CONFIG_VERSION.getPath(name)) == null) {
                 throw new FabricException("Version '" + name + "' does not exist!");
             }
             return new VersionImpl(name, this);
