@@ -111,7 +111,7 @@
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
         <karaf-version>2.2.2-fuse-02-${perfectus-build}</karaf-version>
-        <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
+        <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
         <zookeeper-version>3.4.0</zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
