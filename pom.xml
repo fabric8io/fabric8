@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.fusesource</groupId>
         <artifactId>fusesource-pom</artifactId>
-        <version>1.8</version>
+        <version>1.9</version>
     </parent>
 
     <groupId>org.fusesource</groupId>
@@ -96,8 +96,8 @@
         <common-math-version>2.2</common-math-version>
         <cxf-version>2.4.3-fuse-00-${perfectus-build}</cxf-version>
         <camel-version>2.8.0-fuse-01-${perfectus-build}</camel-version>
-        <hawtbuf-version>1.6</hawtbuf-version>
-        <hawtdispatch-version>1.4</hawtdispatch-version>
+        <hawtbuf-version>1.7</hawtbuf-version>
+        <hawtdispatch-version>1.5</hawtdispatch-version>
         <jackson-version>1.9.2</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
