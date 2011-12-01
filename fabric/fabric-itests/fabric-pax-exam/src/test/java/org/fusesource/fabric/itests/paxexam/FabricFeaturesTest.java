@@ -8,9 +8,6 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
-import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.junit.After;
@@ -26,12 +23,10 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -73,7 +68,6 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
                 new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
-                //debugConfiguration("5005",true) ,
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }
