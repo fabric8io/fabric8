@@ -8,9 +8,6 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
-import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.junit.After;
@@ -26,12 +23,10 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -49,18 +44,23 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
 
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
-
         createChildAgent("child1");
         Thread.sleep(DEFAULT_WAIT);
-        executeCommand("fabric:profile-edit -p default --features eventadmin");
+        System.err.println(executeCommand("fabric:profile-edit -p default --repositories mvn:org.apache.karaf.assemblies.features/standard/2.2.2-fuse-02-06/xml/features"));
+        System.err.println(executeCommand("fabric:profile-edit -p default --repositories mvn:org.apache.karaf.assemblies.features/enterprise/2.2.2-fuse-02-06/xml/features"));
+        System.err.println(executeCommand("fabric:profile-edit -p default --repositories mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features"));
+
+        System.err.println(executeCommand("fabric:profile-edit -p default --repositories mvn:org.apache.camel.karaf/apache-camel/2.8.0-fuse-01-06/xml/features"));
+        System.err.println(executeCommand("fabric:profile-edit -p default --features camel-core/2.8.0-fuse-01-06"));
+        System.err.println(executeCommand("fabric:profile-edit -p default --features camel-blueprint/2.8.0-fuse-01-06"));
         System.err.println(executeCommand("fabric:profile-display default"));
         Thread.sleep(DEFAULT_WAIT);
+        Thread.sleep(DEFAULT_WAIT);
 
-        FeaturesService featuresService = getOsgiService(FeaturesService.class);
         System.err.println(executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0"));
-        String evenAdminBundleCount = executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i eventadmin");
-        int count = Integer.parseInt(evenAdminBundleCount.trim());
-        //assertTrue("At least one eventadmin bundle is expected", count >= 1);
+        String camelBundleCount = executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i camel");
+        int count = Integer.parseInt(camelBundleCount.trim());
+        assertTrue("At least one camel bundle is expected", count >= 1);
     }
 
     @Configuration
@@ -68,7 +68,6 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
                 new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
-                //debugConfiguration("5005",true) ,
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }
