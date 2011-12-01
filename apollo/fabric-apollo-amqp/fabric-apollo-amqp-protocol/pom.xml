@@ -22,7 +22,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.fusesource.fabric.apollo.amqp</groupId>
-  <artifactId>fabric-apollo-amqp-protocol2</artifactId>
+  <artifactId>fabric-apollo-amqp-protocol</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <version>1.1-SNAPSHOT</version>
@@ -183,6 +183,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>once</forkMode>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
       </plugin>
 
