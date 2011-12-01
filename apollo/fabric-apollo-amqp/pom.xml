@@ -41,9 +41,8 @@
   <modules>
     <module>fabric-apollo-amqp-generator</module>
     <module>fabric-apollo-amqp-codec</module>
-    <module>fabric-apollo-amqp-protocol2</module>
-    <!--
     <module>fabric-apollo-amqp-protocol</module>
+    <!--
     <module>fabric-apollo-amqp-broker</module>
     <module>fabric-apollo-amqp-example</module>
     -->
