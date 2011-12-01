@@ -263,4 +263,12 @@
         <feature>insight-elasticsearch</feature>
         <bundle>mvn:org.fusesource.insight/insight-log-elasticsearch/${project.version}</bundle>
     </feature>
+
+    <feature name="fabric-hadoop" version="${project.version}" resolver="(obr)">
+        <feature>war</feature>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/0.1.44_2</bundle>
+        <bundle dependency='true'>mnv:commons-cli/commons-cli/1.2</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-hadoop/${project.version}</bundle>
+    </feature>
 </features>
