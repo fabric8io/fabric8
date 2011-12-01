@@ -15,20 +15,20 @@
 
   <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
 
-  <bean id="activeMQServiceFactory" class="org.fusesource.fabric.activemq.ActiveMQServiceFactory" destroy-method="destroy">
+  <bean id="activeMQServiceFactory" class="org.fusesource.mq.fabric.ActiveMQServiceFactory" destroy-method="destroy">
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="zooKeeper" ref="zooKeeper"/>
   </bean>
 
   <service ref="activeMQServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
     <service-properties>
-      <entry key="service.pid" value="org.fusesource.fabric.activemq.server"/>
+      <entry key="service.pid" value="org.fusesource.mq.fabric.server"/>
     </service-properties>
   </service>
 
 
-  <bean id="jmsService" class="org.fusesource.fabric.activemq.FabricActiveMQService"/>
-  <service ref="jmsService" interface="org.fusesource.fabric.activemq.JMSService"/>
+  <bean id="jmsService" class="org.fusesource.mq.fabric.FabricActiveMQService"/>
+  <service ref="jmsService" interface="org.fusesource.mq.fabric.JMSService"/>
 
 
 </blueprint>

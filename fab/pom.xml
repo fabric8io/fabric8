@@ -23,6 +23,12 @@
   <name>Fuse Fabric :: Archive Bundles</name>
   <description>Fuse Bundles :: Project</description>
 
+  <!--
+  <properties>
+    <fuse.osgi.export>org.fusesource.fab.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+  </properties>
+  -->
+
   <modules>
     <module>fab-core</module>
     <module>fab-osgi</module>

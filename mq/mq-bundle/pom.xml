@@ -31,12 +31,12 @@
             org.codehaus.jettison*;-noimport:=true,
             com.thoughtworks.xstream*;-noimport:=true
      -->
-        <fabric.osgi.export>
+        <fuse.osgi.export>
             org.apache.activemq*;version=${activemq-version};-noimport:=true,
             org.apache.activeio*;-noimport:=true,
             org.apache.xbean*;-noimport:=true,
-        </fabric.osgi.export>
-      <fabric.osgi.import.pkg>
+        </fuse.osgi.export>
+      <fuse.osgi.import.pkg>
       	!com.thoughtworks.qdox*,
       	!com.thoughtworks.xstream*,
       	!org.apache.commons.net.ftp*,
@@ -50,7 +50,7 @@
       	!org.objectweb.howl.log*,
       	!org.springframework.web.context.support*,
         *
-      </fabric.osgi.import.pkg>
+      </fuse.osgi.import.pkg>
 
       <jettison-version>1.2</jettison-version>
       <xbean-version>3.7</xbean-version>

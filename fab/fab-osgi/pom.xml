@@ -25,24 +25,24 @@
   <description>Fuse Bundles :: OSGi</description>
 
   <properties>
-    <fabric.osgi.activator>org.fusesource.fabric.fab.osgi.internal.Activator</fabric.osgi.activator>
+    <fuse.osgi.activator>org.fusesource.fabric.fab.osgi.internal.Activator</fuse.osgi.activator>
     <fabric.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fabric.embed.dependency>
 
-    <fabric.osgi.import.defaults>
-    </fabric.osgi.import.defaults>
-    <fabric.osgi.import.before.defaults />
-    <fabric.osgi.import.additional />
-    <fabric.osgi.import.pkg>
-        org.fusesource.fabric.*;${fabric.osgi.import.fabric.version},
+    <fuse.osgi.import.defaults>
+    </fuse.osgi.import.defaults>
+    <fuse.osgi.import.before.defaults />
+    <fuse.osgi.import.additional />
+    <fuse.osgi.import.pkg>
+        org.fusesource.fabric.*;${fuse.osgi.import.fabric.version},
         !org.apache.maven.*,
         !org.codehaus.plexus.*,
         !org.ops4j.pax.swissbox.bnd,
         !org.ops4j.pax.url.commons,
         !aQute.lib.osgi.*,
         *
-    </fabric.osgi.import.pkg>
+    </fuse.osgi.import.pkg>
 <!--
-    <fabric.osgi.private.pkg>!*</fabric.osgi.private.pkg>
+    <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
 -->
 
     <aetherVersion>1.7</aetherVersion>

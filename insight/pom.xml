@@ -24,8 +24,9 @@
   <description>Fuse Insight :: Project</description>
 
   <properties>
-    <fabric.osgi.export>org.fusesource.insight.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
+    <fuse.osgi.export>org.fusesource.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
+
   <modules>
     <module>insight-log</module>
     <module>insight-log-elasticsearch</module>

@@ -50,37 +50,37 @@
         <maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- OSGi bundles properties -->
-        <fabric.osgi.bundle.name>${project.description}</fabric.osgi.bundle.name>
-        <fabric.osgi.import.fabric.version>version="[$(version;==;${fabric.osgi.version}),$(version;=+;${fabric.osgi.version}))"
-        </fabric.osgi.import.fabric.version>
-        <fabric.osgi.import.strict.version>version="[$(version;===;${fabric.osgi.version}),$(version;==+;${fabric.osgi.version}))"
-        </fabric.osgi.import.strict.version>
-        <fabric.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fabric.osgi.import.default.version>
-        <fabric.osgi.import.defaults>
+        <fuse.osgi.bundle.name>${project.description}</fuse.osgi.bundle.name>
+        <fuse.osgi.import.fabric.version>version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
+        </fuse.osgi.import.fabric.version>
+        <fuse.osgi.import.strict.version>version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
+        </fuse.osgi.import.strict.version>
+        <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
+        <fuse.osgi.import.defaults>
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.8,3)",
-        </fabric.osgi.import.defaults>
-        <fabric.osgi.import.before.defaults />
-        <fabric.osgi.import.additional />
-        <fabric.osgi.import.pkg>
-            org.fusesource.fabric.*;${fabric.osgi.import.fabric.version},
-            ${fabric.osgi.import.before.defaults},
-            ${fabric.osgi.import.defaults},
-            ${fabric.osgi.import.additional},
+        </fuse.osgi.import.defaults>
+        <fuse.osgi.import.before.defaults />
+        <fuse.osgi.import.additional />
+        <fuse.osgi.import.pkg>
+            org.fusesource.fabric.*;${fuse.osgi.import.fabric.version},
+            ${fuse.osgi.import.before.defaults},
+            ${fuse.osgi.import.defaults},
+            ${fuse.osgi.import.additional},
             *
-        </fabric.osgi.import.pkg>
-        <fabric.osgi.activator />
-        <fabric.osgi.failok>false</fabric.osgi.failok>
-        <fabric.osgi.private.pkg>!*</fabric.osgi.private.pkg>
-        <fabric.osgi.export>org.fusesource.fabric.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
-        <fabric.osgi.split.pkg>-split-package:=first</fabric.osgi.split.pkg>
-        <fabric.osgi.import>${fabric.osgi.import.pkg}</fabric.osgi.import>
-        <fabric.osgi.dynamic />
-        <fabric.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fabric.osgi.symbolic.name>
-        <fabric.osgi.exclude.dependencies>false</fabric.osgi.exclude.dependencies>
-        <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
-        <fabric.osgi.services.export />
+        </fuse.osgi.import.pkg>
+        <fuse.osgi.activator />
+        <fuse.osgi.failok>false</fuse.osgi.failok>
+        <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
+        <fuse.osgi.export>org.fusesource.fabric.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
+        <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
+        <fuse.osgi.dynamic />
+        <fuse.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fuse.osgi.symbolic.name>
+        <fuse.osgi.exclude.dependencies>false</fuse.osgi.exclude.dependencies>
+        <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
+        <fuse.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <perfectus-build>11</perfectus-build>
@@ -210,22 +210,22 @@
                     <version>${maven-bundle-plugin-version}</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <excludeDependencies>${fabric.osgi.exclude.dependencies}</excludeDependencies>
+                        <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
                         <instructions>
-                            <Bundle-Name>${fabric.osgi.bundle.name}</Bundle-Name>
-                            <Bundle-SymbolicName>${fabric.osgi.symbolic.name}</Bundle-SymbolicName>
+                            <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
+                            <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
                             <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
-                            <Bundle-Activator>${fabric.osgi.activator}</Bundle-Activator>
-                            <Export-Package>${fabric.osgi.export}</Export-Package>
-                            <Import-Package>${fabric.osgi.import}</Import-Package>
-                            <DynamicImport-Package>${fabric.osgi.dynamic}</DynamicImport-Package>
-                            <Private-Package>${fabric.osgi.private.pkg}</Private-Package>
+                            <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
+                            <Export-Package>${fuse.osgi.export}</Export-Package>
+                            <Import-Package>${fuse.osgi.import}</Import-Package>
+                            <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
+                            <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
                             <Implementation-Title>FuseSource FON</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
-                            <Include-Resource>${fabric.osgi.resource}</Include-Resource>
-                            <_versionpolicy>${fabric.osgi.import.default.version}</_versionpolicy>
-                            <_failok>${fabric.osgi.failok}</_failok>
-                            <Export-Service>${fabric.osgi.services.export}</Export-Service>
+                            <Include-Resource>${fuse.osgi.resource}</Include-Resource>
+                            <_versionpolicy>${fuse.osgi.import.default.version}</_versionpolicy>
+                            <_failok>${fuse.osgi.failok}</_failok>
+                            <Export-Service>${fuse.osgi.services.export}</Export-Service>
                             <Embed-Dependency>${fabric.embed.dependency}</Embed-Dependency>
                         </instructions>
                     </configuration>
@@ -373,7 +373,7 @@
                         </goals>
                         <configuration>
                             <versions>
-                                <fabric.osgi.version>${project.version}</fabric.osgi.version>
+                                <fuse.osgi.version>${project.version}</fuse.osgi.version>
                             </versions>
                         </configuration>
                     </execution>

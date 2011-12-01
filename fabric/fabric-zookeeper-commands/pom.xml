@@ -25,14 +25,14 @@
     <description>Fuse Fabric :: ZooKeeper Commands</description>
 
     <properties>
-        <fabric.osgi.export>
-        </fabric.osgi.export>
-        <fabric.osgi.private.pkg>
+        <fuse.osgi.export>
+        </fuse.osgi.export>
+        <fuse.osgi.private.pkg>
             org.fusesource.fabric.zookeeper.commands,
-        </fabric.osgi.private.pkg>
-        <fabric.osgi.services.import>
+        </fuse.osgi.private.pkg>
+        <fuse.osgi.services.import>
             org.linkedin.zookeeper.client.IZKClient
-        </fabric.osgi.services.import>
+        </fuse.osgi.services.import>
     </properties>
 
     <dependencies>

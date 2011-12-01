@@ -24,14 +24,14 @@
     <description>Fuse Fabric :: Karaf Commands</description>
 
     <properties>
-        <fabric.osgi.export>
-        </fabric.osgi.export>
-        <fabric.osgi.import>
+        <fuse.osgi.export>
+        </fuse.osgi.export>
+        <fuse.osgi.import>
             *
-        </fabric.osgi.import>
-        <fabric.osgi.private.pkg>
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
             org.fusesource.fabric.commands*,
-        </fabric.osgi.private.pkg>
+        </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>

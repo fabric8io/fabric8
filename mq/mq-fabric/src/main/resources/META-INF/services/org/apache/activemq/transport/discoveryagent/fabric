@@ -6,5 +6,5 @@
 ## CDDL license a copy of which has been included with this distribution
 ## in the license.txt file.
 ## ---------------------------------------------------------------------------
-class=org.fusesource.fabric.activemq.FabricDiscoveryAgentFactory
+class=org.fusesource.mq.fabric.FabricDiscoveryAgentFactory
 

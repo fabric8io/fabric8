@@ -27,11 +27,11 @@
     <description>Fuse Fabric :: Core Agent JClouds</description>
 
     <properties>
-        <fabric.osgi.export>
+        <fuse.osgi.export>
           org.fusesource.fabric.service.jclouds
-        </fabric.osgi.export>
-        <fabric.osgi.private.pkg>
-        </fabric.osgi.private.pkg>
+        </fuse.osgi.export>
+        <fuse.osgi.private.pkg>
+        </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>

@@ -26,14 +26,14 @@
     <description>Fuse Fabric :: Core</description>
 
     <properties>
-        <fabric.osgi.export>
+        <fuse.osgi.export>
           org.fusesource.fabric.api*;version=${project.version},
           org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
           org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
-        </fabric.osgi.export>
-        <fabric.osgi.private.pkg>
+        </fuse.osgi.export>
+        <fuse.osgi.private.pkg>
             org.fusesource.fabric.internal
-        </fabric.osgi.private.pkg>
+        </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>

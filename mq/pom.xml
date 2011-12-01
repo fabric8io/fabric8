@@ -23,6 +23,10 @@
   <name>Fuse MQ :: Project</name>
   <description>Fuse MQ :: Project</description>
 
+  <properties>
+    <fuse.osgi.export>org.fusesource.mq.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+  </properties>
+
   <modules>
     <module>mq-fabric</module>
     <!-- no longer required? 

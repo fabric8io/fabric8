@@ -24,8 +24,9 @@
   <description>Fuse ECA :: Project</description>
 
   <properties>
-    <fabric.osgi.export>org.fusesource.eca.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
+    <fuse.osgi.export>org.fusesource.eca.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
+
   <modules>
     <module>eca-core</module>
   </modules>

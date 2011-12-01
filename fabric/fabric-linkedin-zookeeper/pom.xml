@@ -25,20 +25,20 @@
     <description>Fuse Fabric :: LinkedIn ZooKeeper Bundle</description>
 
     <properties>
-        <fabric.osgi.export>
+        <fuse.osgi.export>
             org.linkedin.zookeeper*;version=${linkedin-zookeeper-version};-noimport:=true,
             org.linkedin.util.*;-noimport:=true,
             org.jasypt.*;-noimport:=true,
             org.jcraft.jsch.*;-noimport:=true,
             org.apache.zookeeper*;version="${zookeeper-version}";-noimport:=true,
-        </fabric.osgi.export>
+        </fuse.osgi.export>
 
         <!--
           TODO maybe make a few of these optional?
           e.g. org.hibernate, org.acegisecurity, org.springframework, javax.servlet?
           -->
 
-        <fabric.osgi.import.before.defaults>
+        <fuse.osgi.import.before.defaults>
             !org.apache.log4j.jmx,
             !org.apache.log4j.spi,
             !org.apache.wicket*,
@@ -53,13 +53,13 @@
             !com.sun.management,
             !org.jboss.netty*,
             !sun.security.krb5
-        </fabric.osgi.import.before.defaults>
-        <fabric.osgi.import.additional>
+        </fuse.osgi.import.before.defaults>
+        <fuse.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
-        </fabric.osgi.import.additional>
-        <fabric.osgi.private.pkg>
+        </fuse.osgi.import.additional>
+        <fuse.osgi.private.pkg>
             org.apache.jute*
-        </fabric.osgi.private.pkg>
+        </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>
