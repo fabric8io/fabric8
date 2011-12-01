@@ -25,13 +25,13 @@
     <description>Fuse Fabric :: Camel Component</description>
 
     <properties>
-        <fabric.osgi.export>
+        <fuse.osgi.export>
             org.fusesource.fabric.camel
-        </fabric.osgi.export>
-        <fabric.osgi.import.pkg>
+        </fuse.osgi.export>
+        <fuse.osgi.import.pkg>
             org.springframework.beans.factory.annotation;resolution:=optional,*
-        </fabric.osgi.import.pkg>
-        <fabric.osgi.activator>org.fusesource.fabric.camel.Activator</fabric.osgi.activator>
+        </fuse.osgi.import.pkg>
+        <fuse.osgi.activator>org.fusesource.fabric.camel.Activator</fuse.osgi.activator>
     </properties>
 
     <dependencies>

@@ -28,17 +28,17 @@
   <properties>
   	<commons-pool-version>1.5.4</commons-pool-version>
     <!--fon.osgi.activator>org.fusesource.fabric.bridge.Activator</fon.osgi.activator-->
-    <fabric.osgi.import>
+    <fuse.osgi.import>
         *
-    </fabric.osgi.import>
-    <fabric.osgi.export>
+    </fuse.osgi.import>
+    <fuse.osgi.export>
     	!org.fusesource.fabric.bridge.internal,
     	org.fusesource.fabric.bridge,
     	org.fusesource.fabric.bridge.*
-    </fabric.osgi.export>
-    <fabric.osgi.private.pkg>
+    </fuse.osgi.export>
+    <fuse.osgi.private.pkg>
         org.fusesource.fabric.bridge.internal
-    </fabric.osgi.private.pkg>
+    </fuse.osgi.private.pkg>
   </properties>
 
   <dependencies>

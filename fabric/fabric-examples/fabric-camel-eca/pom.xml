@@ -25,7 +25,7 @@
 
   <properties>
     <felix-plugin.version>2.1.0</felix-plugin.version>
-    <fabric.osgi.export>org.fusesource.example.*;-noimport:=true</fabric.osgi.export>
+    <fuse.osgi.export>org.fusesource.example.*;-noimport:=true</fuse.osgi.export>
   </properties>
 
   <dependencies>

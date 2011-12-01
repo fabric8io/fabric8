@@ -23,17 +23,17 @@
   <packaging>bundle</packaging>
 
     <properties>
-        <fabric.osgi.export>
+        <fuse.osgi.export>
           org.fusesource.insight.log*;version=${project.version},
           org.fusesource.insight.log.service*;version=${project.version};-noimport:=true
-        </fabric.osgi.export>
-        <fabric.osgi.import>
+        </fuse.osgi.export>
+        <fuse.osgi.import>
             org.apache.karaf.shell.log*;resolution:=optional,
             org.ops4j.pax.logging.spi*;resolution:=optional,
             *
-        </fabric.osgi.import>
-        <fabric.osgi.private.pkg>
-        </fabric.osgi.private.pkg>
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+        </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>

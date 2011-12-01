@@ -25,21 +25,21 @@
     <description>Fuse Fabric :: Distributed OSGi</description>
 
     <properties>
-        <fabric.osgi.export>
-        </fabric.osgi.export>
-        <fabric.osgi.import.before.defaults>
+        <fuse.osgi.export>
+        </fuse.osgi.export>
+        <fuse.osgi.import.before.defaults>
             !org.objectweb.asm,
             org.eclipse.osgi*;resolution:=optional
-        </fabric.osgi.import.before.defaults>
-        <fabric.osgi.import.additional>
-        </fabric.osgi.import.additional>
-        <fabric.osgi.private.pkg>
+        </fuse.osgi.import.before.defaults>
+        <fuse.osgi.import.additional>
+        </fuse.osgi.import.additional>
+        <fuse.osgi.private.pkg>
             org.fusesource.fabric.dosgi*,
-        </fabric.osgi.private.pkg>
-        <fabric.osgi.services.export>
-        </fabric.osgi.services.export>
-        <fabric.osgi.activator>
-        </fabric.osgi.activator>
+        </fuse.osgi.private.pkg>
+        <fuse.osgi.services.export>
+        </fuse.osgi.services.export>
+        <fuse.osgi.activator>
+        </fuse.osgi.activator>
     </properties>
 
     <dependencies>

@@ -8,4 +8,4 @@
 # in the license.txt file.
 #
 
-class=org.fusesource.fabric.eca.component.eca.EcaComponent
+class=org.fusesource.eca.component.eca.EcaComponent

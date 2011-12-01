@@ -25,18 +25,18 @@
     <description>Fuse Fabric :: JAAS</description>
 
     <properties>
-        <fabric.osgi.export>
+        <fuse.osgi.export>
           org.fusesource.fabric.jaas
-        </fabric.osgi.export>
-        <fabric.osgi.import>
+        </fuse.osgi.export>
+        <fuse.osgi.import>
             *
-        </fabric.osgi.import>
-        <fabric.osgi.private.pkg>
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties
-        </fabric.osgi.private.pkg>
-        <fabric.osgi.activator>
+        </fuse.osgi.private.pkg>
+        <fuse.osgi.activator>
             org.fusesource.fabric.jaas.Activator
-        </fabric.osgi.activator>
+        </fuse.osgi.activator>
     </properties>
 
     <dependencies>

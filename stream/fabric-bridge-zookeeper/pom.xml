@@ -26,16 +26,16 @@
   <description>Fuse Fabric :: ActiveMQ Network Bridge Zookeeper Connector</description>
 
   <properties>
-    <fabric.osgi.import>
+    <fuse.osgi.import>
         *
-    </fabric.osgi.import>
-    <fabric.osgi.export>
+    </fuse.osgi.import>
+    <fuse.osgi.export>
         org.fusesource.fabric.bridge.zk,
         org.fusesource.fabric.bridge.zk*
-    </fabric.osgi.export>
-    <fabric.osgi.private.pkg>
+    </fuse.osgi.export>
+    <fuse.osgi.private.pkg>
         org.fusesource.fabric.bridge.zk.internal
-    </fabric.osgi.private.pkg>
+    </fuse.osgi.private.pkg>
   </properties>
 
   <dependencies>
@@ -52,7 +52,7 @@
         <artifactId>fabric-bridge</artifactId>
         <version>${project.version}</version>
         <!-- scope is set to compile to allow schemagen plugin to see it
-        but the packages are excluded in fabric.osgi.export -->
+        but the packages are excluded in fuse.osgi.export -->
         <scope>compile</scope>
     </dependency>
     <dependency>

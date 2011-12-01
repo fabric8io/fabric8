@@ -25,24 +25,24 @@
     <description>Fuse Fabric :: ZooKeeper Service</description>
 
     <properties>
-        <fabric.osgi.export>
-            org.fusesource.fabric.zookeeper*;version=${fabric.osgi.version};-noimport:=true,
-            org.fusesource.fabric.zookeeper.internal*;version=${fabric.osgi.version};-noimport:=true,
-        </fabric.osgi.export>
-        <fabric.osgi.import.before.defaults>
+        <fuse.osgi.export>
+            org.fusesource.fabric.zookeeper*;version=${fuse.osgi.version};-noimport:=true,
+            org.fusesource.fabric.zookeeper.internal*;version=${fuse.osgi.version};-noimport:=true,
+        </fuse.osgi.export>
+        <fuse.osgi.import.before.defaults>
             !org.apache.log4j.jmx,
             !org.apache.log4j.spi,
             !jline*,
             !org.xml.*,
             !javax.xml.parsers
-        </fabric.osgi.import.before.defaults>
-        <fabric.osgi.import.additional>
+        </fuse.osgi.import.before.defaults>
+        <fuse.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
-        </fabric.osgi.import.additional>
-        <fabric.osgi.services.export>
+        </fuse.osgi.import.additional>
+        <fuse.osgi.services.export>
             org.linkedin.zookeeper.client.IZKClient,
             org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
-        </fabric.osgi.services.export>
+        </fuse.osgi.services.export>
     </properties>
 
     <dependencies>
