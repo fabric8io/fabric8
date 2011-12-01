@@ -29,6 +29,10 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
         PrintStream printStream = new PrintStream(byteArrayOutputStream);
         CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
         CommandSession commandSession = commandProcessor.createSession(System.in, printStream, System.err);
+        //This is required in order to run scripts that use those session variables.
+        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
+        commandSession.put("USER", "karaf");
+
         try {
             System.err.println(command);
             commandSession.execute(command);
