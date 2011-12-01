@@ -49,7 +49,6 @@
         <module>fabric-launcher</module>
         <module>fabric-groups</module>
         <module>fabric-dosgi</module>
-        <module>fabric-eca</module>
         <module>fabric-security</module>
         <module>fabric-branding</module>
         <module>fuse-fabric</module>
