@@ -1,3 +1,5 @@
+package org.fusesource.mq.fabric
+
 /**
  * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
  * http://fusesource.com
@@ -6,8 +8,6 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.activemq
-
 import org.osgi.framework.BundleContext
 import org.osgi.service.cm.ConfigurationException
 import org.osgi.service.cm.ManagedServiceFactory

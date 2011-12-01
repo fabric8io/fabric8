@@ -7,46 +7,35 @@
  * CDDL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.fabric.activemq;
+package org.fusesource.mq.fabric;
 
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.*;
-import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class FabricDiscoveryAgent implements DiscoveryAgent {
+public class OsgiDiscoveryAgent implements DiscoveryAgent {
     
-    private static final Log LOG = LogFactory.getLog(FabricDiscoveryAgent.class);
-
-    private IZKClient zkClient;
-    private boolean managedZkClient;
-
-    private List<ACL> acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
-    private Group group;
-    private String groupName = "default";
-
+    private static final Log LOG = LogFactory.getLog(OsgiDiscoveryAgent.class);
+    
     private AtomicBoolean running=new AtomicBoolean();
     private final AtomicReference<DiscoveryListener> discoveryListener = new AtomicReference<DiscoveryListener>();
-
+//    private final HashSet<String> registeredServices = new HashSet<String>();
     private final HashMap<String, SimpleDiscoveryEvent> discoveredServices = new HashMap<String, SimpleDiscoveryEvent>();
     private final AtomicInteger startCounter = new AtomicInteger(0);
+    private Thread thread;   
+    private long updateInterval = 1000*10;
 
     private long initialReconnectDelay = 1000;
     private long maxReconnectDelay = 1000 * 30;
@@ -55,55 +44,11 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private int maxReconnectAttempts = 0;
     private final Object sleepMutex = new Object();
     private long minConnectTime = 5000;
-    private String id;
-    private String agent;
+    private String propertyName;
 
-    List<String> services = new ArrayList<String>();
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setPropertyName(String propertyName) {
+        this.propertyName = propertyName;
     }
-    
-    static class ActiveMQNode implements NodeState {
-        @JsonProperty
-        String id;
-        @JsonProperty
-        String services[];
-        @JsonProperty
-        String agent;
-
-        public String id() {
-            return id;
-        }
-    }
-    
-    ActiveMQNode state() {
-        ActiveMQNode state = new ActiveMQNode();
-        state.id = id;
-        state.agent = agent;
-        state.services = services.toArray(new String[services.size()]);
-        return state;
-    }
-    
-    ClusteredSingleton<ActiveMQNode> singleton = new ClusteredSingleton<ActiveMQNode>(ActiveMQNode.class);
-
-    public FabricDiscoveryAgent() {
-        singleton.add(new ChangeListener(){
-            @Override
-            public void changed() {
-                update(singleton.masters());
-            }
-
-            @Override
-            public void connected() {
-                changed();
-            }
-            public void disconnected() {
-                changed();
-            }
-        });
-    }
-
 
     class SimpleDiscoveryEvent extends DiscoveryEvent {
 
@@ -119,17 +64,39 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 
     }
 
-    synchronized public void registerService(String service) throws IOException {
-        services.add(service);
-        updateClusterState();
+    public void registerService(String service) throws IOException {
+        throw new UnsupportedOperationException();
     }
 
-    public void updateClusterState() {
-        if (startCounter.get() > 0 ) {
-            if( id==null )
-                throw new IllegalStateException("You must configure the id of the fabric discovery if you want to register services");
-            singleton.update(state());
+
+    synchronized private Set<String> doLookup(long freshness) {
+
+        Set<String> rc = new HashSet<String>();
+        BundleContext context = Activator.BUNDLE_CONTEXT.get();
+        if( context!=null ) {
+
+            ServiceReference reference = context.getServiceReference(ConfigurationAdmin.class.getName());
+            if (reference != null) {
+                ConfigurationAdmin ca = (ConfigurationAdmin)context.getService(reference);
+
+                try {
+                    Configuration config = ca.getConfiguration(propertyName);
+                    Dictionary properties = config.getProperties();
+                    if (properties != null) {
+                        Enumeration keys = properties.keys();
+                        while (keys.hasMoreElements()) {
+                            String key = (String) keys.nextElement();
+                            if( key.startsWith("broker.url.") ) {
+                                rc.add(((String)properties.get(key)).trim());
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                }
+            }
         }
+
+        return rc;
     }
 
     public void serviceFailed(DiscoveryEvent devent) throws IOException {
@@ -145,7 +112,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 	                    // We detect a failed connection attempt because the service
 	                    // fails right away.
 	                    if (event.connectTime + minConnectTime > System.currentTimeMillis()) {
-	                        LOG.debug("Failure occurred soon after the discovery event was generated.  It will be classified as a connection failure: "+event);
+	                        LOG.debug("Failure occured soon after the discovery event was generated.  It will be clasified as a connection failure: "+event);
 	
 	                        event.connectFailures++;
 	
@@ -159,7 +126,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 	                                if (!running.get() || event.removed.get()) {
 	                                    return;
 	                                }
-	                                LOG.debug("Waiting "+event.reconnectDelay+" ms before attempting to reconnect.");
+	                                LOG.debug("Waiting "+event.reconnectDelay+" ms before attepting to reconnect.");
 	                                sleepMutex.wait(event.reconnectDelay);
 	                            } catch (InterruptedException ie) {
 	                                Thread.currentThread().interrupt();
@@ -201,61 +168,40 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         this.discoveryListener.set(discoveryListener);
     }
 
-    synchronized public void start() throws Exception {
+    public void start() throws Exception {
         if( startCounter.addAndGet(1)==1 ) {
             running.set(true);
-
-            if (zkClient == null) {
-                managedZkClient = true;
-                ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
-                client.start();
-                client.waitForStart();
-                zkClient = client;
-            } else {
-                managedZkClient = false;
-            }
-
-            group = ZooKeeperGroupFactory.create(zkClient, "/fabric/activemq-clusters/" + groupName, acl);
-            singleton.setId(id);
-            singleton.start(group);
-            if( id!=null ) {
-                singleton.join(state());
-            }
-        }
-    }
-
-    synchronized  public void stop() throws Exception {
-        if( startCounter.decrementAndGet()==0 ) {
-            running.set(false);
-            try {
-                group.close();
-            } catch (Throwable ignore) {
-                // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
-            }
-            if( managedZkClient ) {
-                try {
-                    zkClient.close();
-                } catch (Throwable ignore) {
-                    // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
+            thread = new Thread("HTTPDiscovery Agent") {
+                @Override
+                public void run() {
+                    while(running.get()) {
+                        try {
+                            update();
+                            Thread.sleep(updateInterval);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                    }
                 }
-                zkClient = null;
-            }
+            };
+            thread.setDaemon(true);
+            thread.start();
         }
     }
 
-    private void update(ActiveMQNode[] members) {
-
+    private void update() {
+//        synchronized(registeredServices) {
+//            for (String service : registeredServices) {
+//                doRegister(service);
+//            }
+//        }
+        
         // Find new registered services...
         DiscoveryListener discoveryListener = this.discoveryListener.get();
         if(discoveryListener!=null) {
-            HashSet<String> activeServices = new HashSet<String>();
-            for(ActiveMQNode m : members) {
-                for(String service: m.services) {
-                    activeServices.add(service);
-                }
-            }
+            Set<String> activeServices = doLookup(updateInterval*3);
             // If there is error talking the the central server, then activeServices == null
-            if( members !=null ) {
+            if( activeServices !=null ) {
                 synchronized(discoveredServices) {
                     
                     HashSet<String> removedServices = new HashSet<String>(discoveredServices.keySet());
@@ -283,43 +229,22 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         }
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public List<String> getServices() {
-        return services;
-    }
-
-    public void setServices(String[] services) {
-        this.services.clear();
-        for(String s:services) {
-            this.services.add(s);
+    public void stop() throws Exception {
+        if( startCounter.decrementAndGet()==0 ) {
+            running.set(false);
+            if( thread!=null ) {
+                thread.join(updateInterval*3);
+                thread=null;
+            }
         }
-        updateClusterState();
     }
 
-    public IZKClient getZkClient() {
-        return zkClient;
+    public long getUpdateInterval() {
+        return updateInterval;
     }
 
-    public void setZkClient(IZKClient zkClient) {
-        this.zkClient = zkClient;
+    public void setUpdateInterval(long updateInterval) {
+        this.updateInterval = updateInterval;
     }
 
-    public ClusteredSingleton<ActiveMQNode> getSingleton() {
-        return singleton;
-    }
-
-    public String getAgent() {
-        return agent;
-    }
-
-    public void setAgent(String agent) {
-        this.agent = agent;
-    }
 }
