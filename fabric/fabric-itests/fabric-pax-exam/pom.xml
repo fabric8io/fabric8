@@ -44,9 +44,6 @@
             <artifactId>fuse-fabric</artifactId>
             <version>${project.version}</version>
             <type>tar.gz</type>
-<!--
-            <scope>test</scope>
--->
         </dependency>
 
         <!-- Fabric Dependencies -->
@@ -84,7 +81,7 @@
         <dependency>
             <groupId>org.openengsb.labs.paxexam.karaf</groupId>
             <artifactId>paxexam-karaf-container</artifactId>
-            <version>0.4.0</version>
+            <version>0.4.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -106,6 +103,19 @@
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>
                 <version>1.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <id>generate-depends-file</id>
+                        <goals>
+                            <goal>generate-depends-file</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>

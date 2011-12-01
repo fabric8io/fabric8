@@ -41,6 +41,8 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
+        Thread.sleep(DEFAULT_WAIT);
+
         Agent[] agents = fabricService.getAgents();
         assertNotNull(agents);
         assertEquals("Expected to find 1 agent", 1, agents.length);
