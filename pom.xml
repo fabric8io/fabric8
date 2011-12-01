@@ -188,6 +188,7 @@
         <module>fab</module>
         <module>insight</module>
         <module>mq</module>
+        <module>eca</module>
         <module>stream</module>
     </modules>
 
