@@ -89,6 +89,8 @@ public class Main {
 
     private void execute() throws Exception {
         CamelContext context = new DefaultCamelContext();
+        // no need to use JMX for this embedded CamelContext
+        context.disableJMX();
         context.addComponent("activemq", ActiveMQComponent.activeMQComponent(broker));
         
         final InputBatcher batcher = new InputBatcher();
