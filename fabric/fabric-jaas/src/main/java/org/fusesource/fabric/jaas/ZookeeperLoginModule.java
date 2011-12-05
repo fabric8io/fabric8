@@ -8,85 +8,71 @@
  */
 package org.fusesource.fabric.jaas;
 
+import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
+import org.apache.karaf.jaas.modules.Encryption;
+import org.apache.karaf.jaas.modules.RolePrincipal;
+import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
+import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleReference;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.*;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
-import org.apache.karaf.jaas.modules.Encryption;
-import org.apache.karaf.jaas.modules.RolePrincipal;
-import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.fusesource.fabric.internal.ZooKeeperUtils;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.LifecycleListener;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleReference;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ZookeeperLoginModule extends AbstractKarafLoginModule implements LoginModule, ServiceListener, LifecycleListener, Watcher {
-
+public class ZookeeperLoginModule extends AbstractKarafLoginModule implements LoginModule {
+    public static final ThreadLocal<IZKClient> ZOOKEEPER_CONTEXT = new ThreadLocal<IZKClient>();
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
-    private BundleContext bundleContext;
     private boolean debug = false;
     private static Properties users = new Properties();
-    private static IZKClient zookeeper;
 
     EncryptionSupport encryptionSupport;
 
-
-    public ZookeeperLoginModule() {
-        bundleContext = ((BundleReference) getClass().getClassLoader()).getBundle().getBundleContext();
-        ServiceReference serviceReference = null;
-        try {
-            bundleContext.addServiceListener(this, String.format("(objectClass=%s)", IZKClient.class.getName()));
-        } catch (InvalidSyntaxException e) {
-            LOG.warn("Failed to register listener for Zookeeper client.", e);
-        }
-
-        try {
-            serviceReference = bundleContext.getServiceReference(IZKClient.class.getName());
-            if (serviceReference != null) {
-                this.zookeeper = (IZKClient) bundleContext.getService(serviceReference);
-                this.zookeeper.registerListener(this);
-                fetchData();
-            }
-        } catch (Exception e) {
-            LOG.warn("Failed fetching authentication data.", e);
-        } finally {
-            if (serviceReference != null) {
-                bundleContext.ungetService(serviceReference);
-            }
-        }
-    }
-
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        super.initialize(subject, callbackHandler, options);
-        if (bundleContext != null) {
+        debug = "true".equalsIgnoreCase((String)options.get("debug"));
+        IZKClient zookeeper = ZOOKEEPER_CONTEXT.get();
+        if( zookeeper==null ) {
+            // osgi env.
+            BundleContext bundleContext = ((BundleReference) getClass().getClassLoader()).getBundle().getBundleContext();
             encryptionSupport = new EncryptionSupport(options);
+            ServiceReference serviceReference = bundleContext.getServiceReference(IZKClient.class.getName());
+            if (serviceReference != null) {
+                try {
+                    zookeeper = (IZKClient) bundleContext.getService(serviceReference);
+                    users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
+                } catch (Exception e) {
+                    LOG.warn("Failed fetching authentication data.", e);
+                } finally {
+                    if (serviceReference != null) {
+                        bundleContext.ungetService(serviceReference);
+                    }
+                }
+            }
         } else {
+            // non-osgi env.
+            try {
+                users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
+            } catch (Exception e) {
+                LOG.warn("Failed fetching authentication data.", e);
+            }
+        }
+        if(encryptionSupport==null) {
             encryptionSupport = new BasicEncryptionSupport(options);
         }
-
-        debug = "true".equalsIgnoreCase((String)options.get("debug"));
+        super.initialize(subject, callbackHandler, options);
     }
 
     @Override
@@ -154,39 +140,6 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         return true;
     }
 
-    @Override
-    public void onConnected() {
-        try {
-            fetchData();
-        } catch (Exception e) {
-            LOG.warn("Failed initializing authentication plugin", e);
-        }
-    }
-
-    @Override
-    public void onDisconnected() {
-        // do nothing
-    }
-
-    @Override
-    public void process(WatchedEvent watchedEvent) {
-        if (debug) {
-            LOG.debug("Zookeeper auth data changed. Refreshing!");
-        }
-
-        if (watchedEvent.getType() == Event.EventType.NodeDataChanged
-         || watchedEvent.getType() == Event.EventType.NodeDeleted) {
-            try {
-                fetchData();
-            } catch (Exception e) {
-                LOG.warn("failed refreshing authentication data", e);
-            }
-        }
-    }
-
-    protected void fetchData() throws Exception {
-        users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE, this);
-    }
 
     public String getEncryptedPassword(String password) {
         Encryption encryption = encryptionSupport.getEncryption();
@@ -232,21 +185,4 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         }
     }
 
-    /**
-     * Receives notification that a service has had a lifecycle change.
-     *
-     * @param event The <code>ServiceEvent</code> object.
-     */
-    @Override
-    public void serviceChanged(ServiceEvent event) {
-        if (event.getType() == ServiceEvent.REGISTERED) {
-            this.zookeeper = (IZKClient) bundleContext.getService(event.getServiceReference());
-            this.zookeeper.registerListener(this);
-            try {
-                fetchData();
-            } catch (Exception e) {
-                LOG.warn("Failed refreshing authentication data.");
-            }
-        }
-    }
 }

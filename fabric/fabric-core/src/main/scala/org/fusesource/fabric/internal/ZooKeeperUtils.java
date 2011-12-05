@@ -116,6 +116,18 @@ public class ZooKeeperUtils {
         return properties;
     }
 
+    public static Properties getProperties(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
+        ZKData<String> zkData = zooKeeper.getZKStringData(path);
+        String value = zkData.getData();
+        Properties properties = new Properties();
+        if (value != null) {
+            try {
+                properties.load(new StringReader(value));
+            } catch (IOException ignore) {}
+        }
+        return properties;
+    }
+
     public static void setProperties(IZKClient zooKeeper, String path, Properties properties) throws InterruptedException, KeeperException {
         StringWriter writer = new StringWriter();
         try {
