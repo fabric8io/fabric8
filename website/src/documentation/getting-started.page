@@ -16,8 +16,7 @@ Getting Started guide for Fabric
     To install Fabric either
     
     * [download](../download.html) the Fabric distro 
-    * [checkout](../source.html) and [build](../building.html) the Fabric distro locally
-    * run the following in an Apache Karaf (2.2.x) console:  
+    * [checkout](../source.html) and [build](../building.html) the Fuse Fabric distro locally then untar the fabric/fuse-fabric tarball
     
   pre
     | FuseFabric:admin@root> fabric:ensemble-create root
