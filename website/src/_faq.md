@@ -15,11 +15,11 @@ See the [support guide](support.html) for more details.
 
 ### How do I build it?
 
-First [get the source](source.html) then see the [building guide](building.html)
+First [get the source](../source.html) then see the [building guide](../building.html)
 
 ### How do I contribute or become a committer?
 
-We love [contributions](contributing.html)! More details on how to contribute and how to become a committer are in the [contributing guide](../contributing.html).
+We love [contributions](../contributing.html)! More details on how to contribute and how to become a committer are in the [contributing guide](../contributing.html).
 
 ### How do I register for the issue tracker?
 
