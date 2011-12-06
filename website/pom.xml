@@ -196,7 +196,7 @@
         <configuration>
           <warSourceDirectory>${basedir}/src</warSourceDirectory>
           <remoteServerId>website.fusesource.org</remoteServerId>
-          <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}</remoteServerUrl>
+          <remoteServerUrl>dav:http://fusesource.com/forge/dav/fuse</remoteServerUrl>
           <!-- 
           <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}/fab</remoteServerUrl>
 

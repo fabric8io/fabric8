@@ -21,6 +21,7 @@ html(lang="en")
     meta(content="fuse,fabric,cluster,cloud,provision,configure" name="keywords")
     meta(content="Fabric" name="author")
     link(type="text/css" rel="stylesheet" href={uri("/css/bootstrap.css")})
+    link(type="text/css" rel="stylesheet" href={uri("/css/site.css")})
     link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/pygmentize.css")})
     -#
       link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/site.css")})
@@ -54,14 +55,13 @@ html(lang="en")
           !~~ blog
     - if (content!=null)
       !~~ content
-    - else if (body!=null)
-      header(class="jumbotron masthead" id="overview")
-        .inner
-          .container
-            h1= title
-          
+    - if (body!=null && content == null)
       .container
-        !~~ body
+        .content
+          .page-header
+            h1= title
+          .row
+            !~~ body
     -#      
       - if (include_console)
         - include("/org/fusesource/scalate/console/console.scaml")

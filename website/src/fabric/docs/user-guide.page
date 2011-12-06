@@ -1,13 +1,8 @@
 ---
-title: Fabric User Guide
+title: Fuse Fabric User Guide
 in_menu: true
 sort_info: 10
---- name:overview
-# Fabric User Guide
-Fuse Fabric: keeps you DRY from those stormy clouds!
-
---- name:content
-
+--- 
 {:toc}
 
 ## Architecture
