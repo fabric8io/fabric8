@@ -7,18 +7,10 @@ sort_info: 50
 .row
   .span4
     :markdown
-      # [Team members](committers/team.html)
-  .span12
-    :markdown
-      Committers/contributors on fuseSource Fabric project
-
-.row
-  .span4
-    :markdown
       # [Blog](blog/index.html)
   .span12
     :markdown
-      Keep up to date on the latest and greatest releases by following the [Fabric Blog](blog/index.html)
+      Keep up to date on the latest and greatest releases by following the [Fuse Blog](blog/index.html)
 
 .row
   .span4
@@ -64,6 +56,14 @@ sort_info: 50
   .span12
     :markdown
       You can also catch us on IRC to chat via **#fusefabric** on **irc.freenode.net**. If you don't have an IRC client then try the [web based IRC client](http://webchat.freenode.net/?channels=#fusefabric) or the [freenode java applet](http://java.freenode.net/index.php?channel=fusefabric) or this
+
+.row
+  .span4
+    :markdown
+      # [Team](committers/team.html)
+  .span12
+    :markdown
+      Committers/contributors on fuseSource Fabric project
 
 .row
   .span4

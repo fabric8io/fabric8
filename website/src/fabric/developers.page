@@ -9,8 +9,8 @@ in_menu: false
       # Developer Links
   .span12
     :&markdown
-      * [Building](building.html)
-      * [Contributing](contributing.html)
+      * [Building](../building.html)
+      * [Contributing](../contributing.html)
       * [Release Guide](committers/release-guide.html)
       * [Website for Older Versions](http://fabric.fusesource.org/versions/)
       * [Website for Latest Snapshot](http://fabric.fusesource.org/versions/snapshot/) (based on #{project_snapshot_version})
