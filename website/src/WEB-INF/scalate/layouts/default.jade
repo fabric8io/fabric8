@@ -5,7 +5,8 @@
 -#    a copy of which has been included with this distribution in the license.txt file.
 
 - response.setContentType("text/html") 
--@ var title : String = ""
+-@ var title : String = "Fuse"
+-@ var content: String = null
 -@ var body: String = null
 -@ var overview: String = null
 -@ var spot: String = null
@@ -19,51 +20,51 @@ html(lang="en")
     meta(content="fuse fabric clustering and cloud for Fuse" name="description")
     meta(content="fuse,fabric,cluster,cloud,provision,configure" name="keywords")
     meta(content="Fabric" name="author")
+    link(type="text/css" rel="stylesheet" href={uri("/css/bootstrap.css")})
     link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/pygmentize.css")})
-    link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/site.css")})
+    -#
+      link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/site.css")})
 
+    /[if lt IE 9]
+      script(src="http://html5shim.googlecode.com/svn/trunk/html5.js")
     - if (head!=null)
       !~~ head
 
-    -#
+    -#      
       - if (include_console)
         - include("/org/fusesource/scalate/console/console_head.scaml")
         link(href={uri("/styles/scalate/console.css")} rel="stylesheet" type="text/css")
     
     title= title
+    script(type="text/javascript"src={uri("/js/jquery.js")})
+    script(type="text/javascript"src={uri("/js/bootstrap-dropdown.js")})
   body
-    div#navigation
-      div.wrapper
-        - include("/_navigation.ssp.md")
-        
-    - if (overview!=null)
-      div#overview
-        div.wrapper
-          -if ( project_logo!=null )  
-            div.logo
-              img(src="#{uri(project_logo)}" alt="#{project_name} logo")
-          div.message
-            !~~ overview
-            
-    - if (spot!=null)
-      div#spot
-        div.wrapper
-          !~~ spot
-          
-    - if (body!=null)
-      div#content
-        div.wrapper
-          !~~ body
-          
+    .topbar-wrapper(style="z-index: 5;")
+      .topbar(data-dropdown="dropdown")
+        .topbar-inner
+          .container
+            - 
+              if (requestUri.startsWith("/fabric"))
+                include("/fabric/_navigation.jade")
+              else
+                include("/_navigation.jade")
     - if (blog!=null)
       div#blog
         div.wrapper
           !~~ blog
+    - if (content!=null)
+      !~~ content
+    - else if (body!=null)
+      header(class="jumbotron masthead" id="overview")
+        .inner
+          .container
+            h1= title
           
-    -#
+      .container
+        !~~ body
+    -#      
       - if (include_console)
-        = include("/org/fusesource/scalate/console/console.scaml")
-
+        - include("/org/fusesource/scalate/console/console.scaml")
     :javascript
       var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
       document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));

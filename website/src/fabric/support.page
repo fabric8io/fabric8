@@ -1,13 +1,8 @@
 ---
-title: Support
+title: We can help!
 in_menu: true
 sort_info: 55
---- name:overview
-
-# You Are Not Alone
-We can help!
-
---- name:content 
+--- 
 
 Fuse Fabric is included in [Fuse ESB 5.1](http://fusesource.com/products/enterprise-servicemix/) or later. You can get [Enterprise Support, Mentoring, Training and Tools](http://fusesource.com/enterprise-support/support-offerings/) from [FuseSource](http://fusesource.com/). Please do [get in touch](http://fusesource.com/contact) we'd love to help!
 
@@ -20,7 +15,7 @@ To submit feedback please use the [Fabric Issue Tracker](${project_issue_url}).
 ### See Also
 
 * [FAQ](faq.html)
-* [Community](community.html)
+* [Community](../community.html)
 * [Issue Tracker](${project_issue_url})
 * [Contact FuseSource](http://fusesource.com/contact)
   

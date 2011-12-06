@@ -1,25 +1,24 @@
 ---
-title: Fuse Fabric
+title: Fuse Stack
 in_menu: true
 sort_info: 1
 --- name:head pipeline:ssp
 <link rel="alternate" title="${project_name} RSS" href="blog/index.rss" type="application/rss+xml">
 
---- name:overview pipeline:scaml
+--- name:content pipeline:jade
 
-%h1 Fuse Fabric #{project_version}
+header(class="jumbotron masthead" id="overview")
+  .inner
+    .container
+      h1 Fuse
+      p.lead Welcome to awesome open source integration.
 
-#{project_slogan}
-
---- name:content pipeline:markdown 
-
-**Fuse Fabric** is a distributed configuration, management and provisioning system for using [Apache Karaf](http://karaf.apache.org/), [Apache ServiceMix](http://servicemix.apache.org/) and [Fuse](http://fusesource.com/) in a public or private cloud.
-
-Where next?
----------------
-
-* [Getting Started Guide](documentation/getting-started.html)
-* [User Guide](documentation/user-guide.html)
-* [Documentation](documentation/index.html)
-* [Fabric Blog](blog/index.html) 
-
+.quickstart
+  .container
+    .row
+      .span5
+        p <a target="_blank" href="esb/index.html" class="btn">Fuse ESB &raquo;</a></p>
+      .span5
+        p <a target="_blank" href="fabric/index.html" class="btn">Fuse Fabric &raquo;</a></p>
+      .span5
+        p <a target="_blank" href="mq/index.html" class="btn">Fuse MQ &raquo;</a></p>

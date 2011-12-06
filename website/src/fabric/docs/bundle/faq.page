@@ -18,7 +18,7 @@ For questions on the [Fabric](${uri("/index.html")}) project as a whole see the 
 
 ## What is a Fabric Bundle?
 
-${include("/documentation/bundle/_what-is-fab.md")}
+${include("/docs/bundle/_what-is-fab.md")}
 
 ## Which build tools generate FABs?
 
@@ -87,7 +87,7 @@ Questions on using Fabric Bundles
 
 ## How do I install a FAB?
 
-${include("/documentation/bundle/_install-command.md")}
+${include("/docs/bundle/_install-command.md")}
 
 ## How do I enable FAB support in my OSGi container?
 

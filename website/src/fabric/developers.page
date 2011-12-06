@@ -1,0 +1,37 @@
+---
+title: Developers
+in_menu: false
+--- pipeline:jade
+
+.row
+  .span4
+    :markdown
+      # Developer Links
+  .span12
+    :&markdown
+      * [Building](building.html)
+      * [Contributing](contributing.html)
+      * [Release Guide](committers/release-guide.html)
+      * [Website for Older Versions](http://fabric.fusesource.org/versions/)
+      * [Website for Latest Snapshot](http://fabric.fusesource.org/versions/snapshot/) (based on #{project_snapshot_version})
+
+.row
+  .span4
+    :markdown
+      # ScalaDocs 
+  .span12
+    :&markdown
+      ## Version #{project_version}
+
+      * [Maven Reports](http://fabric.fusesource.org/maven/#{project_version}/index.html) contains the full detail of the maven reports
+
+.row
+  .span4
+    :markdown
+      # Maven reports
+  .span12
+    :&markdown
+      * [#{project_version} Release](http://fabric.fusesource.org/maven/#{project_version}/)
+      * [Older Versions](http://fabric.fusesource.org/maven)
+      * [Next Snapshot](http://fabric.fusesource.org/maven/#{project_snapshot_version}/)
+

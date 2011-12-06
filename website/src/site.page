@@ -22,7 +22,7 @@ How the website works
 .right
   :markdown
     If you [grab the source code](source.html) you can get the site source in the *fabric-website* directory.
-    If you [have Fabric installed](documentation/installing.html) then you can build the website from [the code](source.html) as follows
+    If you [have Fabric installed](docs/installing.html) then you can build the website from [the code](source.html) as follows
 
     {pygmentize:: text}
     cd fabric-website

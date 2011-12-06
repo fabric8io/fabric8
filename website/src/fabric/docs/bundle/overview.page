@@ -23,13 +23,13 @@ For more detail see the [motivations behind creating Fabric Bundles](background.
 
 ## What is a Fabric Bundle?
     
-${include("/documentation/bundle/_what-is-fab.md")}
+${include("/docs/bundle/_what-is-fab.md")}
 
 ## Installing a FAB
 
 In your OSGi container such as [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/) or [Apache Karaf](http://karaf.apache.org/) with the Fabric bundle feature installed - you can then install any FAB as if it were a WAR or Karaf feature.
 
-${include("/documentation/bundle/_install-command.md")}
+${include("/docs/bundle/_install-command.md")}
 
 ## How does it work?
 

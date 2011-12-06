@@ -68,7 +68,7 @@ Get the latest source code
     Once you have checked out the code try following 
 
     * [instructions to build #{project_name}](building.html) 
-    * read the [documentation](documentation/index.html)
+    * read the [documentation](docs/index.html)
     * browse the [developer links and maven reports](developers.html)
 
 

@@ -1,0 +1,31 @@
+---
+title: Fuse Fabric
+in_menu: true
+sort_info: 1
+--- name:head pipeline:ssp
+<link rel="alternate" title="${project_name} RSS" href="blog/index.rss" type="application/rss+xml">
+
+--- name:content pipeline:jade
+
+header(class="jumbotron masthead" id="overview")
+  .inner
+    .container
+      h1 Fuse Fabric
+      p.lead
+        | <b>Fuse Fabric</b> is a distributed configuration, management and provisioning system <br />
+        | for working with <a href='${uri("/")}'>Fuse<a>, 
+        | <a href="http://activemq.apache.org/">Apache ActiveMQ</a>, 
+        | <a href="http://camel.apache.org/">Camel</a>, 
+        | <a href="http://karaf.apache.org/">CXF</a> &amp; 
+        | <a href="http://servicemix.apache.org/">SerivceMix</a>
+        | in a public or private cloud.
+
+
+  .container
+    .row
+      .span5
+        p <a href="docs/getting-started.html" class="btn">Get Started &raquo;</a></p>
+      .span5
+        p <a href="docs/user-guide.html" class="btn">User Guide &raquo;</a></p>
+      .span5
+        p <a href="download.html" class="btn">Download &raquo;</a></p>
