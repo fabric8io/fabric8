@@ -86,9 +86,9 @@
         <perfectus-build>11</perfectus-build>
 
         <!-- TODO this is required for some AMQ OSGi fixes -->
-        <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
-<!--
         <activemq-version>5.5.1-fuse-01-${perfectus-build}</activemq-version>
+<!--
+<activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
 -->
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
@@ -116,6 +116,7 @@
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
         <logback-version>0.9.28</logback-version>
+        <maven-assembly-plugin-version>2.2.2</maven-assembly-plugin-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
         <mvnplugins-version>1.14</mvnplugins-version>
@@ -134,6 +135,7 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
+        <servicemix.nmr.version>1.5.1-fuse-01-11</servicemix.nmr.version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.1</slf4j-api-version>
@@ -143,8 +145,11 @@
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
+        <xalan.version>2.7.1</xalan.version>
         <xbean-version>3.7</xbean-version>
+        <xerces.version>2.11.0</xerces.version>
         <xjc-version>2.1.10.1</xjc-version>
+        <xml.api.version>2.11.0-20110622</xml.api.version>
     </properties>
 
 
