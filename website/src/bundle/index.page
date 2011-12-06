@@ -1,7 +1,7 @@
 ---
-title: Fabric Bundles
+title: Fuse Bundles
 --- name:overview
-# Fabric Bundles
+# Fuse Bundles
 
 --- pipeline:jade
 
@@ -10,19 +10,19 @@ title: Fabric Bundles
     # [FAB Overview](overview.html)
 .right
   :markdown
-    A detailed overview of what Fabric Bundles are and how you use them.
+    A detailed overview of what Fuse Bundles are and how you use them.
 
 .left
   :markdown
     # [FAQ](faq.html)
 .right
   :markdown
-    Frequently asked questions on Fabric Bundles
+    Frequently asked questions on Fuse Bundles
     
 .left
   :markdown
     # [Background](background.html)
 .right
   :markdown
-    Some background on why we created Fabric Bundles.
+    Some background on why we created Fuse Bundles.
 

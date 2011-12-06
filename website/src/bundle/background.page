@@ -7,7 +7,7 @@ title: How FABs help OSGi
 
 {:toc}
 
-# Background on Fabric Bundles
+# Background on Fuse Bundles
 
 OSGi is a successful technology for creating lightweight containers; pretty much every application server is now based on OSGi (e.g. JBoss and GlassFish) along with the commercial containers.
 
@@ -40,9 +40,9 @@ However we'd rather simplify application developers life so they can instead foc
 
 From an application developer perspective we'd like building applications to be pretty similar whether the deployment container is a web container like [Apache Tomcat](http://tomcat.apache.org/) or [Jetty](http://eclipse.org/jetty/) or its an OSGi based container like [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/#documentation), [Apache Karaf](http://karaf.apache.org/) or [Apache ServiceMix](http://servicemix.apache.org/).
 
-So we'd prefer application developers just focus on the course grained high level transitive dependency structure they already use in their [existing build tools](faq.html#Which_build_tools_generate_FABs_) for both web apps and OSGi then let [Fabric Bundles do the work of integrating into OSGi](overview.html).
+So we'd prefer application developers just focus on the course grained high level transitive dependency structure they already use in their [existing build tools](faq.html#Which_build_tools_generate_FABs_) for both web apps and OSGi then let [Fuse Bundles do the work of integrating into OSGi](overview.html).
 
-## How are Fabric Bundles different?
+## How are Fuse Bundles different?
 
 ${include("/bundle/_what-is-fab.md")}
 
@@ -50,4 +50,4 @@ So if you are already using a [suitable build tool](faq.html#Which_build_tools_g
 
 This means application developers don't have different class loader mechanisms to work with; they can work with their build tool, IDE (e.g. Maven integration in IDEA / eclipse) and then just deploy it into their container (either web applications or OSGi).
 
-Fabric Bundles then provide a simple transitive dependency class loader model; that many developers are already using and works in build tools, IDEs, web applications and now in OSGi containers - while at the same time being able to take advantage of all the features of OSGi like modularity, sharing of different versions of libraries across deployment units and hot redeployment.
+Fuse Bundles then provide a simple transitive dependency class loader model; that many developers are already using and works in build tools, IDEs, web applications and now in OSGi containers - while at the same time being able to take advantage of all the features of OSGi like modularity, sharing of different versions of libraries across deployment units and hot redeployment.

@@ -1,25 +1,25 @@
 ---
-title: Fabric ECA Support
+title: Fuse ECA Support
 ---
 
-## Fabric ECA Support
+## Fuse ECA Support
 
-The Fabric ECA project provides simple Complex Event Processing, by extending the power of Apache Camel. ECA actually stands for Event Condition Action.
+The Fuse ECA project provides simple Complex Event Processing, by extending the power of Apache Camel. ECA actually stands for Event Condition Action.
 
 An event is something that has happened, a significant change in state - e.g. a cash withdraw from an ATM, or a fault on a network.
 Events are usually distributed and represented as messages, with a header property and payload. What is a complex Event? - An event that could only happen as the result of lots of other events:
 
 
-In Fabric ECA, an event is a Camel Exchange. Cached and timestamped message exchanges act as an event cache. Then Camel endpoints or routes act as event channels - e.g. for the following will send an email if no events come from the endpoint activemq:topic:stock.ticker.* in 30 seconds
+In Fuse ECA, an event is a Camel Exchange. Cached and timestamped message exchanges act as an event cache. Then Camel endpoints or routes act as event channels - e.g. for the following will send an email if no events come from the endpoint activemq:topic:stock.ticker.* in 30 seconds
 
 {pygmentize:: java}
     eca.win("30s")
 		.evaluate("NOT activemq:topic:stock.ticker.* ").to("smtp://rob@localhost");
 {pygmentize}
 
-### Fabric ECA Statistics
+### Fuse ECA Statistics
 
-Fabric ECA provides a Statistics Component, that uses a cache of values to generate statistics from a stream of Camel Exchanges. 
+Fuse ECA provides a Statistics Component, that uses a cache of values to generate statistics from a stream of Camel Exchanges.
 The Statistics Component can measure the Mean, Min, Max, Variance, standard deviation, skewness, Kutosis and Rate. The statistics are generated
 as a JSON string, and put into a Camel Exchange.
 
@@ -54,7 +54,7 @@ By default, a statistics exchange is generated every time a new event arrives at
 		 .to("mock:result");
 {pygmentize}
 
-### Fabric ECA - the EcaComponent
+### Fuse ECA - the EcaComponent
 
 The Eca Component is a regular Camel component. It has access to and manages an event cache, and plugs into a Rete based event matching engine, which is used for pattern matching across those events. 
 
@@ -100,7 +100,7 @@ Although Camel endpoints are the more natural way of evaluating event matching p
 {pygmentize}
 
 
-Fabric ECA also extends the  Camel RouteBuilder, to make setting up an ECA rule slightly easier. When rules are built using the EcaRouteBuilder, it will look for rules that touch either endpoints or routes that have been defined in the CamelContext, and automatically wire up outputs on those endpoints or routes. This means you can do things like this:
+Fuse ECA also extends the  Camel RouteBuilder, to make setting up an ECA rule slightly easier. When rules are built using the EcaRouteBuilder, it will look for rules that touch either endpoints or routes that have been defined in the CamelContext, and automatically wire up outputs on those endpoints or routes. This means you can do things like this:
 {pygmentize:: java}
    context.addRoutes(new EcaRouteBuilder() {
 	           
@@ -110,7 +110,7 @@ Fabric ECA also extends the  Camel RouteBuilder, to make setting up an ECA rule 
 	    }
 	  });
 {pygmentize}
-And the wiring of the endpoints direct://foo2 and direct://foo will happen automatically. The eca is a key word in the Fabric ECA Java DSL. In reality its an extended Camel RouteDefinition. You can use the *evaluate()* method, but an eca route also supports the pattern matching keywords as methods - so you can write things like this:
+And the wiring of the endpoints direct://foo2 and direct://foo will happen automatically. The eca is a key word in the Fuse ECA Java DSL. In reality its an extended Camel RouteDefinition. You can use the *evaluate()* method, but an eca route also supports the pattern matching keywords as methods - so you can write things like this:
 {pygmentize:: java}
    context.addRoutes(new EcaRouteBuilder() {
 	           
@@ -121,7 +121,7 @@ And the wiring of the endpoints direct://foo2 and direct://foo will happen autom
 	  });
 {pygmentize}
 
-Probably one of the most common things you want to do is event correlation - and this is stright forward, using a combination of regular camel and Fabric ECA:
+Probably one of the most common things you want to do is event correlation - and this is stright forward, using a combination of regular camel and Fuse ECA:
 {pygmentize:: java}
    public void configure() throws Exception {
 	   from(de2).filter(simple("\${body.correlationID} == ID:2")).to(testEndPoint1);
@@ -136,8 +136,8 @@ Probably one of the most common things you want to do is event correlation - and
 
 Camel ECA can be installed as a feature in Fuse ESB / Karaf using the following commands:
 
-    karaf@root> features:addurl mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features
-    karaf@root> features:install fabric-eca
+    karaf@root> features:addurl mvn:org.fusesource.fuse/fuse-fuse/1.1-SNAPSHOT/xml/features
+    karaf@root> features:install fuse-eca
 
 
 ### Using 
@@ -146,9 +146,9 @@ To use this module you need to use the [FUSE Mediation Router](http://fusesource
 
 {pygmentize:: xml}
 <dependency>
-  <groupId>org.fusesource.fabric</groupId>
-  <artifactId>fabric-eca</artifactId>
-  <version>\${fabric-version}</version>
+  <groupId>org.fusesource.fuse</groupId>
+  <artifactId>fuse-eca</artifactId>
+  <version>\${fuse-version}</version>
 </dependency>
 {pygmentize}
 

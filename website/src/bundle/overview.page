@@ -1,33 +1,33 @@
 ---
-title: Fabric Bundle Overview
+title: Fuse Bundle Overview
 --- name:overview
-# Fabric Bundles
+# Fuse Bundles
 
 --- name:content pipeline:ssp,markdown
 
 {:toc}
 
-# Fabric Bundle Overview
+# Fuse Bundle Overview
 
-This document hopes to explain what Fabric Bundles (or FABs) are and how you use them.
+This document hopes to explain what Fuse Bundles (or FABs) are and how you use them.
 
-## Why Fabric Bundles?
+## Why Fuse Bundles?
 
-Fabric Bundles are designed to make it very easy for application developers to create applications that can be deployed in OSGi containers or  web containers so that its:-
+Fuse Bundles are designed to make it very easy for application developers to create applications that can be deployed in OSGi containers or  web containers so that its:-
 
 * easy to deploy and control which classes are shared across deployment units
 * there's a common model of class loaders across your build tool (e.g. Maven), your IDE (e.g. with Maven integration) and container with few surprises
 * developers can focus on getting things done rather than fighting OSGi metadata or struggling with OSGi specific metadata generation tools.
 
-For more detail see the [motivations behind creating Fabric Bundles](background.html)
+For more detail see the [motivations behind creating Fuse Bundles](background.html)
 
-## What is a Fabric Bundle?
+## What is a Fuse Bundle?
     
 ${include("/bundle/_what-is-fab.md")}
 
 ## Installing a FAB
 
-In your OSGi container such as [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/) or [Apache Karaf](http://karaf.apache.org/) with the Fabric bundle feature installed - you can then install any FAB as if it were a WAR or Karaf feature.
+In your OSGi container such as [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/) or [Apache Karaf](http://karaf.apache.org/) with the Fuse bundle feature installed - you can then install any FAB as if it were a WAR or Karaf feature.
 
 ${include("/bundle/_install-command.md")}
 
@@ -64,47 +64,47 @@ So to share a dependency (and its transitive dependencies) you just declare a de
 
 This is the same approach you use when building a WAR using Maven to avoid things like the servlet API or JSP being included inside the WAR.
 
-### Fabric-Provided-Dependency
+### Fuse-Provided-Dependency
 
-An alternative approach to the _&lt;scope&gt;provided&lt;/scope&gt;_ XML is to use the jar manifest header **Fabric-Provided-Dependency** which denotes which artefacts (transitively) should be shared across deployment units. This header, like most FAB headers, uses a simple concise syntax which supports wildcards.
+An alternative approach to the _&lt;scope&gt;provided&lt;/scope&gt;_ XML is to use the jar manifest header **Fuse-Provided-Dependency** which denotes which artefacts (transitively) should be shared across deployment units. This header, like most FAB headers, uses a simple concise syntax which supports wildcards.
 
 The syntax lets you specify zero to many artifacts as follows
 
 {pygmentize:: text}
-Fabric-Provided-Dependency: groupId:artifactId someGroup:someArtifact
+Fuse-Provided-Dependency: groupId:artifactId someGroup:someArtifact
 {pygmentize}
     
 You can use wildcards for the groupId or artifactId. So for example if you wish to share all Apache Camel and Spring dependencies (transitively) in your FAB just add this
 
 {pygmentize:: text}
-Fabric-Provided-Dependency: org.apache.camel:* org.springframework:*
+Fuse-Provided-Dependency: org.apache.camel:* org.springframework:*
 {pygmentize}
 
 which some find a little simpler and more DRY than using the _&lt;scope&gt;provided&lt;/scope&gt;_ XML on every dependency to be shared
 
 
 
-### Fabric-Dependency-Require-Bundle
+### Fuse-Dependency-Require-Bundle
 
 Specifies a list of artefacts which should not use the regular OSGi mechanism of importing packages, but instead should use the OSGi **Require-Bundle** directive.
 
-By default the packages are imported from shared dependencies using the OSGi **Import-Package** directive for all artefacts not selected via the **Fabric-Dependency-Require-Bundle** expression.
+By default the packages are imported from shared dependencies using the OSGi **Import-Package** directive for all artefacts not selected via the **Fuse-Dependency-Require-Bundle** expression.
 
 
-### Fabric-Include-Optional-Dependency
+### Fuse-Include-Optional-Dependency
 
 Optional dependencies are marked in a _pom.xml_ using the _&lt;optional&gt;true&lt;/optional&gt;_ XML on a dependency.
 
-By default optional dependencies are excluded in a FAB. To explicitly include them you need to add them with the **Fabric-Include-Optional-Dependency** manifest entry.
+By default optional dependencies are excluded in a FAB. To explicitly include them you need to add them with the **Fuse-Include-Optional-Dependency** manifest entry.
 
 So to include all optional dependencies use
 
 {pygmentize:: text}
-Fabric-Include-Optional-Dependency: *:*
+Fuse-Include-Optional-Dependency: *:*
 {pygmentize}
 
 
 ## What are the drawbacks?
 
-None :). Fabric Bundles create regular valid OSGi bundles and they provide a nice simple abstraction so you don't need to work with OSGi metadata; but if you really want to you can either still write OSGi bundles by hand, reuse existing OSGi bundles or reuse FABs in other OSGi bundles or put OSGi metadata explicitly into your FAB.
+None :). Fuse Bundles create regular valid OSGi bundles and they provide a nice simple abstraction so you don't need to work with OSGi metadata; but if you really want to you can either still write OSGi bundles by hand, reuse existing OSGi bundles or reuse FABs in other OSGi bundles or put OSGi metadata explicitly into your FAB.
 

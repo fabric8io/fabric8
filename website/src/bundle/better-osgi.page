@@ -37,13 +37,13 @@ Similarly OSGi requires all bundles to have full and accurate package level meta
 In the EJB 1.0 days just like in OSGi today folks say 'ah thats just a tooling problem!'. There are various tools out there to help for sure such as [Felix Maven Bundle Plugin](http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html), [BND](http://www.aqute.biz/Bnd/Bnd), [Bndtools](http://bndtools.org/) or the MANIFEST.MF editor in Eclipse.
 
 
-## How are Fabric Bundles different?
+## How are Fuse Bundles different?
 
-Fabric Bundles are just jars built using Maven or Maven-compatible tools. That is to say its a regular jar with a META-INF/maven/groupId/artifactId/pom.xml file (and pom.properties file).
+Fuse Bundles are just jars built using Maven or Maven-compatible tools. That is to say its a regular jar with a META-INF/maven/groupId/artifactId/pom.xml file (and pom.properties file).
 
 Many folks today use Maven or a maven like tool (SBT, Ant+Ivy, Bundlr, Gradle etc) for building jars, specifying dependencies.
 
-Fabric Bundles rely on the maven metadata to define dependency trees when deploying in OSGi. Thats to say the same class loaders that work in your IDE or your maven build also work in the OSGi container.
+Fuse Bundles rely on the maven metadata to define dependency trees when deploying in OSGi. Thats to say the same class loaders that work in your IDE or your maven build also work in the OSGi container.
 
 The main difference being if you use the <scope>provided</scope> in your maven pom.xml then that dependency will be shared across bundles.
 
