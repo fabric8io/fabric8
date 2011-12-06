@@ -47,6 +47,8 @@ html(lang="en")
             - 
               if (requestUri.startsWith("/fabric"))
                 include("/fabric/_navigation.jade")
+              else if (requestUri.startsWith("/bundle"))
+                include("/bundle/_navigation.jade")
               else
                 include("/_navigation.jade")
     - if (blog!=null)

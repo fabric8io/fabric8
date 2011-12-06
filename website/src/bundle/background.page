@@ -44,7 +44,7 @@ So we'd prefer application developers just focus on the course grained high leve
 
 ## How are Fabric Bundles different?
 
-${include("/docs/bundle/_what-is-fab.md")}
+${include("/bundle/_what-is-fab.md")}
 
 So if you are already using a [suitable build tool](faq.html#Which_build_tools_generate_FABs_) like [Apache Maven](http://maven.apache.org/) then you don't have to particularly learn anything new or change your build system. You can just deploy your FABs directly into a [suitable container](faq.html#Which_containers_support_FABs_) like [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/).
 
