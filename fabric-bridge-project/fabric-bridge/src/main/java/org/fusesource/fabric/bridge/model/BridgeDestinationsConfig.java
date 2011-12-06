@@ -9,12 +9,9 @@
  */
 package org.fusesource.fabric.bridge.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Dhiraj Bokde
@@ -47,6 +44,10 @@ public class BridgeDestinationsConfig extends IdentifiedType {
 	@XmlElement(name="dispatch-policy")
 	private DispatchPolicy dispatchPolicy = new DispatchPolicy();
 	
+	// place holder for bean name reference for dispatch policy
+	@XmlAttribute
+	private String dispatchPolicyRef;
+
 	// default is empty destination list, to be filled later
 	@XmlElement(name="destination")
 	private List<BridgedDestination> destinations = new ArrayList<BridgedDestination>();
@@ -90,6 +91,14 @@ public class BridgeDestinationsConfig extends IdentifiedType {
 	public final DispatchPolicy getDispatchPolicy() {
 		return dispatchPolicy;
 	}
+
+    public String getDispatchPolicyRef() {
+        return dispatchPolicyRef;
+    }
+
+    public void setDispatchPolicyRef(String dispatchPolicyRef) {
+        this.dispatchPolicyRef = dispatchPolicyRef;
+    }
 
 	public final List<BridgedDestination> getDestinations() {
 		return destinations;

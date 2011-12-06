@@ -72,6 +72,7 @@
         <xs:attribute name="defaultStagingLocation" type="xs:boolean"/>
         <xs:attribute name="destinationNameHeader" type="xs:string"/>
         <xs:attribute name="destinationTypeHeader" type="xs:string"/>
+        <xs:attribute name="dispatchPolicyRef" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
