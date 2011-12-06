@@ -1,8 +1,8 @@
 ---
-title: Camel C24IO Support
---- name:content
+title: Fuse EIP C24IO Support
+--- 
 
-## Camel C24 IO Support
+## C24 IO Support
 
 The Camel [C24IO Data Format][DataFormat] supports the [C24 IO][C24] product which provides a framework for reading and writing a huge number of vertical message payloads like SWIFT, SEPA, FpML, TWIST, ISO 20022, CREST and FIX.
 

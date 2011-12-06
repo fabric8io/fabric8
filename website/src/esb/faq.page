@@ -16,5 +16,5 @@ ${include("/_faq.md")}
 
 ### How does Fuse ESB differ from Apache ServiceMix
 
-* Fuse ESB comes integrated with [Fuse Fabric](../fabric/index) for improved clustering, partitioning, discovery and load balance.
+* Fuse ESB comes integrated with [Fuse Fabric](../fabric/index) for improved clustering, partitioning, discovery and load balancing.
 * Fuse ESB comes integrated with [Fuse Bundle](../bundle/index) for simpler development and deployment of OSGi based applications.
