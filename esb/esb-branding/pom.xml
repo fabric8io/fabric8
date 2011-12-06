@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.fusesource.esb</groupId>
+        <artifactId>esb-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>org.fusesource.esb.karaf.branding</artifactId>
+    <packaging>bundle</packaging>
+    <name>Fuse ESB :: Branding Support</name>
+    <description>Fuse ESB Branding</description>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Import-Package>*</Import-Package>
+                        <Private-Package>!*</Private-Package>
+                        <Export-Package>
+                            org.apache.karaf.branding        
+                        </Export-Package>
+                        <Spring-Context>*;publish-context:=false</Spring-Context>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

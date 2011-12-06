@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.fusesource.fabric.bridge</groupId>
+    <artifactId>fabric-bridge-project</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>stream-log</artifactId>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>An executable jar that streams log data received via stdin to ActiveMQ. (powered by Camel)</description>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.fusesource.mvnplugins</groupId>
+        <artifactId>maven-uberize-plugin</artifactId>
+        <version>1.15</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>uberize</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <transformers>
+            <transformer implementation="org.fusesource.mvnplugins.uberize.transformer.ManifestEditor">
+              <Main-Class>org.fusesource.fabric.stream.log.Main</Main-Class>
+            </transformer>
+          </transformers>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+      <version>${camel-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-stream</artifactId>
+      <version>${camel-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
+      <version>${activemq-version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.iq80.snappy</groupId>
+      <artifactId>snappy</artifactId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>${slf4j-version}</version>
+    </dependency>
+
+  </dependencies>
+
+  
+</project>

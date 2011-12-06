@@ -23,20 +23,20 @@
   <packaging>bundle</packaging>
 
   <properties>
-      <fabric.osgi.import.additional>
+      <fuse.osgi.import.additional>
           *;resolution:=optional
-      </fabric.osgi.import.additional>
-      <fabric.osgi.export>
+      </fuse.osgi.import.additional>
+      <fuse.osgi.export>
           org.elasticsearch*;-noimport:=true;version=0.14.2
-      </fabric.osgi.export>
-      <fabric.osgi.private.pkg>
+      </fuse.osgi.export>
+      <fuse.osgi.private.pkg>
           org.apache.lucene*,
           org.tartarus*,
           org.ops4j.peaberry*
-      </fabric.osgi.private.pkg>
-      <fabric.osgi.services.export>
+      </fuse.osgi.private.pkg>
+      <fuse.osgi.services.export>
           org.elasticsearch.node.Node
-      </fabric.osgi.services.export>
+      </fuse.osgi.services.export>
   </properties>
 
   <dependencies>

@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.esb</groupId>
+        <artifactId>esb-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fuse-esb</artifactId>
+    <packaging>pom</packaging>
+    <name>Fuse ESB :: Assembly</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.fusesource.esb</groupId>
+            <artifactId>shared</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Download Karaf assemblies for dependency:unpack-->
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fuse-fabric</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fuse-fabric</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fuse-fabric</artifactId>
+            <version>${project.version}</version>
+            <type>tar.gz</type>
+        </dependency>
+
+        <!--Xerces jar to be included in lib/endorsed -->
+        <dependency>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${xerces.version}</version>
+        </dependency>
+
+        <!--xalan jar to be included in lib/endorsed-->
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
+
+        <!-- branding -->
+        <dependency>
+            <groupId>org.fusesource.esb</groupId>
+            <artifactId>org.fusesource.esb.karaf.branding</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- other features required -->
+<!--
+        <dependency>
+            <groupId>org.apache.cxf.karaf</groupId>
+            <artifactId>apache-cxf</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+-->
+    </dependencies>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/filtered-resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <configuration>
+                    <appendedResourcesDirectory>${basedir}/target/shared/appended-resources</appendedResourcesDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>features-maven-plugin</artifactId>
+                <version>${karaf.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-features-to-repo</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>add-features-to-repo</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix.nmr.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
+                                <descriptor>file:${basedir}/target/classes/features.xml</descriptor>
+
+                                <!-- FuseSource only : Fabric -->
+                                <descriptor>mvn:org.fusesource.fabric/fabric-distro/${fabric.version}/xml/features</descriptor>
+                            </descriptors>
+                            <features>
+                                <feature>cxf</feature>
+                                <feature>saaj</feature>
+                                <feature>obr</feature>
+                                <feature>config</feature>
+                                <feature>activemq</feature>
+                                <feature>activemq-blueprint</feature>
+                                <feature>activemq-spring</feature>
+                                <feature>activemq-broker</feature>
+                                <feature>camel</feature>
+                                <feature>camel-activemq</feature>
+                                <feature>camel-cxf</feature>
+                                <feature>camel-blueprint</feature>
+                                <feature>war</feature>
+
+                                <!-- FuseSource only : Fabric -->
+                                <feature>fabric-bundle</feature>
+                            </features>
+                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                            <repository>target/features-repo</repository>
+                        </configuration>
+                        <inherited>false</inherited>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>filter</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>copy-system-folder</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/features-repo</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>target/dependencies/unix/fuse-fabric-${project.version}/system</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-shared</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.fusesource.esb</groupId>
+                                    <artifactId>shared</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>target/shared</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-unix</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.fusesource.fabric</groupId>
+                                    <artifactId>fuse-fabric</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-win</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.fusesource.fabric</groupId>
+                                    <artifactId>fuse-fabric</artifactId>
+                                    <type>zip</type>
+                                    <outputDirectory>target/dependencies/win</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enable-obr</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="enable-obr">
+                                <echo message="Updating etc/startup.properties in unix assembly"/>
+                                <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/startup.properties"
+                                        append="true" eol="unix">
+                                    <fileset file="target/shared/startup-obr.properties" />
+                                </concat>
+                                <echo message="Updating etc/startup.properties in windows assembly"/>
+                                <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/startup.properties"
+                                        append="true" eol="dos">
+                                    <fileset file="target/shared/startup-obr.properties" />
+                                </concat>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>unix-bin</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <tarLongFileMode>gnu</tarLongFileMode>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>windows-bin</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unix-src</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attached</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/descriptors/unix-src.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <inherited>false</inherited>
+                            </execution>
+                            <execution>
+                                <id>windows-src</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attached</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/descriptors/windows-src.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <inherited>false</inherited>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
+

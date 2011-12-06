@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.fusesource</groupId>
+        <artifactId>fuse-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-project</artifactId>
+    <packaging>pom</packaging>
+    <name>Fuse Fabric :: Project</name>
+
+    <modules>
+        <module>fabric-core</module>
+        <module>fabric-linkedin-zookeeper</module>
+        <module>fabric-zookeeper</module>
+        <module>fabric-zookeeper-commands</module>
+        <module>fabric-maven-proxy</module>
+        <module>fabric-core-agent-ssh</module>
+        <module>fabric-core-agent-jclouds</module>
+        <module>fabric-commands</module>
+        <module>fabric-agent</module>
+        <module>fabric-scala</module>
+        <module>fabric-jaas</module>
+        <module>fabric-zookeeper-spring</module>
+        <module>fabric-configadmin</module>
+
+        <module>fabric-cxf</module>
+        <module>fabric-camel</module>
+        <module>fabric-camel-c24io</module>
+        <module>fabric-camel-dslio</module>
+        <module>fabric-monitor</module>
+        <module>fabric-launcher</module>
+        <module>fabric-groups</module>
+        <module>fabric-dosgi</module>
+        <module>fabric-security</module>
+        <module>fabric-branding</module>
+        <module>fuse-fabric</module>
+        
+        <module>fabric-examples</module>
+        <module>fabric-itests</module>
+    </modules>
+
+</project>

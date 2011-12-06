@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.fusesource.mq</groupId>
+        <artifactId>mq-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.fusesource.mq</groupId>
+    <artifactId>fuse-mq</artifactId>
+    <name>${project.artifactId}</name>
+       <description>Fuse MQ :: Binary Distribution</description>
+
+       <prerequisites>
+           <maven>2.0.9</maven>
+       </prerequisites>
+
+       <dependencies>
+           <!-- Fabric Dependencies -->
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fuse-fabric</artifactId>
+               <version>${project.version}</version>
+               <type>tar.gz</type>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fuse-fabric</artifactId>
+               <version>${project.version}</version>
+               <type>zip</type>
+           </dependency>
+
+           <!-- MQ Dependencies -->
+           <dependency>
+               <groupId>org.fusesource.mq</groupId>
+               <artifactId>org.fusesource.mq.karaf.branding</artifactId>
+			         <version>${project.version}</version>
+           </dependency>
+
+           <!-- Scala support -->
+           <dependency>
+             <groupId>org.scala-lang</groupId>
+             <artifactId>scala-library</artifactId>
+             <scope>compile</scope>
+           </dependency>
+       </dependencies>
+
+       <build>
+           <defaultGoal>install</defaultGoal>
+           <resources>
+             <resource>
+                 <directory>../../etc</directory>
+                 <filtering>true</filtering>
+                 <targetPath>distro/etc</targetPath>
+             </resource>
+               <resource>
+                   <directory>src/main/resources</directory>
+                   <filtering>true</filtering>
+               </resource>
+           </resources>
+
+           <plugins>
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-resources-plugin</artifactId>
+                   <version>2.4.3</version>
+                   <executions>
+                       <execution>
+                           <id>filter</id>
+                           <phase>process-resources</phase>
+                           <goals>
+                               <goal>resources</goal>
+                           </goals>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-assembly-plugin</artifactId>
+                   <version>2.2.1</version>
+                   <executions>
+                       <execution>
+                           <id>unix-bin</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>single</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
+                               </descriptors>
+                               <finalName>${project.artifactId}-${project.version}</finalName>
+                               <tarLongFileMode>gnu</tarLongFileMode>
+                               <appendAssemblyId>false</appendAssemblyId>
+                           </configuration>
+                       </execution>
+                       <execution>
+                           <id>windows-bin</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>single</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
+                               </descriptors>
+                               <finalName>${project.artifactId}-${project.version}</finalName>
+                               <appendAssemblyId>false</appendAssemblyId>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-dependency-plugin</artifactId>
+                   <executions>
+                       <execution>
+                           <id>unpack-unix</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>unpack</goal>
+                           </goals>
+                           <configuration>
+                               <artifactItems>
+                                   <artifactItem>
+                                       <groupId>org.fusesource.fabric</groupId>
+                                       <artifactId>fuse-fabric</artifactId>
+                                       <type>tar.gz</type>
+                                       <outputDirectory>target/dependencies/unix</outputDirectory>
+                                   </artifactItem>
+                               </artifactItems>
+                           </configuration>
+                       </execution>
+                       <execution>
+                           <id>unpack-win</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>unpack</goal>
+                           </goals>
+                           <configuration>
+                               <artifactItems>
+                                   <artifactItem>
+                                       <groupId>org.fusesource.fabric</groupId>
+                                       <artifactId>fuse-fabric</artifactId>
+                                       <type>zip</type>
+                                       <outputDirectory>target/dependencies/win</outputDirectory>
+                                   </artifactItem>
+                               </artifactItems>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+              <!--
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-antrun-plugin</artifactId>
+                   <executions>
+                       <execution>
+                           <id>update-properties</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>run</goal>
+                           </goals>
+                           <configuration>
+                               <target name="update-properties">
+                                   <echo message="Updating etc/config.properties in unix assembly"/>
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties"
+                                           append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   </concat>
+                                   <echo message="Updating etc/custom.properties in windows assembly"/>
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties"
+                                           append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   </concat>
+                               </target>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+               -->
+           </plugins>
+           <pluginManagement>
+           	<plugins>
+           		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+           		<plugin>
+           			<groupId>org.eclipse.m2e</groupId>
+           			<artifactId>lifecycle-mapping</artifactId>
+           			<version>1.0.0</version>
+           			<configuration>
+           				<lifecycleMappingMetadata>
+           					<pluginExecutions>
+           						<pluginExecution>
+           							<pluginExecutionFilter>
+           								<groupId>
+           									org.apache.karaf.tooling
+           								</groupId>
+           								<artifactId>
+           									features-maven-plugin
+           								</artifactId>
+           								<versionRange>
+           									[2.2.2-fuse-02-06,)
+           								</versionRange>
+           								<goals>
+           									<goal>
+           										add-features-to-repo
+           									</goal>
+           								</goals>
+           							</pluginExecutionFilter>
+           							<action>
+           								<ignore></ignore>
+           							</action>
+           						</pluginExecution>
+           					</pluginExecutions>
+           				</lifecycleMappingMetadata>
+           			</configuration>
+           		</plugin>
+           	</plugins>
+           </pluginManagement>
+       </build>
+   </project>

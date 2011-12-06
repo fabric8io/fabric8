@@ -1,0 +1,34 @@
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fuse-project</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.fusesource.eca</groupId>
+  <artifactId>eca-project</artifactId>
+  <packaging>pom</packaging>
+  <name>${project.artifactId}</name>
+  <description>Fuse ECA :: Project</description>
+
+  <properties>
+    <fuse.osgi.export>org.fusesource.eca.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+  </properties>
+
+  <modules>
+    <module>eca-core</module>
+  </modules>
+
+</project>

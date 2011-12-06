@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<assembly>
+    <id>windows-bin</id>
+
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+        <!-- Expanded ServiceMix Runtime -->
+        <fileSet>
+            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>**/demos/**</exclude>
+                <exclude>bin/create</exclude>
+                <exclude>bin/fabric</exclude>
+                <exclude>etc/org.apache.karaf.features.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
+                <exclude>lib/*-version.jar</exclude>
+                <exclude>LICENSE</exclude>
+                <exclude>NOTICE</exclude>
+                <exclude>README</exclude>
+                <exclude>RELEASE-NOTES</exclude>
+                <exclude>karaf-manual*</exclude>
+            </excludes>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes/etc</directory>
+            <outputDirectory>/etc/</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>${basedir}/target/features-repo</directory>
+            <outputDirectory>system</outputDirectory>
+        </fileSet>
+
+    </fileSets>
+
+  <componentDescriptors>
+    <componentDescriptor>${basedir}/src/main/descriptors/common-bin.xml</componentDescriptor>
+  </componentDescriptors>
+
+</assembly>

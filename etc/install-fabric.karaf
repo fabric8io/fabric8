@@ -1,8 +1,8 @@
-shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/wait-for-service
-shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/add-scala-tools-repo
+shell:source mvn:org.fusesource.fabric/fuse-fabric/${project.version}/karaf/wait-for-service
+shell:source mvn:org.fusesource.fabric/fuse-fabric/${project.version}/karaf/add-scala-tools-repo
 
 echo Add fabric features
-features:addurl mvn:org.fusesource.fabric/fabric-distro/${project.version}/xml/features
+features:addurl mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features
 
 echo Install fabric commands
 
@@ -33,15 +33,17 @@ wait-for-command fabric zk-cluster
 features:install fabric-jaas
 wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.apache.karaf.jaas.module=zookeeper))"
 
-features:install insight-elasticsearch
-features:install insight-log
+# lets not use elastic search just yet
+#
+# features:install insight-elasticsearch
+# features:install insight-log-elasticsearch
 
 # join existing cluster as root node (if first param is set - host:port)
 # or create a new one
  if {$1} {
     echo "Joining cluster " $1
     shell:sleep 2000
-    fabric:join-cluster $1
+    fabric:join $1
     #config:edit org.fusesource.fabric.zookeeper
     #config:propset zookeeper.url $1
     #config:update
@@ -50,15 +52,14 @@ features:install insight-log
     #zk:create /fabric/configs/versions/base/agents/$APPLICATION default
 } {
     echo Creating initial ZooKeeper cluster
-    fabric:zk-cluster --clean
-    fabric:zk-cluster $APPLICATION
+    fabric:ensemble-create --clean $APPLICATION
 
     echo Wait a few seconds for the cluster to initialize
     shell:sleep 5000
 
     # Lets define a bunch of default profiles
     echo Creating some default profiles
-    shell:source mvn:org.fusesource.fabric/fabric-distro/${project.version}/karaf/profiles
+    shell:source mvn:org.fusesource.fabric/fuse-fabric/${project.version}/karaf/profiles
 }
 
 

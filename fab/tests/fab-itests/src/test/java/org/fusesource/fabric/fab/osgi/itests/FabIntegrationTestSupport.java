@@ -124,7 +124,7 @@ public abstract class FabIntegrationTestSupport extends IntegrationTestSupport {
 
                 // add fab features
                 scanFeatures(
-                        maven().groupId("org.fusesource.fabric").artifactId("fabric-distro").type("xml").classifier("features").versionAsInProject(),
+                        maven().groupId("org.fusesource.fabric").artifactId("fuse-fabric").type("xml").classifier("features").versionAsInProject(),
                         "fabric-bundle"
                 ),
 

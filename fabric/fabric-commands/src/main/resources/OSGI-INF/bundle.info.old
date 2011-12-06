@@ -1,0 +1,22 @@
+\u001B[1mSYNOPSIS\u001B[0m
+    ${project.name}
+
+    ${project.description}
+
+    Maven URL:
+        \u001B[33mmvn:${project.groupId}/${project.artifactId}/${project.version}\u001B[0m
+
+\u001B[1mDESCRIPTION\u001B[0m
+    This bundle provides a set of services and commands for managing a Fuse Fabric cluster.
+
+    The following commands are available:
+    \u001B[36mfabric:ensemble\u001B[0m          Create or modify a Fabric cluster.
+    \u001B[36mfabric:join-cluster\u001B[0m     Join an existing Fabric cluster.
+    \u001B[36mfabric:connect\u001B[0m          Connect to an existing agent.
+    \u001B[36mfabric:list-agents\u001B[0m      List existing agents.
+    \u001B[36mfabric:list-profiles\u001B[0m    List existing profiles.
+    \u001B[36mfabric:agent-create\u001B[0m     Create a new agent.
+    \u001B[36mfabric:create-profile\u001B[0m   Create a new profile.
+
+\u001B[1mSEE ALSO\u001B[0m
+    \u001B[36mCommands\u001B[0m and \u001B[36mUsing the console\u001B[0m sections of the Karaf User Guide.

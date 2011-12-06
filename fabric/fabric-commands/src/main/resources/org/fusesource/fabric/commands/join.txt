@@ -1,0 +1,9 @@
+This command should be used to join this agent to an existing Fabric cluster.
+
+By specifying zookeeper URL, this agent will be registered as a root agent, in the existing zookeeper instance
+
+ e.g. fabric:join myhost:2181
+
+ Note that root agents should have different names (karaf name) or they'll override each others data.
+
+ You can change the name, by changing karaf.name property in ${KARAF_HOME}/etc/system.properties

@@ -1,0 +1,179 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
+    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient" availability="optional"/>
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="fabric/ensemble-create">
+            <action class="org.fusesource.fabric.commands.EnsembleCreate">
+                <property name="service" ref="zooKeeperClusterService"/>
+            </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+        </command>
+        <command name="fabric/ensemble-add">
+            <action class="org.fusesource.fabric.commands.EnsembleAdd">
+                <property name="service" ref="zooKeeperClusterService"/>
+            </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+        </command>
+        <command name="fabric/ensemble-remove">
+            <action class="org.fusesource.fabric.commands.EnsembleRemove">
+                <property name="service" ref="zooKeeperClusterService"/>
+            </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+        </command>
+        <command name="fabric/ensemble-list">
+            <action class="org.fusesource.fabric.commands.EnsembleList">
+                <property name="service" ref="zooKeeperClusterService"/>
+            </action>
+        </command>
+
+        <command name="fabric/join">
+            <action class="org.fusesource.fabric.commands.Join">
+                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="configurationAdmin" ref="configurationAdmin"/>
+            </action>
+        </command>
+
+        <command name="fabric/agent-create">
+            <action class="org.fusesource.fabric.commands.AgentCreate">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        <command name="fabric/agent-create-child">
+            <action class="org.fusesource.fabric.commands.AgentCreateChild">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+        </command>
+        <command name="fabric/agent-create-cloud">
+            <action class="org.fusesource.fabric.commands.AgentCreateCloud">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        <command name="fabric/agent-create-ssh">
+            <action class="org.fusesource.fabric.commands.AgentCreateSsh">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        <command name="fabric/agent-delete">
+            <action class="org.fusesource.fabric.commands.AgentDelete">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+        </command>
+        <command name="fabric/agent-list">
+            <action class="org.fusesource.fabric.commands.AgentList">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        <command name="fabric/agent-connect">
+            <action class="org.fusesource.fabric.commands.AgentConnect">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="agentCompleter" />
+                <null/>
+            </completers>
+        </command>
+      <command name="fabric/agent-start">
+          <action class="org.fusesource.fabric.commands.AgentStart">
+              <property name="fabricService" ref="fabricService"/>
+          </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+      </command>
+      <command name="fabric/agent-stop">
+          <action class="org.fusesource.fabric.commands.AgentStop">
+              <property name="fabricService" ref="fabricService"/>
+          </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+      </command>
+
+        <command name="fabric/agent-domains">
+            <action class="org.fusesource.fabric.commands.AgentDomains">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="agentCompleter" />
+                <null/>
+            </completers>
+        </command>
+
+        <command name="fabric/profile-create">
+            <action class="org.fusesource.fabric.commands.ProfileCreate">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        <command name="fabric/profile-list">
+            <action class="org.fusesource.fabric.commands.ProfileList">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        <command name="fabric/profile-display">
+            <action class="org.fusesource.fabric.commands.ProfileDisplay">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+          <completers>
+              <ref component-id="profileCompleter" />
+              <null/>
+          </completers>
+        </command>
+        <command name="fabric/profile-edit">
+            <action class="org.fusesource.fabric.commands.ProfileEdit">
+              <property name="fabricService" ref="fabricService"/>
+            </action>
+          <completers>
+            <!--
+            TODO requires Karaf 3.0.x or later
+            See: https://issues.apache.org/jira/browse/KARAF-1029
+
+              <ref key="-p" value-ref="profileCompleter" />
+            -->
+              <null/>
+          </completers>
+        </command>
+    </command-bundle>
+
+    <bean id="agentCompleter" class="org.fusesource.fabric.commands.support.AgentCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+    <bean id="profileCompleter" class="org.fusesource.fabric.commands.support.ProfileCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+
+
+</blueprint>

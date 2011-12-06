@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+--><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fuse-project</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+    
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.fusesource.fabric.apollo</groupId>
+  <artifactId>fabric-apollo-project</artifactId>
+  <version>1.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>Fuse Apollo :: Project</description>
+
+  <prerequisites>
+    <maven>2.1.0</maven>
+  </prerequisites>
+
+  <properties>
+    <osgi.fragment.host>org.apache.activemq.apollo-broker</osgi.fragment.host>
+  </properties>
+
+  <modules>
+    <module>fabric-apollo-cluster</module>
+    <module>fabric-apollo-cli</module>
+    <module>fabric-apollo-amqp</module>
+  </modules>
+
+  <build>
+    
+    <plugins>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.4.3</version>
+        <configuration>
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+          <forkMode>once</forkMode>
+          <argLine>-enableassertions</argLine>
+          <failIfNoTests>false</failIfNoTests>
+          <workingDirectory>${basedir}</workingDirectory>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*TestCase.java</include>
+          </includes>
+          <excludes>
+            <exclude>**/legacy/**</exclude>
+            <exclude>**/perf/**</exclude>
+            <exclude>**/jaxb/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.3.4</version>
+        <extensions>true</extensions>
+        <inherited>true</inherited>
+        <configuration>
+          <instructions>
+            <Fragment-Host>${osgi.fragment.host}</Fragment-Host>
+            <Implementation-Title>${project.artifactId}</Implementation-Title>
+            <Implementation-Version>${project.version}</Implementation-Version>
+            <Bundle-Name>${project.artifactId}</Bundle-Name>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>{local-packages};version=${project.version};-noimport:=true</Export-Package>
+            <Import-Package>*</Import-Package>
+            <Private-Package>!*</Private-Package>
+            <_versionpolicy-impl>[$(version;==;$(@)),$(version;=+;$(@)))</_versionpolicy-impl>
+            <_versionpolicy-uses>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy-uses>
+            <_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>
+            <_failok>false</_failok>
+          </instructions>
+        </configuration>
+      </plugin>
+
+    </plugins>
+    
+  </build>
+
+  <profiles>
+    
+    <!-- 
+        Do a license check by running       : mvn -P license license:check  
+        UPdate the license check by running : mvn -P license license:format  
+      -->
+    <profile>
+      <id>license</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila.maven-license-plugin</groupId>
+            <artifactId>maven-license-plugin</artifactId>
+            <version>1.6.0</version>
+            <configuration>
+              <quiet>false</quiet>
+              <header>src/main/resources/license-header.txt</header>
+              <aggregate>true</aggregate>
+              <includes>
+                  <include>src/**</include>
+                  <include>**/pom.xml</include>
+              </includes>
+              <excludes>
+                <!-- can remove once http://code.google.com/p/maven-license-plugin/issues/detail?id=72 is resolved -->
+                <exclude>**/*.scaml</exclude>
+                <exclude>**/LICENSE.txt</exclude>
+                <exclude>**/LICENSE</exclude>
+                <exclude>**/.svn/**</exclude>
+            
+                <!-- ignore files produced during a build -->
+                <exclude>**/target/**</exclude>
+            
+                <!-- ignore binary files -->
+                <exclude>**/*.jpg</exclude>
+                <exclude>**/*.png</exclude>
+                <exclude>**/*.gif</exclude>
+                <exclude>**/*.ico</exclude>
+                <exclude>**/*.keystore</exclude>
+
+              </excludes>
+              <useDefaultExcludes>false</useDefaultExcludes>
+              <mapping>
+                  <jj>JAVADOC_STYLE</jj>
+                  <proto>DOUBLESLASH_STYLE</proto>
+                  <index>SCRIPT_STYLE</index>
+              </mapping>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>        
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+        
+   <profile>
+      <id>download</id>
+      <repositories>
+        <!-- holds the hbase snapshot build of hbase trunk -->
+        <repository>
+          <id>chirino.snapshots</id>
+          <url>http://people.apache.org/~chirino/maven2-snapshot/</url>
+        </repository>    
+        
+        <!-- holds the hadoop release -->
+        <repository>
+          <id>temp-thrift</id>
+          <name>Thrift 0.2.0</name>
+          <url>http://people.apache.org/~rawson/repo/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+        </repository>
+            
+        <repository>
+          <id>scala</id>
+          <name>Scala Tools</name>
+          <url>http://scala-tools.org/repo-releases</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>        
+        
+        <repository>
+          <id>java.net.m2</id>
+          <name>java.net Maven 2 Repo</name>
+          <url>http://download.java.net/maven/2</url>
+        </repository>
+        
+        <repository>
+          <id>fusesource.m2-snapshot</id>
+          <name>FuseSource Community Snapshot Repository</name>
+          <url>http://repo.fusesource.com/maven2-snapshot</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+        </repository>
+        
+        <repository>
+          <id>apache.snapshots</id>
+          <url>https://repository.apache.org/content/repositories/snapshots</url>
+          <snapshots><enabled>true</enabled></snapshots>
+          <releases><enabled>false</enabled></releases>
+        </repository>
+        
+        <repository>
+          <id>oracleReleases</id>
+          <url>http://download.oracle.com/maven</url>
+          <layout>default</layout>
+        </repository>        
+        
+        
+        <!-- <repository>
+          <id>glassfish-repo-archive</id>
+          <name>Nexus repository collection for Glassfish</name>
+          <url>http://maven.glassfish.org/content/groups/glassfish</url>
+          <snapshots>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>  -->
+               
+      </repositories>
+    </profile>
+  </profiles>
+
+</project>

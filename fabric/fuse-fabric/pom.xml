@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fuse-fabric</artifactId>
+    <name>Fuse Fabric :: Binary Distribution</name>
+    <description>Fuse Fabric :: Binary Distribution</description>
+
+       <prerequisites>
+           <maven>2.0.9</maven>
+       </prerequisites>
+
+       <dependencies>
+           <!-- Karaf Dependencies -->
+           <dependency>
+               <groupId>org.apache.karaf</groupId>
+               <artifactId>apache-karaf</artifactId>
+               <version>${karaf-version}</version>
+               <type>tar.gz</type>
+           </dependency>
+           <dependency>
+               <groupId>org.apache.karaf</groupId>
+               <artifactId>apache-karaf</artifactId>
+               <version>${karaf-version}</version>
+               <type>zip</type>
+           </dependency>
+
+           <!-- Fabric Dependencies -->
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-zookeeper</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-linkedin-zookeeper</artifactId>
+               <version>${project.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-core</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-commands</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-agent</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-configadmin</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+			         <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
+			         <version>${project.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.mq</groupId>
+               <artifactId>mq-fabric</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.insight</groupId>
+               <artifactId>insight-log</artifactId>
+           </dependency>
+       </dependencies>
+
+       <build>
+           <defaultGoal>install</defaultGoal>
+           <resources>
+             <resource>
+                 <directory>../../etc</directory>
+                 <filtering>true</filtering>
+                 <targetPath>distro/etc</targetPath>
+             </resource>
+               <resource>
+                   <directory>src/main/resources</directory>
+                   <filtering>true</filtering>
+               </resource>
+           </resources>
+
+           <plugins>
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-resources-plugin</artifactId>
+                   <version>2.4.3</version>
+                   <executions>
+                       <execution>
+                           <id>filter</id>
+                           <phase>process-resources</phase>
+                           <goals>
+                               <goal>resources</goal>
+                           </goals>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                   <groupId>org.apache.karaf.tooling</groupId>
+                   <artifactId>features-maven-plugin</artifactId>
+                   <version>${karaf-version}</version>
+                   <executions>
+                       <execution>
+                           <id>add-features-to-repo</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>add-features-to-repo</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
+                                   <descriptor>file:${basedir}/target/classes/distro/fabric-features.xml</descriptor>
+                               </descriptors>
+                               <features>
+                                   <feature>fabric-agent</feature>
+                                   <feature>fabric-commands</feature>
+                                   <feature>fabric-camel</feature>
+                                   <feature>fabric-dosgi</feature>
+                                   <feature>fabric-bundle</feature>
+                                   <feature>fabric-monitor</feature>
+                                   <feature>mq-fabric</feature>
+                                   <feature>insight-elasticsearch</feature>
+                                   <feature>insight-log-elasticsearch</feature>
+                               </features>
+                               <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                               <repository>target/features-repo</repository>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+              
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-assembly-plugin</artifactId>
+                   <version>2.2.1</version>
+                   <executions>
+                       <execution>
+                           <id>unix-bin</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>single</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
+                               </descriptors>
+                               <finalName>${project.artifactId}-${project.version}</finalName>
+                               <tarLongFileMode>gnu</tarLongFileMode>
+                               <appendAssemblyId>false</appendAssemblyId>
+                           </configuration>
+                       </execution>
+                       <execution>
+                           <id>windows-bin</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>single</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
+                               </descriptors>
+                               <finalName>${project.artifactId}-${project.version}</finalName>
+                               <appendAssemblyId>false</appendAssemblyId>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/distro/fabric-features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/increase-logging.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>enable-logging</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/install-fabric.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>installer</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/add-scala-tools-repo.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>add-scala-tools-repo</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/dosgi.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>dosgi</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/profiles.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>profiles</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/loadbalancing.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>loadbalancing</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/activemq.xml</file>
+                                    <type>xml</type>
+                                    <classifier>activemq</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/classes/distro/etc/wait-for-service.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>wait-for-service</classifier>
+                                  </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-dependency-plugin</artifactId>
+                   <executions>
+                       <execution>
+                           <id>unpack-unix</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>unpack</goal>
+                           </goals>
+                           <configuration>
+                               <artifactItems>
+                                   <artifactItem>
+                                       <groupId>org.apache.karaf</groupId>
+                                       <artifactId>apache-karaf</artifactId>
+                                       <type>tar.gz</type>
+                                       <outputDirectory>target/dependencies/unix</outputDirectory>
+                                   </artifactItem>
+                               </artifactItems>
+                           </configuration>
+                       </execution>
+                       <execution>
+                           <id>unpack-win</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>unpack</goal>
+                           </goals>
+                           <configuration>
+                               <artifactItems>
+                                   <artifactItem>
+                                       <groupId>org.apache.karaf</groupId>
+                                       <artifactId>apache-karaf</artifactId>
+                                       <type>zip</type>
+                                       <outputDirectory>target/dependencies/win</outputDirectory>
+                                   </artifactItem>
+                               </artifactItems>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-antrun-plugin</artifactId>
+                   <executions>
+                       <execution>
+                           <id>update-properties</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>run</goal>
+                           </goals>
+                           <configuration>
+                               <target name="update-properties">
+                                   <echo message="Updating etc/config.properties in unix assembly"/>
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties"
+                                           append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   </concat>
+                                   <echo message="Updating etc/custom.properties in windows assembly"/>
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties"
+                                           append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   </concat>
+
+                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly"/>
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg"
+                                           append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
+                                   </concat>
+                                   <echo message="Updating etc/custom.properties in windows assembly"/>
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg"
+                                           append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
+                                   </concat>
+                               </target>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+           </plugins>
+           <pluginManagement>
+           	<plugins>
+           		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+           		<plugin>
+           			<groupId>org.eclipse.m2e</groupId>
+           			<artifactId>lifecycle-mapping</artifactId>
+           			<version>1.0.0</version>
+           			<configuration>
+           				<lifecycleMappingMetadata>
+           					<pluginExecutions>
+           						<pluginExecution>
+           							<pluginExecutionFilter>
+           								<groupId>
+           									org.apache.karaf.tooling
+           								</groupId>
+           								<artifactId>
+           									features-maven-plugin
+           								</artifactId>
+           								<versionRange>
+           									[2.2.2-fuse-02-06,)
+           								</versionRange>
+           								<goals>
+           									<goal>
+           										add-features-to-repo
+           									</goal>
+           								</goals>
+           							</pluginExecutionFilter>
+           							<action>
+           								<ignore></ignore>
+           							</action>
+           						</pluginExecution>
+           					</pluginExecutions>
+           				</lifecycleMappingMetadata>
+           			</configuration>
+           		</plugin>
+           	</plugins>
+           </pluginManagement>
+       </build>
+   </project>

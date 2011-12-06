@@ -1,0 +1,147 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-scala</artifactId>
+    <version>1.1-SNAPSHOT</version>
+    <relativePath>../fabric-scala</relativePath>
+  </parent>
+
+  <artifactId>fabric-monitor</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>Fuse Fabric :: Monitor</description>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.fusesource.scalate</groupId>
+      <artifactId>scalate-util</artifactId>
+      <version>${scalate-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fusesource.hawtdispatch</groupId>
+      <artifactId>hawtdispatch-scala</artifactId>
+      <version>${hawtdispatch-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fusesource.rrd4j</groupId>
+      <artifactId>rrd4j</artifactId>
+      <version>${rrd4j-version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.fusesource.insight</groupId>
+        <artifactId>insight-log</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-linkedin-zookeeper</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fusesource</groupId>
+      <artifactId>sigar</artifactId>
+      <version>${sigar-version}</version>
+      <optional>true</optional>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.fusesource</groupId>
+      <artifactId>sigar</artifactId>
+      <classifier>native</classifier>
+      <version>${sigar-version}</version>
+    </dependency>
+
+
+<!--
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet-api-version}</version>
+      <scope>provided</scope>
+    </dependency>
+-->
+
+    <!-- for the handy TimeSpan class -->
+<!-- comes from fabric-linkedin-zookeeper
+    <dependency>
+      <groupId>org.linkedin</groupId>
+      <artifactId>org.linkedin.util-core</artifactId>
+      <version>${linkedin-zookeeper-version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun.jdmk</groupId>
+          <artifactId>jmxtools</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+-->
+
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_2.9.1</artifactId>
+      <version>${scalatest-version}</version>
+      <scope>test</scope>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+-->
+  </dependencies>
+
+  <build>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>org.fusesource.fabric.monitor.MonitorDeamon</mainClass>
+          <classpathScope>test</classpathScope>
+          <arguments>
+            <argument>--conf</argument>
+            <argument>${basedir}/src/test/resources/example-conf</argument>
+          </arguments>
+        </configuration>
+      </plugin>      
+      
+    </plugins>
+  </build>
+
+</project>

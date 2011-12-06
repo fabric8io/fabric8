@@ -1,0 +1,75 @@
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource</groupId>
+        <artifactId>fuse-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.fusesource.esb</groupId>
+    <artifactId>esb-project</artifactId>
+    <packaging>pom</packaging>
+    <name>Fuse ESB :: Project</name>
+
+    <properties>
+        <examples.directory>../examples</examples.directory>
+        <activemq.version>${activemq-version}</activemq.version>
+        <camel.version>${camel-version}</camel.version>
+        <cxf.version>${cxf-version}</cxf.version>
+        <fabric.version>${project.version}</fabric.version>
+        <karaf.version>${karaf-version}</karaf.version>
+        <maven-assembly-plugin.version>${maven-assembly-plugin-version}</maven-assembly-plugin.version>
+    </properties>
+
+    <modules>
+        <module>shared</module>
+        <module>esb-branding</module>
+        <module>fuse-esb</module>
+        <module>fuse-esb-minimal</module>
+        <module>fuse-esb-jbi</module>
+        <module>fuse-esb-full</module>
+    </modules>
+
+    <repositories>
+        <!-- ServiceMix Maven 2 repository: jsmpp 2.0 is not in central repo -->
+        <repository>
+            <id>servicemix.m2-repo</id>
+            <name>ServiceMix Maven 2 repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+<!--
+        <repository>
+            <id>fusesource-release-proxy</id>
+            <name>FuseSource release proxy</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
+-->
+    </repositories>
+
+</project>

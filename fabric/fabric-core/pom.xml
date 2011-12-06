@@ -1,0 +1,156 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-scala</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../fabric-scala</relativePath>
+    </parent>
+
+    <artifactId>fabric-core</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>Fuse Fabric :: Core</description>
+
+    <properties>
+        <fuse.osgi.export>
+          org.fusesource.fabric.api*;version=${project.version},
+          org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
+          org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
+        </fuse.osgi.export>
+        <fuse.osgi.private.pkg>
+            org.fusesource.fabric.internal
+        </fuse.osgi.private.pkg>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+      <dependency>
+          <groupId>org.apache.karaf.admin</groupId>
+          <artifactId>org.apache.karaf.admin.management</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.shell</groupId>
+          <artifactId>org.apache.karaf.shell.log</artifactId>
+          <scope>provided</scope>
+          <optional>true</optional>
+      </dependency>
+
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.enterprise</artifactId>
+          <scope>provided</scope>
+      </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.insight</groupId>
+            <artifactId>insight-log</artifactId>
+        </dependency>
+
+<!--
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.42</version>
+        </dependency>
+-->
+
+        <dependency>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-mapper-asl</artifactId>
+          <version>${jackson-version}</version>
+        </dependency>
+
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-linkedin-zookeeper</artifactId>
+          <version>${project.version}</version>
+          <scope>provided</scope>
+      </dependency>
+
+<!--
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>${jasypt-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.zookeeper-impl</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.util-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+-->
+
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-impl</artifactId>
+            <version>1.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-connector-wagon</artifactId>
+            <version>1.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-spi</artifactId>
+            <version>1.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-file</artifactId>
+            <version>1.0-beta-7</version>
+        </dependency>
+
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+        </plugins>
+    </build>
+
+</project>

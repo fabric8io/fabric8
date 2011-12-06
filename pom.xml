@@ -14,11 +14,11 @@
     <parent>
         <groupId>org.fusesource</groupId>
         <artifactId>fusesource-pom</artifactId>
-        <version>1.8</version>
+        <version>1.9</version>
     </parent>
 
-    <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-project</artifactId>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fuse-project</artifactId>
     <packaging>pom</packaging>
     <version>1.1-SNAPSHOT</version>
 
@@ -50,51 +50,54 @@
         <maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- OSGi bundles properties -->
-        <fabric.osgi.bundle.name>${project.description}</fabric.osgi.bundle.name>
-        <fabric.osgi.import.fabric.version>version="[$(version;==;${fabric.osgi.version}),$(version;=+;${fabric.osgi.version}))"
-        </fabric.osgi.import.fabric.version>
-        <fabric.osgi.import.strict.version>version="[$(version;===;${fabric.osgi.version}),$(version;==+;${fabric.osgi.version}))"
-        </fabric.osgi.import.strict.version>
-        <fabric.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fabric.osgi.import.default.version>
-        <fabric.osgi.import.defaults>
+        <fuse.osgi.bundle.name>${project.description}</fuse.osgi.bundle.name>
+        <fuse.osgi.import.fabric.version>version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
+        </fuse.osgi.import.fabric.version>
+        <fuse.osgi.import.strict.version>version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
+        </fuse.osgi.import.strict.version>
+        <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
+        <fuse.osgi.import.defaults>
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.8,3)",
-        </fabric.osgi.import.defaults>
-        <fabric.osgi.import.before.defaults />
-        <fabric.osgi.import.additional />
-        <fabric.osgi.import.pkg>
-            org.fusesource.fabric.*;${fabric.osgi.import.fabric.version},
-            ${fabric.osgi.import.before.defaults},
-            ${fabric.osgi.import.defaults},
-            ${fabric.osgi.import.additional},
+        </fuse.osgi.import.defaults>
+        <fuse.osgi.import.before.defaults />
+        <fuse.osgi.import.additional />
+        <fuse.osgi.import.pkg>
+            org.fusesource.fabric.*;${fuse.osgi.import.fabric.version},
+            ${fuse.osgi.import.before.defaults},
+            ${fuse.osgi.import.defaults},
+            ${fuse.osgi.import.additional},
             *
-        </fabric.osgi.import.pkg>
-        <fabric.osgi.activator />
-        <fabric.osgi.failok>false</fabric.osgi.failok>
-        <fabric.osgi.private.pkg>!*</fabric.osgi.private.pkg>
-        <fabric.osgi.export>org.fusesource.fabric.*;version=${fabric.osgi.version};-noimport:=true</fabric.osgi.export>
-        <fabric.osgi.split.pkg>-split-package:=first</fabric.osgi.split.pkg>
-        <fabric.osgi.import>${fabric.osgi.import.pkg}</fabric.osgi.import>
-        <fabric.osgi.dynamic />
-        <fabric.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fabric.osgi.symbolic.name>
-        <fabric.osgi.exclude.dependencies>false</fabric.osgi.exclude.dependencies>
-        <fabric.osgi.resource>{maven-resources}</fabric.osgi.resource>
-        <fabric.osgi.services.export />
+        </fuse.osgi.import.pkg>
+        <fuse.osgi.activator />
+        <fuse.osgi.failok>false</fuse.osgi.failok>
+        <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
+        <fuse.osgi.export>org.fusesource.fabric.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
+        <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
+        <fuse.osgi.dynamic />
+        <fuse.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fuse.osgi.symbolic.name>
+        <fuse.osgi.exclude.dependencies>false</fuse.osgi.exclude.dependencies>
+        <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
+        <fuse.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
-        <activemq-version>5.5.1-fuse-01-06</activemq-version>
+        <perfectus-build>11</perfectus-build>
+
+        <!-- TODO this is required for some AMQ OSGi fixes -->
+        <activemq-version>5.5.1-fuse-01-${perfectus-build}</activemq-version>
 <!--
-        <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
+<activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
 -->
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <common-math-version>2.2</common-math-version>
-        <cxf-version>2.4.3-fuse-00-06</cxf-version>
-        <camel-version>2.8.0-fuse-01-06</camel-version>
-        <hawtbuf-version>1.6</hawtbuf-version>
-        <hawtdispatch-version>1.4</hawtdispatch-version>
+        <cxf-version>2.4.3-fuse-00-${perfectus-build}</cxf-version>
+        <camel-version>2.8.0-fuse-01-${perfectus-build}</camel-version>
+        <hawtbuf-version>1.7</hawtbuf-version>
+        <hawtdispatch-version>1.5</hawtdispatch-version>
         <jackson-version>1.9.2</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
@@ -107,14 +110,13 @@
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
-        <karaf-version>2.2.2-fuse-02-06</karaf-version>
-        <!--
-        <karaf-version>2.2.0-fuse-00-53</karaf-version>
-        -->
+        <karaf-version>2.2.2-fuse-02-${perfectus-build}</karaf-version>
         <linkedin-zookeeper-version>1.2.1</linkedin-zookeeper-version>
+        <zookeeper-version>3.4.0</zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
         <logback-version>0.9.28</logback-version>
+        <maven-assembly-plugin-version>2.2.2</maven-assembly-plugin-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
         <mvnplugins-version>1.14</mvnplugins-version>
@@ -133,6 +135,7 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
+        <servicemix.nmr.version>1.5.1-fuse-01-11</servicemix.nmr.version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.1</slf4j-api-version>
@@ -142,8 +145,11 @@
         <surefire-version>2.5</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
+        <xalan.version>2.7.1</xalan.version>
         <xbean-version>3.7</xbean-version>
+        <xerces.version>2.11.0</xerces.version>
         <xjc-version>2.1.10.1</xjc-version>
+        <xml.api.version>2.11.0-20110622</xml.api.version>
     </properties>
 
 
@@ -183,38 +189,12 @@
     </dependencies>
 
     <modules>
-        <module>fabric-core</module>
-        <module>fabric-linkedin-zookeeper</module>
-        <module>fabric-zookeeper</module>
-        <module>fabric-zookeeper-commands</module>
-        <module>fabric-maven-proxy</module>
-        <module>fabric-core-agent-ssh</module>
-        <module>fabric-core-agent-jclouds</module>
-        <module>fabric-commands</module>
-        <module>fabric-agent</module>
-        <module>fabric-scala</module>
-        <module>fabric-jaas</module>
-        <module>fabric-zookeeper-spring</module>
-        <module>fabric-configadmin</module>
-        <module>fabric-camel</module>
-        <module>fabric-camel-c24io</module>
-        <module>fabric-camel-dslio</module>
-        <module>fabric-activemq</module>
-        <module>fabric-monitor</module>
-        <module>fabric-launcher</module>
-        <module>fabric-groups</module>
-        <module>fabric-dosgi</module>
-        <module>fabric-eca</module>
-        <module>fabric-security</module>
+        <module>fabric</module>
         <module>fab</module>
         <module>insight</module>
-        <module>fabric-bridge-project</module>
-        <module>fabric-examples</module>
-        <module>fabric-assemblies</module>
-        <module>fabric-itests</module>
-
-        <!-- TODO fix build of fabric-cxf then move back up a bit :) -->
-        <module>fabric-cxf</module>
+        <module>mq</module>
+        <module>eca</module>
+        <module>stream</module>
     </modules>
 
     <build>
@@ -235,22 +215,22 @@
                     <version>${maven-bundle-plugin-version}</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <excludeDependencies>${fabric.osgi.exclude.dependencies}</excludeDependencies>
+                        <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
                         <instructions>
-                            <Bundle-Name>${fabric.osgi.bundle.name}</Bundle-Name>
-                            <Bundle-SymbolicName>${fabric.osgi.symbolic.name}</Bundle-SymbolicName>
+                            <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
+                            <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
                             <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
-                            <Bundle-Activator>${fabric.osgi.activator}</Bundle-Activator>
-                            <Export-Package>${fabric.osgi.export}</Export-Package>
-                            <Import-Package>${fabric.osgi.import}</Import-Package>
-                            <DynamicImport-Package>${fabric.osgi.dynamic}</DynamicImport-Package>
-                            <Private-Package>${fabric.osgi.private.pkg}</Private-Package>
+                            <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
+                            <Export-Package>${fuse.osgi.export}</Export-Package>
+                            <Import-Package>${fuse.osgi.import}</Import-Package>
+                            <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
+                            <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
                             <Implementation-Title>FuseSource FON</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
-                            <Include-Resource>${fabric.osgi.resource}</Include-Resource>
-                            <_versionpolicy>${fabric.osgi.import.default.version}</_versionpolicy>
-                            <_failok>${fabric.osgi.failok}</_failok>
-                            <Export-Service>${fabric.osgi.services.export}</Export-Service>
+                            <Include-Resource>${fuse.osgi.resource}</Include-Resource>
+                            <_versionpolicy>${fuse.osgi.import.default.version}</_versionpolicy>
+                            <_failok>${fuse.osgi.failok}</_failok>
+                            <Export-Service>${fuse.osgi.services.export}</Export-Service>
                             <Embed-Dependency>${fabric.embed.dependency}</Embed-Dependency>
                         </instructions>
                     </configuration>
@@ -287,6 +267,45 @@
                   </lifecycleMappingMetadata>
                 </configuration>
               </plugin>
+
+              <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${scala-plugin-version}</version>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>compile</goal>
+                      <goal>testCompile</goal>
+                    </goals>
+                    <configuration>
+                      <args>
+                        <arg>-deprecation</arg>
+                        <arg>-P:continuations:enable</arg>
+                      </args>
+                      <compilerPlugins>
+                        <compilerPlugin>
+                          <groupId>org.scala-lang.plugins</groupId>
+                          <artifactId>continuations</artifactId>
+                          <version>${scala-version}</version>
+                        </compilerPlugin>
+                        <compilerPlugin>
+                          <groupId>org.fusesource.jvmassert</groupId>
+                          <artifactId>jvmassert</artifactId>
+                          <version>1.1</version>
+                        </compilerPlugin>
+                      </compilerPlugins>
+                    </configuration>
+                  </execution>
+                </executions>
+                <configuration>
+                  <jvmArgs>
+                    <jvmArg>-Xmx1024m</jvmArg>
+                    <jvmArg>-Xss8m</jvmArg>
+                  </jvmArgs>
+                  <scalaVersion>${scala-version}</scalaVersion>
+                </configuration>
+              </plugin>
             </plugins>
           </pluginManagement>
 
@@ -309,6 +328,11 @@
                 <version>2.7</version>
             </plugin>
 
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>build-helper-maven-plugin</artifactId>
+              <version>1.5</version>
+            </plugin>
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -354,7 +378,7 @@
                         </goals>
                         <configuration>
                             <versions>
-                                <fabric.osgi.version>${project.version}</fabric.osgi.version>
+                                <fuse.osgi.version>${project.version}</fuse.osgi.version>
                             </versions>
                         </configuration>
                     </execution>
@@ -572,6 +596,21 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+			          <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.mq</groupId>
+                <artifactId>mq-fabric</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -614,6 +653,12 @@
                 <groupId>org.linkedin</groupId>
                 <artifactId>org.linkedin.util-core</artifactId>
                 <version>${linkedin-zookeeper-version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper-version}</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Log4j -->
@@ -682,6 +727,11 @@
                 <artifactId>scala-library</artifactId>
                 <version>${scala-osgi-version}</version>
             </dependency>
+            <dependency>
+              <groupId>org.scala-lang</groupId>
+              <artifactId>scala-library</artifactId>
+              <version>${scala-version}</version>
+            </dependency>
 
             <!-- Others -->
             <dependency>
@@ -749,7 +799,7 @@
       <id>apollo</id>
 
       <modules>
-        <module>fabric-apollo</module>
+        <module>apollo</module>
       </modules>
     </profile>
         
@@ -757,8 +807,7 @@
       <id>distro</id>
 
       <modules>
-        <!-- <module>fabric-apollo</module> -->
-        <module>fabric-website</module>
+        <module>website</module>
       </modules>
     </profile>
 

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<assembly>
+    <id>windows-bin</id>
+
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+
+        <!-- Copy over everything that needs to get unix line endings -->
+        <fileSet>
+            <directory>${basedir}/..</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>license.txt</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/distro</directory>
+            <outputDirectory>/</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>${basedir}/target/features-repo</directory>
+            <outputDirectory>system</outputDirectory>
+        </fileSet>
+
+    </fileSets>
+
+    <files>
+        <file>
+            <source>${basedir}/target/classes/distro/fabric-features.xml</source>
+            <outputDirectory>system/org/fusesource/fabric/${artifactId}/${version}</outputDirectory>
+            <destName>${artifactId}-${version}-features.xml</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+    </files>
+
+
+</assembly>

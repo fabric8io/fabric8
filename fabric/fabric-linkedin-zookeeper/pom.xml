@@ -1,0 +1,103 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fabric-linkedin-zookeeper</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>Fuse Fabric :: LinkedIn ZooKeeper Bundle</description>
+
+    <properties>
+        <fuse.osgi.export>
+            org.linkedin.zookeeper*;version=${linkedin-zookeeper-version};-noimport:=true,
+            org.linkedin.util.*;-noimport:=true,
+            org.jasypt.*;-noimport:=true,
+            org.jcraft.jsch.*;-noimport:=true,
+            org.apache.zookeeper*;version="${zookeeper-version}";-noimport:=true,
+        </fuse.osgi.export>
+
+        <!--
+          TODO maybe make a few of these optional?
+          e.g. org.hibernate, org.acegisecurity, org.springframework, javax.servlet?
+          -->
+
+        <fuse.osgi.import.before.defaults>
+            !org.apache.log4j.jmx,
+            !org.apache.log4j.spi,
+            !org.apache.wicket*,
+            !org.hibernate*,
+            !org.springframework*,
+            !javax.servlet*,
+            !org.acegisecurity.providers.encoding*,
+            !jline*,
+            !org.xml.*,
+            !javax.xml.parsers,
+            !com.ibm.icu.*,
+            !com.sun.management,
+            !org.jboss.netty*,
+            !sun.security.krb5
+        </fuse.osgi.import.before.defaults>
+        <fuse.osgi.import.additional>
+            org.apache.log4j*;version="[1.2,2)"
+        </fuse.osgi.import.additional>
+        <fuse.osgi.private.pkg>
+            org.apache.jute*
+        </fuse.osgi.private.pkg>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.zookeeper-impl</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.linkedin</groupId>
+            <artifactId>org.linkedin.util-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <scope>compile</scope>
+        </dependency>
+      <dependency>
+          <groupId>org.jasypt</groupId>
+          <artifactId>jasypt</artifactId>
+          <version>${jasypt-version}</version>
+          <!-- TODO reconsider lite classifier when UserService is moved from fabric-core
+          <classifier>lite</classifier>
+          -->
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.jcraft</groupId>
+          <artifactId>jsch</artifactId>
+          <version>0.1.42</version>
+          <scope>compile</scope>
+      </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+        </plugins>
+    </build>
+
+</project>
