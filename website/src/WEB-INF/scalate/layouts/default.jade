@@ -45,10 +45,18 @@ html(lang="en")
         .topbar-inner
           .container
             - 
-              if (requestUri.startsWith("/fabric"))
-                include("/fabric/_navigation.jade")
-              else if (requestUri.startsWith("/bundle"))
+              if (requestUri.startsWith("/bundle"))
                 include("/bundle/_navigation.jade")
+              else if (requestUri.startsWith("/eca"))
+                include("/eca/_navigation.jade")
+              else if (requestUri.startsWith("/eip"))
+                include("/eip/_navigation.jade")
+              else if (requestUri.startsWith("/esb"))
+                include("/esb/_navigation.jade")
+              else if (requestUri.startsWith("/fabric"))
+                include("/fabric/_navigation.jade")
+              else if (requestUri.startsWith("/mq"))
+                include("/mq/_navigation.jade")
               else
                 include("/_navigation.jade")
     - if (blog!=null)
