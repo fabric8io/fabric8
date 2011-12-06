@@ -10,7 +10,7 @@ sort_info: 1
 header(class="jumbotron masthead" id="overview")
   .inner
     .container
-      h1 Fuse Fabric
+      img(src={uri("/images/fabric/project-logo.png")})
       p.lead
         | <b>Fuse Fabric</b> is a distributed configuration, management and provisioning system <br />
         | for working with <a href='${uri("/")}'>Fuse<a>, 
