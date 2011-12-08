@@ -83,7 +83,7 @@
         <fuse.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
-        <perfectus-build>11</perfectus-build>
+        <perfectus-build>13</perfectus-build>
 
         <!-- TODO this is required for some AMQ OSGi fixes -->
         <activemq-version>5.5.1-fuse-01-${perfectus-build}</activemq-version>
