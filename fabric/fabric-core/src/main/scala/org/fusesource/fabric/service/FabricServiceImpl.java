@@ -146,10 +146,13 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     public Agent getAgent(String name) {
+        if (name == null) {
+            return null;
+        }
         try {
             Agent parent = null;
             String parentId = getParentOf(name);
-            if( !parentId.isEmpty() ) {
+            if (parentId != null && !parentId.isEmpty()) {
                 parent = getAgent(parentId);
             }
             return new AgentImpl(parent, name, this);
