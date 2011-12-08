@@ -160,9 +160,9 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
 
             // create test gateway profile
             bos.reset();
-            session.execute("fabric:list-profiles");
+            session.execute("fabric:profile-list");
             if (!bos.toString().contains("test-gateway")) {
-                session.execute("fabric:create-profile --parents default test-gateway");
+                session.execute("fabric:profile-create --parents default test-gateway");
             }
 
             // add test destinations config
