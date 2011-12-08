@@ -152,6 +152,15 @@
               <null/>
           </completers>
         </command>
+        <command name="fabric/profile-delete">
+            <action class="org.fusesource.fabric.commands.ProfileDelete">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+          <completers>
+              <ref component-id="profileCompleter" />
+              <null/>
+          </completers>
+        </command>
         <command name="fabric/profile-edit">
             <action class="org.fusesource.fabric.commands.ProfileEdit">
               <property name="fabricService" ref="fabricService"/>

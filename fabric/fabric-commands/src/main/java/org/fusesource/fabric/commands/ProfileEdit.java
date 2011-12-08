@@ -84,26 +84,28 @@ public class ProfileEdit extends FabricCommand {
             prefix = "bundle.";
         }
 
-        for(String arg : arguments) {
-            if (set) {
-                String[] nameValue = arg.split("=",2);
-                if (nameValue.length != 2) {
-                    if (repositories || features || bundles) {
-                        nameValue = new String[]{nameValue[0].replace('/', '_'), nameValue[0]};
-                    } else {
-                        throw new IllegalArgumentException(String.format("Argument \"%s\" is invalid, arguments need to be in the form of \"name=value\""));
-                    }
-                }
-                pidConfig.put(prefix + nameValue[0], nameValue[1]);
-            } else if (delete) {
-                if (repositories || features || bundles) {
-                    for (Map.Entry<String, String> entry : new HashMap<String,String>(pidConfig).entrySet()) {
-                        if(arg.equals(entry.getValue())) {
-                            pidConfig.remove(entry.getKey());
+        if (arguments != null) {
+            for (String arg : arguments) {
+                if (set) {
+                    String[] nameValue = arg.split("=",2);
+                    if (nameValue.length != 2) {
+                        if (repositories || features || bundles) {
+                            nameValue = new String[]{nameValue[0].replace('/', '_'), nameValue[0]};
+                        } else {
+                            throw new IllegalArgumentException(String.format("Argument \"%s\" is invalid, arguments need to be in the form of \"name=value\""));
                         }
                     }
-                } else {
-                    pidConfig.remove(prefix + arg);
+                    pidConfig.put(prefix + nameValue[0], nameValue[1]);
+                } else if (delete) {
+                    if (repositories || features || bundles) {
+                        for (Map.Entry<String, String> entry : new HashMap<String,String>(pidConfig).entrySet()) {
+                            if(arg.equals(entry.getValue())) {
+                                pidConfig.remove(entry.getKey());
+                            }
+                        }
+                    } else {
+                        pidConfig.remove(prefix + arg);
+                    }
                 }
             }
         }

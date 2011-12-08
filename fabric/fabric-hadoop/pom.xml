@@ -1,0 +1,88 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-project</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fabric-hadoop</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>Fuse Fabric :: Hadoop</description>
+
+  <properties>
+      <fabric.osgi.import.additional>
+          *;resolution:=optional
+      </fabric.osgi.import.additional>
+      <fabric.osgi.export>
+          org.apache.hadoop*;-noimport:=true;version=0.20.2
+      </fabric.osgi.export>
+      <fabric.osgi.private.pkg>
+          webapps.*,
+          org.fusesource.fabric.hadoop.*,
+          org.znerd.xmlenc*,
+      </fabric.osgi.private.pkg>
+      <fabric.osgi.resource>
+          {maven-resources},
+          @hadoop-core-0.20.2.jar!/core-default.xml,
+          @hadoop-core-0.20.2.jar!/hdfs-default.xml,
+          @hadoop-core-0.20.2.jar!/mapred-default.xml,
+          @hadoop-core-0.20.2.jar!/hadoop-metrics.properties
+      </fabric.osgi.resource>
+  </properties>
+
+  <dependencies>
+      <dependency>
+          <groupId>org.apache.karaf.shell</groupId>
+          <artifactId>org.apache.karaf.shell.console</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-tools</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.compendium</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-server</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-webapp</artifactId>
+      </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+    </plugins>
+  </build>
+
+</project>

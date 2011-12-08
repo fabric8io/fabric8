@@ -29,3 +29,18 @@ echo Create Apache Ode profile
 fabric:profile-create --parents servicemix ode
 fabric:profile-edit -p ode --repositories mvn:org.apache.ode/ode-jbi-karaf/1.3.5/xml/features
 
+echo Create Hadoop profiles
+fabric:profile-create hadoop
+fabric:profile-edit -p hadoop --features fabric-hadoop/${project.version}
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop fs.default.name=hdfs://localhost:9000
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.replication=1
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.name.dir=${karaf.data}/hadoop/dfs/name
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.name.edits.dir=${karaf.data}/hadoop/dfs/name
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.http.address=localhost:9002
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.data.dir=${karaf.data}/hadoop/dfs/data
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop mapred.job.tracker=localhost:9001
+fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop
+fabric:profile-create --parents hadoop hadoop-namenode
+fabric:profile-edit -p hadoop-namenode --pid org.fusesource.fabric.hadoop nameNode=true
+fabric:profile-create --parents hadoop hadoop-datanode
+fabric:profile-edit -p hadoop-datanode --pid org.fusesource.fabric.hadoop dataNode=true

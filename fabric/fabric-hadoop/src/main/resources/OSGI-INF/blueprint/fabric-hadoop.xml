@@ -1,0 +1,195 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="hadoop/namenode-format">
+            <action class="org.fusesource.fabric.hadoop.commands.NameNodeFormat"/>
+        </command>
+    </command-bundle>
+    <!-- dfs -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="dfs"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.fs.FsShell"/>
+        </bean>
+    </service>
+    <!-- dfsadmin -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="dfsadmin"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.hdfs.tools.DFSAdmin"/>
+        </bean>
+    </service>
+    <!-- mradmin -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="mradmin"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.mapred.tools.MRAdmin"/>
+        </bean>
+    </service>
+    <!-- fsck -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="fsck"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.hdfs.tools.DFSck"/>
+        </bean>
+    </service>
+    <!-- balancer -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="balancer"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.hdfs.server.balancer.Balancer"/>
+        </bean>
+    </service>
+    <!-- job -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="job"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.mapred.JobClient"/>
+        </bean>
+    </service>
+    <!-- queue -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="queue"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.mapred.JobQueueClient"/>
+        </bean>
+    </service>
+    <!-- pipes -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="pipes"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.mapred.pipes.Submitter"/>
+        </bean>
+    </service>
+    <!-- distcp -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="distcp"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.tools.DistCp"/>
+        </bean>
+    </service>
+    <!-- archive -->
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="osgi.command.function" value="archive"/>
+            <entry key="osgi.command.scope" value="hadoop"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+            <property name="tool" value="org.apache.hadoop.tools.HadoopArchives"/>
+        </bean>
+    </service>
+
+    <bean id="nameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.NameNodeFactory" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
+
+    <service ref="nameNodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.hadoop.hdfs.namenode"/>
+        </service-properties>
+    </service>
+
+    <bean id="dataNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.DataNodeFactory" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
+
+    <service ref="dataNodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.hadoop.hdfs.datanode"/>
+        </service-properties>
+    </service>
+
+    <bean id="secondaryNameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.SecondaryNameNodeFactory" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
+
+    <service ref="secondaryNameNodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.hadoop.hdfs.secondarynamenode"/>
+        </service-properties>
+    </service>
+
+    <bean id="jobTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.JobTrackerFactory" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
+
+    <service ref="jobTrackerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.hadoop.mapred.jobtracker"/>
+        </service-properties>
+    </service>
+
+    <bean id="taskTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.TaskTrackerFactory" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
+
+    <service ref="taskTrackerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.hadoop.mapred.tasktracker"/>
+        </service-properties>
+    </service>
+
+    <bean id="hadoopFactory" class="org.fusesource.fabric.hadoop.HadoopFactory" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="nameNodeFactory" ref="nameNodeFactory"/>
+        <property name="dataNodeFactory" ref="dataNodeFactory"/>
+        <property name="secondaryNameNodeFactory" ref="secondaryNameNodeFactory"/>
+        <property name="jobTrackerFactory" ref="jobTrackerFactory"/>
+        <property name="taskTrackerFactory" ref="taskTrackerFactory"/>
+    </bean>
+
+    <service ref="hadoopFactory" interface="org.osgi.service.cm.ManagedService">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.hadoop"/>
+        </service-properties>
+    </service>
+
+    <service auto-export="interfaces">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.hadoop"/>
+            <entry key="url.handler.protocol" value="hdfs"/>
+        </service-properties>
+        <bean class="org.fusesource.fabric.hadoop.hdfs.HdfsUrlHandler" />
+    </service>
+
+</blueprint>
