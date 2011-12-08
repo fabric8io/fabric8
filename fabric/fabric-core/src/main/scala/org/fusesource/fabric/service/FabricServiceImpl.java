@@ -136,11 +136,13 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     private String getParentOf(String name) throws InterruptedException, KeeperException {
-        try {
-            return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
-        } catch (KeeperException.NoNodeException e) {
-            return "";
+        if (zooKeeper != null) {
+            try {
+                return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
+            } catch (KeeperException.NoNodeException e) {
+            }
         }
+        return "";
     }
 
     public Agent getAgent(String name) {
