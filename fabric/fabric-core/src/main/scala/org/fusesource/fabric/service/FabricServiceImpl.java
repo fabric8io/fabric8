@@ -88,6 +88,18 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         this.userName = userName;
     }
 
+    @Override
+    public Agent getCurrentAgent() {
+        String name = getCurrentAgentName();
+        return getAgent(name);
+    }
+
+    @Override
+    public String getCurrentAgentName() {
+        // TODO is there any other way to find this?
+        return System.getProperty("karaf.name");
+    }
+
     public ObjectName getMbeanName() throws MalformedObjectNameException {
         if (mbeanName == null) {
             mbeanName = new ObjectName("org.fusesource.fabric:type=FabricService");
