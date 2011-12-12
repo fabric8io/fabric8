@@ -57,6 +57,16 @@
 
     </fileSets>
 
+    <files>
+        <file>
+            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/karaf.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fusefabric.bat</destName>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </file>
+    </files>
+
     <componentDescriptors>
       <componentDescriptor>${basedir}/src/main/descriptors/common-bin.xml</componentDescriptor>
     </componentDescriptors>

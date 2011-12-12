@@ -49,14 +49,6 @@ public class StatisticsEndpoint extends SedaEndpoint {
         super(endpointUri, component, queue, concurrentConsumers);
     }
 
-    public StatisticsEndpoint(String endpointUri, BlockingQueue<Exchange> queue) {
-        this(endpointUri, queue, 1);
-    }
-
-    public StatisticsEndpoint(String endpointUri, BlockingQueue<Exchange> queue, int concurrentConsumers) {
-        super(endpointUri, queue, concurrentConsumers);
-    }
-
     public Producer createProducer() throws Exception {
         return new StatisticsProducer(this, getQueue(), getWaitForTaskToComplete(), getTimeout());
     }
