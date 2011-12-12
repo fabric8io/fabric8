@@ -38,6 +38,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
@@ -88,6 +89,18 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         this.userName = userName;
     }
 
+    @Override
+    public Agent getCurrentAgent() {
+        String name = getCurrentAgentName();
+        return getAgent(name);
+    }
+
+    @Override
+    public String getCurrentAgentName() {
+        // TODO is there any other way to find this?
+        return System.getProperty("karaf.name");
+    }
+
     public ObjectName getMbeanName() throws MalformedObjectNameException {
         if (mbeanName == null) {
             mbeanName = new ObjectName("org.fusesource.fabric:type=FabricService");
@@ -136,18 +149,24 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     private String getParentOf(String name) throws InterruptedException, KeeperException {
-        try {
-            return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
-        } catch (KeeperException.NoNodeException e) {
-            return "";
+        if (zooKeeper != null) {
+            try {
+                return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
+            } catch (Throwable e) {
+                logger.warn("Failed to find parent " + name + ". Reason: " + e);
+            }
         }
+        return "";
     }
 
     public Agent getAgent(String name) {
+        if (name == null) {
+            return null;
+        }
         try {
             Agent parent = null;
             String parentId = getParentOf(name);
-            if( !parentId.isEmpty() ) {
+            if (parentId != null && !parentId.isEmpty()) {
                 parent = getAgent(parentId);
             }
             return new AgentImpl(parent, name, this);

@@ -48,7 +48,14 @@ public class AgentConnect extends FabricCommand {
         if (a == null) {
             throw new IllegalArgumentException("Agent " + agent + " does not exist.");
         }
-        String[] ssh = a.getSshUrl().split(":");
+        String sshUrl = a.getSshUrl();
+        if (sshUrl == null) {
+            throw new IllegalArgumentException("Agent " + agent + " has no SSH URL.");
+        }
+        String[] ssh = sshUrl.split(":");
+        if (ssh.length < 2) {
+            throw new IllegalArgumentException("Agent " + agent + " has an invalid SSH URL '" + sshUrl + "'");
+        }
         session.execute("ssh -l " + username + " -P " + password + " -p " + ssh[1] + " " + ssh[0] + " " + cmdStr);
         return null;
     }

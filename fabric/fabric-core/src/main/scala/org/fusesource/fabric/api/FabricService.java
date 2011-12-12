@@ -79,4 +79,7 @@ public interface FabricService {
 
     void deleteProfile(Profile profile);
 
+    Agent getCurrentAgent();
+
+    String getCurrentAgentName();
 }
