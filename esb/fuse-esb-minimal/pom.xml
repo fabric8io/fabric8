@@ -57,6 +57,12 @@
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                             </descriptors>
+                            <features>
+                                <feature>karaf-framework</feature>
+                                <feature>config</feature>
+                                <feature>obr</feature>
+                                <feature>xml-specs-api</feature>
+                            </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
                         </configuration>
