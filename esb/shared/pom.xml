@@ -32,6 +32,10 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Assembly :: Shared files</name>
 
+    <dependencies>
+
+    </dependencies>
+
     <build>
         <resources>
             <resource>

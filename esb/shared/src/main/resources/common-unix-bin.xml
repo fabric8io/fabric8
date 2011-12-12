@@ -23,6 +23,7 @@
             <outputDirectory>/</outputDirectory>
             <excludes>
               <exclude>**/demos/**</exclude>
+              <exclude>lib/fabric-version.jar</exclude>
               <exclude>bin/**</exclude>
               <exclude>etc/system.properties</exclude>
               <exclude>etc/org.apache.karaf.features.cfg</exclude>
@@ -93,7 +94,7 @@
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>servicemix</destName>
+            <destName>fuseesb</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>

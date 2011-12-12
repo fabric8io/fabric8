@@ -66,14 +66,6 @@ public class EcaEndpoint extends SedaEndpoint {
         super(endpointUri, component, queue, concurrentConsumers);
     }
 
-    public EcaEndpoint(String endpointUri, BlockingQueue<Exchange> queue) {
-        this(endpointUri, queue, 1);
-    }
-
-    public EcaEndpoint(String endpointUri, BlockingQueue<Exchange> queue, int concurrentConsumers) {
-        super(endpointUri, queue, concurrentConsumers);
-    }
-
     /**
      * Creates a new producer which is used send messages into the endpoint
      *

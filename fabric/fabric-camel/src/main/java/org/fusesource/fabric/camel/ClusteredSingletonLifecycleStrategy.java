@@ -182,6 +182,11 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     }
     public void onRouteContextCreate(RouteContext routeContext) {
     }
+
+    @Override
+    public void onErrorHandlerAdd(RouteContext routeContext, Processor processor, ErrorHandlerFactory errorHandlerFactory) {
+    }
+
     public void onErrorHandlerAdd(RouteContext routeContext, Processor processor, ErrorHandlerBuilder errorHandlerBuilder) {
     }
     public void onThreadPoolAdd(CamelContext camelContext, ThreadPoolExecutor threadPoolExecutor, String s, String s1, String s2, String s3) {

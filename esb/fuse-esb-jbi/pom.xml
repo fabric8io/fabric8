@@ -23,8 +23,9 @@
 
     <parent>
         <groupId>org.fusesource.esb</groupId>
-        <artifactId>esb-project</artifactId>
+        <artifactId>fuse-esb</artifactId>
         <version>1.1-SNAPSHOT</version>
+        <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 
     <artifactId>fuse-esb-jbi</artifactId>
@@ -52,16 +53,18 @@
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.servicemix/apache-servicemix/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.fusesource.esb/fuse-esb/${project.version}/xml/features</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.fabric/fabric-distro/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
+                                <feature>karaf-framework</feature>
+                                <feature>config</feature>
+                                <feature>obr</feature>
+                                <feature>xml-specs-api</feature>
                                 <feature>cxf</feature>
                                 <feature>saaj</feature>
-                                <feature>obr</feature>
-                                <feature>config</feature>
                                 <feature>activemq</feature>
                                 <feature>activemq-blueprint</feature>
                                 <feature>activemq-spring</feature>
