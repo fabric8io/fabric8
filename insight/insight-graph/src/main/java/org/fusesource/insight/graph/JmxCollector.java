@@ -13,11 +13,18 @@ import com.googlecode.jmxtrans.jobs.ServerJob;
 import com.googlecode.jmxtrans.model.JmxProcess;
 import com.googlecode.jmxtrans.model.Query;
 import com.googlecode.jmxtrans.model.Server;
+import com.googlecode.jmxtrans.model.output.GraphiteWriter;
 import com.googlecode.jmxtrans.util.JmxUtils;
 import com.googlecode.jmxtrans.util.LifecycleException;
 import com.googlecode.jmxtrans.util.ValidationException;
 import org.apache.commons.pool.KeyedObjectPool;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.jsontype.TypeResolverBuilder;
+import org.codehaus.jackson.type.JavaType;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -35,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,6 +62,7 @@ public class JmxCollector {
     private List<Server> masterServersList = new ArrayList<Server>();
     private Map<String, KeyedObjectPool> objectPoolMap;
     private Scheduler scheduler;
+    private MBeanServer mbeanServer;
 
     public JmxCollector(FabricService fabricService) {
         this.fabricService = fabricService;
@@ -76,8 +85,9 @@ public class JmxCollector {
 
     }
 
-    
+
     public void registerMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = mbeanServer;
     }
 
     public void unregisterMBeanServer(MBeanServer mbeanServer) {
@@ -97,6 +107,10 @@ public class JmxCollector {
 
     public void process() throws LifecycleException, ValidationException, SchedulerException, ParseException {
         for (Server server : this.masterServersList) {
+            if (server.isLocal()) {
+                server.setLocalMBeanServer(mbeanServer);
+                server.setAlias(fabricService.getCurrentAgentName());
+            }
             // need to inject the poolMap
             for (Query query : server.getQueries()) {
                 query.setServer(server);
@@ -119,32 +133,32 @@ public class JmxCollector {
     private void scheduleJob(Server server) throws SchedulerException, ParseException {
         Scheduler scheduler = getScheduler();
         String name = server.getHost() + ":" + server.getPort() + "-" + System.currentTimeMillis();
-      		JobDetail jd = new JobDetail(name, "ServerJob", ServerJob.class);
+        JobDetail jd = new JobDetail(name, "ServerJob", ServerJob.class);
 
-      		JobDataMap map = new JobDataMap();
-      		map.put(Server.class.getName(), server);
-      		map.put(Server.JMX_CONNECTION_FACTORY_POOL, this.getObjectPoolMap().get(Server.JMX_CONNECTION_FACTORY_POOL));
-      		jd.setJobDataMap(map);
+        JobDataMap map = new JobDataMap();
+        map.put(Server.class.getName(), server);
+        map.put(Server.JMX_CONNECTION_FACTORY_POOL, this.getObjectPoolMap().get(Server.JMX_CONNECTION_FACTORY_POOL));
+        jd.setJobDataMap(map);
 
-      		Trigger trigger = null;
+        Trigger trigger = null;
 
-      		if ((server.getCronExpression() != null) && CronExpression.isValidExpression(server.getCronExpression())) {
-      			trigger = new CronTrigger();
-      			((CronTrigger)trigger).setCronExpression(server.getCronExpression());
-      			((CronTrigger)trigger).setName(server.getHost() + ":" + server.getPort() + "-" + Long.valueOf(System.currentTimeMillis()).toString());
-      			((CronTrigger)trigger).setStartTime(new Date());
-      		} else {
-      			Trigger minuteTrigger = TriggerUtils.makeSecondlyTrigger(SECONDS_BETWEEN_SERVER_JOB_RUNS);
-      			minuteTrigger.setName(server.getHost() + ":" + server.getPort() + "-" + Long.valueOf(System.currentTimeMillis()).toString());
-      			minuteTrigger.setStartTime(new Date());
+        if ((server.getCronExpression() != null) && CronExpression.isValidExpression(server.getCronExpression())) {
+            trigger = new CronTrigger();
+            ((CronTrigger) trigger).setCronExpression(server.getCronExpression());
+            ((CronTrigger) trigger).setName(server.getHost() + ":" + server.getPort() + "-" + Long.valueOf(System.currentTimeMillis()).toString());
+            ((CronTrigger) trigger).setStartTime(new Date());
+        } else {
+            Trigger minuteTrigger = TriggerUtils.makeSecondlyTrigger(SECONDS_BETWEEN_SERVER_JOB_RUNS);
+            minuteTrigger.setName(server.getHost() + ":" + server.getPort() + "-" + Long.valueOf(System.currentTimeMillis()).toString());
+            minuteTrigger.setStartTime(new Date());
 
-      			trigger = minuteTrigger;
-      		}
+            trigger = minuteTrigger;
+        }
 
-      		this.scheduler.scheduleJob(jd, trigger);
-      		if (LOG.isDebugEnabled()) {
-                  LOG.debug("Scheduled job: " + jd.getName() + " for server: " + server);
-      		}
+        this.scheduler.scheduleJob(jd, trigger);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Scheduled job: " + jd.getName() + " for server: " + server);
+        }
     }
 
     private void validateSetup(List<Query> queries) throws ValidationException {
@@ -182,10 +196,28 @@ public class JmxCollector {
         Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
         byte[] bytes = fileConfigurations.get(GRAPH_JSON);
         if (bytes != null && bytes.length > 0) {
-            JmxProcess process = JmxUtils.getJmxProcess(GRAPH_JSON, new ByteArrayInputStream(bytes));
+            JmxProcess process = getJmxProcess(GRAPH_JSON, new ByteArrayInputStream(bytes));
             if (process != null) {
                 JmxUtils.mergeServerLists(this.masterServersList, process.getServers());
             }
         }
     }
+
+    public static JmxProcess getJmxProcess(String name, InputStream in) throws JsonParseException, JsonMappingException, IOException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        // lets tweak the class loader so we can find the classes
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = GraphiteWriter.class.getClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+
+        try {
+            JmxProcess jmx = mapper.readValue(in, JmxProcess.class);
+            jmx.setName(name);
+            return jmx;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+    }
+
 }

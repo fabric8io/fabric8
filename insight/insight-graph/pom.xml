@@ -61,7 +61,7 @@
     <dependency>
       <groupId>org.fusesource.jmxtrans</groupId>
       <artifactId>jmxtrans</artifactId>
-      <version>1.250.1</version>
+      <version>1.250.2</version>
     </dependency>
 
 

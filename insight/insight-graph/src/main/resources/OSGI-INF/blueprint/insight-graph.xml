@@ -12,7 +12,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-  <cm:property-placeholder persistent-id="org.fusesource.insight.insight-graph" update-strategy="reload">
+  <cm:property-placeholder persistent-id="org.fusesource.insight.graph" update-strategy="reload">
       <cm:default-properties>
           <!-- Scheduler properties -->
           <cm:property name="org.quartz.scheduler.instanceName" value="InsightGraphSchedular"/>
@@ -30,6 +30,7 @@
       </cm:default-properties>
   </cm:property-placeholder>
 
+  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
 
   <bean id="schedulerFactory" class="org.fusesource.insight.graph.SchedulerFactory">
     <property name="configAdmin">
@@ -37,20 +38,20 @@
     </property>
   </bean>
 
-  <bean id="scheduler" factory-ref="schedulerFactory" factory-method="createScheduler">
+  <bean id="scheduler" factory-ref="schedulerFactory" factory-method="createScheduler" init-method="start" destroy-method="shutdown">
   </bean>
 
-  <bean id="jmxCollectorService" class="org.fusesource.insight.graph.JmxCollector" init-method="start" destroy-method="destroy">
-    <argument>
-      <reference interface="org.fusesource.fabric.api.FabricService"/>
-    </argument>
+  <bean id="jmxCollector" class="org.fusesource.insight.graph.JmxCollector" init-method="start" destroy-method="destroy">
+    <argument ref="fabricService"/>
     <property name="scheduler" ref="scheduler"/>
   </bean>
 
-  <service ref="jmxCollectorService" auto-export="interfaces"/>
+<!--
+  <service ref="jmxCollector" auto-export="interfaces"/>
+-->
 
   <reference interface="javax.management.MBeanServer">
-    <reference-listener ref="jmxCollectorService" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer"/>
+    <reference-listener ref="jmxCollector" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer"/>
   </reference>
 
 </blueprint>

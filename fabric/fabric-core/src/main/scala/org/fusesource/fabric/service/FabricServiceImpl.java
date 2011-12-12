@@ -38,6 +38,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
@@ -151,7 +152,8 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         if (zooKeeper != null) {
             try {
                 return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
-            } catch (KeeperException.NoNodeException e) {
+            } catch (Throwable e) {
+                logger.warn("Failed to find parent " + name + ". Reason: " + e);
             }
         }
         return "";

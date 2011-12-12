@@ -26,7 +26,7 @@ import java.util.Properties;
  */
 public class SchedulerFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(SchedulerFactory.class);
-    private static final String PID = "org.fusesource.insight.insight-graph";
+    private static final String PID = "org.fusesource.insight.graph";
 
     private StdSchedulerFactory factory = new StdSchedulerFactory();
     private Properties properties = new Properties();
