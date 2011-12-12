@@ -93,7 +93,11 @@
         <apollo-version>1.0-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
+        <commons-codec-version>1.3_4</commons-codec-version>
+        <commons-io-version>1.4_2</commons-io-version>
+        <commons-lang-version>2.4_5</commons-lang-version>
         <common-math-version>2.2</common-math-version>
+        <commons-pool-version>1.5.4_3</commons-pool-version>
         <cxf-version>2.4.3-fuse-00-${perfectus-build}</cxf-version>
         <camel-version>2.8.0-fuse-01-${perfectus-build}</camel-version>
         <hadoop-version>0.20.2</hadoop-version>
@@ -151,6 +155,7 @@
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.0</zookeeper-version>
+      <quartz-version>1.8.5_1</quartz-version>
     </properties>
 
 

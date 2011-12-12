@@ -99,6 +99,7 @@
         <feature version="${project.version}">fabric-bundle</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
+        <feature version="${project.version}">insight-graph</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-agent/${project.version}</bundle>
     </feature>
 
@@ -108,8 +109,8 @@
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/${commons-lang-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
@@ -188,8 +189,8 @@
 
     <feature name="fabric-jaas" version="${project.version}}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/${commons-lang-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-jaas/${project.version}</bundle>
     </feature>
@@ -209,7 +210,7 @@
         <!--<bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>-->
         <bundle>mvn:org.springframework/spring-jms/${spring-version}</bundle>
         <bundle>mvn:org.apache.commons/commons-lang3/3.0.1</bundle>
-        <bundle>mvn:commons-pool/commons-pool/1.5.4</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-pool/${commons-pool-version}</bundle>
         <feature version="${activemq-version}">activemq</feature>
         <bundle>mvn:org.fusesource.fabric.bridge/fabric-bridge/${project.version}</bundle>
     </feature>
@@ -219,6 +220,40 @@
         <feature version="${project.version}">fabric-configadmin</feature>
         <feature version='${project.version}'>fabric-bridge</feature>
         <bundle>mvn:org.fusesource.fabric.bridge/fabric-bridge-zookeeper/${project.version}</bundle>
+    </feature>
+
+    <feature name="insight-graph" version="${project.version}" resolver="(obr)">
+        <config name="org.fusesource.insight.insight-graph">
+            #
+            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # http://fusesource.com
+            #
+            # The software in this package is published under the terms of the CDDL license
+            # a copy of which has been included with this distribution in the license.txt file.
+            #
+
+            # Configure Server Scheduler Properties
+            org.quartz.scheduler.instanceName = ServerScheduler
+            org.quartz.scheduler.instanceId = AUTO
+            org.quartz.scheduler.skipUpdateCheck = true
+
+            # Configure ThreadPool
+            org.quartz.threadPool.class = org.quartz.simpl.SimpleThreadPool
+            org.quartz.threadPool.threadCount = 10
+            org.quartz.threadPool.threadPriority = 5
+
+            # Configure JobStore
+            org.quartz.jobStore.misfireThreshold = 60000
+            org.quartz.jobStore.class = org.quartz.simpl.RAMJobStore
+        </config>
+        <bundle>mvn:org.fusesource.insight/insight-graph/${project.version}</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-io/${commons-io-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/${commons-lang-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-pool/${commons-pool-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.quartz/${quartz-version}</bundle>
     </feature>
 
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
@@ -266,7 +301,7 @@
 
     <feature name="fabric-hadoop" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/0.1.44_2</bundle>
         <bundle dependency='true'>mnv:commons-cli/commons-cli/1.2</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-hadoop/${project.version}</bundle>

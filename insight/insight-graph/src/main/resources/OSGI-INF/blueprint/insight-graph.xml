@@ -1,0 +1,56 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+  <cm:property-placeholder persistent-id="org.fusesource.insight.insight-graph" update-strategy="reload">
+      <cm:default-properties>
+          <!-- Scheduler properties -->
+          <cm:property name="org.quartz.scheduler.instanceName" value="InsightGraphSchedular"/>
+          <cm:property name="org.quartz.scheduler.instanceId" value="AUTO"/>
+          <cm:property name="org.quartz.scheduler.skipUpdateCheck" value="true"/>
+
+          <!-- Configure ThreadPool -->
+          <cm:property name="org.quartz.threadPool.class" value="org.quartz.simpl.SimpleThreadPool"/>
+          <cm:property name="org.quartz.threadPool.threadCount" value="2"/>
+          <cm:property name="org.quartz.threadPool.threadPriority" value="5"/>
+
+          <!-- Configure JobStore -->
+          <cm:property name="org.quartz.jobStore.misfireThreshold" value="60000"/>
+          <cm:property name="org.quartz.jobStore.class" value="org.quartz.simpl.RAMJobStore"/>
+      </cm:default-properties>
+  </cm:property-placeholder>
+
+
+  <bean id="schedulerFactory" class="org.fusesource.insight.graph.SchedulerFactory">
+    <property name="configAdmin">
+      <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
+    </property>
+  </bean>
+
+  <bean id="scheduler" factory-ref="schedulerFactory" factory-method="createScheduler">
+  </bean>
+
+  <bean id="jmxCollectorService" class="org.fusesource.insight.graph.JmxCollector" init-method="start" destroy-method="destroy">
+    <argument>
+      <reference interface="org.fusesource.fabric.api.FabricService"/>
+    </argument>
+    <property name="scheduler" ref="scheduler"/>
+  </bean>
+
+  <service ref="jmxCollectorService" auto-export="interfaces"/>
+
+  <reference interface="javax.management.MBeanServer">
+    <reference-listener ref="jmxCollectorService" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer"/>
+  </reference>
+
+</blueprint>
