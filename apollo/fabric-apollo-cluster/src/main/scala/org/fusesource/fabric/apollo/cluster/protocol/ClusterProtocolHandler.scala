@@ -22,6 +22,7 @@ import org.fusesource.fabric.apollo.cluster.model._
 import org.apache.activemq.apollo.broker.protocol.ProtocolHandler
 import org.fusesource.fabric.apollo.cluster.dto.{ClusterConnectionStatusDTO, ClusterProtocolHelloDTO}
 import org.fusesource.fabric.apollo.cluster.{ClusterConnector, Peer}
+import org.fusesource.hawtdispatch._
 
 object ClusterProtocolHandler extends Log
 
