@@ -191,6 +191,11 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     }
     public void onRouteContextCreate(RouteContext routeContext) {
     }
+
+    @Override
+    public void onErrorHandlerAdd(RouteContext routeContext, Processor processor, ErrorHandlerFactory errorHandlerFactory) {
+    }
+
     public void onErrorHandlerAdd(RouteContext routeContext, Processor processor, ErrorHandlerBuilder errorHandlerBuilder) {
     }
     // TODO: When upgrading to Camel 2.9

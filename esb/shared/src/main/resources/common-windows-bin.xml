@@ -24,6 +24,7 @@
           <outputDirectory>/</outputDirectory>
           <excludes>
              <exclude>**/demos/**</exclude>
+             <exclude>lib/fabric-version.jar</exclude>
              <exclude>etc/system.properties</exclude>
              <exclude>etc/org.apache.karaf.features.cfg</exclude>
              <exclude>etc/org.apache.karaf.features.obr.cfg</exclude>
@@ -80,7 +81,7 @@
         <file>
             <source>${basedir}/target/dependencies/win/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>servicemix.bat</destName>
+            <destName>fuseesb.bat</destName>
             <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
         </file>

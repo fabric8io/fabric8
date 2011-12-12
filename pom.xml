@@ -93,7 +93,7 @@
         <perfectus-build>20</perfectus-build>
 
         <!-- TODO this is required for some AMQ OSGi fixes -->
-        <activemq-version>5.5.1-fuse-01-${perfectus-build}</activemq-version>
+        <activemq-version>5.6-fuse-SNAPSHOT</activemq-version>
 <!--
 <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
 -->
@@ -105,8 +105,8 @@
         <commons-lang-version>2.4_5</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
-        <cxf-version>2.4.3-fuse-00-${perfectus-build}</cxf-version>
-        <camel-version>2.8.0-fuse-01-${perfectus-build}</camel-version>
+        <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
+        <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
         <equinox.version>3.6.0.v20100517</equinox.version>
         <felix.framework.version>3.0.9-fuse-03-${perfectus-build}</felix.framework.version>
         <hadoop-version>1.0.0</hadoop-version>
@@ -126,13 +126,14 @@
         <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
-        <karaf-version>2.2.2-fuse-02-${perfectus-build}</karaf-version>
+        <karaf-version>2.2.4-fuse-SNAPSHOT</karaf-version>
 <!--
 <karaf-version>2.2.4-fuse-00-12</karaf-version>
 -->
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
+        <zookeeper-version>3.4.0</zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
         <logback-version>1.0.0</logback-version>
@@ -156,7 +157,7 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
-        <servicemix.nmr.version>1.5.1-fuse-01-11</servicemix.nmr.version>
+        <servicemix.nmr.version>1.6.0-fuse-SNAPSHOT</servicemix.nmr.version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.1</slf4j-api-version>
@@ -217,6 +218,7 @@
         <module>mq</module>
         <module>eca</module>
         <module>stream</module>
+        <module>esb</module>
     </modules>
 
     <build>
@@ -999,9 +1001,9 @@
       <properties>
         <perfectus-run>04</perfectus-run>
         <activemq-version>5.6.0-fuse-00-${perfectus-run}</activemq-version>
-        <cxf-version>2.4.2-fuse-01-${perfectus-run}</cxf-version>
-        <camel-version>2.8.1-fuse-00-${perfectus-run}</camel-version>
-        <karaf-version>2.2.2-fuse-01-${perfectus-run}</karaf-version>
+        <cxf-version>2.5.0-fuse-00-${perfectus-run}</cxf-version>
+        <camel-version>2.9.0-fuse-00-${perfectus-run}</camel-version>
+        <karaf-version>2.2.4-fuse-00-${perfectus-run}</karaf-version>
       </properties>
 
       <repositories>

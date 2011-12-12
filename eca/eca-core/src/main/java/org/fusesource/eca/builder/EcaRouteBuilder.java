@@ -126,6 +126,26 @@ public abstract class EcaRouteBuilder extends RouteBuilder {
 
                                 public void onExchangeDone(Route route, Exchange exchange) {
                                 }
+
+                                @Override
+                                public void onRemove(Route route) {
+                                }
+
+                                @Override
+                                public void onStart(Route route) {
+                                }
+
+                                @Override
+                                public void onStop(Route route) {
+                                }
+
+                                @Override
+                                public void onSuspend(Route route) {
+                                }
+
+                                @Override
+                                public void onResume(Route route) {
+                                }
                             };
                             List<RoutePolicy> routePolicies = new ArrayList<RoutePolicy>();
                             routePolicies.add(routePolicy);

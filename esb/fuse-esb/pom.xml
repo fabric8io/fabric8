@@ -57,6 +57,20 @@
             <type>tar.gz</type>
         </dependency>
 
+        <!-- Fuse Distro of ServiMix: Is used to get the examples -->
+        <dependency>
+            <groupId>org.apache.servicemix</groupId>
+            <artifactId>apache-servicemix-minimal</artifactId>
+            <version>${smx.features.version}</version>
+            <type>tar.gz</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix</groupId>
+            <artifactId>apache-servicemix-minimal</artifactId>
+            <version>${smx.features.version}</version>
+            <type>tar.gz</type>
+        </dependency>
+
         <!--Xerces jar to be included in lib/endorsed -->
         <dependency>
             <groupId>org.apache.xerces</groupId>
@@ -88,14 +102,16 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- other features required -->
-<!--
+        <!-- other features required
         <dependency>
             <groupId>org.apache.cxf.karaf</groupId>
             <artifactId>apache-cxf</artifactId>
             <version>${cxf.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
         </dependency>
--->
+         -->
+
     </dependencies>
     
     <build>
@@ -141,6 +157,7 @@
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
+                                <feature>xml-specs-api</feature>
                                 <feature>cxf</feature>
                                 <feature>saaj</feature>
                                 <feature>obr</feature>
@@ -248,6 +265,42 @@
                                     <outputDirectory>target/dependencies/win</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-examples-unix</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.servicemix</groupId>
+                                    <artifactId>apache-servicemix-minimal</artifactId>
+                                    <version>${smx.features.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>target/dependencies/servicemix/unix/</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-examples/win</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.servicemix</groupId>
+                                    <artifactId>apache-servicemix-minimal</artifactId>
+                                    <version>${smx.features.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>target/dependencies/servicemix/win/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

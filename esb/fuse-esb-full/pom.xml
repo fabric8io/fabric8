@@ -22,9 +22,9 @@
 
     <parent>
         <groupId>org.fusesource.esb</groupId>
-        <artifactId>esb-project</artifactId>
-        <version>1.2-SNAPSHOT</version>
-        <relativePath>..</relativePath>
+        <artifactId>fuse-esb</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 
     <artifactId>fuse-esb-full</artifactId>
@@ -52,7 +52,7 @@
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.servicemix/apache-servicemix/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.fusesource.esb/fuse-esb/${project.version}/xml/features</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
