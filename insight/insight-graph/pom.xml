@@ -71,6 +71,16 @@
       <version>1.250.2</version>
     </dependency>
 
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-zookeeper</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-linkedin-zookeeper</artifactId>
+        <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.servicemix.bundles</groupId>

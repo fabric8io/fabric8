@@ -6,7 +6,7 @@
  * AGPL license a copy of which has been included with this distribution
  * in the license.txt file.
  */
-package org.fusesource.insight.graph;
+package org.fusesource.insight.graph.support;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;

@@ -13,21 +13,22 @@ import com.googlecode.jmxtrans.jobs.ServerJob;
 import com.googlecode.jmxtrans.model.JmxProcess;
 import com.googlecode.jmxtrans.model.Query;
 import com.googlecode.jmxtrans.model.Server;
-import com.googlecode.jmxtrans.model.output.GraphiteWriter;
 import com.googlecode.jmxtrans.util.JmxUtils;
 import com.googlecode.jmxtrans.util.LifecycleException;
 import com.googlecode.jmxtrans.util.ValidationException;
 import org.apache.commons.pool.KeyedObjectPool;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.jsontype.TypeResolverBuilder;
-import org.codehaus.jackson.type.JavaType;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.insight.graph.support.Json;
+import org.fusesource.insight.graph.support.SchedulerFactory;
+import org.fusesource.insight.graph.support.ZKClusterOutputWriter;
+import org.linkedin.zookeeper.client.IZKClient;
 import org.quartz.CronExpression;
 import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
@@ -46,8 +47,11 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Collects all the charting statistics defined against its profiles
@@ -55,14 +59,20 @@ import java.util.Map;
 public class JmxCollector {
     public static final String GRAPH_JSON = "org.fusesource.insight.graph.json";
     public static int SECONDS_BETWEEN_SERVER_JOB_RUNS = 60;
+    public static final String GRAPH_CLUSTER_PREFIX = "graphCluster.";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(JmxCollector.class);
+    protected static final String DEFAULT_GRAPH_CLUSTER_NAME = "default";
 
     private final FabricService fabricService;
     private List<Server> masterServersList = new ArrayList<Server>();
     private Map<String, KeyedObjectPool> objectPoolMap;
     private Scheduler scheduler;
     private MBeanServer mbeanServer;
+    private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
+    private IZKClient zkClient;
+    private String clusterRoot = "/fabric/registry/clusters/stats";
+    private Map<String,ZKClusterOutputWriter> outputWriters = new HashMap<String, ZKClusterOutputWriter>();
 
     public JmxCollector(FabricService fabricService) {
         this.fabricService = fabricService;
@@ -103,6 +113,30 @@ public class JmxCollector {
 
     public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
+    }
+
+    public IZKClient getZkClient() {
+        return zkClient;
+    }
+
+    public void setZkClient(IZKClient zkClient) {
+        this.zkClient = zkClient;
+    }
+
+    public List<ACL> getAccessControlList() {
+        return accessControlList;
+    }
+
+    public void setAccessControlList(List<ACL> accessControlList) {
+        this.accessControlList = accessControlList;
+    }
+
+    public String getClusterRoot() {
+        return clusterRoot;
+    }
+
+    public void setClusterRoot(String clusterRoot) {
+        this.clusterRoot = clusterRoot;
     }
 
     public void process() throws LifecycleException, ValidationException, SchedulerException, ParseException {
@@ -198,26 +232,67 @@ public class JmxCollector {
         if (bytes != null && bytes.length > 0) {
             JmxProcess process = getJmxProcess(GRAPH_JSON, new ByteArrayInputStream(bytes));
             if (process != null) {
-                JmxUtils.mergeServerLists(this.masterServersList, process.getServers());
+                List<Server> servers = process.getServers();
+                for (Server server : servers) {
+                    configureProfileServer(server, agent, profile);
+                }
+                JmxUtils.mergeServerLists(this.masterServersList, servers);
             }
         }
     }
 
-    public static JmxProcess getJmxProcess(String name, InputStream in) throws JsonParseException, JsonMappingException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    protected void configureProfileServer(Server server, Agent agent, Profile profile) {
+        List<Query> queries = server.getQueries();
+        for (Query query : queries) {
+            List<OutputWriter> writers = query.getOutputWriters();
+            if (writers == null) {
+                writers = new ArrayList<OutputWriter>();
+                query.setOutputWriters(writers);
+            }
+            if (writers.isEmpty()) {
+                // lets find the graph writer clusters for the profile
+                Map<String, String> agentProperties = profile.getAgentConfiguration();
 
-        // lets tweak the class loader so we can find the classes
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        ClassLoader classLoader = GraphiteWriter.class.getClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
+                // now lets find all the graph profiles
+                Set<String> clusterNames = new HashSet<String>();
+                for (Map.Entry<String, String> entry : agentProperties.entrySet()) {
+                    String key = entry.getKey();
+                    String clusterName = entry.getValue();
 
-        try {
-            JmxProcess jmx = mapper.readValue(in, JmxProcess.class);
-            jmx.setName(name);
-            return jmx;
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
+                    if (key.startsWith(GRAPH_CLUSTER_PREFIX)) {
+                        clusterNames.add(clusterName);
+                    }
+                }
+                if (clusterNames.isEmpty()) {
+                    clusterNames.add(DEFAULT_GRAPH_CLUSTER_NAME);
+                }
+
+                for (String clusterName : clusterNames) {
+                    OutputWriter writer = createClusterWriter(clusterName);
+                    if (writer != null) {
+                        writers.add(writer);
+                    }
+                }
+            }
         }
+    }
+
+    /**
+     * Lets look in ZK and see what the definition of the graphing cluster is and create an OutputWriter for that cluster
+     */
+    protected OutputWriter createClusterWriter(String clusterName) {
+        ZKClusterOutputWriter outputWriter = outputWriters.get(clusterName);
+        if (outputWriter == null) {
+            String zkPath = getClusterRoot() + "/" + clusterName;
+            outputWriter = new ZKClusterOutputWriter(this, zkPath);
+        }
+        return outputWriter;
+    }
+
+    public static JmxProcess getJmxProcess(String name, InputStream in) throws JsonParseException, JsonMappingException, IOException {
+        JmxProcess jmx = Json.readJsonValue(name, in, JmxProcess.class);
+        jmx.setName(name);
+        return jmx;
     }
 
 }
