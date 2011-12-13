@@ -69,7 +69,6 @@
       <groupId>org.fusesource.jmxtrans</groupId>
       <artifactId>jmxtrans</artifactId>
       <version>1.250.2</version>
-      <scope>system</scope>
     </dependency>
 
     <dependency>
@@ -126,13 +125,4 @@
       <optional>true</optional>
     </dependency>
   </dependencies>
-
-
-  <repositories>
-    <repository>
-      <id>insight-graph-repo</id>
-      <name>Local Insight Graph REpo</name>
-      <url>file://repo</url>
-    </repository>
-  </repositories>
 </project>
