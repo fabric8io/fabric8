@@ -69,6 +69,7 @@
       <groupId>org.fusesource.jmxtrans</groupId>
       <artifactId>jmxtrans</artifactId>
       <version>1.250.2</version>
+      <scope>system</scope>
     </dependency>
 
     <dependency>
