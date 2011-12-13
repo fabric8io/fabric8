@@ -48,7 +48,7 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
                 Stat stat = new Stat();
 
                 if (!path.endsWith(".json")) {
-                    LOG.info("Ignoring ZK Path: " + path + " as it doesn't end in .json");
+                    LOG.debug("Ignoring ZK Path: " + path + " as it doesn't end in .json");
                     return new ZKData<OutputWriter>(null, stat);
                 }
                 LOG.info("Reading ZK path: " + path + " and converting to an OutputWriter");
