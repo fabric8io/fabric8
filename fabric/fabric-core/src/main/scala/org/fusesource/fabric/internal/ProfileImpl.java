@@ -25,7 +25,7 @@ import java.util.*;
 
 public class ProfileImpl implements Profile {
 
-    private final static String AGENT_PID = "org.fusesource.fabric.agent";
+    public final static String AGENT_PID = "org.fusesource.fabric.agent";
 
     private final String id;
     private final String version;
@@ -304,6 +304,15 @@ public class ProfileImpl implements Profile {
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    @Override
+    public Map<String, String> getAgentConfiguration() {
+        Map<String, String> map = getConfigurations().get(AGENT_PID);
+        if (map == null) {
+            map = new HashMap<String, String>();
+        }
+        return map;
     }
 
     private Map<String, String> getConfiguration(String pid) throws InterruptedException, KeeperException, IOException {

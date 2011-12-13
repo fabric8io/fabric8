@@ -152,6 +152,8 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         if (zooKeeper != null) {
             try {
                 return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
+            } catch (KeeperException.NoNodeException e) {
+                // Ignore
             } catch (Throwable e) {
                 logger.warn("Failed to find parent " + name + ". Reason: " + e);
             }

@@ -30,9 +30,10 @@
       </cm:default-properties>
   </cm:property-placeholder>
 
+  <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
   <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
-
-  <bean id="schedulerFactory" class="org.fusesource.insight.graph.SchedulerFactory">
+       
+  <bean id="schedulerFactory" class="org.fusesource.insight.graph.support.SchedulerFactory">
     <property name="configAdmin">
       <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
     </property>
@@ -44,6 +45,7 @@
   <bean id="jmxCollector" class="org.fusesource.insight.graph.JmxCollector" init-method="start" destroy-method="destroy">
     <argument ref="fabricService"/>
     <property name="scheduler" ref="scheduler"/>
+    <property name="zkClient" ref="zooKeeper"/>
   </bean>
 
 <!--

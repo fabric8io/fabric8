@@ -613,6 +613,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-graph</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.fusesource.mq</groupId>
                 <artifactId>mq-fabric</artifactId>
                 <version>${project.version}</version>

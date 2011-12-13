@@ -27,16 +27,23 @@
       org.fusesource.insight.graph*;version=${project.version}
     </fuse.osgi.export>
     <fuse.osgi.import.before.defaults>
+        org.apache.log4j*;resolution:=optional,
         !name.pachler.nio.file*,
         !org.jrobin.core*,
         !org.apache.commons.cli*,
         !org.apache.velocity.app*,
-        !sun.misc*
+        !sun.misc*,
+        !com.ibm.uvm.tools*,
+        !com.sun.jdmk.comm*,
+        !javax.jms*,
+        !javax.jmdns*,
+        !javax.mail*,
     </fuse.osgi.import.before.defaults>
     <fuse.osgi.private.pkg>
-      com.googlecode.jmxtrans*
+      com.googlecode.jmxtrans*,
+      org.apache.log4j*
     </fuse.osgi.private.pkg>
-    <fabric.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=*jmxtrans</fabric.embed.dependency>
+    <fabric.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=*jmxtrans|log4j</fabric.embed.dependency>
   </properties>
 
   <dependencies>
@@ -64,6 +71,16 @@
       <version>1.250.2</version>
     </dependency>
 
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-zookeeper</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-linkedin-zookeeper</artifactId>
+        <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.servicemix.bundles</groupId>
@@ -102,14 +119,10 @@
       <version>${quartz-version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
-
-
-  <repositories>
-    <repository>
-      <id>insight-graph-repo</id>
-      <name>Local Insight Graph REpo</name>
-      <url>file://repo</url>
-    </repository>
-  </repositories>
 </project>
