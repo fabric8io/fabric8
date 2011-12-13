@@ -26,24 +26,24 @@
     <description>Fuse Fabric :: Hadoop</description>
 
   <properties>
-      <fabric.osgi.import.additional>
+      <fuse.osgi.import.additional>
           *;resolution:=optional
-      </fabric.osgi.import.additional>
-      <fabric.osgi.export>
+      </fuse.osgi.import.additional>
+      <fuse.osgi.export>
           org.apache.hadoop*;-noimport:=true;version=0.20.2
-      </fabric.osgi.export>
-      <fabric.osgi.private.pkg>
+      </fuse.osgi.export>
+      <fuse.osgi.private.pkg>
           webapps.*,
           org.fusesource.fabric.hadoop.*,
           org.znerd.xmlenc*,
-      </fabric.osgi.private.pkg>
-      <fabric.osgi.resource>
+      </fuse.osgi.private.pkg>
+      <fuse.osgi.resource>
           {maven-resources},
           @hadoop-core-0.20.2.jar!/core-default.xml,
           @hadoop-core-0.20.2.jar!/hdfs-default.xml,
           @hadoop-core-0.20.2.jar!/mapred-default.xml,
           @hadoop-core-0.20.2.jar!/hadoop-metrics.properties
-      </fabric.osgi.resource>
+      </fuse.osgi.resource>
   </properties>
 
   <dependencies>
