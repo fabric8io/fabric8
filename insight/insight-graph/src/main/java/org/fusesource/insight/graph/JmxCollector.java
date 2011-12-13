@@ -92,7 +92,11 @@ public class JmxCollector {
     }
 
     public void destroy() throws Exception {
-
+        for (ZKClusterOutputWriter outputWriter : outputWriters.values()) {
+            if (outputWriter != null) {
+                outputWriter.stop();
+            }
+        }
     }
 
 
@@ -226,7 +230,7 @@ public class JmxCollector {
         this.objectPoolMap = poolMap;
     }
 
-    protected void loadProfile(Agent agent, Profile profile) throws IOException {
+    protected void loadProfile(Agent agent, Profile profile) throws IOException, LifecycleException {
         Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
         byte[] bytes = fileConfigurations.get(GRAPH_JSON);
         if (bytes != null && bytes.length > 0) {
@@ -241,7 +245,7 @@ public class JmxCollector {
         }
     }
 
-    protected void configureProfileServer(Server server, Agent agent, Profile profile) {
+    protected void configureProfileServer(Server server, Agent agent, Profile profile) throws LifecycleException {
         List<Query> queries = server.getQueries();
         for (Query query : queries) {
             List<OutputWriter> writers = query.getOutputWriters();
@@ -280,11 +284,13 @@ public class JmxCollector {
     /**
      * Lets look in ZK and see what the definition of the graphing cluster is and create an OutputWriter for that cluster
      */
-    protected OutputWriter createClusterWriter(String clusterName) {
+    protected OutputWriter createClusterWriter(String clusterName) throws LifecycleException {
         ZKClusterOutputWriter outputWriter = outputWriters.get(clusterName);
         if (outputWriter == null) {
             String zkPath = getClusterRoot() + "/" + clusterName;
             outputWriter = new ZKClusterOutputWriter(this, zkPath);
+            outputWriters.put(clusterName, outputWriter);
+            outputWriter.start();
         }
         return outputWriter;
     }

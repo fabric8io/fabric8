@@ -56,8 +56,10 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
                 byte[] data = zkClient.getData(path, watcher, stat);
                 try {
                     OutputWriter outputWriter = Json.readJsonValue(path, new ByteArrayInputStream(data), OutputWriter.class);
+                    configureWriter(outputWriter);
+                    outputWriter.start();
                     return new ZKData<OutputWriter>(outputWriter, stat);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -73,6 +75,17 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
     @Override
     public void start() throws LifecycleException {
         super.start();
+        try {
+            tracker.track();
+        } catch (Exception e) {
+            throw new LifecycleException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void stop() throws LifecycleException {
+        tracker.destroy();
+        super.stop();
     }
 
     @Override
@@ -83,11 +96,15 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
             TrackedNode<OutputWriter> value = entry.getValue();
             OutputWriter data = value.getData();
             if (data != null) {
-                if (objectPool != null) {
-                    data.setObjectPoolMap(objectPool);
-                }
+                configureWriter(data);
                 data.validateSetup(query);
             }
+        }
+    }
+
+    protected void configureWriter(OutputWriter data) {
+        if (objectPool != null) {
+            data.setObjectPoolMap(objectPool);
         }
     }
 
@@ -99,9 +116,7 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
             TrackedNode<OutputWriter> value = entry.getValue();
             OutputWriter data = value.getData();
             if (data != null) {
-                if (objectPool != null) {
-                    data.setObjectPoolMap(objectPool);
-                }
+                configureWriter(data);
                 data.doWrite(query);
             }
         }
