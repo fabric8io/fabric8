@@ -306,6 +306,15 @@ public class ProfileImpl implements Profile {
         }
     }
 
+    @Override
+    public Map<String, String> getAgentConfiguration() {
+        Map<String, String> map = getConfigurations().get(AGENT_PID);
+        if (map == null) {
+            map = new HashMap<String, String>();
+        }
+        return map;
+    }
+
     private Map<String, String> getConfiguration(String pid) throws InterruptedException, KeeperException, IOException {
         IZKClient zooKeeper = service.getZooKeeper();
         String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/" + pid +".properties";

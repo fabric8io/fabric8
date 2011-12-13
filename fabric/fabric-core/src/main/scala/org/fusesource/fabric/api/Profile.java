@@ -43,7 +43,16 @@ public interface Profile {
      */
     void setFileConfigurations(Map<String, byte[]> configurations);
 
+    /**
+     * Returns all of the configuration properties
+     * @return
+     */
     Map<String, Map<String, String>> getConfigurations();
+
+    /**
+     * Returns the configuration properties for the agent
+     */
+    Map<String, String> getAgentConfiguration();
 
     /**
      * Update configurations of this profile with the new values
