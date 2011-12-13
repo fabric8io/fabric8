@@ -25,7 +25,7 @@ import java.util.*;
 
 public class ProfileImpl implements Profile {
 
-    private final static String AGENT_PID = "org.fusesource.fabric.agent";
+    public final static String AGENT_PID = "org.fusesource.fabric.agent";
 
     private final String id;
     private final String version;

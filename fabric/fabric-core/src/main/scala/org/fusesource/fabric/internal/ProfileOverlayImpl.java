@@ -61,6 +61,15 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public Map<String, String> getAgentConfiguration() {
+        Map<String, String> map = getConfigurations().get(AGENT_PID);
+        if (map == null) {
+            map = new HashMap<String, String>();
+        }
+        return map;
+    }
+
+    @Override
     public void setFileConfigurations(Map<String, byte[]> configurations) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
