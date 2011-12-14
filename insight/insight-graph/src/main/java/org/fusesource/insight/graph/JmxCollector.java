@@ -246,6 +246,11 @@ public class JmxCollector {
     }
 
     protected void configureProfileServer(Server server, Agent agent, Profile profile) throws LifecycleException {
+        if (server.isLocal()) {
+            server.setLocalMBeanServer(mbeanServer);
+            String serverAlias = profile.getId() + "." + fabricService.getCurrentAgentName();
+            server.setAlias(serverAlias);
+        }
         List<Query> queries = server.getQueries();
         for (Query query : queries) {
             List<OutputWriter> writers = query.getOutputWriters();
