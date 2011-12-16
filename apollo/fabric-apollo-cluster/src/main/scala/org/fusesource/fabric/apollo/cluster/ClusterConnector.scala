@@ -14,7 +14,6 @@ import dto.{ClusterConnectorDTO, ClusterNodeDTO}
 import org.fusesource.hawtdispatch._
 import org.apache.activemq.apollo.broker._
 import java.io.IOException
-import org.apache.activemq.apollo.transport.TransportFactory
 import org.apache.activemq.apollo.util._
 import org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocol
 import org.apache.activemq.apollo.broker.protocol.{ProtocolHandler, AnyProtocol}
@@ -27,6 +26,7 @@ import org.apache.activemq.apollo.dto.{ConnectorStatusDTO, ServiceStatusDTO, Con
 import collection.mutable.HashMap
 import java.lang.{IllegalArgumentException, String}
 import org.fusesource.fabric.groups._
+import org.apache.activemq.apollo.broker.transport.TransportFactory
 
 object ClusterConnectorFactory extends ConnectorFactory with Log {
 

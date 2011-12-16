@@ -9,8 +9,8 @@
  */
 
 package org.fusesource.fabric.apollo.amqp.protocol.commands
+import org.fusesource.hawtdispatch.transport._
 
-import org.apache.activemq.apollo.transport.Transport
 
 /**
  *

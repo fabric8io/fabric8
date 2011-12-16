@@ -14,7 +14,8 @@ import connection._
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.apache.activemq.apollo.transport.{TransportAcceptListener, TransportFactory, Transport}
+import org.apache.activemq.apollo.broker.transport.TransportFactory
+import org.fusesource.hawtdispatch.transport._
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
@@ -38,7 +39,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
     val server = TransportFactory.bind("pipe://vm:0/blah?marshal=true")
     server.setDispatchQueue(server_queue)
 
-    server.setAcceptListener(new TransportAcceptListener {
+    server.setAcceptListener(new TransportServerListener {
       def onAccept(transport: Transport) {
         val transport_interceptor = new TransportInterceptor
         transport_interceptor.tail.incoming = new HeaderInterceptor

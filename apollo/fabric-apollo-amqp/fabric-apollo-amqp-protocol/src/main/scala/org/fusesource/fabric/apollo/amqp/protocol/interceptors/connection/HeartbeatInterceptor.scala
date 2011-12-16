@@ -14,7 +14,6 @@ import org.fusesource.hawtbuf.Buffer._
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPConnection
 import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
-import org.apache.activemq.apollo.transport.Transport
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtbuf.Buffer
@@ -22,6 +21,7 @@ import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Tasks}
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{Interceptor, FrameInterceptor, PerformativeInterceptor}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionClosed, ConnectionCreated}
+import org.fusesource.hawtdispatch.transport.Transport
 
 /**
  *

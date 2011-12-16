@@ -10,13 +10,12 @@
 
 package org.fusesource.fabric.apollo.cluster.protocol
 
-import org.apache.activemq.apollo.broker.protocol.{Protocol, ProtocolFactory}
 import org.apache.activemq.apollo.broker.store.MessageRecord
 import org.apache.activemq.apollo.broker.Message
 
-import org.apache.activemq.apollo.transport.ProtocolCodecFactory
 import org.fusesource.hawtbuf.Buffer
 import ClusterProtocolConstants._
+import org.apache.activemq.apollo.broker.protocol._
 
 /**
  * <p>
@@ -26,7 +25,7 @@ import ClusterProtocolConstants._
  */
 class ClusterProtocolCodecFactory extends ProtocolCodecFactory.Provider {
 
-  def protocol = PROTOCOL_NAME
+  def id = PROTOCOL_NAME
 
   def maxIdentificaionLength = PROTOCOL_MAGIC.length
 

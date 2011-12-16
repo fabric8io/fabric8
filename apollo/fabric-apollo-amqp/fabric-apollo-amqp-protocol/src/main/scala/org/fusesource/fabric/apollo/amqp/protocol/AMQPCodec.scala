@@ -19,10 +19,11 @@ import org.apache.activemq.apollo.util.Logging
 import java.net.SocketException
 import org.fusesource.fabric.apollo.amqp.codec._
 import marshaller.{BitUtils, AMQPProtocolHeaderCodec}
-import org.apache.activemq.apollo.transport._
-import org.apache.activemq.apollo.transport.ProtocolCodec.BufferState
+import org.fusesource.hawtdispatch.transport._
+import ProtocolCodec.BufferState
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import types.{AMQPTransportFrame, AMQPProtocolHeader}
+import org.apache.activemq.apollo.broker.protocol.ProtocolCodecFactory
 
 /*
 *
@@ -40,7 +41,7 @@ import AMQPConstants._
 */
 class AMQPProtocolCodecFactory extends ProtocolCodecFactory.Provider {
 
-  def protocol = PROTOCOL
+  def id = PROTOCOL
 
   def createProtocolCodec = new AMQPCodec
 
@@ -173,10 +174,10 @@ class AMQPCodec extends ProtocolCodec with Logging {
     }
   }
 
-  def unread(buffer: Buffer) = {
+  def unread(buffer: Array[Byte]) = {
     assert(read_counter == 0)
     read_buffer = ByteBuffer.allocate(buffer.length.max(read_waiting_on))
-    read_buffer.put(buffer.data, buffer.offset, buffer.length)
+    read_buffer.put(buffer)
     read_counter += buffer.length
     read_waiting_on -= buffer.length
     if ( read_waiting_on <= 0 ) {

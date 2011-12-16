@@ -17,7 +17,7 @@ import interceptors.common.Multiplexer
 import interceptors.connection.{TransportInterceptor, HeaderInterceptor, CloseInterceptor, HeartbeatInterceptor, OpenInterceptor}
 import org.apache.activemq.apollo.util.{URISupport, IntrospectionSupport}
 import java.net.URI
-import org.apache.activemq.apollo.transport.TransportFactory
+import org.apache.activemq.apollo.broker.transport.TransportFactory
 import utilities.Tasks
 
 /**

@@ -13,7 +13,9 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
 import org.scalatest.matchers.ShouldMatchers
 import org.fusesource.hawtdispatch._
-import org.apache.activemq.apollo.transport.{Transport, TransportAcceptListener, TransportFactory}
+import internal.util.RunnableCountDownLatch
+import org.apache.activemq.apollo.broker.transport.TransportFactory
+import org.fusesource.hawtdispatch.transport._
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPCodec
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.commands.CloseConnection
@@ -33,7 +35,7 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
 
     val server = TransportFactory.bind("pipe://localhost:0/test")
     server.setDispatchQueue(Dispatch.createQueue("Server Queue"))
-    server.setAcceptListener(new TransportAcceptListener {
+    server.setAcceptListener(new TransportServerListener {
       def onAccept(transport: Transport) {
         val transport_interceptor = new TransportInterceptor
         transport_interceptor.tail.incoming = new FrameDroppingInterceptor
@@ -51,7 +53,9 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
       def onAcceptError(error: Exception) {}
     })
 
-    server.start
+    var cd = new RunnableCountDownLatch(1)
+    server.start(cd)
+    cd.await()
 
     val client_wait = new CountDownLatch(1)
 
@@ -71,7 +75,9 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
       }
     }
 
-    client.start
+    cd = new RunnableCountDownLatch(1)
+    client.start(cd)
+    cd.await()
 
     client_wait.await(10, TimeUnit.SECONDS) should be (true)
 

@@ -10,7 +10,6 @@
 
 package org.fusesource.fabric.apollo.cluster.protocol
 
-import org.apache.activemq.apollo.transport.ProtocolCodec
 import java.nio.ByteBuffer
 import java.nio.channels.{SocketChannel, WritableByteChannel, ReadableByteChannel}
 import org.fusesource.fabric.apollo.cluster.model.Frame
@@ -18,6 +17,7 @@ import java.io.EOFException
 import java.net.ProtocolException
 import ClusterProtocolConstants._
 import org.fusesource.hawtbuf._
+import org.fusesource.hawtdispatch.transport.ProtocolCodec
 
 /**
  * <p>
@@ -112,7 +112,7 @@ class ClusterProtocolCodec extends ProtocolCodec {
     }
   }
 
-  def unread(buffer: Buffer) = {
+  def unread(buffer: Array[Byte]) = {
     assert(read_counter == 0)
     read_buffer = buffer.toByteBuffer
     read_buffer.position(read_buffer.limit)

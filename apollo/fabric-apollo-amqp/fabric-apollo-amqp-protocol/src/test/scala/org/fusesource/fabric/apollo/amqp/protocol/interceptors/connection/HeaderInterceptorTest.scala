@@ -13,7 +13,7 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 import org.fusesource.hawtdispatch._
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.activemq.apollo.util.{Logging, FunSuiteSupport}
-import org.apache.activemq.apollo.transport.Transport
+import org.fusesource.hawtdispatch.transport._
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor

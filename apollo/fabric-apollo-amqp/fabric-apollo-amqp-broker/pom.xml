@@ -43,11 +43,6 @@
       <artifactId>apollo-broker</artifactId>
       <version>${apollo-version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>apollo-tcp</artifactId>
-      <version>${apollo-version}</version>
-    </dependency>
 
     <!-- Scala Support -->
     <dependency>

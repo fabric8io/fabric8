@@ -10,17 +10,18 @@
 
 package org.fusesource.fabric.apollo.amqp.protocol
 
-import org.apache.activemq.apollo.transport._
-import tcp.TcpTransportServer
+import org.fusesource.hawtdispatch._
+import org.fusesource.hawtdispatch.transport._
 import org.fusesource.fabric.apollo.amqp.protocol.api._
 import org.fusesource.hawtdispatch.Dispatch
 import org.apache.activemq.apollo.util.Logging
 import java.util.UUID
+import org.apache.activemq.apollo.broker.transport.TransportFactory
 
 /**
  *
  */
-class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection with TransportAcceptListener with Logging {
+class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection with TransportServerListener with Logging {
 
   var transport_server: TransportServer = null
   var container_id:String = null
@@ -72,7 +73,7 @@ class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection 
     // TODO
   }
 
-  def unbind = transport_server.stop
+  def unbind = transport_server.stop(NOOP)
 
 }
 

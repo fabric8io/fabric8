@@ -14,7 +14,8 @@ import org.fusesource.fabric.apollo.amqp.protocol.interfaces.Interceptor
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import collection.mutable.Queue
 import java.io.IOException
-import org.apache.activemq.apollo.transport.{Transport, TransportListener}
+import org.fusesource.hawtdispatch.transport._
+
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtdispatch._
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPCodec
@@ -49,7 +50,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
     } else {
       queue = transport.getDispatchQueue
     }
-    transport.start
+    transport.start(NOOP)
   }
 
   def error:Throwable = _error.getOrElse(null.asInstanceOf[Throwable])
