@@ -8,6 +8,8 @@
  */
 package org.fusesource.fabric.api;
 
+import org.linkedin.zookeeper.client.IZKClient;
+
 import java.util.List;
 
 public interface ZooKeeperClusterService {
@@ -26,4 +28,5 @@ public interface ZooKeeperClusterService {
 
     void clean();
 
+    IZKClient getZooKeeper();
 }

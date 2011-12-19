@@ -14,12 +14,19 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.zookeeper.commands.Import;
 
 @Command(name = "ensemble-create", scope = "fabric", description = "Create a new ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleCreate extends EnsembleCommandSupport {
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
+
+    @Option(name = "--no-import", description = "Disable the import of the sample registry data from ")
+    private boolean noImport;
+
+    @Option(name = "--import-dir", description = "Directory of files to import into the newly created ensemble")
+    private String importDir = getDefaultImportDir();
 
     @Argument(required = false, multiValued = true, description = "List of agents")
     private List<String> agents;
@@ -35,8 +42,21 @@ public class EnsembleCreate extends EnsembleCommandSupport {
         }
         if (agents != null && !agents.isEmpty()) {
             service.createCluster(agents);
+
+            // now lets populate the registry with files from a mvn plugin
+            if (!noImport) {
+                Import tool = new Import();
+                tool.setBundleContext(getBundleContext());
+                tool.setZooKeeper(service.getZooKeeper());
+                tool.setSource(importDir);
+                return tool.execute(session);
+            }
         }
         return null;
+    }
+
+    private static String getDefaultImportDir() {
+        return System.getProperty("karaf.home", ".") + "/import";
     }
 
 }

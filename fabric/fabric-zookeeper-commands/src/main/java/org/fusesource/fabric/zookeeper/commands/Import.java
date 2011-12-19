@@ -78,14 +78,6 @@ public class Import extends ZooKeeperCommandSupport {
         return null;
     }
 
-    private String stripPath(String path) {
-        String strs[] = path.split(source);
-        if (strs.length == 0) {
-            return "";
-        }
-        return strs[strs.length - 1].substring(0, strs[1].length() - ".cfg".length());
-    }
-
     private String buildZKPath(File parent, File current) {
         String rc = "";
         if (current != null && !parent.equals(current)) {
@@ -96,15 +88,7 @@ public class Import extends ZooKeeperCommandSupport {
 
     private void getCandidates(File parent, File current, Map<String, String> settings) throws Exception {
         if (current.isDirectory()) {
-            for (File child : current.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    if (file.isDirectory() || file.getName().endsWith(".cfg")) {
-                        return true;
-                    }
-                    return false;
-                }
-            })) {
+            for (File child : current.listFiles()) {
                 getCandidates(parent, child, settings);
             }
             String p = buildZKPath(parent, current).replaceFirst("/", "");
@@ -201,4 +185,28 @@ public class Import extends ZooKeeperCommandSupport {
         }
     }
 
+
+    public boolean isFilesystem() {
+        return filesystem;
+    }
+
+    public void setFilesystem(boolean filesystem) {
+        this.filesystem = filesystem;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
 }

@@ -64,6 +64,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         this.configurationAdmin = configurationAdmin;
     }
 
+    @Override
     public IZKClient getZooKeeper() {
         return zooKeeper;
     }

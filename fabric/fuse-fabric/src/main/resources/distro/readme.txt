@@ -1,10 +1,8 @@
 Fuse Fabric
+===========
+http://fabric.fusesource.org/
 
-This binary distribution contains the files needed to install Fabric on a Karaf instance.
-
-To install fabric, copy the content of the system folder into the Karaf system folder.
-Then run the following commands:
-   > features:addurl mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features
-   > features:install fabric-command
+To see the getting started guide please see
+http://fabric.fusesource.org/documentation/getting-started.html
 
 Enjoy!

@@ -92,7 +92,11 @@ public class Export extends ZooKeeperCommandSupport {
             }
             byte[] data = getZooKeeper().getData(p);
             if (data != null) {
-                settings.put(new File(target + File.separator + p + ".cfg"), new String(data));
+                String name = p;
+                if (!p.contains(".")) {
+                    name += ".cfg";
+                }
+                settings.put(new File(target + File.separator + name), new String(data));
             } else {
                 directories.add(new File(target + File.separator + p));
             }

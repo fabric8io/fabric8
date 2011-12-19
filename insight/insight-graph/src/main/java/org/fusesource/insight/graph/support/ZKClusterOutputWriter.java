@@ -26,8 +26,6 @@ import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -47,7 +45,12 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
             public ZKData<OutputWriter> readData(IZKClient zkClient, String path, Watcher watcher) throws InterruptedException, KeeperException {
                 Stat stat = new Stat();
 
-                if (!path.endsWith(".json")) {
+                Unmarshaller<OutputWriter> unmarshaller = null;
+                if (path.endsWith(".json")) {
+                    unmarshaller = new JsonUnmarshaller<OutputWriter>(OutputWriter.class);
+                } else if (path.endsWith(".properties")) {
+                    unmarshaller = new PropertiesObjectWriterUnmarshaller();
+                } else {
                     LOG.debug("Ignoring ZK Path: " + path + " as it doesn't end in .json");
                     return new ZKData<OutputWriter>(null, stat);
                 }
@@ -55,9 +58,11 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
 
                 byte[] data = zkClient.getData(path, watcher, stat);
                 try {
-                    OutputWriter outputWriter = Json.readJsonValue(path, new ByteArrayInputStream(data), OutputWriter.class);
-                    configureWriter(outputWriter);
-                    outputWriter.start();
+                    OutputWriter outputWriter = unmarshaller.unmarshal(path, data);
+                    if (outputWriter != null) {
+                        configureWriter(outputWriter);
+                        outputWriter.start();
+                    }
                     return new ZKData<OutputWriter>(outputWriter, stat);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -90,7 +95,7 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
 
     @Override
     public void validateSetup(Query query) throws ValidationException {
-        Map<String,TrackedNode<OutputWriter>> tree = tracker.getTree();
+        Map<String, TrackedNode<OutputWriter>> tree = tracker.getTree();
         for (Map.Entry<String, TrackedNode<OutputWriter>> entry : tree.entrySet()) {
             String name = entry.getKey();
             TrackedNode<OutputWriter> value = entry.getValue();
@@ -110,7 +115,7 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
 
     @Override
     public void doWrite(Query query) throws Exception {
-        Map<String,TrackedNode<OutputWriter>> tree = tracker.getTree();
+        Map<String, TrackedNode<OutputWriter>> tree = tracker.getTree();
         for (Map.Entry<String, TrackedNode<OutputWriter>> entry : tree.entrySet()) {
             String name = entry.getKey();
             TrackedNode<OutputWriter> value = entry.getValue();

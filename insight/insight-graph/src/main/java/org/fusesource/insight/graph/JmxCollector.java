@@ -248,6 +248,9 @@ public class JmxCollector {
     protected void configureProfileServer(Server server, Agent agent, Profile profile) throws LifecycleException {
         if (server.isLocal()) {
             server.setLocalMBeanServer(mbeanServer);
+
+            // TODO we could maybe customize this on a per profile basis
+            // e.g. you may wish to look at generic JVM stats for just all the brokers
             String serverAlias = profile.getId() + "." + fabricService.getCurrentAgentName();
             server.setAlias(serverAlias);
         }
