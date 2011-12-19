@@ -88,7 +88,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 		transport.resumeRead
 	}
 
-	def onTransportDisconnected() {
+	def onTransportDisconnected(reconnecting:Boolean) {
 		trace("Disconnected from %s", transport.getRemoteAddress)
 		receive(ConnectionClosed(), Tasks())
     _on_disconnect.foreach((x) => x())

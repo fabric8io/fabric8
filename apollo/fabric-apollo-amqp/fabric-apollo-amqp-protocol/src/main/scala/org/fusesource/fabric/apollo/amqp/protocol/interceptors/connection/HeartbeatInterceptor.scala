@@ -13,7 +13,6 @@ package org.fusesource.fabric.apollo.amqp.protocol.interceptors.connection
 import org.fusesource.hawtbuf.Buffer._
 import collection.mutable.Queue
 import org.fusesource.fabric.apollo.amqp.protocol.AMQPConnection
-import org.apache.activemq.apollo.broker.protocol.HeartBeatMonitor
 import org.fusesource.fabric.apollo.amqp.codec.types._
 import org.apache.activemq.apollo.util.Logging
 import org.fusesource.hawtbuf.Buffer
@@ -21,7 +20,8 @@ import org.fusesource.fabric.apollo.amqp.protocol.utilities.{execute, Tasks}
 import org.fusesource.fabric.apollo.amqp.protocol.interfaces.{Interceptor, FrameInterceptor, PerformativeInterceptor}
 import org.fusesource.fabric.apollo.amqp.codec.interfaces.AMQPFrame
 import org.fusesource.fabric.apollo.amqp.protocol.commands.{CloseConnection, ConnectionClosed, ConnectionCreated}
-import org.fusesource.hawtdispatch.transport.Transport
+import org.fusesource.hawtdispatch.transport.{HeartBeatMonitor, Transport}
+import org.fusesource.hawtdispatch._
 
 /**
  *
@@ -137,14 +137,14 @@ class HeartbeatInterceptor extends PerformativeInterceptor[Open] with Logging {
     val read_interval = local_idle_timeout.getOrElse(AMQPConnection.DEFAULT_HEARTBEAT)
     val write_interval = heartbeat_interval(remote_idle_timeout.getOrElse(AMQPConnection.DEFAULT_HEARTBEAT))
     trace("Setting up heartbeat, read_interval:%s write_interval: %s", read_interval, write_interval)
-    heartbeat_monitor.read_interval = read_interval
-    heartbeat_monitor.write_interval = write_interval
-    heartbeat_monitor.transport = transport
-    heartbeat_monitor.on_dead = () => {
+    heartbeat_monitor.setReadInterval(read_interval)
+    heartbeat_monitor.setWriteInterval(write_interval)
+    heartbeat_monitor.setTransport(transport)
+    heartbeat_monitor.setOnDead(^{
       val close = new Close(new Error(ascii("Idle timeout expired")))
       send(new AMQPTransportFrame(close), Tasks())
-    }
-    heartbeat_monitor.on_keep_alive = on_keep_alive
+    });
+    heartbeat_monitor.setOnKeepAlive(^{on_keep_alive})
     heartbeat_monitor.start
   }
 
