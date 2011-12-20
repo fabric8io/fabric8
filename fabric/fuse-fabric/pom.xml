@@ -27,7 +27,7 @@
     <description>Fuse Fabric :: Binary Distribution</description>
 
        <prerequisites>
-           <maven>2.0.9</maven>
+           <maven>2.2.1</maven>
        </prerequisites>
 
        <dependencies>
@@ -73,8 +73,8 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-			         <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
-			         <version>${project.version}</version>
+               <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
+               <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.mq</groupId>
