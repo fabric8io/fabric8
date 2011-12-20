@@ -131,7 +131,6 @@
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-commands/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.fabric/fabric-default-registry/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-dosgi" version="${project.version}" resolver="(obr)">
