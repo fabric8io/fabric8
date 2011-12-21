@@ -128,7 +128,6 @@ public abstract class EcaRouteBuilder extends RouteBuilder {
                             routePolicies.add(routePolicy);
                             newRoute.setRoutePolicies(routePolicies);
                             newRoute.getOutputs().add(new ToDefinition(ecaRouteDefinition.getEcaDefinition().getUri()));
-                            getRouteCollection().getRoutes().add(newRoute);
                             getContext().addRouteDefinition(newRoute);
                         }
                     } else {
