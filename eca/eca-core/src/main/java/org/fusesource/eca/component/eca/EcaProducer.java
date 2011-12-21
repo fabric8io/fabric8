@@ -16,6 +16,7 @@ package org.fusesource.eca.component.eca;
 
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.camel.AsyncCallback;
 import org.apache.camel.Exchange;
 import org.apache.camel.WaitForTaskToComplete;
 import org.apache.camel.component.seda.SedaProducer;
@@ -27,5 +28,12 @@ public class EcaProducer extends SedaProducer {
     public EcaProducer(EcaEndpoint endpoint, BlockingQueue<Exchange> queue, WaitForTaskToComplete waitForTaskToComplete, long timeout) {
         super(endpoint, queue, waitForTaskToComplete, timeout);
         this.ecaEndpoint = endpoint;
+    }
+
+    @Override
+    public boolean process(Exchange exchange, AsyncCallback callback) {
+        // TODO: Remove this when CAMEL-4806 is in released Fuse Camel version
+        exchange.getIn().setHeader("EcaRouteId", exchange.getFromRouteId());
+        return super.process(exchange, callback);
     }
 }

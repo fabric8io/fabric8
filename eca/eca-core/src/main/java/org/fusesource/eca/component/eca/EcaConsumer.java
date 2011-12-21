@@ -34,10 +34,24 @@ public class EcaConsumer extends SedaConsumer implements ExpressionListener {
         return (EcaEndpoint) super.getEndpoint();
     }
 
+    /**
+     * Evaluates the exchange
+     */
     protected void sendToConsumers(Exchange exchange) throws Exception {
+        // ensure route id is correct set due CAMEL-4806
+        // TODO: Remove this when CAMEL-4806 is in released Fuse Camel version
+        // and override prepareExchange method instead and set from route id detail there
+        String routeId = (String) exchange.getIn().removeHeader("EcaRouteId");
+        if (exchange.getFromRouteId() == null) {
+            exchange.setFromRouteId(routeId);
+        }
+
         getEndpoint().evaluate(exchange);
     }
 
+    /**
+     * Sends the exchange to the consumers of this endpoint.
+     */
     protected void doSendToConsumers(Exchange exchange) throws Exception {
         super.sendToConsumers(exchange);
     }
@@ -46,17 +60,7 @@ public class EcaConsumer extends SedaConsumer implements ExpressionListener {
      * Implementation of ExpressionListener
      */
     public void expressionFired(Expression expression, Exchange exchange) {
-        // TODO: Should the code be removed?
         try {
-            /*
-            Exchange copy = exchange.copy();
-            copy.setFromEndpoint(getEcaEndpoint());
-            copy.setFromRouteId(getEcaEndpoint().getCepRouteId());
-            Object result = getEcaEndpoint().getEvaluatedResults();
-            copy.getIn().setBody(result);
-
-            doSendToConsumers(copy);
-            */
             doSendToConsumers(exchange);
         } catch (Exception e) {
             LOG.warn("Failed to send to consumers. This exception will be ignored.", e);
