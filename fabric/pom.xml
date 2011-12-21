@@ -51,6 +51,7 @@
         <module>fabric-dosgi</module>
         <module>fabric-security</module>
         <module>fabric-hadoop</module>
+        <module>fabric-virt</module>
         <module>fabric-branding</module>
         <module>fuse-fabric</module>
         

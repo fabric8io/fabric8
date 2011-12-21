@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+  ~ http://fusesource.com
+  ~
+  ~ The software in this package is published under the terms of the
+  ~ CDDL license a copy of which has been included with this distribution
+  ~ in the license.txt file.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabrc-virt</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.fusesource.fabric.virt</groupId>
+    <artifactId>org.fusesource.fabric.virt.services</artifactId>
+    <packaging>bundle</packaging>
+    <name>FuseSource :: Fabric :: Virt :: Service</name>
+
+    <properties>
+        <fuse.osgi.import>*</fuse.osgi.import>
+        <fuse.osgi.export>org.fusesource.fabric.virt.service*;version="${project.version}"</fuse.osgi.export>
+        <fuse.osgi.activator>org.fusesource.fabric.virt.service.Activator</fuse.osgi.activator>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.libvirt</groupId>
+            <artifactId>libvirt</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
