@@ -88,6 +88,11 @@
                <groupId>org.fusesource.insight</groupId>
                <artifactId>insight-graph</artifactId>
            </dependency>
+           <dependency>
+               <groupId>org.fusesource.insight</groupId>
+               <artifactId>insight-log-elasticsearch</artifactId>
+           </dependency>
+
        </dependencies>
 
        <build>
