@@ -100,8 +100,6 @@
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
         <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
-        <cxf-version>2.4.3-fuse-00-${perfectus-build}</cxf-version>
-        <camel-version>2.8.0-fuse-01-${perfectus-build}</camel-version>
         <hadoop-version>0.20.2</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
         <hawtdispatch-version>1.6</hawtdispatch-version>
@@ -123,6 +121,7 @@
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>0.4.6_1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
+        <zookeeper-version>3.4.0</zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
         <logback-version>1.0.0</logback-version>
