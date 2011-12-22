@@ -56,9 +56,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-activemq</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.fusesource.mq</groupId>
+            <artifactId>mq-fabric</artifactId>
         </dependency>
 
     <dependency>

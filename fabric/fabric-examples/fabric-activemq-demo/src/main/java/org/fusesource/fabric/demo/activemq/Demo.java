@@ -9,7 +9,7 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
-import org.fusesource.fabric.activemq.JMSService;
+import org.fusesource.mq.fabric.JMSService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 

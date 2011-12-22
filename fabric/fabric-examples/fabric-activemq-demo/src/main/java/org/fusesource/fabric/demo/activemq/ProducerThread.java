@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
-import org.fusesource.fabric.activemq.JMSService;
+import org.fusesource.mq.fabric.JMSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
