@@ -44,7 +44,7 @@ We recommend you use the Fuse Fabric distro which comes mostly pre-configured. H
 
 2) Add the feature URL
 
-   karaf@root> features:addurl mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features
+    karaf@root> features:addurl mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features
 
 
 Install in Fuse Fabric distro
