@@ -51,7 +51,7 @@ Install in Fuse Fabric distro
 
 2) Add the feature:
 
-   karaf@root> features:install virt
+    karaf@root> features:install virt
 
 3) Create a new virt service using the virt managed service factory:
   The domain name can be anything, for this we'll assume Ubuntu is the name)
