@@ -33,7 +33,9 @@ public class DomainNameCompleter implements Completer {
                     for (Domain domain : domains) {
                         if (isApplicable(domain)) {
                             try {
-                                delegate.getStrings().add(domain.getName());
+                                String name = domain.getName();
+                                name = name.replaceAll(" ","\\\\ ");
+                                delegate.getStrings().add(name);
                             } catch (LibvirtException e) {
                                 //Ignore
                             }
