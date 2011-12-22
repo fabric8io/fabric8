@@ -24,6 +24,7 @@
     <version>${libvirt-bundle-version}</version>
     <packaging>bundle</packaging>
     <name>FuseSource :: Fabric :: Virt :: Bundles :: LibVirt</name>
+    <description>Fuse LibVirt Bundle</description>
 
     <properties>
         <pkgGroupId>org.libvirt</pkgGroupId>

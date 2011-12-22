@@ -577,6 +577,30 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>org.fusesource.fabric.virt</groupId>
+                <artifactId>org.fusesource.fabric.virt.commands</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric.virt</groupId>
+                <artifactId>org.fusesource.fabric.virt.services</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric.virt.bundles</groupId>
+                <artifactId>org.fusesource.fabric.virt.bundles.jna</artifactId>
+                <version>${jna-bundle-version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric.virt.bundles</groupId>
+                <artifactId>org.fusesource.fabric.virt.bundles.libvirt</artifactId>
+                 <version>${libvirt-bundle-version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper-spring</artifactId>
                 <version>${project.version}</version>

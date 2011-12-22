@@ -23,6 +23,7 @@
     <artifactId>org.fusesource.fabric.virt.commands</artifactId>
     <packaging>bundle</packaging>
     <name>FuseSource :: Fabric :: Virt :: Commands</name>
+    <description>Fuse Fabric Virt Commands</description>
 
     <properties>
         <fuse.osgi.import>*</fuse.osgi.import>

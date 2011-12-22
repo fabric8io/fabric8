@@ -24,6 +24,7 @@
     <version>${jna-bundle-version}</version>
     <packaging>bundle</packaging>
     <name>FuseSource :: Fabric :: Virt :: Bundles :: Jna</name>
+    <description>Fuse JNA Bundle</description>
 
     <properties>
         <pkgGroupId>net.java.dev.jna</pkgGroupId>

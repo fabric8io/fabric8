@@ -77,6 +77,22 @@
                <version>${project.version}</version>
            </dependency>
            <dependency>
+               <groupId>org.fusesource.fabric.virt</groupId>
+               <artifactId>org.fusesource.fabric.virt.commands</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric.virt</groupId>
+               <artifactId>org.fusesource.fabric.virt.services</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric.virt.bundles</groupId>
+               <artifactId>org.fusesource.fabric.virt.bundles.jna</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric.virt.bundles</groupId>
+               <artifactId>org.fusesource.fabric.virt.bundles.libvirt</artifactId>
+           </dependency>
+           <dependency>
                <groupId>org.fusesource.mq</groupId>
                <artifactId>mq-fabric</artifactId>
            </dependency>
