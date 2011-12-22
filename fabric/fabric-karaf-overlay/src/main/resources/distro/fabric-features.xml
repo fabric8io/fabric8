@@ -39,7 +39,7 @@
 
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx/0.3</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/0.3</bundle>
-        <bundle dependency="true">mvn:org.apache.karaf/org.apache.karaf.management/${karaf-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
         <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
