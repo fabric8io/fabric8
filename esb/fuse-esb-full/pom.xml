@@ -48,7 +48,7 @@
                                 <descriptor>mvn:org.fusesource.esb/fuse-esb/${project.version}/xml/features</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
-                                <descriptor>mvn:org.fusesource.fabric/fabric-distro/${fabric.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
