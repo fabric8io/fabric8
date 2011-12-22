@@ -252,8 +252,6 @@
     <feature name="servicemix-cxf-se" version="${servicemix.components.version}" resolver="(obr)" start-level='50'>
         <feature version="${servicemix.components.version}">servicemix-shared</feature>
         <feature version="${cxf.version}">cxf</feature>
-        <bundle>mvn:org.apache.cxf/cxf-rt-bindings-jbi/${cxf.version}</bundle>
-        <bundle>mvn:org.apache.cxf/cxf-rt-transports-jbi/${cxf.version}</bundle>
         <bundle>mvn:org.apache.servicemix/servicemix-cxf-se/${servicemix.components.version}</bundle>
     </feature>
     <feature name="servicemix-eip" version="${servicemix.components.version}" resolver="(obr)" start-level='50'>
