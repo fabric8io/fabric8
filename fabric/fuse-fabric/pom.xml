@@ -104,6 +104,15 @@
                <groupId>org.fusesource.insight</groupId>
                <artifactId>insight-graph</artifactId>
            </dependency>
+           <dependency>
+               <groupId>org.fusesource.insight</groupId>
+               <artifactId>insight-log-elasticsearch</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric.fab</groupId>
+               <artifactId>fab-osgi</artifactId>
+               <version>${project.version}</version>
+           </dependency>
        </dependencies>
 
        <build>

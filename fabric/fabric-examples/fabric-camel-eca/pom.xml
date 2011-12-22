@@ -31,8 +31,8 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fabric-eca</artifactId>
+      <groupId>org.fusesource.eca</groupId>
+      <artifactId>eca-core</artifactId>
       <version>1.1-SNAPSHOT</version>
     </dependency>
 
