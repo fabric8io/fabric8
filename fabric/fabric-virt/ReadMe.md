@@ -1,4 +1,7 @@
-Karaf integration with LibVirt.
+Fuse Fabric and Karaf integration with LibVirt
+==============================================
+
+First you'll need to install some virtualisation engine like [VirtualBox](https://www.virtualbox.org/)
 
 Install and configure libvirt
 ------------------------------
