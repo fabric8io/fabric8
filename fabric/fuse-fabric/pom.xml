@@ -338,10 +338,21 @@
                                            append="true" eol="unix">
                                        <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
                                    </concat>
-                                   <echo message="Updating etc/custom.properties in windows assembly"/>
+                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in windows assembly"/>
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg"
                                            append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
+                                   </concat>
+
+                                   <echo message="Updating etc/system.properties in unix assembly"/>
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties"
+                                           append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/system.properties" />
+                                   </concat>
+                                   <echo message="Updating etc/system.properties in windows assembly"/>
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties"
+                                           append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
                                </target>
                            </configuration>
