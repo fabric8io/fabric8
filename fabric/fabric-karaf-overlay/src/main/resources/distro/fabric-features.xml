@@ -145,7 +145,7 @@
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.apache.commons/commons-math/${common-math-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/3.2_1</bundle>
-        <bundle>mvn:org.fusesource.fabric/fabric-eca/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.eca/eca-core/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-camel" version="${project.version}" resolver="(obr)">
