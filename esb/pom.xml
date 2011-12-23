@@ -165,6 +165,14 @@
     </properties>
 
     <build>
+        <extensions>
+          <extension>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-http</artifactId>
+            <version>1.0-beta-7</version>
+          </extension>
+        </extensions>
+
         <plugins>
             <plugin>
                 <artifactId>maven-remote-resources-plugin</artifactId>
