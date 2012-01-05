@@ -79,16 +79,19 @@ object LevelDBClient extends Log {
     is.readObject();
   }
 
+  implicit def toByteArray(buffer:Buffer) = buffer.toByteArray
+  implicit def toBuffer(buffer:Array[Byte]) = new Buffer(buffer)
+  
   def encodeCollectionRecord(v: CollectionRecord.Buffer) = v.toFramedByteArray
-  def decodeCollectionRecord(data: Array[Byte]):CollectionRecord.Buffer = CollectionRecord.FACTORY.parseFramed(data)
+  def decodeCollectionRecord(data: Buffer):CollectionRecord.Buffer = CollectionRecord.FACTORY.parseFramed(data)
   def encodeCollectionKeyRecord(v: CollectionKey.Buffer) = v.toFramedByteArray
-  def decodeCollectionKeyRecord(data: Array[Byte]):CollectionKey.Buffer = CollectionKey.FACTORY.parseFramed(data)
+  def decodeCollectionKeyRecord(data: Buffer):CollectionKey.Buffer = CollectionKey.FACTORY.parseFramed(data)
 
   def encodeEntryRecord(v: EntryRecord.Buffer) = v.toFramedBuffer
-  def decodeEntryRecord(data: Array[Byte]):EntryRecord.Buffer = EntryRecord.FACTORY.parseFramed(data)
+  def decodeEntryRecord(data: Buffer):EntryRecord.Buffer = EntryRecord.FACTORY.parseFramed(data)
 
   def encodeEntryKeyRecord(v: EntryKey.Buffer) = v.toFramedByteArray
-  def decodeEntryKeyRecord(data: Array[Byte]):EntryKey.Buffer = EntryKey.FACTORY.parseFramed(data)
+  def decodeEntryKeyRecord(data: Buffer):EntryKey.Buffer = EntryKey.FACTORY.parseFramed(data)
 
   def encodeLocator(pos:Long, len:Int):Array[Byte] = {
     val out = new DataByteArrayOutputStream(
@@ -227,7 +230,7 @@ object LevelDBClient extends Log {
       val iterator = db.iterator(ro)
       iterator.seek(prefix);
       try {
-        def check(key:Array[Byte]) = {
+        def check(key:Buffer) = {
           key.startsWith(prefix) && func(key)
         }
         while( iterator.hasNext && check(iterator.peekNext.getKey) ) {
@@ -242,7 +245,7 @@ object LevelDBClient extends Log {
       val iterator = db.iterator(ro)
       iterator.seek(prefix);
       try {
-        def check(key:Array[Byte]) = {
+        def check(key:Buffer) = {
           key.startsWith(prefix) && func(key, iterator.peekNext.getValue)
         }
         while( iterator.hasNext && check(iterator.peekNext.getKey) ) {
@@ -318,7 +321,7 @@ object LevelDBClient extends Log {
           }
 
           if ( iterator.hasNext ) {
-            val key = iterator.peekNext.getKey
+            val key:Buffer = iterator.peekNext.getKey
             if(key.startsWith(prefix)) {
               Some(key)
             } else {
@@ -451,7 +454,6 @@ class LevelDBClient(store: LevelDBStore) {
     })
 
     log = createLog
-    log.writeBufferSize = store.logWriteBufferSize
     log.logSize = store.logSize
     log.onLogRotate = ()=> {
       // We snapshot the index every time we rotate the logs.
@@ -911,25 +913,24 @@ class LevelDBClient(store: LevelDBStore) {
               if (messageRecord != null) {
                 pos = appender.append(LOG_DATA, messageRecord.data)
                 dataLocator = (pos, messageRecord.data.length)
-                messageRecord.id.setDataLocator(dataLocator);
+                messageRecord.locator = dataLocator
               }
 
 
               action.dequeues.foreach { entry =>
                 val keyLocation = entry.id.getEntryLocator.asInstanceOf[(Long, Long)]
                 val key = encodeEntryKey(ENTRY_PREFIX, keyLocation._1, keyLocation._2)
-                val locator = entry.id.getDataLocator.asInstanceOf[(Long,Int)]
 
-
-                if( dataLocator ==null ) {
-                  dataLocator = locator
-                } else {
-                  assert(locator == dataLocator)
+                if( dataLocator==null ) {
+                  dataLocator = entry.id.getDataLocator match {
+                    case x:(Long, Int) => x
+                    case x:MessageRecord => x.locator
+                    case _ => throw new RuntimeException("Unexpected locator type")
+                  }
                 }
 
                 appender.append(LOG_REMOVE_ENTRY, new Buffer(key))
                 batch.delete(key)
-
                 logRefDecrement(dataLocator._1)
               }
 
@@ -937,8 +938,7 @@ class LevelDBClient(store: LevelDBStore) {
 
                 val key = encodeEntryKey(ENTRY_PREFIX, entry.queueKey, entry.queueSeq)
 
-                assert(dataLocator!=null)
-                entry.id.setDataLocator(dataLocator)
+                assert(entry.id.getDataLocator()!=null)
 
                 val record = new EntryRecord.Bean()
                 record.setCollectionKey(entry.queueKey)
@@ -959,8 +959,17 @@ class LevelDBClient(store: LevelDBStore) {
           }
         }
         if( syncNeeded && sync ) {
-          appender.flush
           appender.sync
+        }
+      } // end of log.appender { block }
+
+      // now that data is logged.. locate message from the data in the logs
+      uows.foreach { uow =>
+        uow.actions.foreach { case (msg, action) =>
+          val messageRecord = action.messageRecord
+          if (messageRecord != null) {
+            messageRecord.id.setDataLocator(messageRecord.locator)
+          }
         }
       }
     }

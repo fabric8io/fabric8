@@ -22,7 +22,10 @@ import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.util.ByteSequence
 import org.apache.activemq.store.MessageRecoveryListener
 
-case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false)
+case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
+  var locator:(Long, Int) = _
+}
+
 case class QueueEntryRecord(id:MessageId, queueKey:Long, queueSeq:Long)
 case class QueueRecord(id:ActiveMQDestination, queue_key:Long)
 case class QueueEntryRange()
@@ -82,15 +85,22 @@ class DBManager(parent:LevelDBStore) {
 
   def createUow() = new DelayableUOW
 
+  var uowCommittedCounter = 0L
+  var uowCanceledCounter = 0L
+  var uowStoringCounter = 0L
+  var uowStoredCounter = 0L
+  
   class DelayableUOW extends BaseRetained {
     val countDownFuture = CountDownFuture()
-    var flushing = false;
+    var storing = false;
+    var canceled = false;
 
     val uowId:Int = lastUowId.incrementAndGet()
     var actions = Map[MessageId, MessageAction]()
     var completed = false
     var disableDelay = false
     var delayableActions = 0
+    var commitNanoTime = 0L
 
     def syncNeeded = actions.find( _._2.syncNeeded ).isDefined
     def size = actions.foldLeft(0L){ case (sum, entry) => 
@@ -126,7 +136,8 @@ class DBManager(parent:LevelDBStore) {
 
     def cancel = {
       dispatchQueue.assertExecuting()
-      flushing = true
+      uowCanceledCounter += 1
+      canceled = true
       delayedUows.remove(uowId)
       onCompleted
     }
@@ -170,8 +181,9 @@ class DBManager(parent:LevelDBStore) {
       id.setEntryLocator((queueKey, queueSeq))
 
       val a = this.synchronized {
-        // For now, don't delay..
-        disableDelay = true
+        // Need to figure out a better way for the the broker to hint when
+        // a store should be delayed or not.
+        disableDelay = true // message.isResponseRequired
 
         val a = action(entry.id)
         a.enqueues += entry
@@ -207,7 +219,7 @@ class DBManager(parent:LevelDBStore) {
           asyncCapacityRemaining.addAndGet(s)
         }
       }
-      uowSource.merge(this)
+      commitSource.merge(this)
     }
 
     def onCompleted() = {
@@ -223,24 +235,27 @@ class DBManager(parent:LevelDBStore) {
 
   def key(x:QueueEntryRecord) = (x.queueKey, x.queueSeq)
 
-  val uowSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
-  uowSource.setEventHandler(^{drainUows});
-  uowSource.resume
+  val commitSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
+  commitSource.setEventHandler(^{processCommitted});
+  commitSource.resume
 
-  var pendingStores = new HashMap[MessageId, DelayableUOW#MessageAction]()
+  var pendingStores = new ConcurrentHashMap[MessageId, DelayableUOW#MessageAction]()
   var pendingEnqueues = new HashMap[(Long,Long), DelayableUOW#MessageAction]()
   var delayedUows = new HashMap[Int, DelayableUOW]()
 
   val lastUowId = new AtomicInteger(1)
 
-  def drainUows = {
+  def processCommitted = {
     dispatchQueue.assertExecuting()
-    val data = uowSource.getData
-    data.foreach { uow =>
-
+    val uows = commitSource.getData
+    uowCommittedCounter += uows.size
+    
+    val now = System.nanoTime()
+    uows.foreach { uow =>
+      uow.commitNanoTime = now 
       delayedUows.put(uow.uowId, uow)
 
-      uow.actions.foreach { case (msg, action) =>
+      uow.actions.foreach { case (id, action) =>
 
         // dequeues can cancel out previous enqueues
         action.dequeues.foreach { currentDequeue=>
@@ -249,7 +264,7 @@ class DBManager(parent:LevelDBStore) {
 
           def prevUow = prevAction.uow
 
-          if( prevAction!=null && !prevUow.flushing ) {
+          if( prevAction!=null && !prevUow.storing ) {
 
 
             prevUow.delayableActions -= 1
@@ -259,7 +274,7 @@ class DBManager(parent:LevelDBStore) {
 
             // if the message is not in any queues.. we can gc it..
             if( prevAction.enqueues == Nil && prevAction.messageRecord !=null ) {
-              pendingStores.remove(msg)
+              pendingStores.remove(id)
               prevAction.messageRecord = null
               prevUow.delayableActions -= 1
             }
@@ -268,8 +283,8 @@ class DBManager(parent:LevelDBStore) {
             if( prevAction.isEmpty ) {
               prevAction.cancel()
             } else if( !prevUow.delayable ) {
-              // flush it if there is no point in delyaing anymore
-              flush(prevUow)
+              // flush it if there is no point in delaying anymore
+              store(prevUow)
             }
 
             // since we canceled out the previous enqueue.. now cancel out the action
@@ -284,45 +299,47 @@ class DBManager(parent:LevelDBStore) {
       val uowId = uow.uowId
       if( uow.delayable ) {
         dispatchQueue.executeAfter(flushDelay, TimeUnit.MILLISECONDS, ^{
-          flush(delayedUows.get(uowId))
+          store(delayedUows.get(uowId))
         })
       } else {
-        flush(uow)
+        store(uow)
       }
 
     }
   }
 
-  private def flush(uow:DelayableUOW) = {
-    if( uow!=null && !uow.flushing ) {
-      uow.flushing = true
+  private def store(uow:DelayableUOW) = {
+    if( uow!=null && !uow.storing && !uow.canceled ) {
+      uow.storing = true
       delayedUows.remove(uow.uowId)
-      flushSource.merge(uow)
+      storeSource.merge(uow)
     }
   }
 
-  val flushSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
-  flushSource.setEventHandler(^{drainFlushes});
-  flushSource.resume
+  val storeSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
+  storeSource.setEventHandler(^{processStores});
+  storeSource.resume
 
 
-  def drainFlushes:Unit = {
+  def processStores:Unit = {
     dispatchQueue.assertExecuting()
     if( !started ) {
       return
     }
-    val uows = flushSource.getData
+    val uows = storeSource.getData
     if( !uows.isEmpty ) {
-      flushSource.suspend
+      uowStoringCounter += uows.size
+      storeSource.suspend
       writeExecutor {
         client.store(uows)
-        flushSource.resume
+        storeSource.resume
         dispatchQueue {
+          uowStoredCounter += uows.size
           uows.foreach { uow=>
             uow.onCompleted
-            uow.actions.foreach { case (msg, action) =>
+            uow.actions.foreach { case (id, action) =>
               if( action.messageRecord !=null ) {
-                pendingStores.remove(msg)
+                pendingStores.remove(id)
               }
               action.enqueues.foreach { queueEntry=>
                 pendingEnqueues.remove(key(queueEntry))
@@ -334,8 +351,6 @@ class DBManager(parent:LevelDBStore) {
     }
   }
 
-
-
   var started = false
 
   def start = {
@@ -344,6 +359,9 @@ class DBManager(parent:LevelDBStore) {
     dispatchQueue.sync {
       started = true
       pollGc
+      if(parent.monitorStats) {
+        monitorStats
+      }
     }
   }
 
@@ -356,17 +374,24 @@ class DBManager(parent:LevelDBStore) {
 
   def pollGc:Unit = dispatchQueue.after(10, TimeUnit.SECONDS) {
     if( started ) {
-      gc {
-        pollGc
+      writeExecutor {
+        if( started ) {
+          client.gc
+          pollGc
+        }
       }
     }
   }
 
-  def gc(onComplete: =>Unit) = writeExecutor {
+  def monitorStats:Unit = dispatchQueue.after(1, TimeUnit.SECONDS) {
     if( started ) {
-      client.gc
+      println("committed: %d, canceled: %d, storing: %d, stored: %d, ".format(uowCommittedCounter, uowCanceledCounter, uowStoringCounter, uowStoredCounter))
+      uowCommittedCounter = 0
+      uowCanceledCounter = 0
+      uowStoringCounter = 0
+      uowStoredCounter = 0
+      monitorStats
     }
-    onComplete
   }
 
   /////////////////////////////////////////////////////////////////////
@@ -404,6 +429,7 @@ class DBManager(parent:LevelDBStore) {
     var nextPos = cursorPosition;
     client.queueCursor(key, cursorPosition) { record =>
       if( listener.hasSpace ) {
+        
         //if ( !ackedAndPrepared.contains(record.id) ) {
           listener.recoverMessage(getMessage(record.id))
         //}
@@ -469,7 +495,10 @@ class DBManager(parent:LevelDBStore) {
   }
 
 
-  def getMessage(id: MessageId):Message = {
+  def getMessage(x: MessageId):Message = {
+
+    val id = Option(pendingStores.get(x)).map(_.id).getOrElse(x)
+
     val locator = id.getDataLocator()
     assert(locator!=null)
     val buffer = locator match {
