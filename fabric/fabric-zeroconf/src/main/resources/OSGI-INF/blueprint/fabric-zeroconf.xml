@@ -1,0 +1,31 @@
+<!--
+
+    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+  <cm:property-placeholder persistent-id="org.fusesource.fabric.zeroconf" update-strategy="reload">
+      <cm:default-properties>
+<!--
+          <cm:property name="org.fusesource.fabric.zeroconf.types" value="..."/>
+-->
+      </cm:default-properties>
+  </cm:property-placeholder>
+
+  <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
+  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+       
+  <bean id="zeroconfBridge" class="org.fusesource.fabric.zeroconf.ZeroConfBridge" init-method="start" destroy-method="stop">
+    <property name="zkClient" ref="zooKeeper"/>
+    <property name="fabricService" ref="fabricService"/>
+  </bean>
+
+</blueprint>
