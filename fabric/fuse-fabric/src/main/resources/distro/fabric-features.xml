@@ -202,6 +202,13 @@
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-jclouds/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-zeroconf" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-configadmin</feature>
+
+        <bundle>mvn:org.fusesource.fabric/fabric-zeroconf/${project.version}</bundle>
+    </feature>
+
     <feature name='fabric-bridge' version='${project.version}' resolver="(obr)">
         <bundle>mvn:org.springframework/spring-core/${spring-version}</bundle>
         <bundle>mvn:org.springframework/spring-beans/${spring-version}</bundle>
