@@ -917,7 +917,21 @@
     </dependencyManagement>
 
   <profiles>
-    
+
+    <!-- Don't build esb and mq distros during release; these will be released separatly using a different version -->   
+    <profile>
+      <id>release</id>
+
+      <modules>
+        <module>fabric</module>
+        <module>fab</module>
+        <module>insight</module>
+        <module>eca</module>
+        <module>stream</module>
+      </modules>
+
+    </profile>
+ 
     <profile>
       <id>apollo</id>
 
