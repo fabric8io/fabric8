@@ -28,6 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>org.fusesource.esb.karaf.branding</artifactId>
+    <version>7.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Fuse ESB :: Branding Support</name>
     <description>Fuse ESB Branding</description>

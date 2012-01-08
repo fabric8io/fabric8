@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>mq-bundle</artifactId>
+    <version>7.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>

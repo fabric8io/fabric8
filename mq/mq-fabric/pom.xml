@@ -26,6 +26,7 @@
 
   <groupId>org.fusesource.mq</groupId>
   <artifactId>mq-fabric</artifactId>
+  <version>7.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>

@@ -90,6 +90,7 @@
         <fuse.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
+        <fabric.version>${project.version}</fabric.version>
         <perfectus-build>20</perfectus-build>
 
         <!-- TODO this is required for some AMQ OSGi fixes -->
