@@ -241,7 +241,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
                     String parent = "";
                     if( provider instanceof ChildAgentProvider) {
-                        parent = uri.getHost();
+                        parent = getParentFromURI(uri);
                     }
 
                     createAgentConfig(parent, agentName);
@@ -258,6 +258,14 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             throw new FabricException(e);
         }
         return agents;
+    }
+
+    public static String getParentFromURI(URI uri) {
+        String parent = uri.getHost();
+        if (parent == null) {
+            parent = uri.getSchemeSpecificPart();
+        }
+        return parent;
     }
 
     @Override

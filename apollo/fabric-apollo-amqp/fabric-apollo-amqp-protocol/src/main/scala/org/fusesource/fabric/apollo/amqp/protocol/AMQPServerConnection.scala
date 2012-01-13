@@ -50,7 +50,7 @@ class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection 
   def bind(uri: String, onComplete:Runnable) = {
     transport_server = TransportFactory.bind(uri)
     transport_server.setDispatchQueue(Dispatch.createQueue)
-    transport_server.setAcceptListener(this)
+    transport_server.setTransportServerListener(this)
     transport_server.start(onComplete)
     Option(container_id) match {
       case Some(id) =>

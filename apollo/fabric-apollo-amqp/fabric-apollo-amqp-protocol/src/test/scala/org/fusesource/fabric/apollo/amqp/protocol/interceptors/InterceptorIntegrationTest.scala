@@ -39,7 +39,7 @@ class InterceptorIntegrationTest extends FunSuiteSupport with ShouldMatchers wit
     val server = TransportFactory.bind("pipe://vm:0/blah?marshal=true")
     server.setDispatchQueue(server_queue)
 
-    server.setAcceptListener(new TransportServerListener {
+    server.setTransportServerListener(new TransportServerListener {
       def onAccept(transport: Transport) {
         val transport_interceptor = new TransportInterceptor
         transport_interceptor.tail.incoming = new HeaderInterceptor

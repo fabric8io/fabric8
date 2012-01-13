@@ -34,7 +34,7 @@
     -->
     <module>mq-branding</module>
     <module>fuse-mq</module>
-    <module>mq-leveldb</module>
+    <!-- <module>mq-leveldb</module> -->
   </modules>
 
 </project>

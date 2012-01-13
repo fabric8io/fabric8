@@ -39,6 +39,7 @@
     <module>fabric-apollo-cluster</module>
     <module>fabric-apollo-cli</module>
     <module>fabric-apollo-amqp</module>
+    <module>fabric-apollo-mqtt</module>
   </modules>
 
   <build>

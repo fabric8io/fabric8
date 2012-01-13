@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+    Copyright (C) 2010-2012, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<broker xmlns="http://activemq.apache.org/schema/activemq/apollo">
+  <notes>Has a BDB store enabled.</notes>
+
+  <virtual_host id="default" purge_on_startup="true">
+    <host_name>localhost</host_name>
+
+    <queue name="unified.**" unified="true"/>
+
+    <bdb_store directory="${basedir}/target/test-data"/>
+  </virtual_host>
+
+  <web_admin bind="http://127.0.0.1:0"/>
+  <connector id="tcp" protocol="mqtt" bind="tcp://0.0.0.0:0"/>
+
+</broker>

@@ -35,7 +35,7 @@ class TransportInterceptorTest extends FunSuiteSupport with ShouldMatchers with 
 
     val server = TransportFactory.bind("pipe://localhost:0/test")
     server.setDispatchQueue(Dispatch.createQueue("Server Queue"))
-    server.setAcceptListener(new TransportServerListener {
+    server.setTransportServerListener(new TransportServerListener {
       def onAccept(transport: Transport) {
         val transport_interceptor = new TransportInterceptor
         transport_interceptor.tail.incoming = new FrameDroppingInterceptor

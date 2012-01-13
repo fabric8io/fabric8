@@ -35,8 +35,8 @@ public class ChildAgentProvider implements AgentProvider {
      * @param debugAgent
      */
     public void create(URI proxyUri, final URI agentUri, final String name, final String zooKeeperUrl, final boolean isClusterServer, final boolean debugAgent, final int number) {
-
-        final Agent parent = service.getAgent(agentUri.getHost());
+        String parentName = FabricServiceImpl.getParentFromURI(agentUri);
+        final Agent parent = service.getAgent(parentName);
         AgentTemplate agentTemplate = service.getAgentTemplate(parent);
 
         //Retrieve the credentials from the URI if available.

@@ -83,7 +83,7 @@
         <fuse.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
-        <perfectus-build>13</perfectus-build>
+        <perfectus-build>20</perfectus-build>
 
         <!-- TODO this is required for some AMQ OSGi fixes -->
         <activemq-version>5.5.1-fuse-01-${perfectus-build}</activemq-version>
@@ -102,7 +102,7 @@
         <camel-version>2.8.0-fuse-01-${perfectus-build}</camel-version>
         <hadoop-version>0.20.2</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
-        <hawtdispatch-version>1.6</hawtdispatch-version>
+        <hawtdispatch-version>1.7</hawtdispatch-version>
         <jackson-version>1.9.2</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
@@ -118,6 +118,9 @@
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
         <karaf-version>2.2.2-fuse-02-${perfectus-build}</karaf-version>
+<!--
+<karaf-version>2.2.4-fuse-00-12</karaf-version>
+-->
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>0.4.6_1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
@@ -826,12 +829,12 @@
             <dependency>
               <groupId>org.jclouds</groupId>
               <artifactId>jclouds-compute</artifactId>
-              <version>1.1.1</version>
+              <version>${jclouds-version}</version>
           </dependency>
           <dependency>
               <groupId>org.jclouds.provider</groupId>
               <artifactId>aws-ec2</artifactId>
-              <version>1.1.1</version>
+              <version>${jclouds-version}</version>
           </dependency>
           <!-- LibVirt -->
             <dependency>

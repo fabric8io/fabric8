@@ -40,6 +40,7 @@
         <module>fabric-jaas</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
+        <module>fabric-zeroconf</module>
 
         <module>fabric-cxf</module>
         <module>fabric-camel</module>
