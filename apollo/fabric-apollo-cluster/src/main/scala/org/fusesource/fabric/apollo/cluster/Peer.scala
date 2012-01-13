@@ -26,7 +26,6 @@ import org.apache.activemq.apollo.broker.protocol.ProtocolFactory
 import org.apache.activemq.apollo.broker.store.MessageRecord
 import org.fusesource.fabric.apollo.cluster.protocol.{ClusterProtocolConstants, ClusterProtocolCodec, ClusterProtocolHandler}
 import ClusterProtocolConstants._
-import org.fusesource.fabric.apollo.cluster.model.ChannelAck.Bean
 
 object Peer extends Log
 
