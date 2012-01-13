@@ -118,6 +118,9 @@
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
         <karaf-version>2.2.2-fuse-02-${perfectus-build}</karaf-version>
+<!--
+<karaf-version>2.2.4-fuse-00-12</karaf-version>
+-->
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>0.4.6_1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
@@ -826,12 +829,12 @@
             <dependency>
               <groupId>org.jclouds</groupId>
               <artifactId>jclouds-compute</artifactId>
-              <version>1.1.1</version>
+              <version>${jclouds-version}</version>
           </dependency>
           <dependency>
               <groupId>org.jclouds.provider</groupId>
               <artifactId>aws-ec2</artifactId>
-              <version>1.1.1</version>
+              <version>${jclouds-version}</version>
           </dependency>
           <!-- LibVirt -->
             <dependency>

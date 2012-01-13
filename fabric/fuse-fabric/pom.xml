@@ -169,6 +169,7 @@
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-bundle</feature>
                                    <feature>fabric-monitor</feature>
+                                   <feature>fabric-zeroconf</feature>
                                    <feature>mq-fabric</feature>
                                    <feature>insight-elasticsearch</feature>
                                    <feature>insight-log-elasticsearch</feature>

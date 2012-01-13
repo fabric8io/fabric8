@@ -30,8 +30,8 @@
       </cm:default-properties>
   </cm:property-placeholder>
 
-  <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
-  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+  <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient" availability="optional"/>
+  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService" availability="optional"/>
        
   <bean id="schedulerFactory" class="org.fusesource.insight.graph.support.SchedulerFactory">
     <property name="configAdmin">

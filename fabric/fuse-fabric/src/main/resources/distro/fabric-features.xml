@@ -39,7 +39,7 @@
 
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx/0.3</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/0.3</bundle>
-        <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.karaf/org.apache.karaf.management/${karaf-version}</bundle>
         <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
@@ -200,6 +200,13 @@
         <feature version='${jclouds-karaf-version}'>jclouds-driver-jsch</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-compute</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-jclouds/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-zeroconf" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-configadmin</feature>
+
+        <bundle>mvn:org.fusesource.fabric/fabric-zeroconf/${project.version}</bundle>
     </feature>
 
     <feature name='fabric-bridge' version='${project.version}' resolver="(obr)">
