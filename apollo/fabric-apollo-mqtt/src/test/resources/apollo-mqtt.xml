@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+    Copyright (C) 2010-2012, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<broker xmlns="http://activemq.apache.org/schema/activemq/apollo">
+  <notes>This broker configuration is what the unit tests in this module load up.</notes>
+
+  <virtual_host id="default" purge_on_startup="true" auto_create_queues="true">
+    <host_name>localhost</host_name>
+
+    <queue name="unified.**" unified="true"/>
+
+  </virtual_host>
+
+  <connector id="tcp" protocol="mqtt" bind="tcp://0.0.0.0:0"/>
+
+</broker>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2012, FuseSource Corp.  All rights reserved.
+
+        http://fusesource.com
+
+    The software in this package is published under the terms of the
+    CDDL license a copy of which has been included with this distribution
+    in the license.txt file.
+
+-->
+
+<broker xmlns="http://activemq.apache.org/schema/activemq/apollo">
+  <virtual_host id="vh-local">
+  </virtual_host>
+
+  <connector bind="tcp://0.0.0.0:61616" id="port-61616">
+    <mqtt>
+      <protocol_filter>fooo</protocol_filter>
+    </mqtt>
+  </connector>
+</broker>
