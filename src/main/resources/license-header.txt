@@ -1,4 +1,4 @@
-Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+Copyright (C) 2010-2012, FuseSource Corp.  All rights reserved.
 
     http://fusesource.com
 
