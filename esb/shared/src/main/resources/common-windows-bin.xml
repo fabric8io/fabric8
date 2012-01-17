@@ -12,7 +12,7 @@
     <fileSets>
       <!-- Cherry-pick files from the expanded Karaf distribution -->
       <fileSet>
-          <directory>target/dependencies/win/fuse-fabric-${project.version}</directory>
+          <directory>target/dependencies/win/fuse-fabric-${fabric.version}</directory>
           <outputDirectory>/</outputDirectory>
           <excludes>
              <exclude>**/demos/**</exclude>
@@ -71,7 +71,7 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/win/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
+            <source>${basedir}/target/dependencies/win/fuse-fabric-${fabric.version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fuseesb.bat</destName>
             <fileMode>0755</fileMode>

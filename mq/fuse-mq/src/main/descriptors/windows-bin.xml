@@ -20,7 +20,7 @@
     <fileSets>
         <!-- Expanded ServiceMix Runtime -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/unix/fuse-fabric-${fabric.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>**/demos/**</exclude>

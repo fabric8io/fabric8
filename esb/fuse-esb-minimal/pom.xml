@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.fusesource.esb</groupId>
         <artifactId>fuse-esb</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>7.0-SNAPSHOT</version>
         <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 
@@ -50,6 +50,25 @@
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                             </descriptors>
+                            <features>
+                              <feature>obr</feature>
+                              <feature>config</feature>
+                              <feature>xml-specs-api</feature>
+                              <feature>fabric-bundle</feature>
+                              <feature>cxf</feature>
+                              <feature>camel-core</feature>
+                              <feature>camel-spring</feature>
+                              <feature>camel-blueprint</feature>
+                              <feature>camel-cxf</feature>
+                              <feature>camel-jms</feature>
+                              <feature>camel-jaxb</feature>
+                              <feature>camel-jdbc</feature>
+                              <feature>camel-jetty</feature>
+                              <feature>camel-jmx</feature>
+                              <feature>camel-mail</feature>
+                              <feature>camel-paxlogging</feature>
+                              <feature>camel-rmi</feature>
+                            </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
                         </configuration>
