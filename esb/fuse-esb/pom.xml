@@ -204,7 +204,7 @@
                             <outputDirectory>target/features-repo</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>target/dependencies/unix/fuse-fabric-${project.version}/system</directory>
+                                    <directory>target/dependencies/unix/fuse-fabric-${fabric.version}/system</directory>
                                 </resource>
                             </resources>
                         </configuration>
