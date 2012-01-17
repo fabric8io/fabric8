@@ -200,16 +200,6 @@
 
     </dependencies>
 
-    <modules>
-        <module>fabric</module>
-        <module>fab</module>
-        <module>insight</module>
-        <module>mq</module>
-        <module>eca</module>
-        <module>stream</module>
-        <module>esb</module>
-    </modules>
-
     <build>
         <defaultGoal>install</defaultGoal>
 
@@ -875,10 +865,25 @@
 
   <profiles>
 
-    <!-- Don't build esb and mq distros during release; these will be released separatly using a different version -->   
+    <!-- [default & release profiles]: Don't build esb and mq distros during release; these will be released separatly using a different version -->  
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+          <module>fabric</module>
+          <module>fab</module>
+          <module>insight</module>
+          <module>mq</module>
+          <module>eca</module>
+          <module>stream</module>
+          <module>esb</module>
+      </modules>
+    </profile> 
+
     <profile>
       <id>release</id>
-
       <modules>
         <module>fabric</module>
         <module>fab</module>
@@ -886,7 +891,6 @@
         <module>eca</module>
         <module>stream</module>
       </modules>
-
     </profile>
  
     <profile>
