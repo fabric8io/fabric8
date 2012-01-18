@@ -173,9 +173,9 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
   def socket_address: SocketAddress = null
 
-  object cluster_singleton extends ClusteredSingleton[ClusterNodeDTO](classOf[ClusterNodeDTO],node_id) {
+  object cluster_singleton extends ClusteredSingleton[ClusterNodeDTO](classOf[ClusterNodeDTO]) {
 
-    def state = {
+    def create_state = {
       val rc = new ClusterNodeDTO
       rc.id = node_id
       rc.weight = cluster_weight
@@ -183,8 +183,8 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
       rc
     }
 
-    def join:Unit= join(state)
-    def update:Unit = update(state)
+    def join:Unit= join(create_state)
+    def update:Unit = update(create_state)
 
     add(new ChangeListener(){
       def connected = changed

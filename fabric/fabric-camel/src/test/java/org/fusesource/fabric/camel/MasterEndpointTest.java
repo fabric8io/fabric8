@@ -30,7 +30,7 @@ public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
     protected ProducerTemplate template;
 
     @Test
-    public void testEndpoint() throws Exception {
+    public void  testEndpoint() throws Exception {
         System.out.println("===== starting test of Master endpoint!");
 
         String expectedBody = "<matched/>";

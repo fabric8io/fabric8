@@ -36,7 +36,7 @@ public class MasterEndpoint extends DefaultEndpoint {
         this.component = component;
         this.group = group;
         this.child = child;
-        cluster = new ClusteredSingleton<TextNodeState>(TextNodeState.class, uri);
+        cluster = new ClusteredSingleton<TextNodeState>(TextNodeState.class);
     }
 
     @Override

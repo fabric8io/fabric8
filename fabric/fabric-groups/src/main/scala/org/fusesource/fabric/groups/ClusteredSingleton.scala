@@ -157,14 +157,14 @@ class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], @BeanProperty var id:String) extends ClusteredSingletonWatcher[T](stateClass) {
+class ClusteredSingleton[T <: NodeState ](stateClass:Class[T]) extends ClusteredSingletonWatcher[T](stateClass) {
   import ClusteredSupport._
-
-  def this(stateClass:Class[T]) = this(stateClass, null)
 
   private var _eid:String = _
   /** the ephemeral id of the node is unique within in the group */
   def eid = _eid
+  
+  private var _state:T = _
 
   override def stop = {
     this.synchronized {
@@ -176,42 +176,48 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], @BeanProperty var
   }
 
   def join(state:T):Unit = this.synchronized {
-    if(id==null)
-      throw new IllegalArgumentException("id cannot be null")
     if(state==null)
       throw new IllegalArgumentException("State cannot be null")
+    if(state.id==null)
+      throw new IllegalArgumentException("The state id cannot be null")
     if(_group==null)
       throw new IllegalStateException("Not started.")
-    if(_eid!=null)
+    if(this._state!=null)
       throw new IllegalStateException("Already joined")
+    this._state = state
     _eid = group.join(encode(state))
   }
 
   def leave:Unit = this.synchronized {
-    if(id==null)
-      throw new IllegalArgumentException("id cannot be null")
+    if(this._state==null)
+      throw new IllegalStateException("Not joined")
     if(_group==null)
       throw new IllegalStateException("Not started.")
-    if(_eid==null)
-      throw new IllegalStateException("Not joined")
     _group.leave(_eid)
     _eid = null
+    this._state = null.asInstanceOf[T]
   }
 
   def update(state:T) = this.synchronized {
+    if(this._state==null)
+      throw new IllegalStateException("Not joined")
     if(state==null)
       throw new IllegalArgumentException("State cannot be null")
+    if(state.id==null)
+      throw new IllegalArgumentException("The state id cannot be null")
+    if(state.id!=this._state.id)
+      throw new IllegalArgumentException("The state id cannot change")
+
     if(_group==null)
       throw new IllegalStateException("Not started.")
-    if(_eid==null)
-      throw new IllegalStateException("Not joined")
+    this._state = state
     _group.update(_eid, encode(state))
   }
 
-  def isMaster = this.synchronized {
-    if(id==null)
-      throw new IllegalArgumentException("id cannot be null")
-    _members.get(id) match {
+  def isMaster:Boolean = this.synchronized {
+    if(this._state==null)
+      return false;
+    _members.get(this._state.id) match {
       case Some(nodes) =>
         nodes.headOption.map { x=>
           x._1 == _eid
@@ -221,15 +227,15 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T], @BeanProperty var
   }
 
   def master = this.synchronized {
-    if(id==null)
-      throw new IllegalArgumentException("id cannot be null")
-    _members.get(id).map(_.head._2)
+    if(this._state==null)
+      throw new IllegalStateException("Not joined")
+    _members.get(this._state.id).map(_.head._2)
   }
 
   def slaves = this.synchronized {
-    if(id==null)
-      throw new IllegalArgumentException("id cannot be null")
-    val rc = _members.get(id).map(_.toList).getOrElse(List())
+    if(this._state==null)
+      throw new IllegalStateException("Not joined")
+    val rc = _members.get(this._state.id).map(_.toList).getOrElse(List())
     rc.drop(1).map(_._2)
   }
 
