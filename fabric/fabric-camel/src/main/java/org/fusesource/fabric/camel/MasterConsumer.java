@@ -12,9 +12,9 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.SuspendableService;
 import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.util.ServiceHelper;
 import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.ClusteredSingleton;
-import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.TextNodeState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,20 +47,17 @@ public class MasterConsumer extends DefaultConsumer {
     protected void doStop() throws Exception {
         super.doStop();
 
-        stopConsumer();
-
-        releaseLock();
+        try {
+            stopConsumer();
+        } finally {
+            releaseLock();
+        }
     }
 
     protected void stopConsumer() throws Exception {
-        if (delegate != null) {
-            try {
-                delegate.stop();
-            } finally {
-                delegate = null;
-                delegateService = null;
-            }
-        }
+        ServiceHelper.stopService(delegate);
+        delegate = null;
+        delegateService = null;
     }
 
     @Override
@@ -87,9 +84,7 @@ public class MasterConsumer extends DefaultConsumer {
                 if (delegate instanceof SuspendableService) {
                     delegateService = (SuspendableService) delegate;
                 }
-                if (delegate != null) {
-                    delegate.start();
-                }
+                ServiceHelper.startService(delegate);
             } catch (Exception e) {
                 LOG.error("Failed to start master consumer for: " + endpoint + ". Reason: " + e, e);
             }
