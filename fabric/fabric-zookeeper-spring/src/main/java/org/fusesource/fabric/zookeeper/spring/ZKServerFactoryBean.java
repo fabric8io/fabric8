@@ -26,6 +26,7 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
     private NIOServerCnxnFactory connectionFactory;
     private File dataLogDir;
     private File dataDir;
+    private boolean purge;
     protected int tickTime = ZooKeeperServer.DEFAULT_TICK_TIME;
     /**
      * defaults to -1 if not set explicitly
@@ -52,6 +53,10 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
     }
 
     public void afterPropertiesSet() throws Exception {
+        if( purge ) {
+            deleteFilesInDir(getDataLogDir());
+            deleteFilesInDir(getDataDir());
+        }
         FileTxnSnapLog ftxn = new FileTxnSnapLog(getDataLogDir(), getDataDir());
         zooKeeperServer.setTxnLogFactory(ftxn);
         zooKeeperServer.setTickTime(getTickTime());
@@ -60,6 +65,19 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
         connectionFactory = new NIOServerCnxnFactory();
         connectionFactory.configure(getClientPortAddress(), getMaxClientConnections());
         connectionFactory.startup(zooKeeperServer);
+    }
+
+    private void deleteFilesInDir(File dir) {
+        File[] files = dir.listFiles();
+        if(files!=null) {
+            for (File file : files) {
+                if(file.isDirectory() ) {
+                    deleteFilesInDir(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
     }
 
     public void destroy() throws Exception {
@@ -158,6 +176,14 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
 
     public void setZooKeeperServer(ZooKeeperServer zooKeeperServer) {
         this.zooKeeperServer = zooKeeperServer;
+    }
+
+    public boolean isPurge() {
+        return purge;
+    }
+
+    public void setPurge(boolean purge) {
+        this.purge = purge;
     }
 
     // Implementation methods
