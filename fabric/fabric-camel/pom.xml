@@ -56,8 +56,15 @@
 
         <dependency>
             <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core</artifactId>
+            <version>${camel-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring</artifactId>
             <version>${camel-version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- testing -->

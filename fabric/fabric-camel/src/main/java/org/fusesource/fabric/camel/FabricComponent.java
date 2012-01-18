@@ -25,7 +25,6 @@ import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The FABRIC camel component for providing endpoint discovery, clustering and load balancing.
@@ -33,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FabricComponent extends DefaultComponent {
     private static final transient Log LOG = LogFactory.getLog(FabricComponent.class);
 
-    @Autowired
     private IZKClient zkClient;
     private String zkRoot = "/fabric/camel/endpoints";
     private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
@@ -98,16 +96,27 @@ public class FabricComponent extends DefaultComponent {
     protected void doStart() throws Exception {
         super.doStart();
         if (zkClient == null) {
-            zkClient = (IZKClient) getCamelContext().getRegistry().lookup(IZKClient.class.getName());
-            LOG.debug("IZKClient find in camel registry.");
+            zkClient = (IZKClient) getCamelContext().getRegistry().lookup("zkClient");
+            if (zkClient != null) {
+                LOG.debug("IZKClient found in camel registry. " + zkClient);
+            }
         }
         if (zkClient == null) {
-            ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
-            LOG.debug("IZKClient not find in camel registry and created.");
-            client.start();
+            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
+            ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
+            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
             zkClient = client;
         }
+
+        // ensure we are started
+        if (zkClient instanceof ZKClient) {
+            if (!zkClient.isConnected()) {
+                LOG.debug("Staring IZKClient " + zkClient);
+                ((ZKClient) zkClient).start();
+            }
+        }
         checkZkConnected();
+
         if (producerCache == null) {
             producerCache = new ProducerCache(this, getCamelContext(), cacheSize);
         }

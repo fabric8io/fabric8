@@ -12,10 +12,7 @@ import org.apache.camel.*;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.Group;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * Creates an endpoint which uses FABRIC to map a logical name to physical endpoint names
