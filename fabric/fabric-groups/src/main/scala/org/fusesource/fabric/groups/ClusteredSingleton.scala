@@ -19,6 +19,7 @@ import collection.JavaConversions._
 import java.util.LinkedHashMap
 import java.lang.{IllegalStateException, String}
 import reflect.BeanProperty
+import org.codehaus.jackson.annotate.JsonProperty
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -30,6 +31,14 @@ trait NodeState {
    * but only the first node in the cluster will be the master for for it.
    */
   def id: String
+}
+
+class TextNodeState extends NodeState {
+  @BeanProperty
+  @JsonProperty
+  var id:String = _
+
+  override def toString = new String(ClusteredSupport.encode(this), "UTF-8")
 }
 
 /**
