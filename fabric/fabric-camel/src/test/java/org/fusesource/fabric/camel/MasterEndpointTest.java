@@ -13,13 +13,18 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @ContextConfiguration
 public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
+
     @Autowired
     protected CamelContext camelContext;
 
@@ -28,6 +33,20 @@ public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
 
     @Produce(uri = "seda:bar")
     protected ProducerTemplate template;
+
+    // Yeah this sucks.. why does the spring context not get shutdown
+    // after each test case?  Not sure!
+    @Autowired
+    protected ZKServerFactoryBean zkServerBean;
+    @After
+    public void afterRun() throws Exception {
+        lastServerBean = zkServerBean;
+    }
+    protected static ZKServerFactoryBean lastServerBean;
+    @AfterClass
+    static public void shutDownZK() throws Exception {
+        lastServerBean.destroy();
+    }
 
     @Test
     public void  testEndpoint() throws Exception {

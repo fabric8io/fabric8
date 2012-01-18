@@ -89,6 +89,10 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
             connectionFactory.shutdown();
             connectionFactory = null;
         }
+        if(zooKeeperServer!=null) {
+            zooKeeperServer.shutdown();
+            zooKeeperServer = null;
+        }
     }
 
     // Properties

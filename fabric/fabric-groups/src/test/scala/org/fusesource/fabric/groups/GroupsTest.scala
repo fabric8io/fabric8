@@ -39,6 +39,20 @@ abstract class ZooKeeperFunSuiteSupport extends FunSuite with BeforeAndAfterAll 
     val zk_server = new ZooKeeperServer();
     val data_dir = new File(new File("target"), "test-data")
 
+    def deleteFilesInDir(dir: File): Unit = {
+      var files: Array[File] = dir.listFiles
+      if (files != null) {
+        for (file <- files) {
+          if (file.isDirectory) {
+            deleteFilesInDir(file)
+          } else {
+            file.delete
+          }
+        }
+      }
+    }
+    deleteFilesInDir(data_dir)
+
     zk_server.setTxnLogFactory(new FileTxnSnapLog(new File(data_dir, "zk-log"), new File(data_dir, "zk-data")))
     connector = new NIOServerCnxnFactory
     connector.configure(new InetSocketAddress(0), 100)

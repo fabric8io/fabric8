@@ -18,7 +18,9 @@
         http://fusesource.org/fabric/bridge/zookeeper http://fusesource.org/fabric/bridge/zookeeper/fabric-bridge-zookeeper.xsd">
 
   <!-- Since this is a test case lets run a local ZK server -->
-  <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean" />
+  <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">
+    <property name="purge" value="true"/>
+  </bean>
 
   <bean id="zkServerSetup" class="org.fusesource.fabric.bridge.zk.internal.ZkServerSetupBean" lazy-init="false">
     <property name="fabricService" ref="fabricservice"/>

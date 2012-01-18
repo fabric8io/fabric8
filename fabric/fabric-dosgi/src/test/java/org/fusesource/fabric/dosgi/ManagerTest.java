@@ -46,6 +46,7 @@ public class ManagerTest {
             int serverPort = getFreePort();
 
             zkServerFactoryBean = new ZKServerFactoryBean();
+            zkServerFactoryBean.setPurge(true);
             zkServerFactoryBean.setClientPortAddress(new InetSocketAddress("localhost", zooKeeperPort));
             zkServerFactoryBean.afterPropertiesSet();
 

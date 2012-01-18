@@ -19,6 +19,7 @@
 
   <!-- Since this is a test case lets run a local ZK server -->
   <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">
+    <property name="purge" value="true"/>
   </bean>
 
   <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
