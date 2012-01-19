@@ -118,7 +118,9 @@ public abstract class ZKComponentSupport extends DefaultComponent {
         if (!zkClient.isConnected()) {
             throw new Exception("Could not connect to ZooKeeper " + zkClient + " at " + zkClient.getConnectString());
         }
-    }@Override
+    }
+
+    @Override
     protected void doStop() throws Exception {
         super.doStop();
         if (zkClient != null && isShouldCloseZkClient()) {

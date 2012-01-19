@@ -94,7 +94,9 @@ public class MasterConsumer extends DefaultConsumer {
     protected void tryAcquireLock() {
         final ClusteredSingleton<TextNodeState> cluster = getCluster();
         TextNodeState state = new TextNodeState();
-        state.setId(endpoint.getId());
+        String singletonId = endpoint.getSingletonId();
+        LOG.debug("Attempting to become master for endpoint: " + endpoint + " in " + endpoint.getCamelContext() + " with singletonID: " + singletonId);
+        state.setId(singletonId);
         cluster.join(state);
         cluster.add(new ChangeListener() {
             @Override
@@ -106,12 +108,12 @@ public class MasterConsumer extends DefaultConsumer {
                 if (cluster.connected()) {
                     if (cluster.isMaster()) {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Master starting for endpoint: " + endpoint + " in " + endpoint.getCamelContext());
+                            LOG.debug("Master/Standby endpoint is Master for:  " + endpoint + " in " + endpoint.getCamelContext());
                         }
                         onLockOwned();
                     } else {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Master stopping for endpoint: " + endpoint + " in " + endpoint.getCamelContext());
+                            LOG.debug("Master/Standby endpoint is Standby for: " + endpoint + " in " + endpoint.getCamelContext());
                         }
                     }
                 }

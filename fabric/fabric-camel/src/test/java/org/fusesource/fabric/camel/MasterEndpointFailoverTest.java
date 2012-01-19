@@ -18,10 +18,13 @@ import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MasterEndpointFailoverTest {
+    private static final transient Logger LOG = LoggerFactory.getLogger(MasterEndpointFailoverTest.class);
 
     protected ProducerTemplate template;
     protected CamelContext producerContext;
@@ -81,11 +84,11 @@ public class MasterEndpointFailoverTest {
 
         System.out.println("Starting consumerContext2");
         ServiceHelper.startServices(consumerContext2);
-        assertMessageReceivedLoop(result1Endpoint, result2Endpoint, 5);
+        assertMessageReceivedLoop(result1Endpoint, result2Endpoint, 3);
 
         System.out.println("Stopping consumerContext1");
         ServiceHelper.stopService(consumerContext1);
-        assertMessageReceivedLoop(result2Endpoint, result1Endpoint, 5);
+        assertMessageReceivedLoop(result2Endpoint, result1Endpoint, 3);
     }
 
     protected void assertMessageReceivedLoop(MockEndpoint masterEndpoint, MockEndpoint standbyEndpoint, int count) throws Exception {
@@ -96,13 +99,16 @@ public class MasterEndpointFailoverTest {
     }
 
     protected void assertMessageReceived(MockEndpoint masterEndpoint, MockEndpoint standbyEndpoint) throws InterruptedException {
+        masterEndpoint.reset();
+        standbyEndpoint.reset();
+
         String expectedBody = createNextExpectedBody();
         masterEndpoint.expectedBodiesReceived(expectedBody);
         standbyEndpoint.expectedMessageCount(0);
 
         template.sendBody("vm:start", expectedBody);
 
-        System.out.println("Expecting master: " + masterEndpoint + " and standby: " + standbyEndpoint);
+        LOG.info("Expecting master: " + masterEndpoint + " and standby: " + standbyEndpoint);
         MockEndpoint.assertIsSatisfied(masterEndpoint, standbyEndpoint);
     }
 

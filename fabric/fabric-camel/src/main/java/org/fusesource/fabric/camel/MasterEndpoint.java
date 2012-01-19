@@ -26,14 +26,16 @@ public class MasterEndpoint extends DefaultEndpoint {
     private static final transient Log LOG = LogFactory.getLog(MasterEndpoint.class);
 
     private final MasterComponent component;
+    private final String singletonId;
     private final Group group;
     private final String child;
     private ClusteredSingleton<TextNodeState> cluster;
 
 
-    public MasterEndpoint(String uri, MasterComponent component, Group group, String child) {
+    public MasterEndpoint(String uri, MasterComponent component, String singletonId, Group group, String child) {
         super(uri, component);
         this.component = component;
+        this.singletonId = singletonId;
         this.group = group;
         this.child = child;
         cluster = new ClusteredSingleton<TextNodeState>(TextNodeState.class);
@@ -80,6 +82,10 @@ public class MasterEndpoint extends DefaultEndpoint {
 
     public String getChild() {
         return child;
+    }
+
+    public String getSingletonId() {
+        return singletonId;
     }
 
     // Implementation methods
