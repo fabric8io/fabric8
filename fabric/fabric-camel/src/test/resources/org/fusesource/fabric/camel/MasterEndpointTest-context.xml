@@ -9,9 +9,8 @@
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
   <!-- Since this is a test case lets run a local ZK server -->
   <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">
@@ -19,21 +18,16 @@
   </bean>
 
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean" depends-on="zkServer">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
-  <camelContext xmlns="http://camel.apache.org/schema/spring">
+  <camelContext xmlns="http://camel.apache.org/schema/spring" depends-on="zkClient">
 
     <route>
-      <from uri="fabric:cheese:seda:bar"/>
+      <from uri="master:master-000:seda:bar"/>
       <to uri="mock:results"/>
-    </route>
-
-    <route>
-      <from uri="direct:start"/>
-      <to uri="fabric:cheese"/>
     </route>
 
   </camelContext>

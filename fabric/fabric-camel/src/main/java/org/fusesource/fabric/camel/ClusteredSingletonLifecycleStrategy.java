@@ -68,7 +68,7 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
         }
     }
 
-    CamelNode state() {
+    CamelNode createState() {
         CamelNode state = new CamelNode();
         state.id = id;
         state.agent = System.getProperty("karaf.name");
@@ -91,9 +91,8 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
         }
 
         group = ZooKeeperGroupFactory.create(zkClient, "/fabric/camel-clusters/" + groupName, acl);
-        singleton.setId(id);
         singleton.start(group);
-        singleton.join(state());
+        singleton.join(createState());
 
         info("Camel context %s is waiting to become the master", id);
 
@@ -106,7 +105,7 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
                         try {
                             camelContext.start();
                             // Update the state of the master since he is now running.
-                            singleton.update(state());
+                            singleton.update(createState());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

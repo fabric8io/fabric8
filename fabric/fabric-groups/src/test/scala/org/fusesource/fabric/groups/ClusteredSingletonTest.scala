@@ -33,10 +33,11 @@ class AddressNodeState extends NodeState {
  */
 class ClusteredSingletonTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
 
-  class AddressSingleton(id:String, var address:String) extends ClusteredSingleton[AddressNodeState](classOf[AddressNodeState], id) {
-    def join:Unit= join(state)
-    def update:Unit = update(state)
-    def state = {
+  class AddressSingleton(id:String, var address:String) extends ClusteredSingleton[AddressNodeState](classOf[AddressNodeState]) {
+    def join:Unit= join(create_state)
+    def update:Unit = update(create_state)
+
+    def create_state = {
       val rc = new AddressNodeState
       rc.id = id
       rc.address = address

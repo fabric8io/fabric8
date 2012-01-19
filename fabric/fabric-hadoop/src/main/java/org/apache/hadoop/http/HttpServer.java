@@ -118,7 +118,7 @@ public class HttpServer implements FilterContainer {
     final FilterInitializer[] initializers = getFilterInitializers(conf); 
     if (initializers != null) {
       for(FilterInitializer c : initializers) {
-        c.initFilter(this);
+        c.initFilter(this, conf);
       }
     }
     addDefaultServlets();
@@ -132,7 +132,7 @@ public class HttpServer implements FilterContainer {
   protected Connector createBaseListener(Configuration conf)
       throws IOException {
     SelectChannelConnector ret = new SelectChannelConnector();
-    ret.setLowResourceMaxIdleTime(10000);
+    ret.setLowResourcesMaxIdleTime(10000);
     ret.setAcceptQueueSize(128);
     ret.setResolveNames(false);
     ret.setUseDirectBuffers(false);

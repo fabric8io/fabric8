@@ -18,18 +18,20 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @ContextConfiguration
-public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
+public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
+
     @Autowired
     protected CamelContext camelContext;
 
     @EndpointInject(uri = "mock:results")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
+    @Produce(uri = "seda:bar")
     protected ProducerTemplate template;
 
     // Yeah this sucks.. why does the spring context not get shutdown
@@ -47,8 +49,8 @@ public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    public void testEndpoint() throws Exception {
-        System.out.println("===== starting test of Camel Fabric!");
+    public void  testEndpoint() throws Exception {
+        System.out.println("===== starting test of Master endpoint!");
 
         String expectedBody = "<matched/>";
 
@@ -61,6 +63,6 @@ public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
 
         MockEndpoint.assertIsSatisfied(camelContext);
 
-        System.out.println("===== completed test of Camel Fabric!");
+        System.out.println("===== completed test of Master endpoint!");
     }
 }

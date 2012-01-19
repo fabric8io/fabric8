@@ -58,7 +58,7 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
     val host = broker.virtual_hosts.get(ascii("default")).get
     host.dispatch_queue.future {
       val router = host.router.asInstanceOf[LocalRouter]
-      router.queue_domain.destination_by_id.get(name).isDefined
+      router.local_queue_domain.destination_by_id.get(name).isDefined
     }.await()
   }
 
@@ -66,7 +66,7 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
     val host = broker.virtual_hosts.get(ascii("default")).get
     host.dispatch_queue.future {
       val router = host.router.asInstanceOf[LocalRouter]
-      router.topic_domain.destination_by_id.get(name).isDefined
+      router.local_topic_domain.destination_by_id.get(name).isDefined
     }.await()
   }
 
@@ -74,7 +74,7 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
     val host = broker.virtual_hosts.get(ascii("default")).get
     sync(host) {
       val router = host.router.asInstanceOf[LocalRouter]
-      router.topic_domain.destination_by_id.get(name).get.status
+      router.local_topic_domain.destination_by_id.get(name).get.status
     }
   }
   

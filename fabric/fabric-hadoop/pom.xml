@@ -30,7 +30,7 @@
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.apache.hadoop*;-noimport:=true;version=0.20.2
+          org.apache.hadoop*;-noimport:=true;version=${hadoop-version}
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           webapps.*,
@@ -39,10 +39,10 @@
       </fuse.osgi.private.pkg>
       <fuse.osgi.resource>
           {maven-resources},
-          @hadoop-core-0.20.2.jar!/core-default.xml,
-          @hadoop-core-0.20.2.jar!/hdfs-default.xml,
-          @hadoop-core-0.20.2.jar!/mapred-default.xml,
-          @hadoop-core-0.20.2.jar!/hadoop-metrics.properties
+          @hadoop-core-${hadoop-version}.jar!/core-default.xml,
+          @hadoop-core-${hadoop-version}.jar!/hdfs-default.xml,
+          @hadoop-core-${hadoop-version}.jar!/mapred-default.xml,
+          @hadoop-core-${hadoop-version}.jar!/hadoop-metrics.properties
       </fuse.osgi.resource>
   </properties>
 

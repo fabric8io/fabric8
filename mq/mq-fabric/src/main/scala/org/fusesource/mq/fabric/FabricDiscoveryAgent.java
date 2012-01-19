@@ -77,7 +77,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         }
     }
     
-    ActiveMQNode state() {
+    ActiveMQNode createState() {
         ActiveMQNode state = new ActiveMQNode();
         state.id = id;
         state.agent = agent;
@@ -128,7 +128,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         if (startCounter.get() > 0 ) {
             if( id==null )
                 throw new IllegalStateException("You must configure the id of the fabric discovery if you want to register services");
-            singleton.update(state());
+            singleton.update(createState());
         }
     }
 
@@ -216,10 +216,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             }
 
             group = ZooKeeperGroupFactory.create(zkClient, "/fabric/activemq-clusters/" + groupName, acl);
-            singleton.setId(id);
             singleton.start(group);
             if( id!=null ) {
-                singleton.join(state());
+                singleton.join(createState());
             }
         }
     }

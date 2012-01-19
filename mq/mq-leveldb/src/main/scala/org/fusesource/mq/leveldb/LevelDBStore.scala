@@ -88,11 +88,11 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   @BeanProperty
   var indexCacheSize: Long = 1024 * 1024 * 256L
   @BeanProperty
-  var logWriteBufferSize: Int = 1024 * 1024 * 4
-  @BeanProperty
   var flushDelay = 100
   @BeanProperty
   var asyncBufferSize = 1024*1024*10
+  @BeanProperty
+  var monitorStats = false
 
   var purgeOnStatup: Boolean = false
   var brokerService: BrokerService = null
@@ -100,22 +100,24 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   var topics: HashMap[ActiveMQTopic, TopicMessageStore] = new HashMap[ActiveMQTopic, TopicMessageStore]
 
   override def toString: String = {
-    return "LavelDB:[" + directory.getAbsolutePath + "]"
+    return "LevelDB:[" + directory.getAbsolutePath + "]"
   }
 
   def doStart: Unit = {
+    debug("starting")
     db.start
     if (purgeOnStatup) {
       purgeOnStatup = false
       db.purge
-      info("Persistence store purged.")
+      info("Purged: "+this)
     }
     db.loadCollections
+    debug("started")
   }
 
   def doStop(stopper: ServiceStopper): Unit = {
     db.stop
-    info("Stopped LevelDB")
+    info("Stopped "+this)
   }
 
   def setBrokerService(brokerService: BrokerService): Unit = {
@@ -337,7 +339,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     }
 
     def getAllSubscriptions: Array[SubscriptionInfo] = {
-      throw new RuntimeException("implement me")
+      return Array[SubscriptionInfo]()
     }
 
     def addSubsciption(subscriptionInfo: SubscriptionInfo, retroactive: Boolean): Unit = {
