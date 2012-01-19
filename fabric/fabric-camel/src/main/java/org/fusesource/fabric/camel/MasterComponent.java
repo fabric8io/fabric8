@@ -31,30 +31,8 @@ import java.util.Map;
  * point in time with all other JVMs being hot standbys which wait until the master JVM dies before
  * taking over to provide high availability of a single consumer.
  */
-public class MasterComponent extends DefaultComponent {
-    private static final transient Log LOG = LogFactory.getLog(MasterComponent.class);
-
-    private IZKClient zkClient;
+public class MasterComponent extends ZKComponentSupport {
     private String zkRoot = "/fabric/camel/master";
-    private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
-    private boolean shouldCloseZkClient = false;
-
-
-    public IZKClient getZkClient() {
-        return zkClient;
-    }
-
-    public void setZkClient(IZKClient zkClient) {
-        this.zkClient = zkClient;
-    }
-
-    public boolean isShouldCloseZkClient() {
-        return shouldCloseZkClient;
-    }
-
-    public void setShouldCloseZkClient(boolean shouldCloseZkClient) {
-        this.shouldCloseZkClient = shouldCloseZkClient;
-    }
 
     public String getZkRoot() {
         return zkRoot;
@@ -64,59 +42,9 @@ public class MasterComponent extends DefaultComponent {
         this.zkRoot = zkRoot;
     }
 
-    public List<ACL> getAccessControlList() {
-        return accessControlList;
-    }
-
-    public void setAccessControlList(List<ACL> accessControlList) {
-        this.accessControlList = accessControlList;
-    }
-
     //  Implementation methods
     //-------------------------------------------------------------------------
 
-
-    @Override
-    protected void doStart() throws Exception {
-        super.doStart();
-        if (zkClient == null) {
-            zkClient = (IZKClient) getCamelContext().getRegistry().lookup("zkClient");
-            if (zkClient != null) {
-                LOG.debug("IZKClient found in camel registry. " + zkClient);
-            }
-        }
-        if (zkClient == null) {
-            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
-            ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
-            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
-            zkClient = client;
-            setShouldCloseZkClient(true);
-        }
-
-        // ensure we are started
-        if (zkClient instanceof ZKClient) {
-            if (!zkClient.isConnected()) {
-                LOG.debug("Staring IZKClient " + zkClient);
-                ((ZKClient) zkClient).start();
-            }
-        }
-        checkZkConnected();
-
-    }
-
-    protected void checkZkConnected() throws Exception {
-        if (!zkClient.isConnected()) {
-            throw new Exception("Could not connect to ZooKeeper " + zkClient);
-        }
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-        super.doStop();
-        if (zkClient != null && isShouldCloseZkClient()) {
-            zkClient.close();
-        }
-    }
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> params) throws Exception {

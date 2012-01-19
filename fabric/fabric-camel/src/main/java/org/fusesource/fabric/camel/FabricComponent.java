@@ -29,24 +29,14 @@ import org.linkedin.zookeeper.client.ZKClient;
 /**
  * The FABRIC camel component for providing endpoint discovery, clustering and load balancing.
  */
-public class FabricComponent extends DefaultComponent {
+public class FabricComponent extends ZKComponentSupport {
     private static final transient Log LOG = LogFactory.getLog(FabricComponent.class);
 
-    private IZKClient zkClient;
     private String zkRoot = "/fabric/camel/endpoints";
-    private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
     private LoadBalancerFactory loadBalancerFactory = new DefaultLoadBalancerFactory();
     private ProducerCache producerCache;
     private int cacheSize = 1000;
 
-
-    public IZKClient getZkClient() {
-        return zkClient;
-    }
-
-    public void setZkClient(IZKClient zkClient) {
-        this.zkClient = zkClient;
-    }
 
     public String getZkRoot() {
         return zkRoot;
@@ -54,14 +44,6 @@ public class FabricComponent extends DefaultComponent {
 
     public void setZkRoot(String zkRoot) {
         this.zkRoot = zkRoot;
-    }
-
-    public List<ACL> getAccessControlList() {
-        return accessControlList;
-    }
-
-    public void setAccessControlList(List<ACL> accessControlList) {
-        this.accessControlList = accessControlList;
     }
 
     public int getCacheSize() {
@@ -95,27 +77,6 @@ public class FabricComponent extends DefaultComponent {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-        if (zkClient == null) {
-            zkClient = (IZKClient) getCamelContext().getRegistry().lookup("zkClient");
-            if (zkClient != null) {
-                LOG.debug("IZKClient found in camel registry. " + zkClient);
-            }
-        }
-        if (zkClient == null) {
-            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
-            ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
-            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
-            zkClient = client;
-        }
-
-        // ensure we are started
-        if (zkClient instanceof ZKClient) {
-            if (!zkClient.isConnected()) {
-                LOG.debug("Staring IZKClient " + zkClient);
-                ((ZKClient) zkClient).start();
-            }
-        }
-        checkZkConnected();
 
         if (producerCache == null) {
             producerCache = new ProducerCache(this, getCamelContext(), cacheSize);
@@ -123,19 +84,11 @@ public class FabricComponent extends DefaultComponent {
         ServiceHelper.startService(producerCache);
     }
 
-    protected void checkZkConnected() throws Exception {
-        if (!zkClient.isConnected()) {
-            throw new Exception("Could not connect to ZooKeeper " + zkClient);
-        }
-    }
-
     @Override
     protected void doStop() throws Exception {
-        super.doStop();
-        if (zkClient != null) {
-            zkClient.close();
-        }
         ServiceHelper.stopService(producerCache);
+
+        super.doStop();
     }
 
     @Override
