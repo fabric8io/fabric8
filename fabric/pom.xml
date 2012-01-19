@@ -53,6 +53,7 @@
         <module>fabric-hadoop</module>
         <module>fabric-virt</module>
         <module>fabric-branding</module>
+        <module>mq-fabric</module>
         <module>fuse-fabric</module>
         
         <module>fabric-examples</module>
