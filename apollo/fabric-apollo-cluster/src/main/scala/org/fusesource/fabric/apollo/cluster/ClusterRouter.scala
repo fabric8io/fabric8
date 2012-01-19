@@ -10,7 +10,6 @@
 
 package org.fusesource.fabric.apollo.cluster
 
-import dto.{ClusterNodeDTO, ClusterVirtualHostDTO}
 import org.apache.activemq.apollo.util._
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.broker.security.SecurityContext
@@ -19,9 +18,6 @@ import org.apache.activemq.apollo.util.path.Path
 import org.fusesource.hawtdispatch._
 import scala.collection.mutable.HashMap
 import org.fusesource.fabric.apollo.cluster.util.HashRing
-import java.lang.IllegalStateException
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory
-import javax.swing.event.{ChangeEvent, ChangeListener}
 
 object ClusterRouter extends Log
 
@@ -39,8 +35,13 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
   var cluster_connector:ClusterConnector = _
   var hash_ring:HashRing[String, String] = _
 
-  val cluster_queue_domain = new ClusterDomain(queue_domain)
-  val cluster_topic_domain = new ClusterDomain(topic_domain)
+  val cluster_queue_domain = new ClusterDomain(local_queue_domain)
+  val cluster_topic_domain = new ClusterDomain(local_topic_domain)
+  val cluster_dsub_domain = new ClusterDomain(local_dsub_domain)
+
+  override def queue_domain = cluster_queue_domain
+  override def topic_domain = cluster_topic_domain
+  override def dsub_domain = cluster_dsub_domain
 
   def on_cluster_change(connector: ClusterConnector, new_ring:HashRing[String, String]) = {
     info("Cluster membership changed.")
@@ -54,13 +55,7 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
     }
   }
 
-  override def domain(destination: DestinationDTO):Domain[_ <: DomainDestination] = destination match {
-    case x:TopicDestinationDTO => cluster_topic_domain
-    case x:QueueDestinationDTO => cluster_queue_domain
-    case _ => throw new RuntimeException("Unknown domain type: "+destination.getClass)
-  }
-
-  class ClusterDomain[D <: DomainDestination](val actual:Domain[D]) extends Domain[ClusterDestination[D]] {
+  class ClusterDomain[D <: DomainDestination, DTO <:DestinationDTO](val actual:Domain[D, DTO]) extends Domain[ClusterDestination[D], DTO] {
 
     val original_add_destination = actual.add_destination
     val original_remove_destination = actual.remove_destination
@@ -84,14 +79,14 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
 
     def clustered(d:D) = destination_by_id.get(d.id)
 
-    def create_destination(path: Path, destination:DestinationDTO, security: SecurityContext) = {
+    def create_destination(path: Path, destination:DTO, security: SecurityContext) = {
       val rc = actual.create_destination(path, destination, security)
       rc.map_success(clustered(_).get)
     }
 
-    def destroy_destination(path: Path, destination: DestinationDTO, security: SecurityContext) = actual.destroy_destination(path, destination, security)
+    def destroy_destination(path: Path, destination: DTO, security: SecurityContext) = actual.destroy_destination(path, destination, security)
 
-    def can_create_destination(path: Path, destination: DestinationDTO, security: SecurityContext): Option[String] = actual.can_create_destination(path, destination,security)
+    def can_create_destination(path: Path, destination: DTO, security: SecurityContext): Option[String] = actual.can_create_destination(path, destination,security)
 
     def bind_action(consumer: DeliveryConsumer) = actual.bind_action(consumer)
   }
