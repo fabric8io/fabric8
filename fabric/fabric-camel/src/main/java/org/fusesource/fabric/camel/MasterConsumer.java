@@ -106,12 +106,12 @@ public class MasterConsumer extends DefaultConsumer {
                 if (cluster.connected()) {
                     if (cluster.isMaster()) {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Master starting for endpoint: " + endpoint);
+                            LOG.debug("Master starting for endpoint: " + endpoint + " in " + endpoint.getCamelContext());
                         }
                         onLockOwned();
                     } else {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Master stopping for endpoint: " + endpoint);
+                            LOG.debug("Master stopping for endpoint: " + endpoint + " in " + endpoint.getCamelContext());
                         }
                     }
                 }

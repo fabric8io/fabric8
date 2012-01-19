@@ -38,6 +38,8 @@ public class MasterComponent extends DefaultComponent {
     private String zkRoot = "/fabric/camel/master";
     private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
     private boolean shouldCloseZkClient = false;
+    private long maximumConnectionTimeout = 10 * 1000L;
+    private long connectionRetryTime = 100L;
 
 
     public IZKClient getZkClient() {
@@ -72,6 +74,22 @@ public class MasterComponent extends DefaultComponent {
         this.accessControlList = accessControlList;
     }
 
+    public long getConnectionRetryTime() {
+        return connectionRetryTime;
+    }
+
+    public void setConnectionRetryTime(long connectionRetryTime) {
+        this.connectionRetryTime = connectionRetryTime;
+    }
+
+    public long getMaximumConnectionTimeout() {
+        return maximumConnectionTimeout;
+    }
+
+    public void setMaximumConnectionTimeout(long maximumConnectionTimeout) {
+        this.maximumConnectionTimeout = maximumConnectionTimeout;
+    }
+    
     //  Implementation methods
     //-------------------------------------------------------------------------
 
@@ -105,8 +123,20 @@ public class MasterComponent extends DefaultComponent {
     }
 
     protected void checkZkConnected() throws Exception {
+        long start = System.currentTimeMillis();
+        do {
+            if (zkClient.isConnected()) {
+                return;
+            }
+            try {
+                Thread.sleep(getConnectionRetryTime());
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        } while (System.currentTimeMillis() < start + getMaximumConnectionTimeout());
+
         if (!zkClient.isConnected()) {
-            throw new Exception("Could not connect to ZooKeeper " + zkClient);
+            throw new Exception("Could not connect to ZooKeeper " + zkClient + " at " + zkClient.getConnectString());
         }
     }
 
