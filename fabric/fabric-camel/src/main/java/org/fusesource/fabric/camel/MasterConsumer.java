@@ -99,17 +99,21 @@ public class MasterConsumer extends DefaultConsumer {
         cluster.add(new ChangeListener() {
             @Override
             public void connected() {
-                System.out.println("=============== cluster connected!");
             }
 
             @Override
             public void changed() {
-                System.out.println("=============== cluster changed!");
-                if (cluster.isMaster()) {
-                    System.out.println("=============== is master!");
-                    onLockOwned();
-                } else {
-                    System.out.println("=============== not master!");
+                if (cluster.connected()) {
+                    if (cluster.isMaster()) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Master starting for endpoint: " + endpoint);
+                        }
+                        onLockOwned();
+                    } else {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Master stopping for endpoint: " + endpoint);
+                        }
+                    }
                 }
             }
 

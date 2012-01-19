@@ -19,7 +19,7 @@ import org.apache.zookeeper.data.ACL
 import org.linkedin.zookeeper.client.{LifecycleListener, IZKClient}
 import collection.JavaConversions._
 import java.util.{LinkedHashMap, Collection}
-import org.apache.zookeeper.KeeperException.{NoNodeException, Code}
+import org.apache.zookeeper.KeeperException.{ConnectionLossException, NoNodeException, Code}
 
 /**
  *
@@ -103,12 +103,14 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
   }
 
   def leave(path:String): Unit = this.synchronized {
-    joins.remove(path).foreach { case version =>
-      try {
-        zk.delete(member_path_prefix + path, version)
-      } catch {
-        case x:NoNodeException => // Already deleted.
-      }
+    joins.remove(path).foreach {
+      case version =>
+          try {
+            zk.delete(member_path_prefix + path, version)
+          } catch {
+            case x: NoNodeException => // Already deleted.
+            case x: ConnectionLossException => // disconnected
+          }
     }
   }
 

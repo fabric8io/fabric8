@@ -35,10 +35,9 @@ public class MasterComponent extends DefaultComponent {
     private static final transient Log LOG = LogFactory.getLog(MasterComponent.class);
 
     private IZKClient zkClient;
-    private String zkRoot = "/fabric/camel/endpoints";
+    private String zkRoot = "/fabric/camel/master";
     private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
-    private ProducerCache producerCache;
-    private int cacheSize = 1000;
+    private boolean shouldCloseZkClient = false;
 
 
     public IZKClient getZkClient() {
@@ -47,6 +46,14 @@ public class MasterComponent extends DefaultComponent {
 
     public void setZkClient(IZKClient zkClient) {
         this.zkClient = zkClient;
+    }
+
+    public boolean isShouldCloseZkClient() {
+        return shouldCloseZkClient;
+    }
+
+    public void setShouldCloseZkClient(boolean shouldCloseZkClient) {
+        this.shouldCloseZkClient = shouldCloseZkClient;
     }
 
     public String getZkRoot() {
@@ -83,6 +90,7 @@ public class MasterComponent extends DefaultComponent {
             ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
             LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
             zkClient = client;
+            setShouldCloseZkClient(true);
         }
 
         // ensure we are started
@@ -94,10 +102,6 @@ public class MasterComponent extends DefaultComponent {
         }
         checkZkConnected();
 
-        if (producerCache == null) {
-            producerCache = new ProducerCache(this, getCamelContext(), cacheSize);
-        }
-        ServiceHelper.startService(producerCache);
     }
 
     protected void checkZkConnected() throws Exception {
@@ -109,10 +113,9 @@ public class MasterComponent extends DefaultComponent {
     @Override
     protected void doStop() throws Exception {
         super.doStop();
-        if (zkClient != null) {
+        if (zkClient != null && isShouldCloseZkClient()) {
             zkClient.close();
         }
-        ServiceHelper.stopService(producerCache);
     }
 
     @Override

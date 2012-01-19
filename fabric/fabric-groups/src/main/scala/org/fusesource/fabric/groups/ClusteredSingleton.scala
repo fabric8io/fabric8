@@ -168,7 +168,7 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T]) extends Clustered
 
   override def stop = {
     this.synchronized {
-      if(_eid==null) {
+      if(_eid != null) {
         leave
       }
       super.stop
