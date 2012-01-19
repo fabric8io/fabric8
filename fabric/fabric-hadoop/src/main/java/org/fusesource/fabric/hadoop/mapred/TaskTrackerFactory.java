@@ -73,7 +73,8 @@ public class TaskTrackerFactory implements ManagedServiceFactory {
         if (taskTracker != null) {
             try {
                 taskTracker.shutdown();
-            } catch (IOException e) {
+            } catch (Exception e) {
+                // ignore
             }
         }
     }
