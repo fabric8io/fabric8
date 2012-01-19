@@ -701,7 +701,7 @@ class LevelDBClient(store: LevelDBStore) {
     suspend()
     try {
       if( sync ) {
-        log.currentAppender.sync
+        log.currentAppender.force
       }
       if( log.appenderLimit == lastIndexSnapshotPos  ) {
         // no need to snapshot again...
@@ -959,7 +959,7 @@ class LevelDBClient(store: LevelDBStore) {
           }
         }
         if( syncNeeded && sync ) {
-          appender.sync
+          appender.force
         }
       } // end of log.appender { block }
 
