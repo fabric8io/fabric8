@@ -41,6 +41,9 @@ public class Export extends ZooKeeperCommandSupport {
     @Option(name="-d", aliases={"--delete"}, description="Clear target directory before exporting (CAUTION! Performs recursive delete!)")
     boolean delete;
 
+    @Option(name="-t", aliases={"--trim"}, description="Trims the first timestamp comment line in properties files starting with the '#' character")
+    boolean trimHeader;
+
     @Option(name="--dry-run", description="Runs the export but instead prints out what's going to happen rather than performing the action")
     boolean dryRun = false;
 
@@ -96,7 +99,15 @@ public class Export extends ZooKeeperCommandSupport {
                 if (!p.contains(".")) {
                     name += ".cfg";
                 }
-                settings.put(new File(target + File.separator + name), new String(data));
+                String value = new String(data);
+                if (trimHeader && value.startsWith("#")) {
+                    // lets remove the first line
+                    int idx = value.indexOf("\n");
+                    if (idx > 0) {
+                        value = value.substring(idx + 1);
+                    }
+                }
+                settings.put(new File(target + File.separator + name), value);
             } else {
                 directories.add(new File(target + File.separator + p));
             }

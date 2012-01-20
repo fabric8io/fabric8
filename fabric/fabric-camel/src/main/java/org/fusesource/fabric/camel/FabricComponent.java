@@ -8,23 +8,16 @@
  */
 package org.fusesource.fabric.camel;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Endpoint;
-import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.impl.ProducerCache;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
 
 /**
  * The FABRIC camel component for providing endpoint discovery, clustering and load balancing.

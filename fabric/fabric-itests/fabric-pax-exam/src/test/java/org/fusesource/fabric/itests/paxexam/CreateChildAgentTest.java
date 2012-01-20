@@ -49,7 +49,7 @@ public class CreateChildAgentTest extends FabricTestSupport {
 
         Agent child1 = createChildAgent("child1");
         Agent result = fabricService.getAgent("child1");
-        assertEquals("Agents should have the same id",child1.getId(),result.getId());
+        assertEquals("Agents should have the same id",child1.getId(), result.getId());
     }
 
     @Configuration
