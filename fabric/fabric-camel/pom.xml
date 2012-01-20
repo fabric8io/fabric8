@@ -28,9 +28,6 @@
         <fuse.osgi.export>
             org.fusesource.fabric.camel
         </fuse.osgi.export>
-        <fuse.osgi.import.pkg>
-            org.springframework.beans.factory.annotation;resolution:=optional,*
-        </fuse.osgi.import.pkg>
         <fuse.osgi.activator>org.fusesource.fabric.camel.Activator</fuse.osgi.activator>
     </properties>
 
@@ -41,6 +38,7 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
@@ -87,30 +85,24 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.fusesource.fabric</groupId>
-          <artifactId>fabric-groups</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring-version}</version>
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
 
     <build>
         <plugins>
+
+          <!-- fork per test to not have side effects between tests -->
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkMode>pertest</forkMode>
+            </configuration>
+          </plugin>
 
         </plugins>
     </build>
