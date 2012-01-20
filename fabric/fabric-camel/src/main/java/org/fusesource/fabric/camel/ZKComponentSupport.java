@@ -126,4 +126,6 @@ public abstract class ZKComponentSupport extends DefaultComponent {
         if (zkClient != null && isShouldCloseZkClient()) {
             zkClient.close();
         }
-    }}
+    }
+
+}
