@@ -13,11 +13,15 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
+import org.linkedin.util.clock.Timespan;
+import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.ZKClient;
 
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
@@ -41,6 +45,9 @@ public class Import extends ZooKeeperCommandSupport {
 
     @Option(name="-fs", aliases={"--filesystem"}, description="Argument is the top level directory of a local filesystem tree")
     boolean filesystem = true;
+
+    @Option(name="-v", aliases={"--verbose"}, description="Verbose output of files being imported")
+    boolean verbose = false;
 
     @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to import, can specify this option more than once for additional filters", multiValued=true)
     String regex[];
@@ -68,6 +75,7 @@ public class Import extends ZooKeeperCommandSupport {
         if (filesystem == true) {
             properties = false;
         }
+        checkZooKeeperConnected();
         if (properties) {
             readPropertiesFile();
         }
@@ -130,7 +138,12 @@ public class Import extends ZooKeeperCommandSupport {
                 continue;
             }
             if (!dryRun) {
-                getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                if (data != null) {
+                    if (verbose) {
+                        System.out.println("importing: " + key);
+                    }
+                    getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
             } else {
                 System.out.printf("Creating path \"%s\" with value \"%s\"\n", key, data);
             }
@@ -208,5 +221,13 @@ public class Import extends ZooKeeperCommandSupport {
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
 }
