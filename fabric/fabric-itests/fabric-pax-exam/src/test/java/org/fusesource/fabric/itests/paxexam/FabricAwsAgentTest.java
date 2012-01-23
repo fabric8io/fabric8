@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
@@ -41,7 +40,6 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.d
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
-import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 
@@ -83,7 +81,6 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
             System.err.println("aws.identity \t The aws access id");
             System.err.println("aws.credential \t The aws access key");
             System.err.println("aws.image  \t The aws (java ready) image");
-            System.err.println("aws.group  \t The aws group. It needs to have in advance configured firewall for zookeeper access");
             System.err.println("aws.user  \t The user under which the agent will run");
             return;
         }
