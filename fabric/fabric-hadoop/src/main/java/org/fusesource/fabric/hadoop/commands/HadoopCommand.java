@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
@@ -39,6 +40,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 public class HadoopCommand extends AbstractCommand implements Function, CompletableFunction {
 
     Class tool;
+    protected Map<String,Completer> optionalCompleters;
 
     public Class getTool() {
         return tool;
@@ -119,5 +121,13 @@ public class HadoopCommand extends AbstractCommand implements Function, Completa
     @Override
     public Action createNewAction() {
         return null;
+    }
+
+    public void setOptionalCompleters(Map<String, Completer> optionalCompleters) {
+         this.optionalCompleters = optionalCompleters;
+    }
+
+    public Map<String, Completer> getOptionalCompleters() {
+         return optionalCompleters;
     }
 }
