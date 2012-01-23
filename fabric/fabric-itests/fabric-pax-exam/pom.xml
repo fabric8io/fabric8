@@ -53,6 +53,15 @@
             <type>tar.gz</type>
         </dependency>
 
+        <!-- Jclouds Dependencies -->
+        <dependency>
+            <groupId>org.jclouds.provider</groupId>
+            <artifactId>aws-ec2</artifactId>
+            <version>${jclouds-version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
         <!-- Fabric Dependencies  -->
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
@@ -137,6 +146,13 @@
                     </includes>
                     <excludes>
                     </excludes>
+                    <systemPropertyVariables>
+                        <aws.identity>${aws.identity}</aws.identity>
+                        <aws.credential>${aws.credential}</aws.credential>
+                        <aws.image>${aws.image}</aws.image>
+                        <aws.location>${aws.location}</aws.location>
+                        <aws.user>${aws.user}</aws.user>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
