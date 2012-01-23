@@ -28,6 +28,12 @@ public class EnsembleCreate extends EnsembleCommandSupport {
     @Option(name = "--import-dir", description = "Directory of files to import into the newly created ensemble")
     private String importDir = getDefaultImportDir();
 
+    @Option(name="-v", aliases={"--verbose"}, description="Verbose output of files being imported")
+    boolean verbose = false;
+
+    @Option(name="-t", aliases={"--time"}, description="The amount of time to wait for the ensemble to startup before trying to import the default data")
+    long ensembleStartupTime = 2000L;
+
     @Argument(required = false, multiValued = true, description = "List of agents")
     private List<String> agents;
 
@@ -45,10 +51,22 @@ public class EnsembleCreate extends EnsembleCommandSupport {
 
             // now lets populate the registry with files from a mvn plugin
             if (!noImport) {
+                // now lets sleep for a bit to give the ensemble chance to get ready :)
+                if (ensembleStartupTime > 0L) {
+                    try {
+                        Thread.sleep(ensembleStartupTime);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+
                 Import tool = new Import();
+                tool.setSource(importDir);
                 tool.setBundleContext(getBundleContext());
                 tool.setZooKeeper(service.getZooKeeper());
-                tool.setSource(importDir);
+                if (verbose) {
+                    tool.setVerbose(verbose);
+                }
                 return tool.execute(session);
             }
         }

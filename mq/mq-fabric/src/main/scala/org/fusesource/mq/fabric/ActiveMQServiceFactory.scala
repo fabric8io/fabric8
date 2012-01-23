@@ -245,6 +245,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
             } catch {
               case e:Throwable =>
                 info("Broker %s failed to start.  Will try again in 10 seconds", name)
+                info("Exception: " + e)
                 e.printStackTrace()
                 Thread.sleep(1000*10);
                 start_failure = e

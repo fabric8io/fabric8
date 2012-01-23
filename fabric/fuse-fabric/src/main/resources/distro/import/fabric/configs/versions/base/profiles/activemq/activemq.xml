@@ -17,11 +17,11 @@
     <!-- Allows us to use system properties and fabric as variables in this configuration file -->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="properties">
-            <bean class="org.fusesource.mq.fabric.ConfigurationProperties"/>
+            <bean class="org.fusesource.fabric.activemq.ConfigurationProperties"/>
         </property>      
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${name}" dataDirectory="${data}" destroyApplicationContextOnStop="true">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="Fuse Fabric :: Binary Distribution" dataDirectory="${data}" destroyApplicationContextOnStop="true">
               
         <destinationPolicy>
             <policyMap>

@@ -13,16 +13,21 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
+import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.ZKClient;
 
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 
     private IZKClient zooKeeper;
+    private long maximumConnectionTimeout = 10 * 1000L;
+    private long connectionRetryTime = 100L;
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -109,5 +114,46 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
             content.append(System.getProperty("line.separator"));
         }
         return content.toString();
+    }
+
+    /**
+     * Lets check if we are connected and throw an exception if we are not.
+     * Note that if start() has just been called on IZKClient then it will take a little
+     * while for the connection to be established, so we keep checking up to the {@link #getMaximumConnectionTimeout()}
+     * until we throw the exception
+     */
+    protected void checkZooKeeperConnected() throws Exception {
+        IZKClient zkClient = getZooKeeper();
+        long start = System.currentTimeMillis();
+        do {
+            if (zkClient.isConnected()) {
+                return;
+            }
+            try {
+                Thread.sleep(getConnectionRetryTime());
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        } while (System.currentTimeMillis() < start + getMaximumConnectionTimeout());
+
+        if (!zkClient.isConnected()) {
+            throw new Exception("Could not connect to ZooKeeper " + zkClient + " at " + zkClient.getConnectString());
+        }
+    }
+
+    public long getConnectionRetryTime() {
+        return connectionRetryTime;
+    }
+
+    public void setConnectionRetryTime(long connectionRetryTime) {
+        this.connectionRetryTime = connectionRetryTime;
+    }
+
+    public long getMaximumConnectionTimeout() {
+        return maximumConnectionTimeout;
+    }
+
+    public void setMaximumConnectionTimeout(long maximumConnectionTimeout) {
+        this.maximumConnectionTimeout = maximumConnectionTimeout;
     }
 }
