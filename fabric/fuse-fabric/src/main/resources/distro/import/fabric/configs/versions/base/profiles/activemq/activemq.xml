@@ -1,0 +1,53 @@
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <!-- Allows us to use system properties and fabric as variables in this configuration file -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties">
+            <bean class="org.fusesource.fabric.activemq.ConfigurationProperties"/>
+        </property>      
+    </bean>
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="Fuse Fabric :: Binary Distribution" dataDirectory="${data}" destroyApplicationContextOnStop="true">
+              
+        <destinationPolicy>
+            <policyMap>
+              <policyEntries>
+                <policyEntry topic=">" producerFlowControl="true" memoryLimit="1mb">
+                  <pendingSubscriberPolicy>
+                    <vmCursor />
+                  </pendingSubscriberPolicy>
+                </policyEntry>
+                <policyEntry queue=">" producerFlowControl="true" memoryLimit="1mb">
+                </policyEntry>
+              </policyEntries>
+            </policyMap>
+        </destinationPolicy> 
+ 
+        <managementContext>
+            <managementContext createConnector="false"/>
+        </managementContext>
+
+        <persistenceAdapter>
+            <kahaDB directory="${data}/kahadb"/>
+        </persistenceAdapter>
+        
+        <transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:0"/>
+        </transportConnectors>
+    </broker>
+
+</beans>
