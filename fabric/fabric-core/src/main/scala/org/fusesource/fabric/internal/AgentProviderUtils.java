@@ -29,6 +29,8 @@ public class AgentProviderUtils {
     public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean isClusterServer, boolean debugAgent) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
+        sb.append("run mkdir ~/agents/ ").append("\n");
+        sb.append("run cd ~/agents/ ").append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
         extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "karaf-distro", "1.1-SNAPSHOT");
