@@ -146,6 +146,7 @@ public class ProfileImpl implements Profile {
             if (str == null || str.isEmpty()) {
                 return new Profile[0];
             }
+            str = str.trim();
             List<Profile> profiles = new ArrayList<Profile>();
             for (String p : str.split(" ")) {
                 profiles.add(new ProfileImpl(p, version, service));

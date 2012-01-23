@@ -46,7 +46,12 @@ public class SimplePathTemplate {
         Map<String, String> paramsMap = new HashMap<String, String>();
 
         for (int i = 0, j = params.length; i < j; i++) {
-            paramsMap.put(parameters.get(i), params[i]);
+            String param = params[i];
+            if (param != null) {
+                // lets remove trailing whitespace
+                param = param.trim();
+            }
+            paramsMap.put(parameters.get(i), param);
         }
 
         return bindByName(paramsMap);

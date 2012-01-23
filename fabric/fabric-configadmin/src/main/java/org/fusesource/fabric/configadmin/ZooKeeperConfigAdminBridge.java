@@ -94,6 +94,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 tree.track(this);
                 String data = tree.getTree().get(path).getData();
                 if (data != null) {
+                    data = data.trim();
                     String[] parents = data.split(" ");
                     for (String parent : parents) {
                         track(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));
