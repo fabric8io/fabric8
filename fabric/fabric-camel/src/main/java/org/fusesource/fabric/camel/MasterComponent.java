@@ -21,7 +21,7 @@ import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
  * taking over to provide high availability of a single consumer.
  */
 public class MasterComponent extends ZKComponentSupport {
-    private String zkRoot = "/fabric/camel/master";
+    private String zkRoot = "/fabric/registry/camel/master";
 
     public String getZkRoot() {
         return zkRoot;
