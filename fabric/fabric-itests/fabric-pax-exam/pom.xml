@@ -147,6 +147,12 @@
                     <excludes>
                     </excludes>
                     <systemPropertyVariables>
+                        <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
+                        <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
+                        <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
+                        <fabricitest.rackspace.location>${fabricitest.rackspace.location}</fabricitest.rackspace.location>
+                        <fabricitest.rackspace.user>${fabricitest.rackspace.user}</fabricitest.rackspace.user>
+
                         <fabricitest.aws.identity>${fabricitest.aws.identity}</fabricitest.aws.identity>
                         <fabricitest.aws.credential>${fabricitest.aws.credential}</fabricitest.aws.credential>
                         <fabricitest.aws.image>${fabricitest.aws.image}</fabricitest.aws.image>
