@@ -20,7 +20,7 @@
     <fileSets>
         <!-- Expanded Karaf Runtime -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${fabric.version}</directory>
+            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>**/demos/**</exclude>
@@ -38,7 +38,7 @@
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${fabric.version}</directory>
+            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>bin/*</include>
@@ -74,7 +74,7 @@
     
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/fusefabric</source>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fusemq</destName>
             <fileMode>0755</fileMode>
