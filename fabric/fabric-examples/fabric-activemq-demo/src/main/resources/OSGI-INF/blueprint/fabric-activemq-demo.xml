@@ -16,7 +16,7 @@
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <reference id="jmsService" interface="org.fusesource.fabric.activemq.JMSService">
+    <reference id="jmsService" interface="org.fusesource.mq.fabric.JMSService">
         <reference-listener ref="demo" bind-method="registerJmsService" unbind-method="unregisterJmsService"/>
     </reference>
 

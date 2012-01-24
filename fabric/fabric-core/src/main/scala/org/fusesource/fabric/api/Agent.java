@@ -55,6 +55,12 @@ public interface Agent {
     BundleInfo[] getBundles(AgentTemplate template);
     ServiceInfo[] getServices(AgentTemplate template);
 
+    /**
+     * Returns true if the initial provisioning of the agent is complete so that we can connect to it
+     * via SSH / JMX etc (e.g. the ZK ensemble is joined and the security realm is in place).
+     */
+    boolean isProvisioningComplete();
+
     String getProvisionResult();
     String getProvisionException();
 }

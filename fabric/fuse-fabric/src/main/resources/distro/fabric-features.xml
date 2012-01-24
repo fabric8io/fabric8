@@ -99,7 +99,9 @@
         <feature version="${project.version}">fabric-bundle</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
+<!--
         <feature version="${project.version}">insight-graph</feature>
+-->
         <bundle>mvn:org.fusesource.fabric/fabric-agent/${project.version}</bundle>
     </feature>
 
