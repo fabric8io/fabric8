@@ -43,18 +43,18 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fuse-fabric</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fuse-fabric</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fuse-fabric</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
             <type>tar.gz</type>
         </dependency>
 
@@ -244,7 +244,7 @@
                                 <artifactItem>
                                     <groupId>org.fusesource.fabric</groupId>
                                     <artifactId>fuse-fabric</artifactId>
-                                    <version>${fabric.version}</version>
+                                    <version>${project.version}</version>
                                     <type>tar.gz</type>
                                     <outputDirectory>target/dependencies/unix</outputDirectory>
                                 </artifactItem>
@@ -262,7 +262,6 @@
                                 <artifactItem>
                                     <groupId>org.fusesource.fabric</groupId>
                                     <artifactId>fuse-fabric</artifactId>
-                                    <version>${fabric.version}</version>
                                     <type>zip</type>
                                     <outputDirectory>target/dependencies/win</outputDirectory>
                                 </artifactItem>
