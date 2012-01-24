@@ -312,12 +312,12 @@
                         <configuration>
                             <target name="enable-obr">
                                 <echo message="Updating etc/startup.properties in unix assembly"/>
-                                <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/startup.properties"
+                                <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/startup.properties"
                                         append="true" eol="unix">
                                     <fileset file="target/shared/startup-obr.properties" />
                                 </concat>
                                 <echo message="Updating etc/startup.properties in windows assembly"/>
-                                <concat destfile="target/dependencies/win/fuse-fabric-${fabric.version}/etc/startup.properties"
+                                <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/startup.properties"
                                         append="true" eol="dos">
                                     <fileset file="target/shared/startup-obr.properties" />
                                 </concat>
