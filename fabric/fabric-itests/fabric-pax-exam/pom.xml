@@ -147,11 +147,17 @@
                     <excludes>
                     </excludes>
                     <systemPropertyVariables>
-                        <aws.identity>${aws.identity}</aws.identity>
-                        <aws.credential>${aws.credential}</aws.credential>
-                        <aws.image>${aws.image}</aws.image>
-                        <aws.location>${aws.location}</aws.location>
-                        <aws.user>${aws.user}</aws.user>
+                        <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
+                        <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
+                        <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
+                        <fabricitest.rackspace.location>${fabricitest.rackspace.location}</fabricitest.rackspace.location>
+                        <fabricitest.rackspace.user>${fabricitest.rackspace.user}</fabricitest.rackspace.user>
+
+                        <fabricitest.aws.identity>${fabricitest.aws.identity}</fabricitest.aws.identity>
+                        <fabricitest.aws.credential>${fabricitest.aws.credential}</fabricitest.aws.credential>
+                        <fabricitest.aws.image>${fabricitest.aws.image}</fabricitest.aws.image>
+                        <fabricitest.aws.location>${fabricitest.aws.location}</fabricitest.aws.location>
+                        <fabricitest.aws.user>${fabricitest.aws.user}</fabricitest.aws.user>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

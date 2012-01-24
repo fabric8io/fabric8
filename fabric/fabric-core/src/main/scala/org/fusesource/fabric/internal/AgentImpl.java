@@ -69,6 +69,12 @@ public class AgentImpl implements Agent {
         return parent == null;
     }
 
+    @Override
+    public boolean isProvisioningComplete() {
+        // for some reason isRoot() means we don't seem to get a provision result / exception
+        return getProvisionResult() != null || getProvisionException() != null || isRoot();
+    }
+
     public String getSshUrl() {
         return getZkData(ZkPath.AGENT_SSH);
     }

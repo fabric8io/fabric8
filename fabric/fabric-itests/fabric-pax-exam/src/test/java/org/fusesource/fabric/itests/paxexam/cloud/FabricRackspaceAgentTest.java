@@ -7,15 +7,15 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.itests.paxexam;
+package org.fusesource.fabric.itests.paxexam.cloud;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Set;
 import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
 import org.apache.commons.io.IOUtils;
+import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -45,7 +45,7 @@ import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricAwsAgentTest extends FabricCommandsTestSupport {
+public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
 
     private String identity;
     private String credential;
@@ -54,17 +54,23 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
     private String user;
     private String group = "fabricitests";
 
+    /**
+     * Returns true if all the requirements for running this test are meet.
+     * @return
+     */
     public boolean isReady() {
-        return identity != null && credential != null && image != null & user != null;
+        return
+                identity != null && credential != null && image != null & user != null &&
+                        !identity.isEmpty() && !credential.isEmpty() && !image.isEmpty() && !user.isEmpty();
     }
 
     @Before
     public void setUp() {
-        identity = System.getProperty("aws.identity");
-        credential = System.getProperty("aws.credential");
-        image = System.getProperty("aws.image");
-        location = System.getProperty("aws.location");
-        user = System.getProperty("aws.user");
+        identity = System.getProperty("fabricitest.rackspace.identity");
+        credential = System.getProperty("fabricitest.rackspace.credential");
+        image = System.getProperty("fabricitest.rackspace.image");
+        location = System.getProperty("fabricitest.rackspace.location");
+        user = System.getProperty("fabricitest.rackspace.user");
     }
 
 
@@ -73,47 +79,56 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
         System.err.println(executeCommand("group-destroy " + group, 30000L, false));
     }
 
+    /**
+     * Starts an ensemble server on EC2, configures the security groups and join the ensemble.
+     *
+     * @throws InterruptedException
+     * @throws java.io.IOException
+     */
     @Test
-    public void testAwsAgentCreation() throws InterruptedException, IOException {
+    public void testRackspaceAgentCreation() throws InterruptedException, IOException {
         if (!isReady()) {
-            System.err.println("Amazon is not setup correctly. This test will not run.");
+            System.err.println("Rackspace is not setup correctly. This test will not run.");
             System.err.println("To prpoerly run this test, you need to setup with maven the following properties:");
-            System.err.println("aws.identity \t The aws access id");
-            System.err.println("aws.credential \t The aws access key");
-            System.err.println("aws.image  \t The aws (java ready) image");
-            System.err.println("aws.user  \t The user under which the agent will run");
+            System.err.println("fabricitest.rackspace.identity \t The rackspace access id");
+            System.err.println("fabricitest.rackspace.credential \t The rackspace access key");
+            System.err.println("fabricitest.rackspace.image  \t The rackspace (java ready) image");
+            System.err.println("fabricitest.rackspace.user  \t The user under which the agent will run");
             return;
         }
 
-        System.err.println(executeCommand("features:install jclouds-aws-ec2 fabric-jclouds jclouds-commands"));
+        System.err.println(executeCommand("features:install jclouds-cloudserver-us fabric-jclouds jclouds-commands"));
 
         //Filtering out regions because there is a temporary connectivity issue with us-west-2.
-        executeCommands("config:edit org.jclouds.compute-ec2",
-                "config:propset provider aws-ec2 ",
+        executeCommands("config:edit org.jclouds.compute-rackspace",
+                "config:propset provider cloudservers-us ",
                 "config:propset identity " + identity,
                 "config:propset credential " + credential,
-                "config:propset jclouds.regions eu-west-1,us-west-1,us-east-1",
                 "config:update");
 
-        setUpSecurityGroup(2181);
+        ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
+
+        //The compute service needs some time to properly initialize.
         Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:agent-create --ensemble-server --url jclouds://aws-ec2?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
-        String publicIp = getNodePublicIp();
+        System.err.println(executeCommand(String.format("fabric:agent-create --ensemble-server --url jclouds://cloudservers-us?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
+        String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
+        Thread.sleep(DEFAULT_TIMEOUT);
+        System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
         String agentList = executeCommand("fabric:agent-list");
+        System.err.println(agentList);
         assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));
 
     }
 
     /**
      * Return the public ip of the generated node.
-     *
+     * It assumes that no other node is currently running using the current group.
      * @return
      */
-    private String getNodePublicIp() {
-        ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
-        Set s;
+    private String getNodePublicIp(ComputeService computeService) {
+
         for (ComputeMetadata computeMetadata : computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata metadata) {
@@ -126,35 +141,6 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
 
         }
         return null;
-    }
-
-    /**
-     * Creates a security group that allows the current host to access ssh and zookeeper.
-     *
-     * @param port
-     */
-    private void setUpSecurityGroup(int port) {
-        ComputeService computeService = getOsgiService(ComputeService.class);
-        if (computeService.getContext().getProviderSpecificContext().getApi() instanceof EC2Client) {
-            EC2Client ec2Client = EC2Client.class.cast(computeService.getContext().getProviderSpecificContext().getApi());
-            String groupName = "jclouds#" + group + "#" + location;
-
-            try {
-                ec2Client.getSecurityGroupServices().createSecurityGroupInRegion(location, groupName, "Fabric security group");
-            } catch (Exception ex) {
-                //Ignore
-            }
-            try {
-                ec2Client.getSecurityGroupServices().authorizeSecurityGroupIngressInRegion(location, groupName, IpProtocol.TCP, port, port, getOriginatingIp());
-            } catch (Exception ex) {
-                //Ignore
-            }
-            try {
-                ec2Client.getSecurityGroupServices().authorizeSecurityGroupIngressInRegion(location, groupName, IpProtocol.TCP, 22, 22, "0.0.0.0/0");
-            } catch (Exception ex) {
-                //Ignore
-            }
-        }
     }
 
     /**
@@ -172,14 +158,15 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
-                editConfigurationFileExtend("etc/system.properties", "aws.identity", System.getProperty("aws.identity")),
-                editConfigurationFileExtend("etc/system.properties", "aws.credential", System.getProperty("aws.credential")),
-                editConfigurationFileExtend("etc/system.properties", "aws.image", System.getProperty("aws.image")),
-                editConfigurationFileExtend("etc/system.properties", "aws.location", System.getProperty("aws.location")),
-                editConfigurationFileExtend("etc/system.properties", "aws.user", System.getProperty("aws.user")),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.identity", System.getProperty("fabricitest.rackspace.identity") != null ? System.getProperty("fabricitest.rackspace.identity") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.credential", System.getProperty("fabricitest.rackspace.credential") != null ? System.getProperty("fabricitest.rackspace.credential") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.image", System.getProperty("fabricitest.rackspace.image") != null ? System.getProperty("fabricitest.rackspace.image") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.location", System.getProperty("fabricitest.rackspace.location") != null ? System.getProperty("fabricitest.rackspace.location") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.user", System.getProperty("fabricitest.rackspace.user") != null ? System.getProperty("fabricitest.rackspace.user") : ""),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
-                scanFeatures("jclouds","jclouds-compute").start(),
-
-                debugConfiguration("5005", true)};
+                scanFeatures("jclouds","jclouds-compute").start()
+        };
     }
+
+
 }

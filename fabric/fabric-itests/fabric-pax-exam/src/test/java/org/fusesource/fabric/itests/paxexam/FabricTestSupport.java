@@ -40,8 +40,8 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class FabricTestSupport {
 
-    static final Long DEFAULT_TIMEOUT = 10000L;
-    static final Long DEFAULT_WAIT = 10000L;
+    public static final Long DEFAULT_TIMEOUT = 10000L;
+    public static final Long DEFAULT_WAIT = 10000L;
 
     static final String GROUP_ID = "org.fusesource.fabric";
     static final String ARTIFACT_ID = "fuse-fabric";

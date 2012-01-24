@@ -25,7 +25,7 @@ import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 public class FabricComponent extends ZKComponentSupport {
     private static final transient Log LOG = LogFactory.getLog(FabricComponent.class);
 
-    private String zkRoot = "/fabric/camel/endpoints";
+    private String zkRoot = "/fabric/registry/camel/endpoints";
     private LoadBalancerFactory loadBalancerFactory = new DefaultLoadBalancerFactory();
     private ProducerCache producerCache;
     private int cacheSize = 1000;
