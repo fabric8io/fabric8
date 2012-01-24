@@ -7,7 +7,7 @@
  * in the license.txt file.
  */
 
-package org.fusesource.fabric.itests.paxexam;
+package org.fusesource.fabric.itests.paxexam.cloud;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
 import org.apache.commons.io.IOUtils;
+import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -54,17 +55,23 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
     private String user;
     private String group = "fabricitests";
 
+    /**
+     * Returns true if all the requirements for running this test are meet.
+     * @return
+     */
     public boolean isReady() {
-        return identity != null && credential != null && image != null & user != null;
+        return
+                identity != null && credential != null && image != null & user != null &&
+                        !identity.isEmpty() && !credential.isEmpty() && !image.isEmpty() && !user.isEmpty();
     }
 
     @Before
     public void setUp() {
-        identity = System.getProperty("aws.identity");
-        credential = System.getProperty("aws.credential");
-        image = System.getProperty("aws.image");
-        location = System.getProperty("aws.location");
-        user = System.getProperty("aws.user");
+        identity = System.getProperty("fabricitest.aws.identity");
+        credential = System.getProperty("fabricitest.aws.credential");
+        image = System.getProperty("fabricitest.aws.image");
+        location = System.getProperty("fabricitest.aws.location");
+        user = System.getProperty("fabricitest.aws.user");
     }
 
 
@@ -73,15 +80,21 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
         System.err.println(executeCommand("group-destroy " + group, 30000L, false));
     }
 
+    /**
+     * Starts an ensemble server on EC2, configures the security groups and join the ensemble.
+     *
+     * @throws InterruptedException
+     * @throws IOException
+     */
     @Test
     public void testAwsAgentCreation() throws InterruptedException, IOException {
         if (!isReady()) {
             System.err.println("Amazon is not setup correctly. This test will not run.");
             System.err.println("To prpoerly run this test, you need to setup with maven the following properties:");
-            System.err.println("aws.identity \t The aws access id");
-            System.err.println("aws.credential \t The aws access key");
-            System.err.println("aws.image  \t The aws (java ready) image");
-            System.err.println("aws.user  \t The user under which the agent will run");
+            System.err.println("fabricitest.aws.identity \t The aws access id");
+            System.err.println("fabricitest.aws.credential \t The aws access key");
+            System.err.println("fabricitest.aws.image  \t The aws (java ready) image");
+            System.err.println("fabricitest.aws.user  \t The user under which the agent will run");
             return;
         }
 
@@ -95,25 +108,30 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
                 "config:propset jclouds.regions eu-west-1,us-west-1,us-east-1",
                 "config:update");
 
-        setUpSecurityGroup(2181);
+        ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
+
+        setUpSecurityGroup(computeService, 2181);
+
+        //The compute service needs some time to properly initialize.
         Thread.sleep(3 * DEFAULT_TIMEOUT);
         System.err.println(executeCommand(String.format("fabric:agent-create --ensemble-server --url jclouds://aws-ec2?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
-        String publicIp = getNodePublicIp();
+        String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
+        Thread.sleep(DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
         String agentList = executeCommand("fabric:agent-list");
+        System.err.println(agentList);
         assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));
 
     }
 
     /**
      * Return the public ip of the generated node.
-     *
+     * It assumes that no other node is currently running using the current group.
      * @return
      */
-    private String getNodePublicIp() {
-        ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
-        Set s;
+    private String getNodePublicIp(ComputeService computeService) {
+
         for (ComputeMetadata computeMetadata : computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata metadata) {
@@ -133,8 +151,7 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
      *
      * @param port
      */
-    private void setUpSecurityGroup(int port) {
-        ComputeService computeService = getOsgiService(ComputeService.class);
+    private void setUpSecurityGroup(ComputeService computeService,int port) {
         if (computeService.getContext().getProviderSpecificContext().getApi() instanceof EC2Client) {
             EC2Client ec2Client = EC2Client.class.cast(computeService.getContext().getProviderSpecificContext().getApi());
             String groupName = "jclouds#" + group + "#" + location;
@@ -172,14 +189,14 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
-                editConfigurationFileExtend("etc/system.properties", "aws.identity", System.getProperty("aws.identity")),
-                editConfigurationFileExtend("etc/system.properties", "aws.credential", System.getProperty("aws.credential")),
-                editConfigurationFileExtend("etc/system.properties", "aws.image", System.getProperty("aws.image")),
-                editConfigurationFileExtend("etc/system.properties", "aws.location", System.getProperty("aws.location")),
-                editConfigurationFileExtend("etc/system.properties", "aws.user", System.getProperty("aws.user")),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.identity", System.getProperty("fabricitest.aws.identity") != null ? System.getProperty("fabricitest.aws.identity") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.credential", System.getProperty("fabricitest.aws.credential") != null ? System.getProperty("fabricitest.aws.credential") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.image", System.getProperty("fabricitest.aws.image") != null ? System.getProperty("fabricitest.aws.image") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.location", System.getProperty("fabricitest.aws.location") != null ? System.getProperty("fabricitest.aws.location") : ""),
+                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.user", System.getProperty("fabricitest.aws.user") != null ? System.getProperty("fabricitest.aws.user") : ""),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
-                scanFeatures("jclouds","jclouds-compute").start(),
-
-                debugConfiguration("5005", true)};
+                scanFeatures("jclouds","jclouds-compute").start() ,
+                debugConfiguration("5005", true)
+        };
     }
 }
