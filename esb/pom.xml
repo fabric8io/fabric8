@@ -28,7 +28,6 @@
 
     <groupId>org.fusesource.esb</groupId>
     <artifactId>esb-project</artifactId>
-    <version>7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Fuse ESB :: Project</name>
 
@@ -39,6 +38,7 @@
         <activemq.version>${activemq-version}</activemq.version>
         <camel.version>${camel-version}</camel.version>
         <cxf.version>${cxf-version}</cxf.version>
+        <fabric.version>${project.version}</fabric.version>
         <karaf.version>${karaf-version}</karaf.version>
         <smx.features.version>4.5.0-fuse-SNAPSHOT</smx.features.version>
         <servicemix.utils.version>1.5.1-fuse-SNAPSHOT</servicemix.utils.version>
