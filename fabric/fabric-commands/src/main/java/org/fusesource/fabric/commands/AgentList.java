@@ -11,6 +11,7 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.PrintStream;
 
@@ -30,7 +31,7 @@ public class AgentList extends FabricCommand {
 
         if (provisioned != null) {
             result = provisioned;
-            if (result.equals("error") && agent.getProvisionException() != null) {
+            if (result.equals(ZkDefs.ERROR) && agent.getProvisionException() != null) {
                 result += " - " + agent.getProvisionException().split(System.getProperty("line.separator"))[0];
             }
         }
@@ -42,7 +43,7 @@ public class AgentList extends FabricCommand {
         out.println(String.format("%-30s %-10s %-30s %-100s", "[id]", "[alive]", "[profiles]", "[provision status]"));
         for (Agent agent : agents) {
             if (agent.isRoot()) {
-                out.println(String.format("%-30s %-10s %-30s %-100s", agent.getId(), agent.isAlive(), toString(agent.getProfiles()), "-"));
+                out.println(String.format("%-30s %-10s %-30s %-100s", agent.getId(), agent.isAlive(), toString(agent.getProfiles()), getProvisionedStatus(agent)));
                 for (Agent child : agents) {
                     if (child.getParent() == agent) {
                         out.println(String.format("%-30s %-10s %-30s %-100s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), getProvisionedStatus(child)));
