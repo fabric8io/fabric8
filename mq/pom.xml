@@ -29,7 +29,7 @@
   </properties>
 
   <modules>
-<!--    <module>mq-fabric</module> -->
+    <module>mq-fabric</module>
     <!-- no longer required? 
     <module>mq-bundle</module>
     -->
