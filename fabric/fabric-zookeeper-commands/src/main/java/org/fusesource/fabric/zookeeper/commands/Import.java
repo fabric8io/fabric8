@@ -82,7 +82,7 @@ public class Import extends ZooKeeperCommandSupport {
         if (filesystem) {
             readFileSystem();
         }
-        System.out.println("Successfully imported settings from " + source);
+        System.out.println("imported ZK data from: " + source);
         return null;
     }
 
