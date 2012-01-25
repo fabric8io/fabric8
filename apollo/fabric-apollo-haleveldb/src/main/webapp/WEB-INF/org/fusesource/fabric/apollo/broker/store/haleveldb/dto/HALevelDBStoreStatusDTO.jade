@@ -1,0 +1,50 @@
+-# Copyright (C) 2010 FuseSource, Corp. All rights reserved.
+-# http://fusesource.com
+-# 
+-# The software in this package is published under the terms of the AGPL license
+-# a copy of which has been included with this distribution in the license.txt file.
+
+- import org.apache.activemq.apollo.dto._
+- import it._
+- val helper = new org.apache.activemq.apollo.web.resources.ViewHelper
+- import helper._
+- import java.util.concurrent.TimeUnit._
+
+.breadcumbs
+  a(href={strip_resolve(".")}) Back
+
+h1 Store: #{id}
+p state: #{state} for #{ uptime(state_since) }
+
+p pending stores: #{pending_stores}
+
+h2 Cancel Stats
+p canceled message stores: #{canceled_message_counter}
+p canceled message enqueues: #{canceled_enqueue_counter}
+
+h2 Flush Stats
+p flushed message stores: #{flushed_message_counter}
+p flushed message enqueues: #{flushed_enqueue_counter}
+
+h2 Store Latency Stats
+
+- def show(name:String, value:TimeMetricDTO)
+  p #{name} : average #{value.avg(MILLISECONDS)} ms,  min #{value.min(MILLISECONDS)} ms, max #{value.max(MILLISECONDS)} ms, #{value.count} events
+
+- show("Message load latency", message_load_latency)
+- show("UOW flush latency", flush_latency)
+
+h2 Log Status
+pre
+  !~~ log_stats
+p
+  | Index recovery starts from log position:
+  code #{"%016x".format(index_snapshot_pos)}
+p
+  | Append position:
+  code #{"%016x".format(log_append_pos)}
+
+h2 Index Status
+pre
+  !~~ index_stats
+
