@@ -34,9 +34,6 @@
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties
         </fuse.osgi.private.pkg>
-        <fuse.osgi.activator>
-            org.fusesource.fabric.jaas.Activator
-        </fuse.osgi.activator>
     </properties>
 
     <dependencies>
