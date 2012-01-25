@@ -32,7 +32,7 @@ import org.osgi.framework.Constants;
 
 public class FabricCommandsTestSupport extends FabricTestSupport {
 
-    public static final Long COMMAND_TIMEOUT = 10000L;
+    public static final Long COMMAND_TIMEOUT = 20000L;
 
     ExecutorService executor = Executors.newCachedThreadPool();
 
