@@ -60,7 +60,7 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
+              <FAB-Provided-Dependency></FAB-Provided-Dependency>
             </manifestEntries>
           </archive>
         </configuration>

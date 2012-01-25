@@ -280,7 +280,7 @@ public class FabClassPathResolver {
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
-                String value = getManifestProperty("Fabric-" + key);
+                String value = getManifestProperty("FAB-" + key);
                 if( Strings.notEmpty(value) ) {
                     moduleProperties.setProperty(key, value);
                 }

@@ -93,8 +93,8 @@
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
               <!-- added as its usually installed; though maybe with a newer API? -->
-              <Fabric-Exclude-Dependency>org.slf4j</Fabric-Exclude-Dependency>
-              <Fabric-Provided-Dependency>org.apache.*</Fabric-Provided-Dependency>
+              <FAB-Exclude-Dependency>org.slf4j</FAB-Exclude-Dependency>
+              <FAB-Provided-Dependency>org.apache.*</FAB-Provided-Dependency>
             </manifestEntries>
           </archive>
         </configuration>
