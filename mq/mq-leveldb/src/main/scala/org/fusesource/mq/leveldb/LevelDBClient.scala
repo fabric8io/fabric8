@@ -348,9 +348,9 @@ object LevelDBClient extends Log {
   def bytes(value:String) = value.getBytes("UTF-8")
 
   import FileSupport._
-  def createSequenceFile(directory:File, id:Long, suffix:String) = directory / ("%016x%s".format(id, suffix))
+  def create_sequence_file(directory:File, id:Long, suffix:String) = directory / ("%016x%s".format(id, suffix))
 
-  def findSequenceFiles(directory:File, suffix:String):TreeMap[Long, File] = {
+  def find_sequence_files(directory:File, suffix:String):TreeMap[Long, File] = {
     TreeMap((directory.listFiles.flatMap { f=>
       if( f.getName.endsWith(suffix) ) {
         try {
@@ -409,7 +409,7 @@ class LevelDBClient(store: LevelDBStore) {
 
   def dirtyIndexFile = directory / ("dirty"+INDEX_SUFFIX)
   def tempIndexFile = directory / ("temp"+INDEX_SUFFIX)
-  def snapshotIndexFile(id:Long) = createSequenceFile(directory,id, INDEX_SUFFIX)
+  def snapshotIndexFile(id:Long) = create_sequence_file(directory,id, INDEX_SUFFIX)
 
   def createLog: RecordLog = {
     new RecordLog(directory, LOG_SUFFIX)
@@ -462,7 +462,7 @@ class LevelDBClient(store: LevelDBStore) {
 
     log = createLog
     log.logSize = store.logSize
-    log.onLogRotate = ()=> {
+    log.on_log_rotate = ()=> {
       // We snapshot the index every time we rotate the logs.
       writeExecutor {
         snapshotIndex(false)
@@ -474,7 +474,7 @@ class LevelDBClient(store: LevelDBStore) {
     }
 
     // Find out what was the last snapshot.
-    val snapshots = findSequenceFiles(directory, INDEX_SUFFIX)
+    val snapshots = find_sequence_files(directory, INDEX_SUFFIX)
     var lastSnapshotIndex = snapshots.lastOption
     lastIndexSnapshotPos = lastSnapshotIndex.map(_._1).getOrElse(0)
 
@@ -509,7 +509,7 @@ class LevelDBClient(store: LevelDBStore) {
         var pos = lastIndexSnapshotPos;
 
         try {
-          while (pos < log.appenderLimit) {
+          while (pos < log.appender_limit) {
             log.read(pos).map {
               case (kind, data, nextPos) =>
                 kind match {
@@ -582,7 +582,7 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   private def logRefDecrement(pos: Long) {
-    log.logInfo(pos).foreach { logInfo =>
+    log.log_info(pos).foreach { logInfo =>
       logRefs.get(logInfo.position).foreach { counter =>
         if (counter.decrementAndGet() == 0) {
           logRefs.remove(logInfo.position)
@@ -592,7 +592,7 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   private def logRefIncrement(pos: Long) {
-    log.logInfo(pos).foreach { logInfo =>
+    log.log_info(pos).foreach { logInfo =>
       logRefs.getOrElseUpdate(logInfo.position, new LongCounter()).incrementAndGet()
     }
   }
@@ -672,7 +672,7 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   def copyDirtyIndexToSnapshot {
-    if( log.appenderLimit == lastIndexSnapshotPos  ) {
+    if( log.appender_limit == lastIndexSnapshotPos  ) {
       // no need to snapshot again...
       return
     }
@@ -690,7 +690,7 @@ class LevelDBClient(store: LevelDBStore) {
       }
 
       // Rename to signal that the snapshot is complete.
-      val newSnapshotIndexPos = log.appenderLimit
+      val newSnapshotIndexPos = log.appender_limit
       tmpDir.renameTo(snapshotIndexFile(newSnapshotIndexPos))
       snapshotIndexFile(lastIndexSnapshotPos).recursiveDelete
       lastIndexSnapshotPos = newSnapshotIndexPos
@@ -708,9 +708,9 @@ class LevelDBClient(store: LevelDBStore) {
     suspend()
     try {
       if( sync ) {
-        log.currentAppender.force
+        log.current_appender.force
       }
-      if( log.appenderLimit == lastIndexSnapshotPos  ) {
+      if( log.appender_limit == lastIndexSnapshotPos  ) {
         // no need to snapshot again...
         return
       }
@@ -777,7 +777,7 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
-  def getLogAppendPosition = log.appenderLimit
+  def getLogAppendPosition = log.appender_limit
 
   def listCollections: Seq[(Long, CollectionRecord.Buffer)] = {
     val rc = ListBuffer[(Long, CollectionRecord.Buffer)]()
@@ -1025,12 +1025,12 @@ class LevelDBClient(store: LevelDBStore) {
 
   def gc:Unit = {
     lastIndexSnapshotPos
-    val emptyJournals = log.logInfos.keySet.toSet -- logRefs.keySet
+    val emptyJournals = log.log_infos.keySet.toSet -- logRefs.keySet
 
     // We don't want to delete any journals that the index has not snapshot'ed or
     // the the
-    val deleteLimit = log.logInfo(lastIndexSnapshotPos).map(_.position).
-          getOrElse(lastIndexSnapshotPos).min(log.appenderStart)
+    val deleteLimit = log.log_info(lastIndexSnapshotPos).map(_.position).
+          getOrElse(lastIndexSnapshotPos).min(log.appender_start)
 
     emptyJournals.foreach { id =>
       if ( id < deleteLimit ) {
