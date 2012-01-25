@@ -834,7 +834,9 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
 
     override def dispose() = queue {
       super.dispose()
-      consumer_sink.downstream.foreach(handler.sink_manager.close(_))
+      consumer_sink.downstream.foreach(handler.sink_manager.close(_, (request)=>{
+        // just drop it we are closing out..
+      }))
     }
 
     def dispatch_queue = handler.queue
@@ -863,7 +865,12 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
       }
 
       def dispose = {
-        session_manager.close(downstream)
+        session_manager.close(downstream, (delivery)=>{
+          // We have been closed so we have to nak any deliveries.
+          if( delivery.ack!=null ) {
+            delivery.ack(Undelivered, delivery.uow)
+          }
+        })
         release
       }
 
