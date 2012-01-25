@@ -85,7 +85,9 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
 
     @After
     public void tearDown() {
-        System.err.println(executeCommand("group-destroy " + group, 30000L, false));
+        if (isReady()) {
+            System.err.println(executeCommand("group-destroy " + group, 30000L, false));
+        }
     }
 
     /**
@@ -203,8 +205,7 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
                 editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.location", System.getProperty("fabricitest.aws.location") != null ? System.getProperty("fabricitest.aws.location") : ""),
                 editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.user", System.getProperty("fabricitest.aws.user") != null ? System.getProperty("fabricitest.aws.user") : ""),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
-                scanFeatures("jclouds","jclouds-compute").start() ,
-                debugConfiguration("5005", true)
+                scanFeatures("jclouds","jclouds-compute").start()
         };
     }
 }

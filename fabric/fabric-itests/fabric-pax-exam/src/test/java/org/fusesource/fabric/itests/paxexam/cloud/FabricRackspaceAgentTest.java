@@ -84,7 +84,9 @@ public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
 
     @After
     public void tearDown() {
-        System.err.println(executeCommand("group-destroy " + group, 30000L, false));
+        if (isReady()) {
+            System.err.println(executeCommand("group-destroy " + group, 30000L, false));
+        }
     }
 
     /**
