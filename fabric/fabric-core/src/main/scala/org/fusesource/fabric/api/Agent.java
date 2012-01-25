@@ -71,4 +71,6 @@ public interface Agent {
 
     String getProvisionResult();
     String getProvisionException();
+    
+    String getProvisionStatus();
 }

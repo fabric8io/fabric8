@@ -25,6 +25,7 @@ import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.AgentTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -81,6 +82,21 @@ public class AgentImpl implements Agent {
     public boolean isProvisioningComplete() {
         // for some reason isRoot() means we don't seem to get a provision result / exception
         return getProvisionResult() != null || getProvisionException() != null || isRoot();
+    }
+
+    @Override
+    public String getProvisionStatus() {
+        String provisioned = getProvisionResult();
+        String provisionException = getProvisionException();
+        String result = "not provisioned";
+
+        if (provisioned != null) {
+            result = provisioned;
+            if (result.equals(ZkDefs.ERROR) && provisionException != null) {
+                result += " - " + provisionException.split(System.getProperty("line.separator"))[0];
+            }
+        }
+        return result;
     }
 
     public String getSshUrl() {
