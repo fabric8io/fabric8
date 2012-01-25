@@ -1,10 +1,18 @@
-/*
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
- * http://fusesource.com
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.fab.osgi;
@@ -45,28 +53,28 @@ public interface ServiceConstants extends Constants {
     /**
      * URI of the fab file to be processed
      */
-    static final String INSTR_FAB_URL = "Fabric-URL";
+    static final String INSTR_FAB_URL = "FAB-URL";
 
     /**
-     * Simple marker property to show that this bundle should be intepreted as a Fabric Bundle.
+     * Simple marker property to show that this bundle should be intepreted as a Fuse Bundle.
      *
      * Its value is ignored
      */
-    static final String INSTR_FAB_BUNDLE = "Fabric-Bundle";
+    static final String INSTR_FAB_BUNDLE = "Fuse-Bundle";
 
     /**
      * The space separated list of dependencies which should be provided - thats to say imported from the container.
      *
      * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_PROVIDED_DEPENDENCY = "Fabric-Provided-Dependency";
+    static final String INSTR_FAB_PROVIDED_DEPENDENCY = "FAB-Provided-Dependency";
 
     /**
      * The space separated list of dependencies to be excluded.
      *
      * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_EXCLUDE_DEPENDENCY = "Fabric-Exclude-Dependency";
+    static final String INSTR_FAB_EXCLUDE_DEPENDENCY = "FAB-Exclude-Dependency";
 
     /**
      * The space separated list of Import-Package entries to be excluded from the generated manifest via Bnd.
@@ -74,14 +82,14 @@ public interface ServiceConstants extends Constants {
      *
      * You can use wildcards such as "javax.xml* com.acme.foo"
      */
-    static final String INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE = "Fabric-Exclude-Import-Package";
+    static final String INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE = "FAB-Exclude-Import-Package";
 
     /**
      * The space separated list of optional dependencies to be included. By default no optional dependencies are included.
      *
      * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_OPTIONAL_DEPENDENCY = "Fabric-Include-Optional-Dependency";
+    static final String INSTR_FAB_OPTIONAL_DEPENDENCY = "FAB-Include-Optional-Dependency";
 
     /**
      * The space separated list of dependencies which should be shared using Require-Bundle directives in the OSGi manifest
@@ -89,7 +97,7 @@ public interface ServiceConstants extends Constants {
      *
      * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE = "Fabric-Dependency-Require-Bundle";
+    static final String INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE = "FAB-Dependency-Require-Bundle";
 
     /**
      * The space separated list of dependencies which should have their Export-Package statements imported so that their classes
@@ -97,7 +105,7 @@ public interface ServiceConstants extends Constants {
      *
      * You can use wildcards such as "group:artifact group:* *:*"
      */
-    static final String INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS = "Fabric-Import-Dependency-Exports";
+    static final String INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS = "FAB-Import-Dependency-Exports";
 
     /**
      * Used to define how many digits are allowed in version ranges.
@@ -111,20 +119,20 @@ public interface ServiceConstants extends Constants {
      * 4 => "2.5.6.qualifier" or "[2.5.6.qualifier,)" the current OSGi default which just means anything at all >= 2.5.6
      *
      */
-    static final String INSTR_FAB_VERSION_RANGE_DIGITS = "Fabric-Version-Range-Digits";
+    static final String INSTR_FAB_VERSION_RANGE_DIGITS = "FAB-Version-Range-Digits";
 
 
     /**
      * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]
      */
-    static final String INSTR_FAB_MODULE_ID = "Fabric-"+FAB_MODULE_ID;
+    static final String INSTR_FAB_MODULE_ID = "FAB-"+FAB_MODULE_ID;
 
     /**
      * The Ids of the Fabric Module extensions that are enabled.  This is a space
      * separated list of
      * groupId:artifactId:version:type[:classsifer]
      */
-    static final String INSTR_FAB_MODULE_ENABLED_EXTENSIONS = "Fabric-Enabled-Extensions";
+    static final String INSTR_FAB_MODULE_ENABLED_EXTENSIONS = "FAB-Enabled-Extensions";
 
     /**
      * All the possible FAB headers on a manifest, used to detect a FAB
@@ -137,13 +145,13 @@ public interface ServiceConstants extends Constants {
             INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE,
             INSTR_FAB_MODULE_ID,
             INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS,
-            "Fabric-"+FAB_MODULE_NAME,
-            "Fabric-"+FAB_MODULE_EXTENSION,
-            "Fabric-"+FAB_MODULE_DESCRIPTION,
-            "Fabric-"+FAB_MODULE_LONG_DESCRIPTION,
-            "Fabric-"+FAB_MODULE_DEFAULT_EXTENSIONS,
-            "Fabric-"+FAB_MODULE_EXTENDS,
-            "Fabric-"+FAB_MODULE_ENDORSED_EXTENSIONS
+            "FAB-"+FAB_MODULE_NAME,
+            "FAB-"+FAB_MODULE_EXTENSION,
+            "FAB-"+FAB_MODULE_DESCRIPTION,
+            "FAB-"+FAB_MODULE_LONG_DESCRIPTION,
+            "FAB-"+FAB_MODULE_DEFAULT_EXTENSIONS,
+            "FAB-"+FAB_MODULE_EXTENDS,
+            "FAB-"+FAB_MODULE_ENDORSED_EXTENSIONS
     };
 
     // OSGi headers
