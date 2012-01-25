@@ -33,28 +33,14 @@ public class AgentList extends FabricCommand {
         return null;
     }
 
-    protected String getProvisionedStatus(Agent agent) {
-        String provisioned = agent.getProvisionResult();
-        String result = "not provisioned";
-
-        if (provisioned != null) {
-            result = provisioned;
-            if (result.equals(ZkDefs.ERROR) && agent.getProvisionException() != null) {
-                result += " - " + agent.getProvisionException().split(System.getProperty("line.separator"))[0];
-            }
-        }
-
-        return result;
-    }
-
     protected void printAgents(Agent[] agents, PrintStream out) {
         out.println(String.format("%-30s %-10s %-30s %-100s", "[id]", "[alive]", "[profiles]", "[provision status]"));
         for (Agent agent : agents) {
             if (agent.isRoot()) {
-                out.println(String.format("%-30s %-10s %-30s %-100s", agent.getId(), agent.isAlive(), toString(agent.getProfiles()), getProvisionedStatus(agent)));
+                out.println(String.format("%-30s %-10s %-30s %-100s", agent.getId(), agent.isAlive(), toString(agent.getProfiles()), agent.getProvisionStatus()));
                 for (Agent child : agents) {
                     if (child.getParent() == agent) {
-                        out.println(String.format("%-30s %-10s %-30s %-100s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), getProvisionedStatus(child)));
+                        out.println(String.format("%-30s %-10s %-30s %-100s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), agent.getProvisionStatus()));
                     }
                 }
             }
