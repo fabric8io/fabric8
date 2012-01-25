@@ -60,6 +60,8 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         final CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, System.err);
+        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
+        commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(
                 new Callable<String>() {
                     public String call() {
@@ -101,6 +103,8 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         final CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, System.err);
+        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
+        commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(
                 new Callable<String>() {
                     public String call() {

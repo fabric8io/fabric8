@@ -88,15 +88,20 @@ public class FabricTestSupport {
     }
 
     protected void destroyChildAgent(String name) throws InterruptedException {
-        //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
+        try {
+            //Wait for zookeeper service to become available.
+            IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
-        FabricService fabricService = getOsgiService(FabricService.class);
-        assertNotNull(fabricService);
+            FabricService fabricService = getOsgiService(FabricService.class);
+            assertNotNull(fabricService);
 
-        Thread.sleep(DEFAULT_WAIT);
-        Agent agent = fabricService.getAgent(name);
-        agent.destroy();
+            Thread.sleep(DEFAULT_WAIT);
+            Agent agent = fabricService.getAgent(name);
+            agent.destroy();
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+        }
+
     }
 
     /**
