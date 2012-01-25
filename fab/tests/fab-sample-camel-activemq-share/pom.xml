@@ -59,11 +59,11 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.* org.springframework*</Fabric-Provided-Dependency>
-              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs commons-pool org.springframework</Fabric-Include-Optional-Dependency>
+              <FAB-Provided-Dependency>org.apache.* org.springframework*</FAB-Provided-Dependency>
+              <FAB-Include-Optional-Dependency>org.apache.geronimo.specs commons-pool org.springframework</FAB-Include-Optional-Dependency>
 
               <!-- temporary work around until activeio becomes an optional dependency -->
-              <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
+              <FAB-Exclude-Dependency>org.apache.activemq:activeio-core</FAB-Exclude-Dependency>
             </manifestEntries>
           </archive>
         </configuration>

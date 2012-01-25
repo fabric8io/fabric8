@@ -122,11 +122,11 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <Fabric-Dependency-Require-Bundle>org.apache.camel</Fabric-Dependency-Require-Bundle>
+              <FAB-Dependency-Require-Bundle>org.apache.camel</FAB-Dependency-Require-Bundle>
 
               <!-- exclude some velocity / spring dependencies -->
               <!-- note we exclude camel-core-xml as its bundled inside camel-spring -->
-              <Fabric-Exclude-Dependency>javax.el javax.inject com.springsource.slf4j* com.springsource.log4j* com.springsource.edu.emory.mathcs.backport org.apache.camel:camel-core-xml</Fabric-Exclude-Dependency>
+              <FAB-Exclude-Dependency>javax.el javax.inject com.springsource.slf4j* com.springsource.log4j* com.springsource.edu.emory.mathcs.backport org.apache.camel:camel-core-xml</FAB-Exclude-Dependency>
             </manifestEntries>
           </archive>
         </configuration>

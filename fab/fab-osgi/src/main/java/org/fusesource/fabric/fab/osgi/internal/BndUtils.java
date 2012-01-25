@@ -142,7 +142,7 @@ public class BndUtils
             final Properties properties = new Properties();
             properties.putAll(instructions);
 
-            properties.put("Generated-By-Fabric-From", jarInfo);
+            properties.put("Generated-By-FAB-From", jarInfo);
 
             final Analyzer analyzer = new Analyzer();
             analyzer.setJar(jar);

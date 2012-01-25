@@ -58,7 +58,7 @@
               <archive>
                 <index>true</index>
                 <manifestEntries>
-                  <Fabric-Provided-Dependency></Fabric-Provided-Dependency>
+                  <FAB-Provided-Dependency></FAB-Provided-Dependency>
                 </manifestEntries>
               </archive>
             </configuration>

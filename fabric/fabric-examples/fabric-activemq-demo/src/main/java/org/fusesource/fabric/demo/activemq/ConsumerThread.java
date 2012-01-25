@@ -30,7 +30,7 @@ public class ConsumerThread extends Thread {
     int received = 0;
     String dest;
     JMSService service;
-    boolean breakOnNull = true;
+    boolean breakOnNull = false;
     boolean running = false;
 
     public ConsumerThread(JMSService service, String dest) {
@@ -67,6 +67,8 @@ public class ConsumerThread extends Thread {
                 }
             }
         }
+        
+        LOG.info("Consumer thread finished");
     }
 
     public int getReceived() {

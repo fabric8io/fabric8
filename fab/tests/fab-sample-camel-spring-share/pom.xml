@@ -63,9 +63,9 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.camel:* org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</Fabric-Provided-Dependency>
+              <FAB-Provided-Dependency>org.apache.camel:* org.springframework:* org.springframework.osgi:* org.apache.geronimo.specs:*</FAB-Provided-Dependency>
 <!--
-              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec</Fabric-Include-Optional-Dependency>
+              <FAB-Include-Optional-Dependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec org.apache.geronimo.specs:geronimo-jms_1.1_spec</FAB-Include-Optional-Dependency>
 -->
             </manifestEntries>
           </archive>

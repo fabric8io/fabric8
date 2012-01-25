@@ -59,6 +59,7 @@ public class ProducerThread extends Thread {
                 }
             }
         }
+        LOG.info("Producer thread finished");
     }
 
     protected Message createMessage(int i) throws Exception {
