@@ -145,7 +145,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
 
   case class ClusteredConfiguration(properties:Properties) {
 
-    val name = Option(properties.getProperty("name")).getOrElse(arg_error("name property must be set"))
+    val name = Option(properties.getProperty("broker-name")).getOrElse(arg_error("broker-name property must be set"))
     val config = Option(properties.getProperty("config")).getOrElse(arg_error("config property must be set"))
     val group = Option(properties.getProperty("group")).getOrElse("default")
     val pool = Option(properties.getProperty("standby.pool")).getOrElse(null)

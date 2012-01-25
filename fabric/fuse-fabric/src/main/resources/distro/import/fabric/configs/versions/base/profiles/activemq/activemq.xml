@@ -21,7 +21,7 @@
         </property>      
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${name}" dataDirectory="${data}" destroyApplicationContextOnStop="true">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${broker-name}" dataDirectory="${data}">
               
         <destinationPolicy>
             <policyMap>
