@@ -106,6 +106,7 @@
         <feature version="${project.version}">fabric-bundle</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
+        <feature version="${project.version}">fabric-jaas</feature>
 <!--
         <feature version="${project.version}">insight-graph</feature>
 -->
@@ -196,7 +197,8 @@
         <bundle>mvn:org.fusesource.fabric/fabric-monitor/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-jaas" version="${project.version}}" resolver="(obr)">
+    <feature name="fabric-jaas" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/${commons-lang-version}</bundle>
