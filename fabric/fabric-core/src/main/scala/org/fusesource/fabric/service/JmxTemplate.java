@@ -39,8 +39,12 @@ public class JmxTemplate extends JmxTemplateSupport {
 
     public <T> T execute(JmxTemplateSupport.JmxConnectorCallback<T> callback) {
         JMXConnector connector = getConnector();
+        if (connector == null) {
+            LOGGER.warn("No JMX Connector yet " + this);
+            return null;
+        }
         try {
-            return callback.doWithJmxConnector(getConnector());
+            return callback.doWithJmxConnector(connector);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {

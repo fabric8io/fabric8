@@ -170,6 +170,9 @@ public class AgentTemplate {
 
     public JMXConnector createConnector() {
         String rootUrl = agent.getJmxUrl();
+        if (rootUrl == null) {
+            return null;
+        }
         JMXConnector connector;
         try {
             connector = JMXConnectorFactory.connect(
