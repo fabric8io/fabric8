@@ -171,7 +171,7 @@
         <xerces.version>2.11.0</xerces.version>
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
-        <zookeeper-version>3.4.1</zookeeper-version>
+        <zookeeper-version>3.4.2</zookeeper-version>
     </properties>
 
 
@@ -256,6 +256,20 @@
                             <Embed-Dependency>${fabric.embed.dependency}</Embed-Dependency>
                         </instructions>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>cleanVersions</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>cleanVersions</goal>
+                            </goals>
+                            <configuration>
+                                <versions>
+                                    <karaf.osgi.version>${karaf-version}</karaf.osgi.version>
+                                </versions>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
 
               <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
