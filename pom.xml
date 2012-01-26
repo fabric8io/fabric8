@@ -107,6 +107,8 @@
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <cxf-version>2.4.3-fuse-00-${perfectus-build}</cxf-version>
         <camel-version>2.8.0-fuse-01-${perfectus-build}</camel-version>
+        <equinox.version>3.6.0.v20100517</equinox.version>
+        <felix.framework.version>3.0.9-fuse-03-${perfectus-build}</felix.framework.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
         <hawtdispatch-version>1.7</hawtdispatch-version>
