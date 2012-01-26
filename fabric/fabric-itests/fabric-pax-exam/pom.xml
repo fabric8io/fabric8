@@ -142,7 +142,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-version}</version>
                 <configuration>
-                    <forkMode>once</forkMode>
+                    <forkMode>pertest</forkMode>
                     <useSystemClassLoader>true</useSystemClassLoader>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
                     <failIfNoTests>false</failIfNoTests>
