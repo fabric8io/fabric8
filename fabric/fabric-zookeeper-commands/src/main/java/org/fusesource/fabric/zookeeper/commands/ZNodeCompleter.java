@@ -39,6 +39,8 @@ public class ZNodeCompleter implements Completer {
         if (buffer == null) {
             candidates.add("/");
             return 1;
+        } else if (!buffer.startsWith("/")) {
+            return 0;
         }
         buffer = buffer.substring(0, cursor);
         String path = buffer;
