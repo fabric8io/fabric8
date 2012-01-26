@@ -1,12 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -834,7 +834,9 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
 
     override def dispose() = queue {
       super.dispose()
-      consumer_sink.downstream.foreach(handler.sink_manager.close(_))
+      consumer_sink.downstream.foreach(handler.sink_manager.close(_, (request)=>{
+        // just drop it we are closing out..
+      }))
     }
 
     def dispatch_queue = handler.queue
@@ -863,7 +865,12 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
       }
 
       def dispose = {
-        session_manager.close(downstream)
+        session_manager.close(downstream, (delivery)=>{
+          // We have been closed so we have to nak any deliveries.
+          if( delivery.ack!=null ) {
+            delivery.ack(Undelivered, delivery.uow)
+          }
+        })
         release
       }
 
