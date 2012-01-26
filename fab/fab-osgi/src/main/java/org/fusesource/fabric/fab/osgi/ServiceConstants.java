@@ -40,7 +40,7 @@ public interface ServiceConstants extends Constants {
     /**
      * URL protocol for FAB
      */
-    static final String PROTOCOL_FAB = "war";
+    static final String PROTOCOL_FAB = "fab";
 
     /**
      * All the PAX URL protocols supported by this module
