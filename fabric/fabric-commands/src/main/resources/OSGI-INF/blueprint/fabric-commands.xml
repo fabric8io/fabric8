@@ -24,6 +24,15 @@
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="fabric/create">
+            <action class="org.fusesource.fabric.commands.Create">
+                <property name="service" ref="zooKeeperClusterService"/>
+            </action>
+          <completers>
+              <ref component-id="agentCompleter" />
+              <null/>
+          </completers>
+        </command>
         <command name="fabric/ensemble-create">
             <action class="org.fusesource.fabric.commands.EnsembleCreate">
                 <property name="service" ref="zooKeeperClusterService"/>
@@ -69,6 +78,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
+
         <command name="fabric/agent-create-child">
             <action class="org.fusesource.fabric.commands.AgentCreateChild">
                 <property name="fabricService" ref="fabricService"/>

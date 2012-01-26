@@ -13,6 +13,12 @@ fabric:profile-edit -p jre15 --bundles mvn:org.apache.servicemix.specs/org.apach
 fabric:profile-edit -p jre15 --bundles mvn:org.codehaus.woodstox/woodstox-core-asl/4.1.1
 fabric:profile-edit -p jre15 --bundles mvn:org.codehaus.woodstox/stax2-api/3.1.1
 
+fabric:profile-create --parents default karaf
+fabric:profile-edit -p karaf --repositories mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features
+fabric:profile-edit -p karaf --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features
+fabric:profile-edit -p karaf --repositories mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features
+fabric:profile-edit -p karaf --repositories mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features
+
 fabric:profile-create --parents karaf --parents jre15 dosgi
 fabric:profile-edit -p dosgi --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
 fabric:profile-edit -p dosgi --features fabric-dosgi
