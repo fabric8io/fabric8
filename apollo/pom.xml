@@ -46,6 +46,7 @@
     <module>fabric-apollo-cli</module>
     <module>fabric-apollo-amqp</module>
     <module>fabric-apollo-mqtt</module>
+    <module>fabric-apollo-haleveldb</module>
   </modules>
 
   <build>

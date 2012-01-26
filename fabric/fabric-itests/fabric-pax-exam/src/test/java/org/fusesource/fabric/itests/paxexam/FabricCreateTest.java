@@ -64,7 +64,6 @@ public class FabricCreateTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
-                new VMOption("-D"+ ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

@@ -28,6 +28,8 @@ import org.fusesource.hawtbuf.Buffer
 import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.util.ByteSequence
 import org.apache.activemq.store.MessageRecoveryListener
+import java.lang.ref.WeakReference
+import scala.Option._
 
 case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
   var locator:(Long, Int) = _
@@ -36,6 +38,47 @@ case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
 case class QueueEntryRecord(id:MessageId, queueKey:Long, queueSeq:Long)
 case class QueueRecord(id:ActiveMQDestination, queue_key:Long)
 case class QueueEntryRange()
+
+sealed trait UowState {
+  def stage:Int
+}
+// UoW is initial open.
+object UowOpen extends UowState {
+  override def stage = 0
+  override def toString = "UowOpen"
+}
+// UoW is Committed once the broker finished creating it.
+object UowClosed extends UowState {
+  override def stage = 1
+  override def toString = "UowClosed"
+}
+// UOW is delayed until we send it to get flushed.
+object UowDelayed extends UowState {
+  override def stage = 2
+  override def toString = "UowDelayed"
+}
+object UowFlushQueued extends UowState {
+  override def stage = 3
+  override def toString = "UowFlushQueued"
+}
+
+object UowFlushing extends UowState {
+  override def stage = 4
+  override def toString = "UowFlushing"
+}
+// Then it moves on to be flushed. Flushed just
+// means the message has been written to disk
+// and out of memory
+object UowFlushed extends UowState {
+  override def stage = 5
+  override def toString = "UowFlushed"
+}
+
+// Once completed then you know it has been synced to disk.
+object UowCompleted extends UowState {
+  override def stage = 6
+  override def toString = "UowCompleted"
+}
 
 /**
  * <p>
@@ -92,14 +135,13 @@ class DBManager(parent:LevelDBStore) {
 
   def createUow() = new DelayableUOW
 
-  var uowCommittedCounter = 0L
+  var uowClosedCounter = 0L
   var uowCanceledCounter = 0L
   var uowStoringCounter = 0L
   var uowStoredCounter = 0L
   
   class DelayableUOW extends BaseRetained {
     val countDownFuture = CountDownFuture()
-    var storing = false;
     var canceled = false;
 
     val uowId:Int = lastUowId.incrementAndGet()
@@ -107,7 +149,14 @@ class DBManager(parent:LevelDBStore) {
     var completed = false
     var disableDelay = false
     var delayableActions = 0
-    var commitNanoTime = 0L
+
+    private var _state:UowState = UowOpen
+
+    def state = this._state
+    def state_=(next:UowState) {
+      assert(this._state.stage < next.stage)
+      this._state = next
+    }
 
     def syncNeeded = actions.find( _._2.syncNeeded ).isDefined
     def size = actions.foldLeft(0L){ case (sum, entry) => 
@@ -136,7 +185,7 @@ class DBManager(parent:LevelDBStore) {
 
     def rm(msg:MessageId) = {
       actions -= msg
-      if( actions.isEmpty ) {
+      if( actions.isEmpty && state.stage < UowFlushing.stage ) {
         cancel
       }
     }
@@ -145,7 +194,6 @@ class DBManager(parent:LevelDBStore) {
       dispatchQueue.assertExecuting()
       uowCanceledCounter += 1
       canceled = true
-      delayedUows.remove(uowId)
       onCompleted
     }
 
@@ -199,7 +247,7 @@ class DBManager(parent:LevelDBStore) {
       }
 
       aggregator {
-        pendingEnqueues.put(key(entry), a)
+        cancelable_enqueue_actions.put(key(entry), a)
         pendingStores.put(id, a)
       }
       countDownFuture
@@ -213,10 +261,18 @@ class DBManager(parent:LevelDBStore) {
       }
       countDownFuture
     }
-    
+
+    def complete_asap = this.synchronized {
+      disableDelay=true
+      if( state eq UowDelayed ) {
+        enqueueFlush(this)
+      }
+    }
+
     var asyncCapacityUsed = 0L
     
-    override def dispose = {
+    override def dispose = this.synchronized {
+      state = UowClosed
       if( !syncNeeded ) {
         val s = size
         if( asyncCapacityRemaining.addAndGet(-s) > 0 ) {
@@ -226,120 +282,164 @@ class DBManager(parent:LevelDBStore) {
           asyncCapacityRemaining.addAndGet(s)
         }
       }
-      commitSource.merge(this)
+      closeSource.merge(this)
     }
 
-    def onCompleted() = {
-      if( asyncCapacityUsed != 0 ) {
-        asyncCapacityRemaining.addAndGet(asyncCapacityUsed)
-        asyncCapacityUsed = 0
-      } else {
-        countDownFuture.countDown
+    def onCompleted() = this.synchronized {
+      if ( state.stage < UowCompleted.stage ) {
+        if( asyncCapacityUsed != 0 ) {
+          asyncCapacityRemaining.addAndGet(asyncCapacityUsed)
+          asyncCapacityUsed = 0
+        } else {
+          countDownFuture.countDown
+        }
+        super.dispose
       }
-      super.dispose
     }
   }
 
   def key(x:QueueEntryRecord) = (x.queueKey, x.queueSeq)
 
-  val commitSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
-  commitSource.setEventHandler(^{processCommitted});
-  commitSource.resume
+  val closeSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
+  closeSource.setEventHandler(^{processClosed});
+  closeSource.resume
 
   var pendingStores = new ConcurrentHashMap[MessageId, DelayableUOW#MessageAction]()
-  var pendingEnqueues = new HashMap[(Long,Long), DelayableUOW#MessageAction]()
-  var delayedUows = new HashMap[Int, DelayableUOW]()
+  var cancelable_enqueue_actions = new HashMap[(Long,Long), DelayableUOW#MessageAction]()
 
   val lastUowId = new AtomicInteger(1)
 
-  def processCommitted = {
+  def processClosed = {
     dispatchQueue.assertExecuting()
-    val uows = commitSource.getData
-    uowCommittedCounter += uows.size
+    val uows = closeSource.getData
+    uowClosedCounter += uows.size
     
     val now = System.nanoTime()
     uows.foreach { uow =>
-      uow.commitNanoTime = now 
-      delayedUows.put(uow.uowId, uow)
 
-      uow.actions.foreach { case (id, action) =>
+      // Broker could issue a flush_message call before
+      // this stage runs.. which make the stage jump over UowDelayed
+      if( uow.state.stage < UowDelayed.stage ) {
+        uow.state = UowDelayed
+      }
+      if( uow.state.stage < UowFlushing.stage ) {
+        uow.actions.foreach { case (id, action) =>
 
-        // dequeues can cancel out previous enqueues
-        action.dequeues.foreach { currentDequeue=>
-          val currentKey = key(currentDequeue)
-          val prevAction:DelayableUOW#MessageAction = pendingEnqueues.remove(currentKey)
+          // The UoW may have been canceled.
+          if( action.messageRecord!=null && action.enqueues.isEmpty ) {
+            pendingStores.remove(id)
+            action.messageRecord = null
+            uow.delayableActions -= 1
+          }
+          if( action.isEmpty ) {
+            action.cancel()
+          }
 
-          def prevUow = prevAction.uow
+          // dequeues can cancel out previous enqueues
+          action.dequeues.foreach { entry=>
+            val entry_key = key(entry)
+            val prev_action:DelayableUOW#MessageAction = cancelable_enqueue_actions.remove(entry_key)
 
-          if( prevAction!=null && !prevUow.storing ) {
+            if( prev_action!=null ) {
+              val prev_uow = prev_action.uow
+              prev_uow.synchronized {
+                if( !prev_uow.canceled ) {
 
+                  prev_uow.delayableActions -= 1
 
-            prevUow.delayableActions -= 1
+                  // yay we can cancel out a previous enqueue
+                  prev_action.enqueues = prev_action.enqueues.filterNot( x=> key(x) == entry_key )
+                  if( prev_uow.state.stage >= UowDelayed.stage ) {
 
-            // yay we can cancel out a previous enqueue
-            prevAction.enqueues = prevAction.enqueues.filterNot( x=> key(x) == currentKey )
+                    // if the message is not in any queues.. we can gc it..
+                    if( prev_action.enqueues == Nil && prev_action.messageRecord !=null ) {
+                      pendingStores.remove(id)
+                      prev_action.messageRecord = null
+                      prev_uow.delayableActions -= 1
+                    }
 
-            // if the message is not in any queues.. we can gc it..
-            if( prevAction.enqueues == Nil && prevAction.messageRecord !=null ) {
-              pendingStores.remove(id)
-              prevAction.messageRecord = null
-              prevUow.delayableActions -= 1
-            }
-
-            // Cancel the action if it's now empty
-            if( prevAction.isEmpty ) {
-              prevAction.cancel()
-            } else if( !prevUow.delayable ) {
-              // flush it if there is no point in delaying anymore
-              store(prevUow)
-            }
-
-            // since we canceled out the previous enqueue.. now cancel out the action
-            action.dequeues = action.dequeues.filterNot( _ == currentDequeue)
-            if( action.isEmpty ) {
-              action.cancel()
+                    // Cancel the action if it's now empty
+                    if( prev_action.isEmpty ) {
+                      prev_action.cancel()
+                    } else if( !prev_uow.delayable ) {
+                      // flush it if there is no point in delaying anymore
+                      prev_uow.complete_asap
+                    }
+                  }
+                }
+              }
+              // since we canceled out the previous enqueue.. now cancel out the action
+              action.dequeues = action.dequeues.filterNot( _ == entry)
+              if( action.isEmpty ) {
+                action.cancel()
+              }
             }
           }
         }
       }
 
-      val uowId = uow.uowId
-      if( uow.delayable ) {
-        dispatchQueue.executeAfter(flushDelay, TimeUnit.MILLISECONDS, ^{
-          store(delayedUows.get(uowId))
-        })
-      } else {
-        store(uow)
+      if( !uow.canceled && uow.state.stage < UowFlushQueued.stage ) {
+        if( uow.delayable ) {
+          // Let the uow get GCed if its' canceled during the delay window..
+          val ref = new WeakReference[DelayableUOW](uow)
+          scheduleFlush(ref)
+        } else {
+          enqueueFlush(uow)
+        }
       }
 
     }
   }
 
-  private def store(uow:DelayableUOW) = {
-    if( uow!=null && !uow.storing && !uow.canceled ) {
-      uow.storing = true
-      delayedUows.remove(uow.uowId)
-      storeSource.merge(uow)
+  private def scheduleFlush(ref: WeakReference[DelayableUOW]) {
+    dispatchQueue.executeAfter(flushDelay, TimeUnit.MILLISECONDS, ^ {
+      val uow = ref.get();
+      if (uow != null) {
+        enqueueFlush(uow)
+      }
+    })
+  }
+
+  private def enqueueFlush(uow:DelayableUOW) = {
+    if( uow!=null && !uow.canceled && uow.state.stage < UowFlushQueued.stage ) {
+      uow.state = UowFlushQueued
+      flushSource.merge(uow)
     }
   }
 
-  val storeSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
-  storeSource.setEventHandler(^{processStores});
-  storeSource.resume
+  val flushSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
+  flushSource.setEventHandler(^{drainFlushes});
+  flushSource.resume
 
-
-  def processStores:Unit = {
+  def drainFlushes:Unit = {
     dispatchQueue.assertExecuting()
     if( !started ) {
       return
     }
-    val uows = storeSource.getData
+
+    // Some UOWs may have been canceled.
+    val uows = flushSource.getData.flatMap { uow=>
+      if( uow.canceled ) {
+        None
+      } else {
+        // It will not be possible to cancel the UOW anymore..
+        uow.state = UowFlushing
+        uow.actions.foreach { case (_, action) =>
+          action.enqueues.foreach { queue_entry=>
+            val action = cancelable_enqueue_actions.remove(key(queue_entry))
+            assert(action!=null)
+          }
+        }
+        Some(uow)
+      }
+    }
+
     if( !uows.isEmpty ) {
       uowStoringCounter += uows.size
-      storeSource.suspend
+      flushSource.suspend
       writeExecutor {
         client.store(uows)
-        storeSource.resume
+        flushSource.resume
         dispatchQueue {
           uowStoredCounter += uows.size
           uows.foreach { uow=>
@@ -349,7 +449,7 @@ class DBManager(parent:LevelDBStore) {
                 pendingStores.remove(id)
               }
               action.enqueues.foreach { queueEntry=>
-                pendingEnqueues.remove(key(queueEntry))
+                cancelable_enqueue_actions.remove(key(queueEntry))
               }
             }
           }
@@ -392,8 +492,8 @@ class DBManager(parent:LevelDBStore) {
 
   def monitorStats:Unit = dispatchQueue.after(1, TimeUnit.SECONDS) {
     if( started ) {
-      println("committed: %d, canceled: %d, storing: %d, stored: %d, ".format(uowCommittedCounter, uowCanceledCounter, uowStoringCounter, uowStoredCounter))
-      uowCommittedCounter = 0
+      println("committed: %d, canceled: %d, storing: %d, stored: %d, ".format(uowClosedCounter, uowCanceledCounter, uowStoringCounter, uowStoredCounter))
+      uowClosedCounter = 0
       uowCanceledCounter = 0
       uowStoringCounter = 0
       uowStoredCounter = 0
