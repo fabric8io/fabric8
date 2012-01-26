@@ -103,6 +103,8 @@ public class Import extends ZooKeeperCommandSupport {
     }
 
     private void getCandidates(File parent, File current, Map<String, String> settings) throws Exception {
+        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
+        List<Pattern> agentProperties = getPatterns(new String[]{RegexSupport.PROFILE_AGENT_PROPERTIES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
                 getCandidates(parent, child, settings);
@@ -118,7 +120,14 @@ public class Import extends ZooKeeperCommandSupport {
             if (p.endsWith(".cfg")) {
                 p = p.substring(0, p.length() - ".cfg".length());
             }
-            settings.put(p, new String(contents));
+
+            if (matches(agentProperties,p,false)) {
+                settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX,""));
+                String parents = Pattern.compile(RegexSupport.PARENTS_REGEX).matcher(p).toMatchResult().group();
+                settings.put(p.substring(0,p.lastIndexOf("/")),parents);
+            } else if (!matches(profile,p,false)) {
+                settings.put(p, new String(contents));
+            }
         }
     }
 

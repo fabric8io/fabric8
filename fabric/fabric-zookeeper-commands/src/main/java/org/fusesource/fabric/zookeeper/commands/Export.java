@@ -92,13 +92,16 @@ public class Export extends ZooKeeperCommandSupport {
         }
         List<Pattern> include = getPatterns(regex);
         List<Pattern> exclude = getPatterns(nregex);
+        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
+        List<Pattern> agentProperties = getPatterns(new String[]{RegexSupport.PROFILE_AGENT_PROPERTIES_REGEX});
+
         List<String> paths = getZooKeeper().getAllChildren(path);
         SortedSet<File> directories = new TreeSet<File>();
         Map<File, String> settings = new HashMap<File, String>();
 
         for(String p : paths) {
             p = path + p;
-            if (!matches(include, p, true) || matches(exclude, p, false)) {
+            if (!matches(include, p, true) || matches(exclude, p, false) || matches(profile,p,false)) {
                 continue;
             }
             byte[] data = getZooKeeper().getData(p);
@@ -113,6 +116,14 @@ public class Export extends ZooKeeperCommandSupport {
                     int idx = value.indexOf("\n");
                     if (idx > 0) {
                         value = value.substring(idx + 1);
+                    }
+                }
+                //Make sure to append the parents
+                if(matches(agentProperties,p,false)) {
+                  byte[] parentData = getZooKeeper().getData(p.substring(0,p.lastIndexOf("/")));
+                    if (parentData != null) {
+                        String parentValue = "parents=" + new String(parentData);
+                        value += "\n" + parentValue;
                     }
                 }
                 settings.put(new File(target + File.separator + name), value);
