@@ -38,6 +38,12 @@ public class Files {
         }
     }
 
+    public static class DownloadCycle extends IOException {
+        public DownloadCycle(String s) {
+            super(s);
+        }
+    }
+
     /**
      * Attempts to convert a URL to a file or copies the URL to a temporary file if it can't be easily converted
      */
@@ -50,8 +56,9 @@ public class Files {
         }
         try {
             if(downloads.contains(url)) {
-                throw new IOException("Download cycle detected: "+downloads);
+                throw new DownloadCycle("Download cycle detected: "+downloads);
             }
+            downloads.add(url);
             try {
                 String fileName = url.getFile();
                 File file = new File(fileName);
