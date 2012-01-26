@@ -1,12 +1,12 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ import org.osgi.framework.Constants;
 
 public class FabricCommandsTestSupport extends FabricTestSupport {
 
-    public static final Long COMMAND_TIMEOUT = 10000L;
+    public static final Long COMMAND_TIMEOUT = 20000L;
 
     ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -60,6 +60,8 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         final CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, System.err);
+        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
+        commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(
                 new Callable<String>() {
                     public String call() {
@@ -101,6 +103,8 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         final CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, System.err);
+        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
+        commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(
                 new Callable<String>() {
                     public String call() {

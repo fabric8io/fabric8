@@ -102,5 +102,12 @@ Getting Started guide for Fabric
     The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
     create the initial ZooKeeper server and profiles.
 
+  :&markdown
+     If you are using a SNAPSHOT version of Fabric, and have not build Fabric locally, then you must add the Maven repositories list,
+     the location of where the Fabric SNAPSHOT artifacts is installed.
+     In the "etc/org.ops4j.pax.url.mvn.cfg" file add the following entries to the "org.ops4j.pax.url.mvn.repositories" key:
 
+  pre
+    | http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots, \
+    | http://repo.fusesource.com/nexus/content/groups/public
 
