@@ -23,8 +23,6 @@ import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.UncategorizedJmsException;
 
@@ -48,8 +46,6 @@ import java.util.Map.Entry;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"localBrokerConfig", "inboundDestinations", "outboundDestinations", "remoteBridges"})
 public class GatewayConnector extends AbstractConnector {
-
-	private static final Logger LOG = LoggerFactory.getLogger(GatewayConnector.class);
 
 	@XmlElement(name="local-broker", required=true)
 	private BrokerConfig localBrokerConfig;

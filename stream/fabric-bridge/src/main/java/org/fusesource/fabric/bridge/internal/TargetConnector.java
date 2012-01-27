@@ -16,24 +16,19 @@
  */
 package org.fusesource.fabric.bridge.internal;
 
-import java.util.List;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.DispatchPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.UncategorizedJmsException;
 import org.springframework.jms.listener.AbstractMessageListenerContainer;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+
+import javax.jms.*;
+import java.lang.IllegalStateException;
+import java.util.List;
 
 /**
  * Connects a staging queue on remote broker to destinations on local broker. 
@@ -42,8 +37,6 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
  *
  */
 public class TargetConnector extends AbstractConnector {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(TargetConnector.class);
 	
 	private BrokerConfig localBrokerConfig;
 	
@@ -169,8 +162,19 @@ public class TargetConnector extends AbstractConnector {
 				LOG.error("Error destroying message listener container: " + ex.getMessage(), ex);
 				throw ex;
 			}
-			LOG.info("Destroyed");
 		}
+
+        // stop connection factories
+        if (localConnectionFactory != null && (localConnectionFactory instanceof PooledConnectionFactory)) {
+            LOG.debug("Stopping local connection factory");
+            ((PooledConnectionFactory)localConnectionFactory).stop();
+        }
+        if (remoteConnectionFactory != null && (remoteConnectionFactory instanceof PooledConnectionFactory)) {
+            LOG.debug("Stopping remote connection factory");
+            ((PooledConnectionFactory)remoteConnectionFactory).stop();
+        }
+
+        LOG.info("Destroyed");
 	}
 
 	protected void createListenerContainer() {

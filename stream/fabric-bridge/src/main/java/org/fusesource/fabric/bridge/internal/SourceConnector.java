@@ -18,22 +18,6 @@ package org.fusesource.fabric.bridge.internal;
 
 
 
-import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BridgedDestination;
@@ -48,6 +32,12 @@ import org.springframework.jms.listener.AbstractMessageListenerContainer;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.DestinationResolver;
 
+import javax.jms.*;
+import java.beans.PropertyDescriptor;
+import java.util.*;
+import java.util.Map.Entry;
+import java.lang.IllegalStateException;
+
 /**
  * Connects destinations on local broker to a staging queue on remote broker. 
  * 
@@ -56,8 +46,6 @@ import org.springframework.jms.support.destination.DestinationResolver;
  */
 public class SourceConnector extends AbstractConnector {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SourceConnector.class);
-	
 	private BrokerConfig localBrokerConfig;
 	
 	private BrokerConfig remoteBrokerConfig;
@@ -229,7 +217,17 @@ public class SourceConnector extends AbstractConnector {
 				}
 			}
 		}
-		
+
+        // stop connection factories
+        if (localConnectionFactory != null && (localConnectionFactory instanceof PooledConnectionFactory)) {
+            LOG.debug("Stopping local connection factory");
+            ((PooledConnectionFactory)localConnectionFactory).stop();
+        }
+        if (remoteConnectionFactory != null && (remoteConnectionFactory instanceof PooledConnectionFactory)) {
+            LOG.debug("Stopping remote connection factory");
+            ((PooledConnectionFactory)remoteConnectionFactory).stop();
+        }
+
 		LOG.info("Stopped");
 	}
 
