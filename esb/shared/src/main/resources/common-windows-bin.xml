@@ -45,6 +45,15 @@
           <lineEnding>dos</lineEnding>
           <fileMode>0644</fileMode>
       </fileSet>
+       <fileSet>
+           <directory>target/shared</directory>
+           <outputDirectory>/</outputDirectory>
+           <includes>
+               <include>esb_license.txt</include>
+           </includes>
+           <lineEnding>dos</lineEnding>
+           <fileMode>0644</fileMode>
+       </fileSet>
 
       <!-- Copy over everything that needs to get dos line endings -->
       <fileSet>
@@ -78,6 +87,20 @@
             <lineEnding>dos</lineEnding>
         </file>
         <file>
+            <source>${basedir}/target/META-INF/NOTICE</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>esb_notices.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>esb_dependencies.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>    
+      <!--  <file>
             <source>${basedir}/target/maven-shared-archive-resources/META-INF/LICENSE</source>
             <outputDirectory>/</outputDirectory>
             <destName>LICENSE</destName>
@@ -90,7 +113,7 @@
             <destName>NOTICE</destName>
             <fileMode>0644</fileMode>
             <lineEnding>dos</lineEnding>
-        </file>
+        </file>-->
     </files>
 
 </component>
