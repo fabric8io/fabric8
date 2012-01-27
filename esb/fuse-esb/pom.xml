@@ -221,15 +221,34 @@
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.fusesource.esb</groupId>
-                                    <artifactId>shared</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <outputDirectory>target/shared</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
+                          <artifactItems>
+                            <artifactItem>
+                              <groupId>org.fusesource.esb</groupId>
+                              <artifactId>shared</artifactId>
+                              <type>jar</type>
+                              <outputDirectory>target/shared</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                              <groupId>org.apache.xerces</groupId>
+                              <artifactId>xercesImpl</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                              <groupId>org.apache.xerces</groupId>
+                              <artifactId>xml-apis</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                              <groupId>xalan</groupId>
+                              <artifactId>xalan</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                              <groupId>xalan</groupId>
+                              <artifactId>serializer</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                          </artifactItems>
                         </configuration>
                     </execution>
                     <execution>
@@ -305,6 +324,31 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                 <groupId>org.fusesource.mvnplugins</groupId>
+                 <artifactId>maven-notices-plugin</artifactId>
+                 <version>1.21</version>
+                 <executions>
+                     <execution>
+                         <id>merge-notices-in-repository</id>
+                         <phase>package</phase>
+                         <goals>
+                             <goal>merge-notices-in-repository</goal>
+                         </goals>
+                         <configuration>
+                             <projectName>Fuse ESB</projectName>
+                             <organizationName>FuseSource, Corp. All Rights Reserved.</organizationName>
+                             <organizationURL>http://fusesource.com</organizationURL>
+                             <preamble>In addition to the FuseSource products, this disk contains certain third party software or components (“Third Party Components”), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fuse ESB. Please see the esb_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by FuseSource Corporation (“FSC”) solely on an "AS IS" basis, without any warranty.  FSC disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
+                             <listDependencies>true</listDependencies>
+                             <extraDependencies>org.apache.xerces:xercesImpl:2.11.0,xalan:xalan:2.7.1,xalan:serializer:2.7.1</extraDependencies>
+                             <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
+                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/endorsed,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/lib,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/system</repositories>
+                             <defaultParent>org.fusesource.esb:esb-project:${project.version}</defaultParent>
+                        </configuration>
+                     </execution>
+                 </executions>
+             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
