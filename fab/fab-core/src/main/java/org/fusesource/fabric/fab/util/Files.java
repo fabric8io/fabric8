@@ -20,10 +20,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.LinkedHashSet;
 
 /**
  */
 public class Files {
+
+    
+    private static final ThreadLocal<LinkedHashSet<URL>> ACTIVE_DOWNLOADS = new ThreadLocal<LinkedHashSet<URL>>();
 
     public static File urlToFile(String url, String tempFilePrefix, String tempFilePostfix) throws IOException {
         File file = new File(url);
@@ -34,18 +38,45 @@ public class Files {
         }
     }
 
+    public static class DownloadCycle extends IOException {
+        public DownloadCycle(String s) {
+            super(s);
+        }
+    }
+
     /**
      * Attempts to convert a URL to a file or copies the URL to a temporary file if it can't be easily converted
      */
     public static File urlToFile(URL url, String tempFilePrefix, String tempFilePostfix) throws IOException {
-        String fileName = url.getFile();
-        File file = new File(fileName);
-        if (!file.exists()) {
-            // we need to copy the URL to a new temp file for now...
-            file = File.createTempFile(tempFilePrefix, tempFilePostfix);
-            InputStream in = url.openStream();
-            IOHelpers.writeTo(file, in);
+        LinkedHashSet<URL> original = ACTIVE_DOWNLOADS.get();
+        LinkedHashSet<URL> downloads = original;
+        if( downloads ==null ) {
+            downloads = new LinkedHashSet<URL>();
+            ACTIVE_DOWNLOADS.set(downloads);
         }
-        return file;
+        try {
+            if(downloads.contains(url)) {
+                throw new DownloadCycle("Download cycle detected: "+downloads);
+            }
+            downloads.add(url);
+            try {
+                String fileName = url.getFile();
+                File file = new File(fileName);
+                if (!file.exists()) {
+                    // we need to copy the URL to a new temp file for now...
+                    file = File.createTempFile(tempFilePrefix, tempFilePostfix);
+                    InputStream in = url.openStream();
+                    IOHelpers.writeTo(file, in);
+                }
+                return file;
+            } finally {
+                downloads.remove(url);
+            }
+        } finally {
+            if(original==null) {
+                ACTIVE_DOWNLOADS.remove();
+            }
+        }
+
     }
 }

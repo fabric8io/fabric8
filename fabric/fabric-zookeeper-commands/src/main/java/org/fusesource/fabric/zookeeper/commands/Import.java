@@ -103,12 +103,16 @@ public class Import extends ZooKeeperCommandSupport {
     }
 
     private void getCandidates(File parent, File current, Map<String, String> settings) throws Exception {
+        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
+        List<Pattern> agentProperties = getPatterns(new String[]{RegexSupport.PROFILE_AGENT_PROPERTIES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
                 getCandidates(parent, child, settings);
             }
             String p = buildZKPath(parent, current).replaceFirst("/", "");
-            settings.put(p, null);
+            if (!matches(profile, "/" + p, false)) {
+                settings.put(p, null);
+            }
         } else {
             BufferedInputStream in = new BufferedInputStream(new FileInputStream(current));
             byte[] contents = new byte[in.available()];
@@ -118,7 +122,16 @@ public class Import extends ZooKeeperCommandSupport {
             if (p.endsWith(".cfg")) {
                 p = p.substring(0, p.length() - ".cfg".length());
             }
-            settings.put(p, new String(contents));
+
+            if (matches(agentProperties,"/" + p,false)) {
+                settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX,""));
+                Properties props = new Properties();
+                props.load(new StringReader(new String(contents)));
+                String parents = (String) props.get("parents");
+                settings.put(p.substring(0,p.lastIndexOf("/")),parents);
+            } else if (!matches(profile,"/" + p ,false)) {
+                settings.put(p, new String(contents));
+            }
         }
     }
 
@@ -239,3 +252,4 @@ public class Import extends ZooKeeperCommandSupport {
         this.verbose = verbose;
     }
 }
+

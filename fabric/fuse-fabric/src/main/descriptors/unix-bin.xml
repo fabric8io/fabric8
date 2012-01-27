@@ -32,6 +32,7 @@
                 <exclude>bin/**</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
+                <exclude>etc/config.properties</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
@@ -71,7 +72,7 @@
         <fileSet>
             <directory>target/classes/distro</directory>
             <excludes>
-                <exclude>faric-features.xml</exclude>
+                <exclude>fabric-features.xml</exclude>
             </excludes>
             <outputDirectory>/</outputDirectory>
             <lineEnding>unix</lineEnding>

@@ -27,12 +27,32 @@ package
  */
 object Website {
 
-  val project_name= "Fabric"
-  val project_slogan= "Fuse Fabric: keeps you DRY from those stormy clouds!"
-  val project_id= "fabric"
-  val project_jira_key= "FABRIC"
+  def uriStartsWith(s: String) = {
+    var answer = false
+    val rc = RenderContext()
+    if (rc != null) {
+      val uri = rc.requestUri
+      if (uri != null) {
+        answer = uri.startsWith(s)
+      }
+    }
+    answer
+  }
+
+  def project_name 
+    = if (uriStartsWith("/fabric")) "Fabric" else "Fuse"
+  def project_slogan
+    = if (uriStartsWith("/fabric")) 
+      "Fuse Fabric: keeps you DRY from those stormy clouds!"
+      else
+        "Awesome open source integration"
+        
+  def project_id
+  = if (uriStartsWith("/fabric")) "fabric" else "fuse"
+  
+  var project_jira_key= "FABRIC"
   val project_issue_url= "http://fusesource.com/issues/browse/FABRIC"
-  val project_forums_url= "http://fabric.fusesource.org/community.html"
+  val project_forums_url= "http://fuse.fusesource.org/community.html"
   val project_wiki_url= "http://wiki.github.com/fusesource/fuse/"
   val project_logo= "/images/project-logo.gif"
   val project_version= "1.1-SNAPSHOT"
@@ -50,5 +70,6 @@ object Website {
   val project_svn_tags_url= "http://fusesource.com/forge/svn/%s/tags".format(project_id)
   val project_maven_groupId= "org.fusesource.%s".format(project_id)
   val project_maven_artifactId= "fuse-fabric"
+
 
 }

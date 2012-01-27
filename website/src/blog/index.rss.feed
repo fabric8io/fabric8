@@ -1,5 +1,5 @@
 ---
-link: http://${project_id}.fusesource.org/blog/
-author: "${project_name} Team"
-title: "The ${project_name} Blog"
-description: "${project_slogan}"
+link: http://fusesource.org/blog/
+author: "Fuse Team"
+title: "The Fuse Blog"
+description: "Awesome open source integration"
