@@ -36,6 +36,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.AgentImpl;
+import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
@@ -428,7 +429,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                     javaOpts += AgentProvider.DEBUG_AGNET;
                 }
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/"+ FabricConstants.VERSION+"/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
                 adminService.startInstance(name, null);
                 return new AgentImpl(parent, name, FabricServiceImpl.this);

@@ -153,6 +153,29 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/scala</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/FabricConstants.java</exclude>
+                </excludes>
+                <targetPath>../filtered-sources/scala</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/scala</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/FabricConstants.java</include>
+                </includes>
+                <targetPath>../filtered-sources/scala</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <sourceDirectory>target/filtered-sources/scala</sourceDirectory>
         <plugins>
 
         </plugins>

@@ -21,6 +21,7 @@ import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.CreateAgentArguments;
+import org.fusesource.fabric.internal.FabricConstants;
 
 public class ChildAgentProvider implements AgentProvider {
 
@@ -65,7 +66,7 @@ public class ChildAgentProvider implements AgentProvider {
                     javaOpts += CLUSTER_SERVER_AGENT;
                 }
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/"+ FabricConstants.VERSION+"/xml/features";
 
                 for (int i = 1; i <= number; i++) {
                     String agentName = name;

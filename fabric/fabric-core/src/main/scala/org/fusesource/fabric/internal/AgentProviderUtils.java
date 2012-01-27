@@ -42,8 +42,8 @@ public class AgentProviderUtils {
         sb.append("run cd ~/agents/ ").append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "karaf-distro", "1.1-SNAPSHOT");
-        sb.append("run cd ").append("karaf-distro-1.1-SNAPSHOT").append("\n");
+        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "fuse-fabirc", FabricConstants.VERSION);
+        sb.append("run cd ").append("fuse-fabric-" + FabricConstants.VERSION).append("\n");
         List<String> lines = new ArrayList<String>();
 
         appendFile(sb, "etc/startup.properties", lines);

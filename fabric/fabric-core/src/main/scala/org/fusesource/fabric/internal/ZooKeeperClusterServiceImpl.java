@@ -129,7 +129,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p = getProperties(client, defaultProfile + "/org.fusesource.fabric.agent.properties", new Properties());
             p.put("org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
             p.put("org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://scala-tools.org/repo-releases");
-            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features");
+            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/"+FabricConstants.VERSION+"/xml/features");
             p.put("feature.karaf", "karaf");
             p.put("feature.fabric-agent", "fabric-agent");
             p.put("feature.fabric-core", "fabric-core");
@@ -159,7 +159,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 }
             }
             if (bundle == null) {
-                bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.1-SNAPSHOT");
+                bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.VERSION);
             }
             if (bundle.getState() == Bundle.ACTIVE) {
                 bundle.stop();
