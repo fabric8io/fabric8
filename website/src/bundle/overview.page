@@ -64,43 +64,43 @@ So to share a dependency (and its transitive dependencies) you just declare a de
 
 This is the same approach you use when building a WAR using Maven to avoid things like the servlet API or JSP being included inside the WAR.
 
-### Fuse-Provided-Dependency
+### FAB-Provided-Dependency
 
-An alternative approach to the _&lt;scope&gt;provided&lt;/scope&gt;_ XML is to use the jar manifest header **Fuse-Provided-Dependency** which denotes which artefacts (transitively) should be shared across deployment units. This header, like most FAB headers, uses a simple concise syntax which supports wildcards.
+An alternative approach to the _&lt;scope&gt;provided&lt;/scope&gt;_ XML is to use the jar manifest header **FAB-Provided-Dependency** which denotes which artefacts (transitively) should be shared across deployment units. This header, like most FAB headers, uses a simple concise syntax which supports wildcards.
 
 The syntax lets you specify zero to many artifacts as follows
 
 {pygmentize:: text}
-Fuse-Provided-Dependency: groupId:artifactId someGroup:someArtifact
+FAB-Provided-Dependency: groupId:artifactId someGroup:someArtifact
 {pygmentize}
     
 You can use wildcards for the groupId or artifactId. So for example if you wish to share all Apache Camel and Spring dependencies (transitively) in your FAB just add this
 
 {pygmentize:: text}
-Fuse-Provided-Dependency: org.apache.camel:* org.springframework:*
+FAB-Provided-Dependency: org.apache.camel:* org.springframework:*
 {pygmentize}
 
 which some find a little simpler and more DRY than using the _&lt;scope&gt;provided&lt;/scope&gt;_ XML on every dependency to be shared
 
 
 
-### Fuse-Dependency-Require-Bundle
+### FAB-Dependency-Require-Bundle
 
 Specifies a list of artefacts which should not use the regular OSGi mechanism of importing packages, but instead should use the OSGi **Require-Bundle** directive.
 
-By default the packages are imported from shared dependencies using the OSGi **Import-Package** directive for all artefacts not selected via the **Fuse-Dependency-Require-Bundle** expression.
+By default the packages are imported from shared dependencies using the OSGi **Import-Package** directive for all artefacts not selected via the **FAB-Dependency-Require-Bundle** expression.
 
 
-### Fuse-Include-Optional-Dependency
+### FAB-Include-Optional-Dependency
 
 Optional dependencies are marked in a _pom.xml_ using the _&lt;optional&gt;true&lt;/optional&gt;_ XML on a dependency.
 
-By default optional dependencies are excluded in a FAB. To explicitly include them you need to add them with the **Fuse-Include-Optional-Dependency** manifest entry.
+By default optional dependencies are excluded in a FAB. To explicitly include them you need to add them with the **FAB-Include-Optional-Dependency** manifest entry.
 
 So to include all optional dependencies use
 
 {pygmentize:: text}
-Fuse-Include-Optional-Dependency: *:*
+FAB-Include-Optional-Dependency: *:*
 {pygmentize}
 
 

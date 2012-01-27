@@ -4,10 +4,7 @@ General questions on the *${project_name}* project.
 
 ### What is the license?
 
-Fuse is completely open source. 
-
-* The distribution and all jars are licensed under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
-* The source code is available and licensed under [CDDL 1.0](http://www.opensource.org/licenses/cddl1) and dual licensed as [AGPL](http://www.gnu.org/licenses/agpl-3.0.html).
+This software is completely open source under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
 
 ### How do I get support?
 

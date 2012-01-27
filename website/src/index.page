@@ -10,15 +10,22 @@ sort_info: 1
 header(class="jumbotron masthead" id="overview")
   .inner
     .container
-      h1 Fuse
-      p.lead Welcome to awesome open source integration.
+      h1 FuseSource
+      p.lead Welcome to awesome open source integration from <a href="http://fusesource.com/" title="FuseSource, Corp. Integration Everywhere">FuseSource</a>
 
 .quickstart
   .container
     .row
       .span5
-        p <a target="_blank" href="esb/index.html" class="btn">Fuse ESB &raquo;</a></p>
+        p <a target="_blank" href="http://fusesource.com/products/enterprise-servicemix/" class="btn">Fuse ESB &raquo;</a></p>
       .span5
         p <a target="_blank" href="fabric/index.html" class="btn">Fuse Fabric &raquo;</a></p>
       .span5
-        p <a target="_blank" href="mq/index.html" class="btn">Fuse MQ &raquo;</a></p>
+        p <a target="_blank" href="http://fusesource.com/products/enterprise-activemq/" class="btn">Fuse MQ &raquo;</a></p>
+      -#
+        .span5
+          p <a target="_blank" href="esb/index.html" class="btn">Fuse ESB &raquo;</a></p>
+        .span5
+          p <a target="_blank" href="fabric/index.html" class="btn">Fuse Fabric &raquo;</a></p>
+        .span5
+          p <a target="_blank" href="mq/index.html" class="btn">Fuse MQ &raquo;</a></p>
