@@ -43,7 +43,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private String version = "base";
 
     public void init() {
-        Boolean autoStart = Boolean.parseBoolean(System.getProperty(CLUSTER_AUTOSTART_PROPERTY));
+        Boolean autoStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART));
         if (autoStart) {
             createLocalServer();
         }

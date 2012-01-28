@@ -65,7 +65,7 @@ public class CreateChildAgentTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
-                new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
+                new VMOption("-D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true") ,
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

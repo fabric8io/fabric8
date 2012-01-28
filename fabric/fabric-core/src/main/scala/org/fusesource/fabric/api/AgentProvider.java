@@ -24,7 +24,7 @@ import java.net.URI;
 public interface AgentProvider {
 
     static final String DEBUG_AGNET=" -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005";
-    static final String CLUSTER_SERVER_AGENT=" -D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true";
+    static final String CLUSTER_SERVER_AGENT=" -D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true";
     static final String PROTOCOL = "fabric.agent.protocol";
 
     /**

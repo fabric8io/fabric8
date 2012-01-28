@@ -22,7 +22,7 @@ import java.util.List;
 
 public interface ZooKeeperClusterService {
 
-    static final String CLUSTER_AUTOSTART_PROPERTY="cluster.auto.cluster";
+    static final String ENSEMBLE_AUTOSTART ="ensemble.auto.start";
 
     List<String> getClusterAgents();
 

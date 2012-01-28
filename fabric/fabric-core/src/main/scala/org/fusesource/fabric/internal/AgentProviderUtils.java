@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.fusesource.fabric.api.AgentProvider;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 
 public class AgentProviderUtils {
@@ -50,7 +49,7 @@ public class AgentProviderUtils {
         replaceLineInFile(sb,"etc/system.properties","karaf.name=root","karaf.name = "+name);
         replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+sshPort);
         if(isClusterServer) {
-            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"));
         } else {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + zooKeeperUrl));
         }
