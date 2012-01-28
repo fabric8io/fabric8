@@ -7,7 +7,7 @@ title: Team members
 --- name:content pipeline:jade
 table
   tr
-    td This page lists who we are on FuseSource Fabric Project.
+    td This page lists who we are on Fuse Project.
 
 div.table
   table

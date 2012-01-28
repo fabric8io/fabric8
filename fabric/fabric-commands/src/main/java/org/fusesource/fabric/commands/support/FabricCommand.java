@@ -19,12 +19,15 @@ package org.fusesource.fabric.commands.support;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.service.FabricServiceImpl;
+import org.linkedin.zookeeper.client.IZKClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
+    private IZKClient zooKeeper;
     protected FabricService fabricService;
 
     protected static String AGENT_PID = "org.fusesource.fabric.agent";
@@ -35,6 +38,18 @@ public abstract class FabricCommand extends OsgiCommandSupport {
 
     public void setFabricService(FabricService fabricService) {
         this.fabricService = fabricService;
+    }
+
+    public IZKClient getZooKeeper() {
+        if (zooKeeper == null && fabricService instanceof FabricServiceImpl) {
+            FabricServiceImpl impl = (FabricServiceImpl) fabricService;
+            zooKeeper =  impl.getZooKeeper();
+        }
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
     }
 
     protected String toString(Profile[] profiles) {

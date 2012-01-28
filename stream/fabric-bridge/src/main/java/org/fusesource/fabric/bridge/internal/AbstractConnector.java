@@ -16,22 +16,12 @@
  */
 package org.fusesource.fabric.bridge.internal;
 
-import java.util.List;
-
-import javax.jms.ConnectionFactory;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.fusesource.fabric.bridge.DestinationsConfigManager;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.model.BridgedDestination;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.fusesource.fabric.bridge.model.DispatchPolicy;
-import org.fusesource.fabric.bridge.model.IdentifiedType;
+import org.fusesource.fabric.bridge.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -40,6 +30,13 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.DestinationResolver;
+
+import javax.jms.ConnectionFactory;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlType;
+import java.util.List;
 
 /**
  * @author Dhiraj Bokde
@@ -50,6 +47,8 @@ import org.springframework.jms.support.destination.DestinationResolver;
 public abstract class AbstractConnector extends IdentifiedType
 		implements SmartLifecycle, InitializingBean, DisposableBean,
 		ApplicationContextAware, DestinationsConfigManager {
+
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
 	protected Object lifecycleMonitor = new Object();
 	

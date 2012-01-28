@@ -149,7 +149,7 @@
             </goals>
             <configuration>
               <format>conf</format>
-              <targetFolder>src/documentation/commands/</targetFolder>
+              <targetFolder>src/fabric/docs/commands/</targetFolder>
               <classLoader>plugin</classLoader>
             </configuration>
           </execution>
@@ -203,7 +203,7 @@
         <configuration>
           <warSourceDirectory>${basedir}/src</warSourceDirectory>
           <remoteServerId>website.fusesource.org</remoteServerId>
-          <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}</remoteServerUrl>
+          <remoteServerUrl>dav:http://fusesource.com/forge/dav/fuse</remoteServerUrl>
           <!-- 
           <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}/fab</remoteServerUrl>
 

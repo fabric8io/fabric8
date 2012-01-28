@@ -150,6 +150,17 @@
             </completers>
         </command>
 
+        <command name="fabric/cluster-list">
+            <action class="org.fusesource.fabric.commands.ClusterList">
+              <property name="fabricService" ref="fabricService"/>
+              <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+          <completers>
+              <ref component-id="clusterCompleter" />
+              <null/>
+          </completers>
+        </command>
+
         <command name="fabric/profile-create">
             <action class="org.fusesource.fabric.commands.ProfileCreate">
                 <property name="fabricService" ref="fabricService"/>
@@ -196,6 +207,9 @@
 
     <bean id="agentCompleter" class="org.fusesource.fabric.commands.support.AgentCompleter">
         <property name="fabricService" ref="fabricService"/>
+    </bean>
+    <bean id="clusterCompleter" class="org.fusesource.fabric.commands.ClusterCompleter">
+        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
     <bean id="profileCompleter" class="org.fusesource.fabric.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>

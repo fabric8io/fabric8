@@ -1,0 +1,141 @@
+---
+title: Getting Started with Fuse Fabric
+in_menu: true
+sort_info: 10
+--- pipeline:jade
+
+.row
+  .span4
+    :markdown
+      # Install
+  .span12
+    :&markdown
+      To install Fuse Fabric 
+  
+      * [download](../download.html) the Fuse Fabric distro 
+      * [checkout](../source.html) and [build](../building.html) the Fabric distro locally and untar the fabric/fuse-fabric tarball
+  
+.row
+  .span4
+    :markdown
+      # Create a Fabric
+  .span12
+    :&markdown
+      Create a new fabric on your machine via the **fabric:create** command.
+    pre
+      | FuseFabric:admin@root> fabric:create
+
+    :&markdown
+      This creates initial Fabric registry (running a local ZooKeeper server) and importing all the default profiles.
+      
+      The initial profile data all comes from the [fabric/import](https://github.com/fusesource/fuse/tree/master/fabric/fuse-fabric/src/main/resources/distro/fabric/import) directory.
+
+      You can then view the available profiles via **profile-list**
+
+    pre
+      | FuseFabric:admin@root> profile-list
+      | [id]                           [parents]
+      | ode                            servicemix
+      | hadoop-namenode                
+      | mq                             karaf
+      | example-fabric-camel           examples, karaf
+      | esb                            mq, nmr, camel
+      | hadoop-datanode                
+      | hadoop                         
+      | example-fabric-mq              examples
+      | camel                          karaf
+      | default                        
+      | nmr                            karaf
+      | karaf                          default
+      | zk-server-0000-1               zk-server-0000
+      | zk-server-0000
+
+    :&markdown
+      Or list the available agents via **agent-list**
+    pre
+      | FuseFabric:admin@root> agent-list
+      | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
+      | root                           true       default, zk-server-0000-1      success                                                                                             
+
+.row
+  .span4
+    :markdown
+      # Create a Broker process 
+  .span12
+    :&markdown
+      Lets start by creating a message broker using the default **mq** profile as a child agent on the **root** process.
+      Child agents are separate JVMs which can be connected to via the shell or JMX and started/stopped independently.
+      
+    pre
+      | FuseFabric:karaf@root> agent-create-child --profile mq root broker1
+      | ...
+    :&markdown
+      Check that the agent has been created (it can take a few seconds):  
+    pre
+      | FuseFabric:admin@root> fabric:agent-list
+      | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
+      | root                           true       default, zk-server-0000-1
+      | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
+  
+    :&markdown
+      Wait a few seconds, then check that the feature has been deployed:  
+    pre
+      | FuseFabric:admin@root> agent-connect broker1
+      | ...
+      | FuseFabric:admin@test> help activemq:list
+      | ...
+
+.row
+  .span4
+    :markdown
+      # Create a Camel process 
+  .span12
+    :&markdown
+      Now lets create a separate agent running a Camel route using the default **example-fabric-camel** profile as a child agent on the **root** process.
+      
+    pre
+      | FuseFabric:karaf@root> agent-create-child --profile example-fabric-camel root camel1
+      | ...
+    :&markdown
+      Check that the agent has been created (it can take a few seconds):  
+    pre
+      | FuseFabric:admin@root> agent-list
+      | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
+      | root                           true       default, zk-server-0000-1
+      | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
+      | &nbsp;&nbsp;camel1                       true       example-fabric-camel           success                                                                                                    
+  
+    :&markdown
+      Now we should be able to connect to it and list the routes
+    pre
+      | FuseFabric:admin@root> agent-connect camel1
+      | ...
+      | FuseFabric:admin@test> camel:list-routes 
+      | ...
+
+
+-#
+  .row
+    .span4
+      :markdown
+        # Install Fabric in a vanilla Apache Karaf or ServiceMix container
+    .span12
+      :&markdown
+        Run the following in an Apache Karaf (2.2.x) or ServiecMix (4.x) console:  
+
+      pre
+        | karaf@root> shell:source mvn:org.fusesource.fabric/fuse-fabric/#{project_version}/karaf/installer
+
+      :&markdown
+        The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
+        create the initial ZooKeeper server and profiles.
+
+         If you are using a SNAPSHOT version of Fabric, and have not build Fabric locally, then you must add the Maven repositories list,
+         the location of where the Fabric SNAPSHOT artifacts is installed.
+         In the "etc/org.ops4j.pax.url.mvn.cfg" file add the following entries to the "org.ops4j.pax.url.mvn.repositories" key:
+
+      pre
+        | http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots, \
+        | http://repo.fusesource.com/nexus/content/groups/public
+
+

@@ -1,0 +1,50 @@
+---
+title: How FABs help OSGi
+--- name:overview
+# How FABs help OSGi
+
+--- pipeline:markdown
+
+OSGi is a successful technology for creating lightweight containers; pretty much every application server is now based on OSGi (e.g. JBoss and GlassFish) along with the commercial containers.
+
+On the Apache ServiceMix project we found adopting OSGi provided much more powerful and flexible infrastructure for building application containers and lead to the creation of the Apache Karaf project.
+
+However as an application programmer, OSGi can add quite a cost.
+
+## Whats good about OSGi?
+
+The OSGi framework is great - as are the ideas behind its modularity and extension mechanisms. In may ways its the generic container for the Java platform.
+
+OSGi provides a very powerful and small framework for dealing with deployment units, lifecycles and dependencies. Its a standard adopted by various projects (Apache Felix, Eclipse Equinox, the Eclipse IDE, Apache Karaf, Apache ServiceMix, JBoss, GlassFish etc).
+
+OSGi lets you create very modular applications which can have services and deployment units redeployed at runtime, along with supporting flexible and powerful class loader trees so that multiple versions of the same library can be shared across many deployment units in the same JVM.
+
+Lots of our customers love OSGi! :)
+
+
+## Whats bad about OSGi?
+
+The big issue application developers hit when creating OSGi bundles though is the creation, maintenance & fixing of the OSGi metadata required to use the class loader.
+
+Valid OSGi bundles use package level metadata, describing what packages are imported and exported along with version information (and other things like requiring explicit bundles or adding embedded jars into the bundle classpath).
+
+Its the package level metadata thats the pain when developing applications for OSGi. 
+
+In many ways OSGi today is a little like EJB 1.0 was; EJB 1.0 provided all the features folks wanted at the time (remoting, transactions etc); the problem was there was too much explicit code & configuration. Sometimes stuff was transacted or remote; the problem was everyone had to pay the cost of these features whether they were used or not. 
+
+Similarly OSGi requires all bundles to have full and accurate package level metadata; whether folks want to share the bundle across class loaders or not.
+
+In the EJB 1.0 days just like in OSGi today folks say 'ah thats just a tooling problem!'. There are various tools out there to help for sure such as [Felix Maven Bundle Plugin](http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html), [BND](http://www.aqute.biz/Bnd/Bnd), [Bndtools](http://bndtools.org/) or the MANIFEST.MF editor in Eclipse.
+
+
+## How are Fuse Bundles different?
+
+Fuse Bundles are just jars built using Maven or Maven-compatible tools. That is to say its a regular jar with a META-INF/maven/groupId/artifactId/pom.xml file (and pom.properties file).
+
+Many folks today use Maven or a maven like tool (SBT, Ant+Ivy, Bundlr, Gradle etc) for building jars, specifying dependencies.
+
+Fuse Bundles rely on the maven metadata to define dependency trees when deploying in OSGi. Thats to say the same class loaders that work in your IDE or your maven build also work in the OSGi container.
+
+The main difference being if you use the <scope>provided</scope> in your maven pom.xml then that dependency will be shared across bundles.
+
+

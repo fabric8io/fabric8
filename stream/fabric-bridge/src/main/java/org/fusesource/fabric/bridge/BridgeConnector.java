@@ -16,19 +16,16 @@
  */
 package org.fusesource.fabric.bridge;
 
-import java.util.List;
-
-import javax.xml.bind.annotation.*;
-
 import org.fusesource.fabric.bridge.internal.AbstractConnector;
 import org.fusesource.fabric.bridge.internal.SourceConnector;
 import org.fusesource.fabric.bridge.internal.TargetConnector;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import javax.xml.bind.annotation.*;
+import java.util.List;
 
 /**
  * Bi-directional connector for network bridges. Connects a source broker to a target broker. 
@@ -42,8 +39,6 @@ import org.springframework.util.StringUtils;
 @XmlType(propOrder = {"localBrokerConfig", "remoteBrokerConfig", "outboundDestinations", "inboundDestinations"})
 public class BridgeConnector extends AbstractConnector {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(BridgeConnector.class);
-
 	// required
 	@XmlElement(name="local-broker", required=true)
 	private BrokerConfig localBrokerConfig;
