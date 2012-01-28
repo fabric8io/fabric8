@@ -20,14 +20,14 @@
     <parent>
         <artifactId>bundles</artifactId>
         <groupId>org.fusesource.fabric.virt</groupId>
-        <version>1.1</version>
+        <version>1.2-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.fusesource.fabric.virt.bundles</groupId>
     <artifactId>org.fusesource.fabric.virt.bundles.libvirt</artifactId>
-    <version>1.1</version>
+    <version>0.4.6_1</version>
     <packaging>bundle</packaging>
     <name>FuseSource :: Fabric :: Virt :: Bundles :: LibVirt</name>
     <description>Fuse LibVirt Bundle</description>

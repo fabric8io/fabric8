@@ -20,14 +20,14 @@
     <parent>
         <artifactId>bundles</artifactId>
         <groupId>org.fusesource.fabric.virt</groupId>
-        <version>1.1</version>
+        <version>1.2-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.fusesource.fabric.virt.bundles</groupId>
     <artifactId>org.fusesource.fabric.virt.bundles.jna</artifactId>
-    <version>1.1</version>
+    <version>3.3.0_1</version>
     <packaging>bundle</packaging>
     <name>FuseSource :: Fabric :: Virt :: Bundles :: Jna</name>
     <description>Fuse JNA Bundle</description>

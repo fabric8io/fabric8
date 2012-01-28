@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1</version>
+        <version>1.2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabrc-virt</artifactId>
     <packaging>pom</packaging>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <name>FuseSource :: Fabric :: Virt :: Pom</name>
 
     <modules>
