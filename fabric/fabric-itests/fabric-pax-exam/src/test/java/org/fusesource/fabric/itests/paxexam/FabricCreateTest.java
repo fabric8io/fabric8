@@ -56,7 +56,7 @@ public class FabricCreateTest extends FabricCommandsTestSupport {
         Profile camelProfile = fabricService.getProfile("base","camel");
         assertNotNull(camelProfile);
 
-        Profile activeMq = fabricService.getProfile("base","activemq");
+        Profile activeMq = fabricService.getProfile("base","mq");
         assertNotNull(activeMq);
     }
 
