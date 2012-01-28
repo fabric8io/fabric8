@@ -44,6 +44,7 @@ public class BasicEncryptionSupport extends EncryptionSupport {
             setEncryptionSuffix(encOpts.remove("suffix"));
             boolean enabled = Boolean.parseBoolean(encOpts.remove("enabled"));
             if (enabled) {
+                encOpts.remove("name");
                 encryption = new BasicEncryption(encOpts);
             }
         }
