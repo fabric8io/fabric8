@@ -27,7 +27,7 @@
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
     <packaging>pom</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
 
     <name>${project.artifactId}</name>
     <description>Fuse Fabric</description>
@@ -123,7 +123,7 @@
         <jetty-version>7.4.5.v20110725</jetty-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jna-version>3.3.0</jna-version>
-        <jna-bundle-version>3.3.0_1</jna-bundle-version>
+        <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
         <karaf-version>2.2.2-fuse-02-${perfectus-build}</karaf-version>
@@ -131,7 +131,7 @@
 <karaf-version>2.2.4-fuse-00-12</karaf-version>
 -->
         <libvirt-version>0.4.6</libvirt-version>
-        <libvirt-bundle-version>0.4.6_1</libvirt-bundle-version>
+        <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
@@ -296,7 +296,7 @@
                           </goals>
                         </pluginExecutionFilter>
                         <action>
-                          <ignore></ignore>
+                          <ignore />
                         </action>
                       </pluginExecution>
                     </pluginExecutions>

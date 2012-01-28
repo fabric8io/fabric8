@@ -16,13 +16,11 @@
   limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -337,36 +335,30 @@
                            </goals>
                            <configuration>
                                <target name="update-properties">
-                                   <echo message="Updating etc/config.properties in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties"
-                                           append="true" eol="unix">
+                                   <echo message="Updating etc/config.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/etc/config.properties" />
                                    </concat>
-                                   <echo message="Updating etc/custom.properties in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties"
-                                           append="true" eol="dos">
+                                   <echo message="Updating etc/custom.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/config.properties" />
                                    </concat>
 
-                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg"
-                                           append="true" eol="unix">
+                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
                                    </concat>
-                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg"
-                                           append="true" eol="dos">
+                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
                                    </concat>
 
-                                   <echo message="Updating etc/system.properties in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties"
-                                           append="true" eol="unix">
+                                   <echo message="Updating etc/system.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
-                                   <echo message="Updating etc/system.properties in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties"
-                                           append="true" eol="dos">
+                                   <echo message="Updating etc/system.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
                                </target>
@@ -403,7 +395,7 @@
            								</goals>
            							</pluginExecutionFilter>
            							<action>
-           								<ignore></ignore>
+           								<ignore />
            							</action>
            						</pluginExecution>
            					</pluginExecutions>
