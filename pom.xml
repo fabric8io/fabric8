@@ -111,7 +111,7 @@
         <felix.framework.version>3.0.9-fuse-03-${perfectus-build}</felix.framework.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
-        <hawtdispatch-version>1.7</hawtdispatch-version>
+        <hawtdispatch-version>1.8</hawtdispatch-version>
         <jackson-version>1.9.2</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
