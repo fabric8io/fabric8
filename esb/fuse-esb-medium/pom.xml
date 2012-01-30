@@ -20,9 +20,9 @@
         <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 
-    <artifactId>fuse-esb-jbi</artifactId>
+    <artifactId>fuse-esb-medium</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Assembly (JBI)</name>
+    <name>Fuse ESB :: Assembly (Medium)</name>
 
     <build>
         <plugins>

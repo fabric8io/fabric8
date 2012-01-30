@@ -195,7 +195,7 @@
         <module>esb-branding</module>
         <module>fuse-esb</module>
         <module>fuse-esb-minimal</module>
-        <module>fuse-esb-jbi</module>
+        <module>fuse-esb-medium</module>
         <module>fuse-esb-full</module>
     </modules>
 
