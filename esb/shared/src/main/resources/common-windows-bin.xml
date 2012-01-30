@@ -32,7 +32,6 @@
              <exclude>etc/users.properties</exclude>
              <exclude>etc/custom.properties</exclude>
              <exclude>etc/jre.properties</exclude>
-             <exclude>etc/startup.properties</exclude>
              <exclude>system/**</exclude>
              <exclude>LICENSE</exclude>
              <exclude>NOTICE</exclude>
