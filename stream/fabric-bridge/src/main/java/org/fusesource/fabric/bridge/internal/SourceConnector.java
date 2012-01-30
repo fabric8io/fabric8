@@ -23,8 +23,6 @@ import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.DispatchPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.UncategorizedJmsException;
@@ -34,9 +32,9 @@ import org.springframework.jms.support.destination.DestinationResolver;
 
 import javax.jms.*;
 import java.beans.PropertyDescriptor;
+import java.lang.IllegalStateException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.lang.IllegalStateException;
 
 /**
  * Connects destinations on local broker to a staging queue on remote broker. 
@@ -218,16 +216,6 @@ public class SourceConnector extends AbstractConnector {
 			}
 		}
 
-        // stop connection factories
-        if (localConnectionFactory != null && (localConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping local connection factory");
-            ((PooledConnectionFactory)localConnectionFactory).stop();
-        }
-        if (remoteConnectionFactory != null && (remoteConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping remote connection factory");
-            ((PooledConnectionFactory)remoteConnectionFactory).stop();
-        }
-
 		LOG.info("Stopped");
 	}
 
@@ -260,10 +248,11 @@ public class SourceConnector extends AbstractConnector {
 		listenerMap.clear();
 		
 		// check if we created pooled connection factories
-		if (localBrokerConfig.getConnectionFactory() == null) {
+		if (localBrokerConfig.getConnectionFactory() == null && localConnectionFactory != null) {
 			((PooledConnectionFactory)localConnectionFactory).stop();
 		}
-		if (remoteBrokerConfig != null && remoteBrokerConfig.getConnectionFactory() == null) {
+        if (remoteBrokerConfig != null && remoteBrokerConfig.getConnectionFactory() == null
+            && remoteConnectionFactory != null) {
 			((PooledConnectionFactory)remoteConnectionFactory).stop();
 		}
 

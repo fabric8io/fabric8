@@ -164,15 +164,14 @@ public class TargetConnector extends AbstractConnector {
 			}
 		}
 
-        // stop connection factories
-        if (localConnectionFactory != null && (localConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping local connection factory");
-            ((PooledConnectionFactory)localConnectionFactory).stop();
-        }
-        if (remoteConnectionFactory != null && (remoteConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping remote connection factory");
-            ((PooledConnectionFactory)remoteConnectionFactory).stop();
-        }
+		// check if we created pooled connection factories
+        if (localBrokerConfig.getConnectionFactory() == null && localConnectionFactory != null) {
+			((PooledConnectionFactory)localConnectionFactory).stop();
+		}
+		if (remoteBrokerConfig != null && remoteBrokerConfig.getConnectionFactory() == null
+            && remoteConnectionFactory != null) {
+			((PooledConnectionFactory)remoteConnectionFactory).stop();
+		}
 
         LOG.info("Destroyed");
 	}
