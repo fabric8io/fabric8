@@ -1,0 +1,67 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <reference id="service" interface="org.fusesource.patch.Service"/>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="patch/list">
+            <action class="org.fusesource.patch.commands.List">
+                <property name="service" ref="service"/>
+            </action>
+        </command>
+        <command name="patch/download">
+            <action class="org.fusesource.patch.commands.Download">
+                <property name="service" ref="service"/>
+            </action>
+        </command>
+        <command name="patch/simulate">
+            <action class="org.fusesource.patch.commands.Simulate">
+                <property name="service" ref="service"/>
+            </action>
+            <completers>
+                <ref component-id="uninstalledPatchesCompleter" />
+                <null/>
+            </completers>
+        </command>
+        <command name="patch/install">
+            <action class="org.fusesource.patch.commands.Install">
+                <property name="service" ref="service"/>
+            </action>
+            <completers>
+                <ref component-id="uninstalledPatchesCompleter" />
+                <null/>
+            </completers>
+        </command>
+        <command name="patch/rollback">
+            <action class="org.fusesource.patch.commands.Rollback">
+                <property name="service" ref="service"/>
+            </action>
+            <completers>
+                <ref component-id="installedPatchesCompleter" />
+                <null/>
+            </completers>
+        </command>
+    </command-bundle>
+
+    <bean id="installedPatchesCompleter" class="org.fusesource.patch.commands.support.PatchCompleter">
+        <property name="service" ref="service"/>
+        <property name="installed" value="true"/>
+        <property name="uninstalled" value="false"/>
+    </bean>
+    <bean id="uninstalledPatchesCompleter" class="org.fusesource.patch.commands.support.PatchCompleter">
+        <property name="service" ref="service"/>
+        <property name="installed" value="false"/>
+        <property name="uninstalled" value="true"/>
+    </bean>
+
+</blueprint>
