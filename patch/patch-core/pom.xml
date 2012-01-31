@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.patch</groupId>
+    <artifactId>patch-project</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>patch-core</artifactId>
+  <packaging>bundle</packaging>
+  <name>${project.artifactId}</name>
+  <description>Fuse Patch :: Core</description>
+
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.patch;version="${project.version}"
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+            *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+            org.fusesource.patch.impl,
+            org.apache.felix.utils.manifest,
+            org.apache.felix.utils.version,
+        </fuse.osgi.private.pkg>
+    </properties>
+
+  <dependencies>
+
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+          <version>4.3.0</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.utils</artifactId>
+          <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.easymock</groupId>
+          <artifactId>easymock</artifactId>
+          <version>3.0</version>
+          <scope>test</scope>
+      </dependency>
+
+  </dependencies>
+
+</project>

@@ -1,0 +1,38 @@
+<!--
+
+    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fuse-project</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.fusesource.patch</groupId>
+  <artifactId>patch-project</artifactId>
+  <packaging>pom</packaging>
+  <name>${project.artifactId}</name>
+  <description>Fuse Patch :: Project</description>
+
+  <properties>
+    <fuse.osgi.export>org.fusesource.patch.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+  </properties>
+
+  <modules>
+    <module>patch-core</module>
+    <module>patch-commands</module>
+    <!--
+    <module>patch-management</module>
+    -->
+  </modules>
+
+</project>
