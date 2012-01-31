@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +44,7 @@ public class InputBatcher extends DefaultComponent {
 
     public int batchSize = 1024*256;
     public long batchTimeout = 1000;
+    public InputStream is = System.in;
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
@@ -113,7 +115,7 @@ public class InputBatcher extends DefaultComponent {
                                 continue;
                             }
 
-                            int count = System.in.read(batch, pos, batch.length - pos);
+                            int count = is.read(batch, pos, batch.length - pos);
                             if( count < 0  ) {
                                 if( pos > 0 ) {
                                     byte[] data = new byte[pos];
@@ -317,5 +319,13 @@ public class InputBatcher extends DefaultComponent {
 
     public void setBatchTimeout(long batchTimeout) {
         this.batchTimeout = batchTimeout;
+    }
+
+    public InputStream getIs() {
+        return is;
+    }
+
+    public void setIs(InputStream is) {
+        this.is = is;
     }
 }

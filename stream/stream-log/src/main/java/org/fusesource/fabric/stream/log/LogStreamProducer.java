@@ -24,6 +24,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.model.RouteDefinition;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -35,12 +36,13 @@ import java.util.LinkedList;
  */
 public class LogStreamProducer {
     
-    String broker;
-    String destination;
-    int batchSize = 1024*64;
-    long batchTimeout = 1000*5;
-    boolean compress = false;
-    
+    private String broker;
+    private String destination;
+    private int batchSize = 1024*64;
+    private long batchTimeout = 1000*5;
+    private boolean compress = false;
+    private InputStream is = System.in;
+
     public static void main(String[] args) throws Exception {
         LogStreamProducer producer = new LogStreamProducer();
         
@@ -97,14 +99,26 @@ public class LogStreamProducer {
 
     private void execute() throws Exception {
         CamelContext context = new DefaultCamelContext();
+        configure(context);
+        context.start();
+
+        // block until the process is killed.
+        synchronized (this) {
+            while(true) {
+                this.wait();
+            }
+        }
+    }
+
+    public void configure(CamelContext context) throws Exception {
         // no need to use JMX for this embedded CamelContext
         context.disableJMX();
         context.addComponent("activemq", ActiveMQComponent.activeMQComponent(broker));
-        
+
         final InputBatcher batcher = new InputBatcher();
         batcher.setBatchSize(batchSize);
         batcher.setBatchTimeout(batchTimeout);
-        
+        batcher.setIs(is);
         context.addComponent("batcher", batcher);
 
         context.addRoutes(new RouteBuilder() {
@@ -117,14 +131,54 @@ public class LogStreamProducer {
                 route.to("activemq:"+destination);
             }
         });
-        context.start();
-
-        // block until done.
-        synchronized (this) {
-            while(true) {
-                this.wait();
-            }
-        }
     }
 
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public long getBatchTimeout() {
+        return batchTimeout;
+    }
+
+    public void setBatchTimeout(long batchTimeout) {
+        this.batchTimeout = batchTimeout;
+    }
+
+    public String getBroker() {
+        return broker;
+    }
+
+    public void setBroker(String broker) {
+        this.broker = broker;
+    }
+
+    public boolean isCompress() {
+        return compress;
+    }
+
+    public void setCompress(boolean compress) {
+        this.compress = compress;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public InputStream getIs() {
+        return is;
+    }
+
+    public void setIs(InputStream is) {
+        this.is = is;
+    }
 }
