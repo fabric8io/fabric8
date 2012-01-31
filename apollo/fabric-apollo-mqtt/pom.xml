@@ -43,7 +43,7 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-broker</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${apollo-version}</version>
     </dependency>
 
     <dependency>
@@ -64,14 +64,14 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-broker</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${apollo-version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-util</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${apollo-version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -79,13 +79,13 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-bdb</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-leveldb</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -99,7 +99,7 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-web</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
 
