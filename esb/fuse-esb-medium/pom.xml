@@ -83,6 +83,19 @@
                                 <feature>camel-mail</feature>
                                 <feature>camel-paxlogging</feature>
                                 <feature>camel-rmi</feature>
+                                <feature>jasypt-encryption</feature>
+                                <feature>camel-csv</feature>
+                                <feature>camel-ftp</feature>
+                                <feature>camel-bindy</feature>
+                                <feature>camel-eventadmin</feature>
+                                <feature>camel-exec</feature>
+                                <feature>camel-jasypt</feature>
+                                <feature>camel-saxon</feature>
+                                <feature>camel-snmp</feature>
+                                <feature>camel-ognl</feature>
+                                <feature>camel-routebox</feature>
+                                <feature>camel-script</feature>
+                                <feature>camel-spring-javaconfig</feature>
 
                                 <!-- ServiceMix Components -->
                                 <feature>servicemix-cxf-bc</feature>
