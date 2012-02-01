@@ -208,10 +208,32 @@ sort_info: 10
       | admin@broker1> activemq:query -QQueue=camel-test
       | ...
 
+.row
+  .span4
+    :markdown
+      # Stopping Agents and Fuse Fabric
+  .span12
+    :&markdown
+      You can manage agents from the Fuse Fabric shell. For example to stop the **camel1** agent, you can do as shown below.
+      Remember you have to in the Fuse Fabric shell, which you can notice in the prompt. If you are connected to another agent, you
+      can logout from the agent, to get back to the Fuse Fabric agent.
+
+    pre
+      | FuseFabric:admin@root> agent-stop camel1
+      | ... 
+
+    :&markdown
+      Stopping Fuse Fabric can be done from the shell, JMX or from the OS command line. From the shell you can issue the **shutdown** command,
+      and enter yes in the prompt:
+
+    pre
+      | FuseFabric:admin@root> shutdown
+      | Confirm: shutdown instance root (yes/no):
+      | ... 
+
     :&markdown
       Congratulations, you are now started with Fuse Fabric, and have successfully managed to install two child agents. Install an example, which
       exchanges messages between the agents using the message broker.
-
 
 .row
   .span4
