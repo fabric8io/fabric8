@@ -66,7 +66,6 @@
                                 <feature>camel-nmr</feature>
                                 <feature>camel-cxf</feature>
                                 <feature>camel-blueprint</feature>
-                                <feature>jbi-cluster</feature>
                                 <feature>war</feature>
                                 <feature>camel-jms</feature>
                                 <feature>camel-jaxb</feature>
@@ -89,28 +88,6 @@
                                 <feature>camel-routebox</feature>
                                 <feature>camel-script</feature>
                                 <feature>camel-spring-javaconfig</feature>
-
-                                <!-- ServiceMix Components -->
-                                <feature>servicemix-cxf-bc</feature>
-                                <feature>servicemix-file</feature>
-                                <feature>servicemix-ftp</feature>
-                                <feature>servicemix-http</feature>
-                                <feature>servicemix-jms</feature>
-                                <feature>servicemix-mail</feature>
-                                <feature>servicemix-bean</feature>
-                                <feature>servicemix-camel</feature>
-                                <feature>servicemix-cxf-se</feature>
-                                <feature>servicemix-drools</feature>
-                                <feature>servicemix-eip</feature>
-                                <feature>servicemix-osworkflow</feature>
-                                <feature>servicemix-quartz</feature>
-                                <feature>servicemix-scripting</feature>
-                                <feature>servicemix-validation</feature>
-                                <feature>servicemix-saxon</feature>
-                                <feature>servicemix-wsn2005</feature>
-                                <feature>servicemix-snmp</feature>
-                                <feature>servicemix-vfs</feature>
-                                <feature>servicemix-smpp</feature>
 
                                 <!-- FuseSource only : Fabric -->
                                 <feature>fabric-bundle</feature>
