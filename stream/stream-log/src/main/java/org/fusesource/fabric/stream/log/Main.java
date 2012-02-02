@@ -23,6 +23,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.model.RouteDefinition;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -91,6 +93,7 @@ public class Main {
     }
 
     private static void displayHelpAndExit(int exitCode) {
+        Main.displayResourceFile("main-usage.txt");
         System.exit(exitCode);
     }
 
@@ -122,6 +125,23 @@ public class Main {
         synchronized (this) {
             while(true) {
                 this.wait();
+            }
+        }
+    }
+
+    public static void displayResourceFile(String name) {
+        InputStream is = HttpSimulator.class.getResourceAsStream(name);
+        try {
+            int c;
+            while((c=is.read())>=0) {
+                System.out.write(c);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
             }
         }
     }

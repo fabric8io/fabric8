@@ -40,7 +40,7 @@ public class LogStreamProducer {
     private String destination;
     private int batchSize = 1024*64;
     private long batchTimeout = 1000*5;
-    private boolean compress = false;
+    private boolean compress = true;
     private InputStream is = System.in;
 
     public static void main(String[] args) throws Exception {

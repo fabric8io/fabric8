@@ -5,17 +5,19 @@ package org.fusesource.fabric.stream.log;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
-import static java.util.concurrent.TimeUnit.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.TimeUnit.*;
+import static java.lang.String.*;
 /**
  * <p>
  *     This class is used to simulate the logging load
@@ -36,8 +38,10 @@ public class HttpSimulator {
     };
 
     private static void displayHelpAndExit(int exitCode) {
+        Main.displayResourceFile("http-simulator-usage.txt");
         System.exit(exitCode);
     }
+
 
     private static String shift(LinkedList<String> argl) {
         if(argl.isEmpty()) {
@@ -70,14 +74,18 @@ public class HttpSimulator {
                     simulator.batchTimeout =  Long.parseLong(shift(argl));
                 } else if( "--compress".equals(arg) ) {
                     simulator.compress = Boolean.parseBoolean(shift(argl));
-                } else if( "--entries-per-hour".equals(arg) ) {
-                    simulator.entriesPerHour = Long.parseLong(shift(argl));
-                } else if( "--entries-per-hour-sd".equals(arg) ) {
-                    simulator.entriesPerHourSD = Long.parseLong(shift(argl));
+                } else if( "--entries-per-sec".equals(arg) ) {
+                    simulator.entriesPerSec = Double.parseDouble(shift(argl));
+                } else if( "--entries-per-sec-sd".equals(arg) ) {
+                    simulator.entriesPerSecSD = Double.parseDouble(shift(argl));
                 } else if( "--session-size".equals(arg) ) {
                     simulator.sessionSize = Long.parseLong(shift(argl));
                 } else if( "--session-size-sd".equals(arg) ) {
                     simulator.sessionSizeSD = Long.parseLong(shift(argl));
+                } else if( "--sample-time".equals(arg) ) {
+                    simulator.sampleTime = Integer.parseInt(shift(argl));
+                } else if( "--warmup-time".equals(arg) ) {
+                    simulator.warmupTime = Integer.parseInt(shift(argl));
                 } else {
                     System.err.println("Invalid usage: unknown option: "+arg);
                     displayHelpAndExit(1);
@@ -87,7 +95,14 @@ public class HttpSimulator {
                 displayHelpAndExit(1);
             }
         }
-
+        if( simulator.brokers.isEmpty() ) {
+            System.err.println("At least one --broker option is required.");
+            displayHelpAndExit(1);
+        }
+        if( simulator.destinations.isEmpty() ) {
+            System.err.println("At least one --destination option is required.");
+            displayHelpAndExit(1);
+        }
         try {
             simulator.execute();
             System.exit(0);
@@ -105,24 +120,62 @@ public class HttpSimulator {
     private int batchSize = 1024*64;
     private long batchTimeout = 1000*5;
     private boolean compress = true;
-    private long entriesPerHour = HOURS.toSeconds(1); // 1 entry /sec
-    private long entriesPerHourSD = 0;
+    private double entriesPerSec = 10;
+    private double entriesPerSecSD = 0;
     private long sessionSize = 512;
     private long sessionSizeSD = 0;
+    int warmupTime = 5;
+    int sampleTime = 60;
 
     private class ProducerContext implements Runnable {
         
         private final int id;
+        private final CountDownLatch startedLatch;
         private Thread thread;
         private PrintStream out;
         private Random random;
+        AtomicLong counter = new AtomicLong();
 
         volatile
         private boolean done = false;
 
-        public ProducerContext(int id) {
+        double randomEntriesPerSec;
+        double feedingsPerMs;
+        double msPerFeedings;
+
+        public ProducerContext(int id, CountDownLatch started) {
             this.id = id;
+            startedLatch = started;
             this.random = new Random(id);
+
+            // Assign a random feeding rate (within the allowed SD) to this producer
+            changeRate();
+        }
+
+        synchronized private void changeRate() {
+            randomEntriesPerSec = entriesPerSecSD ==0 ? entriesPerSec : Math.max(0, (random.nextGaussian() * entriesPerSecSD) + entriesPerSec);
+            feedingsPerMs = randomEntriesPerSec / SECONDS.toMillis(1);
+            msPerFeedings = 1.0 / feedingsPerMs;
+        }
+
+        long zeroDelays = 0;
+        synchronized private long nextFeedDelay() {
+            if( zeroDelays > 0 ) {
+                // This is the case where we are doing multiple feedings per ms. We want to not delay
+                // until the all the feedings in this 1 ms interval are complete.
+                zeroDelays -= 1;
+                if( zeroDelays == 0 ) {
+                    return 1; // We are now done so delay 1 ms
+                } else {
+                    return 0; // not yet done with the feedings
+                }
+            }
+            if( feedingsPerMs > 1 ) {
+                zeroDelays = (long) feedingsPerMs;
+                return nextFeedDelay();
+            } else {
+                return (long) msPerFeedings;
+            }
         }
 
         public void start() throws Exception {
@@ -152,6 +205,8 @@ public class HttpSimulator {
                 p.configure(context);
                 context.start();
 
+                System.out.println(format("Started HTTP log event simulator #"+id+" generating %,.2f events/sec", randomEntriesPerSec));
+                startedLatch.countDown();
 
                 // Lets feed the camel based on schedule.
                 long nextMealTime = System.currentTimeMillis() + nextFeedDelay();
@@ -181,31 +236,6 @@ public class HttpSimulator {
             }
         }
 
-        long zeroDelays = 0;
-        private long nextFeedDelay() {
-
-            if( zeroDelays > 0 ) {
-                // This is the case where we are doing multiple feedings per ms. We want to not delay
-                // until the all the feedings in this 1 ms interval are complete.
-                zeroDelays -= 1;
-                if( zeroDelays == 0 ) {
-                    return 1; // We are now done so delay 1 ms
-                } else {
-                    return 0; // not yet done with the feedings
-                }
-            }
-            
-            double randomEntriesPerHour = entriesPerHourSD==0 ? entriesPerHour : Math.floor((random.nextGaussian() * entriesPerHourSD) + entriesPerHour);
-            double randomEntriesPerMs = randomEntriesPerHour / HOURS.toMillis(1); 
-            double msPerRandomEntry = 1 / randomEntriesPerMs;
-
-            if( randomEntriesPerMs > 1 ) {
-                zeroDelays = (long)randomEntriesPerMs;
-                return nextFeedDelay();
-            } else {
-                return (long) msPerRandomEntry;
-            }
-        }
 
         private void feedTheCamel(long now) {
 
@@ -227,6 +257,8 @@ public class HttpSimulator {
             out.println(String.format(
                     "%s - - [%s] \"GET %s HTTP/1.1\" 200 1070 \"%s\" \"%s\" \"session=%s\"",
                     ip, date, resource, referer, userAgent, session));
+            out.flush();
+            counter.incrementAndGet();
         }
 
         public void stop() {
@@ -241,20 +273,49 @@ public class HttpSimulator {
 
     private void execute() throws Exception {
 
+        // To help us wake up on time to take the samples.
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
         ArrayList<ProducerContext> contexts = new ArrayList<ProducerContext>(producers);
+        CountDownLatch started = new CountDownLatch(producers);
         for (int i=0; i < producers; i++) {
-            ProducerContext ctx = new ProducerContext(i);
+            ProducerContext ctx = new ProducerContext(i, started);
             contexts.add(ctx);
             ctx.start();
         }
-        
-        // block until the process is killed.
-        synchronized (this) {
-            while(true) {
-                this.wait();
+
+        started.await();
+        // Give producers a chance to establish a steady state..
+        System.out.println(format("Warming up for %,d seconds before sampling", warmupTime));
+        Thread.sleep(warmupTime*1000);
+
+        for (int i=0; i < producers; i++) {
+            contexts.get(i).counter.set(0);
+        }
+
+        // Now start sampling..
+        while(true) {
+            // Wait for work to be done..
+            System.out.println(format("Sampling for %,d seconds...", sampleTime));
+            Thread.sleep(sampleTime *1000);
+
+            // Gather the stats..
+            DescriptiveStatistics samples = new DescriptiveStatistics();
+            samples.setWindowSize(producers);
+            for (int i=0; i < producers; i++) {
+                ProducerContext producer = contexts.get(i);
+                samples.addValue(producer.counter.getAndSet(0));
+                producer.changeRate(); // Lets Assign a new random rate..
             }
+
+            // Report 'em
+            System.out.println(Arrays.toString(samples.getValues()));
+            double scale = 1.0 / sampleTime;
+            System.out.println(format("avg producer rate=%,.2f events/sec, sd=%,.2f, total messages produced in the last sample: %.0f",
+                    samples.getMean() * scale,
+                    samples.getStandardDeviation() * scale,
+                    samples.getSum()));
         }
     }
-
 
 }
