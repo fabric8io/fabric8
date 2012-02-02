@@ -1,3 +1,5 @@
+package org.fusesource.fabric.apollo.cluster.dto
+
 /*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
@@ -15,13 +17,21 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.apollo.cluster
+import org.apache.activemq.apollo.util.DtoModule
 
-import org.apache.activemq.apollo.util.JaxbModule
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ExtensionJaxbModule extends JaxbModule {
-  def xml_package = "org.fusesource.fabric.apollo.cluster.dto"
+class Module extends DtoModule {
+  def dto_package = "org.fusesource.fabric.apollo.cluster.dto"
+
+  def extension_classes = Array(
+    classOf[ChannelStatusDTO],
+    classOf[ClusterConnectorDTO],
+    classOf[ClusterNodeDTO],
+    classOf[ClusterQueueDTO],
+    classOf[ClusterTopicDTO],
+    classOf[ClusterVirtualHostDTO]
+  )
 }

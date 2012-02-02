@@ -24,7 +24,6 @@ import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.apollo.dto.{XmlCodec, DestinationDTO}
 import org.fusesource.hawtbuf.ByteArrayOutputStream
-import scala.util.continuations._
 
 
 /**
@@ -64,10 +63,9 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     bean.setVirtualHost(ascii(virtual_host.config.host_names.get(0)))
     bean.addDestination(os.toBuffer)
 
-    reset[Unit,Unit] {
-      val exported = peer.add_cluster_consumer(bean, consumer)
-   }
+    val exported = peer.add_cluster_consumer(bean, consumer)
   }
+
   def unbind(consumer: DeliveryConsumer, persistent: Boolean) = {
   }
 
@@ -96,13 +94,11 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
       new MutableSink[Delivery] with DeliverySession {
 
         var closed = false
-        reset {
-          val channel = peer.open_channel(p.dispatch_queue, bean)
-          if( !closed ) {
-            downstream = Some(channel)
-          } else {
-            channel.close
-          }
+        val channel = peer.open_channel(p.dispatch_queue, bean)
+        if( !closed ) {
+          downstream = Some(channel)
+        } else {
+          channel.close
         }
 
         def producer: DeliveryProducer = p

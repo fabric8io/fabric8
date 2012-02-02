@@ -1,3 +1,5 @@
+package org.apache.activemq.apollo.mqtt.dto
+
 /*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
@@ -15,13 +17,13 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.apollo.mqtt
-
-import org.apache.activemq.apollo.util.JaxbModule
+import org.apache.activemq.apollo.util.DtoModule
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ExtensionJaxbModule extends JaxbModule {
-  def xml_package = "org.apache.activemq.apollo.mqtt.dto"
+class Module extends DtoModule {
+  def dto_package = "org.apache.activemq.apollo.mqtt.dto"
+
+  def extension_classes = Array(classOf[MqttDTO], classOf[MqttConnectionStatusDTO])
 }

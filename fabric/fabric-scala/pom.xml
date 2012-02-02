@@ -105,14 +105,8 @@
             <configuration>
               <args>
                 <arg>-deprecation</arg>
-                <arg>-P:continuations:enable</arg>
               </args>
               <compilerPlugins>
-                <compilerPlugin>
-                  <groupId>org.scala-lang.plugins</groupId>
-                  <artifactId>continuations</artifactId>
-                  <version>${scala-version}</version>
-                </compilerPlugin>
                 <compilerPlugin>
                   <groupId>org.fusesource.jvmassert</groupId>
                   <artifactId>jvmassert</artifactId>

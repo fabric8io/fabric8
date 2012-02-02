@@ -28,11 +28,9 @@ import security.SecurityContext
 import org.apache.activemq.apollo.util._
 import java.util.concurrent.TimeUnit
 import java.util.Map.Entry
-import scala.util.continuations._
 import java.security.cert.X509Certificate
 import java.io.IOException
 import org.apache.activemq.apollo.dto._
-import org.fusesource.hawtdispatch.transport.{HeartBeatMonitor, SslTransport}
 import java.util.regex.Pattern
 import org.fusesource.mqtt.codec._
 import org.fusesource.mqtt.client.QoS._
@@ -41,10 +39,9 @@ import store.StoreUOW
 import org.fusesource.mqtt.codec.CONNACK.Code._
 import collection.mutable.{ListBuffer, HashSet, HashMap}
 import org.fusesource.mqtt.client.QoS
+import org.fusesource.hawtdispatch.transport.{SecureTransport, HeartBeatMonitor, SslTransport}
 
 object MqttProtocolHandler extends Log {
-  def noop = shift {  k: (Unit=>Unit) => k() }
-  def unit:Unit = {}
   case class Request(id:Short, frame:MQTTFrame, cb: ()=>Unit)
 }
 
@@ -64,11 +61,15 @@ class MqttProtocolHandler extends ProtocolHandler {
   var protocol_filters = List[ProtocolFilter]()
   var destination_parser = MqttProtocol.destination_parser
 
+
+
   /////////////////////////////////////////////////////////////////////
   //
   // Bits related setting up a client connection
   //
   /////////////////////////////////////////////////////////////////////
+  def session_id = security_context.session_id
+
   val security_context = new SecurityContext
   var sink_manager:SinkMux[Request] = null
   var connection_sink:Sink[Request] = null
@@ -110,7 +111,6 @@ class MqttProtocolHandler extends ProtocolHandler {
         security_context.certificates = Option(t.getPeerX509Certificates).getOrElse(Array[X509Certificate]())
       case _ => None
     }
-    security_context.connection_id = Some(connection.id)
     security_context.local_address = connection.transport.getLocalAddress
     security_context.remote_address = connection.transport.getRemoteAddress
 
@@ -308,9 +308,16 @@ class MqttProtocolHandler extends ProtocolHandler {
     }
     
     val client_id = connect_message.clientId()
+
+    connection.transport match {
+      case t:SecureTransport=>
+        security_context.certificates = Option(t.getPeerX509Certificates).getOrElse(Array[X509Certificate]())
+      case _ =>
+    }
     security_context.user = Option(connect_message.userName).map(_.toString).getOrElse(null)
     security_context.password = Option(connect_message.password).map(_.toString).getOrElse(null)
-    
+    security_context.session_id = Some(client_id.toString)
+
     val keep_alive = connect_message.keepAlive
     if( keep_alive > 0 ) {
       heart_beat_monitor.setReadInterval((keep_alive*1.5).toLong*1000)
@@ -322,45 +329,41 @@ class MqttProtocolHandler extends ProtocolHandler {
     heart_beat_monitor.setTransport(connection.transport)
     heart_beat_monitor.start
 
-    reset {
-
-      suspend_read("virtual host lookup")
+    suspend_read("virtual host lookup")
+    broker.dispatch_queue {
       val host = connection.connector.broker.get_default_virtual_host
-      resume_read
-
-      if(host==null) {
-        connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
-        async_die(connack, "Default virtual host not found.")
-        noop
-      } else if(!host.service_state.is_started) {
-        connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
-        async_die(connack, "Default virtual host stopped.")
-        noop
-      } else {
-        connection_log = host.connection_log
-        if( host.authenticator!=null &&  host.authorizer!=null ) {
-          suspend_read("authenticating and authorizing connect")
-          var auth_err = host.authenticator.authenticate(security_context)
-          if( auth_err!=null ) {
-            connack.code(CONNECTION_REFUSED_BAD_USERNAME_OR_PASSWORD)
-            async_die(connack, auth_err+". Credentials="+security_context.credential_dump)
-            noop // to make the cps compiler plugin happy.
-          } else if( !host.authorizer.can(security_context, "connect", connection.connector) ) {
-            connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
-            async_die(connack, "Not authorized to connect to connector '%s'. Principals=".format(connection.connector.id, security_context.principal_dump))
-            noop // to make the cps compiler plugin happy.
-          } else if( !host.authorizer.can(security_context, "connect", host) ) {
-            connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
-            async_die(connack, "Not authorized to connect to virtual host '%s'. Principals=".format(host.id, security_context.principal_dump))
-            noop // to make the cps compiler plugin happy.
-          } else {
-            resume_read
-            on_host_connected(host)
-            noop // to make the cps compiler plugin happy.
-          }
+      queue {
+        resume_read
+        if(host==null) {
+          connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
+          async_die(connack, "Default virtual host not found.")
+        } else if(!host.service_state.is_started) {
+          connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
+          async_die(connack, "Default virtual host stopped.")
         } else {
-          on_host_connected(host)
-          noop // to make the cps compiler plugin happy.
+          connection_log = host.connection_log
+          if( host.authenticator!=null &&  host.authorizer!=null ) {
+            suspend_read("authenticating and authorizing connect")
+            host.authenticator.authenticate(security_context) { auth_err =>
+              queue {
+                if( auth_err!=null ) {
+                  connack.code(CONNECTION_REFUSED_BAD_USERNAME_OR_PASSWORD)
+                  async_die(connack, auth_err+". Credentials="+security_context.credential_dump)
+                } else if( !host.authorizer.can(security_context, "connect", connection.connector) ) {
+                  connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
+                  async_die(connack, "Not authorized to connect to connector '%s'. Principals=".format(connection.connector.id, security_context.principal_dump))
+                } else if( !host.authorizer.can(security_context, "connect", host) ) {
+                  connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
+                  async_die(connack, "Not authorized to connect to virtual host '%s'. Principals=".format(host.id, security_context.principal_dump))
+                } else {
+                  resume_read
+                  on_host_connected(host)
+                }
+              }
+            }
+          } else {
+            on_host_connected(host)
+          }
         }
       }
     }
@@ -670,16 +673,15 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
 
         // don't process commands until producer is connected...
         handler.suspend_read("route publish lookup")
-        reset {
+        host.dispatch_queue {
           host.router.connect(Array(destination), route, security_context)
-          // We don't care if we are not allowed to send..
-          if (!handler.connection.stopped) {
-            handler.resume_read
-            producerRoutes.put(destination, route)
-            send_via_route(route, publish)
-            noop
-          } else {
-            noop
+          queue {
+            // We don't care if we are not allowed to send..
+            if (!handler.connection.stopped) {
+              handler.resume_read
+              producerRoutes.put(destination, route)
+              send_via_route(route, publish)
+            }
           }
         }
 
@@ -749,13 +751,12 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
       val destination = handler.decode_destination(topic.name)
       val consumer = new MqttConsumer(destination, topic.qos);
       consumers += (destination -> consumer)
-      reset {
+      host.dispatch_queue {
         val rc = host.router.bind(Array(destination), consumer, security_context)
         // MQTT ignores subscribe failures.
       }
       topic.qos.ordinal.toByte
     }
-    
     val suback = new SUBACK
     suback.messageId(subscribe.messageId())
     suback.grantedQos(response)
