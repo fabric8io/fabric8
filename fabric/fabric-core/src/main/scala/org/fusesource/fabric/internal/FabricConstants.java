@@ -17,11 +17,27 @@
 
 package org.fusesource.fabric.internal;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class FabricConstants {
 
-    public static final String VERSION = "${project.version}";
+    public static final String VERSION;
+    static {
+        String v="unknown";
+        InputStream is = FabricConstants.class.getResourceAsStream("version.txt");
+        try {
+            v = new BufferedReader(new InputStreamReader(is, "UTF-8")).readLine().trim();
+        } catch (Throwable e) {
+        } finally {
+            try {
+                is.close();
+            } catch (Throwable e) {
+            }
+        }
+        VERSION = v;
+    }
 
 
 }
