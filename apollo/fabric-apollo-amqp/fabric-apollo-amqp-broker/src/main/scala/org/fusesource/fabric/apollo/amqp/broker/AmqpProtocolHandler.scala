@@ -20,7 +20,6 @@ package org.fusesource.fabric.apollo.amqp.broker
 import org.apache.activemq.apollo.broker.protocol.ProtocolHandler
 import java.io.IOException
 import org.fusesource.hawtdispatch._
-import scala.util.continuations._
 import org.fusesource.fabric.apollo.amqp.protocol._
 import AmqpConstants._
 import org.fusesource.fabric.apollo.amqp.api._

@@ -26,13 +26,13 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>1.1-SNAPSHOT</version>
-    <relativePath>../../fabric-scala</relativePath>
+    <version>1.2-SNAPSHOT</version>
+    <relativePath>../../fabric/fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo</groupId>
   <artifactId>fabric-apollo-haleveldb</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -44,6 +44,16 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-broker</artifactId>
       <version>${apollo-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-asl</artifactId>
+      <version>${jackson-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>${jackson-version}</version>
     </dependency>
 
     <dependency>
@@ -60,17 +70,17 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-cluster</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-groups</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-linkedin-zookeeper</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.2-SNAPSHOT</version>
     </dependency>
 
     <!-- Since we implement a jade template to display the store status -->
@@ -127,7 +137,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-cluster</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.2-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

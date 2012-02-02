@@ -70,8 +70,7 @@ class AMQPServerConnection(handler: ConnectionHandler) extends ServerConnection 
   def onAccept(transport: Transport) = {
     val connection = new AMQPConnection
     connection.setContainerID(container_id)
-    val clientUri = transport.getTypeId + ":/" + transport.getRemoteAddress
-    info("Client connected from %s", clientUri)
+    info("Client connected from %s", transport.getRemoteAddress)
     handler.connectionCreated(connection)
     connection._transport.transport = transport
   }

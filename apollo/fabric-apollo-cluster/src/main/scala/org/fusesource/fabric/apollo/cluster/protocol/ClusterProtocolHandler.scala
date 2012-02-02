@@ -21,13 +21,8 @@ import ClusterProtocolConstants._
 import java.lang.String
 import java.io.IOException
 import org.apache.activemq.apollo.util._
-import org.apache.activemq.apollo.dto.JsonCodec
-import scala.collection
-import org.fusesource.hawtbuf.{Buffer, ByteArrayOutputStream}
-import util.continuations._
 import org.fusesource.fabric.apollo.cluster.model._
 import org.apache.activemq.apollo.broker.protocol.ProtocolHandler
-import org.fusesource.fabric.apollo.cluster.dto.{ClusterConnectionStatusDTO, ClusterProtocolHelloDTO}
 import org.fusesource.fabric.apollo.cluster.{ClusterConnector, Peer}
 import org.fusesource.hawtdispatch._
 
@@ -48,6 +43,8 @@ class ClusterProtocolHandler(var peer:Peer=null) extends ProtocolHandler {
   var died = false
   var waiting_on:String = "client request"
   var transport_handler: (AnyRef)=>Unit = connecting_handler
+
+  def session_id = None
 
   def dispatch_queue = connection.dispatch_queue
 
@@ -152,21 +149,19 @@ class ClusterProtocolHandler(var peer:Peer=null) extends ProtocolHandler {
             // this is a server hello response...
             peer.on_server_hello(this, hello)
           } else {
-            reset {
-              suspendRead("Looking up peer")
-              cluster_connector match {
-                case Some(connector)=>
-                  peer = connector.get_peer(hello.getId)
-                  // make subsequent events from the connection use
-                  // the peer's dispatch queue.
-                  dispatch_queue.setTargetQueue(peer.dispatch_queue)
-                  peer.dispatch_queue {
-                    peer.on_client_hello(this, hello)
-                  }
-                  resumeRead
-                case None =>
-                  die("Cluster connector not enabled")
-              }
+            suspendRead("Looking up peer")
+            cluster_connector match {
+              case Some(connector)=>
+                peer = connector.get_peer(hello.getId)
+                // make subsequent events from the connection use
+                // the peer's dispatch queue.
+                dispatch_queue.setTargetQueue(peer.dispatch_queue)
+                peer.dispatch_queue {
+                  peer.on_client_hello(this, hello)
+                }
+                resumeRead
+              case None =>
+                die("Cluster connector not enabled")
             }
           }
         case COMMAND_HELLO =>

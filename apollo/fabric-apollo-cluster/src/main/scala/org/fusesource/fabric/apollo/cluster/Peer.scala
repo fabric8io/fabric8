@@ -27,7 +27,6 @@ import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf._
 import scala.collection.mutable.{HashMap, HashSet}
 import org.fusesource.hawtbuf.Buffer._
-import scala.util.continuations._
 import org.apache.activemq.apollo.dto.{DestinationDTO, XmlCodec}
 import org.apache.activemq.apollo.broker.protocol.ProtocolFactory
 import org.apache.activemq.apollo.broker.store.MessageRecord
@@ -308,8 +307,8 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   val exported_consumers = HashMap[Long, ExportedConsumer]()
   val imported_consumers = HashMap[Long, ClusterDeliveryConsumer]()
 
-  def add_cluster_consumer( bean:ConsumerInfo.Bean, consumer:DeliveryConsumer) = dispatch_queue ! {
-
+  def add_cluster_consumer( bean:ConsumerInfo.Bean, consumer:DeliveryConsumer) = {
+    dispatch_queue.assertExecuting()
     val consumer_id = next_consumer_id
     bean.setConsumerId(consumer_id)
     next_consumer_id += 1
@@ -337,12 +336,11 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
       val consumer = new ClusterDeliveryConsumer(consumer_info)
       imported_consumers.put(consumer_id, consumer)
 
-      reset[Unit,Unit] {
+      cluster_connector.broker.dispatch_queue {
         val host = cluster_connector.broker.get_virtual_host(consumer_info.getVirtualHost)
         // assert(host!=null, "Unknown virtual host: "+consumer_info.getVirtualHost)
         val router = host.router.asInstanceOf[ClusterRouter]
         router.bind(consumer.destinations, consumer, null)
-        unit // continuations compiler is not too smart..
       }
     }
   }
@@ -351,7 +349,7 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   def on_remove_consumer(info:ConsumerInfo.Buffer) = {
     assert_executing
     imported_consumers.remove(info.getConsumerId.longValue).foreach { consumer=>
-      reset {
+      cluster_connector.broker.dispatch_queue {
         val host = cluster_connector.broker.get_virtual_host(consumer.info.getVirtualHost)
         if( host!=null ) {
           val router = host.router.asInstanceOf[ClusterRouter]
@@ -383,13 +381,11 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
       new MutableSink[Delivery] with DeliverySession {
 
         var closed = false
-        reset {
-          val channel = open_channel(p.dispatch_queue, open)
-          if( !closed ) {
-            downstream = Some(channel)
-          } else {
-            channel.close
-          }
+        val channel = open_channel(p.dispatch_queue, open)
+        if( !closed ) {
+          downstream = Some(channel)
+        } else {
+          channel.close
         }
 
         def close: Unit = {
@@ -438,7 +434,8 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   var next_channel_id = 0L
   val outbound_channels = HashMap[Long, OutboundChannelSink]()
 
-  def open_channel(q:DispatchQueue, open:ChannelOpen.Bean) = dispatch_queue ! {
+  def open_channel(q:DispatchQueue, open:ChannelOpen.Bean) = {
+    dispatch_queue.assertExecuting()
     open.setChannel(next_channel_id)
     next_channel_id += 1
 
@@ -783,7 +780,7 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
         val sink = new InboundChannelSink(open)
         inbound_channels.put(channel_id, sink)
 
-        reset {
+        cluster_connector.broker.dispatch_queue {
           val host = cluster_connector.broker.get_virtual_host(open.getVirtualHost)
 //          if( host==null ) {
 //

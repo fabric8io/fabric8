@@ -81,7 +81,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 	}
 
 	def onTransportConnected() {
-		trace("Connected to %s via %s", transport.getRemoteAddress, transport.getTypeId)
+		trace("Connected to %s", transport.getRemoteAddress)
 		val transport_sink = new TransportSink(transport)
 
 		session_manager = new SessionSinkMux[AMQPFrame](transport_sink.map {
@@ -95,7 +95,7 @@ class TransportInterceptor extends Interceptor with TransportListener with Loggi
 		transport.resumeRead
 	}
 
-	def onTransportDisconnected(reconnecting:Boolean) {
+	def onTransportDisconnected() {
 		trace("Disconnected from %s", transport.getRemoteAddress)
 		receive(ConnectionClosed(), Tasks())
     _on_disconnect.foreach((x) => x())

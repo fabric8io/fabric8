@@ -97,7 +97,7 @@
 <!--
 <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
 -->
-        <apollo-version>1.0-SNAPSHOT</apollo-version>
+        <apollo-version>1.1-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <commons-codec-version>1.3_4</commons-codec-version>
@@ -111,7 +111,7 @@
         <felix.framework.version>3.0.9-fuse-03-${perfectus-build}</felix.framework.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
-        <hawtdispatch-version>1.7</hawtdispatch-version>
+        <hawtdispatch-version>1.8</hawtdispatch-version>
         <jackson-version>1.9.2</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
@@ -317,14 +317,8 @@
                     <configuration>
                       <args>
                         <arg>-deprecation</arg>
-                        <arg>-P:continuations:enable</arg>
                       </args>
                       <compilerPlugins>
-                        <compilerPlugin>
-                          <groupId>org.scala-lang.plugins</groupId>
-                          <artifactId>continuations</artifactId>
-                          <version>${scala-version}</version>
-                        </compilerPlugin>
                         <compilerPlugin>
                           <groupId>org.fusesource.jvmassert</groupId>
                           <artifactId>jvmassert</artifactId>
