@@ -94,13 +94,6 @@
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
-        <!--
-        <file>
-            <source>${basedir}/target/dependencies/fabric-version.jar</source>
-            <outputDirectory>/lib/</outputDirectory>
-            <fileMode>0644</fileMode>
-        </file>
-        -->
     </files>
     
 
