@@ -73,14 +73,14 @@
             </action>
         </command>
 
-        <command name="fabric/agent-create">
-            <action class="org.fusesource.fabric.commands.AgentCreate">
+        <command name="fabric/container-create">
+            <action class="org.fusesource.fabric.commands.ContainerCreate">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
 
-        <command name="fabric/agent-create-child">
-            <action class="org.fusesource.fabric.commands.AgentCreateChild">
+        <command name="fabric/container-create-child">
+            <action class="org.fusesource.fabric.commands.ContainerCreateChild">
                 <property name="fabricService" ref="fabricService"/>
             </action>
           <completers>
@@ -88,18 +88,18 @@
               <null/>
           </completers>
         </command>
-        <command name="fabric/agent-create-cloud">
-            <action class="org.fusesource.fabric.commands.AgentCreateCloud">
+        <command name="fabric/container-create-cloud">
+            <action class="org.fusesource.fabric.commands.ContainerCreateCloud">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
-        <command name="fabric/agent-create-ssh">
-            <action class="org.fusesource.fabric.commands.AgentCreateSsh">
+        <command name="fabric/container-create-ssh">
+            <action class="org.fusesource.fabric.commands.ContainerCreateSsh">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
-        <command name="fabric/agent-delete">
-            <action class="org.fusesource.fabric.commands.AgentDelete">
+        <command name="fabric/container-delete">
+            <action class="org.fusesource.fabric.commands.ContainerDelete">
                 <property name="fabricService" ref="fabricService"/>
             </action>
           <completers>
@@ -107,13 +107,13 @@
               <null/>
           </completers>
         </command>
-        <command name="fabric/agent-list">
-            <action class="org.fusesource.fabric.commands.AgentList">
+        <command name="fabric/container-list">
+            <action class="org.fusesource.fabric.commands.ContainerList">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
-        <command name="fabric/agent-connect">
-            <action class="org.fusesource.fabric.commands.AgentConnect">
+        <command name="fabric/container-connect">
+            <action class="org.fusesource.fabric.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
@@ -121,8 +121,8 @@
                 <null/>
             </completers>
         </command>
-      <command name="fabric/agent-start">
-          <action class="org.fusesource.fabric.commands.AgentStart">
+      <command name="fabric/container-start">
+          <action class="org.fusesource.fabric.commands.ContainerStart">
               <property name="fabricService" ref="fabricService"/>
           </action>
           <completers>
@@ -130,8 +130,8 @@
               <null/>
           </completers>
       </command>
-      <command name="fabric/agent-stop">
-          <action class="org.fusesource.fabric.commands.AgentStop">
+      <command name="fabric/container-stop">
+          <action class="org.fusesource.fabric.commands.ContainerStop">
               <property name="fabricService" ref="fabricService"/>
           </action>
           <completers>
@@ -140,8 +140,8 @@
           </completers>
       </command>
 
-        <command name="fabric/agent-domains">
-            <action class="org.fusesource.fabric.commands.AgentDomains">
+        <command name="fabric/container-domains">
+            <action class="org.fusesource.fabric.commands.ContainerDomains">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>

@@ -124,12 +124,12 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
 
         //The compute service needs some time to properly initialize.
         Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:agent-create --ensemble-server --url jclouds://aws-ec2?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
+        System.err.println(executeCommand(String.format("fabric:agent-container --ensemble-server --url jclouds://aws-ec2?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         Thread.sleep(DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
-        String agentList = executeCommand("fabric:agent-list");
+        String agentList = executeCommand("fabric:container-list");
         System.err.println(agentList);
         assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));
 

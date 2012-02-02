@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -21,19 +22,23 @@ import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "agent-delete", scope = "fabric", description = "Delete an existing agent")
-public class AgentDelete extends FabricCommand {
+import java.util.List;
 
-    @Argument(index = 0)
-    private String name;
+@Command(name = "container-domains", scope = "fabric", description = "Lists the JMX domains an container has")
+public class ContainerDomains extends FabricCommand {
 
-    @Override
+    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    private String container = null;
+
     protected Object doExecute() throws Exception {
-        Agent agent = fabricService.getAgent(name);
-        if( agent==null ) {
-            throw new IllegalArgumentException("Agent does not exist: "+name);
+        Agent a = fabricService.getAgent(container);
+        if (a == null) {
+            throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        agent.destroy();
+        List<String> domains = a.getJmxDomains();
+        for (String domain : domains) {
+            System.out.println(domain);
+        }
         return null;
     }
 

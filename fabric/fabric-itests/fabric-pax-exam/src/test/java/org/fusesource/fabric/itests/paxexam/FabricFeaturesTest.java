@@ -60,10 +60,10 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
         Thread.sleep(DEFAULT_WAIT);
         System.err.println(executeCommand("fabric:profile-list"));
         System.err.println(executeCommand("fabric:profile-display camel"));
-        System.err.println(executeCommand("fabric:agent-create --parent root --profile camel child1"));
+        System.err.println(executeCommand("fabric:container-create --parent root --profile camel child1"));
         Thread.sleep(3 * DEFAULT_WAIT);
-        System.err.println(executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0"));
-        String camelBundleCount = executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i camel");
+        System.err.println(executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list -t 0"));
+        String camelBundleCount = executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i camel");
         int count = Integer.parseInt(camelBundleCount.trim());
         assertTrue("At least one camel bundle is expected", count >= 1);
     }

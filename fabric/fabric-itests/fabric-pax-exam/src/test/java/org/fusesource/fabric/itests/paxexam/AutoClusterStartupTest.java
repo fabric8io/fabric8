@@ -54,8 +54,8 @@ public class AutoClusterStartupTest extends FabricTestSupport {
 
         Agent[] agents = fabricService.getAgents();
         assertNotNull(agents);
-        assertEquals("Expected to find 1 agent", 1, agents.length);
-        assertEquals("Expected to find the root agent", "root", agents[0].getId());
+        assertEquals("Expected to find 1 container", 1, agents.length);
+        assertEquals("Expected to find the root container", "root", agents[0].getId());
     }
 
     @Configuration

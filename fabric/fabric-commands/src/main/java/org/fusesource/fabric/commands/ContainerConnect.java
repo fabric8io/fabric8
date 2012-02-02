@@ -24,8 +24,8 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 
 import java.util.List;
 
-@Command(name = "agent-connect", scope = "fabric", description = "Connect to a remote fabric agent")
-public class AgentConnect extends FabricCommand {
+@Command(name = "container-connect", scope = "fabric", description = "Connect to a remote fabric container")
+public class ContainerConnect extends FabricCommand {
 
     @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: admin)", required = false, multiValued = false)
     private String username = "admin";
@@ -33,8 +33,8 @@ public class AgentConnect extends FabricCommand {
     @Option(name="-p", aliases={"--password"}, description="Remote user password (Default: admin)", required = false, multiValued = false)
     private String password = "admin";
 
-    @Argument(index = 0, name="agent", description="The agent name", required = true, multiValued = false)
-    private String agent = null;
+    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    private String container = null;
 
     @Argument(index = 1, name = "command", description = "Optional command to execute", required = false, multiValued = true)
     private List<String> command;
@@ -52,17 +52,17 @@ public class AgentConnect extends FabricCommand {
             cmdStr = "'" + sb.toString().replaceAll("'", "\\'") + "'";
         }
 
-        Agent a = fabricService.getAgent(agent);
+        Agent a = fabricService.getAgent(container);
         if (a == null) {
-            throw new IllegalArgumentException("Agent " + agent + " does not exist.");
+            throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
         String sshUrl = a.getSshUrl();
         if (sshUrl == null) {
-            throw new IllegalArgumentException("Agent " + agent + " has no SSH URL.");
+            throw new IllegalArgumentException("Container " + container + " has no SSH URL.");
         }
         String[] ssh = sshUrl.split(":");
         if (ssh.length < 2) {
-            throw new IllegalArgumentException("Agent " + agent + " has an invalid SSH URL '" + sshUrl + "'");
+            throw new IllegalArgumentException("Container " + container + " has an invalid SSH URL '" + sshUrl + "'");
         }
         session.execute("ssh -l " + username + " -P " + password + " -p " + ssh[1] + " " + ssh[0] + " " + cmdStr);
         return null;

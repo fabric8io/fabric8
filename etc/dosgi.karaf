@@ -35,12 +35,12 @@ fabric:profile-edit -p dosgi-camel --features fabric-example-camel-dosgi
 shell:echo Creating agents
 
 shell:echo 1. Create provider node
-fabric:agent-create --profile dosgi-provider --parent $APPLICATION dosgi-provider
+fabric:container-create --profile dosgi-provider --parent $APPLICATION dosgi-provider
 shell:echo Wait 10s.. be patient
 shell:sleep 10000
 
 shell:echo 2. Create camel consumer node
-fabric:agent-create --profile dosgi-camel --parent $APPLICATION dosgi-camel
+fabric:container-create --profile dosgi-camel --parent $APPLICATION dosgi-camel
 shell:echo Wait 10s.. be patient
 shell:sleep 10000
 

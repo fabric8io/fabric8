@@ -25,8 +25,8 @@ import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
 import org.fusesource.fabric.api.JCloudsInstanceType;
 import org.fusesource.fabric.commands.support.AgentCreateSupport;
 
-@Command(name = "agent-create-cloud", scope = "fabric", description = "Creates one or more new agents on the cloud")
-public class AgentCreateCloud extends AgentCreateSupport {
+@Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
+public class ContainerCreateCloud extends AgentCreateSupport {
 
     @Option(name = "--provider", required = true, description = "JClouds provider name")
     private String providerName;
@@ -50,9 +50,9 @@ public class AgentCreateCloud extends AgentCreateSupport {
     private String group;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 1;
 
     @Override

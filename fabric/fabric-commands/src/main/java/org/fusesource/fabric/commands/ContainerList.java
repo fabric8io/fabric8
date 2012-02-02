@@ -23,8 +23,8 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.PrintStream;
 
-@Command(name = "agent-list", scope = "fabric", description = "List existing agents")
-public class AgentList extends FabricCommand {
+@Command(name = "container-list", scope = "fabric", description = "List existing containers")
+public class ContainerList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {

@@ -21,18 +21,18 @@ import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "agent-start", scope = "fabric", description = "Start an existing agent")
-public class AgentStart extends FabricCommand {
+@Command(name = "container-stop", scope = "fabric", description = "Stop an existing container")
+public class ContainerStop extends FabricCommand {
 
-    @Argument(index = 0, name="agent", description="The agent name", required = true, multiValued = false)
-    private String agent = null;
+    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    private String container = null;
 
     protected Object doExecute() throws Exception {
-        Agent a = fabricService.getAgent(agent);
+        Agent a = fabricService.getAgent(container);
         if (a == null) {
-            throw new IllegalArgumentException("Agent " + agent + " does not exist.");
+            throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        a.start();
+        a.stop();
         return null;
     }
 

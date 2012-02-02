@@ -79,9 +79,9 @@ public class FabricTestSupport {
         Agent[] agents = fabricService.getAgents();
         assertNotNull(agents);
 
-        assertEquals("Expected to find 1 agent", 1, agents.length);
+        assertEquals("Expected to find 1 container", 1, agents.length);
         Agent parent = agents[0];
-        assertEquals("Expected to find the root agent", "root", parent.getId());
+        assertEquals("Expected to find the root container", "root", parent.getId());
 
         Agent child = fabricService.createAgent(parent, "child1");
         return child;

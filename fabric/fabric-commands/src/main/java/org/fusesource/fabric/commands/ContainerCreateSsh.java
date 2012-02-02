@@ -24,8 +24,8 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateSshAgentArguments;
 import org.fusesource.fabric.commands.support.AgentCreateSupport;
 
-@Command(name = "agent-create-ssh", scope = "fabric", description = "Creates one or more new agents via SSH")
-public class AgentCreateSsh extends AgentCreateSupport {
+@Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH")
+public class ContainerCreateSsh extends AgentCreateSupport {
 
     @Option(name = "--host", required = true, description = "Host name to SSH into")
     private String host;
@@ -41,9 +41,9 @@ public class AgentCreateSsh extends AgentCreateSupport {
     private Integer sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 1;
 
     @Override

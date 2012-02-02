@@ -63,7 +63,7 @@ public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
 
         System.err.println(executeCommand("shell:source mvn:org.fusesource.fabric/fuse-fabric/"+System.getProperty("fabric.version")+"/karaf/dosgi"));
         Thread.sleep(2 * DEFAULT_WAIT);
-        String response = executeCommand("fabric:agent-connect -u admin -p admin dosgi-camel log:display | grep \"Message from distributed service to\"");
+        String response = executeCommand("fabric:container-connect -u admin -p admin dosgi-camel log:display | grep \"Message from distributed service to\"");
         assertNotNull(response);
         System.err.println(response);
         String[] lines = response.split("\n");
