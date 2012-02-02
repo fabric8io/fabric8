@@ -70,7 +70,13 @@
       <artifactId>activemq-camel</artifactId>
       <version>${activemq-version}</version>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math</artifactId>
+      <version>2.2</version>
+    </dependency>
+
     <dependency>
       <groupId>org.iq80.snappy</groupId>
       <artifactId>snappy</artifactId>
