@@ -7,17 +7,20 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import java.io.*;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static java.util.concurrent.TimeUnit.*;
-import static java.lang.String.*;
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * <p>
  *     This class is used to simulate the logging load
@@ -127,6 +130,8 @@ public class HttpSimulator {
     int warmupTime = 5;
     int sampleTime = 60;
 
+    private AtomicBoolean done = new AtomicBoolean(false);
+
     private class ProducerContext implements Runnable {
         
         private final int id;
@@ -137,7 +142,6 @@ public class HttpSimulator {
         AtomicLong counter = new AtomicLong();
 
         volatile
-        private boolean done = false;
 
         double randomEntriesPerSec;
         double feedingsPerMs;
@@ -210,7 +214,7 @@ public class HttpSimulator {
 
                 // Lets feed the camel based on schedule.
                 long nextMealTime = System.currentTimeMillis() + nextFeedDelay();
-                while(!done) {
+                while(!done.get()) {
 
                     long now = System.currentTimeMillis(); 
                     if( now >= nextMealTime ) {
@@ -219,10 +223,7 @@ public class HttpSimulator {
                     }
                     
                     long remaining = nextMealTime - now;
-                    // we don't want to sleep for more than 1 second so we can check the done flag.
-                    if( remaining> 0 ) {
-                        Thread.sleep(Math.min(remaining, 1000)); 
-                    }
+                    sleep(remaining); 
                 }
 
             } catch (Exception e) {
@@ -260,15 +261,19 @@ public class HttpSimulator {
             out.flush();
             counter.incrementAndGet();
         }
+    }
 
-        public void stop() {
-            done = true;
+    private void sleep(long value) throws InterruptedException {
+        long now = System.currentTimeMillis();
+        long end = now + value;
+        long remaining = end - now;
+
+        while( remaining > 0 && !done.get()) {
+            // we don't want to sleep for more than 1 second so we can check the done flag.
+            Thread.sleep(Math.min(remaining, 1000));
+            now = System.currentTimeMillis();
+            remaining = end - now;
         }
-
-        public void join() throws Exception {
-            thread.join();
-        }
-
     }
 
     private void execute() throws Exception {
@@ -287,17 +292,18 @@ public class HttpSimulator {
         started.await();
         // Give producers a chance to establish a steady state..
         System.out.println(format("Warming up for %,d seconds before sampling", warmupTime));
-        Thread.sleep(warmupTime*1000);
+        sleep(warmupTime * 1000);
 
         for (int i=0; i < producers; i++) {
             contexts.get(i).counter.set(0);
         }
 
         // Now start sampling..
-        while(true) {
+        while(!done.get()) {
             // Wait for work to be done..
             System.out.println(format("Sampling for %,d seconds...", sampleTime));
-            Thread.sleep(sampleTime *1000);
+            
+            sleep(sampleTime * 1000);
 
             // Gather the stats..
             DescriptiveStatistics samples = new DescriptiveStatistics();
@@ -316,6 +322,77 @@ public class HttpSimulator {
                     samples.getStandardDeviation() * scale,
                     samples.getSum()));
         }
+
     }
 
+
+    public void stop() {
+        done.set(true);
+    }
+
+    public void start() {
+        new Thread("Monitor thread") {
+            @Override
+            public void run() {
+                try {
+                    execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    //////////////////////////////////////////////////////////////////
+    // These setter methods are used to configure this instance by the 
+    // HttpSimulatorFactory
+    //////////////////////////////////////////////////////////////////
+    
+    public void setBrokers(String brokers) {
+        this.brokers = new ArrayList<String>(Arrays.asList(brokers.split("\\|")));
+    }
+
+    public void setDestinations(String destinations) {
+        this.destinations = new ArrayList<String>(Arrays.asList(destinations.split("\\|")));
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public void setBatchTimeout(long batchTimeout) {
+        this.batchTimeout = batchTimeout;
+    }
+
+    public void setCompress(boolean compress) {
+        this.compress = compress;
+    }
+
+    public void setEntriesPerSec(double entriesPerSec) {
+        this.entriesPerSec = entriesPerSec;
+    }
+
+    public void setEntriesPerSecSD(double entriesPerSecSD) {
+        this.entriesPerSecSD = entriesPerSecSD;
+    }
+
+    public void setProducers(int producers) {
+        this.producers = producers;
+    }
+
+    public void setSampleTime(int sampleTime) {
+        this.sampleTime = sampleTime;
+    }
+
+    public void setSessionSize(long sessionSize) {
+        this.sessionSize = sessionSize;
+    }
+
+    public void setSessionSizeSD(long sessionSizeSD) {
+        this.sessionSizeSD = sessionSizeSD;
+    }
+
+    public void setWarmupTime(int warmupTime) {
+        this.warmupTime = warmupTime;
+    }
 }
