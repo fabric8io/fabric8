@@ -165,8 +165,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                             r = ZkDefs.ERROR;
                             e = sw.toString();
                         }
-                        zk.createOrSetWithParents(ZkPath.AGENT_PROVISION_RESULT.getPath(name), r, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                        zk.createOrSetWithParents(ZkPath.AGENT_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_RESULT.getPath(name), r, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                     } else {
                         LOGGER.info("ZooKeeper not available");
                     }

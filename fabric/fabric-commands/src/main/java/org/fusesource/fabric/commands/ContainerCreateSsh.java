@@ -21,15 +21,15 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.CreateSshAgentArguments;
-import org.fusesource.fabric.commands.support.AgentCreateSupport;
+import org.fusesource.fabric.api.CreateSshContainerArguments;
+import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
-@Command(name = "agent-create-ssh", scope = "fabric", description = "Creates one or more new agents via SSH")
-public class AgentCreateSsh extends AgentCreateSupport {
+@Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH")
+public class ContainerCreateSsh extends ContainerCreateSupport {
 
     @Option(name = "--host", required = true, description = "Host name to SSH into")
     private String host;
-    @Option(name = "--path", description = "Path to use to install the agent")
+    @Option(name = "--path", description = "Path to use to install the container")
     private String path;
     @Option(name = "--user", description = "User name")
     private String user;
@@ -41,16 +41,16 @@ public class AgentCreateSsh extends AgentCreateSupport {
     private Integer sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {
-        CreateSshAgentArguments args = new CreateSshAgentArguments();
-        args.setClusterServer(isClusterServer);
-        args.setDebugAgent(debugAgent);
+        CreateSshContainerArguments args = new CreateSshContainerArguments();
+        args.setEnsembleServer(isEnsembleServer);
+        args.setDebugContainer(debugContainer);
         args.setNumber(number);
         args.setHost(host);
         args.setPath(path);
@@ -63,7 +63,7 @@ public class AgentCreateSsh extends AgentCreateSupport {
         if (sshRetries != null) {
             args.setSshRetries(sshRetries);
         }
-        fabricService.createAgents(args, name, number);
+        fabricService.createContainer(args, name, number);
         return null;
     }
 

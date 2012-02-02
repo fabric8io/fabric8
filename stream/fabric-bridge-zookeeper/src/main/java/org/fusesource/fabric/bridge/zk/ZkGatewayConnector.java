@@ -81,7 +81,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 
 	private ScheduledExecutorService bridgeLookupExecutor;
 
-	private Map<String, RemoteBridge> agentBridgeMap = new HashMap<String, RemoteBridge>();
+	private Map<String, RemoteBridge> containerBridgeMap = new HashMap<String, RemoteBridge>();
     private volatile boolean connected;
 
     @Override
@@ -140,7 +140,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
     protected void doStart() {
         super.doStart();
 
-        // start the bridge agent lookup executor
+        // start the bridge container lookup executor
         bridgeLookupExecutor = Executors.newSingleThreadScheduledExecutor();
         bridgeLookupExecutor.scheduleWithFixedDelay(this, 0, updateInterval, TimeUnit.SECONDS);
 
@@ -148,7 +148,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
     }
 
     protected void doStop() {
-        // stop the bridge agent lookup executor
+        // stop the bridge container lookup executor
         bridgeLookupExecutor.shutdown();
 
         // de-register self as a lifecycle listener
@@ -166,7 +166,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
     }
 
     /**
-	 * Lookup agents using the bridge profile and update gateway configuration.
+	 * Lookup containers using the bridge profile and update gateway configuration.
 	 *
 	 * @see java.lang.Runnable#run()
 	 */
@@ -179,77 +179,77 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
             return;
         }
 
-        Agent[] agents;
+        Container[] containers;
         try {
-            agents = gatewayProfile.getAssociatedAgents();
+            containers = gatewayProfile.getAssociatedContainers();
         } catch (FabricException e) {
-            String msg = "Error getting Agents from Fabric: " + e.getMessage();
+            String msg = "Error getting Containers from Fabric: " + e.getMessage();
             LOG.error(msg, e);
             throw new IllegalStateException(msg, e);
         }
 
-        if (agents.length == 0) {
+        if (containers.length == 0) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("No BridgeConnector agents found");
+                LOG.debug("No BridgeConnector containers found");
             }
         }
 
-		for (Agent agent : agents) {
+		for (Container container : containers) {
 
-			final String agentId = agent.getId();
+			final String containerId = container.getId();
 			try {
-                // get the Bridge configuration for this agent
+                // get the Bridge configuration for this container
                 RemoteBridge remoteBridge = ZkConfigHelper.getBridgeConfig(
-                    zooKeeper, agent, applicationContext);
+                    zooKeeper, container, applicationContext);
 
-                // check if we have an existing Bridge for this agent
-                RemoteBridge oldRemoteBridge = agentBridgeMap.get(agentId);
+                // check if we have an existing Bridge for this container
+                RemoteBridge oldRemoteBridge = containerBridgeMap.get(containerId);
 
                 if (remoteBridge != null) {
 					if (oldRemoteBridge != null) {
 						// check if the configuration has changed
 						if (!oldRemoteBridge.equals(remoteBridge)) {
-                            LOG.info("Refreshing outbound connector for " + agentId);
+                            LOG.info("Refreshing outbound connector for " + containerId);
 
 							// replace the old remote bridge with the new one
-							agentBridgeMap.remove(agentId);
+							containerBridgeMap.remove(containerId);
 							removeRemoteBridge(oldRemoteBridge);
 
 							addRemoteBridge(remoteBridge);
-							agentBridgeMap.put(agentId, remoteBridge);
+							containerBridgeMap.put(containerId, remoteBridge);
 
 						}
 					} else {
 						// add the new bridge to this gateway
 						try {
 
-							LOG.info("Found Bridge Configuration for " + agentId);
+							LOG.info("Found Bridge Configuration for " + containerId);
 							addRemoteBridge(remoteBridge);
 
-							agentBridgeMap.put(agentId, remoteBridge);
-							LOG.info("Added outbound connector for " + agentId);
+							containerBridgeMap.put(containerId, remoteBridge);
+							LOG.info("Added outbound connector for " + containerId);
 
 						} catch (Exception ex) {
-							LOG.error("Error adding outbound conncetor for [" + agentId + "] : " + ex.getMessage(), ex);
+							LOG.error("Error adding outbound conncetor for [" + containerId + "] : " + ex.getMessage(), ex);
 						}
 					}
 
 				} else {
                     if (oldRemoteBridge != null) {
-                        LOG.info("Removing outbound connector for " + agentId);
+                        LOG.info("Removing outbound connector for " + containerId);
 
                         // BridgeConnector went away, remove the old remote bridge
-                        agentBridgeMap.remove(agentId);
+                        containerBridgeMap.remove(containerId);
                         removeRemoteBridge(oldRemoteBridge);
                     } else {
                         // this must be a new BridgeConnector coming up
-                        LOG.warn("Agent " + agentId +
+                        LOG.warn("Container " + containerId +
                             " uses Profile [" + gatewayProfile.getId() +
                             "] but has not yet registered its Bridge Configuration");
                     }
                 }
             } catch (Exception ex) {
-				LOG.error ("Error getting Bridge Configuration for agent [" + agentId + "]: " + ex.getMessage(), ex);
+				LOG.error ("Error getting Bridge Configuration for container [" + containerId + "]: " + ex.getMessage(), ex);
 			}
 
 		}

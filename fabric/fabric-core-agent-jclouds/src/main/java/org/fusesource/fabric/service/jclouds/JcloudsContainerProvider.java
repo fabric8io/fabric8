@@ -31,9 +31,9 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
-import org.fusesource.fabric.api.AgentProvider;
-import org.fusesource.fabric.api.CreateAgentArguments;
-import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerArguments;
+import org.fusesource.fabric.api.CreateJCloudsContainerArguments;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.JCloudsInstanceType;
 import org.jclouds.compute.ComputeService;
@@ -47,13 +47,13 @@ import org.jclouds.domain.Credentials;
 import org.jclouds.rest.RestContextFactory;
 
 
-import static org.fusesource.fabric.internal.AgentProviderUtils.DEFAULT_SSH_PORT;
-import static org.fusesource.fabric.internal.AgentProviderUtils.buildStartupScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.DEFAULT_SSH_PORT;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartupScript;
 
 /**
- * A concrete {@link AgentProvider} that creates {@link org.fusesource.fabric.api.Agent}s via jclouds {@link ComputeService}.
+ * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that creates {@link org.fusesource.fabric.api.Container}s via jclouds {@link ComputeService}.
  */
-public class JcloudsAgentProvider implements AgentProvider {
+public class JcloudsContainerProvider implements ContainerProvider {
 
     private static final String IMAGE_ID = "imageId";
     private static final String LOCATION_ID = "locationId";
@@ -88,30 +88,30 @@ public class JcloudsAgentProvider implements AgentProvider {
     }
 
     /**
-     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri     The uri of the maven proxy to use.
-     * @param agentUri     The uri that contains required information to build the Agent.
-     * @param name         The name of the Agent.
-     * @param zooKeeperUrl The url of Zoo Keeper.
-     * @param server       Marks if the agent will have the role of the cluster server.
-     * @param debugAgent
+     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
+     * @param proxyUri         The uri of the maven proxy to use.
+     * @param containerUri     The uri that contains required information to build the Container.
+     * @param name             The name of the Container.
+     * @param zooKeeperUrl     The url of Zoo Keeper.
+     * @param isEnsembleServer           Marks if the container will have the role of the ensemble server.
+     * @param debugContainer
      */
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean server, boolean debugAgent) {
-           create(proxyUri, agentUri,name,zooKeeperUrl,server,debugAgent,1);
+    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer) {
+           create(proxyUri, containerUri,name,zooKeeperUrl,isEnsembleServer,debugContainer,1);
     }
 
     /**
-     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri      The uri of the maven proxy to use.
-     * @param agentUri      The uri that contains required information to build the Agent.
-     * @param name          The name of the Agent.
-     * @param zooKeeperUrl  The url of Zoo Keeper.
-     * @param isClusterServer       Marks if the agent will have the role of the cluster server.
-     * @param debugAgent    Flag used to enable debugging on the new Agent.
-     * @param number        The number of Agents to create.
+     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
+     * @param proxyUri          The uri of the maven proxy to use.
+     * @param containerUri      The uri that contains required information to build the Container.
+     * @param name              The name of the Container.
+     * @param zooKeeperUrl      The url of Zoo Keeper.
+     * @param isEnsembleServer   Marks if the container will have the role of the cluster server.
+     * @param debugContainer        Flag used to enable debugging on the new Container.
+     * @param number            The number of Container to create.
      */
     @Override
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, int number) {
+    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer, int number) {
         String imageId = null;
         String hardwareId = null;
         String locationId = null;
@@ -123,10 +123,10 @@ public class JcloudsAgentProvider implements AgentProvider {
         String owner = null;
 
         try {
-            String providerName = agentUri.getHost();
+            String providerName = containerUri.getHost();
 
-            if (agentUri.getQuery() != null) {
-                Map<String, String> parameters = parseQuery(agentUri.getQuery());
+            if (containerUri.getQuery() != null) {
+                Map<String, String> parameters = parseQuery(containerUri.getQuery());
                 if (parameters != null) {
                     imageId = parameters.get(IMAGE_ID);
                     group = parameters.get(GROUP);
@@ -139,7 +139,7 @@ public class JcloudsAgentProvider implements AgentProvider {
                 }
             }
 
-            doCreateAgent(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, DEFAULT_SSH_PORT);
+            doCreateContainer(proxyUri, name, number, zooKeeperUrl, isEnsembleServer, debugContainer, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, DEFAULT_SSH_PORT);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -148,28 +148,28 @@ public class JcloudsAgentProvider implements AgentProvider {
     }
 
     /**
-     * Creates an {@link org.fusesource.fabric.api.Agent} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri     The uri of the maven proxy to use.
-     * @param agentUri     The uri that contains required information to build the Agent.
-     * @param name         The name of the Agent.
-     * @param zooKeeperUrl The url of Zoo Keeper.
+     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
+     * @param proxyUri         The uri of the maven proxy to use.
+     * @param containerUri     The uri that contains required information to build the Container.
+     * @param name             The name of the Container.
+     * @param zooKeeperUrl     The url of Zoo Keeper.
      */
-    public void create(URI proxyUri, URI agentUri, String name, String zooKeeperUrl) {
-        create(proxyUri,agentUri, name, zooKeeperUrl);
+    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl) {
+        create(proxyUri,containerUri, name, zooKeeperUrl);
     }
 
     @Override
-    public boolean create(CreateAgentArguments createArgs, String name, String zooKeeperUrl) throws Exception {
-        if (createArgs instanceof CreateJCloudsAgentArguments) {
-            CreateJCloudsAgentArguments args = (CreateJCloudsAgentArguments) createArgs;
-            return doCreateAgent(args, name, zooKeeperUrl, DEFAULT_SSH_PORT) != null;
+    public boolean create(CreateContainerArguments createArgs, String name, String zooKeeperUrl) throws Exception {
+        if (createArgs instanceof CreateJCloudsContainerArguments) {
+            CreateJCloudsContainerArguments args = (CreateJCloudsContainerArguments) createArgs;
+            return doCreateContainer(args, name, zooKeeperUrl, DEFAULT_SSH_PORT) != null;
         }
         return false;
     }
 
-    protected String doCreateAgent(CreateJCloudsAgentArguments args, String name, String zooKeeperUrl, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
-        boolean isClusterServer = args.isClusterServer();
-        boolean debugAgent = args.isDebugAgent();
+    protected String doCreateContainer(CreateJCloudsContainerArguments args, String name, String zooKeeperUrl, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
+        boolean isClusterServer = args.isEnsembleServer();
+        boolean debugContainer = args.isDebugContainer();
         int number = args.getNumber();
         String imageId = args.getImageId();
         String hardwareId = args.getHardwareId();
@@ -183,20 +183,20 @@ public class JcloudsAgentProvider implements AgentProvider {
         String owner = args.getOwner();
         URI proxyURI = args.getProxyUri();
 
-        return doCreateAgent(proxyURI, name, number, zooKeeperUrl, isClusterServer, debugAgent, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, returnPort);
+        return doCreateContainer(proxyURI, name, number, zooKeeperUrl, isClusterServer, debugContainer, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, returnPort);
     }
 
     /**
      * Creates a new fabric on a remote JClouds machine, returning the new ZK connection URL
      */
-    public String createClusterServer(CreateJCloudsAgentArguments createArgs, String name) throws Exception {
+    public String createClusterServer(CreateJCloudsContainerArguments createArgs, String name) throws Exception {
         // TODO how can we get this value from the tarball I wonder, in case it ever changes?
         int zkPort = 2181;
-        createArgs.setClusterServer(true);
-        return doCreateAgent(createArgs, name, null, zkPort);
+        createArgs.setEnsembleServer(true);
+        return doCreateContainer(createArgs, name, null, zkPort);
     }
 
-    protected String doCreateAgent(URI proxyUri, String name, int number, String zooKeeperUrl, boolean isClusterServer, boolean debugAgent, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
+    protected String doCreateContainer(URI proxyUri, String name, int number, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
         ComputeService computeService = computeServiceMap.get(providerName);
         if (computeService == null) {
             //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
@@ -261,11 +261,11 @@ public class JcloudsAgentProvider implements AgentProvider {
                     }
                     buffer.append(pa + ":" + returnPort);
                 }
-                String agentName = name;
+                String containerName = name;
                 if(number > 1) {
-                    agentName+=suffix++;
+                    containerName+=suffix++;
                 }
-                String script = buildStartupScript(proxyUri, agentName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT,isClusterServer, debugAgent);
+                String script = buildStartupScript(proxyUri, containerName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT,isEnsembleServer, debugContainer);
                 if (credentials != null) {
                     computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                 } else {

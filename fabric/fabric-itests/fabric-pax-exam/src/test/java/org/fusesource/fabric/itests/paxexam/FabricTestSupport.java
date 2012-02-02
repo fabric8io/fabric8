@@ -24,12 +24,10 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import javax.inject.Inject;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.service.FabricServiceImpl;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.ops4j.pax.exam.CoreOptions;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.osgi.framework.Bundle;
@@ -67,7 +65,7 @@ public class FabricTestSupport {
      * @param name The name of the child {@ling Agent}.
      * @return
      */
-    protected Agent createChildAgent(String name) throws InterruptedException {
+    protected Container createChildAgent(String name) throws InterruptedException {
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
@@ -76,14 +74,14 @@ public class FabricTestSupport {
 
         Thread.sleep(DEFAULT_WAIT);
 
-        Agent[] agents = fabricService.getAgents();
-        assertNotNull(agents);
+        Container[] containers = fabricService.getContainers();
+        assertNotNull(containers);
 
-        assertEquals("Expected to find 1 agent", 1, agents.length);
-        Agent parent = agents[0];
-        assertEquals("Expected to find the root agent", "root", parent.getId());
+        assertEquals("Expected to find 1 container", 1, containers.length);
+        Container parent = containers[0];
+        assertEquals("Expected to find the root container", "root", parent.getId());
 
-        Agent child = fabricService.createAgent(parent, "child1");
+        Container child = fabricService.createContainer(parent, "child1");
         return child;
     }
 
@@ -96,8 +94,8 @@ public class FabricTestSupport {
             assertNotNull(fabricService);
 
             Thread.sleep(DEFAULT_WAIT);
-            Agent agent = fabricService.getAgent(name);
-            agent.destroy();
+            Container container = fabricService.getContainer(name);
+            container.destroy();
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }

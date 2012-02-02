@@ -18,12 +18,12 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <service ref="sshAgentProvider" auto-export="interfaces">
+    <service ref="sshContainerProvider" auto-export="interfaces">
         <service-properties>
-            <entry key="fabric.agent.protocol" value="ssh" />
+            <entry key="fabric.container.protocol" value="ssh" />
         </service-properties>
     </service>
 
-    <bean id="sshAgentProvider" class="org.fusesource.fabric.service.ssh.SshAgentProvider"/>
+    <bean id="sshContainerProvider" class="org.fusesource.fabric.service.ssh.SshContainerProvider"/>
 
 </blueprint>

@@ -20,10 +20,10 @@ import java.util.List;
 
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 
-public class AgentCompleter implements Completer {
+public class ContainerCompleter implements Completer {
 
     protected FabricService fabricService;
 
@@ -38,8 +38,8 @@ public class AgentCompleter implements Completer {
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
-        for (Agent agent : fabricService.getAgents()) {
-            delegate.getStrings().add(agent.getId());
+        for (Container container : fabricService.getContainers()) {
+            delegate.getStrings().add(container.getId());
         }
         return delegate.complete(buffer, cursor, candidates);
     }

@@ -24,7 +24,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
     <version>1.2-SNAPSHOT</version>
-    <relativePath>../../fabric-scala</relativePath>
+    <relativePath>../../fabric/fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo</groupId>

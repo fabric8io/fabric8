@@ -14,31 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-import java.util.List;
+@Command(name = "container-start", scope = "fabric", description = "Start an existing container")
+public class ContainerStart extends FabricCommand {
 
-@Command(name = "agent-domains", scope = "fabric", description = "Lists the JMX domains an agent has")
-public class AgentDomains extends FabricCommand {
-
-    @Argument(index = 0, name="agent", description="The agent name", required = true, multiValued = false)
-    private String agent = null;
+    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    private String container = null;
 
     protected Object doExecute() throws Exception {
-        Agent a = fabricService.getAgent(agent);
+        Container a = fabricService.getContainer(container);
         if (a == null) {
-            throw new IllegalArgumentException("Agent " + agent + " does not exist.");
+            throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        List<String> domains = a.getJmxDomains();
-        for (String domain : domains) {
-            System.out.println(domain);
-        }
+        a.start();
         return null;
     }
 

@@ -19,20 +19,20 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.commands.support.AgentCreateSupport;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
-@Command(name = "agent-create", scope = "fabric", description = "Creates one or more new agents")
-public class AgentCreate extends AgentCreateSupport {
+@Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers")
+public class ContainerCreate extends ContainerCreateSupport {
 
-    @Option(name = "--parent", multiValued = false, required = false, description = "Parent agent ID")
+    @Option(name = "--parent", multiValued = false, required = false, description = "Parent container ID")
     private String parent;
 
     @Option(name = "--url", multiValued = false, required = false, description = "The URL")
     private String url;
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 1;
 
     @Override
@@ -43,7 +43,7 @@ public class AgentCreate extends AgentCreateSupport {
         if (url == null && parent != null) {
             url = "child://" + parent;
         }
-        Agent[] children = fabricService.createAgents(url, name, isClusterServer, debugAgent, number);
+        Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
         setProfiles(children);
         return null;
     }

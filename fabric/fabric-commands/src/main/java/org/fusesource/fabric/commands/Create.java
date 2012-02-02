@@ -44,21 +44,21 @@ public class Create extends EnsembleCommandSupport {
     @Option(name = "-t", aliases = {"--time"}, description = "The amount of time to wait for the ensemble to startup before trying to import the default data")
     long ensembleStartupTime = 2000L;
 
-    @Argument(required = false, multiValued = true, description = "List of agents")
-    private List<String> agents;
+    @Argument(required = false, multiValued = true, description = "List of containers")
+    private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
-        if (agents == null || agents.isEmpty()) {
-            agents = Arrays.asList(System.getProperty("karaf.name"));
+        if (containers == null || containers.isEmpty()) {
+            containers = Arrays.asList(System.getProperty("karaf.name"));
         }
 
         if (clean) {
             service.clean();
         }
 
-        if (agents != null && !agents.isEmpty()) {
-            service.createCluster(agents);
+        if (containers != null && !containers.isEmpty()) {
+            service.createCluster(containers);
 
             // now lets populate the registry with files from a mvn plugin
             if (!noImport) {

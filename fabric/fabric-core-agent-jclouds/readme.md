@@ -1,8 +1,8 @@
-# Fabric JClouds Agent Provider
+# Fabric JClouds Container Provider
 
 ## Description
 
-The Jclouds Agent Provider allows you to create a Fabric Agent on the Cloud via Jclouds.
+The Jclouds Container Provider allows you to create a Fabric Container on the Cloud via Jclouds.
 
 ### Account & Image creation on the target cloud provider.
 
@@ -41,17 +41,17 @@ karaf@root> config:propset jclouds.ec2.ami-owners = EC2_OWNER_ID
 Tip for EC2: The above will be used for quering images and will result in queries being faster.
 
 
-You are now ready to install the jclouds agent provider.
+You are now ready to install the jclouds container provider.
 
 
 karaf@root>features:install fabric-jclouds
 
 
-## Using the jclouds agent provider
+## Using the jclouds container provider
 
-To create a new node using the jclouds agent provider:
+To create a new node using the jclouds container provider:
 
-fabric:agent-create --url jclouds://{PROVIDER_NAME}?imageId={IMAGE_ID}&locationId={LOCATION_ID}&group={GROUP}&user={USER} --profile {FABRIC_PROFILE} {AGENT_ID}
+fabric:container-create --url jclouds://{PROVIDER_NAME}?imageId={IMAGE_ID}&locationId={LOCATION_ID}&group={GROUP}&user={USER} --profile {FABRIC_PROFILE} {AGENT_ID}
 
 ###Required parameters:
 
@@ -65,4 +65,4 @@ GROUP: The cloud provider group that the new node will join.
 
 LOCATION_ID: The location where the node should be created.
 
-USER: The username on the target node, where the agent will be installed (default: root).
+USER: The username on the target node, where the container will be installed (default: root).

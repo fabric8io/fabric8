@@ -17,13 +17,13 @@
 package org.fusesource.fabric.internal;
 
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
-import org.fusesource.fabric.service.AgentTemplate;
+import org.fusesource.fabric.service.ContainerTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -39,24 +39,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AgentImpl implements Agent {
+public class ContainerImpl implements Container {
 
     /**
      * Logger.
      */
     protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Agent parent;
+    private final Container parent;
     private final String id;
     private final FabricServiceImpl service;
 
-    public AgentImpl(Agent parent, String id, FabricServiceImpl service) {
+    public ContainerImpl(Container parent, String id, FabricServiceImpl service) {
         this.parent = parent;
         this.id = id;
         this.service = service;
     }
 
-    public Agent getParent() {
+    public Container getParent() {
         return parent;
     }
 
@@ -66,7 +66,7 @@ public class AgentImpl implements Agent {
 
     public boolean isAlive() {
         try {
-            return service.getZooKeeper().exists(ZkPath.AGENT_ALIVE.getPath(id)) != null;
+            return service.getZooKeeper().exists(ZkPath.CONTAINER_ALIVE.getPath(id)) != null;
         } catch (KeeperException.NoNodeException e) {
             return false;
         } catch (Exception e) {
@@ -100,11 +100,11 @@ public class AgentImpl implements Agent {
     }
 
     public String getSshUrl() {
-        return getZkData(ZkPath.AGENT_SSH);
+        return getZkData(ZkPath.CONTAINER_SSH);
     }
 
     public String getJmxUrl() {
-        return getZkData(ZkPath.AGENT_JMX);
+        return getZkData(ZkPath.CONTAINER_JMX);
     }
 
     private String getZkData(ZkPath path) {
@@ -120,7 +120,7 @@ public class AgentImpl implements Agent {
     @Override
     public Version getVersion() {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
             return new VersionImpl(version, service);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -130,7 +130,7 @@ public class AgentImpl implements Agent {
     @Override
     public void setVersion(Version version) {
         try {
-            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_AGENT.getPath(id), version.getName() );
+            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -138,8 +138,8 @@ public class AgentImpl implements Agent {
 
     public Profile[] getProfiles() {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
-            String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
+            String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
             String str = service.getZooKeeper().getStringData(node);
             if (str == null) {
                 return new Profile[0];
@@ -156,8 +156,8 @@ public class AgentImpl implements Agent {
 
     public void setProfiles(Profile[] profiles) {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
-            String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
+            String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
             String str = "";
             for (Profile parent : profiles) {
                 if (!version.equals(parent.getVersion())) {
@@ -176,7 +176,7 @@ public class AgentImpl implements Agent {
 
     public String getLocation() {
         try {
-            String path = ZkPath.AGENT_LOCATION.getPath(id);
+            String path = ZkPath.CONTAINER_LOCATION.getPath(id);
             if (service.getZooKeeper().exists(path) != null) {
                 return service.getZooKeeper().getStringData(path);
             } else {
@@ -189,7 +189,7 @@ public class AgentImpl implements Agent {
 
     public void setLocation(String location) {
         try {
-            String path = ZkPath.AGENT_LOCATION.getPath(id);
+            String path = ZkPath.CONTAINER_LOCATION.getPath(id);
             ZooKeeperUtils.set( service.getZooKeeper(), path, location );
         } catch (Exception e) {
             throw new FabricException(e);
@@ -200,26 +200,26 @@ public class AgentImpl implements Agent {
     // TODO: remove these deprecated methods in the next release.
     //
     @Deprecated
-    private AgentTemplate agentTemplate;
+    private ContainerTemplate containerTemplate;
     @Deprecated
-    public AgentTemplate getAgentTemplate() {
-        if( agentTemplate==null ) {
-            agentTemplate = new AgentTemplate(this, false);
+    public ContainerTemplate getContainerTemplate() {
+        if( containerTemplate ==null ) {
+            containerTemplate = new ContainerTemplate(this, false);
         }
-        return agentTemplate;
+        return containerTemplate;
     }
     @Deprecated
     public ServiceInfo[] getServices() {
-        return getServices(getAgentTemplate());
+        return getServices(getContainerTemplate());
     }
     @Deprecated
     public BundleInfo[] getBundles() {
-        return getBundles(agentTemplate);
+        return getBundles(containerTemplate);
     }
 
-    public BundleInfo[] getBundles(AgentTemplate agentTemplate) {
+    public BundleInfo[] getBundles(ContainerTemplate containerTemplate) {
         try {
-            return agentTemplate.execute(new AgentTemplate.BundleStateCallback<BundleInfo[]>() {
+            return containerTemplate.execute(new ContainerTemplate.BundleStateCallback<BundleInfo[]>() {
                 public BundleInfo[] doWithBundleState(BundleStateMBean bundleState) throws Exception {
                     TabularData bundles = bundleState.listBundles();
                     BundleInfo[] info = new BundleInfo[bundles.size()];
@@ -240,9 +240,9 @@ public class AgentImpl implements Agent {
         }
     }
 
-    public ServiceInfo[] getServices(AgentTemplate agentTemplate) {
+    public ServiceInfo[] getServices(ContainerTemplate containerTemplate) {
         try {
-            return agentTemplate.execute(new AgentTemplate.ServiceStateCallback<ServiceInfo[]>() {
+            return containerTemplate.execute(new ContainerTemplate.ServiceStateCallback<ServiceInfo[]>() {
                 public ServiceInfo[] doWithServiceState(ServiceStateMBean serviceState) throws Exception {
                     TabularData services = serviceState.listServices();
                     ServiceInfo[] info = new ServiceInfo[services.size()];
@@ -266,7 +266,7 @@ public class AgentImpl implements Agent {
 
     public List<String> getJmxDomains() {
         try {
-            List<String> list = service.getZooKeeper().getChildren(ZkPath.AGENT_DOMAINS.getPath(getId()));
+            List<String> list = service.getZooKeeper().getChildren(ZkPath.CONTAINER_DOMAINS.getPath(getId()));
             Collections.sort(list);
             return Collections.unmodifiableList(list);
         } catch (Exception e) {
@@ -276,12 +276,12 @@ public class AgentImpl implements Agent {
     }
 
     public void start() {
-        service.startAgent(this);
+        service.startContainer(this);
     }
 
     @Override
     public void stop() {
-        service.stopAgent(this);
+        service.stopContainer(this);
     }
 
     @Override
@@ -289,8 +289,8 @@ public class AgentImpl implements Agent {
         service.destroy(this);
     }
 
-    public Agent[] getChildren() {
-        return new Agent[0];
+    public Container[] getChildren() {
+        return new Container[0];
     }
 
     public String getType() {
@@ -299,11 +299,11 @@ public class AgentImpl implements Agent {
 
     @Override
     public String getProvisionResult() {
-        return getZkData(ZkPath.AGENT_PROVISION_RESULT);
+        return getZkData(ZkPath.CONTAINER_PROVISION_RESULT);
     }
 
     @Override
     public String getProvisionException() {
-        return getZkData(ZkPath.AGENT_PROVISION_EXCEPTION);
+        return getZkData(ZkPath.CONTAINER_PROVISION_EXCEPTION);
     }
 }

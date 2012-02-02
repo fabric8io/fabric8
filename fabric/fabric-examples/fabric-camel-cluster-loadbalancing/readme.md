@@ -15,7 +15,7 @@ a cluster environment.  We will deploy a fabric camel route on one karaf instanc
     </route>
 
 and sends messages to a fabric called cheese while two other fabric camel routes deployed on zookeeper
-agents and exposing HTTP Servers will be able to answer to the client.
+containers and exposing HTTP Servers will be able to answer to the client.
 
      <route id="fabric-server">
         <from uri="fabric:cheese:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
@@ -70,13 +70,13 @@ Installing camel features repository and deploy camel
 Installing camel fabric demo features repository and deploy camel-master
 Create fabric profile
 add repositories, features to be deployed in the store
-Create fabric agent
+Create fabric container
 
 
 OUTPUT
 ======
 
-- Connect to the agent
+- Connect to the container
 fabric:connect zk-9090 or fabric:connect zk-9191
 
 - Check that the camel fabric route can consume messages from camel master !

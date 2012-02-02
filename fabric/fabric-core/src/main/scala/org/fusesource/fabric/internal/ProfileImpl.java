@@ -19,7 +19,7 @@ package org.fusesource.fabric.internal;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
@@ -74,38 +74,38 @@ public class ProfileImpl implements Profile {
     }
 
     public List<String> getBundles() {
-        return getAgentConfigList(this, ConfigListType.BUNDLES);
+        return getContainerConfigList(this, ConfigListType.BUNDLES);
     }
 
     public List<String> getFeatures() {
-        return getAgentConfigList(this, ConfigListType.FEATURES);
+        return getContainerConfigList(this, ConfigListType.FEATURES);
     }
 
     public List<String> getRepositories() {
-        return getAgentConfigList(this, ConfigListType.REPOSITORIES);
+        return getContainerConfigList(this, ConfigListType.REPOSITORIES);
     }
 
     @Override
     public void setBundles(List<String> values) {
-        setAgentConfigList(this, values, ConfigListType.BUNDLES);
+        setContainerConfigList(this, values, ConfigListType.BUNDLES);
     }
 
     @Override
     public void setFeatures(List<String> values) {
-        setAgentConfigList(this, values, ConfigListType.FEATURES);
+        setContainerConfigList(this, values, ConfigListType.FEATURES);
     }
 
     @Override
     public void setRepositories(List<String> values) {
-        setAgentConfigList(this, values, ConfigListType.REPOSITORIES);
+        setContainerConfigList(this, values, ConfigListType.REPOSITORIES);
     }
 
 
-    public static List<String> getAgentConfigList(Profile p, ConfigListType type) {
+    public static List<String> getContainerConfigList(Profile p, ConfigListType type) {
         try {
-            Properties agentProps = getAgentProperties(p);
+            Properties containerProps = getContainerProperties(p);
             ArrayList<String> rc = new ArrayList<String>();
-            for ( Map.Entry<Object, Object> e : agentProps.entrySet() ) {
+            for ( Map.Entry<Object, Object> e : containerProps.entrySet() ) {
                 if ( ((String)e.getKey()).startsWith(type + ".") ) {
                     rc.add((String)e.getValue());
                 }
@@ -117,7 +117,7 @@ public class ProfileImpl implements Profile {
         }
     }
 
-    public static void setAgentConfigList(Profile p, List<String>  values, ConfigListType type) {
+    public static void setContainerConfigList(Profile p, List<String> values, ConfigListType type) {
         Map<String,Map<String, String>> config = p.getConfigurations();
         String prefix = type + ".";
         Map<String, String> map = config.get(AGENT_PID);
@@ -138,7 +138,7 @@ public class ProfileImpl implements Profile {
         p.setConfigurations(config);
     }
 
-    public static Properties getAgentProperties(Profile p) throws IOException {
+    public static Properties getContainerProperties(Profile p) throws IOException {
         byte[] b = p.getFileConfigurations().get(AGENT_PID + ".properties");
         if (b != null) {
             return toProperties(b);
@@ -183,22 +183,22 @@ public class ProfileImpl implements Profile {
         }
     }
 
-    public Agent[] getAssociatedAgents() {
+    public Container[] getAssociatedContainers() {
         try {
-            ArrayList<Agent> rc = new ArrayList<Agent>();
-            Agent[] agents = service.getAgents();
-            for (Agent agent : agents) {
-                if (!agent.getVersion().getName().equals(getVersion())) {
+            ArrayList<Container> rc = new ArrayList<Container>();
+            Container[] containers = service.getContainers();
+            for (Container container : containers) {
+                if (!container.getVersion().getName().equals(getVersion())) {
                     continue;
                 }
-                for (Profile p : agent.getProfiles()) {
+                for (Profile p : container.getProfiles()) {
                     if (this.equals(p)) {
-                        rc.add(agent);
+                        rc.add(container);
                         break;
                     }
                 }
             }
-            return rc.toArray(new Agent[0]);
+            return rc.toArray(new Container[0]);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -316,7 +316,7 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
-    public Map<String, String> getAgentConfiguration() {
+    public Map<String, String> getContainerConfiguration() {
         Map<String, String> map = getConfigurations().get(AGENT_PID);
         if (map == null) {
             map = new HashMap<String, String>();

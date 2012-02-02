@@ -48,8 +48,8 @@ public class Join extends OsgiCommandSupport {
 
         String karafName = System.getProperty("karaf.name");
 
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(karafName), version);
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, karafName), "default");
+        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
+        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default");
 
         return null;
     }

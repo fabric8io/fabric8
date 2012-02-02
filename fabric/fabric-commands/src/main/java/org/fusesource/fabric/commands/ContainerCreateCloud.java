@@ -21,12 +21,12 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.CreateJCloudsAgentArguments;
+import org.fusesource.fabric.api.CreateJCloudsContainerArguments;
 import org.fusesource.fabric.api.JCloudsInstanceType;
-import org.fusesource.fabric.commands.support.AgentCreateSupport;
+import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
-@Command(name = "agent-create-cloud", scope = "fabric", description = "Creates one or more new agents on the cloud")
-public class AgentCreateCloud extends AgentCreateSupport {
+@Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
+public class ContainerCreateCloud extends ContainerCreateSupport {
 
     @Option(name = "--provider", required = true, description = "JClouds provider name")
     private String providerName;
@@ -50,17 +50,17 @@ public class AgentCreateCloud extends AgentCreateSupport {
     private String group;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
-    @Argument(index = 0, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-    @Argument(index = 1, required = false, description = "The number of agents that should be created")
+    @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {
-        CreateJCloudsAgentArguments args = new CreateJCloudsAgentArguments();
-        args.setClusterServer(isClusterServer);
+        CreateJCloudsContainerArguments args = new CreateJCloudsContainerArguments();
+        args.setEnsembleServer(isEnsembleServer);
         args.setCredential(credential);
-        args.setDebugAgent(debugAgent);
+        args.setDebugContainer(debugContainer);
         args.setGroup(group);
         args.setHardwareId(hardwareId);
         args.setIdentity(identity);
@@ -71,7 +71,7 @@ public class AgentCreateCloud extends AgentCreateSupport {
         args.setOwner(owner);
         args.setProviderName(providerName);
         args.setUser(user);
-        fabricService.createAgents(args, name, number);
+        fabricService.createContainer(args, name, number);
         return null;
     }
 

@@ -18,23 +18,23 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.commands.support.AgentCreateSupport;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
-@Command(name = "agent-create-child", scope = "fabric", description = "Creates one or more child agents")
-public class AgentCreateChild extends AgentCreateSupport {
+@Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers")
+public class ContainerCreateChild extends ContainerCreateSupport {
 
-    @Argument(index = 0, required = true, description = "Parent agent ID")
+    @Argument(index = 0, required = true, description = "Parent containers ID")
     protected String parent;
-    @Argument(index = 1, required = true, description = "The name of the agent to be created. When creating multiple agents it serves as a prefix")
+    @Argument(index = 1, required = true, description = "The name of the containers to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-    @Argument(index = 2, required = false, description = "The number of agents that should be created")
+    @Argument(index = 2, required = false, description = "The number of containers that should be created")
     protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {
         String url = "child://" + parent;
-        Agent[] children = fabricService.createAgents(url, name, isClusterServer, debugAgent, number);
+        Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
         setProfiles(children);
         return null;
     }

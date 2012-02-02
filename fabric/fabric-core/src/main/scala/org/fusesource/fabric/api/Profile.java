@@ -36,7 +36,7 @@ public interface Profile {
     Profile[] getParents();
     void setParents(Profile[] parents);
 
-    Agent[] getAssociatedAgents();
+    Container[] getAssociatedContainers();
 
     List<String> getBundles();
     List<String> getFeatures();
@@ -58,9 +58,9 @@ public interface Profile {
     Map<String, Map<String, String>> getConfigurations();
 
     /**
-     * Returns the configuration properties for the agent
+     * Returns the configuration properties for the container
      */
-    Map<String, String> getAgentConfiguration();
+    Map<String, String> getContainerConfiguration();
 
     /**
      * Update configurations of this profile with the new values

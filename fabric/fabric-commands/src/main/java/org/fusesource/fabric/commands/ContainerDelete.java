@@ -18,22 +18,22 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "agent-delete", scope = "fabric", description = "Delete an existing agent")
-public class AgentDelete extends FabricCommand {
+@Command(name = "container-delete", scope = "fabric", description = "Delete an existing container")
+public class ContainerDelete extends FabricCommand {
 
     @Argument(index = 0)
     private String name;
 
     @Override
     protected Object doExecute() throws Exception {
-        Agent agent = fabricService.getAgent(name);
-        if( agent==null ) {
-            throw new IllegalArgumentException("Agent does not exist: "+name);
+        Container container = fabricService.getContainer(name);
+        if( container ==null ) {
+            throw new IllegalArgumentException("Container does not exist: "+name);
         }
-        agent.destroy();
+        container.destroy();
         return null;
     }
 

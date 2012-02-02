@@ -16,35 +16,35 @@
  */
 package org.fusesource.fabric.service;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.remote.JMXConnector;
 
 /**
- * A Caching implementation of JmxTemplate which caches a connector for a given Agent
+ * A Caching implementation of JmxTemplate which caches a connector for a given Container
  */
-public class AgentCachingJmxTemplate extends JmxTemplate {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentCachingJmxTemplate.class);
+public class ContainerCachingJmxTemplate extends JmxTemplate {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerCachingJmxTemplate.class);
 
-    private final AgentTemplate agentTemplate;
+    private final ContainerTemplate containerTemplate;
 
-    public AgentCachingJmxTemplate(AgentTemplate agentTemplate) {
-        this.agentTemplate = agentTemplate;
+    public ContainerCachingJmxTemplate(ContainerTemplate containerTemplate) {
+        this.containerTemplate = containerTemplate;
     }
 
-    public AgentTemplate getAgentTemplate() {
-        return agentTemplate;
+    public ContainerTemplate getContainerTemplate() {
+        return containerTemplate;
     }
 
-    public Agent getAgent() {
-        return getAgentTemplate().getAgent();
+    public Container getContainer() {
+        return getContainerTemplate().getContainer();
     }
 
     @Override
     protected JMXConnector createConnector() {
-        return getAgentTemplate().createConnector();
+        return getContainerTemplate().createConnector();
     }
 
 }

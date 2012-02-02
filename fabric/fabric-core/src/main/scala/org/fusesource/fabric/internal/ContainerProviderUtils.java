@@ -24,21 +24,21 @@ import java.util.Arrays;
 import java.util.List;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 
-public class AgentProviderUtils {
+public class ContainerProviderUtils {
 
     private static final String REPLACE_FORMAT = "sed -i  \"s/%s/%s/g\" %s";
 
     public static final int DEFAULT_SSH_PORT = 8081;
 
-    private AgentProviderUtils() {
+    private ContainerProviderUtils() {
         //Utility Class
     }
 
-    public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean isClusterServer, boolean debugAgent) throws MalformedURLException {
+    public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean isClusterServer, boolean debugContainer) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
-        sb.append("run mkdir ~/agents/ ").append("\n");
-        sb.append("run cd ~/agents/ ").append("\n");
+        sb.append("run mkdir ~/containers/ ").append("\n");
+        sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
         extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "fuse-fabirc", FabricConstants.VERSION);
@@ -53,7 +53,7 @@ public class AgentProviderUtils {
         } else {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + zooKeeperUrl));
         }
-        if(debugAgent) {
+        if(debugContainer) {
            sb.append("run export KARAF_DEBUG=true").append("\n");
         }
         sb.append("run nohup bin/start").append("\n");

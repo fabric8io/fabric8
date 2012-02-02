@@ -19,9 +19,9 @@ package org.fusesource.fabric.api;
 import java.io.Serializable;
 
 /**
- * Arguments for creating a new agent via JClouds
+ * Arguments for creating a new container via JClouds
  */
-public class CreateJCloudsAgentArguments extends BasicCreateAgentArguements implements CreateAgentArguments, Serializable {
+public class CreateJCloudsContainerArguments extends BasicCreateContainerArguements implements CreateContainerArguments, Serializable {
     private static final long serialVersionUID = 4489740280396972109L;
 
 
@@ -38,7 +38,7 @@ public class CreateJCloudsAgentArguments extends BasicCreateAgentArguements impl
 
     @Override
     public String toString() {
-        return "CreateJCloudsAgentArguments{" +
+        return "CreateJCloudsContainerArguments{" +
                 "imageId='" + imageId + '\'' +
                 ", hardwareId='" + hardwareId + '\'' +
                 ", locationId='" + locationId + '\'' +

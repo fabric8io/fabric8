@@ -19,9 +19,9 @@ package org.fusesource.fabric.api;
 import java.io.Serializable;
 
 /**
- * Arguments for creating a new agent via SSH
+ * Arguments for creating a new container via SSH
  */
-public class CreateSshAgentArguments extends BasicCreateAgentArguements implements CreateAgentArguments, Serializable {
+public class CreateSshContainerArguments extends BasicCreateContainerArguements implements CreateContainerArguments, Serializable {
 
     private static final long serialVersionUID = -1171578973712670970L;
 
@@ -29,13 +29,13 @@ public class CreateSshAgentArguments extends BasicCreateAgentArguements implemen
     private String password;
     private String host;
     private int port = 22;
-    private String path = "/usr/local/fusesource/agent";
+    private String path = "/usr/local/fusesource/container";
     private int sshRetries = 6;
     private int retryDelay = 1;
 
     @Override
     public String toString() {
-        return "createSshAgent(" + username + "@" + host + ":" + port + " " + path + ")";
+        return "createSshContainer(" + username + "@" + host + ":" + port + " " + path + ")";
     }
 
     public String getPath() {

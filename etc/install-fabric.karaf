@@ -48,8 +48,8 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
     #config:propset zookeeper.url $1
     #config:update
     #shell:sleep 2000
-    #zk:create /fabric/configs/agents/$APPLICATION base
-    #zk:create /fabric/configs/versions/base/agents/$APPLICATION default
+    #zk:create /fabric/configs/containers/$APPLICATION base
+    #zk:create /fabric/configs/versions/base/containers/$APPLICATION default
 } {
     echo Creating initial ZooKeeper cluster
     fabric:ensemble-create --clean $APPLICATION

@@ -17,7 +17,7 @@
 package org.fusesource.fabric.service;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.insight.log.service.LogQueryCallback;
 import org.osgi.jmx.framework.BundleStateMBean;
@@ -31,37 +31,37 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A utitily class for interacting with a remote Agent via JMX
+ * A utitily class for interacting with a remote Container via JMX
  */
-public class AgentTemplate {
-    private final Agent agent;
+public class ContainerTemplate {
+    private final Container container;
     private final JmxTemplateSupport jmxTemplate;
     protected String login = "admin";
     protected String password = "admin";
 
-    public AgentTemplate(Agent agent, boolean cacheJmx) {
-        this.agent = agent;
+    public ContainerTemplate(Container container, boolean cacheJmx) {
+        this.container = container;
         if (cacheJmx) {
-            this.jmxTemplate = new AgentCachingJmxTemplate(this);
+            this.jmxTemplate = new ContainerCachingJmxTemplate(this);
         } else {
             this.jmxTemplate = new NonCachingJmxTemplate() {
                 @Override
                 protected JMXConnector createConnector() {
-                    return AgentTemplate.this.createConnector();
+                    return ContainerTemplate.this.createConnector();
                 }
             };
         }
     }
 
-    public AgentTemplate(Agent agent, boolean cacheJmx, String login, String password) {
-        this(agent, cacheJmx);
+    public ContainerTemplate(Container container, boolean cacheJmx, String login, String password) {
+        this(container, cacheJmx);
         this.login = login;
         this.password = password;
     }
 
-    public AgentTemplate(Agent agent, JmxTemplateSupport jmxTemplate) {
+    public ContainerTemplate(Container container, JmxTemplateSupport jmxTemplate) {
         this.jmxTemplate = jmxTemplate;
-        this.agent = agent;
+        this.container = container;
     }
 
     public interface AdminServiceCallback<T> {
@@ -100,7 +100,7 @@ public class AgentTemplate {
     public <T> T execute(final AdminServiceCallback<T> callback) {
         return jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
-                String[] bean = new String[]{"type", "admin", "name", agent.getId()};
+                String[] bean = new String[]{"type", "admin", "name", container.getId()};
                 return callback.doWithAdminService(jmxTemplate.getMBean(connector, AdminServiceMBean.class, "org.apache.karaf", bean));
             }
         });
@@ -144,8 +144,8 @@ public class AgentTemplate {
         return getEnvCred(login, password);
     }
 
-    public Agent getAgent() {
-        return agent;
+    public Container getContainer() {
+        return container;
     }
 
     public String getLogin() {
@@ -169,7 +169,7 @@ public class AgentTemplate {
     }
 
     public JMXConnector createConnector() {
-        String rootUrl = agent.getJmxUrl();
+        String rootUrl = container.getJmxUrl();
         if (rootUrl == null) {
             return null;
         }

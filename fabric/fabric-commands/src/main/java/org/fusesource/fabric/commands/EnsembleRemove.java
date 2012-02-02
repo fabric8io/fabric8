@@ -22,15 +22,15 @@ import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
 
-@Command(name = "ensemble-remove", scope = "fabric", description = "Removes agents from a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-remove", scope = "fabric", description = "Removes containers from a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemove extends EnsembleCommandSupport {
 
-    @Argument(required = true, multiValued = true, description = "List of agents to be removed")
-    private List<String> agents;
+    @Argument(required = true, multiValued = true, description = "List of containers to be removed")
+    private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
-        service.removeFromCluster(agents);
+        service.removeFromCluster(containers);
         return null;
     }
 

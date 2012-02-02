@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public class RegexSupport {
 
     public static final String PROFILE_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*";
-    public static final String PROFILE_AGENT_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/org.fusesource.fabric.agent.properties";
+    public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/org.fusesource.fabric.agent.properties";
     public static final String PARENTS_REGEX = "parents=[[\\w\\-\\.]*[ \\t]]*";
 
     public static String[] merge(File ignore, String[] regex) throws Exception {

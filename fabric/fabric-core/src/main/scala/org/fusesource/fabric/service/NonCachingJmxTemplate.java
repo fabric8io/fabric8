@@ -17,24 +17,9 @@
 package org.fusesource.fabric.service;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import javax.management.JMX;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 
-import org.apache.karaf.admin.management.AdminServiceMBean;
-import org.fusesource.fabric.api.Agent;
 import org.fusesource.fabric.api.FabricException;
-import org.osgi.jmx.framework.BundleStateMBean;
-import org.osgi.jmx.framework.ServiceStateMBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This implementation closes the connector down after each operation; so only really intended for web applications.
