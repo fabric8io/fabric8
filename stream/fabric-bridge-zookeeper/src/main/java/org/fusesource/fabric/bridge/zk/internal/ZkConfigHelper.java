@@ -105,7 +105,7 @@ public abstract class ZkConfigHelper {
     }
 
     private static String getBridgeConfigPath(Container container) {
-        return ZkPath.AGENT.getPath(container.getId()) + "/" + BRIDGE_CONNECTOR_PID;
+        return ZkPath.CONTAINER.getPath(container.getId()) + "/" + BRIDGE_CONNECTOR_PID;
     }
 
     public static void registerGateway(Profile gatewayProfile,

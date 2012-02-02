@@ -54,7 +54,7 @@ public interface ContainerProvider {
      * @param name             The name of the Container.
      * @param zooKeeperUrl     The url of Zoo Keeper.
      * @param isEnsembleServer Marks that the Container will have the role of ensemble server.
-     * @param debugContainer   Flag used to enable debugging on the new Agent.
+     * @param debugContainer   Flag used to enable debugging on the new Container.
      * @param number           The number of Container to create.
      */
     void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer, int number);

@@ -66,7 +66,7 @@ public class ContainerImpl implements Container {
 
     public boolean isAlive() {
         try {
-            return service.getZooKeeper().exists(ZkPath.AGENT_ALIVE.getPath(id)) != null;
+            return service.getZooKeeper().exists(ZkPath.CONTAINER_ALIVE.getPath(id)) != null;
         } catch (KeeperException.NoNodeException e) {
             return false;
         } catch (Exception e) {
@@ -100,11 +100,11 @@ public class ContainerImpl implements Container {
     }
 
     public String getSshUrl() {
-        return getZkData(ZkPath.AGENT_SSH);
+        return getZkData(ZkPath.CONTAINER_SSH);
     }
 
     public String getJmxUrl() {
-        return getZkData(ZkPath.AGENT_JMX);
+        return getZkData(ZkPath.CONTAINER_JMX);
     }
 
     private String getZkData(ZkPath path) {
@@ -120,7 +120,7 @@ public class ContainerImpl implements Container {
     @Override
     public Version getVersion() {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
             return new VersionImpl(version, service);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -130,7 +130,7 @@ public class ContainerImpl implements Container {
     @Override
     public void setVersion(Version version) {
         try {
-            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_AGENT.getPath(id), version.getName() );
+            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -138,8 +138,8 @@ public class ContainerImpl implements Container {
 
     public Profile[] getProfiles() {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
-            String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
+            String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
             String str = service.getZooKeeper().getStringData(node);
             if (str == null) {
                 return new Profile[0];
@@ -156,8 +156,8 @@ public class ContainerImpl implements Container {
 
     public void setProfiles(Profile[] profiles) {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_AGENT.getPath(id));
-            String node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, id);
+            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
+            String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
             String str = "";
             for (Profile parent : profiles) {
                 if (!version.equals(parent.getVersion())) {
@@ -176,7 +176,7 @@ public class ContainerImpl implements Container {
 
     public String getLocation() {
         try {
-            String path = ZkPath.AGENT_LOCATION.getPath(id);
+            String path = ZkPath.CONTAINER_LOCATION.getPath(id);
             if (service.getZooKeeper().exists(path) != null) {
                 return service.getZooKeeper().getStringData(path);
             } else {
@@ -189,7 +189,7 @@ public class ContainerImpl implements Container {
 
     public void setLocation(String location) {
         try {
-            String path = ZkPath.AGENT_LOCATION.getPath(id);
+            String path = ZkPath.CONTAINER_LOCATION.getPath(id);
             ZooKeeperUtils.set( service.getZooKeeper(), path, location );
         } catch (Exception e) {
             throw new FabricException(e);
@@ -266,7 +266,7 @@ public class ContainerImpl implements Container {
 
     public List<String> getJmxDomains() {
         try {
-            List<String> list = service.getZooKeeper().getChildren(ZkPath.AGENT_DOMAINS.getPath(getId()));
+            List<String> list = service.getZooKeeper().getChildren(ZkPath.CONTAINER_DOMAINS.getPath(getId()));
             Collections.sort(list);
             return Collections.unmodifiableList(list);
         } catch (Exception e) {
@@ -299,11 +299,11 @@ public class ContainerImpl implements Container {
 
     @Override
     public String getProvisionResult() {
-        return getZkData(ZkPath.AGENT_PROVISION_RESULT);
+        return getZkData(ZkPath.CONTAINER_PROVISION_RESULT);
     }
 
     @Override
     public String getProvisionException() {
-        return getZkData(ZkPath.AGENT_PROVISION_EXCEPTION);
+        return getZkData(ZkPath.CONTAINER_PROVISION_EXCEPTION);
     }
 }

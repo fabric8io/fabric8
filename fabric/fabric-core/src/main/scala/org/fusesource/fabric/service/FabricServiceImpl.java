@@ -52,7 +52,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import static org.fusesource.fabric.zookeeper.ZkPath.AGENT_PARENT;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 public class FabricServiceImpl implements FabricService, FabricServiceImplMBean {
     private transient Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
@@ -131,7 +131,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     public Container[] getContainers() {
         try {
             Map<String, Container> containers = new HashMap<String, Container>();
-            List<String> configs = zooKeeper.getChildren(ZkPath.CONFIGS_AGENTS.getPath());
+            List<String> configs = zooKeeper.getChildren(ZkPath.CONFIGS_CONTAINERS.getPath());
             for (String name : configs) {
                 String parentId = getParentOf(name);
                 if (parentId.isEmpty()) {
@@ -159,7 +159,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     private String getParentOf(String name) throws InterruptedException, KeeperException {
         if (zooKeeper != null) {
             try {
-                return zooKeeper.getStringData(ZkPath.AGENT_PARENT.getPath(name)).trim();
+                return zooKeeper.getStringData(ZkPath.CONTAINER_PARENT.getPath(name)).trim();
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
             } catch (Throwable e) {
@@ -453,7 +453,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 adminService.stopInstance(name);
                 adminService.destroyInstance(name);
-                zooKeeper.deleteWithChildren(ZkPath.CONFIG_AGENT.getPath(name));
+                zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(name));
                 return null;
             }
         });
@@ -477,9 +477,9 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     private void createContainerConfig(String parent, String name) {
         try {
             String configVersion = getDefaultVersion().getName();
-            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(name), configVersion);
-            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_AGENT.getPath(configVersion, name), profile);
-            zooKeeper.createOrSetWithParents(AGENT_PARENT.getPath(name), parent, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(name), configVersion);
+            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(configVersion, name), profile);
+            zooKeeper.createOrSetWithParents(CONTAINER_PARENT.getPath(name), parent, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {

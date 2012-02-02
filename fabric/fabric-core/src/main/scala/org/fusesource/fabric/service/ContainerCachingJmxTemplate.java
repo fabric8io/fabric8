@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.remote.JMXConnector;
 
 /**
- * A Caching implementation of JmxTemplate which caches a connector for a given Agent
+ * A Caching implementation of JmxTemplate which caches a connector for a given Container
  */
 public class ContainerCachingJmxTemplate extends JmxTemplate {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerCachingJmxTemplate.class);
@@ -38,7 +38,7 @@ public class ContainerCachingJmxTemplate extends JmxTemplate {
         return containerTemplate;
     }
 
-    public Container getAgent() {
+    public Container getContainer() {
         return getContainerTemplate().getContainer();
     }
 

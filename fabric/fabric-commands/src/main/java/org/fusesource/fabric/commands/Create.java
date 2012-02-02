@@ -44,7 +44,7 @@ public class Create extends EnsembleCommandSupport {
     @Option(name = "-t", aliases = {"--time"}, description = "The amount of time to wait for the ensemble to startup before trying to import the default data")
     long ensembleStartupTime = 2000L;
 
-    @Argument(required = false, multiValued = true, description = "List of agents")
+    @Argument(required = false, multiValued = true, description = "List of containers")
     private List<String> containers;
 
     @Override

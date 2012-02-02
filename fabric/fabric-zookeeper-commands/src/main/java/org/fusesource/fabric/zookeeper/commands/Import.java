@@ -21,15 +21,11 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
-import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
 
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
@@ -104,7 +100,7 @@ public class Import extends ZooKeeperCommandSupport {
 
     private void getCandidates(File parent, File current, Map<String, String> settings) throws Exception {
         List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
-        List<Pattern> agentProperties = getPatterns(new String[]{RegexSupport.PROFILE_AGENT_PROPERTIES_REGEX});
+        List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
                 getCandidates(parent, child, settings);
@@ -123,7 +119,7 @@ public class Import extends ZooKeeperCommandSupport {
                 p = p.substring(0, p.length() - ".cfg".length());
             }
 
-            if (matches(agentProperties,"/" + p,false)) {
+            if (matches(containerProperties,"/" + p,false)) {
                 settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX,""));
                 Properties props = new Properties();
                 props.load(new StringReader(new String(contents)));

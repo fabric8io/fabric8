@@ -30,7 +30,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     private IZKClient zooKeeper;
     protected FabricService fabricService;
 
-    protected static String CONTAINER_PID = "org.fusesource.fabric.agent";
+    protected static String AGENT_PID = "org.fusesource.fabric.agent";
 
     public FabricService getFabricService() {
         return fabricService;

@@ -30,7 +30,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected List<String> profiles;
     @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")
     protected Boolean debugContainer = Boolean.FALSE;
-    @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the agent should be a new ZooKeeper ensemble server")
+    @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the container should be a new ZooKeeper ensemble server")
     protected Boolean isEnsembleServer = Boolean.FALSE;
 
     public List<String> getProfileNames() {

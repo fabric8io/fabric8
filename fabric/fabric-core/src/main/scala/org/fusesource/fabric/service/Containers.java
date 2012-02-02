@@ -24,18 +24,18 @@ import org.fusesource.fabric.api.Container;
 public class Containers {
 
     public static JmxTemplateSupport newJmxTemplate(Container container) {
-        return newAgentTemplate(container).getJmxTemplate();
+        return newContainerTemplate(container).getJmxTemplate();
     }
 
     public static JmxTemplateSupport newNonCachingJmxTemplate(Container container) {
-        return newAgentTemplate(container, false).getJmxTemplate();
+        return newContainerTemplate(container, false).getJmxTemplate();
     }
 
-    public static ContainerTemplate newAgentTemplate(Container container) {
-        return newAgentTemplate(container, true);
+    public static ContainerTemplate newContainerTemplate(Container container) {
+        return newContainerTemplate(container, true);
     }
 
-    public static ContainerTemplate newAgentTemplate(Container container, boolean caching) {
+    public static ContainerTemplate newContainerTemplate(Container container, boolean caching) {
         return new ContainerTemplate(container, caching);
     }
 }

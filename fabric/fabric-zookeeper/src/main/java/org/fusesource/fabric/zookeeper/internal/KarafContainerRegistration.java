@@ -76,7 +76,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
         try {
             connected = true;
             String name = System.getProperty("karaf.name");
-            String nodeAlive = AGENT_ALIVE.getPath(name);
+            String nodeAlive = CONTAINER_ALIVE.getPath(name);
             Stat stat = zooKeeper.exists(nodeAlive);
             if (stat != null) {
                 if (stat.getEphemeralOwner() != zooKeeper.getSessionId()) {
@@ -87,7 +87,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
                 zooKeeper.createWithParents(nodeAlive, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
             }
 
-            String domainsNode = AGENT_DOMAINS.getPath(name);
+            String domainsNode = CONTAINER_DOMAINS.getPath(name);
             stat = zooKeeper.exists(domainsNode);
             if (stat != null) {
                 zooKeeper.deleteWithChildren(domainsNode);
@@ -95,20 +95,20 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
 
             String jmxUrl = getJmxUrl();
             if (jmxUrl != null) {
-                zooKeeper.createOrSetWithParents(AGENT_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
             String sshUrl = getSshUrl();
             if (sshUrl != null) {
-                zooKeeper.createOrSetWithParents(AGENT_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
-            zooKeeper.createOrSetWithParents(AGENT_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
             String version = System.getProperty("fabric.version", "base");
             String profiles = System.getProperty("fabric.profiles");
 
             if (profiles != null) {
-                String versionNode = CONFIG_AGENT.getPath(name);
-                String profileNode = CONFIG_VERSIONS_AGENT.getPath(version, name);
+                String versionNode = CONFIG_CONTAINER.getPath(name);
+                String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, name);
 
                 if (zooKeeper.exists(versionNode) == null) {
                     zooKeeper.createOrSetWithParents(versionNode, version, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -119,7 +119,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
             }
             registerDomains();
         } catch (Exception e) {
-            logger.warn("Error updating Fabric Agent informations", e);
+            logger.warn("Error updating Fabric Container informations", e);
         }
     }
 
@@ -201,7 +201,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
             String name = System.getProperty("karaf.name");
             domains.addAll(Arrays.asList(mbeanServer.getDomains()));
             for (String domain : mbeanServer.getDomains()) {
-                zooKeeper.createOrSetWithParents(AGENT_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
         }
     }
@@ -209,7 +209,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
     protected void unregisterDomains() throws InterruptedException, KeeperException {
         if (connected) {
             String name = System.getProperty("karaf.name");
-            String domainsPath = AGENT_DOMAINS.getPath(name);
+            String domainsPath = CONTAINER_DOMAINS.getPath(name);
             if (zooKeeper.exists(domainsPath) != null) {
                 for (String child : zooKeeper.getChildren(domainsPath)) {
                     zooKeeper.delete(domainsPath + "/" + child);
@@ -224,7 +224,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
         if (connected && mbeanServer != null && notif instanceof MBeanServerNotification) {
             MBeanServerNotification notification = (MBeanServerNotification) notif;
             String domain = notification.getMBeanName().getDomain();
-            String path = AGENT_DOMAIN.getPath((String) o, domain);
+            String path = CONTAINER_DOMAIN.getPath((String) o, domain);
             try {
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     if (domains.add(domain) && zooKeeper.exists(path) == null) {

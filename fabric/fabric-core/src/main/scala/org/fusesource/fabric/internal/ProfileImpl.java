@@ -103,9 +103,9 @@ public class ProfileImpl implements Profile {
 
     public static List<String> getContainerConfigList(Profile p, ConfigListType type) {
         try {
-            Properties agentProps = getAgentProperties(p);
+            Properties containerProps = getContainerProperties(p);
             ArrayList<String> rc = new ArrayList<String>();
-            for ( Map.Entry<Object, Object> e : agentProps.entrySet() ) {
+            for ( Map.Entry<Object, Object> e : containerProps.entrySet() ) {
                 if ( ((String)e.getKey()).startsWith(type + ".") ) {
                     rc.add((String)e.getValue());
                 }
@@ -138,7 +138,7 @@ public class ProfileImpl implements Profile {
         p.setConfigurations(config);
     }
 
-    public static Properties getAgentProperties(Profile p) throws IOException {
+    public static Properties getContainerProperties(Profile p) throws IOException {
         byte[] b = p.getFileConfigurations().get(AGENT_PID + ".properties");
         if (b != null) {
             return toProperties(b);

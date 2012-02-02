@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A utitily class for interacting with a remote Agent via JMX
+ * A utitily class for interacting with a remote Container via JMX
  */
 public class ContainerTemplate {
     private final Container container;

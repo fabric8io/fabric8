@@ -29,7 +29,7 @@ public class CreateSshContainerArguments extends BasicCreateContainerArguements 
     private String password;
     private String host;
     private int port = 22;
-    private String path = "/usr/local/fusesource/agent";
+    private String path = "/usr/local/fusesource/container";
     private int sshRetries = 6;
     private int retryDelay = 1;
 

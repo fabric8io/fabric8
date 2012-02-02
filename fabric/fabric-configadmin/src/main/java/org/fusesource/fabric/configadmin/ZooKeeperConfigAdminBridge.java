@@ -69,11 +69,11 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     public void onConnected() {
         try {
             // Find our root node
-            version = zooKeeper.getStringData(ZkPath.CONFIG_AGENT.getPath(name));
+            version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
             if (version == null) {
-                throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_AGENT.getPath(name));
+                throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
             }
-            node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, name);
+            node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
             if (zooKeeper.exists(node) == null) {
                 zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }

@@ -83,7 +83,7 @@ public class ProfileDisplay extends FabricCommand {
 
         Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
 
-        if (configuration.containsKey(CONTAINER_PID)) {
+        if (configuration.containsKey(AGENT_PID)) {
             output.println("\nContainer settings");
             output.println("----------------------------");
 
@@ -96,7 +96,7 @@ public class ProfileDisplay extends FabricCommand {
             if (profile.getBundles().size() > 0) {
                 printConfigList("Bundles : ", output, profile.getBundles());
             }
-            configuration.remove(CONTAINER_PID);
+            configuration.remove(AGENT_PID);
         }
 
         output.println("\nConfiguration details");

@@ -140,7 +140,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
     protected void doStart() {
         super.doStart();
 
-        // start the bridge agent lookup executor
+        // start the bridge container lookup executor
         bridgeLookupExecutor = Executors.newSingleThreadScheduledExecutor();
         bridgeLookupExecutor.scheduleWithFixedDelay(this, 0, updateInterval, TimeUnit.SECONDS);
 
@@ -148,7 +148,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
     }
 
     protected void doStop() {
-        // stop the bridge agent lookup executor
+        // stop the bridge container lookup executor
         bridgeLookupExecutor.shutdown();
 
         // de-register self as a lifecycle listener
@@ -166,7 +166,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
     }
 
     /**
-	 * Lookup agents using the bridge profile and update gateway configuration.
+	 * Lookup containers using the bridge profile and update gateway configuration.
 	 *
 	 * @see java.lang.Runnable#run()
 	 */
