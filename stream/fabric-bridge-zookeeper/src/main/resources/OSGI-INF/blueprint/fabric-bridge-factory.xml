@@ -29,7 +29,7 @@
   <bean id="fabricBridgeServiceFactory" class="org.fusesource.fabric.bridge.zk.internal.ZkManagedBridgeServiceFactory"
         init-method="init"
         destroy-method="destroy">
-    <!--<property name="agentName" value="${karaf.name}"/>-->
+    <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="zooKeeper">
       <reference interface="org.linkedin.zookeeper.client.IZKClient"/>
@@ -48,7 +48,7 @@
   <bean id="fabricGatewayServiceFactory" class="org.fusesource.fabric.bridge.zk.internal.ZkManagedGatewayServiceFactory"
         init-method="init"
         destroy-method="destroy">
-    <!--<property name="agentName" value="${karaf.name}"/>-->
+    <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="zooKeeper">
       <reference interface="org.linkedin.zookeeper.client.IZKClient"/>

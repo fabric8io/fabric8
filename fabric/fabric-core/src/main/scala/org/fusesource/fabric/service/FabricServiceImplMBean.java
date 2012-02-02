@@ -16,15 +16,13 @@
  */
 package org.fusesource.fabric.service;
 
-import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.api.CreateAgentArguments;
-import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.CreateContainerArguments;
 
 /**
  * API for working with a remote FabricService over JMX
  */
 public interface FabricServiceImplMBean {
 
-    boolean createRemoteAgent(CreateAgentArguments args, final String name);
+    boolean createRemoteContainer(CreateContainerArguments args, final String name);
 
 }

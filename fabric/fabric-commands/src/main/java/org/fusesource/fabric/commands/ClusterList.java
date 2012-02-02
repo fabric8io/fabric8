@@ -73,7 +73,7 @@ public class ClusterList extends FabricCommand {
                     ObjectMapper mapper = new ObjectMapper();
                     Map<String, Object> map = mapper.readValue(data, HashMap.class);
 
-                    Object id = value(map, "id", "agent");
+                    Object id = value(map, "id", "container");
                     Object services = value(map, "services");
                     if (services != null) {
                         // trim brackets

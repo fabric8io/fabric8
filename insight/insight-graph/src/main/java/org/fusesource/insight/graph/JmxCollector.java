@@ -31,7 +31,7 @@ import org.apache.zookeeper.data.ACL;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.insight.graph.support.Json;
@@ -88,12 +88,12 @@ public class JmxCollector {
     }
 
     public void start() throws IOException, ValidationException, LifecycleException, SchedulerException, ParseException {
-        Agent agent = fabricService.getCurrentAgent();
-        if (agent != null) {
-            Profile[] profiles = agent.getProfiles();
+        Container container = fabricService.getCurrentContainer();
+        if (container != null) {
+            Profile[] profiles = container.getProfiles();
             if (profiles != null) {
                 for (Profile profile : profiles) {
-                    loadProfile(agent, profile);
+                    loadProfile(container, profile);
                 }
             }
         }
@@ -156,7 +156,7 @@ public class JmxCollector {
         for (Server server : this.masterServersList) {
             if (server.isLocal()) {
                 server.setLocalMBeanServer(mbeanServer);
-                server.setAlias(fabricService.getCurrentAgentName());
+                server.setAlias(fabricService.getCurrentContainerName());
             }
             // need to inject the poolMap
             for (Query query : server.getQueries()) {
@@ -239,7 +239,7 @@ public class JmxCollector {
         this.objectPoolMap = poolMap;
     }
 
-    protected void loadProfile(Agent agent, Profile profile) throws IOException, LifecycleException {
+    protected void loadProfile(Container container, Profile profile) throws IOException, LifecycleException {
         Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
         byte[] bytes = fileConfigurations.get(GRAPH_JSON);
         if (bytes != null && bytes.length > 0) {
@@ -247,20 +247,20 @@ public class JmxCollector {
             if (process != null) {
                 List<Server> servers = process.getServers();
                 for (Server server : servers) {
-                    configureProfileServer(server, agent, profile);
+                    configureProfileServer(server, container, profile);
                 }
                 JmxUtils.mergeServerLists(this.masterServersList, servers);
             }
         }
     }
 
-    protected void configureProfileServer(Server server, Agent agent, Profile profile) throws LifecycleException {
+    protected void configureProfileServer(Server server, Container container, Profile profile) throws LifecycleException {
         if (server.isLocal()) {
             server.setLocalMBeanServer(mbeanServer);
 
             // TODO we could maybe customize this on a per profile basis
             // e.g. you may wish to look at generic JVM stats for just all the brokers
-            String serverAlias = profile.getId() + "." + fabricService.getCurrentAgentName();
+            String serverAlias = profile.getId() + "." + fabricService.getCurrentContainerName();
             server.setAlias(serverAlias);
         }
         List<Query> queries = server.getQueries();
@@ -272,11 +272,11 @@ public class JmxCollector {
             }
             if (writers.isEmpty()) {
                 // lets find the graph writer clusters for the profile
-                Map<String, String> agentProperties = profile.getAgentConfiguration();
+                Map<String, String> containerProperties = profile.getContainerConfiguration();
 
                 // now lets find all the graph profiles
                 Set<String> clusterNames = new HashSet<String>();
-                for (Map.Entry<String, String> entry : agentProperties.entrySet()) {
+                for (Map.Entry<String, String> entry : containerProperties.entrySet()) {
                     String key = entry.getKey();
                     String clusterName = entry.getValue();
 

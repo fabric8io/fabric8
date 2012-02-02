@@ -32,7 +32,7 @@ fabric:profile-create --parents dosgi dosgi-camel
 fabric:profile-edit -p dosgi-camel --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
 fabric:profile-edit -p dosgi-camel --features fabric-example-camel-dosgi
 
-shell:echo Creating agents
+shell:echo Creating containers
 
 shell:echo 1. Create provider node
 fabric:container-create --profile dosgi-provider --parent $APPLICATION dosgi-provider

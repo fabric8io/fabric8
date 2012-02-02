@@ -19,7 +19,7 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class ContainerDomains extends FabricCommand {
     private String container = null;
 
     protected Object doExecute() throws Exception {
-        Agent a = fabricService.getAgent(container);
+        Container a = fabricService.getContainer(container);
         if (a == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }

@@ -19,11 +19,11 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.commands.support.AgentCreateSupport;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers")
-public class ContainerCreate extends AgentCreateSupport {
+public class ContainerCreate extends ContainerCreateSupport {
 
     @Option(name = "--parent", multiValued = false, required = false, description = "Parent container ID")
     private String parent;
@@ -43,7 +43,7 @@ public class ContainerCreate extends AgentCreateSupport {
         if (url == null && parent != null) {
             url = "child://" + parent;
         }
-        Agent[] children = fabricService.createAgents(url, name, isClusterServer, debugAgent, number);
+        Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
         setProfiles(children);
         return null;
     }

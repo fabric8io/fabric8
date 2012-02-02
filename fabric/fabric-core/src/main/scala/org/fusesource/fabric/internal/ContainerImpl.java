@@ -17,13 +17,13 @@
 package org.fusesource.fabric.internal;
 
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
-import org.fusesource.fabric.service.AgentTemplate;
+import org.fusesource.fabric.service.ContainerTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -39,24 +39,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AgentImpl implements Agent {
+public class ContainerImpl implements Container {
 
     /**
      * Logger.
      */
     protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Agent parent;
+    private final Container parent;
     private final String id;
     private final FabricServiceImpl service;
 
-    public AgentImpl(Agent parent, String id, FabricServiceImpl service) {
+    public ContainerImpl(Container parent, String id, FabricServiceImpl service) {
         this.parent = parent;
         this.id = id;
         this.service = service;
     }
 
-    public Agent getParent() {
+    public Container getParent() {
         return parent;
     }
 
@@ -200,26 +200,26 @@ public class AgentImpl implements Agent {
     // TODO: remove these deprecated methods in the next release.
     //
     @Deprecated
-    private AgentTemplate agentTemplate;
+    private ContainerTemplate containerTemplate;
     @Deprecated
-    public AgentTemplate getAgentTemplate() {
-        if( agentTemplate==null ) {
-            agentTemplate = new AgentTemplate(this, false);
+    public ContainerTemplate getContainerTemplate() {
+        if( containerTemplate ==null ) {
+            containerTemplate = new ContainerTemplate(this, false);
         }
-        return agentTemplate;
+        return containerTemplate;
     }
     @Deprecated
     public ServiceInfo[] getServices() {
-        return getServices(getAgentTemplate());
+        return getServices(getContainerTemplate());
     }
     @Deprecated
     public BundleInfo[] getBundles() {
-        return getBundles(agentTemplate);
+        return getBundles(containerTemplate);
     }
 
-    public BundleInfo[] getBundles(AgentTemplate agentTemplate) {
+    public BundleInfo[] getBundles(ContainerTemplate containerTemplate) {
         try {
-            return agentTemplate.execute(new AgentTemplate.BundleStateCallback<BundleInfo[]>() {
+            return containerTemplate.execute(new ContainerTemplate.BundleStateCallback<BundleInfo[]>() {
                 public BundleInfo[] doWithBundleState(BundleStateMBean bundleState) throws Exception {
                     TabularData bundles = bundleState.listBundles();
                     BundleInfo[] info = new BundleInfo[bundles.size()];
@@ -240,9 +240,9 @@ public class AgentImpl implements Agent {
         }
     }
 
-    public ServiceInfo[] getServices(AgentTemplate agentTemplate) {
+    public ServiceInfo[] getServices(ContainerTemplate containerTemplate) {
         try {
-            return agentTemplate.execute(new AgentTemplate.ServiceStateCallback<ServiceInfo[]>() {
+            return containerTemplate.execute(new ContainerTemplate.ServiceStateCallback<ServiceInfo[]>() {
                 public ServiceInfo[] doWithServiceState(ServiceStateMBean serviceState) throws Exception {
                     TabularData services = serviceState.listServices();
                     ServiceInfo[] info = new ServiceInfo[services.size()];
@@ -276,12 +276,12 @@ public class AgentImpl implements Agent {
     }
 
     public void start() {
-        service.startAgent(this);
+        service.startContainer(this);
     }
 
     @Override
     public void stop() {
-        service.stopAgent(this);
+        service.stopContainer(this);
     }
 
     @Override
@@ -289,8 +289,8 @@ public class AgentImpl implements Agent {
         service.destroy(this);
     }
 
-    public Agent[] getChildren() {
-        return new Agent[0];
+    public Container[] getChildren() {
+        return new Container[0];
     }
 
     public String getType() {

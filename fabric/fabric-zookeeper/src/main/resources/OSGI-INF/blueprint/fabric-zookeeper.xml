@@ -36,13 +36,13 @@
         <property name="timeoutText" value="${zookeeper.timeout}"/>
         <property name="listeners">
             <list>
-                <ref component-id="karafAgentRegistration"/>
+                <ref component-id="karafContainerRegistration"/>
                 <ref component-id="serviceRegistrationListener"/>
             </list>
         </property>
     </bean>
 
-    <bean id="karafAgentRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafAgentRegistration" destroy-method="destroy" depends-on="zkServerFactory">
+    <bean id="karafContainerRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafContainerRegistration" destroy-method="destroy" depends-on="zkServerFactory">
         <property name="configurationAdmin">
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>
@@ -50,7 +50,7 @@
     </bean>
 
     <reference interface="javax.management.MBeanServer">
-        <reference-listener ref="karafAgentRegistration" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
+        <reference-listener ref="karafContainerRegistration" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
     </reference>
 
     <bean id="serviceRegistrationListener" class="org.fusesource.fabric.zookeeper.internal.ServiceRegistrationListener" destroy-method="onDisconnected">

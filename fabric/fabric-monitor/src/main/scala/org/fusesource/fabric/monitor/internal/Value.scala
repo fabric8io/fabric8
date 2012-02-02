@@ -45,7 +45,7 @@ object Value {
   }
 
   def root(key: String): Value = {
-    // TODO deal with remote agents too...
+    // TODO deal with remote containers too...
     JmxObjectValue(key)
   }
 }

@@ -16,26 +16,26 @@
  */
 package org.fusesource.fabric.service;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 
 /**
  * Helper methods for creating an AgentTemplate or JmxTemplate from an Agent
  */
-public class Agents {
+public class Containers {
 
-    public static JmxTemplateSupport newJmxTemplate(Agent agent) {
-        return newAgentTemplate(agent).getJmxTemplate();
+    public static JmxTemplateSupport newJmxTemplate(Container container) {
+        return newAgentTemplate(container).getJmxTemplate();
     }
 
-    public static JmxTemplateSupport newNonCachingJmxTemplate(Agent agent) {
-        return newAgentTemplate(agent, false).getJmxTemplate();
+    public static JmxTemplateSupport newNonCachingJmxTemplate(Container container) {
+        return newAgentTemplate(container, false).getJmxTemplate();
     }
 
-    public static AgentTemplate newAgentTemplate(Agent agent) {
-        return newAgentTemplate(agent, true);
+    public static ContainerTemplate newAgentTemplate(Container container) {
+        return newAgentTemplate(container, true);
     }
 
-    public static AgentTemplate newAgentTemplate(Agent agent, boolean caching) {
-        return new AgentTemplate(agent, caching);
+    public static ContainerTemplate newAgentTemplate(Container container, boolean caching) {
+        return new ContainerTemplate(container, caching);
     }
 }

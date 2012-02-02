@@ -69,7 +69,7 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
         //        @JsonProperty
         //        String services[];
         @JsonProperty
-        String agent;
+        String container;
         @JsonProperty
         Boolean started;
 
@@ -81,7 +81,7 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     CamelNode createState() {
         CamelNode state = new CamelNode();
         state.id = id;
-        state.agent = System.getProperty("karaf.name");
+        state.container = System.getProperty("karaf.name");
         state.started = started.get();
 //        state.services = services.toArray(new String[services.size()]);
         return state;

@@ -21,15 +21,15 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.CreateSshAgentArguments;
-import org.fusesource.fabric.commands.support.AgentCreateSupport;
+import org.fusesource.fabric.api.CreateSshContainerArguments;
+import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH")
-public class ContainerCreateSsh extends AgentCreateSupport {
+public class ContainerCreateSsh extends ContainerCreateSupport {
 
     @Option(name = "--host", required = true, description = "Host name to SSH into")
     private String host;
-    @Option(name = "--path", description = "Path to use to install the agent")
+    @Option(name = "--path", description = "Path to use to install the container")
     private String path;
     @Option(name = "--user", description = "User name")
     private String user;
@@ -48,9 +48,9 @@ public class ContainerCreateSsh extends AgentCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        CreateSshAgentArguments args = new CreateSshAgentArguments();
-        args.setClusterServer(isClusterServer);
-        args.setDebugAgent(debugAgent);
+        CreateSshContainerArguments args = new CreateSshContainerArguments();
+        args.setEnsembleServer(isEnsembleServer);
+        args.setDebugContainer(debugContainer);
         args.setNumber(number);
         args.setHost(host);
         args.setPath(path);
@@ -63,7 +63,7 @@ public class ContainerCreateSsh extends AgentCreateSupport {
         if (sshRetries != null) {
             args.setSshRetries(sshRetries);
         }
-        fabricService.createAgents(args, name, number);
+        fabricService.createContainer(args, name, number);
         return null;
     }
 

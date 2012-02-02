@@ -17,7 +17,7 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.junit.Test;
@@ -52,10 +52,10 @@ public class AutoClusterStartupTest extends FabricTestSupport {
 
         Thread.sleep(DEFAULT_WAIT);
 
-        Agent[] agents = fabricService.getAgents();
-        assertNotNull(agents);
-        assertEquals("Expected to find 1 container", 1, agents.length);
-        assertEquals("Expected to find the root container", "root", agents[0].getId());
+        Container[] containers = fabricService.getContainers();
+        assertNotNull(containers);
+        assertEquals("Expected to find 1 container", 1, containers.length);
+        assertEquals("Expected to find the root container", "root", containers[0].getId());
     }
 
     @Configuration

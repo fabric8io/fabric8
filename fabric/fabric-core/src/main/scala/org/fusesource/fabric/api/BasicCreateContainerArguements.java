@@ -19,30 +19,30 @@ package org.fusesource.fabric.api;
 import java.io.Serializable;
 import java.net.URI;
 
-public class BasicCreateAgentArguements implements CreateAgentArguments, Serializable {
+public class BasicCreateContainerArguements implements CreateContainerArguments, Serializable {
 
     private static final long serialVersionUID = 7806030498786182100L;
 
-    protected boolean clusterServer;
-    protected boolean debugAgent;
+    protected boolean ensembleServer;
+    protected boolean debugContainer;
     protected int number = 1;
     protected URI proxyUri;
 
 
-    public boolean isClusterServer() {
-        return clusterServer;
+    public boolean isEnsembleServer() {
+        return ensembleServer;
     }
 
-    public void setClusterServer(boolean clusterServer) {
-        this.clusterServer = clusterServer;
+    public void setEnsembleServer(boolean ensembleServer) {
+        this.ensembleServer = ensembleServer;
     }
 
-    public boolean isDebugAgent() {
-        return debugAgent;
+    public boolean isDebugContainer() {
+        return debugContainer;
     }
 
-    public void setDebugAgent(boolean debugAgent) {
-        this.debugAgent = debugAgent;
+    public void setDebugContainer(boolean debugContainer) {
+        this.debugContainer = debugContainer;
     }
 
     public int getNumber() {

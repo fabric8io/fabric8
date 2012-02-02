@@ -22,17 +22,17 @@ import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 import java.io.PrintStream;
 import java.util.List;
 
-@Command(name = "ensemble-list", scope = "fabric", description = "Lists the agents in the ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-list", scope = "fabric", description = "Lists the containers in the ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleList extends EnsembleCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
         PrintStream out = System.out;
-        List<String> agents = service.getClusterAgents();
-        if (agents != null) {
+        List<String> containers = service.getClusterContainers();
+        if (containers != null) {
             out.println("[id]");
-            for (String agent : agents) {
-                out.println(agent);
+            for (String container : containers) {
+                out.println(container);
             }
         }
         return null;

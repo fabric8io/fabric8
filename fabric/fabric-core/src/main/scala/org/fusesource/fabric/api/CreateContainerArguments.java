@@ -20,5 +20,5 @@ import java.io.Serializable;
 
 /**
  */
-public interface CreateAgentArguments extends Serializable {
+public interface CreateContainerArguments extends Serializable {
 }

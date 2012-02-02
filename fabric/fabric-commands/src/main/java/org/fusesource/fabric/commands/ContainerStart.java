@@ -18,17 +18,17 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
 @Command(name = "container-start", scope = "fabric", description = "Start an existing container")
 public class ContainerStart extends FabricCommand {
 
-    @Argument(index = 0, name="agent", description="The container name", required = true, multiValued = false)
+    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
     private String container = null;
 
     protected Object doExecute() throws Exception {
-        Agent a = fabricService.getAgent(container);
+        Container a = fabricService.getContainer(container);
         if (a == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }

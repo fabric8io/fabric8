@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.bridge.zk;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
@@ -79,7 +79,7 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
     private Profile gatewayProfile;
 
-    private Agent agent;
+    private Container container;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -133,7 +133,7 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
             throw new IllegalStateException(msg);
         }
 
-        // populate agent config with bridge config
+        // populate container config with bridge config
         super.setRemoteBrokerConfig(gatewayBridge.getRemoteBrokerConfig());
         // set bridge inbound destinations from either the bridge or the gateway
         if (this.getInboundDestinations() != null) {
@@ -164,7 +164,7 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
         super.doInitialize();
 
         // register the bridge in Zookeeper
-        agent = fabricService.getAgent(System.getProperty("karaf.name"));
+        container = fabricService.getContainer(System.getProperty("karaf.name"));
 
         RemoteBridge remoteBridge = new RemoteBridge();
         remoteBridge.setRemoteBrokerConfig(this.exportedBrokerConfig != null ?
@@ -175,7 +175,7 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
         // set the Bridge inbound destinations as the remote Gateway outbound destinations
         remoteBridge.setOutboundDestinations(super.getInboundDestinations());
 
-        ZkConfigHelper.registerBridge(zooKeeper, agent, remoteBridge);
+        ZkConfigHelper.registerBridge(zooKeeper, container, remoteBridge);
     }
 
     protected void doStop() {
@@ -202,9 +202,9 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
         }
 
         // remove the bridge from ZK
-        if (agent != null) {
+        if (container != null) {
             if (this.connected) {
-                ZkConfigHelper.removeBridge(zooKeeper, agent);
+                ZkConfigHelper.removeBridge(zooKeeper, container);
             } else {
                 LOG.error("Bridge disconnected from Fabric Zookeeper service, " +
                     "unable to remove Bridge runtime configuration");

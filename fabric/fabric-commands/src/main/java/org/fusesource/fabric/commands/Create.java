@@ -45,20 +45,20 @@ public class Create extends EnsembleCommandSupport {
     long ensembleStartupTime = 2000L;
 
     @Argument(required = false, multiValued = true, description = "List of agents")
-    private List<String> agents;
+    private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
-        if (agents == null || agents.isEmpty()) {
-            agents = Arrays.asList(System.getProperty("karaf.name"));
+        if (containers == null || containers.isEmpty()) {
+            containers = Arrays.asList(System.getProperty("karaf.name"));
         }
 
         if (clean) {
             service.clean();
         }
 
-        if (agents != null && !agents.isEmpty()) {
-            service.createCluster(agents);
+        if (containers != null && !containers.isEmpty()) {
+            service.createCluster(containers);
 
             // now lets populate the registry with files from a mvn plugin
             if (!noImport) {

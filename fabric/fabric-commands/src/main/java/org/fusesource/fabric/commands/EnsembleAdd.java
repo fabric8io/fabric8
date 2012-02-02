@@ -22,15 +22,15 @@ import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
 
-@Command(name = "ensemble-add", scope = "fabric", description = "Adds new agents to a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-add", scope = "fabric", description = "Adds new containers to a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleAdd extends EnsembleCommandSupport {
 
-    @Argument(required = true, multiValued = true, description = "List of agents to be added")
-    private List<String> agents;
+    @Argument(required = true, multiValued = true, description = "List of containers to be added")
+    private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
-        service.addToCluster(agents);
+        service.addToCluster(containers);
         return null;
     }
 

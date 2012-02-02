@@ -29,7 +29,7 @@
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
         </command>
@@ -38,7 +38,7 @@
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
         </command>
@@ -47,7 +47,7 @@
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
         </command>
@@ -56,7 +56,7 @@
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
         </command>
@@ -84,7 +84,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
         </command>
@@ -103,7 +103,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
         </command>
@@ -117,7 +117,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
-                <ref component-id="agentCompleter" />
+                <ref component-id="containerCompleter" />
                 <null/>
             </completers>
         </command>
@@ -126,7 +126,7 @@
               <property name="fabricService" ref="fabricService"/>
           </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
       </command>
@@ -135,7 +135,7 @@
               <property name="fabricService" ref="fabricService"/>
           </action>
           <completers>
-              <ref component-id="agentCompleter" />
+              <ref component-id="containerCompleter" />
               <null/>
           </completers>
       </command>
@@ -145,7 +145,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
-                <ref component-id="agentCompleter" />
+                <ref component-id="containerCompleter" />
                 <null/>
             </completers>
         </command>
@@ -205,7 +205,7 @@
         </command>
     </command-bundle>
 
-    <bean id="agentCompleter" class="org.fusesource.fabric.commands.support.AgentCompleter">
+    <bean id="containerCompleter" class="org.fusesource.fabric.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
     <bean id="clusterCompleter" class="org.fusesource.fabric.commands.ClusterCompleter">

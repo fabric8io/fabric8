@@ -18,17 +18,17 @@ package org.fusesource.fabric.api;
 
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
-import org.fusesource.fabric.service.AgentTemplate;
+import org.fusesource.fabric.service.ContainerTemplate;
 
 import java.util.List;
 
-public interface Agent {
+public interface Container {
 
     String getType();
 
     String getId();
 
-    Agent getParent();
+    Container getParent();
 
     boolean isAlive();
 
@@ -50,8 +50,8 @@ public interface Agent {
     void stop();
     void destroy();
 
-    //  gets children agents, eg process instances, maybe camel contexts
-    Agent[] getChildren();
+    //  gets children containers, eg process instances, maybe camel contexts
+    Container[] getChildren();
 
     List<String> getJmxDomains();
 
@@ -60,11 +60,11 @@ public interface Agent {
     @Deprecated
     ServiceInfo[] getServices();
 
-    BundleInfo[] getBundles(AgentTemplate template);
-    ServiceInfo[] getServices(AgentTemplate template);
+    BundleInfo[] getBundles(ContainerTemplate template);
+    ServiceInfo[] getServices(ContainerTemplate template);
 
     /**
-     * Returns true if the initial provisioning of the agent is complete so that we can connect to it
+     * Returns true if the initial provisioning of the container is complete so that we can connect to it
      * via SSH / JMX etc (e.g. the ZK ensemble is joined and the security realm is in place).
      */
     boolean isProvisioningComplete();

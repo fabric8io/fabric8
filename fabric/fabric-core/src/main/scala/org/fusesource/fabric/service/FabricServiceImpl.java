@@ -28,14 +28,14 @@ import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.api.Agent;
-import org.fusesource.fabric.api.AgentProvider;
-import org.fusesource.fabric.api.CreateAgentArguments;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerArguments;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.internal.AgentImpl;
+import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
@@ -47,7 +47,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
@@ -62,7 +61,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     private static final String DEFAULT_PROFILE = "default";
 
     private IZKClient zooKeeper;
-    private Map<String, AgentProvider> providers;
+    private Map<String, ContainerProvider> providers;
     private ConfigurationAdmin configurationAdmin;
     private String profile = DEFAULT_PROFILE;
     private ObjectName mbeanName;
@@ -70,8 +69,8 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     private String password = "admin";
 
     public FabricServiceImpl() {
-        providers = new ConcurrentHashMap<String, AgentProvider>();
-        providers.put("child", new ChildAgentProvider(this));
+        providers = new ConcurrentHashMap<String, ContainerProvider>();
+        providers.put("child", new ChildContainerProvider(this));
     }
 
     public IZKClient getZooKeeper() {
@@ -99,13 +98,13 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     @Override
-    public Agent getCurrentAgent() {
-        String name = getCurrentAgentName();
-        return getAgent(name);
+    public Container getCurrentContainer() {
+        String name = getCurrentContainerName();
+        return getContainer(name);
     }
 
     @Override
-    public String getCurrentAgentName() {
+    public String getCurrentContainerName() {
         // TODO is there any other way to find this?
         return System.getProperty("karaf.name");
     }
@@ -129,29 +128,29 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         this.configurationAdmin = configurationAdmin;
     }
 
-    public Agent[] getAgents() {
+    public Container[] getContainers() {
         try {
-            Map<String, Agent> agents = new HashMap<String, Agent>();
+            Map<String, Container> containers = new HashMap<String, Container>();
             List<String> configs = zooKeeper.getChildren(ZkPath.CONFIGS_AGENTS.getPath());
             for (String name : configs) {
                 String parentId = getParentOf(name);
                 if (parentId.isEmpty()) {
-                    if (!agents.containsKey(name)) {
-                        Agent agent = new AgentImpl(null, name, this);
-                        agents.put(name, agent);
+                    if (!containers.containsKey(name)) {
+                        Container container = new ContainerImpl(null, name, this);
+                        containers.put(name, container);
                     }
                 } else {
-                    Agent parent = agents.get(parentId);
+                    Container parent = containers.get(parentId);
                     if (parent == null) {
-                        parent = new AgentImpl(null, parentId, this);
-                        agents.put(parentId, parent);
+                        parent = new ContainerImpl(null, parentId, this);
+                        containers.put(parentId, parent);
                     }
-                    Agent agent = new AgentImpl(parent, name, this);
-                    agents.put(name, agent);
+                    Container container = new ContainerImpl(parent, name, this);
+                    containers.put(name, container);
                 }
             }
 
-            return agents.values().toArray(new Agent[agents.size()]);
+            return containers.values().toArray(new Container[containers.size()]);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -170,17 +169,17 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return "";
     }
 
-    public Agent getAgent(String name) {
+    public Container getContainer(String name) {
         if (name == null) {
             return null;
         }
         try {
-            Agent parent = null;
+            Container parent = null;
             String parentId = getParentOf(name);
             if (parentId != null && !parentId.isEmpty()) {
-                parent = getAgent(parentId);
+                parent = getContainer(parentId);
             }
-            return new AgentImpl(parent, name, this);
+            return new ContainerImpl(parent, name, this);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -188,36 +187,36 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
-    public void startAgent(final Agent agent) {
-        if (agent.isRoot()) {
-            throw new IllegalArgumentException("Can not stop root agents");
+    public void startContainer(final Container container) {
+        if (container.isRoot()) {
+            throw new IllegalArgumentException("Can not stop root containers");
         }
-        getAgentTemplate(agent.getParent()).execute(new AgentTemplate.AdminServiceCallback<Object>() {
+        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.startInstance(agent.getId(), null);
+                adminService.startInstance(container.getId(), null);
                 return null;
             }
         });
     }
 
-    public void stopAgent(final Agent agent) {
-        if (agent.isRoot()) {
-            throw new IllegalArgumentException("Can not stop root agents");
+    public void stopContainer(final Container container) {
+        if (container.isRoot()) {
+            throw new IllegalArgumentException("Can not stop root containers");
         }
-        getAgentTemplate(agent.getParent()).execute(new AgentTemplate.AdminServiceCallback<Object>() {
+        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.stopInstance(agent.getId());
+                adminService.stopInstance(container.getId());
                 return null;
             }
         });
     }
 
 
-    public Agent createAgent(String name) {
+    public Container createContainer(String name) {
         try {
             final String zooKeeperUrl = getZooKeeperUrl();
-            createAgentConfig("",name);
-            return new AgentImpl(null, name, FabricServiceImpl.this);
+            createContainerConfig("", name);
+            return new ContainerImpl(null, name, FabricServiceImpl.this);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -225,48 +224,48 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
-    public Agent createAgent(String url, String name, boolean isClusterServer, boolean debugAgent) {
-        return createAgents(url, name, isClusterServer, debugAgent, 1)[0];
+    public Container createContainer(String url, String name, boolean isEnsembleServer, boolean debugContainer) {
+        return createContainers(url, name, isEnsembleServer, debugContainer, 1)[0];
     }
 
-    public Agent[] createAgents(String url, String name, boolean isClusterServer, boolean debugAgent, int number) {
-        Agent[] agents = new Agent[number];
+    public Container[] createContainers(String url, String name, boolean isEnsembleServer, boolean debugContainer, int number) {
+        Container[] containers = new Container[number];
         try {
 
             URI uri = URI.create(url);
-            AgentProvider provider = getProvider(uri.getScheme());
+            ContainerProvider provider = getProvider(uri.getScheme());
             if (provider == null) {
-                throw new FabricException("Unable to find an agent provider supporting uri '" + url + "'");
+                throw new FabricException("Unable to find an container provider supporting uri '" + url + "'");
             }
 
-            if (!isClusterServer) {
+            if (!isEnsembleServer) {
                 final String zooKeeperUrl = getZooKeeperUrl();
 
                 for (int i = 0; i < number; i++) {
-                    String agentName = name;
+                    String containerName = name;
                     if (number > 1) {
-                        agentName += i + 1;
+                        containerName += i + 1;
                     }
 
                     String parent = "";
-                    if( provider instanceof ChildAgentProvider) {
+                    if( provider instanceof ChildContainerProvider) {
                         parent = getParentFromURI(uri);
                     }
 
-                    createAgentConfig(parent, agentName);
-                    agents[i] = new AgentImpl(null, agentName, FabricServiceImpl.this);
+                    createContainerConfig(parent, containerName);
+                    containers[i] = new ContainerImpl(null, containerName, FabricServiceImpl.this);
                 }
 
-                provider.create(getMavenRepoURI(), uri, name, zooKeeperUrl, isClusterServer, debugAgent, number);
+                provider.create(getMavenRepoURI(), uri, name, zooKeeperUrl, isEnsembleServer, debugContainer, number);
             } else {
-                provider.create(getMavenRepoURI(), uri, name, null, isClusterServer, debugAgent, number);
+                provider.create(getMavenRepoURI(), uri, name, null, isEnsembleServer, debugContainer, number);
             }
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
-        return agents;
+        return containers;
     }
 
     public static String getParentFromURI(URI uri) {
@@ -278,33 +277,33 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     @Override
-    public Agent[] createAgents(CreateAgentArguments args, String name, int number) {
-        Agent[] agents = new Agent[number];
+    public Container[] createContainer(CreateContainerArguments args, String name, int number) {
+        Container[] containers = new Container[number];
         try {
             for (int i = 0; i < number; i++) {
-                String agentName = name;
+                String containerName = name;
                 if (number > 1) {
-                    agentName += i + 1;
+                    containerName += i + 1;
                 }
-                agents[i] = createAgent(args, agentName);
+                containers[i] = createContainer(args, containerName);
             }
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
-        return agents;
+        return containers;
     }
 
-    public Agent createAgent(CreateAgentArguments args, String name) {
+    public Container createContainer(CreateContainerArguments args, String name) {
         try {
             final String zooKeeperUrl = getZooKeeperUrl();
-            createAgentConfig("", name);
-            Agent agent = doCreateAgentFromArguments(args, name, zooKeeperUrl);
-            if (agent == null) {
-                throw new IllegalArgumentException("Unknown CreateAgentArguments " + args + " when creating agent " + name);
+            createContainerConfig("", name);
+            Container container = doCreateContainerFromArguments(args, name, zooKeeperUrl);
+            if (container == null) {
+                throw new IllegalArgumentException("Unknown CreateContainerArguments " + args + " when creating container " + name);
             }
-            return agent;
+            return container;
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -313,11 +312,11 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     @Override
-    public boolean createRemoteAgent(CreateAgentArguments args, String name) {
+    public boolean createRemoteContainer(CreateContainerArguments args, String name) {
         try {
             final String zooKeeperUrl = getZooKeeperUrl();
-            Agent agent = doCreateAgentFromArguments(args, name, zooKeeperUrl);
-            return agent != null;
+            Container container = doCreateContainerFromArguments(args, name, zooKeeperUrl);
+            return container != null;
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -325,40 +324,40 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
-    protected Agent doCreateAgentFromArguments(CreateAgentArguments args, String name, String zooKeeperUrl) throws Exception {
-        for (AgentProvider provider : providers.values()) {
+    protected Container doCreateContainerFromArguments(CreateContainerArguments args, String name, String zooKeeperUrl) throws Exception {
+        for (ContainerProvider provider : providers.values()) {
             if (provider.create(args, name, zooKeeperUrl)) {
-                return new AgentImpl(null, name, FabricServiceImpl.this);
+                return new ContainerImpl(null, name, FabricServiceImpl.this);
             }
         }
         return null;
     }
 
     @Override
-    public Agent createAgent(final Agent parent, final CreateAgentArguments args, final String name) {
-        createAgentConfig(parent.getId(), name);
-        AgentTemplate agentTemplate = getAgentTemplate(parent);
+    public Container createContainer(final Container parent, final CreateContainerArguments args, final String name) {
+        createContainerConfig(parent.getId(), name);
+        ContainerTemplate containerTemplate = getContainerTemplate(parent);
 
-        if (agentTemplate.execute(new AgentTemplate.FabricServiceCallback<Boolean>() {
+        if (containerTemplate.execute(new ContainerTemplate.FabricServiceCallback<Boolean>() {
             public Boolean doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
-                return fabricService.createRemoteAgent(args, name);
+                return fabricService.createRemoteContainer(args, name);
             }
         })) {
-            return new AgentImpl(null, name, FabricServiceImpl.this);
+            return new ContainerImpl(null, name, FabricServiceImpl.this);
         } else {
             return null;
         }
     }
 
-    public Agent createAgent(final String url, final String name) {
-        return createAgent(url,name,false, false);
+    public Container createContainer(final String url, final String name) {
+        return createContainer(url, name, false, false);
     }
 
-    public AgentProvider getProvider(final String scheme) {
+    public ContainerProvider getProvider(final String scheme) {
         return providers.get(scheme);
     }
 
-    public Map<String, AgentProvider> getProviders() {
+    public Map<String, ContainerProvider> getProviders() {
         return Collections.unmodifiableMap(providers);
     }
 
@@ -380,12 +379,12 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return uri;
     }
 
-    public void registerProvider(String scheme, AgentProvider provider) {
+    public void registerProvider(String scheme, ContainerProvider provider) {
         providers.put(scheme, provider);
     }
 
-    public void registerProvider(AgentProvider provider, Map<String, Object> properties) {
-        String scheme = (String) properties.get(AgentProvider.PROTOCOL);
+    public void registerProvider(ContainerProvider provider, Map<String, Object> properties) {
+        String scheme = (String) properties.get(ContainerProvider.PROTOCOL);
         registerProvider(scheme, provider);
     }
 
@@ -395,8 +394,8 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
-    public void unregisterProvider(AgentProvider provider, Map<String, Object> properties) {
-        String scheme = (String) properties.get(AgentProvider.PROTOCOL);
+    public void unregisterProvider(ContainerProvider provider, Map<String, Object> properties) {
+        String scheme = (String) properties.get(ContainerProvider.PROTOCOL);
         unregisterProvider(scheme);
     }
 
@@ -419,38 +418,38 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
-    public Agent createAgent(final Agent parent, final String name, final boolean debugAgent) {
+    public Container createContainer(final Container parent, final String name, final boolean debugContainer) {
         final String zooKeeperUrl = getZooKeeperUrl();
-        createAgentConfig(parent.getId(), name);
-        return getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Agent>() {
-            public Agent doWithAdminService(AdminServiceMBean adminService) throws Exception {
+        createContainerConfig(parent.getId(), name);
+        return getContainerTemplate(parent).execute(new ContainerTemplate.AdminServiceCallback<Container>() {
+            public Container doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
-                if(debugAgent) {
-                    javaOpts += AgentProvider.DEBUG_AGNET;
+                if(debugContainer) {
+                    javaOpts += ContainerProvider.DEBUG_CONTAINER;
                 }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/"+ FabricConstants.VERSION+"/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
                 adminService.startInstance(name, null);
-                return new AgentImpl(parent, name, FabricServiceImpl.this);
+                return new ContainerImpl(parent, name, FabricServiceImpl.this);
             }
         });
     }
 
-    public Agent createAgent(final Agent parent, final String name) {
-        return createAgent(parent, name, false);
+    public Container createContainer(final Container parent, final String name) {
+        return createContainer(parent, name, false);
     }
 
-    public void destroy(Agent agent) {
-        if (agent.getParent() != null) {
-            destroyChild(agent.getParent(), agent.getId());
+    public void destroy(Container container) {
+        if (container.getParent() != null) {
+            destroyChild(container.getParent(), container.getId());
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    private void destroyChild(final Agent parent, final String name) {
-        getAgentTemplate(parent).execute(new AgentTemplate.AdminServiceCallback<Object>() {
+    private void destroyChild(final Container parent, final String name) {
+        getContainerTemplate(parent).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 adminService.stopInstance(name);
                 adminService.destroyInstance(name);
@@ -475,7 +474,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return zooKeeperUrl;
     }
 
-    private void createAgentConfig(String parent, String name) {
+    private void createContainerConfig(String parent, String name) {
         try {
             String configVersion = getDefaultVersion().getName();
             ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(name), configVersion);
@@ -616,11 +615,11 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
-    protected AgentTemplate getAgentTemplate(Agent agent) {
-        // there's no point caching the JMX Connector as we are unsure if we'll communicate again with the same agent any time soon
+    protected ContainerTemplate getContainerTemplate(Container container) {
+        // there's no point caching the JMX Connector as we are unsure if we'll communicate again with the same container any time soon
         // though in the future we could possibly pool them
         boolean cacheJmx = false;
-        return new AgentTemplate(agent, cacheJmx, userName, password);
+        return new ContainerTemplate(container, cacheJmx, userName, password);
     }
 
 }

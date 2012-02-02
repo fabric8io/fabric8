@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 
@@ -52,24 +52,24 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     public List<String> getBundles() {
-        return getAgentConfigList(this, ConfigListType.BUNDLES);
+        return getContainerConfigList(this, ConfigListType.BUNDLES);
     }
 
     public List<String> getFeatures() {
-        return getAgentConfigList(this, ConfigListType.FEATURES);
+        return getContainerConfigList(this, ConfigListType.FEATURES);
     }
 
     public List<String> getRepositories() {
-        return getAgentConfigList(this, ConfigListType.REPOSITORIES);
+        return getContainerConfigList(this, ConfigListType.REPOSITORIES);
     }
 
     @Override
-    public Agent[] getAssociatedAgents() {
-        return self.getAssociatedAgents();
+    public Container[] getAssociatedContainers() {
+        return self.getAssociatedContainers();
     }
 
     @Override
-    public Map<String, String> getAgentConfiguration() {
+    public Map<String, String> getContainerConfiguration() {
         Map<String, String> map = getConfigurations().get(AGENT_PID);
         if (map == null) {
             map = new HashMap<String, String>();

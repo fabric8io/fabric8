@@ -126,7 +126,7 @@ public class ProfileEdit extends FabricCommand {
         if (pid != null) {
             return pid;
         } else {
-            return AGENT_PID;
+            return CONTAINER_PID;
         }
     }
 }
