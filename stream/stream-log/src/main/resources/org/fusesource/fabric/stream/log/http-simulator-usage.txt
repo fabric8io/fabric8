@@ -1,7 +1,5 @@
 Usage: (--broker <url>)+ (--destination <name>)+ [other-arguments]
 
-Required Arguments:
-
 Load Processing Arguments:
  --broker <url>
      The ActiveMQ broker URL to send events to. If you specify
@@ -31,13 +29,14 @@ Load Generation Arguments:
  --session-size-sd <n:0>
      Randomly varies the amount of session data each producer generates by
      the configured standard deviation.
+
+Other Arguments:
  --warmup-time <secs:5>
      The number of seconds to wait before we start to sample throughput
      results.  This gives producers time to achieve a steady state.
  --sample-time <secs:60>
      The number of seconds taken to measure the throughput performance
      of the producers.
-
  --help
      Displays this help screen.
 
