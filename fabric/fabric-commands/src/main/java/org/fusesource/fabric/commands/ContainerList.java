@@ -70,7 +70,7 @@ public class ContainerList extends FabricCommand {
                 out.println(String.format(VERBOSE_FORMAT, container.getId(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), container.getProvisionStatus()));
                     }
                 }
             }
