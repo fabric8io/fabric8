@@ -168,15 +168,13 @@ public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.identity", System.getProperty("fabricitest.rackspace.identity") != null ? System.getProperty("fabricitest.rackspace.identity") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.credential", System.getProperty("fabricitest.rackspace.credential") != null ? System.getProperty("fabricitest.rackspace.credential") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.image", System.getProperty("fabricitest.rackspace.image") != null ? System.getProperty("fabricitest.rackspace.image") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.location", System.getProperty("fabricitest.rackspace.location") != null ? System.getProperty("fabricitest.rackspace.location") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.user", System.getProperty("fabricitest.rackspace.user") != null ? System.getProperty("fabricitest.rackspace.user") : ""),
+                copySystemProperty("fabricitest.rackspace.identity"),
+                copySystemProperty("fabricitest.rackspace.credential"),
+                copySystemProperty("fabricitest.rackspace.image"),
+                copySystemProperty("fabricitest.rackspace.location"),
+                copySystemProperty("fabricitest.rackspace.user"),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
                 scanFeatures("jclouds","jclouds-compute").start()
         };
     }
-
-
 }

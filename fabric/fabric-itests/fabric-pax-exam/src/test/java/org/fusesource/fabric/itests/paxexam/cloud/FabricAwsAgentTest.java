@@ -199,11 +199,11 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.identity", System.getProperty("fabricitest.aws.identity") != null ? System.getProperty("fabricitest.aws.identity") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.credential", System.getProperty("fabricitest.aws.credential") != null ? System.getProperty("fabricitest.aws.credential") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.image", System.getProperty("fabricitest.aws.image") != null ? System.getProperty("fabricitest.aws.image") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.location", System.getProperty("fabricitest.aws.location") != null ? System.getProperty("fabricitest.aws.location") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.user", System.getProperty("fabricitest.aws.user") != null ? System.getProperty("fabricitest.aws.user") : ""),
+                copySystemProperty("fabricitest.aws.identity"),
+                copySystemProperty("fabricitest.aws.credential"),
+                copySystemProperty("fabricitest.aws.image"),
+                copySystemProperty("fabricitest.aws.location"),
+                copySystemProperty("fabricitest.aws.user"),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
                 scanFeatures("jclouds","jclouds-compute").start()
         };

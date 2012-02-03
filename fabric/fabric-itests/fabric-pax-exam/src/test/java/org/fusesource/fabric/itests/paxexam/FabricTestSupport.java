@@ -43,6 +43,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class FabricTestSupport {
@@ -207,6 +208,16 @@ public class FabricTestSupport {
         }
     }
 
+    /**
+     * Make available system properties that are configured for the test, to the test container.
+     * <p>Note:</p> If not obvious the container runs in in forked mode and thus system properties passed
+     * form command line or surefire plugin are not available to the container without an approach like this.
+     * @param propertyName
+     * @return
+     */
+    public static Option copySystemProperty(String propertyName) {
+        return editConfigurationFileExtend("etc/system.properties", propertyName, System.getProperty(propertyName) != null ? System.getProperty(propertyName) : "");
+    }
 
     /*
      * Provides an iterable collection of references, even if the original array is null
