@@ -71,6 +71,11 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         args.setOwner(owner);
         args.setProviderName(providerName);
         args.setUser(user);
+        if (proxyUri != null) {
+            args.setProxyUri(proxyUri);
+        } else {
+            args.setProxyUri(fabricService.getMavenRepoURI());
+        }
         fabricService.createContainer(args, name, number);
         return null;
     }
