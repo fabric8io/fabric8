@@ -33,11 +33,15 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        // validate profiles exists before creating
+        doValidateProfiles();
+
+        // okay create child container
         String url = "child://" + parent;
-        Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
-        setProfiles(children);
+        Container[] containers = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
+        // and set its profiles after creation
+        setProfiles(containers);
         return null;
     }
-
 
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
@@ -53,5 +54,31 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
+    protected void doValidateProfiles() {
+        // get the profiles for the given version
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Profile[] profiles = ver.getProfiles();
 
+        // validate profiles exists before creating a new container
+        List<String> names = getProfileNames();
+        for (String profile : names) {
+            if (!hasProfile(profiles, profile)) {
+                throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist");
+            }
+        }
+    }
+
+    private static boolean hasProfile(Profile[] profiles, String name) {
+        if (profiles == null || profiles.length == 0) {
+            return false;
+        }
+
+        for (Profile profile : profiles) {
+            if (profile.getId().equals(name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -21,6 +21,7 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateSshContainerArguments;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
@@ -48,6 +49,9 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        // validate profiles exists before creating
+        doValidateProfiles();
+
         CreateSshContainerArguments args = new CreateSshContainerArguments();
         args.setEnsembleServer(isEnsembleServer);
         args.setDebugContainer(debugContainer);
@@ -67,9 +71,10 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         if (sshRetries != null) {
             args.setSshRetries(sshRetries);
         }
-        fabricService.createContainer(args, name, number);
+        Container[] containers = fabricService.createContainer(args, name, number);
+        // and set its profiles after creation
+        setProfiles(containers);
         return null;
     }
-
 
 }

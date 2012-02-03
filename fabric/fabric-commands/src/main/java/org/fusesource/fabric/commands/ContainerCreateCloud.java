@@ -21,6 +21,7 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateJCloudsContainerArguments;
 import org.fusesource.fabric.api.JCloudsInstanceType;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
@@ -57,6 +58,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        // validate profiles exists before creating
+        doValidateProfiles();
+
         CreateJCloudsContainerArguments args = new CreateJCloudsContainerArguments();
         args.setEnsembleServer(isEnsembleServer);
         args.setCredential(credential);
@@ -76,7 +80,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         } else {
             args.setProxyUri(fabricService.getMavenRepoURI());
         }
-        fabricService.createContainer(args, name, number);
+        Container[] containers = fabricService.createContainer(args, name, number);
+        // and set its profiles after creation
+        setProfiles(containers);
         return null;
     }
 
