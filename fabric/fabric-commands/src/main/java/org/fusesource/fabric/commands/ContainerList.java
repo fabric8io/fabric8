@@ -17,33 +17,63 @@
 package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.service.Containers;
 
 import java.io.PrintStream;
 
 @Command(name = "container-list", scope = "fabric", description = "List existing containers")
 public class ContainerList extends FabricCommand {
 
+    static final String FORMAT = "%-30s %-10s %-30s %-100s";
+    static final String VERBOSE_FORMAT = "%-30s %-10s %-30s  %-30s %-100s %-100s";
+
+    static final String[] HEADERS = {"[id]", "[alive]", "[profiles]", "[provision status]"};
+    static final String[] VERBOSE_HEADERS = {"[id]", "[alive]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
+
+
+    @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
+    private boolean verbose;
+
     @Override
     protected Object doExecute() throws Exception {
         Container[] containers = fabricService.getContainers();
-        printContainers(containers, System.out);
+         if (verbose) {
+            printContainersVerbose(containers, System.out);
+        } else {
+            printContainers(containers, System.out);
+        }
         return null;
     }
 
+
     protected void printContainers(Container[] containers, PrintStream out) {
-        out.println(String.format("%-30s %-10s %-30s %-100s", "[id]", "[alive]", "[profiles]", "[provision status]"));
+        out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
             if (container.isRoot()) {
-                out.println(String.format("%-30s %-10s %-30s %-100s", container.getId(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
+                out.println(String.format(FORMAT, container.getId(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format("%-30s %-10s %-30s %-100s", "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), container.getProvisionStatus()));
+                        out.println(String.format(FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), container.getProvisionStatus()));
                     }
                 }
             }
         }
     }
 
+    protected void printContainersVerbose(Container[] containers, PrintStream out) {
+        out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
+        for (Container container : containers) {
+            if (container.isRoot()) {
+                out.println(String.format(VERBOSE_FORMAT, container.getId(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                for (Container child : containers) {
+                    if (child.getParent() == container) {
+                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                    }
+                }
+            }
+        }
+    }
 }
