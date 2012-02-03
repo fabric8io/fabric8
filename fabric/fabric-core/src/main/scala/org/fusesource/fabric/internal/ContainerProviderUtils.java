@@ -41,7 +41,7 @@ public class ContainerProviderUtils {
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "fuse-fabirc", FabricConstants.VERSION);
+        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "fuse-fabric", FabricConstants.VERSION);
         sb.append("run cd ").append("fuse-fabric-" + FabricConstants.VERSION).append("\n");
         List<String> lines = new ArrayList<String>();
 

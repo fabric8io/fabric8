@@ -24,7 +24,7 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 @Command(name = "container-delete", scope = "fabric", description = "Delete an existing container")
 public class ContainerDelete extends FabricCommand {
 
-    @Argument(index = 0)
+    @Argument(index = 0, description = "The name of the container", multiValued = false, required = true)
     private String name;
 
     @Override

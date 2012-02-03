@@ -64,7 +64,11 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         args.setHost(host);
         args.setPath(path);
         args.setPassword(password);
-        args.setProxyUri(proxyUri);
+        if (proxyUri != null) {
+            args.setProxyUri(proxyUri);
+        } else {
+            args.setProxyUri(fabricService.getMavenRepoURI());
+        }
         args.setUsername(user);
         if (port != null) {
             args.setPort(port);

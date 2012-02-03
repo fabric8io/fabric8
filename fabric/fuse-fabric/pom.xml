@@ -222,6 +222,13 @@
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
+
+                                   <echo message="Fixing start/stop scripts in windows assembly" />
+                                   <replace file="target/dependencies/win/apache-karaf-${karaf-version}/bin/start.bat" token="karaf.bat" value="fusefabric.bat"/>
+                                   <replace file="target/dependencies/win/apache-karaf-${karaf-version}/bin/stop.bat" token="karaf.bat" value="fusefabric.bat"/>
+                                   <echo message="Fixing start/stop scripts in unix assembly" />
+                                   <replace file="target/dependencies/unix/apache-karaf-${karaf-version}/bin/start" token="bin/karaf" value="bin/fusefabric"/>
+                                   <replace file="target/dependencies/unix/apache-karaf-${karaf-version}/bin/stop" token="bin/karaf" value="bin/fusefabric"/>
                                </target>
                            </configuration>
                        </execution>
