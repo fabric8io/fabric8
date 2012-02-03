@@ -52,6 +52,11 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         // validate profiles exists before creating
         doValidateProfiles();
 
+        // validate number is not out of bounds
+        if (number < 1 || number > 99) {
+            throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
+        }
+
         CreateSshContainerArguments args = new CreateSshContainerArguments();
         args.setEnsembleServer(isEnsembleServer);
         args.setDebugContainer(debugContainer);
