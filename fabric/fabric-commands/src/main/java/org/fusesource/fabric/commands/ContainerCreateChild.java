@@ -16,9 +16,13 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers")
@@ -33,11 +37,43 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        // validate profiles exists before creating
+        doValidateProfiles();
+
+        // okay create child container
         String url = "child://" + parent;
         Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
+        // and set its profiles after creation
         setProfiles(children);
         return null;
     }
+    
+    protected void doValidateProfiles() {
+        // get the profiles for the given version
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Profile[] profiles = ver.getProfiles();
 
+        // validate profiles exists before creating a new container
+        List<String> names = getProfileNames();
+        for (String profile : names) {
+            if (!hasProfile(profiles, name)) {
+                throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist");
+            }
+        }
+    }
+
+    private static boolean hasProfile(Profile[] profiles, String name) {
+        if (profiles == null || profiles.length == 0) {
+            return false;
+        }
+
+        for (Profile profile : profiles) {
+            if (profile.getId().equals(name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }
