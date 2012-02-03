@@ -84,7 +84,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
           <completers>
-              <ref component-id="containerCompleter" />
+              <ref component-id="rootContainerCompleter" />
               <null/>
           </completers>
         </command>
@@ -206,6 +206,9 @@
     </command-bundle>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.commands.support.ContainerCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+    <bean id="rootContainerCompleter" class="org.fusesource.fabric.commands.support.RootContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
     <bean id="clusterCompleter" class="org.fusesource.fabric.commands.ClusterCompleter">

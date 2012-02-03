@@ -39,9 +39,14 @@ public class ContainerCompleter implements Completer {
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
         for (Container container : fabricService.getContainers()) {
-            delegate.getStrings().add(container.getId());
+            if (apply(container)) {
+                delegate.getStrings().add(container.getId());
+            }
         }
         return delegate.complete(buffer, cursor, candidates);
     }
 
+    public boolean apply(Container container) {
+        return true;
+    }
 }
