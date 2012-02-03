@@ -43,6 +43,10 @@ public class ContainerCreate extends ContainerCreateSupport {
         if (url == null && parent != null) {
             url = "child://" + parent;
         }
+
+        // validate profiles exists before creating
+        doValidateProfiles();
+
         Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
         setProfiles(children);
         return null;
