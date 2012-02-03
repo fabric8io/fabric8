@@ -37,7 +37,7 @@ public class ContainerProviderUtils {
     public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean isClusterServer, boolean debugContainer) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
-        sb.append("run mkdir ~/containers/ ").append("\n");
+        sb.append("run -p mkdir ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
