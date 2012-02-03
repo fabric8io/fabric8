@@ -222,6 +222,16 @@
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
+                                   
+                                   <echo message="Updating etc/shell.init.script in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/shell.init.script" />
+                                   </concat>
+                                   <echo message="Updating etc/shell.init.script in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/shell.init.script" />
+                                   </concat>
+                                   
                                </target>
                            </configuration>
                        </execution>
