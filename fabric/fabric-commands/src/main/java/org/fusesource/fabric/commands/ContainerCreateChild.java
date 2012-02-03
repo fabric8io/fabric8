@@ -35,6 +35,11 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     protected Object doExecute() throws Exception {
         // validate profiles exists before creating
         doValidateProfiles();
+        
+        // validate number is not out of bounds
+        if (number < 1 || number > 99) {
+            throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
+        }
 
         // okay create child container
         String url = "child://" + parent;

@@ -161,6 +161,11 @@
                         <fabricitest.aws.image>${fabricitest.aws.image}</fabricitest.aws.image>
                         <fabricitest.aws.location>${fabricitest.aws.location}</fabricitest.aws.location>
                         <fabricitest.aws.user>${fabricitest.aws.user}</fabricitest.aws.user>
+
+                        <fabricitest.ssh.username>${fabricitest.ssh.username}</fabricitest.ssh.username>
+                        <fabricitest.ssh.password>${fabricitest.ssh.password}</fabricitest.ssh.password>
+                        <fabricitest.ssh.host>${fabricitest.ssh.host}</fabricitest.ssh.host>
+                        <fabricitest.ssh.port>${fabricitest.ssh.port}</fabricitest.ssh.port>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

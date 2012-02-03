@@ -27,8 +27,9 @@ import org.fusesource.fabric.api.ZooKeeperClusterService;
 public class ContainerProviderUtils {
 
     private static final String REPLACE_FORMAT = "sed -i  \"s/%s/%s/g\" %s";
+    private static final String LINE_APPEND = "sed  's/%s/&%s/' %s > %s";
 
-    public static final int DEFAULT_SSH_PORT = 8081;
+    public static final int DEFAULT_SSH_PORT = 8101;
 
     private ContainerProviderUtils() {
         //Utility Class
@@ -37,17 +38,17 @@ public class ContainerProviderUtils {
     public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean isClusterServer, boolean debugContainer) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
-        sb.append("run mkdir ~/containers/ ").append("\n");
+        sb.append("run mkdir -p ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
         sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "fuse-fabirc", FabricConstants.VERSION);
+        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "fuse-fabric", FabricConstants.VERSION);
         sb.append("run cd ").append("fuse-fabric-" + FabricConstants.VERSION).append("\n");
         List<String> lines = new ArrayList<String>();
-
         appendFile(sb, "etc/startup.properties", lines);
         replaceLineInFile(sb,"etc/system.properties","karaf.name=root","karaf.name = "+name);
         replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+sshPort);
+        appendFile(sb, "etc/system.properties",Arrays.asList("\n"));
         if(isClusterServer) {
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"));
         } else {
@@ -56,6 +57,7 @@ public class ContainerProviderUtils {
         if(debugContainer) {
            sb.append("run export KARAF_DEBUG=true").append("\n");
         }
+        appendToLineInFile(sb,"etc/org.apache.karaf.features.cfg","featuresBoot=","fabric-agent,");
         sb.append("run nohup bin/start").append("\n");
         return sb.toString();
     }
@@ -70,6 +72,11 @@ public class ContainerProviderUtils {
 
     private static void replaceLineInFile(StringBuilder sb, String path, String pattern, String line) {
         sb.append(String.format(REPLACE_FORMAT,pattern,line,path)).append("\n");
+    }
+
+    private static void appendToLineInFile(StringBuilder sb, String path, String pattern, String line) {
+        sb.append(String.format(LINE_APPEND,pattern,line,path,path+".tmp")).append("\n");
+        sb.append("mv "+path+".tmp "+path).append("\n");
     }
 
     private static void appendFile(StringBuilder sb, String path, Iterable<String> lines) {

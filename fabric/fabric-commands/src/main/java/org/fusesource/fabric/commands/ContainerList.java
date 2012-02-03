@@ -27,8 +27,8 @@ import java.io.PrintStream;
 @Command(name = "container-list", scope = "fabric", description = "List existing containers")
 public class ContainerList extends FabricCommand {
 
-    static final String FORMAT = "%-30s %-10s %-30s %-100s";
-    static final String VERBOSE_FORMAT = "%-30s %-10s %-30s  %-30s %-100s %-100s";
+    static final String FORMAT = "%-30s %-7s %-30s %-100s";
+    static final String VERBOSE_FORMAT = "%-20s %-7s %-30s  %-30s %-90s %-100s";
 
     static final String[] HEADERS = {"[id]", "[alive]", "[profiles]", "[provision status]"};
     static final String[] VERBOSE_HEADERS = {"[id]", "[alive]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
@@ -56,7 +56,7 @@ public class ContainerList extends FabricCommand {
                 out.println(String.format(FORMAT, container.getId(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format(FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), container.getProvisionStatus()));
+                        out.println(String.format(FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), child.getProvisionStatus()));
                     }
                 }
             }
@@ -70,7 +70,7 @@ public class ContainerList extends FabricCommand {
                 out.println(String.format(VERBOSE_FORMAT, container.getId(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), child.getProvisionStatus()));
                     }
                 }
             }

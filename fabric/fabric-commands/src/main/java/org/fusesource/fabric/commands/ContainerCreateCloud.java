@@ -61,6 +61,12 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         // validate profiles exists before creating
         doValidateProfiles();
 
+        // validate number is not out of bounds
+        if (number < 1 || number > 999) {
+            // for cloud we accept 3 digits
+            throw new IllegalArgumentException("The number of containers must be between 1 and 999.");
+        }
+
         CreateJCloudsContainerArguments args = new CreateJCloudsContainerArguments();
         args.setEnsembleServer(isEnsembleServer);
         args.setCredential(credential);
@@ -75,11 +81,16 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         args.setOwner(owner);
         args.setProviderName(providerName);
         args.setUser(user);
-
+        if (proxyUri != null) {
+            args.setProxyUri(proxyUri);
+        } else {
+            args.setProxyUri(fabricService.getMavenRepoURI());
+        }
         Container[] containers = fabricService.createContainer(args, name, number);
         // and set its profiles after creation
         setProfiles(containers);
         return null;
     }
+
 
 }
