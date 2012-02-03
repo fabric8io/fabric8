@@ -70,6 +70,7 @@
                               <feature>camel-mail</feature>
                               <feature>camel-paxlogging</feature>
                               <feature>camel-rmi</feature>
+                              <feature>fuse-patch</feature>
                             </features>
                         </configuration>
                     </execution>

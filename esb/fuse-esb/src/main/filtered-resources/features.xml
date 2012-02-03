@@ -68,6 +68,12 @@
         <bundle>mvn:org.apache.activemq/activemq-camel/${activemq.version}</bundle>
     </feature>
 
+    <!-- Patching system -->
+    <feature name="fuse-patch" version="${project.version}" resolver="(obr)" start-level='45' >
+        <bundle>mvn:org.fusesource.patch/patch-core/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.patch/patch-commands/${project.version}</bundle>
+    </feature>
+
     <!--
       -
       -  Examples
