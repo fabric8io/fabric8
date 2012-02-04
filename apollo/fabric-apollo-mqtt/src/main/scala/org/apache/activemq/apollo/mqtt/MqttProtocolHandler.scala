@@ -40,6 +40,7 @@ import org.fusesource.mqtt.codec.CONNACK.Code._
 import collection.mutable.{ListBuffer, HashSet, HashMap}
 import org.fusesource.mqtt.client.QoS
 import org.fusesource.hawtdispatch.transport.{SecureTransport, HeartBeatMonitor, SslTransport}
+import scala.Array._
 
 object MqttProtocolHandler extends Log {
   case class Request(id:Short, frame:MQTTFrame, cb: ()=>Unit)
@@ -378,9 +379,9 @@ class MqttProtocolHandler extends ProtocolHandler {
   // Other msic bits.
   //
   /////////////////////////////////////////////////////////////////////
-  def decode_destination(value:UTF8Buffer):DestinationDTO = {
+  def decode_destination(value:UTF8Buffer):SimpleAddress = {
     val rc = destination_parser.decode_single_destination(value.toString, (name)=>{
-      new TopicDestinationDTO(destination_parser.parts(name))
+      SimpleAddress("topic", destination_parser.decode_path(name))
     })
     if( rc==null ) {
       die("Invalid mqtt destination name: "+value);
@@ -524,10 +525,11 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
   def disconnect = {
 
     import collection.JavaConversions._
-    producerRoutes.foreach{
-      case(dest,route)=> host.router.disconnect(Array(dest), route)
+    producerRoutes.foreach { case (dest, route)=>
+      host.router.disconnect(Array(dest), route)
     }
     producerRoutes.clear
+
 //      consumers.foreach {
 //        case (_,consumer)=>
 //          host.router.unbind(consumer.destination, consumer, false , security_context)
@@ -650,8 +652,8 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
   // Bits that deal with processing PUBLISH messages
   //
   /////////////////////////////////////////////////////////////////////
-  var producerRoutes = new LRUCache[DestinationDTO, DeliveryProducerRoute](10) {
-    override def onCacheEviction(eldest: Entry[DestinationDTO, DeliveryProducerRoute]) = {
+  var producerRoutes = new LRUCache[ConnectAddress, DeliveryProducerRoute](10) {
+    override def onCacheEviction(eldest: Entry[ConnectAddress, DeliveryProducerRoute]) = {
       host.router.disconnect(Array(eldest.getKey), eldest.getValue)
     }
   }
@@ -744,15 +746,16 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
   /////////////////////////////////////////////////////////////////////
 
 //  var session_manager:SessionSinkMux[Command] = null
-  var consumers = Map[DestinationDTO, MqttConsumer]()
+  var consumers = Map[BindAddress, MqttConsumer]()
 
   def on_mqtt_subscribe(subscribe:SUBSCRIBE):Unit = {
+    
     val response = subscribe.topics.map { topic =>
-      val destination = handler.decode_destination(topic.name)
-      val consumer = new MqttConsumer(destination, topic.qos);
-      consumers += (destination -> consumer)
+      val address = handler.decode_destination(topic.name)
+      val consumer = new MqttConsumer(address, topic.qos);
+      consumers += (address -> consumer)
       host.dispatch_queue {
-        val rc = host.router.bind(Array(destination), consumer, security_context)
+        val rc = host.router.bind(Array(address), consumer, security_context)
         // MQTT ignores subscribe failures.
       }
       topic.qos.ordinal.toByte
@@ -765,19 +768,19 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
 
   def on_mqtt_unsubscribe(unsubscribe:UNSUBSCRIBE):Unit = {
     unsubscribe.topics.foreach { topic =>
-      val destination = handler.decode_destination(topic)
-      consumers.get(destination) match {
+      val addresses = handler.decode_destination(topic)
+      consumers.get(addresses) match {
         case None=>
         case Some(consumer)=>
           // consumer.setDisposer(^{ })
           consumer.release
-          consumers -= destination
+          consumers -= addresses
           host.router.unbind(Array(consumer.destination), consumer, false, security_context)
       }
     }
   }
 
-  case class MqttConsumer(destination:DestinationDTO, qos:QoS) extends BaseRetained with DeliveryConsumer {
+  case class MqttConsumer(destination:BindAddress, qos:QoS) extends BaseRetained with DeliveryConsumer {
 
     val credit_window_source = createSource(new EventAggregator[(Int, Int), (Int, Int)] {
       def mergeEvent(previous:(Int, Int), event:(Int, Int)) = {

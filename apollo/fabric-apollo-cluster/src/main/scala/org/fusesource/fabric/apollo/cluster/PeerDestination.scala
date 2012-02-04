@@ -22,8 +22,8 @@ import org.apache.activemq.apollo.broker._
 import org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocolHandler
 import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf.Buffer._
-import org.apache.activemq.apollo.dto.{XmlCodec, DestinationDTO}
 import org.fusesource.hawtbuf.ByteArrayOutputStream
+import org.apache.activemq.apollo.dto._
 
 
 /**
@@ -35,18 +35,17 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
   // DomainDestination interface
   /////////////////////////////////////////////////////////////////////////////
   def virtual_host = local_destination.virtual_host
-  def id = local_destination.id
-  def destination_dto = local_destination.destination_dto
+  def address = local_destination.address
 
   // setup the local destination to forward to the peer..
-  local_destination.bind(local_destination.destination_dto, forwarding_consumer)
+  local_destination.bind(local_destination.address.asInstanceOf[BindAddress], forwarding_consumer)
 
   def close() = {
     // stop forwarding...
     local_destination.unbind(forwarding_consumer, false)
   }
 
-  def connect(destination: DestinationDTO, producer: BindableDeliveryProducer) = {
+  def connect(destination: ConnectAddress, producer: BindableDeliveryProducer) = {
     producer.bind(forwarding_consumer::Nil)
   }
 
@@ -54,8 +53,26 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     producer.unbind(forwarding_consumer::Nil)
   }
 
-  def bind(destination: DestinationDTO, consumer: DeliveryConsumer) = {
+  def bind(address: BindAddress, consumer: DeliveryConsumer) = {
 
+    val destination_dto = address.domain match {
+      case "queue" => new QueueDestinationDTO(address.id);
+      case "topic" => new TopicDestinationDTO(address.id);
+      case "dsub" => 
+        val rc = new DurableSubscriptionDestinationDTO(address.id);
+        address match {
+          case address:SubscriptionAddress => 
+            rc.selector = address.selector
+            address.topics.foreach { topic =>
+              rc.topics.add( new TopicDestinationDTO(address.id));
+            }
+            rc
+          case address =>
+            rc.direct()
+        }  
+        rc
+    }
+    
     val os = new ByteArrayOutputStream()
     XmlCodec.encode(destination_dto, os, false)
 
@@ -83,6 +100,24 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     def is_persistent: Boolean = false
 
     def connect(p: DeliveryProducer): DeliverySession = {
+
+      val destination_dto = address.domain match {
+        case "queue" => new QueueDestinationDTO(address.id);
+        case "topic" => new TopicDestinationDTO(address.id);
+        case "dsub" =>
+          val rc = new DurableSubscriptionDestinationDTO(address.id);
+          address match {
+            case address:SubscriptionAddress =>
+              rc.selector = address.selector
+              address.topics.foreach { topic =>
+                rc.topics.add( new TopicDestinationDTO(address.id));
+              }
+              rc
+            case address =>
+              rc.direct()
+          }
+          rc
+      }
 
       val os = new ByteArrayOutputStream()
       XmlCodec.encode(destination_dto, os, false)
@@ -135,7 +170,7 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
 
     }
 
-    override def toString = "cluster destination %s on node %d".format(destination_dto.name("."), peer.id)
+    override def toString = "cluster %s on node %d".format(address, peer.id)
   }
 
   def now = virtual_host.broker.now

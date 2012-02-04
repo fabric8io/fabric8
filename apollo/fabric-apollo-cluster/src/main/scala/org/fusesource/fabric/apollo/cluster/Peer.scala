@@ -27,11 +27,11 @@ import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf._
 import scala.collection.mutable.{HashMap, HashSet}
 import org.fusesource.hawtbuf.Buffer._
-import org.apache.activemq.apollo.dto.{DestinationDTO, XmlCodec}
 import org.apache.activemq.apollo.broker.protocol.ProtocolFactory
 import org.apache.activemq.apollo.broker.store.MessageRecord
 import org.fusesource.fabric.apollo.cluster.protocol.{ClusterProtocolConstants, ClusterProtocolCodec, ClusterProtocolHandler}
 import ClusterProtocolConstants._
+import org.apache.activemq.apollo.dto._
 
 object Peer extends Log
 
@@ -364,8 +364,21 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
     import collection.JavaConversions._
 
     def consumer_id = info.getConsumerId.longValue
-    def destinations = info.getDestinationList.toSeq.toArray.map { x=>
-      XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))
+    def destinations:Array[BindAddress] = info.getDestinationList.toSeq.toArray.
+            map(x=> XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))).map { x=>
+      val rc:BindAddress = x match {
+      case x:TopicDestinationDTO=> SimpleAddress("topic", DestinationAddress.decode_path(x.name))
+      case x:QueueDestinationDTO=> SimpleAddress("queue", DestinationAddress.decode_path(x.name))
+      case x:DurableSubscriptionDestinationDTO=>
+        if( x.is_direct() ) {
+          SimpleAddress("dsub", DestinationAddress.decode_path(x.name))
+        } else {
+          SubscriptionAddress(DestinationAddress.decode_path(x.name), x.selector, x.topics.toSeq.toArray.map{ topic=>
+            SimpleAddress("topic", DestinationAddress.decode_path(topic.name))
+          })
+        }
+      }
+      rc
     }
 
 
@@ -737,7 +750,14 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
 
     import collection.JavaConversions._
     def consumer_id = info.getConsumerId.longValue
-    def destinations = info.getDestinationList.toSeq.toArray.map { x=>
+    def destinations:Array[SimpleAddress] = info.getDestinationList.toSeq.toArray.
+       map(x=>XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))).map { _ match {
+        case x:TopicDestinationDTO=> SimpleAddress("topic", DestinationAddress.decode_path(x.name))
+        case x:QueueDestinationDTO=> SimpleAddress("queue", DestinationAddress.decode_path(x.name))
+        case x:DurableSubscriptionDestinationDTO=> SimpleAddress("dsub", DestinationAddress.decode_path(x.name))
+      }}
+
+      info.getDestinationList.toSeq.toArray.map { x=>
       XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))
     }
 

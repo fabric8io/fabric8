@@ -23,10 +23,11 @@ import org.fusesource.hawtdispatch._
 import java.util.concurrent.TimeUnit._
 import org.apache.activemq.apollo.stomp.StompClient
 import java.net.InetSocketAddress
-import org.apache.activemq.apollo.broker.{Broker, Queue}
 import org.apache.activemq.apollo.dto.{BrokerDTO, XmlCodec, QueueDestinationDTO}
 import java.util.Properties
 import org.apache.activemq.apollo.util.{SocketProxy, ServiceControl, Dispatched}
+import org.apache.activemq.apollo.broker.{SimpleAddress, Broker, Queue}
+import org.apache.activemq.apollo.util.path.Path
 
 /**
  */
@@ -166,8 +167,8 @@ class ClusterTest extends ClusterTestSupport {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 
@@ -238,8 +239,8 @@ class ClusterTest extends ClusterTestSupport {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 
