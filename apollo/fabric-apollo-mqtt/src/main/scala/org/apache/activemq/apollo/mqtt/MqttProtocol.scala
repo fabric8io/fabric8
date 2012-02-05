@@ -85,6 +85,7 @@ object MqttProtocol extends MqttProtocolCodecFactory with Protocol {
   destination_parser.destination_separator = null
   destination_parser.regex_wildcard_end = null
   destination_parser.regex_wildcard_end = null
+  destination_parser.part_pattern = null
 
   val PROTOCOL_ID = ascii(id)
   def createProtocolHandler = new MqttProtocolHandler

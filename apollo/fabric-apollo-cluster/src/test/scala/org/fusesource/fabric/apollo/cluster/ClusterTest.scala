@@ -167,8 +167,8 @@ class ClusterTest extends ClusterTestSupport {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 
@@ -239,8 +239,8 @@ class ClusterTest extends ClusterTestSupport {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 

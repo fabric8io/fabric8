@@ -54,11 +54,20 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
     broker.stop
   }
 
+  var clients = List[MqttClient]()
+  var client = create_client
+
+  def create_client = {
+    val client = new MqttClient
+    clients ::= client
+    client
+  }
+
   override protected def afterEach() = {
     super.afterEach
-    clients.foreach(_.close)
+    clients.foreach(_.disconnect)
     clients = Nil
-    client = new MqttClient
+    client = create_client
   }
 
   def queue_exists(name:String):Boolean = {
@@ -95,29 +104,65 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
       connection.connect();
     }
   
-    def close() = {
+    def disconnect() = {
       connection.disconnect()
     }
   }
-  
-  var client = new MqttClient
-  var clients = List[MqttClient]()
 
   def connect(c:MqttClient=client) = {
     c.open("localhost", port)
   }
-  
+  def disconnect(c:MqttClient=client) = {
+    c.disconnect()
+  }
+
   def publish(topic:String, message:String, qos:QoS=AT_MOST_ONCE, retain:Boolean=false, c:MqttClient=client) = {
     c.connection.publish(topic, message.getBytes("UTF-8"), qos, retain)
   }
   def subscribe(topic:String, qos:QoS=AT_MOST_ONCE, c:MqttClient=client) = {
     c.connection.subscribe(Array(new org.fusesource.mqtt.client.Topic(topic, qos)))
   }
+  def unsubscribe(topic:String, c:MqttClient=client) = {
+    c.connection.unsubscribe(Array(topic))
+  }
+
+  def get_session_count = {
+    (MqttSessionManager.queue.future {
+      MqttSessionManager.sessions.size
+    }).await()
+  }
+
+  def find_session(id:String) = {
+    val t = new UTF8Buffer(id)
+    (MqttSessionManager.queue.future {
+      MqttSessionManager.sessions.find(_._1.client_id == t).map(_._2)
+    }).await()
+  }
+
+  def should_receive(body:String, topic:String=null, c:MqttClient=client) = {
+    val msg = c.connection.receive(5, HOURS);
+    expect(true)(msg!=null)
+    if(topic!=null) {
+      msg.getTopic should equal(topic)
+    }
+    msg.getPayload should equal(body.getBytes("UTF-8"))
+    msg.ack()
+  }
 
 }
 
-class MqttDestinationTest extends MqttTestSupport {
-  
+class MqttSessionTest extends MqttTestSupport {
+  test("Connect establishes session") {
+    get_session_count should be(0)
+    connect()
+    get_session_count should be(1)
+    client.disconnect()
+    get_session_count should be(0)
+  }
+}
+
+class MqttCleanSessionTest extends MqttTestSupport {
+
   test("Publish") {
     connect()
     publish("test", "message", EXACTLY_ONCE)
@@ -133,37 +178,106 @@ class MqttDestinationTest extends MqttTestSupport {
     }
   }
 
-  def get_session_count = {
-    (MqttSessionManager.queue.future {
-      MqttSessionManager.sessions.size
-    }).await()
-  }
-  
-  def find_session(id:String) = {
-    val t = new UTF8Buffer(id)
-    (MqttSessionManager.queue.future {
-      MqttSessionManager.sessions.find(_._1.client_id == t).map(_._2)
-    }).await()
-  }
-  
   test("Subscribe") {
-    get_session_count should be(0)
-    client.setClientId("c#1");
     connect()
-    get_session_count should be(1)
-
     subscribe("foo")
-    publish("foo", "#1", EXACTLY_ONCE)
-    val msg = client.connection.receive();
-    msg.getTopic should equal("foo")
-    msg.getPayload should equal ("#1".getBytes("UTF-8"))
-    msg.ack()
-    client.close()
+    publish("foo", "1", EXACTLY_ONCE)
+    should_receive("1", "foo")
+  }
 
-    get_session_count should be(0)
+  test("Subscribing wiht multi-level wildcard") {
+    connect()
+    subscribe("mwild/#")
+    publish("mwild", "1", EXACTLY_ONCE)
+    // Should not match
+    publish("mwild.", "2", EXACTLY_ONCE)
+    publish("mwild/hello", "3", EXACTLY_ONCE)
+    publish("mwild/hello/world", "4", EXACTLY_ONCE)
+
+    for( i <- List(("mwild", "1"), ("mwild/hello","3"), ("mwild/hello/world","4")) ) {
+      should_receive(i._2, i._1)
+    }
+  }
+
+  test("Subscribing with single-level wildcard") {
+    connect()
+    subscribe("swild/+")
+    // Should not a match
+    publish("swild", "1", EXACTLY_ONCE)
+    publish("swild/hello", "2", EXACTLY_ONCE)
+    // Should not match..
+    publish("swild/hello/world", "3", EXACTLY_ONCE)
+    // Should match. so.cool is only one level, but STOMP would treat it like 2,
+    // Lets make sure Apollo's STOMP support does not mess with us.
+    publish("swild/so.cool", "4", EXACTLY_ONCE)
+
+    for( i <- List(("swild/hello", "2"), ("swild/so.cool","4")) ) {
+      should_receive(i._2, i._1)
+    }
+  }
+
+  test("Subscribing to overlapping topics") {
+    connect()
+    subscribe("overlap/#")
+    subscribe("overlap/a/b")
+    subscribe("overlap/a/+")
+
+    // This is checking that we don't get duplicate messages
+    // due to the overlapping nature of the subscriptions.
+    publish("overlap/a/b", "1", EXACTLY_ONCE)
+    should_receive("1", "overlap/a/b")
+    publish("overlap/a", "2", EXACTLY_ONCE)
+    should_receive("2", "overlap/a")
+    publish("overlap/a/b", "3", EXACTLY_ONCE)
+    should_receive("3", "overlap/a/b")
+
+    // Dropping subscriptions should not affect us while there
+    // is still a matching sub left.
+    unsubscribe("overlap/#")
+    publish("overlap/a/b", "4", EXACTLY_ONCE)
+    should_receive("4", "overlap/a/b")
+
+    unsubscribe("overlap/a/b")
+    publish("overlap/a/b", "5", EXACTLY_ONCE)
+    should_receive("5", "overlap/a/b")
+
+    // Drop the last subscription.. but setup root sub we can test
+    // without using timeouts.
+    publish("foo", "6", EXACTLY_ONCE) // never did match
+    unsubscribe("overlap/a/+")
+    publish("overlap/a/b", "7", EXACTLY_ONCE) // should not match anymore.
+
+    // Send a message through to flush everything out and verify none of the other
+    // are getting routed to us.
+    println("subscribing...")
+    subscribe("#")
+    println("publishinng...")
+    publish("foo", "8", EXACTLY_ONCE)
+    println("receiving...")
+    should_receive("8", "foo")
+
   }
 
 }
+
+class MqttExistingSessionTest extends MqttTestSupport {
+  client.setCleanSession(false);
+  client.setClientId("default")
+
+  test("Subscribe is remembered on existing sessions.") {
+    connect()
+    subscribe("existing/sub")
+
+    // reconnect...
+    disconnect()
+    connect()
+
+    // The subscribe should still be remembered.
+    publish("existing/sub", "1", EXACTLY_ONCE)
+    should_receive("1", "existing/sub")
+  }
+}
+
 //
 //class MqttConnectionTest extends MqttTestSupport {
 //

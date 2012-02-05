@@ -27,5 +27,6 @@
   </virtual_host>
 
   <connector id="tcp" protocol="mqtt" bind="tcp://0.0.0.0:0"/>
+  <web_admin bind="http://0.0.0.0:61680"/>
 
 </broker>
