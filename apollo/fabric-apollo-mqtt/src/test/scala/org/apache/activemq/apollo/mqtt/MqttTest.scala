@@ -29,7 +29,9 @@ import org.fusesource.mqtt.client._
 import QoS._
 import org.apache.activemq.apollo.dto.TopicStatusDTO
 import java.util.concurrent.TimeUnit._
-import org.fusesource.hawtbuf.UTF8Buffer
+import org.fusesource.stomp.codec.StompFrame
+import org.fusesource.stomp.client.{Constants, Stomp}
+import org.fusesource.hawtbuf.{Buffer, UTF8Buffer}
 
 class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAndAfterEach with Logging {
   var broker: Broker = null
@@ -144,7 +146,7 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
     if(topic!=null) {
       msg.getTopic should equal(topic)
     }
-    msg.getPayload should equal(body.getBytes("UTF-8"))
+    new String(msg.getPayload, "UTF-8") should equal(body)
     msg.ack()
   }
 
@@ -349,5 +351,52 @@ class MqttQosTest extends MqttTestSupport {
         }
       }
     }
+  }
+}
+
+
+class MqttStompInteropTest extends MqttTestSupport {
+  import Constants._
+  import Buffer._
+
+  test("MQTT to STOMP via topic") {
+    val stomp = new Stomp("localhost", port).connectFuture().await()
+
+    // Setup the STOMP subscription.
+    val subscribe = new StompFrame(SUBSCRIBE)
+    subscribe.addHeader(ID, ascii("0"))
+    subscribe.addHeader(DESTINATION, ascii("/topic/mqtt.to.stomp"))
+    stomp.send(subscribe)
+
+    // Send from MQTT.
+    connect()
+    publish("mqtt/to/stomp", "Hello World", AT_LEAST_ONCE)
+
+    val frame = stomp.receive().await(5, SECONDS)
+    expect(true, "receive timeout")(frame!=null)
+    frame.action().toString should be(MESSAGE.toString)
+    frame.contentAsString() should be("Hello World")
+
+  }
+
+  test("STOMP to MQTT via topic") {
+    connect()
+    subscribe("stomp/to/mqtt")
+
+    val stomp = new Stomp("localhost", port).connectFuture().await()
+    val send = new StompFrame(SEND)
+    send.addHeader(DESTINATION, ascii("/topic/stomp.to.mqtt"))
+    send.addHeader(MESSAGE_ID, ascii("test"))
+    send.content(ascii("Hello World"))
+    stomp.send(send)
+
+    should_receive(
+      "MESSAGE\n" +
+      "content-length:11\n" +
+      "message-id:test\n" +
+      "destination:/topic/stomp.to.mqtt\n" +
+      "\n" +
+      "Hello World",
+      "stomp/to/mqtt")
   }
 }

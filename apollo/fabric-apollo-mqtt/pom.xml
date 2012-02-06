@@ -88,6 +88,12 @@
       <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>apollo-stomp</artifactId>
+      <version>${apollo-version}</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty.aggregate</groupId>
@@ -103,6 +109,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.fusesource.stompjms</groupId>
+      <artifactId>stompjms-client</artifactId>
+      <version>1.8</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>

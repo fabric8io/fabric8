@@ -21,12 +21,13 @@
 
   <virtual_host id="default" purge_on_startup="true" auto_create_queues="true">
     <host_name>localhost</host_name>
+    <host_name>127.0.0.1</host_name>
 
     <queue name="unified.**" unified="true"/>
 
   </virtual_host>
 
-  <connector id="tcp" protocol="mqtt" bind="tcp://0.0.0.0:0"/>
+  <connector id="tcp" bind="tcp://0.0.0.0:0"/>
   <web_admin bind="http://0.0.0.0:61680"/>
 
 </broker>

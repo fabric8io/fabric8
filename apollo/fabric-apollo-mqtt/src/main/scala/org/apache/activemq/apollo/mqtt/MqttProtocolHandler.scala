@@ -860,6 +860,8 @@ case class MqttSession(session_key:SessionKey) {
 
   }
 
+  var publish_body = false
+
   object mqtt_consumer extends BaseRetained with DeliveryConsumer {
     
     override def toString = "mqtt client:"+client_id+" remote address: "+security_context.remote_address
@@ -922,7 +924,16 @@ case class MqttSession(session_key:SessionKey) {
             publish.dup(true)
           }
 
-          publish.payload(delivery.message.getBodyAs(classOf[Buffer]))
+          if( delivery.message.protocol eq MqttProtocol ) {
+            publish.payload(delivery.message.asInstanceOf[MqttMessage].payload)
+          } else {
+            if( publish_body ) {
+              publish.payload(delivery.message.getBodyAs(classOf[Buffer]))
+            } else {
+              publish.payload(delivery.message.encoded)
+            }
+          }
+
 
           if (delivery.ack!=null && (qos ne AT_MOST_ONCE)) {
             publish.qos(qos)
