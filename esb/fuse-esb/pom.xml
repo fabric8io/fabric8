@@ -166,6 +166,7 @@
 
                                 <!-- FuseSource only : Fabric -->
                                 <feature>fabric-bundle</feature>
+                                <feature>fuse-patch</feature>
                             </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
