@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
@@ -18,6 +18,7 @@ package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.VersionSequence;
 import org.fusesource.fabric.service.FabricServiceImpl;
 
 import java.util.Arrays;
@@ -26,10 +27,12 @@ public class VersionImpl implements Version {
 
     private final String name;
     private final FabricServiceImpl service;
+    private final VersionSequence sequence;
 
     public VersionImpl(String name, FabricServiceImpl service) {
         this.name = name;
         this.service = service;
+        this.sequence = new VersionSequence(name);
     }
 
     @Override
@@ -38,8 +41,36 @@ public class VersionImpl implements Version {
     }
 
     @Override
+    public VersionSequence getSequence() {
+        return sequence;
+    }
+
+    @Override
+    public int compareTo(Version that) {
+        return this.sequence.compareTo(that.getSequence());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        VersionImpl version = (VersionImpl) o;
+
+        if (name != null ? !name.equals(version.name) : version.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
     public Version getDerivedFrom() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        // TODO how to find the derived from???
+        return null;
     }
 
     @Override

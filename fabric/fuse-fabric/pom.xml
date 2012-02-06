@@ -30,7 +30,7 @@
     <description>Fuse Fabric :: Binary Distribution</description>
 
        <prerequisites>
-           <maven>2.2.1</maven>
+           <maven>3.0.2</maven>
        </prerequisites>
 
        <dependencies>

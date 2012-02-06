@@ -17,32 +17,32 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "profile-list", scope = "fabric", description = "List existing profiles")
-public class ProfileList extends FabricCommand {
-
-    @Option(name = "--version")
-    private String version;
+@Command(name = "version-list", scope = "fabric", description = "List existing versions")
+public class VersionList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-        Profile[] profiles = ver.getProfiles();
-        printProfiles(profiles, System.out);
+        Version[] versions = fabricService.getVersions();
+        printVersions(versions, fabricService.getDefaultVersion(), System.out);
         return null;
     }
 
-    protected void printProfiles(Profile[] profiles, PrintStream out) {
-        out.println(String.format("%-40s %s", "[id]", "[parents]"));
-        for (Profile profile : profiles) {
-            out.println(String.format("%-40s %s", profile.getId(), toString(profile.getParents())));
+    protected void printVersions(Version[] versions, Version defaultVersion, PrintStream out) {
+        out.println(String.format("%-30s %-9s", "[version]", "[default]"));
+
+        // they are sorted in the correct order by default
+        for (Version version : versions) {
+            boolean isDefault = defaultVersion.getName().equals(version.getName());
+            out.println(String.format("%-30s %-9s", version.getName(), (isDefault ? "true" : "false")));
         }
     }
-
 }

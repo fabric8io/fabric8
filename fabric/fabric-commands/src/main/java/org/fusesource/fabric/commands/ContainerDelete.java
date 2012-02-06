@@ -29,11 +29,11 @@ public class ContainerDelete extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        Container container = fabricService.getContainer(name);
-        if( container ==null ) {
-            throw new IllegalArgumentException("Container does not exist: "+name);
+        Container found = getContainer(name);
+        if (found == null) {
+            throw new IllegalArgumentException("Container " + name + " does not exist.");
         }
-        container.destroy();
+        found.destroy();
         return null;
     }
 

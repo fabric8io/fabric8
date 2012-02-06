@@ -20,6 +20,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -31,7 +32,7 @@ public class Join extends OsgiCommandSupport {
 
     ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     @Argument(required = true, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;

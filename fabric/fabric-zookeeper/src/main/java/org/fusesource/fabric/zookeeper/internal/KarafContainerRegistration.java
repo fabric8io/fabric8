@@ -32,6 +32,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
@@ -103,7 +104,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
             }
             zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getLocalHostAddress(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
-            String version = System.getProperty("fabric.version", "base");
+            String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
             String profiles = System.getProperty("fabric.profiles");
 
             if (profiles != null) {

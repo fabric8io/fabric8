@@ -21,6 +21,7 @@ import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.junit.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -153,7 +154,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
 
     private Hashtable<String, String> getDefaultConfig() {
         Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put("versionName", "base");
+        properties.put("versionName", ZkDefs.DEFAULT_VERSION);
         properties.put("profileName", "test-gateway");
         properties.put("inboundDestinationsRef", "upstream");
         properties.put("outboundDestinationsRef", "downstream");

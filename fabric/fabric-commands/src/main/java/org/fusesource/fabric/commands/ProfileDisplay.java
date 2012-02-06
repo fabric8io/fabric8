@@ -24,6 +24,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.Map;
 public class ProfileDisplay extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     @Option(name = "--overlay", aliases = "-o")
     private Boolean overlay = false;

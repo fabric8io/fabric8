@@ -23,10 +23,11 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
-    protected String version = "base";
+    protected String version = ZkDefs.DEFAULT_VERSION;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s)")
     protected List<String> profiles;
     @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")
@@ -62,19 +63,19 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         // validate profiles exists before creating a new container
         List<String> names = getProfileNames();
         for (String profile : names) {
-            if (!hasProfile(profiles, profile)) {
-                throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist");
+            if (!hasProfile(profiles, profile, ver)) {
+                throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
             }
         }
     }
 
-    private static boolean hasProfile(Profile[] profiles, String name) {
+    private static boolean hasProfile(Profile[] profiles, String name, Version version) {
         if (profiles == null || profiles.length == 0) {
             return false;
         }
 
         for (Profile profile : profiles) {
-            if (profile.getId().equals(name)) {
+            if (profile.getId().equals(name) && profile.getVersion().equals(version.getName())) {
                 return true;
             }
         }

@@ -16,10 +16,6 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
 
@@ -58,8 +54,6 @@ public class Create extends ZooKeeperCommandSupport {
     @Argument(index = 1, required = false, description = "Data for the node, or url if 'import' option is used")
     String data;
 
-
-
     @Override
     protected Object doExecute() throws Exception {
         List<ACL> acls = acl == null ? ZooDefs.Ids.OPEN_ACL_UNSAFE : parseACLs(acl);
@@ -87,7 +81,7 @@ public class Create extends ZooKeeperCommandSupport {
                 getZooKeeper().create(path, nodeData, acls, mode);
             }
         } catch (KeeperException.NodeExistsException e) {
-            if(overwrite) {
+            if (overwrite) {
                 getZooKeeper().setData(path, nodeData);
             } else {
                 throw e;

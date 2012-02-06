@@ -21,6 +21,7 @@ import org.apache.karaf.shell.console.completer.StringsCompleter;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class ProfileCompleter implements Completer {
             versionName = defaultVersion.getName();
         }
         if (versionName == null) {
-            versionName = "base";
+            versionName = ZkDefs.DEFAULT_VERSION;
         }
         Profile[] profiles = fabricService.getProfiles(versionName);
         for (Profile profile : profiles) {
