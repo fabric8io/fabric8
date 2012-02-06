@@ -17,6 +17,10 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Version;
@@ -28,15 +32,32 @@ public class VersionList extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         Version[] versions = fabricService.getVersions();
-        printVersions(versions, System.out);
+        printVersions(versions, fabricService.getDefaultVersion(), System.out);
         return null;
     }
 
-    protected void printVersions(Version[] versions, PrintStream out) {
-        out.println(String.format("%-30s", "[version]"));
+    protected void printVersions(Version[] versions, Version defaultVersion, PrintStream out) {
+        out.println(String.format("%-30s %-9s", "[version]", "[default]"));
+
+        // we want to sort the versions
+        List<Version> list = new ArrayList<Version>(versions.length);
         for (Version version : versions) {
-            out.println(String.format("%-30s", version.getName()));
+            list.add(version);
+        }
+        Collections.sort(list, new VersionComparator());
+
+        for (Version version : list) {
+            boolean isDefault = defaultVersion.getName().equals(version.getName());
+            out.println(String.format("%-30s %-9s", version.getName(), (isDefault ? "true" : "false")));
         }
     }
+    
+    private static final class VersionComparator implements Comparator<Version> {
+        
+        @Override
+        public int compare(Version oldVersion, Version newVersion) {
+            return oldVersion.getName().compareToIgnoreCase(newVersion.getName());
+        }
+    } 
 
 }
