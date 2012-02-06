@@ -274,6 +274,15 @@ class MqttCleanSessionTest extends MqttTestSupport {
     should_receive("2", "notretained")
   }
 
+  test("You can clear out topic's retained message, by sending a retained empty message.") {
+    connect()
+    publish("clearretained", "1", AT_LEAST_ONCE, true)
+    publish("clearretained", "", AT_LEAST_ONCE, true)
+    subscribe("clearretained")
+    publish("clearretained", "2", AT_LEAST_ONCE, false)
+    should_receive("2", "clearretained")
+  }
+
 }
 
 class MqttExistingSessionTest extends MqttTestSupport {
