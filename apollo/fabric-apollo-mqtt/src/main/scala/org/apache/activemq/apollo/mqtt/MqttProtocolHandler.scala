@@ -33,7 +33,6 @@ import java.io.IOException
 import org.apache.activemq.apollo.dto._
 import java.util.regex.Pattern
 import org.fusesource.mqtt.client.QoS._
-import org.fusesource.mqtt.codec.MessageSupport.Acked
 import store.StoreUOW
 import org.fusesource.mqtt.client.Topic
 import org.fusesource.mqtt.codec.CONNACK.Code._
@@ -46,8 +45,10 @@ import org.fusesource.mqtt.codec._
 import org.apache.activemq.apollo.mqtt.MqttSessionManager.SessionKey
 
 object MqttProtocolHandler extends Log {
-  case class Request(id:Short, message:MessageSupport.Message, cb: ()=>Unit) {
+  
+  case class Request(id:Short, message:MessageSupport.Message, ack:(DeliveryResult)=>Unit) {
     val frame = message.encode()
+    var delivered = false
   }
 
   def received[T](value:T):T = {
@@ -128,8 +129,9 @@ class MqttProtocolHandler extends ProtocolHandler {
     sink_manager = new SinkMux[Request]( connection.transport_sink.map { request=>
       trace("sent: %s", request.message)
       val frame = request.frame
-      if (request.id == 0 && request.cb != null) {
-        request.cb()
+      request.delivered = true
+      if (request.id == 0 && request.ack != null) {
+        request.ack(Consumed)
       }
       frame
     })
@@ -566,6 +568,17 @@ case class MqttSession(session_key:SessionKey) {
       }
     }
 
+    in_flight_publishes.values.foreach { request =>
+      if( request.ack!=null ) {
+        if(request.delivered) {
+          request.ack(Delivered)
+        } else {
+          request.ack(Undelivered)
+        }
+      }
+    }
+    in_flight_publishes.clear()
+    
     handler.sink_manager.close(mqtt_consumer.consumer_sink.downstream.get, (request)=>{})
     mqtt_consumer.consumer_sink.downstream = None
 
@@ -580,46 +593,28 @@ case class MqttSession(session_key:SessionKey) {
   // reconnect.
   //
   /////////////////////////////////////////////////////////////////////
-  var nextMessageId = 1.toShort;
-  var requests = HashMap[Short, Request]()
-  var processed: HashSet[Short] = new HashSet[Short]
-  def getNextMessageId() = {
-    val rc = nextMessageId
-    nextMessageId = (nextMessageId+1).toShort
-    if(nextMessageId==0) {
-      nextMessageId=1
-    }
-    rc
-  }
+
+  var in_flight_publishes = HashMap[Short, Request]()
+  var received_message_ids: HashSet[Short] = new HashSet[Short]
 
   def send(message: MessageSupport.Message): Unit = {
-    send(Request(0, message, null))
-  }
-  def send(message: Acked, cb: ()=>Unit=null): Unit = {
-    var id: Short = 0
-    if (message.qos ne AT_MOST_ONCE) {
-      id = getNextMessageId
-      message.messageId(id)
-    }
-    send(Request(id, message, cb))
-  }
-  def send(request: Request): Unit = {
     queue.assertExecuting()
-    if (request.id != 0) {
-      this.requests.put(request.id, request)
-    }
-    handler.connection_sink.offer(request)
+    handler.connection_sink.offer(Request(0, message, null))
   }
 
-  def request_completed(id: Short, originalType: Byte): Unit = {
+  def publish_completed(id: Short): Unit = {
     queue.assertExecuting()
-    val request = requests.remove(id).getOrElse(null)
-    if (request != null && originalType==request.frame.messageType) {
-      if (request.cb != null) {
-        request.cb()
-      }
-    } else {
-      handler.die("Message from client contained an invalid message id: " + id)
+    in_flight_publishes.remove(id) match {
+      case Some(request) =>
+        if ( request.ack != null ) {
+          request.ack(Consumed)
+        }
+      case None =>
+        // It's possible that on a reconnect, we get an ACK
+        // in for message that was not dispatched yet. store
+        // a place holder so we ack it upon the dispatch 
+        // attempt.
+        in_flight_publishes.put(id, Request(id, null, null))
     }
   }
 
@@ -640,13 +635,14 @@ case class MqttSession(session_key:SessionKey) {
 
         case PUBLISH.TYPE =>
           on_mqtt_publish(received(new PUBLISH().decode(command)))
+
         // This follows a Publish with QoS EXACTLY_ONCE
         case PUBREL.TYPE =>
           var ack = received(new PUBREL().decode(command))
-          processed.remove(ack.messageId)
-          val reponse: PUBCOMP = new PUBCOMP
-          reponse.messageId(ack.messageId)
-          send(reponse)
+          // TODO: perhaps persist the processed list.. otherwise
+          // we can't filter out dups after a broker restart.
+          received_message_ids.remove(ack.messageId)
+          send(new PUBCOMP.messageId(ack.messageId))
 
         case SUBSCRIBE.TYPE =>
           on_mqtt_subscribe(received(new SUBSCRIBE().decode(command)))
@@ -656,19 +652,17 @@ case class MqttSession(session_key:SessionKey) {
 
         // AT_LEAST_ONCE ack flow for a client subscription
         case PUBACK.TYPE =>
-          val ack: PUBACK = received(new PUBACK().decode(command))
-          request_completed(ack.messageId, PUBLISH.TYPE)
+          val ack = received(new PUBACK().decode(command))
+          publish_completed(ack.messageId, PUBLISH.TYPE)
 
         // EXACTLY_ONCE ack flow for a client subscription
         case PUBREC.TYPE =>
-          val ack: PUBREC = received(new PUBREC().decode(command))
-          val reponse: PUBREL = new PUBREL
-          reponse.messageId(ack.messageId)
-          send(reponse)
+          val ack = received(new PUBREC().decode(command))
+          send(new PUBREL.messageId(ack.messageId))
 
         case PUBCOMP.TYPE =>
           val ack: PUBCOMP = received(new PUBCOMP().decode(command))
-          request_completed(ack.messageId, PUBLISH.TYPE)
+          publish_completed(ack.messageId, PUBLISH.TYPE)
 
         case DISCONNECT.TYPE =>
           received(new DISCONNECT())
@@ -741,7 +735,8 @@ case class MqttSession(session_key:SessionKey) {
     }
 
     def exactly_once_ack(r:DeliveryResult, uow:StoreUOW):Unit = {
-      processed.add(publish.messageId)
+      // TODO: perhaps persist the processed list..
+      received_message_ids.add(publish.messageId)
       val response = new PUBREC
       response.messageId(publish.messageId)
       send(response)
@@ -753,7 +748,7 @@ case class MqttSession(session_key:SessionKey) {
       case AT_MOST_ONCE => null
     }
 
-    if( (publish.qos eq EXACTLY_ONCE) && processed.contains(publish.messageId)) {
+    if( (publish.qos eq EXACTLY_ONCE) && received_message_ids.contains(publish.messageId)) {
       ack(null, null)
       return
     }
@@ -875,7 +870,7 @@ case class MqttSession(session_key:SessionKey) {
       def mergeEvents(previous:(Int, Int), events:(Int, Int)) = mergeEvent(previous, events)
     }, dispatch_queue)
 
-    credit_window_source.setEventHandler(^ {
+    credit_window_source.setEventHandler(^{
       val data = credit_window_source.getData
       credit_window_filter.credit(data._1, data._2)
     });
@@ -884,18 +879,29 @@ case class MqttSession(session_key:SessionKey) {
     val consumer_sink = new MutableSink[Request]()
     consumer_sink.downstream = None
 
-    val credit_window_filter = new CreditWindowFilter[Delivery](consumer_sink.flatMap{ delivery =>
+    var next_seq_id = 1L
+    def get_next_seq_id = {
+      val rc = next_seq_id
+      next_seq_id += 1
+      rc
+    }
 
+    def to_message_id(value:Long):Short = (
+        0x8000 | // MQTT message ids cannot be zero, so we always set the highest bit.
+        (value & 0x7FFF) // the lower 15 bits come for the original seq id.
+      ).toShort
+
+    val credit_window_filter = new CreditWindowFilter[Delivery](consumer_sink.flatMap{ delivery =>
+      queue.assertExecuting()
+      
       // Look up which QoS we need to send this message with..
       var topic = delivery.sender.simple
       import collection.JavaConversions._
       addresses.get(topic).orElse(wildcards.get(topic.path).headOption) match {
           
         case None =>
-          // draining messages after an un-subscribe.
-          if( delivery.ack!=null ) {
-            delivery.ack(Undelivered, null)
-          }
+          // draining messages after an un-subscribe
+          acked(delivery)
           None
           
         case Some(qos) =>
@@ -909,25 +915,52 @@ case class MqttSession(session_key:SessionKey) {
 
           publish.payload(delivery.message.getBodyAs(classOf[Buffer]))
           publish.qos(qos)
-          if (qos ne AT_MOST_ONCE) {
-            val id = getNextMessageId
-            publish.messageId(id)
-            val request = Request(id, publish, ()=>{ acked(delivery) })
-            requests.put(id, request)
-            Some(request)
-          } else {
-            Some(Request(0, publish, ()=>{ acked(delivery) }))
-          }
 
+          if (delivery.ack!=null && qos ne AT_MOST_ONCE) {
+            val id = to_message_id(if(clean_session) {
+              get_next_seq_id // generate our own seq id.
+            } else {
+              delivery.seq // use the durable sub's seq id..
+            })
+
+            publish.messageId(id)
+            val request = Request(id, publish, (result)=>{acked(delivery, result)})
+            in_flight_publishes.put(id, request) match {
+              case Some(r) =>
+                // A reconnecting client could have acked before
+                // we get dispatched by the durable sub.
+                if( r.message == null ) {
+                  in_flight_publishes.remove(id)
+                  acked(delivery)
+                } else {
+                  // Looks we sent out a msg with that id.  This could only
+                  // happen once we send out 0x7FFF message and the first
+                  // one has not been acked.
+                  handler.async_die("Client not acking regularly.", null)
+                }
+              case None =>
+            }
+            
+            Some(request)
+
+          } else {
+            // This callback gets executed once the message
+            // sent to the transport.
+            Some(Request(0, publish, (result)=>{ acked(delivery, result) }))
+          }
       }
       
     }, Delivery)
 
-    def acked(delivery:Delivery) = {
+    def acked(delivery:Delivery, result:DeliveryResult) = {
+      queue.assertExecuting()
       credit_window_source.merge((delivery.size, 1))
+      if( delivery.ack!=null ) {
+        delivery.ack(result, null)
+      }
     }
-
-    credit_window_filter.credit(handler.codec.getWriteBufferSize, 1)
+    
+    credit_window_filter.credit(handler.codec.getWriteBufferSize*2, 1)
 
     val session_manager = new SessionSinkMux[Delivery](credit_window_filter, queue, Delivery) {
       override def time_stamp = host.broker.now

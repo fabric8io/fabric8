@@ -22,7 +22,6 @@ import org.scalatest.BeforeAndAfterEach
 import java.lang.String
 import org.fusesource.hawtdispatch._
 import org.fusesource.hawtbuf.Buffer._
-import java.util.concurrent.TimeUnit._
 import java.net.InetSocketAddress
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.util._
@@ -278,30 +277,29 @@ class MqttExistingSessionTest extends MqttTestSupport {
   }
 }
 
-//
-//class MqttConnectionTest extends MqttTestSupport {
-//
-//  test("MQTT CONNECT") {
-//    client.open("localhost", port)
-//  }
-//
-//  test("MQTT Broker times out idle connection") {
-//
-//    val queue = createQueue("test")
-//
-//    client.setKeepAlive(1)
-//    client.setDispatchQueue(queue)
-//    client.setReconnectAttemptsMax(0)
-//    client.setDispatchQueue(queue);
-//    client.open("localhost", port)
-//
-//    client.connection.isConnected should be(true)
-//    queue.suspend() // this will cause the client to hang
-//    Thread.sleep(1000*2);
-//    queue.resume()
-//    within(1, SECONDS) {
-//      client.connection.isConnected should be(false)
-//    }
-//  }
-//
-//}
+class MqttConnectionTest extends MqttTestSupport {
+
+  test("MQTT CONNECT") {
+    client.open("localhost", port)
+  }
+
+  test("MQTT Broker times out idle connection") {
+
+    val queue = createQueue("test")
+
+    client.setKeepAlive(1)
+    client.setDispatchQueue(queue)
+    client.setReconnectAttemptsMax(0)
+    client.setDispatchQueue(queue);
+    client.open("localhost", port)
+
+    client.connection.isConnected should be(true)
+    queue.suspend() // this will cause the client to hang
+    Thread.sleep(1000*2);
+    queue.resume()
+    within(1, SECONDS) {
+      client.connection.isConnected should be(false)
+    }
+  }
+
+}
