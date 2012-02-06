@@ -21,30 +21,23 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 @Command(name = "version-create", scope = "fabric", description = "Create a new version")
 public class VersionCreate extends FabricCommand {
 
-    @Option(name = "--parent")
+    @Option(name = "--parent", description = "The parent version (will default use latest version as parent)")
     private String parentVersion;
 
     @Argument(index = 0, required = false)
     private String name;
 
-         
     @Override
     protected Object doExecute() throws Exception {
-        Version[] versions = fabricService.getVersions();
         Version latestVersion = null;
+
+        Version[] versions = fabricService.getVersions();
         int vlength = versions.length;
-        if (versions != null && vlength > 0) {
+        if (vlength > 0) {
             latestVersion = versions[vlength - 1];
         }
         if (name == null) {
@@ -53,7 +46,8 @@ public class VersionCreate extends FabricCommand {
             }
             name = latestVersion.getSequence().next().getName();
         }
-        Version parent = null;
+
+        Version parent;
         if (parentVersion == null) {
             parent = latestVersion;
             // TODO we maybe want to choose the version which is less than the 'name' if it was specified
@@ -68,7 +62,7 @@ public class VersionCreate extends FabricCommand {
             fabricService.createVersion(parent, name);
             System.out.println("Created version: " + name + " as copy of: " + parent.getName());
         } else {
-            fabricService.createVersion( name);
+            fabricService.createVersion(name);
             System.out.println("Created version: " + name);
         }
         return null;
