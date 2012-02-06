@@ -62,19 +62,19 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         // validate profiles exists before creating a new container
         List<String> names = getProfileNames();
         for (String profile : names) {
-            if (!hasProfile(profiles, profile)) {
+            if (!hasProfile(profiles, profile, ver)) {
                 throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist");
             }
         }
     }
 
-    private static boolean hasProfile(Profile[] profiles, String name) {
+    private static boolean hasProfile(Profile[] profiles, String name, Version version) {
         if (profiles == null || profiles.length == 0) {
             return false;
         }
 
         for (Profile profile : profiles) {
-            if (profile.getId().equals(name)) {
+            if (profile.getId().equals(name) && profile.getVersion().equals(version.getName())) {
                 return true;
             }
         }

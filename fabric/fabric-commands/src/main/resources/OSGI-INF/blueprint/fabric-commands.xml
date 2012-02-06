@@ -203,6 +203,12 @@
               <null/>
           </completers>
         </command>
+
+        <command name="fabric/version-list">
+          <action class="org.fusesource.fabric.commands.VersionList">
+            <property name="fabricService" ref="fabricService"/>
+          </action>
+        </command>
     </command-bundle>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.commands.support.ContainerCompleter">
