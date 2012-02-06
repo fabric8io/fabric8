@@ -21,6 +21,7 @@
     <groupId>org.fusesource.fabric.apollo</groupId>
     <artifactId>fabric-apollo-project</artifactId>
     <version>1.2-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -32,10 +33,6 @@
 
   <name>${project.artifactId}</name>
   <description>Fuse Fabric :: Apollo AMQP Modules</description>
-
-  <prerequisites>
-    <maven>2.1.0</maven>
-  </prerequisites>
 
   <!--
   <properties>

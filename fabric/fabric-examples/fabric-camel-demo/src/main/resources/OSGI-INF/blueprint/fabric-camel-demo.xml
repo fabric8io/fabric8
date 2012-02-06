@@ -24,7 +24,7 @@
     <camelContext id="fabric-camel-demo" xmlns="http://camel.apache.org/schema/blueprint">
 
         <route>
-            <from uri="timer://foo?fixedRate=true&amp;period=5s"/>
+            <from uri="timer://foo?period=5s"/>
             <setBody>
                 <simple>Fabric Camel Example: ${date:now:hh:MM:ss.SSS})</simple>
             </setBody>

@@ -21,6 +21,7 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-zookeeper</artifactId>
