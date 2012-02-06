@@ -761,6 +761,7 @@ case class MqttSession(session_key:SessionKey) {
       delivery.message = MqttMessage(persistent, publish.payload)
       delivery.size = publish.payload.length
       delivery.ack = ack
+      delivery.retain = publish.retain()
 
       // routes can always accept at least 1 delivery...
       assert( !route.full )

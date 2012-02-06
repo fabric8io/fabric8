@@ -257,6 +257,23 @@ class MqttCleanSessionTest extends MqttTestSupport {
 
   }
 
+  test("Retained Messages are retained") {
+    connect()
+    publish("retained", "1", AT_LEAST_ONCE, false)
+    publish("retained", "2", AT_LEAST_ONCE, true)
+    publish("retained", "3", AT_LEAST_ONCE, false)
+    subscribe("retained")
+    should_receive("2", "retained")
+  }
+
+  test("Non-retained Messages are not retained") {
+    connect()
+    publish("notretained", "1", AT_LEAST_ONCE, false)
+    subscribe("notretained")
+    publish("notretained", "2", AT_LEAST_ONCE, false)
+    should_receive("2", "notretained")
+  }
+
 }
 
 class MqttExistingSessionTest extends MqttTestSupport {
@@ -309,14 +326,18 @@ class MqttQosTest extends MqttTestSupport {
   //
   // Lets make sure we can publish and subscribe with all the QoS combinations.
   //
-  for(send_qos <- List(AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE)) {
-    for(receive_qos <- List(AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE)) {
-      test("Publish "+send_qos+" and subscribe "+receive_qos) {
-        val topic = "qos/"+send_qos+"/"+receive_qos
-        connect()
-        subscribe(topic, receive_qos)
-        publish(topic, "1", send_qos)
-        should_receive("1", topic)
+  for(clean <- List(true, false)) {
+    for(send_qos <- List(AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE)) {
+      for(receive_qos <- List(AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE)) {
+        test("Publish "+send_qos+" and subscribe "+receive_qos+" on clean session: "+clean) {
+          val topic = "qos/"+send_qos+"/"+receive_qos+"/"+clean
+          client.setClientId(topic)
+          client.setCleanSession(clean)
+          connect()
+          subscribe(topic, receive_qos)
+          publish(topic, "1", send_qos)
+          should_receive("1", topic)
+        }
       }
     }
   }
