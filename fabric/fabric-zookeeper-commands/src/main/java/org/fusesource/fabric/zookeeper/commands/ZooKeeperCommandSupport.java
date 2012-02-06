@@ -21,15 +21,12 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
-import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
 
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 

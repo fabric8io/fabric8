@@ -26,7 +26,7 @@ public class Delete extends ZooKeeperCommandSupport {
     @Option(name = "-v", aliases = {"--version "}, description = "Version to delete")
     int version = -1;
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "Automatically create parents")
+    @Option(name = "-r", aliases = {"--recursive"}, description = "Automatically delete parents")
     boolean recursive;
 
     @Argument(description = "Path of the node to delete")

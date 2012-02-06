@@ -28,11 +28,11 @@ public class ContainerStop extends FabricCommand {
     private String container = null;
 
     protected Object doExecute() throws Exception {
-        Container a = fabricService.getContainer(container);
-        if (a == null) {
+        Container found = getContainer(container);
+        if (found == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        a.stop();
+        found.stop();
         return null;
     }
 

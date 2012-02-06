@@ -64,7 +64,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         List<String> names = getProfileNames();
         for (String profile : names) {
             if (!hasProfile(profiles, profile, ver)) {
-                throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist");
+                throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
             }
         }
     }

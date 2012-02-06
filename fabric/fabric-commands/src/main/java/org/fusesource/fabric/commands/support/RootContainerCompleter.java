@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.fabric.commands.support;
 
 import org.fusesource.fabric.api.Container;

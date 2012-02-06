@@ -52,11 +52,11 @@ public class ContainerConnect extends FabricCommand {
             cmdStr = "'" + sb.toString().replaceAll("'", "\\'") + "'";
         }
 
-        Container a = fabricService.getContainer(container);
-        if (a == null) {
+        Container found = getContainer(container);
+        if (found == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        String sshUrl = a.getSshUrl();
+        String sshUrl = found.getSshUrl();
         if (sshUrl == null) {
             throw new IllegalArgumentException("Container " + container + " has no SSH URL.");
         }
