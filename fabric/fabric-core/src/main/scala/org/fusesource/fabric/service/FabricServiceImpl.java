@@ -548,6 +548,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             for (String child : children) {
                 versions.add(new VersionImpl(child, this));
             }
+            Collections.sort(versions);
             return versions.toArray(new Version[versions.size()]);
         } catch (Exception e) {
             throw new FabricException(e);
