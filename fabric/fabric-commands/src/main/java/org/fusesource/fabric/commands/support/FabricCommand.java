@@ -16,14 +16,15 @@
  */
 package org.fusesource.fabric.commands.support;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.linkedin.zookeeper.client.IZKClient;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
@@ -85,11 +86,27 @@ public abstract class FabricCommand extends OsgiCommandSupport {
                 }
             }
             if (profile == null) {
-                throw new IllegalArgumentException("Profile not found: " + name);
+                throw new IllegalArgumentException("Profile " + name + " not found.");
             }
             profiles.add(profile);
         }
         return profiles.toArray(new Profile[profiles.size()]);
+    }
+
+    /**
+     * Gets the container by the given name
+     *
+     * @param name the name of the container
+     * @return the found container, or <tt>null</tt> if not found
+     */
+    protected Container getContainer(String name) {
+        Container[] containers = fabricService.getContainers();
+        for (Container container : containers) {
+            if (container.getId().equals(name)) {
+                return container;
+            }
+        }
+        return null;
     }
 
 }

@@ -14,15 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.fabric.commands;
+
+import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
-
-import java.util.List;
 
 @Command(name = "container-domains", scope = "fabric", description = "Lists the JMX domains an container has")
 public class ContainerDomains extends FabricCommand {
@@ -31,11 +30,12 @@ public class ContainerDomains extends FabricCommand {
     private String container = null;
 
     protected Object doExecute() throws Exception {
-        Container a = fabricService.getContainer(container);
-        if (a == null) {
+        Container found = getContainer(container);
+        if (found == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        List<String> domains = a.getJmxDomains();
+
+        List<String> domains = found.getJmxDomains();
         for (String domain : domains) {
             System.out.println(domain);
         }
