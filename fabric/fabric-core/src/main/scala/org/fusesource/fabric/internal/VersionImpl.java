@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
