@@ -154,15 +154,73 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
 
 class MqttSessionTest extends MqttTestSupport {
   test("Connect establishes session") {
-    get_session_count should be(0)
+    val start = get_session_count
     connect()
-    get_session_count should be(1)
+    get_session_count should be(start+1)
     client.disconnect()
-    get_session_count should be(0)
+    get_session_count should be(start)
   }
 }
 
 class MqttCleanSessionTest extends MqttTestSupport {
+
+  test("Subscribing to overlapping topics") {
+    connect()
+    subscribe("overlap/#")
+    subscribe("overlap/a/b")
+    subscribe("overlap/a/+")
+
+    // This is checking that we don't get duplicate messages
+    // due to the overlapping nature of the subscriptions.
+    publish("overlap/a/b", "1", EXACTLY_ONCE)
+    should_receive("1", "overlap/a/b")
+    publish("overlap/a", "2", EXACTLY_ONCE)
+    should_receive("2", "overlap/a")
+    publish("overlap/a/b", "3", EXACTLY_ONCE)
+    should_receive("3", "overlap/a/b")
+
+    // Dropping subscriptions should not affect us while there
+    // is still a matching sub left.
+    unsubscribe("overlap/#")
+    publish("overlap/a/b", "4", EXACTLY_ONCE)
+    should_receive("4", "overlap/a/b")
+
+    unsubscribe("overlap/a/b")
+    publish("overlap/a/b", "5", EXACTLY_ONCE)
+    should_receive("5", "overlap/a/b")
+
+    // Drop the last subscription.. but setup root sub we can test
+    // without using timeouts.
+    publish("foo", "6", EXACTLY_ONCE) // never did match
+    unsubscribe("overlap/a/+")
+    publish("overlap/a/b", "7", EXACTLY_ONCE) // should not match anymore.
+
+    // Send a message through to flush everything out and verify none of the other
+    // are getting routed to us.
+    println("subscribing...")
+    subscribe("#")
+    println("publishinng...")
+    publish("foo", "8", EXACTLY_ONCE)
+    println("receiving...")
+    should_receive("8", "foo")
+
+  }
+
+  test("Will sent on disconnect") {
+
+    connect()
+    subscribe("will/foo")
+
+    val will_client = new MqttClient
+    will_client.setWillTopic("will/foo")
+    will_client.setWillQos(AT_LEAST_ONCE)
+    will_client.setWillRetain(true)
+    will_client.setWillMessage("1");
+    connect(will_client)
+    disconnect(will_client)
+
+    should_receive("1", "will/foo")
+  }
 
   test("Publish") {
     connect()
@@ -215,48 +273,6 @@ class MqttCleanSessionTest extends MqttTestSupport {
     for( i <- List(("swild/hello", "2"), ("swild/so.cool","4")) ) {
       should_receive(i._2, i._1)
     }
-  }
-
-  test("Subscribing to overlapping topics") {
-    connect()
-    subscribe("overlap/#")
-    subscribe("overlap/a/b")
-    subscribe("overlap/a/+")
-
-    // This is checking that we don't get duplicate messages
-    // due to the overlapping nature of the subscriptions.
-    publish("overlap/a/b", "1", EXACTLY_ONCE)
-    should_receive("1", "overlap/a/b")
-    publish("overlap/a", "2", EXACTLY_ONCE)
-    should_receive("2", "overlap/a")
-    publish("overlap/a/b", "3", EXACTLY_ONCE)
-    should_receive("3", "overlap/a/b")
-
-    // Dropping subscriptions should not affect us while there
-    // is still a matching sub left.
-    unsubscribe("overlap/#")
-    publish("overlap/a/b", "4", EXACTLY_ONCE)
-    should_receive("4", "overlap/a/b")
-
-    unsubscribe("overlap/a/b")
-    publish("overlap/a/b", "5", EXACTLY_ONCE)
-    should_receive("5", "overlap/a/b")
-
-    // Drop the last subscription.. but setup root sub we can test
-    // without using timeouts.
-    publish("foo", "6", EXACTLY_ONCE) // never did match
-    unsubscribe("overlap/a/+")
-    publish("overlap/a/b", "7", EXACTLY_ONCE) // should not match anymore.
-
-    // Send a message through to flush everything out and verify none of the other
-    // are getting routed to us.
-    println("subscribing...")
-    subscribe("#")
-    println("publishinng...")
-    publish("foo", "8", EXACTLY_ONCE)
-    println("receiving...")
-    should_receive("8", "foo")
-
   }
 
   test("Retained Messages are retained") {
@@ -366,7 +382,7 @@ class MqttStompInteropTest extends MqttTestSupport {
     val subscribe = new StompFrame(SUBSCRIBE)
     subscribe.addHeader(ID, ascii("0"))
     subscribe.addHeader(DESTINATION, ascii("/topic/mqtt.to.stomp"))
-    stomp.send(subscribe)
+    stomp.request(subscribe).await()
 
     // Send from MQTT.
     connect()
