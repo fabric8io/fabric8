@@ -47,7 +47,7 @@ import org.apache.activemq.apollo.mqtt.MqttSessionManager.SessionKey
 object MqttProtocolHandler extends Log {
   
   case class Request(id:Short, message:MessageSupport.Message, ack:(DeliveryResult)=>Unit) {
-    val frame = message.encode()
+    val frame = if(message==null) null else message.encode()
     var delivered = false
   }
 
@@ -55,6 +55,8 @@ object MqttProtocolHandler extends Log {
     trace("received: %s", value)
     value
   }
+
+  val WAITING_ON_CLIENT_REQUEST = ()=> "client request"
 }
 
 /**
@@ -185,15 +187,15 @@ class MqttProtocolHandler extends ProtocolHandler {
   //
   /////////////////////////////////////////////////////////////////////
 
-  var waiting_on:String = "client request"
-  def suspend_read(reason:String) = {
-    waiting_on = reason
+  var status = WAITING_ON_CLIENT_REQUEST
+  def suspend_read(reason: => String) = {
+    status = reason _
     connection.transport.suspendRead
     heart_beat_monitor.suspendRead
   }
 
   def resume_read() = {
-    waiting_on = "client request"
+    status = WAITING_ON_CLIENT_REQUEST
     connection.transport.resumeRead
     heart_beat_monitor.resumeRead
   }
@@ -239,7 +241,7 @@ class MqttProtocolHandler extends ProtocolHandler {
   def die[T](response:MessageSupport.Message):T = {
     if( !dead ) {
       dead = true
-      waiting_on = "shutdown"
+      status = ()=>"shuting down"
       if( response!=null ) {
         connection.transport.resumeRead
         connection_sink.offer(Request(0, response, null))
@@ -405,7 +407,7 @@ class MqttProtocolHandler extends ProtocolHandler {
     rc.protocol_version = "3.1"
 //    rc.user = client_id.toString
 //    rc.subscription_count = 0 // consumers.size
-    rc.waiting_on = waiting_on
+    rc.waiting_on = status()
     rc
   }
 
@@ -642,7 +644,7 @@ case class MqttSession(session_key:SessionKey) {
           // TODO: perhaps persist the processed list.. otherwise
           // we can't filter out dups after a broker restart.
           received_message_ids.remove(ack.messageId)
-          send(new PUBCOMP.messageId(ack.messageId))
+          send(new PUBCOMP().messageId(ack.messageId))
 
         case SUBSCRIBE.TYPE =>
           on_mqtt_subscribe(received(new SUBSCRIBE().decode(command)))
@@ -653,16 +655,16 @@ case class MqttSession(session_key:SessionKey) {
         // AT_LEAST_ONCE ack flow for a client subscription
         case PUBACK.TYPE =>
           val ack = received(new PUBACK().decode(command))
-          publish_completed(ack.messageId, PUBLISH.TYPE)
+          publish_completed(ack.messageId)
 
         // EXACTLY_ONCE ack flow for a client subscription
         case PUBREC.TYPE =>
           val ack = received(new PUBREC().decode(command))
-          send(new PUBREL.messageId(ack.messageId))
+          send(new PUBREL().messageId(ack.messageId))
 
         case PUBCOMP.TYPE =>
           val ack: PUBCOMP = received(new PUBCOMP().decode(command))
-          publish_completed(ack.messageId, PUBLISH.TYPE)
+          publish_completed(ack.messageId)
 
         case DISCONNECT.TYPE =>
           received(new DISCONNECT())
@@ -901,7 +903,7 @@ case class MqttSession(session_key:SessionKey) {
           
         case None =>
           // draining messages after an un-subscribe
-          acked(delivery)
+          acked(delivery, Consumed)
           None
           
         case Some(qos) =>
@@ -914,9 +916,9 @@ case class MqttSession(session_key:SessionKey) {
           }
 
           publish.payload(delivery.message.getBodyAs(classOf[Buffer]))
-          publish.qos(qos)
 
-          if (delivery.ack!=null && qos ne AT_MOST_ONCE) {
+          if (delivery.ack!=null && (qos ne AT_MOST_ONCE)) {
+            publish.qos(qos)
             val id = to_message_id(if(clean_session) {
               get_next_seq_id // generate our own seq id.
             } else {
@@ -931,7 +933,7 @@ case class MqttSession(session_key:SessionKey) {
                 // we get dispatched by the durable sub.
                 if( r.message == null ) {
                   in_flight_publishes.remove(id)
-                  acked(delivery)
+                  acked(delivery, Consumed)
                 } else {
                   // Looks we sent out a msg with that id.  This could only
                   // happen once we send out 0x7FFF message and the first
@@ -946,6 +948,7 @@ case class MqttSession(session_key:SessionKey) {
           } else {
             // This callback gets executed once the message
             // sent to the transport.
+            publish.qos(AT_MOST_ONCE)
             Some(Request(0, publish, (result)=>{ acked(delivery, result) }))
           }
       }

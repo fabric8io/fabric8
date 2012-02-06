@@ -303,3 +303,21 @@ class MqttConnectionTest extends MqttTestSupport {
   }
 
 }
+
+class MqttQosTest extends MqttTestSupport {
+
+  //
+  // Lets make sure we can publish and subscribe with all the QoS combinations.
+  //
+  for(send_qos <- List(AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE)) {
+    for(receive_qos <- List(AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE)) {
+      test("Publish "+send_qos+" and subscribe "+receive_qos) {
+        val topic = "qos/"+send_qos+"/"+receive_qos
+        connect()
+        subscribe(topic, receive_qos)
+        publish(topic, "1", send_qos)
+        should_receive("1", topic)
+      }
+    }
+  }
+}
