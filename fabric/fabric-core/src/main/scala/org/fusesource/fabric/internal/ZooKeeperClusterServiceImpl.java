@@ -40,7 +40,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private BundleContext bundleContext;
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     public void init() {
         Boolean autoStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART));

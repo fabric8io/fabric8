@@ -23,10 +23,11 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
-    protected String version = "base";
+    protected String version = ZkDefs.DEFAULT_VERSION;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s)")
     protected List<String> profiles;
     @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")

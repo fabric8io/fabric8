@@ -40,6 +40,7 @@ import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.cm.Configuration;
@@ -57,13 +58,10 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 public class FabricServiceImpl implements FabricService, FabricServiceImplMBean {
     private transient Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
-    public static final String DEFAULT_VERSION = "base";
-    private static final String DEFAULT_PROFILE = "default";
-
     private IZKClient zooKeeper;
     private Map<String, ContainerProvider> providers;
     private ConfigurationAdmin configurationAdmin;
-    private String profile = DEFAULT_PROFILE;
+    private String profile = ZkDefs.DEFAULT_PROFILE;
     private ObjectName mbeanName;
     private String userName = "admin";
     private String password = "admin";
@@ -495,7 +493,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                 version = zooKeeper.getStringData(ZkPath.CONFIG_DEFAULT_VERSION.getPath());
             }
             if (version == null || version.isEmpty()) {
-                version = DEFAULT_VERSION;
+                version = ZkDefs.DEFAULT_VERSION;
                 ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
                 ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSION.getPath(version), null);
             }
