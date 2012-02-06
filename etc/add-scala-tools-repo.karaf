@@ -23,6 +23,6 @@ mvn-add-repo = {
 
 echo Adding scala-tools repo
 mvn-add-repo http://scala-tools.org/repo-releases
-
-sleep 1000
+echo Waiting for scala-tools...
+sleep 5
 
