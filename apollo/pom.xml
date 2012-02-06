@@ -21,6 +21,7 @@
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
     <version>1.2-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
     
   <modelVersion>4.0.0</modelVersion>
@@ -34,7 +35,7 @@
   <description>Fuse Apollo :: Project</description>
 
   <prerequisites>
-    <maven>2.1.0</maven>
+    <maven>3.0.2</maven>
   </prerequisites>
 
   <properties>

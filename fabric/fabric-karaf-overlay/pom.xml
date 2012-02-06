@@ -21,7 +21,8 @@
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-karaf-overlay</artifactId>
@@ -29,11 +30,7 @@
     <name>${project.artifactId}</name>
     <description>Fuse Fabric :: Karaf Overlay</description>
 
-    <prerequisites>
-        <maven>2.0.9</maven>
-    </prerequisites>
-
-    <dependencies>
+     <dependencies>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>

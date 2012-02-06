@@ -17,10 +17,6 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Version;

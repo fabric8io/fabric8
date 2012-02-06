@@ -21,7 +21,8 @@
   <parent>
     <groupId>org.fusesource.fabric.fab.tests</groupId>
     <artifactId>tests-project</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <artifactId>fabric-core-itests</artifactId>
@@ -31,7 +32,7 @@
   <description>Fuse Fabric :: Archive Bundles :: Core Integration Tests</description>
 
   <properties>
-    <karaf-version>2.2.1</karaf-version>
+    <karaf-version>2.2.2</karaf-version>
   </properties>
 
   <dependencies>

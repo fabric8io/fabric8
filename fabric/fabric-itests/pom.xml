@@ -21,7 +21,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-project</artifactId>
     <version>1.2-SNAPSHOT</version>
-    <relativePath>../</relativePath>
+    <relativePath>..</relativePath>
   </parent>
 
     <groupId>org.fusesource.fabric.itests</groupId>

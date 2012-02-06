@@ -22,12 +22,11 @@
       <groupId>org.fusesource.fabric.itests</groupId>
       <artifactId>fabric-itests</artifactId>
       <version>1.2-SNAPSHOT</version>
-      <relativePath>../</relativePath>
+      <relativePath>..</relativePath>
   </parent>
 
     <artifactId>fabric-pax-exam</artifactId>
     <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
-    <version>1.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
