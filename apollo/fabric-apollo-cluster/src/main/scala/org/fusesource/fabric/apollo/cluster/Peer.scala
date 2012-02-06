@@ -270,7 +270,7 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   def create_connection_status(source:ClusterProtocolHandler) = {
     var rc = new ClusterConnectionStatusDTO
 
-    rc.waiting_on = source.waiting_on
+    rc.waiting_on = source.waiting_on()
     rc.node_id = id
     rc.exported_consumer_count = exported_consumers.size
     rc.imported_consumer_count = imported_consumers.size

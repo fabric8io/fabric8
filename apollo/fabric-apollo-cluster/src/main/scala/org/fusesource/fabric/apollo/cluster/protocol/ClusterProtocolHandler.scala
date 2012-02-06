@@ -26,7 +26,9 @@ import org.apache.activemq.apollo.broker.protocol.ProtocolHandler
 import org.fusesource.fabric.apollo.cluster.{ClusterConnector, Peer}
 import org.fusesource.hawtdispatch._
 
-object ClusterProtocolHandler extends Log
+object ClusterProtocolHandler extends Log {
+  val WAITING_ON_CLIENT_REQUEST = ()=> "client request"
+}
 
 /**
  * <p>
@@ -41,7 +43,7 @@ class ClusterProtocolHandler(var peer:Peer=null) extends ProtocolHandler {
 
   var closed = false
   var died = false
-  var waiting_on:String = "client request"
+  var waiting_on = WAITING_ON_CLIENT_REQUEST
   var transport_handler: (AnyRef)=>Unit = connecting_handler
 
   def session_id = None
@@ -69,20 +71,20 @@ class ClusterProtocolHandler(var peer:Peer=null) extends ProtocolHandler {
     if( !died  ) {
       died = true
       transport_handler = dead_handler
-      waiting_on = "shutdown"
+      waiting_on = ()=>"shutdown"
       connection.transport.resumeRead
       connection.stop()
     }
     throw new Break()
   }
 
-  def suspendRead(reason:String) = {
-    waiting_on = reason
+  def suspendRead(reason: =>String) = {
+    waiting_on = reason _
     connection.transport.suspendRead
   }
 
   def resumeRead() = {
-    waiting_on = "client request"
+    waiting_on = WAITING_ON_CLIENT_REQUEST
     connection.transport.resumeRead
   }
 
