@@ -39,25 +39,10 @@ public class VersionList extends FabricCommand {
     protected void printVersions(Version[] versions, Version defaultVersion, PrintStream out) {
         out.println(String.format("%-30s %-9s", "[version]", "[default]"));
 
-        // we want to sort the versions
-        List<Version> list = new ArrayList<Version>(versions.length);
+        // they are sorted in the correct order by default
         for (Version version : versions) {
-            list.add(version);
-        }
-        Collections.sort(list, new VersionComparator());
-
-        for (Version version : list) {
             boolean isDefault = defaultVersion.getName().equals(version.getName());
             out.println(String.format("%-30s %-9s", version.getName(), (isDefault ? "true" : "false")));
         }
     }
-    
-    private static final class VersionComparator implements Comparator<Version> {
-        
-        @Override
-        public int compare(Version oldVersion, Version newVersion) {
-            return oldVersion.getName().compareToIgnoreCase(newVersion.getName());
-        }
-    } 
-
 }
