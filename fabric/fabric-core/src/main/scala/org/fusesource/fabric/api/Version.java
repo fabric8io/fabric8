@@ -16,9 +16,11 @@
  */
 package org.fusesource.fabric.api;
 
-public interface Version {
+public interface Version extends Comparable<Version> {
 
     String getName();
+
+    VersionSequence getSequence();
 
     Version getDerivedFrom();
 
