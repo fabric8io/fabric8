@@ -25,7 +25,8 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "version-set", scope = "fabric", description = "Set the version to a container")
+@Command(name = "version-set", scope = "fabric", description = "Set the version to containers")
+@Deprecated
 public class VersionSet extends FabricCommand {
 
     @Argument(index = 0, name = "version", description = "The version to set to the container", required = true, multiValued = false)

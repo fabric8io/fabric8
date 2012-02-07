@@ -21,8 +21,6 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.VersionSequence;
 import org.fusesource.fabric.service.FabricServiceImpl;
 
-import java.util.Arrays;
-
 public class VersionImpl implements Version {
 
     private final String name;
@@ -93,4 +91,8 @@ public class VersionImpl implements Version {
         service.deleteVersion(name);
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

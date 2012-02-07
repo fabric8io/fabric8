@@ -139,6 +139,14 @@
               <null/>
           </completers>
       </command>
+      <command name="fabric/container-upgrade">
+        <action class="org.fusesource.fabric.commands.ContainerUpgrade">
+          <property name="fabricService" ref="fabricService"/>
+        </action>
+        <completers>
+          <ref component-id="containerCompleter"/>
+        </completers>
+      </command>
 
         <command name="fabric/container-domains">
             <action class="org.fusesource.fabric.commands.ContainerDomains">
