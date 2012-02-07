@@ -19,6 +19,7 @@ package org.fusesource.fabric.commands;
 import java.io.PrintStream;
 
 import org.apache.felix.gogo.commands.Command;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
@@ -27,18 +28,30 @@ public class VersionList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        Container[] containers = fabricService.getContainers();
         Version[] versions = fabricService.getVersions();
-        printVersions(versions, fabricService.getDefaultVersion(), System.out);
+        printVersions(containers, versions, fabricService.getDefaultVersion(), System.out);
         return null;
     }
 
-    protected void printVersions(Version[] versions, Version defaultVersion, PrintStream out) {
-        out.println(String.format("%-30s %-9s", "[version]", "[default]"));
+    protected void printVersions(Container[] containers, Version[] versions, Version defaultVersion, PrintStream out) {
+        out.println(String.format("%-15s %-9s %-14s", "[version]", "[default]", "[# containers]"));
 
         // they are sorted in the correct order by default
         for (Version version : versions) {
             boolean isDefault = defaultVersion.getName().equals(version.getName());
-            out.println(String.format("%-30s %-9s", version.getName(), (isDefault ? "true" : "false")));
+            int active = countActiveContainers(containers, version);
+            out.println(String.format("%-15s %-9s %-14s", version.getName(), (isDefault ? "true" : "false"), active));
         }
+    }
+    
+    private static int countActiveContainers(Container[] containers, Version version) {
+        int answer = 0;
+        for (Container container : containers) {
+            if (container.getVersion().getName().equals(version.getName())) {
+                answer++;
+            }
+        }
+        return answer;
     }
 }

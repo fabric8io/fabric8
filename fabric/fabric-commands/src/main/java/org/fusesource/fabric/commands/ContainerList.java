@@ -20,19 +20,17 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.service.Containers;
 
 import java.io.PrintStream;
 
 @Command(name = "container-list", scope = "fabric", description = "List existing containers")
 public class ContainerList extends FabricCommand {
 
-    static final String FORMAT = "%-30s %-7s %-30s %-100s";
-    static final String VERBOSE_FORMAT = "%-20s %-7s %-30s  %-30s %-90s %-100s";
+    static final String FORMAT = "%-30s %-9s %-7s %-30s %-100s";
+    static final String VERBOSE_FORMAT = "%-20s %-9s %-7s %-30s  %-30s %-90s %-100s";
 
-    static final String[] HEADERS = {"[id]", "[alive]", "[profiles]", "[provision status]"};
-    static final String[] VERBOSE_HEADERS = {"[id]", "[alive]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
-
+    static final String[] HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[provision status]"};
+    static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
 
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
@@ -53,10 +51,10 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
             if (container.isRoot()) {
-                out.println(String.format(FORMAT, container.getId(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
+                out.println(String.format(FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format(FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), child.getProvisionStatus()));
+                        out.println(String.format(FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getProvisionStatus()));
                     }
                 }
             }
@@ -67,10 +65,10 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
         for (Container container : containers) {
             if (container.isRoot()) {
-                out.println(String.format(VERBOSE_FORMAT, container.getId(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                out.println(String.format(VERBOSE_FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), child.getProvisionStatus()));
+                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), child.getProvisionStatus()));
                     }
                 }
             }
