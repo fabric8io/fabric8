@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit._
 import org.fusesource.stomp.codec.StompFrame
 import org.fusesource.stomp.client.{Constants, Stomp}
 import org.fusesource.hawtbuf.{Buffer, UTF8Buffer}
+import FileSupport._
 
 class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAndAfterEach with Logging {
   var broker: Broker = null
@@ -40,19 +41,36 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
   val broker_config_uri = "xml:classpath:apollo-mqtt.xml"
 
   override protected def beforeAll() = {
+    super.beforeAll()
+    test_data_dir.recursive_delete
     try {
-      info("Loading broker configuration from the classpath with URI: " + broker_config_uri)
-      broker = BrokerFactory.createBroker(broker_config_uri)
-      ServiceControl.start(broker, "Starting broker")
-      port = broker.get_socket_address.asInstanceOf[InetSocketAddress].getPort
-    }
-    catch {
+      broker_start
+    } catch {
       case e:Throwable => e.printStackTrace
     }
   }
 
   override protected def afterAll() = {
-    broker.stop
+    broker_stop
+  }
+
+  def broker_start {
+    info("Loading broker configuration from the classpath with URI: " + broker_config_uri)
+    broker = BrokerFactory.createBroker(broker_config_uri)
+    ServiceControl.start(broker, "Starting broker")
+    port = broker.get_socket_address.asInstanceOf[InetSocketAddress].getPort
+  }
+
+  def broker_stop {
+    if( broker!=null ) {
+      ServiceControl.stop(broker, "Stopping broker")
+      broker = null
+    }
+  }
+
+  def broker_restart = {
+    broker_stop
+    broker_start
   }
 
   var clients = List[MqttClient]()
@@ -127,19 +145,6 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
     c.connection.unsubscribe(Array(topic))
   }
 
-  def get_session_count = {
-    (MqttSessionManager.queue.future {
-      MqttSessionManager.sessions.size
-    }).await()
-  }
-
-  def find_session(id:String) = {
-    val t = new UTF8Buffer(id)
-    (MqttSessionManager.queue.future {
-      MqttSessionManager.sessions.find(_._1.client_id == t).map(_._2)
-    }).await()
-  }
-
   def should_receive(body:String, topic:String=null, c:MqttClient=client) = {
     val msg = c.connection.receive(5, HOURS);
     expect(true)(msg!=null)
@@ -150,16 +155,6 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
     msg.ack()
   }
 
-}
-
-class MqttSessionTest extends MqttTestSupport {
-  test("Connect establishes session") {
-    val start = get_session_count
-    connect()
-    get_session_count should be(start+1)
-    client.disconnect()
-    get_session_count should be(start)
-  }
 }
 
 class MqttCleanSessionTest extends MqttTestSupport {
@@ -307,18 +302,31 @@ class MqttExistingSessionTest extends MqttTestSupport {
   client.setCleanSession(false);
   client.setClientId("default")
 
+  def restart = {}
+
   test("Subscribe is remembered on existing sessions.") {
     connect()
     subscribe("existing/sub")
 
     // reconnect...
     disconnect()
+    restart
     connect()
 
     // The subscribe should still be remembered.
     publish("existing/sub", "1", EXACTLY_ONCE)
     should_receive("1", "existing/sub")
   }
+}
+
+class MqttExistingSessionOnLevelDBTest extends MqttExistingSessionTest {
+  override val broker_config_uri = "xml:classpath:apollo-mqtt-leveldb.xml"
+  override def restart = broker_restart
+}
+
+class MqttExistingSessionOnBDBTest extends MqttExistingSessionTest {
+  override val broker_config_uri = "xml:classpath:apollo-mqtt-bdb.xml"
+  override def restart = broker_restart
 }
 
 class MqttConnectionTest extends MqttTestSupport {
