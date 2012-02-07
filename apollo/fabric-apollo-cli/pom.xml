@@ -111,7 +111,11 @@
     <!-- Optional Modules -->
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
+<<<<<<< HEAD
       <artifactId>fabric-apollo-haleveldb</artifactId>
+=======
+      <artifactId>fabric-apollo-leveldb</artifactId>
+>>>>>>> 19be0632c3af0063ae5e78cf1eaca05014903a12
       <version>7.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>

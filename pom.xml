@@ -954,7 +954,6 @@
     <profile>
       <id>release</id>
     </profile>
-      
     <!-- 
         Do a license check by running       : mvn -P license license:check  
         UPdate the license check by running : mvn -P license license:format  
