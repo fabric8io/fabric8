@@ -174,7 +174,8 @@ public class ContainerImpl implements Container {
             String str = "";
             for (Profile parent : profiles) {
                 if (!version.equals(parent.getVersion())) {
-                    throw new IllegalArgumentException("Bad profile: " + parent);
+                    throw new IllegalArgumentException("Version mismatch setting profile " + parent + " with version "
+                            + parent.getVersion() + " expected version " + version);
                 }
                 if (!str.isEmpty()) {
                     str += " ";
@@ -248,7 +249,7 @@ public class ContainerImpl implements Container {
                 }
             });
         } catch (Exception e) {
-            logger.error("Error while retrieving bundles", e);
+            logger.warn("Error while retrieving bundles. This exception will be ignored.", e);
             return new BundleInfo[0];
         }
     }
@@ -272,7 +273,7 @@ public class ContainerImpl implements Container {
                 }
             });
         } catch (Exception e) {
-            logger.error("Error while retrieving services", e);
+            logger.warn("Error while retrieving services. This exception will be ignored.", e);
             return new ServiceInfo[0];
         }
     }
@@ -283,7 +284,7 @@ public class ContainerImpl implements Container {
             Collections.sort(list);
             return Collections.unmodifiableList(list);
         } catch (Exception e) {
-            logger.error("Error while retrieving jmx domains", e);
+            logger.warn("Error while retrieving jmx domains. This exception will be ignored.", e);
             return Collections.emptyList();
         }
     }

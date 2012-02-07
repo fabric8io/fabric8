@@ -44,28 +44,18 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         return names;
     }
 
-    protected void postCreateContainer(Container[] children) {
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        List<String> names = getProfileNames();
-        try {
-            Profile[] profiles = getProfiles(version, names);
-            for (Container child : children) {
-                log.trace("Setting version " + ver.getName() + " on container " + child.getId());
-                child.setVersion(ver);
-                log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
-                child.setProfiles(profiles);
-            }
-        } catch (Exception ex) {
-            log.warn("Error during postCreateContainer. This exception will be ignored.", ex);
+    /**
+     * Pre validates input before creating the container(s)
+     *
+     * @param name the name of the container to create
+     * @throws IllegalArgumentException is thrown if input is invalid
+     */
+    protected void preCreateContainer(String name) throws IllegalArgumentException {
+        Container existing = getContainer(name);
+        if (existing != null) {
+            throw new IllegalArgumentException("A container with name " + name + " already exists.");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("postCreateContainer completed for " + Arrays.asList(children) + " containers.");
-        }
-    }
-
-    protected void doValidateProfiles() {
         // get the profiles for the given version
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
         Profile[] profiles = ver.getProfiles();
@@ -76,6 +66,32 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             if (!hasProfile(profiles, profile, ver)) {
                 throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
             }
+        }
+    }
+
+    /**
+     * Post logic after the containers have been created.
+     *
+     * @param containers the created containers
+     */
+    protected void postCreateContainer(Container[] containers) {
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+
+        List<String> names = getProfileNames();
+        try {
+            Profile[] profiles = getProfiles(version, names);
+            for (Container child : containers) {
+                log.trace("Setting version " + ver.getName() + " on container " + child.getId());
+                child.setVersion(ver);
+                log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
+                child.setProfiles(profiles);
+            }
+        } catch (Exception ex) {
+            log.warn("Error during postCreateContainer. This exception will be ignored.", ex);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("postCreateContainer completed for " + Arrays.asList(containers) + " containers.");
         }
     }
 

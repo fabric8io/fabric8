@@ -86,7 +86,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
             Properties properties = new Properties();
             String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
-            String mavenProxyUrl = "http://"+getLocalHostAddress() + ":" + 8040;
+            String mavenProxyUrl = "http://" + getLocalHostAddress() + ":" + 8040;
             properties.put("zookeeper.url", connectionUrl);
             config.setBundleLocation(null);
             config.update(properties);
@@ -129,7 +129,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p = getProperties(client, defaultProfile + "/org.fusesource.fabric.agent.properties", new Properties());
             p.put("org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
             p.put("org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://scala-tools.org/repo-releases");
-            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/"+FabricConstants.VERSION+"/xml/features");
+            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.VERSION + "/xml/features");
             p.put("feature.karaf", "karaf");
             p.put("feature.fabric-agent", "fabric-agent");
             p.put("feature.fabric-core", "fabric-core");
@@ -337,7 +337,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             for (String container : containers) {
                 String ip = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(container));
                 String profNode = "/fabric/configs/versions/" + version + "/profiles/zk-server-" + newClusterId + "-" + Integer.toString(index);
-                String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId+".profile";
+                String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".profile";
                 Properties pidNodeProperties = new Properties();
 
                 ZooKeeperUtils.add(zooKeeper, profNode, "zk-server-" + newClusterId);
@@ -469,7 +469,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             current.removeAll(containers);
             createCluster(current);
         } catch (Exception e) {
-            throw new FabricException("Unable to add containers to zookeeper quorum: " + e.getMessage(), e);
+            throw new FabricException("Unable to remove containers to zookeeper quorum: " + e.getMessage(), e);
         }
     }
 

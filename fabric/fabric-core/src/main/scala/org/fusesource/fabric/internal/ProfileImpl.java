@@ -170,7 +170,8 @@ public class ProfileImpl implements Profile {
             String str = "";
             for (Profile parent : parents) {
                 if (!version.equals(parent.getVersion())) {
-                    throw new IllegalArgumentException("Bad profile: " + parent);
+                    throw new IllegalArgumentException("Version mismatch setting parent profile " + parent + " with version "
+                            + parent.getVersion() + " expected version " + version);
                 }
                 if (!str.isEmpty()) {
                     str += " ";
