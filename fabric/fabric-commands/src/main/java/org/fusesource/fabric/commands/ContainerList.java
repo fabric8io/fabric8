@@ -19,6 +19,7 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
 import java.io.PrintStream;
@@ -32,46 +33,73 @@ public class ContainerList extends FabricCommand {
     static final String[] HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[provision status]"};
     static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
 
+    @Option(name = "--version", description = "Optional version to use as filter")
+    private String version;
+
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
 
     @Override
     protected Object doExecute() throws Exception {
         Container[] containers = fabricService.getContainers();
+        
+        Version ver = null;
+        if (version != null) {
+            // limit containers to only with same version
+            ver = fabricService.getVersion(version);
+        }
+        
          if (verbose) {
-            printContainersVerbose(containers, System.out);
+            printContainersVerbose(containers, ver, System.out);
         } else {
-            printContainers(containers, System.out);
+            printContainers(containers, ver, System.out);
         }
         return null;
     }
 
 
-    protected void printContainers(Container[] containers, PrintStream out) {
+    protected void printContainers(Container[] containers, Version version, PrintStream out) {
         out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
             if (container.isRoot()) {
-                out.println(String.format(FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
+                if (matchVersion(container, version)) {
+                    out.println(String.format(FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
+                }
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format(FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getProvisionStatus()));
+                        if (matchVersion(child, version)) {
+                            out.println(String.format(FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getProvisionStatus()));
+                        }
                     }
                 }
             }
         }
     }
 
-    protected void printContainersVerbose(Container[] containers, PrintStream out) {
+    protected void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
         out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
         for (Container container : containers) {
             if (container.isRoot()) {
-                out.println(String.format(VERBOSE_FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                if (matchVersion(container, version)) {
+                    out.println(String.format(VERBOSE_FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                }
                 for (Container child : containers) {
                     if (child.getParent() == container) {
-                        out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), child.getProvisionStatus()));
+                        if (matchVersion(child, version)) {
+                            out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), child.getProvisionStatus()));
+                        }
                     }
                 }
             }
         }
+    }
+    
+    private boolean matchVersion(Container container, Version version) {
+        if (version == null) {
+            // always match if no version in filter
+            return true;
+        }
+
+        return version.equals(container.getVersion());
     }
 }
