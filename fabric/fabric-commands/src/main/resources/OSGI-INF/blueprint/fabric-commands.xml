@@ -139,6 +139,14 @@
               <null/>
           </completers>
       </command>
+      <command name="fabric/container-upgrade">
+        <action class="org.fusesource.fabric.commands.ContainerUpgrade">
+          <property name="fabricService" ref="fabricService"/>
+        </action>
+        <completers>
+          <ref component-id="containerCompleter"/>
+        </completers>
+      </command>
 
         <command name="fabric/container-domains">
             <action class="org.fusesource.fabric.commands.ContainerDomains">
@@ -214,6 +222,15 @@
             <property name="fabricService" ref="fabricService"/>
           </action>
         </command>
+        <command name="fabric/version-set">
+          <action class="org.fusesource.fabric.commands.VersionSet">
+            <property name="fabricService" ref="fabricService"/>
+          </action>
+            <completers>
+              <ref component-id="versionCompleter"/>
+              <ref component-id="containerCompleter"/>
+          </completers>
+        </command>
     </command-bundle>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.commands.support.ContainerCompleter">
@@ -226,6 +243,9 @@
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
     <bean id="profileCompleter" class="org.fusesource.fabric.commands.support.ProfileCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+    <bean id="versionCompleter" class="org.fusesource.fabric.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 

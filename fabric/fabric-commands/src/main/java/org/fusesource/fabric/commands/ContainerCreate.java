@@ -37,24 +37,30 @@ public class ContainerCreate extends ContainerCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (url == null && parent == null) {
-            throw new Exception("Either an url or a parent must be specified");
-        }
+        // validate input before creating containers
+        preCreateContainer(name);
+
         if (url == null && parent != null) {
             url = "child://" + parent;
         }
 
-        // validate profiles exists before creating
-        doValidateProfiles();
+        Container[] containers = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
+        // and set its profiles and versions after creation
+        postCreateContainer(containers);
+        return null;
+    }
+
+    @Override
+    protected void preCreateContainer(String name) {
+        super.preCreateContainer(name);
 
         // validate number is not out of bounds
         if (number < 1 || number > 99) {
             throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
         }
 
-        Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
-        setProfiles(children);
-        return null;
+        if (url == null && parent == null) {
+            throw new IllegalArgumentException("Either an url or a parent must be specified");
+        }
     }
-
 }

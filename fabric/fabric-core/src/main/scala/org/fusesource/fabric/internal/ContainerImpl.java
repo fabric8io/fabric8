@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
@@ -130,7 +131,19 @@ public class ContainerImpl implements Container {
     @Override
     public void setVersion(Version version) {
         try {
+            Profile[] profiles = getProfiles();
+            StringBuilder builder = new StringBuilder();
+            if (profiles != null && profiles.length > 0) {
+                builder.append(profiles[0].getId());
+                for (int i=1;i<profiles.length;i++) {
+                    builder.append(" ").append(profiles[i].getId());
+                }
+            } else {
+                builder.append("default");
+            }
+
             ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
+            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(),id), builder.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -161,7 +174,8 @@ public class ContainerImpl implements Container {
             String str = "";
             for (Profile parent : profiles) {
                 if (!version.equals(parent.getVersion())) {
-                    throw new IllegalArgumentException("Bad profile: " + parent);
+                    throw new IllegalArgumentException("Version mismatch setting profile " + parent + " with version "
+                            + parent.getVersion() + " expected version " + version);
                 }
                 if (!str.isEmpty()) {
                     str += " ";
@@ -235,7 +249,7 @@ public class ContainerImpl implements Container {
                 }
             });
         } catch (Exception e) {
-            logger.error("Error while retrieving bundles", e);
+            logger.warn("Error while retrieving bundles. This exception will be ignored.", e);
             return new BundleInfo[0];
         }
     }
@@ -259,7 +273,7 @@ public class ContainerImpl implements Container {
                 }
             });
         } catch (Exception e) {
-            logger.error("Error while retrieving services", e);
+            logger.warn("Error while retrieving services. This exception will be ignored.", e);
             return new ServiceInfo[0];
         }
     }
@@ -270,7 +284,7 @@ public class ContainerImpl implements Container {
             Collections.sort(list);
             return Collections.unmodifiableList(list);
         } catch (Exception e) {
-            logger.error("Error while retrieving jmx domains", e);
+            logger.warn("Error while retrieving jmx domains. This exception will be ignored.", e);
             return Collections.emptyList();
         }
     }

@@ -49,13 +49,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        // validate profiles exists before creating
-        doValidateProfiles();
-
-        // validate number is not out of bounds
-        if (number < 1 || number > 99) {
-            throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
-        }
+        // validate input before creating containers
+        preCreateContainer(name);
 
         CreateSshContainerArguments args = new CreateSshContainerArguments();
         args.setEnsembleServer(isEnsembleServer);
@@ -77,9 +72,18 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
             args.setSshRetries(sshRetries);
         }
         Container[] containers = fabricService.createContainer(args, name, number);
-        // and set its profiles after creation
-        setProfiles(containers);
+        // and set its profiles and versions after creation
+        postCreateContainer(containers);
         return null;
     }
 
+    @Override
+    protected void preCreateContainer(String name) {
+        super.preCreateContainer(name);
+
+        // validate number is not out of bounds
+        if (number < 1 || number > 99) {
+            throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
+        }
+    }
 }

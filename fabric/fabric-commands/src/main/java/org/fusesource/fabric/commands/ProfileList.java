@@ -39,9 +39,10 @@ public class ProfileList extends FabricCommand {
     }
 
     protected void printProfiles(Profile[] profiles, PrintStream out) {
-        out.println(String.format("%-40s %s", "[id]", "[parents]"));
+        out.println(String.format("%-40s %-14s %s", "[id]", "[# containers]", "[parents]"));
         for (Profile profile : profiles) {
-            out.println(String.format("%-40s %s", profile.getId(), toString(profile.getParents())));
+            int active = profile.getAssociatedContainers().length;
+            out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
         }
     }
 
