@@ -109,7 +109,7 @@
         <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
         <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
         <equinox.version>3.6.0.v20100517</equinox.version>
-        <felix.framework.version>3.0.9-fuse-03-${perfectus-build}</felix.framework.version>
+        <felix.framework.version>4.1.0-fuse-SNAPSHOT</felix.framework.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
         <hawtdispatch-version>1.8</hawtdispatch-version>
