@@ -77,8 +77,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
             args.setSshRetries(sshRetries);
         }
         Container[] containers = fabricService.createContainer(args, name, number);
-        // and set its profiles after creation
-        setProfiles(containers);
+        // and set its profiles and versions after creation
+        postCreateContainer(containers);
         return null;
     }
 

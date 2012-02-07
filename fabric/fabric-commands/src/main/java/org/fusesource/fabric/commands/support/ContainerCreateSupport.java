@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.commands.support;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,15 +44,24 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         return names;
     }
 
-    protected void setProfiles(Container[] children) {
+    protected void postCreateContainer(Container[] children) {
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+
         List<String> names = getProfileNames();
         try {
             Profile[] profiles = getProfiles(version, names);
             for (Container child : children) {
+                log.trace("Setting version " + ver.getName() + " on container " + child.getId());
+                child.setVersion(ver);
+                log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
                 child.setProfiles(profiles);
             }
         } catch (Exception ex) {
+            log.warn("Error during postCreateContainer. This exception will be ignored.", ex);
+        }
 
+        if (log.isDebugEnabled()) {
+            log.debug("postCreateContainer completed for " + Arrays.asList(children) + " containers.");
         }
     }
 

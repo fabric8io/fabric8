@@ -52,8 +52,9 @@ public class ContainerCreate extends ContainerCreateSupport {
             throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
         }
 
-        Container[] children = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
-        setProfiles(children);
+        Container[] containers = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
+        // and set its profiles and versions after creation
+        postCreateContainer(containers);
         return null;
     }
 

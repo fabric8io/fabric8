@@ -44,8 +44,8 @@ public class ContainerCreateChild extends ContainerCreateSupport {
         // okay create child container
         String url = "child://" + parent;
         Container[] containers = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
-        // and set its profiles after creation
-        setProfiles(containers);
+        // and set its profiles and versions after creation
+        postCreateContainer(containers);
         return null;
     }
 

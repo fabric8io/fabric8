@@ -87,10 +87,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
             args.setProxyUri(fabricService.getMavenRepoURI());
         }
         Container[] containers = fabricService.createContainer(args, name, number);
-        // and set its profiles after creation
-        setProfiles(containers);
+        // and set its profiles and versions after creation
+        postCreateContainer(containers);
         return null;
     }
-
 
 }
