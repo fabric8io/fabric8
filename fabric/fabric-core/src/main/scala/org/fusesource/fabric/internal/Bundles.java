@@ -35,7 +35,7 @@ public class Bundles {
                 try {
                     bundle.start();
                 } catch (Exception e) {
-                    logger.error("Failed to start: " + e.getMessage(), e);
+                    logger.warn("Failed to start bundle: " + name + " due " + e.getMessage() + ". This exception will be ignored.", e);
                 }
             }
         }
@@ -46,11 +46,11 @@ public class Bundles {
         for (Bundle bundle : bundles) {
             String name = bundle.getSymbolicName();
             if (name.contains(containsName)) {
-                logger.debug("About to start bundle: " + name);
+                logger.debug("About to stop bundle: " + name);
                 try {
                     bundle.stop();
                 } catch (Exception e) {
-                    logger.error("Failed to start: " + e.getMessage(), e);
+                    logger.warn("Failed to stop bundle: " + name + " due " + e.getMessage() + ". This exception will be ignored.", e);
                 }
             }
         }

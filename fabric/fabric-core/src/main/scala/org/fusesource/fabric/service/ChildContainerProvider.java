@@ -31,18 +31,7 @@ public class ChildContainerProvider implements ContainerProvider {
         this.service = service;
     }
 
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param proxyUri
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name         The name of the Container.
-     * @param zooKeeperUrl The url of Zoo Keeper.
-     * @param debugContainer   Flag used to enable debugging on the new Container.
-     * @param number       The number of Containers to create.
-     * @param isEnsembleServer       Marks if the agent will have the role of the cluster server.
-     * @param debugContainer
-     */
+    @Override
     public void create(URI proxyUri, final URI containerUri, final String name, final String zooKeeperUrl, final boolean isEnsembleServer, final boolean debugContainer, final int number) {
         String parentName = FabricServiceImpl.getParentFromURI(containerUri);
         final Container parent = service.getContainer(parentName);
@@ -59,14 +48,14 @@ public class ChildContainerProvider implements ContainerProvider {
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
-                if(debugContainer) {
+                if (debugContainer) {
                     javaOpts += DEBUG_CONTAINER;
                 }
-                if(isEnsembleServer) {
+                if (isEnsembleServer) {
                     javaOpts += ENSEMBLE_SERVER_CONTAINER;
                 }
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/"+ FabricConstants.VERSION+"/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.VERSION + "/xml/features";
 
                 for (int i = 1; i <= number; i++) {
                     String containerName = name;
@@ -81,28 +70,11 @@ public class ChildContainerProvider implements ContainerProvider {
         });
     }
 
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param proxyUri
-     * @param containerUri      The uri that contains required information to build the Container.
-     * @param name          The name of the Container.
-     * @param zooKeeperUrl  The url of Zoo Keeper.
-     * @param debugContainer    Flag used to enable debugging on the new Container.
-     */
     @Override
     public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer) {
         create(proxyUri, containerUri, name, zooKeeperUrl, isEnsembleServer, debugContainer,1);
     }
 
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param proxyUri
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name         The name of the Container.
-     * @param zooKeeperUrl The url of Zoo Keeper.
-     */
     @Override
     public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl) {
         create(proxyUri, containerUri, name, zooKeeperUrl,false, false);

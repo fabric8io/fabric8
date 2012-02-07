@@ -161,7 +161,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
             } catch (Throwable e) {
-                logger.warn("Failed to find parent " + name + ". Reason: " + e);
+                logger.warn("Failed to find parent " + name + ". This exception will be ignored.", e);
             }
         }
         return "";
@@ -187,7 +187,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     public void startContainer(final Container container) {
         if (container.isRoot()) {
-            throw new IllegalArgumentException("Can not stop root containers");
+            throw new IllegalArgumentException("Cannot start root containers");
         }
         getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
@@ -199,7 +199,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     public void stopContainer(final Container container) {
         if (container.isRoot()) {
-            throw new IllegalArgumentException("Can not stop root containers");
+            throw new IllegalArgumentException("Cannot stop root containers");
         }
         getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
@@ -402,7 +402,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             ObjectName name = getMbeanName();
             ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
         } catch (Exception e) {
-            logger.warn("An error occured during mbean server registration: " + e, e);
+            logger.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
         }
     }
 
@@ -411,7 +411,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             try {
                 mbeanServer.unregisterMBean(getMbeanName());
             } catch (Exception e) {
-                logger.warn("An error occured during mbean server registration: " + e, e);
+                logger.warn("An error occurred during mbean server un-registration. This exception will be ignored.", e);
             }
         }
     }
@@ -422,11 +422,11 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return getContainerTemplate(parent).execute(new ContainerTemplate.AdminServiceCallback<Container>() {
             public Container doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
-                if(debugContainer) {
+                if (debugContainer) {
                     javaOpts += ContainerProvider.DEBUG_CONTAINER;
                 }
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/"+ FabricConstants.VERSION+"/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.VERSION + "/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
                 adminService.startInstance(name, null);
                 return new ContainerImpl(parent, name, FabricServiceImpl.this);
