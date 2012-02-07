@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
@@ -130,7 +131,19 @@ public class ContainerImpl implements Container {
     @Override
     public void setVersion(Version version) {
         try {
+            Profile[] profiles = getProfiles();
+            StringBuilder builder = new StringBuilder();
+            if (profiles != null && profiles.length > 0) {
+                builder.append(profiles[0].getId());
+                for (int i=1;i<profiles.length;i++) {
+                    builder.append(" ").append(profiles[i].getId());
+                }
+            } else {
+                builder.append("default");
+            }
+
             ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
+            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(),id), builder.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
