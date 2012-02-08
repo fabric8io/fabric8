@@ -73,7 +73,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   @BeanProperty
   var directory: File = null
   @BeanProperty
-  var logSize: Int = 1024 * 1024 * 100
+  var logSize: Long = 1024 * 1024 * 100
   @BeanProperty
   var indexFactory: String = "org.fusesource.leveldbjni.JniDBFactory, org.iq80.leveldb.impl.Iq80DBFactory"
   @BeanProperty
@@ -95,9 +95,9 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   @BeanProperty
   var indexCacheSize: Long = 1024 * 1024 * 256L
   @BeanProperty
-  var flushDelay = 100
+  var flushDelay = 1000*5
   @BeanProperty
-  var asyncBufferSize = 1024*1024*10
+  var asyncBufferSize = 1024*1024*50
   @BeanProperty
   var monitorStats = false
 
