@@ -945,8 +945,8 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-webapp</artifactId>
-                <version>${jetty-security}</version>
+                <artifactId>jetty-security</artifactId>
+                <version>${jetty-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -955,7 +955,7 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-xml</artifactId>
+                <artifactId>jetty-continuation</artifactId>
                 <version>${jetty-version}</version>
             </dependency>
         </dependencies>
