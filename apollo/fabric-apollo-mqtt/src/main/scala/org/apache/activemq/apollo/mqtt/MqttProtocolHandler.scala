@@ -510,10 +510,8 @@ object MqttSessionManager {
         uow.put(session_key, session_pb.freeze().toUnframedBuffer)
 
         val current = getCurrentQueue
-        println("in:"+getCurrentQueue)
         uow.on_complete {
           current {
-            println("out:"+getCurrentQueue)
             cb
           }
         }

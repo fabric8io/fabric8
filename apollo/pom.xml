@@ -39,6 +39,9 @@
   </prerequisites>
 
   <properties>
+    <karaf-version>2.2.2</karaf-version>
+    <jetty-version>7.5.1.v20110908</jetty-version>
+    <hawtdispatch-version>1.9-SNAPSHOT</hawtdispatch-version>
     <osgi.fragment.host>org.apache.activemq.apollo-broker</osgi.fragment.host>
   </properties>
 
