@@ -22,13 +22,13 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <relativePath>../../fabric/fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo</groupId>
   <artifactId>fabric-apollo-cli</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
 
   <name>${project.artifactId}</name>
 
@@ -64,7 +64,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-cluster</artifactId>
-      <version>1.2-SNAPSHOT</version>
+      <version>99-master-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
 
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-haleveldb</artifactId>
-      <version>1.2-SNAPSHOT</version>
+      <version>99-master-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -141,7 +141,6 @@
       <version>${jetty-version}</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
 

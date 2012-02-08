@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <relativePath>../../fabric-scala</relativePath>
   </parent>
   
@@ -29,19 +29,19 @@
   <groupId>org.fusesource.fabric.apollo</groupId>
   <artifactId>fabric-apollo-amqp-broker</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.2-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
 
   <dependencies>
 
     <dependency>
       <groupId>org.fusesource.fabric.apollo.amqp</groupId>
       <artifactId>fabric-apollo-amqp-protocol</artifactId>
-      <version>1.2-SNAPSHOT</version>
+      <version>99-master-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric.apollo.amqp</groupId>
       <artifactId>fabric-apollo-amqp-codec</artifactId>
-      <version>1.2-SNAPSHOT</version>
+      <version>99-master-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
