@@ -90,6 +90,7 @@
         <fuse.osgi.services.export />
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
+        <fabric.version>${project.version}</fabric.version>
         <perfectus-build>20</perfectus-build>
 
         <activemq-version>5.6-fuse-SNAPSHOT</activemq-version>
@@ -103,7 +104,7 @@
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
         <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
-        <equinox.version></equinox.version>
+        <equinox.version>3.6.0.v20100517</equinox.version>
         <felix.framework.version>4.1.0-fuse-SNAPSHOT</felix.framework.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
@@ -946,7 +947,6 @@
     <profile>
       <id>release</id>
     </profile>
-      
     <!-- 
         Do a license check by running       : mvn -P license license:check  
         UPdate the license check by running : mvn -P license license:format  

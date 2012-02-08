@@ -4,9 +4,11 @@
     Copyright (C) 2011 FuseSource, Corp. All rights reserved.
     http://fusesource.com
 
-    The software in this package is published under the terms of the CDDL license
-    a copy of which has been included with this distribution in the license.txt file.
-
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 -->
 <features name="servicemix-${smx.features.version}">
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>

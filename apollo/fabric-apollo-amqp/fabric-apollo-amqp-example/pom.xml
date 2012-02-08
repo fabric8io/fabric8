@@ -23,6 +23,7 @@
     <artifactId>fabric-apollo-project</artifactId>
     <groupId>org.fusesource.fabric.apollo</groupId>
     <version>7.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo</groupId>

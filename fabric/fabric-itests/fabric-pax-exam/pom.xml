@@ -27,7 +27,6 @@
 
     <artifactId>fabric-pax-exam</artifactId>
     <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
-    <version>7.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
