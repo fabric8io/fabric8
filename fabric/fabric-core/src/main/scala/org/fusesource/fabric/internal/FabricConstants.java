@@ -20,24 +20,38 @@ package org.fusesource.fabric.internal;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
 public class FabricConstants {
 
-    public static final String VERSION;
+    public static final String FABRIC_VERSION;
+    public static final String FRAMEWORK_VERSION;
+
     static {
-        String v="unknown";
-        InputStream is = FabricConstants.class.getResourceAsStream("version.txt");
+        String fabricVersion="unknown";
+        String frameworkVersion="unknown";
+        InputStream is = FabricConstants.class.getResourceAsStream("version.properties");
+        InputStreamReader reader = null;
+        Properties properties = new Properties();
+
         try {
-            v = new BufferedReader(new InputStreamReader(is, "UTF-8")).readLine().trim();
+            reader = new InputStreamReader(is, "UTF-8");
+            properties.load(reader);
+            fabricVersion = (String) properties.get("FABRIC_VERSION");
+            frameworkVersion = (String) properties.get("FRAMEWORK_VERSION");
         } catch (Throwable e) {
         } finally {
             try {
-                is.close();
+                reader.close();
             } catch (Throwable e) {
             }
+          try {
+            is.close();
+          } catch (Throwable e) {
+          }
+
         }
-        VERSION = v;
+        FABRIC_VERSION = fabricVersion;
+        FRAMEWORK_VERSION = frameworkVersion;
     }
-
-
 }
