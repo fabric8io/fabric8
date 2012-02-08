@@ -124,7 +124,7 @@
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-mqtt</artifactId>
-      <version>1.2-SNAPSHOT</version>
+      <version>99-master-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 

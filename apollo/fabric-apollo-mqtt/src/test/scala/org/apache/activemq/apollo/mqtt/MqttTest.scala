@@ -134,6 +134,9 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
   def disconnect(c:MqttClient=client) = {
     c.disconnect()
   }
+  def kill(c:MqttClient=client) = {
+    c.connection.kill()
+  }
 
   def publish(topic:String, message:String, qos:QoS=AT_MOST_ONCE, retain:Boolean=false, c:MqttClient=client) = {
     c.connection.publish(topic, message.getBytes("UTF-8"), qos, retain)
@@ -146,7 +149,7 @@ class MqttTestSupport extends FunSuiteSupport with ShouldMatchers with BeforeAnd
   }
 
   def should_receive(body:String, topic:String=null, c:MqttClient=client) = {
-    val msg = c.connection.receive(5, HOURS);
+    val msg = c.connection.receive(5, SECONDS);
     expect(true)(msg!=null)
     if(topic!=null) {
       msg.getTopic should equal(topic)
@@ -201,20 +204,56 @@ class MqttCleanSessionTest extends MqttTestSupport {
 
   }
 
-  test("Will sent on disconnect") {
-
+  def will_test(kill_action: (MqttClient)=>Unit) = {
     connect()
     subscribe("will/foo")
 
     val will_client = new MqttClient
     will_client.setWillTopic("will/foo")
     will_client.setWillQos(AT_LEAST_ONCE)
-    will_client.setWillRetain(true)
+    will_client.setWillRetain(false)
     will_client.setWillMessage("1");
-    connect(will_client)
-    disconnect(will_client)
-
+    kill_action(will_client)
     should_receive("1", "will/foo")
+  }
+
+  test("Will sent on socket failure") {
+    will_test{ client=>
+      connect(client)
+      kill(client)
+    }
+  }
+
+  test("Will sent on keepalive failure") {
+    will_test{ client=>
+      val queue = createQueue("")
+      client.setKeepAlive(1)
+      client.setDispatchQueue(queue)
+      client.setReconnectAttemptsMax(0)
+      client.setDispatchQueue(queue);
+      connect(client)
+
+      // Client should time out once we suspend the queue.
+      queue.suspend()
+      Thread.sleep(1000*2);
+      queue.resume()
+    }
+  }
+
+  test("Will NOT sent on clean disconnect") {
+    expect(true) {
+      try {
+        will_test{ client=>
+          connect(client)
+          disconnect(client)
+        }
+        false
+      } catch {
+        case e:Throwable =>
+          e.printStackTrace()
+          true
+      }
+    }
   }
 
   test("Publish") {
