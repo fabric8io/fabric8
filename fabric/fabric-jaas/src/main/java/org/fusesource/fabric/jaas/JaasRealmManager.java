@@ -26,6 +26,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class JaasRealmManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JaasRealmManager.class);
@@ -101,9 +102,12 @@ public class JaasRealmManager {
         try {
             Configuration config = configAdmin.getConfiguration(pid);
             Dictionary props = config.getProperties();
-            props.put(realmProperty, realm);
-            config.setBundleLocation(null);
-            config.update(props);
+            if (!realm.equals(props.get(realmProperty))) {
+                LOGGER.debug("Changing pid {} to {} realm.",pid, realm);
+                props.put(realmProperty, realm);
+                config.setBundleLocation(null);
+                config.update(props);
+            }
         } catch (Exception e) {
             LOGGER.error("Error enabling zookeeper realm for " + realmProperty,e);
         }

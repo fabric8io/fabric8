@@ -37,7 +37,7 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
-    <jaas:config name="zookeeper">
+    <jaas:config name="karaf" rank="1">
         <jaas:module className="org.fusesource.fabric.jaas.ZookeeperLoginModule" flags="required">
             path = fabric/authentication/users
             encryption.name = ${encryption.name}
@@ -49,17 +49,9 @@
         </jaas:module>
     </jaas:config>
 
-    <bean id="jaasRealmManager" class="org.fusesource.fabric.jaas.JaasRealmManager" init-method="init" destroy-method="destroy">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
-    </bean>
-
     <!-- The Backing Engine Factory Service for the PropertiesLoginModule -->
     <service interface="org.apache.karaf.jaas.modules.BackingEngineFactory">
         <bean class="org.fusesource.fabric.jaas.ZookeeperBackingEngineFactory"/>
     </service>
-
-    <reference-list interface="org.linkedin.zookeeper.client.IZKClient" availability="optional">
-        <reference-listener ref="jaasRealmManager" bind-method="bind" unbind-method="unbind"/>
-    </reference-list>
 
 </blueprint>

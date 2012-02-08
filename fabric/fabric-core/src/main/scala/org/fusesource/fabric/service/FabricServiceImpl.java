@@ -426,7 +426,7 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
                     javaOpts += ContainerProvider.DEBUG_CONTAINER;
                 }
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.VERSION + "/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
                 adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
                 adminService.startInstance(name, null);
                 return new ContainerImpl(parent, name, FabricServiceImpl.this);
