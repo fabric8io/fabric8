@@ -242,7 +242,9 @@ sort_info: 10
   .span12
     :&markdown
       Fuse Fabric can be installed in a vanilla container such as Apache Karaf or ServiceMix.
-      Run the following in an Apache Karaf (2.2.x) or ServiecMix (4.x) console:  
+      Run the following in an Apache Karaf (2.2.x) or ServiecMix (4.x) console:
+
+      Notice: You cannot use Karaf 2.2.5 as it has an issue, that is being fixed in 2.2.6  
 
     pre
       | karaf@root> shell:source mvn:org.fusesource.fabric/fuse-fabric/#{project_version}/karaf/installer
