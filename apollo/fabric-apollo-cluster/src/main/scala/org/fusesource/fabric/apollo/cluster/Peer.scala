@@ -1,11 +1,18 @@
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.apollo.cluster
@@ -20,13 +27,11 @@ import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf._
 import scala.collection.mutable.{HashMap, HashSet}
 import org.fusesource.hawtbuf.Buffer._
-import scala.util.continuations._
-import org.apache.activemq.apollo.dto.{DestinationDTO, XmlCodec}
 import org.apache.activemq.apollo.broker.protocol.ProtocolFactory
 import org.apache.activemq.apollo.broker.store.MessageRecord
 import org.fusesource.fabric.apollo.cluster.protocol.{ClusterProtocolConstants, ClusterProtocolCodec, ClusterProtocolHandler}
 import ClusterProtocolConstants._
-import org.fusesource.fabric.apollo.cluster.model.ChannelAck.Bean
+import org.apache.activemq.apollo.dto._
 
 object Peer extends Log
 
@@ -265,7 +270,7 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   def create_connection_status(source:ClusterProtocolHandler) = {
     var rc = new ClusterConnectionStatusDTO
 
-    rc.waiting_on = source.waiting_on
+    rc.waiting_on = source.waiting_on()
     rc.node_id = id
     rc.exported_consumer_count = exported_consumers.size
     rc.imported_consumer_count = imported_consumers.size
@@ -302,8 +307,8 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   val exported_consumers = HashMap[Long, ExportedConsumer]()
   val imported_consumers = HashMap[Long, ClusterDeliveryConsumer]()
 
-  def add_cluster_consumer( bean:ConsumerInfo.Bean, consumer:DeliveryConsumer) = dispatch_queue ! {
-
+  def add_cluster_consumer( bean:ConsumerInfo.Bean, consumer:DeliveryConsumer) = {
+    dispatch_queue.assertExecuting()
     val consumer_id = next_consumer_id
     bean.setConsumerId(consumer_id)
     next_consumer_id += 1
@@ -331,12 +336,11 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
       val consumer = new ClusterDeliveryConsumer(consumer_info)
       imported_consumers.put(consumer_id, consumer)
 
-      reset[Unit,Unit] {
+      cluster_connector.broker.dispatch_queue {
         val host = cluster_connector.broker.get_virtual_host(consumer_info.getVirtualHost)
         // assert(host!=null, "Unknown virtual host: "+consumer_info.getVirtualHost)
         val router = host.router.asInstanceOf[ClusterRouter]
         router.bind(consumer.destinations, consumer, null)
-        unit // continuations compiler is not too smart..
       }
     }
   }
@@ -345,7 +349,7 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   def on_remove_consumer(info:ConsumerInfo.Buffer) = {
     assert_executing
     imported_consumers.remove(info.getConsumerId.longValue).foreach { consumer=>
-      reset {
+      cluster_connector.broker.dispatch_queue {
         val host = cluster_connector.broker.get_virtual_host(consumer.info.getVirtualHost)
         if( host!=null ) {
           val router = host.router.asInstanceOf[ClusterRouter]
@@ -360,8 +364,21 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
     import collection.JavaConversions._
 
     def consumer_id = info.getConsumerId.longValue
-    def destinations = info.getDestinationList.toSeq.toArray.map { x=>
-      XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))
+    def destinations:Array[BindAddress] = info.getDestinationList.toSeq.toArray.
+            map(x=> XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))).map { x=>
+      val rc:BindAddress = x match {
+      case x:TopicDestinationDTO=> SimpleAddress("topic", DestinationAddress.decode_path(x.name))
+      case x:QueueDestinationDTO=> SimpleAddress("queue", DestinationAddress.decode_path(x.name))
+      case x:DurableSubscriptionDestinationDTO=>
+        if( x.is_direct() ) {
+          SimpleAddress("dsub", DestinationAddress.decode_path(x.name))
+        } else {
+          SubscriptionAddress(DestinationAddress.decode_path(x.name), x.selector, x.topics.toSeq.toArray.map{ topic=>
+            SimpleAddress("topic", DestinationAddress.decode_path(topic.name))
+          })
+        }
+      }
+      rc
     }
 
 
@@ -377,13 +394,11 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
       new MutableSink[Delivery] with DeliverySession {
 
         var closed = false
-        reset {
-          val channel = open_channel(p.dispatch_queue, open)
-          if( !closed ) {
-            downstream = Some(channel)
-          } else {
-            channel.close
-          }
+        val channel = open_channel(p.dispatch_queue, open)
+        if( !closed ) {
+          downstream = Some(channel)
+        } else {
+          channel.close
         }
 
         def close: Unit = {
@@ -432,7 +447,8 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
   var next_channel_id = 0L
   val outbound_channels = HashMap[Long, OutboundChannelSink]()
 
-  def open_channel(q:DispatchQueue, open:ChannelOpen.Bean) = dispatch_queue ! {
+  def open_channel(q:DispatchQueue, open:ChannelOpen.Bean) = {
+    dispatch_queue.assertExecuting()
     open.setChannel(next_channel_id)
     next_channel_id += 1
 
@@ -734,7 +750,14 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
 
     import collection.JavaConversions._
     def consumer_id = info.getConsumerId.longValue
-    def destinations = info.getDestinationList.toSeq.toArray.map { x=>
+    def destinations:Array[SimpleAddress] = info.getDestinationList.toSeq.toArray.
+       map(x=>XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))).map { _ match {
+        case x:TopicDestinationDTO=> SimpleAddress("topic", DestinationAddress.decode_path(x.name))
+        case x:QueueDestinationDTO=> SimpleAddress("queue", DestinationAddress.decode_path(x.name))
+        case x:DurableSubscriptionDestinationDTO=> SimpleAddress("dsub", DestinationAddress.decode_path(x.name))
+      }}
+
+      info.getDestinationList.toSeq.toArray.map { x=>
       XmlCodec.decode(classOf[DestinationDTO], new ByteArrayInputStream(x))
     }
 
@@ -777,7 +800,7 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
         val sink = new InboundChannelSink(open)
         inbound_channels.put(channel_id, sink)
 
-        reset {
+        cluster_connector.broker.dispatch_queue {
           val host = cluster_connector.broker.get_virtual_host(open.getVirtualHost)
 //          if( host==null ) {
 //

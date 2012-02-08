@@ -1,11 +1,18 @@
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.apollo.cluster
@@ -91,19 +98,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
     cluster_weight = config.weight.getOrElse(16)
     cluster_address = Option(config.address).orElse {
-      // We can probably infer the cluster address if it's not set...
-      // Try to get the first cluster connectable connector address.
-      broker.connectors.flatMap { case (id, connector) =>
-        connector match {
-          case connector: AcceptingConnector =>
-            connector.protocol match {
-              case ClusterProtocol => Some(connector.transport_server.getConnectAddress)
-              case x: AnyProtocol => Some(connector.transport_server.getConnectAddress)
-              case _ => None
-            }
-          case _ => None
-        }
-      }.headOption
+      broker.get_connect_address
     }.getOrElse(throw new IllegalArgumentException("The cluster connector's address was not configured"))
 
     hash_ring = create_hash_ring()
@@ -146,6 +141,9 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
       connected.incrementAndGet()
       val outbound_connection = new BrokerConnection(this, broker.connection_id_counter.incrementAndGet)
       outbound_connection.protocol_handler = new ProtocolHandler() {
+
+        def session_id = None
+
         def protocol: String = "outbound"
 
         override def on_transport_connected = {
@@ -173,9 +171,9 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
   def socket_address: SocketAddress = null
 
-  object cluster_singleton extends ClusteredSingleton[ClusterNodeDTO](classOf[ClusterNodeDTO],node_id) {
+  object cluster_singleton extends ClusteredSingleton[ClusterNodeDTO](classOf[ClusterNodeDTO]) {
 
-    def state = {
+    def create_state = {
       val rc = new ClusterNodeDTO
       rc.id = node_id
       rc.weight = cluster_weight
@@ -183,8 +181,8 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
       rc
     }
 
-    def join:Unit= join(state)
-    def update:Unit = update(state)
+    def join:Unit= join(create_state)
+    def update:Unit = update(create_state)
 
     add(new ChangeListener(){
       def connected = changed

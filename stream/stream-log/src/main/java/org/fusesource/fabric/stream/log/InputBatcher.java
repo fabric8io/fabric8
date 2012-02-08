@@ -1,11 +1,18 @@
 /**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.stream.log;
 
@@ -18,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +44,7 @@ public class InputBatcher extends DefaultComponent {
 
     public int batchSize = 1024*256;
     public long batchTimeout = 1000;
+    public InputStream is = System.in;
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
@@ -106,7 +115,7 @@ public class InputBatcher extends DefaultComponent {
                                 continue;
                             }
 
-                            int count = System.in.read(batch, pos, batch.length - pos);
+                            int count = is.read(batch, pos, batch.length - pos);
                             if( count < 0  ) {
                                 if( pos > 0 ) {
                                     byte[] data = new byte[pos];
@@ -310,5 +319,13 @@ public class InputBatcher extends DefaultComponent {
 
     public void setBatchTimeout(long batchTimeout) {
         this.batchTimeout = batchTimeout;
+    }
+
+    public InputStream getIs() {
+        return is;
+    }
+
+    public void setIs(InputStream is) {
+        this.is = is;
     }
 }

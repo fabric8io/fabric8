@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.commands;
 
@@ -12,6 +20,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -23,7 +32,7 @@ public class Join extends OsgiCommandSupport {
 
     ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     @Argument(required = true, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
@@ -40,8 +49,8 @@ public class Join extends OsgiCommandSupport {
 
         String karafName = System.getProperty("karaf.name");
 
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(karafName), version);
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, karafName), "default");
+        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
+        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default");
 
         return null;
     }

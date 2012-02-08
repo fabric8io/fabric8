@@ -1,20 +1,26 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.commands;
 
 import java.util.List;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
-import org.fusesource.fabric.zookeeper.commands.Import;
 
 @Command(name = "ensemble-create", scope = "fabric", description = "Create a new ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleCreate extends EnsembleCommandSupport {
@@ -22,41 +28,21 @@ public class EnsembleCreate extends EnsembleCommandSupport {
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
 
-    @Option(name = "--no-import", description = "Disable the import of the sample registry data from ")
-    private boolean noImport;
-
-    @Option(name = "--import-dir", description = "Directory of files to import into the newly created ensemble")
-    private String importDir = getDefaultImportDir();
-
-    @Argument(required = false, multiValued = true, description = "List of agents")
-    private List<String> agents;
+    @Argument(required = false, multiValued = true, description = "List of containers")
+    private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
         if (clean) {
             service.clean();
         } else {
-            if (agents == null || agents.isEmpty()) {
-                throw new IllegalStateException("No agents specified.");
+            if (containers == null || containers.isEmpty()) {
+                throw new IllegalStateException("No containers specified.");
             }
         }
-        if (agents != null && !agents.isEmpty()) {
-            service.createCluster(agents);
-
-            // now lets populate the registry with files from a mvn plugin
-            if (!noImport) {
-                Import tool = new Import();
-                tool.setBundleContext(getBundleContext());
-                tool.setZooKeeper(service.getZooKeeper());
-                tool.setSource(importDir);
-                return tool.execute(session);
-            }
+        if (containers != null && !containers.isEmpty()) {
+            service.createCluster(containers);
         }
         return null;
     }
-
-    private static String getDefaultImportDir() {
-        return System.getProperty("karaf.home", ".") + "/import";
-    }
-
 }

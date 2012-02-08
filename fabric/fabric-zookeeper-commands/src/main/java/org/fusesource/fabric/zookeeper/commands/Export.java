@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.zookeeper.commands;
 
@@ -40,6 +48,9 @@ public class Export extends ZooKeeperCommandSupport {
 
     @Option(name="-d", aliases={"--delete"}, description="Clear target directory before exporting (CAUTION! Performs recursive delete!)")
     boolean delete;
+
+    @Option(name="-t", aliases={"--trim"}, description="Trims the first timestamp comment line in properties files starting with the '#' character")
+    boolean trimHeader;
 
     @Option(name="--dry-run", description="Runs the export but instead prints out what's going to happen rather than performing the action")
     boolean dryRun = false;
@@ -81,13 +92,16 @@ public class Export extends ZooKeeperCommandSupport {
         }
         List<Pattern> include = getPatterns(regex);
         List<Pattern> exclude = getPatterns(nregex);
+        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
+        List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
+
         List<String> paths = getZooKeeper().getAllChildren(path);
         SortedSet<File> directories = new TreeSet<File>();
         Map<File, String> settings = new HashMap<File, String>();
 
         for(String p : paths) {
             p = path + p;
-            if (!matches(include, p, true) || matches(exclude, p, false)) {
+            if (!matches(include, p, true) || matches(exclude, p, false) || matches(profile,p,false)) {
                 continue;
             }
             byte[] data = getZooKeeper().getData(p);
@@ -96,7 +110,23 @@ public class Export extends ZooKeeperCommandSupport {
                 if (!p.contains(".")) {
                     name += ".cfg";
                 }
-                settings.put(new File(target + File.separator + name), new String(data));
+                String value = new String(data);
+                if (trimHeader && value.startsWith("#")) {
+                    // lets remove the first line
+                    int idx = value.indexOf("\n");
+                    if (idx > 0) {
+                        value = value.substring(idx + 1);
+                    }
+                }
+                //Make sure to append the parents
+                if(matches(containerProperties,p,false)) {
+                  byte[] parentData = getZooKeeper().getData(p.substring(0,p.lastIndexOf("/")));
+                    if (parentData != null) {
+                        String parentValue = "parents=" + new String(parentData);
+                        value += "\n" + parentValue;
+                    }
+                }
+                settings.put(new File(target + File.separator + name), value);
             } else {
                 directories.add(new File(target + File.separator + p));
             }

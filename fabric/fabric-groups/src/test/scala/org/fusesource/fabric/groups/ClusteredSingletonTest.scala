@@ -1,10 +1,18 @@
 /*
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.groups
 
@@ -33,10 +41,11 @@ class AddressNodeState extends NodeState {
  */
 class ClusteredSingletonTest extends ZooKeeperFunSuiteSupport with ShouldMatchers {
 
-  class AddressSingleton(id:String, var address:String) extends ClusteredSingleton[AddressNodeState](classOf[AddressNodeState], id) {
-    def join:Unit= join(state)
-    def update:Unit = update(state)
-    def state = {
+  class AddressSingleton(id:String, var address:String) extends ClusteredSingleton[AddressNodeState](classOf[AddressNodeState]) {
+    def join:Unit= join(create_state)
+    def update:Unit = update(create_state)
+
+    def create_state = {
       val rc = new AddressNodeState
       rc.id = id
       rc.address = address

@@ -6,9 +6,9 @@ fabric:profile-edit -p karaf --repositories mvn:org.fusesource.fabric/fuse-fabri
 
 echo Create activemq ${activemq-version} profile
 fabric:profile-create --parents karaf activemq
-fabric:profile-edit -p activemq --features fabric-activemq/${project.version}
-zk:create -i -r /fabric/configs/versions/base/profiles/activemq/activemq.xml mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/activemq
-fabric:profile-edit -p activemq --pid org.fusesource.fabric.activemq.server-broker1 name=broker1 config=zk:/fabric/configs/versions/base/profiles/activemq/activemq.xml data=/tmp/broker1 connectors=openwire group=default standby.pool=default
+fabric:profile-edit -p activemq --features mq-fabric/${project.version}
+zk:create -i -o -r /fabric/configs/versions/base/profiles/activemq/activemq.xml mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/activemq
+fabric:profile-edit -p activemq --pid org.fusesource.mq.fabric.server-broker1 name=broker1 config=zk:/fabric/configs/versions/base/profiles/activemq/activemq.xml data=/tmp/broker1 connectors=openwire group=default standby.pool=default
 
 echo Create camel ${camel-version} profile
 fabric:profile-create --parents karaf camel

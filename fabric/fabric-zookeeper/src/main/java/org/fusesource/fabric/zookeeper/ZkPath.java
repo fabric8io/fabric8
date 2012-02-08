@@ -1,11 +1,18 @@
 /**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.zookeeper;
 
@@ -13,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,30 +38,30 @@ public enum ZkPath {
 
 
     // config nodes
-    CONFIGS_AGENTS          ("/fabric/configs/agents/"),
-    CONFIG_AGENT            ("/fabric/configs/agents/{agent}"),
+    CONFIGS_CONTAINERS      ("/fabric/configs/containers/"),
+    CONFIG_CONTAINER        ("/fabric/configs/containers/{container}"),
     CONFIG_DEFAULT_VERSION  ("/fabric/configs/default-version"),
     CONFIG_VERSIONS         ("/fabric/configs/versions"),
     CONFIG_VERSION          ("/fabric/configs/versions/{version}"),
     CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
     CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profiles/{profile}"),
-    CONFIG_VERSIONS_AGENT   ("/fabric/configs/versions/{version}/agents/{agent}"),
+    CONFIG_VERSIONS_CONTAINER("/fabric/configs/versions/{version}/containers/{container}"),
     CONFIGS_MAVEN_REPO      ("/fabric/configs/maven/repository"),
 
     // Agent nodes
-    AGENTS                   ("/fabric/registry/agents/config"),
-    AGENT                    ("/fabric/registry/agents/config/{agent}"),
-    AGENT_DOMAINS            ("/fabric/registry/agents/domains/{agent}"),
-    AGENT_DOMAIN             ("/fabric/registry/agents/domains/{agent}/{domain}"),
-    AGENT_ALIVE              ("/fabric/registry/agents/alive/{agent}"),
-    AGENT_PROVISION          ("/fabric/registry/agents/provision/{agent}"),
-    AGENT_PROVISION_RESULT   ("/fabric/registry/agents/provision/{agent}/result"),
-    AGENT_PROVISION_EXCEPTION("/fabric/registry/agents/provision/{agent}/exception"),
-    AGENT_IP                 ("/fabric/registry/agents/config/{agent}/ip"),
-    AGENT_PARENT             ("/fabric/registry/agents/config/{agent}/parent"),
-    AGENT_JMX                ("/fabric/registry/agents/config/{agent}/jmx"),
-    AGENT_SSH                ("/fabric/registry/agents/config/{agent}/ssh"),
-    AGENT_LOCATION           ("/fabric/registry/agents/config/{agent}/loc");
+    CONTAINERS                     ("/fabric/registry/containers/config"),
+    CONTAINER                      ("/fabric/registry/containers/config/{container}"),
+    CONTAINER_DOMAINS              ("/fabric/registry/containers/domains/{container}"),
+    CONTAINER_DOMAIN               ("/fabric/registry/containers/domains/{container}/{domain}"),
+    CONTAINER_ALIVE                ("/fabric/registry/containers/alive/{container}"),
+    CONTAINER_PROVISION            ("/fabric/registry/containers/provision/{container}"),
+    CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),
+    CONTAINER_PROVISION_EXCEPTION  ("/fabric/registry/containers/provision/{container}/exception"),
+    CONTAINER_IP                   ("/fabric/registry/containers/config/{container}/ip"),
+    CONTAINER_PARENT               ("/fabric/registry/containers/config/{container}/parent"),
+    CONTAINER_JMX                  ("/fabric/registry/containers/config/{container}/jmx"),
+    CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
+    CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc");
 
     /**
      * Path template.
@@ -96,7 +102,7 @@ public enum ZkPath {
         String path = uri.getSchemeSpecificPart();
         path = path.trim();
         if( !path.startsWith("/") ) {
-            path = ZkPath.AGENT.getPath(path);
+            path = ZkPath.CONTAINER.getPath(path);
         }
         byte rc [] = zooKeeper.getData(path);
         if( ref!=null ) {

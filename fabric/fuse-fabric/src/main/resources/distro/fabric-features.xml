@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
 
-    Copyright (C) 2011 FuseSource, Corp. All rights reserved.
-    http://fusesource.com
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-    The software in this package is published under the terms of the CDDL license
-    a copy of which has been included with this distribution in the license.txt file.
+     http://www.apache.org/licenses/LICENSE-2.0
 
--->
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
 <features name="fabric-${project.version}">
 
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
@@ -16,7 +23,7 @@
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
-        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.8-fuse-00-10</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.8-fuse-03-20</bundle>
 
         <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.mvn.version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/1.2.6</bundle>
@@ -65,7 +72,7 @@
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle>
 
-        <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/3.3.1-fuse-02-06</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/3.3.1-fuse-02-20</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.spring/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.kar/${karaf-version}</bundle>
@@ -99,7 +106,10 @@
         <feature version="${project.version}">fabric-bundle</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
+        <feature version="${project.version}">fabric-jaas</feature>
+<!--
         <feature version="${project.version}">insight-graph</feature>
+-->
         <bundle>mvn:org.fusesource.fabric/fabric-agent/${project.version}</bundle>
     </feature>
 
@@ -187,7 +197,8 @@
         <bundle>mvn:org.fusesource.fabric/fabric-monitor/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-jaas" version="${project.version}}" resolver="(obr)">
+    <feature name="fabric-jaas" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/${commons-lang-version}</bundle>
@@ -200,6 +211,13 @@
         <feature version='${jclouds-karaf-version}'>jclouds-driver-jsch</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-compute</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-jclouds/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-zeroconf" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-configadmin</feature>
+
+        <bundle>mvn:org.fusesource.fabric/fabric-zeroconf/${project.version}</bundle>
     </feature>
 
     <feature name='fabric-bridge' version='${project.version}' resolver="(obr)">
@@ -225,11 +243,20 @@
     <feature name="insight-graph" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.insight.graph">
             #
-            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # Copyright (C) FuseSource, Inc.
             # http://fusesource.com
             #
-            # The software in this package is published under the terms of the CDDL license
-            # a copy of which has been included with this distribution in the license.txt file.
+            # Licensed under the Apache License, Version 2.0 (the "License");
+            # you may not use this file except in compliance with the License.
+            # You may obtain a copy of the License at
+            #
+            # http://www.apache.org/licenses/LICENSE-2.0
+            #
+            # Unless required by applicable law or agreed to in writing, software
+            # distributed under the License is distributed on an "AS IS" BASIS,
+            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            # See the License for the specific language governing permissions and
+            # limitations under the License.
             #
 
             # Configure Server Scheduler Properties
@@ -262,11 +289,20 @@
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.insight.elasticsearch-default">
             #
-            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # Copyright (C) FuseSource, Inc.
             # http://fusesource.com
             #
-            # The software in this package is published under the terms of the CDDL license
-            # a copy of which has been included with this distribution in the license.txt file.
+            # Licensed under the Apache License, Version 2.0 (the "License");
+            # you may not use this file except in compliance with the License.
+            # You may obtain a copy of the License at
+            #
+            # http://www.apache.org/licenses/LICENSE-2.0
+            #
+            # Unless required by applicable law or agreed to in writing, software
+            # distributed under the License is distributed on an "AS IS" BASIS,
+            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            # See the License for the specific language governing permissions and
+            # limitations under the License.
             #
 
             node.data=true
@@ -285,11 +321,20 @@
     <feature name="insight-log-elasticsearch" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.insight.log.elasticsearch">
             #
-            # Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+            # Copyright (C) FuseSource, Inc.
             # http://fusesource.com
             #
-            # The software in this package is published under the terms of the CDDL license
-            # a copy of which has been included with this distribution in the license.txt file.
+            # Licensed under the Apache License, Version 2.0 (the "License");
+            # you may not use this file except in compliance with the License.
+            # You may obtain a copy of the License at
+            #
+            # http://www.apache.org/licenses/LICENSE-2.0
+            #
+            # Unless required by applicable law or agreed to in writing, software
+            # distributed under the License is distributed on an "AS IS" BASIS,
+            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            # See the License for the specific language governing permissions and
+            # limitations under the License.
             #
 
             es.log.index=insight

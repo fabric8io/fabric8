@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.internal;
 
@@ -22,7 +30,7 @@ import org.linkedin.zookeeper.client.ZKData;
 
 public class ZooKeeperUtils {
 
-    public static void copy( IZKClient source, IZKClient dest, String path ) throws InterruptedException, KeeperException {
+    public static void copy(IZKClient source, IZKClient dest, String path) throws InterruptedException, KeeperException {
         for (String child : source.getChildren(path)) {
             child = path + "/" + child;
             if (dest.exists(child) == null) {
@@ -33,7 +41,7 @@ public class ZooKeeperUtils {
         }
     }
 
-    public static void copy( IZKClient zk, String from, String to ) throws InterruptedException, KeeperException {
+    public static void copy(IZKClient zk, String from, String to) throws InterruptedException, KeeperException {
         for (String child : zk.getChildren(from)) {
             String fromChild = from + "/" + child;
             String toChild = to + "/" + child;
@@ -45,11 +53,11 @@ public class ZooKeeperUtils {
         }
     }
 
-    public static void add( IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
+    public static void add(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) == null) {
             zooKeeper.createOrSetWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } else {
-            String data = zooKeeper.getStringData( path );
+            String data = zooKeeper.getStringData(path);
             if (data == null) {
                 data = "";
             }
@@ -57,11 +65,11 @@ public class ZooKeeperUtils {
                 data += " ";
             }
             data += value;
-            zooKeeper.setData( path, data );
+            zooKeeper.setData(path, data);
         }
     }
 
-    public static void remove( IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
+    public static void remove(IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) != null) {
             String data = zooKeeper.getStringData( path );
             List<String> parts = new ArrayList<String>(Arrays.asList(data.split(" ")));
@@ -81,24 +89,24 @@ public class ZooKeeperUtils {
                     }
                     data += part;
                 }
-                zooKeeper.setData( path, data );
+                zooKeeper.setData(path, data);
             }
         }
     }
 
-    public static String get( IZKClient zooKeeper, String path ) throws InterruptedException, KeeperException {
-        return zooKeeper.getStringData( path );
+    public static String get(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
+        return zooKeeper.getStringData( path);
     }
 
-    public static void set( IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
+    public static void set(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         zooKeeper.createOrSetWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    public static void create( IZKClient zooKeeper, String path ) throws InterruptedException, KeeperException {
+    public static void create(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
         zooKeeper.createWithParents(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    public static void createDefault( IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
+    public static void createDefault(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) == null) {
             zooKeeper.createWithParents( path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT );
         }

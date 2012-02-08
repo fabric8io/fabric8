@@ -1,27 +1,30 @@
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.apollo.cluster
 
-import dto.{ClusterNodeDTO, ClusterVirtualHostDTO}
 import org.apache.activemq.apollo.util._
 import org.apache.activemq.apollo.broker._
 import org.apache.activemq.apollo.broker.security.SecurityContext
-import org.apache.activemq.apollo.dto._
 import org.apache.activemq.apollo.util.path.Path
 import org.fusesource.hawtdispatch._
 import scala.collection.mutable.HashMap
 import org.fusesource.fabric.apollo.cluster.util.HashRing
-import java.lang.IllegalStateException
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory
-import javax.swing.event.{ChangeEvent, ChangeListener}
+import org.apache.activemq.apollo.dto._
 
 object ClusterRouter extends Log
 
@@ -39,8 +42,13 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
   var cluster_connector:ClusterConnector = _
   var hash_ring:HashRing[String, String] = _
 
-  val cluster_queue_domain = new ClusterDomain(queue_domain)
-  val cluster_topic_domain = new ClusterDomain(topic_domain)
+  val cluster_queue_domain = new ClusterDomain(local_queue_domain)
+  val cluster_topic_domain = new ClusterDomain(local_topic_domain)
+  val cluster_dsub_domain = new ClusterDomain(local_dsub_domain)
+
+  override def queue_domain = cluster_queue_domain
+  override def topic_domain = cluster_topic_domain
+  override def dsub_domain = cluster_dsub_domain
 
   def on_cluster_change(connector: ClusterConnector, new_ring:HashRing[String, String]) = {
     info("Cluster membership changed.")
@@ -52,12 +60,6 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
     cluster_queue_domain.destination_by_id.values.foreach { dest =>
       dest.on_cluster_change
     }
-  }
-
-  override def domain(destination: DestinationDTO):Domain[_ <: DomainDestination] = destination match {
-    case x:TopicDestinationDTO => cluster_topic_domain
-    case x:QueueDestinationDTO => cluster_queue_domain
-    case _ => throw new RuntimeException("Unknown domain type: "+destination.getClass)
   }
 
   class ClusterDomain[D <: DomainDestination](val actual:Domain[D]) extends Domain[ClusterDestination[D]] {
@@ -84,21 +86,21 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
 
     def clustered(d:D) = destination_by_id.get(d.id)
 
-    def create_destination(path: Path, destination:DestinationDTO, security: SecurityContext) = {
-      val rc = actual.create_destination(path, destination, security)
+    def create_destination(address:DestinationAddress, security: SecurityContext) = {
+      val rc = actual.create_destination(address, security)
       rc.map_success(clustered(_).get)
     }
 
-    def destroy_destination(path: Path, destination: DestinationDTO, security: SecurityContext) = actual.destroy_destination(path, destination, security)
+    def destroy_destination(address: DestinationAddress, security: SecurityContext) = actual.destroy_destination(address, security)
 
-    def can_create_destination(path: Path, destination: DestinationDTO, security: SecurityContext): Option[String] = actual.can_create_destination(path, destination,security)
+    def can_create_destination(address: DestinationAddress, security: SecurityContext): Option[String] = actual.can_create_destination(address,security)
 
     def bind_action(consumer: DeliveryConsumer) = actual.bind_action(consumer)
   }
 
   class ClusterDestination[D <: DomainDestination](val local:D) extends DomainDestination {
 
-    def destination_dto:DestinationDTO = local.destination_dto
+    def address = local.address
     def virtual_host: VirtualHost = host
 
     val dispatch_queue = createQueue()
@@ -106,17 +108,15 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
     var tail_destination:DomainDestination = local
     var tail_node:String = _
 
-    def id = local.id
-
-    var producers = HashMap[BindableDeliveryProducer, DestinationDTO]()
-    var consumers = HashMap[DeliveryConsumer, DestinationDTO]()
+    var producers = HashMap[BindableDeliveryProducer, ConnectAddress]()
+    var consumers = HashMap[DeliveryConsumer, BindAddress]()
 
     on_cluster_change
 
-    def connect(destination: DestinationDTO, producer: BindableDeliveryProducer) = {
+    def connect(connect_address: ConnectAddress, producer: BindableDeliveryProducer) = {
       assert_executing
-      producers.put(producer, destination)
-      tail_destination.connect(destination, producer)
+      producers.put(producer, connect_address)
+      tail_destination.connect(connect_address, producer)
     }
     def disconnect(producer: BindableDeliveryProducer) = {
       assert_executing
@@ -124,16 +124,16 @@ class ClusterRouter(host: ClusterVirtualHost) extends LocalRouter(host) with Rou
       tail_destination.disconnect(producer)
     }
 
-    def bind(destination: DestinationDTO, consumer: DeliveryConsumer) = {
+    def bind(bind_address: BindAddress, consumer: DeliveryConsumer) = {
       assert_executing
 
-      consumers.put(consumer, destination)
+      consumers.put(consumer, bind_address)
 
       consumer match {
         case consumer:Peer#ClusterDeliveryConsumer =>
-          local.bind(destination, consumer)
+          local.bind(bind_address, consumer)
         case _ =>
-          tail_destination.bind(destination, consumer)
+          tail_destination.bind(bind_address, consumer)
       }
 
     }

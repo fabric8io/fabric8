@@ -1,11 +1,18 @@
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.apollo.cluster.protocol
@@ -14,17 +21,14 @@ import ClusterProtocolConstants._
 import java.lang.String
 import java.io.IOException
 import org.apache.activemq.apollo.util._
-import org.apache.activemq.apollo.dto.JsonCodec
-import scala.collection
-import org.fusesource.hawtbuf.{Buffer, ByteArrayOutputStream}
-import util.continuations._
 import org.fusesource.fabric.apollo.cluster.model._
 import org.apache.activemq.apollo.broker.protocol.ProtocolHandler
-import org.fusesource.fabric.apollo.cluster.dto.{ClusterConnectionStatusDTO, ClusterProtocolHelloDTO}
 import org.fusesource.fabric.apollo.cluster.{ClusterConnector, Peer}
 import org.fusesource.hawtdispatch._
 
-object ClusterProtocolHandler extends Log
+object ClusterProtocolHandler extends Log {
+  val WAITING_ON_CLIENT_REQUEST = ()=> "client request"
+}
 
 /**
  * <p>
@@ -39,8 +43,10 @@ class ClusterProtocolHandler(var peer:Peer=null) extends ProtocolHandler {
 
   var closed = false
   var died = false
-  var waiting_on:String = "client request"
+  var waiting_on = WAITING_ON_CLIENT_REQUEST
   var transport_handler: (AnyRef)=>Unit = connecting_handler
+
+  def session_id = None
 
   def dispatch_queue = connection.dispatch_queue
 
@@ -65,20 +71,20 @@ class ClusterProtocolHandler(var peer:Peer=null) extends ProtocolHandler {
     if( !died  ) {
       died = true
       transport_handler = dead_handler
-      waiting_on = "shutdown"
+      waiting_on = ()=>"shutdown"
       connection.transport.resumeRead
       connection.stop()
     }
     throw new Break()
   }
 
-  def suspendRead(reason:String) = {
-    waiting_on = reason
+  def suspendRead(reason: =>String) = {
+    waiting_on = reason _
     connection.transport.suspendRead
   }
 
   def resumeRead() = {
-    waiting_on = "client request"
+    waiting_on = WAITING_ON_CLIENT_REQUEST
     connection.transport.resumeRead
   }
 
@@ -145,21 +151,19 @@ class ClusterProtocolHandler(var peer:Peer=null) extends ProtocolHandler {
             // this is a server hello response...
             peer.on_server_hello(this, hello)
           } else {
-            reset {
-              suspendRead("Looking up peer")
-              cluster_connector match {
-                case Some(connector)=>
-                  peer = connector.get_peer(hello.getId)
-                  // make subsequent events from the connection use
-                  // the peer's dispatch queue.
-                  dispatch_queue.setTargetQueue(peer.dispatch_queue)
-                  peer.dispatch_queue {
-                    peer.on_client_hello(this, hello)
-                  }
-                  resumeRead
-                case None =>
-                  die("Cluster connector not enabled")
-              }
+            suspendRead("Looking up peer")
+            cluster_connector match {
+              case Some(connector)=>
+                peer = connector.get_peer(hello.getId)
+                // make subsequent events from the connection use
+                // the peer's dispatch queue.
+                dispatch_queue.setTargetQueue(peer.dispatch_queue)
+                peer.dispatch_queue {
+                  peer.on_client_hello(this, hello)
+                }
+                resumeRead
+              case None =>
+                die("Cluster connector not enabled")
             }
           }
         case COMMAND_HELLO =>

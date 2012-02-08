@@ -51,16 +51,16 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 
 * fab : parent project containing fab modules to deploy Fabric Archive Bundles on Karaf/Service (http://fabric.fusesource.org/documentation/bundle/)
 
-* fabric-activemq : fabric agent connector for ActiveMQ
+* fabric-activemq : fabric container connector for ActiveMQ
 
-* fabric-apollo : fabric agent connector for Apollo (Next generation of ActiveMQ Middelware). Facilitate the discovery of AMQ in a fabric
+* fabric-apollo : fabric container connector for Apollo (Next generation of ActiveMQ Middelware). Facilitate the discovery of AMQ in a fabric
 
 * fabric-assemblies : Fabric assembly modules
 
     * fuse-fabric : Generates the features file to deploy Fabric
     * karaf-distro : Generates a Karaf distribution which has Fabric preinstalled.
 
-* fabric-camel : fabric agent connector for camel. Allow to loadbalance requests between camel endpoints deployed in different fabric machines
+* fabric-camel : fabric container connector for camel. Allow to loadbalance requests between camel endpoints deployed in different fabric machines
 
 * fabric-camel-c24io : C24 Camel Transformer component
 
@@ -68,15 +68,15 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 
 * fabric-camel-dslio : Camel DSL IO Api - Goal ????
 
-* fabric-command : Karaf fabric commands used to create a zookeeper registry, manage agent or profile, admin agent
+* fabric-command : Karaf fabric commands used to create a zookeeper registry, manage containers or profile, admin agent
 
 * fabric-configadmin : Bridge between osgi configadmin and zookeeper
 
-* fabric-core : Core API of Fabric, agent and monitoring stuffs (JMX)
+* fabric-core : Core API of Fabric, container and monitoring stuffs (JMX)
 
-* fabric-core-agent-jclouds : An agent provider for creating agents in the cloud via jclouds.
+* fabric-core-agent-jclouds : An container provider for creating containers in the cloud via jclouds.
 
-* fabric-core-agent-ssh : Extension of the Fabric core project to support ssh deployment of agent
+* fabric-core-agent-ssh : Extension of the Fabric core project to support ssh deployment of container
 
 * fabric-cxf fabric-agent-connector for CXF
 
@@ -92,9 +92,9 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 
 * fabric-linkedin-zookeeper : only contains a pom.xml ????
 
-* fabric-maven-proxy : Maven proxy which can be used by a remote fabric agent to get the artifacts to be deployed
+* fabric-maven-proxy : Maven proxy which can be used by a remote fabric container to get the artifacts to be deployed
 
-* fabric-monitor : Monitoring service which will allow using JMX to send information about fabric agents to the FON console ????
+* fabric-monitor : Monitoring service which will allow using JMX to send information about fabric container to the FON console ????
 
 * fabric-scala : Scala maven settings for doing ??
 

@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
 
-    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-        http://fusesource.com
+     http://www.apache.org/licenses/LICENSE-2.0
 
-    The software in this package is published under the terms of the
-    CDDL license a copy of which has been included with this distribution
-    in the license.txt file.
-
--->
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
@@ -54,11 +59,11 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Fabric-Provided-Dependency>org.apache.* org.springframework*</Fabric-Provided-Dependency>
-              <Fabric-Include-Optional-Dependency>org.apache.geronimo.specs commons-pool org.springframework</Fabric-Include-Optional-Dependency>
+              <FAB-Provided-Dependency>org.apache.* org.springframework*</FAB-Provided-Dependency>
+              <FAB-Include-Optional-Dependency>org.apache.geronimo.specs commons-pool org.springframework</FAB-Include-Optional-Dependency>
 
               <!-- temporary work around until activeio becomes an optional dependency -->
-              <Fabric-Exclude-Dependency>org.apache.activemq:activeio-core</Fabric-Exclude-Dependency>
+              <FAB-Exclude-Dependency>org.apache.activemq:activeio-core</FAB-Exclude-Dependency>
             </manifestEntries>
           </archive>
         </configuration>

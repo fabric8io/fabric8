@@ -1,31 +1,22 @@
 /**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.bridge.internal;
 
 
-
-import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
 
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
@@ -41,6 +32,12 @@ import org.springframework.jms.listener.AbstractMessageListenerContainer;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.DestinationResolver;
 
+import javax.jms.*;
+import java.beans.PropertyDescriptor;
+import java.util.*;
+import java.util.Map.Entry;
+import java.lang.IllegalStateException;
+
 /**
  * Connects destinations on local broker to a staging queue on remote broker. 
  * 
@@ -49,8 +46,6 @@ import org.springframework.jms.support.destination.DestinationResolver;
  */
 public class SourceConnector extends AbstractConnector {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SourceConnector.class);
-	
 	private BrokerConfig localBrokerConfig;
 	
 	private BrokerConfig remoteBrokerConfig;
@@ -222,7 +217,17 @@ public class SourceConnector extends AbstractConnector {
 				}
 			}
 		}
-		
+
+        // stop connection factories
+        if (localConnectionFactory != null && (localConnectionFactory instanceof PooledConnectionFactory)) {
+            LOG.debug("Stopping local connection factory");
+            ((PooledConnectionFactory)localConnectionFactory).stop();
+        }
+        if (remoteConnectionFactory != null && (remoteConnectionFactory instanceof PooledConnectionFactory)) {
+            LOG.debug("Stopping remote connection factory");
+            ((PooledConnectionFactory)remoteConnectionFactory).stop();
+        }
+
 		LOG.info("Stopped");
 	}
 

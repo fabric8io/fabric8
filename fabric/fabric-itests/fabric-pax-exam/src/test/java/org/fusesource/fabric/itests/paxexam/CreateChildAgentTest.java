@@ -1,14 +1,23 @@
-/*
- * Copyright (C) 2011 FuseSource, Corp. All rights reserved.
+/**
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the CDDL license
- * a copy of which has been included with this distribution in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.itests.paxexam;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.junit.After;
@@ -47,16 +56,16 @@ public class CreateChildAgentTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        Agent child1 = createChildAgent("child1");
-        Agent result = fabricService.getAgent("child1");
-        assertEquals("Agents should have the same id",child1.getId(),result.getId());
+        Container child1 = createChildAgent("child1");
+        Container result = fabricService.getContainer("child1");
+        assertEquals("Containers should have the same id",child1.getId(), result.getId());
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
-                new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
+                new VMOption("-D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true") ,
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

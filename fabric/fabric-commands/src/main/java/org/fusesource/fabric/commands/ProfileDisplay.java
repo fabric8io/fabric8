@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.commands;
 
@@ -12,10 +20,11 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -25,7 +34,7 @@ import java.util.Map;
 public class ProfileDisplay extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     @Option(name = "--overlay", aliases = "-o")
     private Boolean overlay = false;
@@ -46,10 +55,10 @@ public class ProfileDisplay extends FabricCommand {
         return null;
     }
 
-    private String toString(Agent[] agents) {
+    private String toString(Container[] containers) {
         StringBuffer rc = new StringBuffer();
-        for (Agent agent : agents) {
-            rc.append(agent.getId());
+        for (Container container : containers) {
+            rc.append(container.getId());
             rc.append(" ");
         }
         return rc.toString().trim();
@@ -71,12 +80,12 @@ public class ProfileDisplay extends FabricCommand {
 
         output.println("Parents   : " + toString(profile.getParents()));
 
-        output.printf("Associated Agents : %s\n", toString(profile.getAssociatedAgents()));
+        output.printf("Associated Containers : %s\n", toString(profile.getAssociatedContainers()));
 
         Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
 
         if (configuration.containsKey(AGENT_PID)) {
-            output.println("\nAgent settings");
+            output.println("\nContainer settings");
             output.println("----------------------------");
 
             if (profile.getRepositories().size() > 0) {

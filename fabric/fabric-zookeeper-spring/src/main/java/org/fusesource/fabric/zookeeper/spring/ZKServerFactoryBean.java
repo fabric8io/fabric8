@@ -1,10 +1,18 @@
-/*
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+/**
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.zookeeper.spring;
 
@@ -26,6 +34,7 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
     private NIOServerCnxnFactory connectionFactory;
     private File dataLogDir;
     private File dataDir;
+    private boolean purge;
     protected int tickTime = ZooKeeperServer.DEFAULT_TICK_TIME;
     /**
      * defaults to -1 if not set explicitly
@@ -52,6 +61,10 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
     }
 
     public void afterPropertiesSet() throws Exception {
+        if( purge ) {
+            deleteFilesInDir(getDataLogDir());
+            deleteFilesInDir(getDataDir());
+        }
         FileTxnSnapLog ftxn = new FileTxnSnapLog(getDataLogDir(), getDataDir());
         zooKeeperServer.setTxnLogFactory(ftxn);
         zooKeeperServer.setTickTime(getTickTime());
@@ -62,6 +75,19 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
         connectionFactory.startup(zooKeeperServer);
     }
 
+    private void deleteFilesInDir(File dir) {
+        File[] files = dir.listFiles();
+        if(files!=null) {
+            for (File file : files) {
+                if(file.isDirectory() ) {
+                    deleteFilesInDir(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+    }
+
     public void destroy() throws Exception {
         shutdown();
     }
@@ -70,6 +96,10 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
         if (connectionFactory != null) {
             connectionFactory.shutdown();
             connectionFactory = null;
+        }
+        if(zooKeeperServer!=null) {
+            zooKeeperServer.shutdown();
+            zooKeeperServer = null;
         }
     }
 
@@ -158,6 +188,14 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
 
     public void setZooKeeperServer(ZooKeeperServer zooKeeperServer) {
         this.zooKeeperServer = zooKeeperServer;
+    }
+
+    public boolean isPurge() {
+        return purge;
+    }
+
+    public void setPurge(boolean purge) {
+        this.purge = purge;
     }
 
     // Implementation methods

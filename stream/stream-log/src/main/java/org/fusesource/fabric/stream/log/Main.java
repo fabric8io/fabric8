@@ -1,11 +1,18 @@
 /**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.stream.log;
 
@@ -16,6 +23,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.model.RouteDefinition;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -84,6 +93,7 @@ public class Main {
     }
 
     private static void displayHelpAndExit(int exitCode) {
+        Main.displayResourceFile("main-usage.txt");
         System.exit(exitCode);
     }
 
@@ -115,6 +125,23 @@ public class Main {
         synchronized (this) {
             while(true) {
                 this.wait();
+            }
+        }
+    }
+
+    public static void displayResourceFile(String name) {
+        InputStream is = HttpSimulator.class.getResourceAsStream(name);
+        try {
+            int c;
+            while((c=is.read())>=0) {
+                System.out.write(c);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
             }
         }
     }

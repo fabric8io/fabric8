@@ -1,11 +1,18 @@
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.apollo.cluster
@@ -15,9 +22,8 @@ import org.apache.activemq.apollo.broker._
 import org.fusesource.fabric.apollo.cluster.protocol.ClusterProtocolHandler
 import org.fusesource.fabric.apollo.cluster.model._
 import org.fusesource.hawtbuf.Buffer._
-import org.apache.activemq.apollo.dto.{XmlCodec, DestinationDTO}
 import org.fusesource.hawtbuf.ByteArrayOutputStream
-import scala.util.continuations._
+import org.apache.activemq.apollo.dto._
 
 
 /**
@@ -29,18 +35,17 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
   // DomainDestination interface
   /////////////////////////////////////////////////////////////////////////////
   def virtual_host = local_destination.virtual_host
-  def id = local_destination.id
-  def destination_dto = local_destination.destination_dto
+  def address = local_destination.address
 
   // setup the local destination to forward to the peer..
-  local_destination.bind(local_destination.destination_dto, forwarding_consumer)
+  local_destination.bind(local_destination.address.asInstanceOf[BindAddress], forwarding_consumer)
 
   def close() = {
     // stop forwarding...
     local_destination.unbind(forwarding_consumer, false)
   }
 
-  def connect(destination: DestinationDTO, producer: BindableDeliveryProducer) = {
+  def connect(destination: ConnectAddress, producer: BindableDeliveryProducer) = {
     producer.bind(forwarding_consumer::Nil)
   }
 
@@ -48,8 +53,26 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     producer.unbind(forwarding_consumer::Nil)
   }
 
-  def bind(destination: DestinationDTO, consumer: DeliveryConsumer) = {
+  def bind(address: BindAddress, consumer: DeliveryConsumer) = {
 
+    val destination_dto = address.domain match {
+      case "queue" => new QueueDestinationDTO(address.id);
+      case "topic" => new TopicDestinationDTO(address.id);
+      case "dsub" => 
+        val rc = new DurableSubscriptionDestinationDTO(address.id);
+        address match {
+          case address:SubscriptionAddress => 
+            rc.selector = address.selector
+            address.topics.foreach { topic =>
+              rc.topics.add( new TopicDestinationDTO(address.id));
+            }
+            rc
+          case address =>
+            rc.direct()
+        }  
+        rc
+    }
+    
     val os = new ByteArrayOutputStream()
     XmlCodec.encode(destination_dto, os, false)
 
@@ -57,10 +80,9 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
     bean.setVirtualHost(ascii(virtual_host.config.host_names.get(0)))
     bean.addDestination(os.toBuffer)
 
-    reset[Unit,Unit] {
-      val exported = peer.add_cluster_consumer(bean, consumer)
-   }
+    val exported = peer.add_cluster_consumer(bean, consumer)
   }
+
   def unbind(consumer: DeliveryConsumer, persistent: Boolean) = {
   }
 
@@ -79,6 +101,24 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
 
     def connect(p: DeliveryProducer): DeliverySession = {
 
+      val destination_dto = address.domain match {
+        case "queue" => new QueueDestinationDTO(address.id);
+        case "topic" => new TopicDestinationDTO(address.id);
+        case "dsub" =>
+          val rc = new DurableSubscriptionDestinationDTO(address.id);
+          address match {
+            case address:SubscriptionAddress =>
+              rc.selector = address.selector
+              address.topics.foreach { topic =>
+                rc.topics.add( new TopicDestinationDTO(address.id));
+              }
+              rc
+            case address =>
+              rc.direct()
+          }
+          rc
+      }
+
       val os = new ByteArrayOutputStream()
       XmlCodec.encode(destination_dto, os, false)
       val bean = new ChannelOpen.Bean
@@ -89,13 +129,11 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
       new MutableSink[Delivery] with DeliverySession {
 
         var closed = false
-        reset {
-          val channel = peer.open_channel(p.dispatch_queue, bean)
-          if( !closed ) {
-            downstream = Some(channel)
-          } else {
-            channel.close
-          }
+        val channel = peer.open_channel(p.dispatch_queue, bean)
+        if( !closed ) {
+          downstream = Some(channel)
+        } else {
+          channel.close
         }
 
         def producer: DeliveryProducer = p
@@ -132,7 +170,7 @@ class PeerDestination(val local_destination:DomainDestination, val peer:Peer) ex
 
     }
 
-    override def toString = "cluster destination %s on node %d".format(destination_dto.name("."), peer.id)
+    override def toString = "cluster %s on node %d".format(address, peer.id)
   }
 
   def now = virtual_host.broker.now

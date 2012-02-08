@@ -1,14 +1,22 @@
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import org.fusesource.scalate.RenderContext
 
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
- *
- *     http://fusesource.com
- *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
- */
 package
 
 /**
@@ -19,12 +27,32 @@ package
  */
 object Website {
 
-  val project_name= "Fabric"
-  val project_slogan= "Fuse Fabric: keeps you DRY from those stormy clouds!"
-  val project_id= "fabric"
-  val project_jira_key= "FABRIC"
+  def uriStartsWith(s: String) = {
+    var answer = false
+    val rc = RenderContext()
+    if (rc != null) {
+      val uri = rc.requestUri
+      if (uri != null) {
+        answer = uri.startsWith(s)
+      }
+    }
+    answer
+  }
+
+  def project_name 
+    = if (uriStartsWith("/fabric")) "Fabric" else "Fuse"
+  def project_slogan
+    = if (uriStartsWith("/fabric")) 
+      "Fuse Fabric: keeps you DRY from those stormy clouds!"
+      else
+        "Awesome open source integration"
+        
+  def project_id
+  = if (uriStartsWith("/fabric")) "fabric" else "fuse"
+  
+  var project_jira_key= "FABRIC"
   val project_issue_url= "http://fusesource.com/issues/browse/FABRIC"
-  val project_forums_url= "http://fabric.fusesource.org/community.html"
+  val project_forums_url= "http://fuse.fusesource.org/community.html"
   val project_wiki_url= "http://wiki.github.com/fusesource/fuse/"
   val project_logo= "/images/project-logo.gif"
   val project_version= "1.1-SNAPSHOT"
@@ -42,5 +70,6 @@ object Website {
   val project_svn_tags_url= "http://fusesource.com/forge/svn/%s/tags".format(project_id)
   val project_maven_groupId= "org.fusesource.%s".format(project_id)
   val project_maven_artifactId= "fuse-fabric"
+
 
 }

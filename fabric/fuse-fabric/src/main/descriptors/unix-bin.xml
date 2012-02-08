@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
 
-    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-        http://fusesource.com
+     http://www.apache.org/licenses/LICENSE-2.0
 
-    The software in this package is published under the terms of the
-    CDDL license a copy of which has been included with this distribution
-    in the license.txt file.
-
--->
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
 <assembly>
     <id>unix-bin</id>
 
@@ -27,6 +32,7 @@
                 <exclude>bin/**</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
+                <exclude>etc/config.properties</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
@@ -65,6 +71,9 @@
 
         <fileSet>
             <directory>target/classes/distro</directory>
+            <excludes>
+                <exclude>fabric-features.xml</exclude>
+            </excludes>
             <outputDirectory>/</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
@@ -85,13 +94,6 @@
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
-        <!--
-        <file>
-            <source>${basedir}/target/dependencies/fabric-version.jar</source>
-            <outputDirectory>/lib/</outputDirectory>
-            <fileMode>0644</fileMode>
-        </file>
-        -->
     </files>
     
 

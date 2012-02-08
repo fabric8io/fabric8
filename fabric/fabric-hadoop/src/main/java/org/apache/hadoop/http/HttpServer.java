@@ -1,13 +1,12 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -118,7 +117,7 @@ public class HttpServer implements FilterContainer {
     final FilterInitializer[] initializers = getFilterInitializers(conf); 
     if (initializers != null) {
       for(FilterInitializer c : initializers) {
-        c.initFilter(this);
+        c.initFilter(this, conf);
       }
     }
     addDefaultServlets();
@@ -132,7 +131,7 @@ public class HttpServer implements FilterContainer {
   protected Connector createBaseListener(Configuration conf)
       throws IOException {
     SelectChannelConnector ret = new SelectChannelConnector();
-    ret.setLowResourceMaxIdleTime(10000);
+    ret.setLowResourcesMaxIdleTime(10000);
     ret.setAcceptQueueSize(128);
     ret.setResolveNames(false);
     ret.setUseDirectBuffers(false);

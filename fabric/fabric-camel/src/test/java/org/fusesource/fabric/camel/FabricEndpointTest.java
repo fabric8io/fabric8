@@ -1,10 +1,18 @@
-/*
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+/**
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.camel;
 
@@ -13,6 +21,9 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,6 +39,20 @@ public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
 
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
+
+    // Yeah this sucks.. why does the spring context not get shutdown
+    // after each test case?  Not sure!
+    @Autowired
+    protected ZKServerFactoryBean zkServerBean;
+    @After
+    public void afterRun() throws Exception {
+        lastServerBean = zkServerBean;
+    }
+    protected static ZKServerFactoryBean lastServerBean;
+    @AfterClass
+    static public void shutDownZK() throws Exception {
+        lastServerBean.destroy();
+    }
 
     @Test
     public void testEndpoint() throws Exception {

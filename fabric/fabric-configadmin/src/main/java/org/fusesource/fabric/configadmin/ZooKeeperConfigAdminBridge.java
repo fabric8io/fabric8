@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.configadmin;
 
@@ -61,11 +69,11 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     public void onConnected() {
         try {
             // Find our root node
-            version = zooKeeper.getStringData(ZkPath.CONFIG_AGENT.getPath(name));
+            version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
             if (version == null) {
-                throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_AGENT.getPath(name));
+                throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
             }
-            node = ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, name);
+            node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
             if (zooKeeper.exists(node) == null) {
                 zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
@@ -94,6 +102,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 tree.track(this);
                 String data = tree.getTree().get(path).getData();
                 if (data != null) {
+                    data = data.trim();
                     String[] parents = data.split(" ");
                     for (String parent : parents) {
                         track(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));

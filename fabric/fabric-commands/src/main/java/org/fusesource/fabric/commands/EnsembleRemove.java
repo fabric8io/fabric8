@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.commands;
 
@@ -14,15 +22,15 @@ import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
 
-@Command(name = "ensemble-remove", scope = "fabric", description = "Removes agents from a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-remove", scope = "fabric", description = "Removes containers from a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemove extends EnsembleCommandSupport {
 
-    @Argument(required = true, multiValued = true, description = "List of agents to be removed")
-    private List<String> agents;
+    @Argument(required = true, multiValued = true, description = "List of containers to be removed")
+    private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
-        service.removeFromCluster(agents);
+        service.removeFromCluster(containers);
         return null;
     }
 

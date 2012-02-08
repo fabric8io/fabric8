@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.zookeeper.commands;
 
@@ -42,6 +50,9 @@ public class Import extends ZooKeeperCommandSupport {
     @Option(name="-fs", aliases={"--filesystem"}, description="Argument is the top level directory of a local filesystem tree")
     boolean filesystem = true;
 
+    @Option(name="-v", aliases={"--verbose"}, description="Verbose output of files being imported")
+    boolean verbose = false;
+
     @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to import, can specify this option more than once for additional filters", multiValued=true)
     String regex[];
 
@@ -68,13 +79,14 @@ public class Import extends ZooKeeperCommandSupport {
         if (filesystem == true) {
             properties = false;
         }
+        checkZooKeeperConnected();
         if (properties) {
             readPropertiesFile();
         }
         if (filesystem) {
             readFileSystem();
         }
-        System.out.println("Successfully imported settings from " + source);
+        System.out.println("imported ZK data from: " + source);
         return null;
     }
 
@@ -87,12 +99,16 @@ public class Import extends ZooKeeperCommandSupport {
     }
 
     private void getCandidates(File parent, File current, Map<String, String> settings) throws Exception {
+        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
+        List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
                 getCandidates(parent, child, settings);
             }
             String p = buildZKPath(parent, current).replaceFirst("/", "");
-            settings.put(p, null);
+            if (!matches(profile, "/" + p, false)) {
+                settings.put(p, null);
+            }
         } else {
             BufferedInputStream in = new BufferedInputStream(new FileInputStream(current));
             byte[] contents = new byte[in.available()];
@@ -102,7 +118,16 @@ public class Import extends ZooKeeperCommandSupport {
             if (p.endsWith(".cfg")) {
                 p = p.substring(0, p.length() - ".cfg".length());
             }
-            settings.put(p, new String(contents));
+
+            if (matches(containerProperties,"/" + p,false)) {
+                settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX,""));
+                Properties props = new Properties();
+                props.load(new StringReader(new String(contents)));
+                String parents = (String) props.get("parents");
+                settings.put(p.substring(0,p.lastIndexOf("/")),parents);
+            } else if (!matches(profile,"/" + p ,false)) {
+                settings.put(p, new String(contents));
+            }
         }
     }
 
@@ -130,7 +155,12 @@ public class Import extends ZooKeeperCommandSupport {
                 continue;
             }
             if (!dryRun) {
-                getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                if (data != null) {
+                    if (verbose) {
+                        System.out.println("importing: " + key);
+                    }
+                    getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
             } else {
                 System.out.printf("Creating path \"%s\" with value \"%s\"\n", key, data);
             }
@@ -209,4 +239,13 @@ public class Import extends ZooKeeperCommandSupport {
     public void setTarget(String target) {
         this.target = target;
     }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
 }
+

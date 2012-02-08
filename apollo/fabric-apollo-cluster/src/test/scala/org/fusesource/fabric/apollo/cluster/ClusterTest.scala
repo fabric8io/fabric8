@@ -1,11 +1,18 @@
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.apollo.cluster
@@ -16,10 +23,11 @@ import org.fusesource.hawtdispatch._
 import java.util.concurrent.TimeUnit._
 import org.apache.activemq.apollo.stomp.StompClient
 import java.net.InetSocketAddress
-import org.apache.activemq.apollo.broker.{Broker, Queue}
 import org.apache.activemq.apollo.dto.{BrokerDTO, XmlCodec, QueueDestinationDTO}
 import java.util.Properties
 import org.apache.activemq.apollo.util.{SocketProxy, ServiceControl, Dispatched}
+import org.apache.activemq.apollo.broker.{SimpleAddress, Broker, Queue}
+import org.apache.activemq.apollo.util.path.Path
 
 /**
  */
@@ -159,8 +167,8 @@ class ClusterTest extends ClusterTestSupport {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 
@@ -231,8 +239,8 @@ class ClusterTest extends ClusterTestSupport {
     router_a should not( be === router_b )
 
     // Lets get a cluster destination.. only one of them should be picked as the master..
-    val dest_a = access(router_a)(router_a._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
-    val dest_b = access(router_b)(router_b._get_or_create_destination(new QueueDestinationDTO(Array("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_a = access(router_a)(router_a.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
+    val dest_b = access(router_b)(router_b.get_or_create_destination(SimpleAddress("queue", Path("test")), null)).success.asInstanceOf[ClusterRouter#ClusterDestination[Queue]]
 
     (access(router_a)(dest_a.is_tail) ^ access(router_b)(dest_b.is_tail)) should be === true
 

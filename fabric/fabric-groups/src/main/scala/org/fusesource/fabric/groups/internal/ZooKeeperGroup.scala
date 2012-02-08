@@ -1,11 +1,18 @@
-/**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+/*
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.fusesource.fabric.groups.internal
@@ -19,7 +26,7 @@ import org.apache.zookeeper.data.ACL
 import org.linkedin.zookeeper.client.{LifecycleListener, IZKClient}
 import collection.JavaConversions._
 import java.util.{LinkedHashMap, Collection}
-import org.apache.zookeeper.KeeperException.{NoNodeException, Code}
+import org.apache.zookeeper.KeeperException.{ConnectionLossException, NoNodeException, Code}
 
 /**
  *
@@ -103,12 +110,14 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
   }
 
   def leave(path:String): Unit = this.synchronized {
-    joins.remove(path).foreach { case version =>
-      try {
-        zk.delete(member_path_prefix + path, version)
-      } catch {
-        case x:NoNodeException => // Already deleted.
-      }
+    joins.remove(path).foreach {
+      case version =>
+          try {
+            zk.delete(member_path_prefix + path, version)
+          } catch {
+            case x: NoNodeException => // Already deleted.
+            case x: ConnectionLossException => // disconnected
+          }
     }
   }
 

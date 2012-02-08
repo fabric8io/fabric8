@@ -1,10 +1,18 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.zookeeper.commands;
 
@@ -23,6 +31,8 @@ import org.linkedin.zookeeper.client.IZKClient;
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 
     private IZKClient zooKeeper;
+    private long maximumConnectionTimeout = 10 * 1000L;
+    private long connectionRetryTime = 100L;
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -109,5 +119,46 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
             content.append(System.getProperty("line.separator"));
         }
         return content.toString();
+    }
+
+    /**
+     * Lets check if we are connected and throw an exception if we are not.
+     * Note that if start() has just been called on IZKClient then it will take a little
+     * while for the connection to be established, so we keep checking up to the {@link #getMaximumConnectionTimeout()}
+     * until we throw the exception
+     */
+    protected void checkZooKeeperConnected() throws Exception {
+        IZKClient zkClient = getZooKeeper();
+        long start = System.currentTimeMillis();
+        do {
+            if (zkClient.isConnected()) {
+                return;
+            }
+            try {
+                Thread.sleep(getConnectionRetryTime());
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        } while (System.currentTimeMillis() < start + getMaximumConnectionTimeout());
+
+        if (!zkClient.isConnected()) {
+            throw new Exception("Could not connect to ZooKeeper " + zkClient + " at " + zkClient.getConnectString());
+        }
+    }
+
+    public long getConnectionRetryTime() {
+        return connectionRetryTime;
+    }
+
+    public void setConnectionRetryTime(long connectionRetryTime) {
+        this.connectionRetryTime = connectionRetryTime;
+    }
+
+    public long getMaximumConnectionTimeout() {
+        return maximumConnectionTimeout;
+    }
+
+    public void setMaximumConnectionTimeout(long maximumConnectionTimeout) {
+        this.maximumConnectionTimeout = maximumConnectionTimeout;
     }
 }

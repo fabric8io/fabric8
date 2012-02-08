@@ -1,22 +1,34 @@
 /**
- * Copyright (C) 2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.commands.support;
-
-import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.service.FabricServiceImpl;
+import org.linkedin.zookeeper.client.IZKClient;
+
 public abstract class FabricCommand extends OsgiCommandSupport {
 
+    private IZKClient zooKeeper;
     protected FabricService fabricService;
 
     protected static String AGENT_PID = "org.fusesource.fabric.agent";
@@ -27,6 +39,18 @@ public abstract class FabricCommand extends OsgiCommandSupport {
 
     public void setFabricService(FabricService fabricService) {
         this.fabricService = fabricService;
+    }
+
+    public IZKClient getZooKeeper() {
+        if (zooKeeper == null && fabricService instanceof FabricServiceImpl) {
+            FabricServiceImpl impl = (FabricServiceImpl) fabricService;
+            zooKeeper =  impl.getZooKeeper();
+        }
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
     }
 
     protected String toString(Profile[] profiles) {
@@ -62,11 +86,27 @@ public abstract class FabricCommand extends OsgiCommandSupport {
                 }
             }
             if (profile == null) {
-                throw new IllegalArgumentException("Profile not found: " + name);
+                throw new IllegalArgumentException("Profile " + name + " not found.");
             }
             profiles.add(profile);
         }
         return profiles.toArray(new Profile[profiles.size()]);
+    }
+
+    /**
+     * Gets the container by the given name
+     *
+     * @param name the name of the container
+     * @return the found container, or <tt>null</tt> if not found
+     */
+    protected Container getContainer(String name) {
+        Container[] containers = fabricService.getContainers();
+        for (Container container : containers) {
+            if (container.getId().equals(name)) {
+                return container;
+            }
+        }
+        return null;
     }
 
 }

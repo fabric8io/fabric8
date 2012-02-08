@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
 
-    Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-        http://fusesource.com
+     http://www.apache.org/licenses/LICENSE-2.0
 
-    The software in this package is published under the terms of the
-    CDDL license a copy of which has been included with this distribution
-    in the license.txt file.
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
 
--->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.fusesource.mq</groupId>
         <artifactId>mq-project</artifactId>
@@ -178,14 +181,12 @@
                            </goals>
                            <configuration>
                                <target name="update-properties">
-                                   <echo message="Updating etc/config.properties in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties"
-                                           append="true" eol="unix">
+                                   <echo message="Updating etc/config.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/etc/config.properties" />
                                    </concat>
-                                   <echo message="Updating etc/custom.properties in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties"
-                                           append="true" eol="dos">
+                                   <echo message="Updating etc/custom.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/config.properties" />
                                    </concat>
                                </target>
@@ -223,7 +224,7 @@
            								</goals>
            							</pluginExecutionFilter>
            							<action>
-           								<ignore></ignore>
+           								<ignore />
            							</action>
            						</pluginExecution>
            					</pluginExecutions>

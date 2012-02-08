@@ -1,11 +1,18 @@
 /**
- * Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved.
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
  *
- *     http://fusesource.com
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The software in this package is published under the terms of the
- * CDDL license a copy of which has been included with this distribution
- * in the license.txt file.
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.fusesource.fabric.bridge.zk.internal;
 
@@ -13,7 +20,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
@@ -51,8 +58,8 @@ public abstract class ZkConfigHelper {
 		}
 	}
 
-	public static RemoteBridge getBridgeConfig(IZKClient client, Agent agent, ApplicationContext context) {
-        final String bridgeConfigPath = getBridgeConfigPath(agent);
+	public static RemoteBridge getBridgeConfig(IZKClient client, Container container, ApplicationContext context) {
+        final String bridgeConfigPath = getBridgeConfigPath(container);
         RemoteBridge remoteBridge = getData(client, bridgeConfigPath, RemoteBridge.class);
         if (remoteBridge != null) {
             resolveBeanReferences(remoteBridge.getRemoteBrokerConfig(), context);
@@ -60,10 +67,10 @@ public abstract class ZkConfigHelper {
         return remoteBridge;
     }
 
-    public static void registerBridge(IZKClient client, Agent agent, RemoteBridge remoteBridge) {
+    public static void registerBridge(IZKClient client, Container container, RemoteBridge remoteBridge) {
         // get data to save
         byte[] data = getZkData(remoteBridge);
-        final String bridgeConfigPath = getBridgeConfigPath(agent);
+        final String bridgeConfigPath = getBridgeConfigPath(container);
         try {
             Stat stat = client.exists(bridgeConfigPath);
             if (stat == null) {
@@ -82,8 +89,8 @@ public abstract class ZkConfigHelper {
         }
     }
 
-    public static void removeBridge(IZKClient client, Agent agent) {
-        final String bridgeConfigPath = getBridgeConfigPath(agent);
+    public static void removeBridge(IZKClient client, Container container) {
+        final String bridgeConfigPath = getBridgeConfigPath(container);
         try {
             client.deleteWithChildren(bridgeConfigPath);
         } catch (InterruptedException e) {
@@ -97,8 +104,8 @@ public abstract class ZkConfigHelper {
         }
     }
 
-    private static String getBridgeConfigPath(Agent agent) {
-        return ZkPath.AGENT.getPath(agent.getId()) + "/" + BRIDGE_CONNECTOR_PID;
+    private static String getBridgeConfigPath(Container container) {
+        return ZkPath.CONTAINER.getPath(container.getId()) + "/" + BRIDGE_CONNECTOR_PID;
     }
 
     public static void registerGateway(Profile gatewayProfile,
