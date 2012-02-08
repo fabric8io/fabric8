@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.fusesource.fabric.apollo</groupId>
     <artifactId>fabric-apollo-project</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
@@ -28,7 +28,7 @@
 
   <groupId>org.fusesource.fabric.apollo.amqp</groupId>
   <artifactId>fabric-apollo-amqp-project</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>

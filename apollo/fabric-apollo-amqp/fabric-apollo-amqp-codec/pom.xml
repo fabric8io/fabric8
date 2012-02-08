@@ -22,13 +22,13 @@
   <parent>
     <groupId>org.fusesource.fabric.apollo.amqp</groupId>
     <artifactId>fabric-apollo-amqp-project</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo.amqp</groupId>
   <artifactId>fabric-apollo-amqp-codec</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -73,7 +73,7 @@
       <plugin>
         <groupId>org.fusesource.fabric.apollo.amqp</groupId>
         <artifactId>fabric-apollo-amqp-generator</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>99-master-SNAPSHOT</version>
         <configuration>
           <mainSourceDirectory>${basedir}/src/main/resources/amqp</mainSourceDirectory>
         </configuration>

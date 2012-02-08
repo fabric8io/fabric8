@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.fusesource.esb</groupId>
         <artifactId>esb-project</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>99-master-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
