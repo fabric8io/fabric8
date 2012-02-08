@@ -29,7 +29,7 @@
     <property name="purge" value="true"/>
   </bean>
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean" depends-on="zkServer">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
