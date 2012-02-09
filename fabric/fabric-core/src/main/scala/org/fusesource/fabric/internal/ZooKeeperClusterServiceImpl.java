@@ -143,7 +143,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p.put("feature.fabric-agent", "fabric-agent");
             p.put("feature.fabric-core", "fabric-core");
             p.put("feature.fabric-jaas", "fabric-jaas");
-            p.put("framework", FRAMEWORK_VERSION);
+            //p.put("framework", FRAMEWORK_VERSION);
 
             ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
