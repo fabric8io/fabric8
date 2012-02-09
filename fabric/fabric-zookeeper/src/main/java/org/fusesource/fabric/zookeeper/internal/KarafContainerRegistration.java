@@ -148,7 +148,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
     }
 
     private static String getLocalHostAddress() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostName();
+        return InetAddress.getByName(InetAddress.getLocalHost().getCanonicalHostName()).getHostAddress();
     }
 
     private static String getExternalAddresses(String host, String port) throws UnknownHostException {
