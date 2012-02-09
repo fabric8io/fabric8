@@ -36,7 +36,9 @@ p waiting on: #{waiting_on}
 
 h4 Metrics
 
-p read counter: #{memory(read_counter)}
-p write counter: #{memory(write_counter)}
+p messages received from the client: #{messages_received}
+p messages sent to the client: #{messages_sent}
+p bytes read counter: #{memory(read_counter)}
+p bytes written counter: #{memory(write_counter)}
 p last read size: #{memory(last_read_size)}
 p last write size: #{memory(last_write_size)}

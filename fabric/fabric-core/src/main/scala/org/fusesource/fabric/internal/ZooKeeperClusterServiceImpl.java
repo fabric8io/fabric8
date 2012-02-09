@@ -154,7 +154,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             // add auth
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.jaas/encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
             ZooKeeperUtils.createDefault(client, "fabric/authentication/encryption.enabled", "true");
-            ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "zookeeper");
+            ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "karaf");
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
 
             ZooKeeperUtils.createDefault(client,ZkPath.CONFIGS_MAVEN_REPO.getPath(),mavenProxyUrl);
