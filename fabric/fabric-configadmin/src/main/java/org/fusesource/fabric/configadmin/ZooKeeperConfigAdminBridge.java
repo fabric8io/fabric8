@@ -235,7 +235,8 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 for (String pid : pids) {
                     Dictionary c = load(pid);
                     String p[] = parsePid(pid);
-                    Configuration config = getConfiguration(pid, p[0], p[1]);
+                    Configuration[] configurations = getConfiguration(pid, p[0], p[1]);
+                    for (Configuration config:configurations) {
                     configs.remove(config);
                     Dictionary props = config.getProperties();
                     boolean changed = false;
@@ -264,6 +265,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                     } else {
                         LOGGER.info(config.getPid() + " - initializing configuration");
                         config.update(c);
+                    }
                     }
                 }
                 for (Configuration config : configs) {
@@ -322,9 +324,9 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         }
     }
 
-    Configuration getConfiguration(String zooKeeperPid, String pid, String factoryPid)
+    Configuration[] getConfiguration(String zooKeeperPid, String pid, String factoryPid)
             throws Exception {
-        Configuration oldConfiguration = findExistingConfiguration(zooKeeperPid);
+        Configuration[] oldConfiguration = findExistingConfiguration(zooKeeperPid);
         if (oldConfiguration != null) {
             return oldConfiguration;
         } else {
@@ -334,15 +336,15 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             } else {
                 newConfiguration = getConfigAdmin().getConfiguration(pid, null);
             }
-            return newConfiguration;
+            return new Configuration[] {newConfiguration};
         }
     }
 
-    Configuration findExistingConfiguration(String zooKeeperPid) throws Exception {
+    Configuration[] findExistingConfiguration(String zooKeeperPid) throws Exception {
         String filter = "(" + FABRIC_ZOOKEEPER_PID + "=" + zooKeeperPid + ")";
         Configuration[] configurations = getConfigAdmin().listConfigurations(filter);
         if (configurations != null && configurations.length > 0) {
-            return configurations[0];
+            return configurations;
         } else {
             return null;
         }
