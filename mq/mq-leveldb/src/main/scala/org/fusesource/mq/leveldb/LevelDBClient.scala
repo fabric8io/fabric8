@@ -31,8 +31,9 @@ import java.util.Collections
 import java.util.concurrent._
 import org.fusesource.hawtbuf._
 import java.io.{ObjectInputStream, ObjectOutputStream, File}
-import org.apache.activemq.command.MessageId
 import scala.Option._
+import org.apache.activemq.command.{Message, MessageId}
+import org.apache.activemq.util.ByteSequence
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -850,15 +851,34 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
-  def queueCursor(collectionKey: Long, cursorPosition:Long)(func: (QueueEntryRecord)=>Boolean) = {
-    collectionCursor(collectionKey, encodeLong(cursorPosition)) { value =>
+  def queueCursor(collectionKey: Long, seq:Long)(func: (Message)=>Boolean) = {
+    collectionCursor(collectionKey, encodeLong(seq)) { value =>
       val seq = decodeLong(value.getEntryKey)
-      val msgId = new MessageId(value.getMeta.ascii().toString)
-      msgId.setEntryLocator((collectionKey, seq))
-      msgId.setDataLocator((value.getValueLocation, value.getValueLength))
-      func(QueueEntryRecord(msgId, collectionKey, seq))
+      var locator = (value.getValueLocation, value.getValueLength)
+      val msg = getMessage(locator)
+      msg.getMessageId().setEntryLocator((collectionKey, seq))
+      msg.getMessageId().setDataLocator(locator)
+      func(msg)
     }
   }
+
+  def getMessage(locator:AnyRef):Message = {
+    assert(locator!=null)
+    val buffer = locator match {
+      case x:MessageRecord =>
+        // Encoded form is still in memory..
+        Some(x.data)
+      case (pos:Long, len:Int) =>
+        // Load the encoded form from disk.
+        log.read(pos, len).map(new Buffer(_))
+    }
+
+    // Lets decode
+    buffer.map{ x =>
+      store.wireFormat.unmarshal(new ByteSequence(x.data, x.offset, x.length)).asInstanceOf[Message]
+    }.getOrElse(null)
+  }
+
 
   def collectionCursor(collectionKey: Long, cursorPosition:Buffer)(func: (EntryRecord.Buffer)=>Boolean) = {
     val ro = new ReadOptions
@@ -949,7 +969,6 @@ class LevelDBClient(store: LevelDBStore) {
 
                 val record = new EntryRecord.Bean()
                 record.setCollectionKey(entry.queueKey)
-                record.setMeta(new AsciiBuffer(entry.id.toString))
                 record.setEntryKey(new Buffer(key, 9, 8))
                 record.setValueLocation(dataLocator._1)
                 record.setValueLength(dataLocator._2)
@@ -982,16 +1001,15 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
-
-  def getQueueEntries(collectionKey: Long, firstSeq:Long, lastSeq:Long): Seq[QueueEntryRecord] = {
-    getCollectionEntries(collectionKey, firstSeq, lastSeq).map { case (key, value) =>
-      val seq = key.bigEndianEditor().readLong()
-      val msgId = new MessageId(value.getMeta.ascii().toString)
-      msgId.setEntryLocator((collectionKey, seq))
-      msgId.setDataLocator((value.getValueLocation, value.getValueLength))
-      QueueEntryRecord(msgId, collectionKey, seq)
-    }
-  }
+//  def getQueueEntries(collectionKey: Long, firstSeq:Long, lastSeq:Long): Seq[QueueEntryRecord] = {
+//    getCollectionEntries(collectionKey, firstSeq, lastSeq).map { case (key, value) =>
+//      val seq = key.bigEndianEditor().readLong()
+//      val msgId = new MessageId(value.getMeta.ascii().toString)
+//      msgId.setEntryLocator((collectionKey, seq))
+//      msgId.setDataLocator((value.getValueLocation, value.getValueLength))
+//      QueueEntryRecord(msgId, collectionKey, seq)
+//    }
+//  }
   
   def getCollectionEntries(collectionKey: Long, firstSeq:Long, lastSeq:Long): Seq[(Buffer, EntryRecord.Buffer)] = {
     var rc = ListBuffer[(Buffer, EntryRecord.Buffer)]()

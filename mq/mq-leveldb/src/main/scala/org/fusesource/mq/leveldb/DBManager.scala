@@ -532,15 +532,12 @@ class DBManager(parent:LevelDBStore) {
     client.collectionIsEmpty(key)
   }
   
-  def cursorMessages(key:Long, listener:MessageRecoveryListener, cursorPosition:Long) = {
-    var nextPos = cursorPosition;
-    client.queueCursor(key, cursorPosition) { record =>
+  def cursorMessages(key:Long, listener:MessageRecoveryListener, startPos:Long) = {
+    var nextPos = startPos;
+    client.queueCursor(key, nextPos) { msg =>
       if( listener.hasSpace ) {
-        
-        //if ( !ackedAndPrepared.contains(record.id) ) {
-          listener.recoverMessage(getMessage(record.id))
-        //}
-        nextPos = record.queueSeq+1
+        listener.recoverMessage(msg)
+        nextPos += 1
         true
       } else {
         false
@@ -559,7 +556,7 @@ class DBManager(parent:LevelDBStore) {
     parent.createQueueMessageStore(dest, createStore(dest, QUEUE_COLLECTION_TYPE))
   }
   def destroyQueueStore(key:Long) = writeExecutor.sync {
-    client.removeCollection(key)
+      client.removeCollection(key)
   }
 
   def getLogAppendPosition = writeExecutor.sync {
@@ -606,28 +603,11 @@ class DBManager(parent:LevelDBStore) {
 
 
   def getMessage(x: MessageId):Message = {
-
     val id = Option(pendingStores.get(x)).map(_.id).getOrElse(x)
-
     val locator = id.getDataLocator()
-    assert(locator!=null)
-    val buffer = locator match {
-      case x:MessageRecord =>
-        // Encoded form is still in memory..
-        Some(x.data)
-      case (pos:Long, len:Int) =>
-        // Load the encoded form from disk.
-        client.log.read(pos, len).map(new Buffer(_))
-    }
-
-    // Lets decode
-    val message = buffer.map{ x =>
-      val msg = parent.wireFormat.unmarshal(new ByteSequence(x.data, x.offset, x.length)).asInstanceOf[Message]
-      msg.setMessageId(id)
-      msg
-    }
-    message.getOrElse(null)
+    val msg = client.getMessage(locator)
+    msg.setMessageId(id)
+    msg
   }
-
 
 }
