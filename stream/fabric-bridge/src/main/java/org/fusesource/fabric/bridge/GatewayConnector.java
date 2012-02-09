@@ -88,9 +88,13 @@ public class GatewayConnector extends AbstractConnector {
     @Override
 	protected void doInitialize() {
 		// create the inbound connector shared by all bridgeconnectors connected to this gateway
-		if (inboundDestinations != null) {
+		if (inboundDestinations != null && inboundDestinations.isUseStagingQueue()) {
 			createDefaultInboundConnector();
-		}
+        } else if (inboundDestinations != null && !inboundDestinations.isUseStagingQueue()) {
+            LOG.info("Inbound connector NOT created for default inbound destinations since staging queue is NOT used");
+		} else {
+            LOG.info("Inbound connector NOT created since default inbound destinations are NOT specified");
+        }
 		
 		// create outbound connectors for outboundBrokers
 		if (remoteBridges != null && !remoteBridges.isEmpty()) {
@@ -122,12 +126,20 @@ public class GatewayConnector extends AbstractConnector {
             // does the remote bridge use custom inbound destinations??
             // TODO maybe this should only check for staging queue name or location
             if (remoteBridge.getInboundDestinations() != null &&
-                !remoteBridge.getInboundDestinations().equals(inboundDestinations)) {
+                !remoteBridge.getInboundDestinations().equals(inboundDestinations)
+                && remoteBridge.getInboundDestinations().isUseStagingQueue()) {
                 TargetConnector inboundConnector = createInboundConnector(remoteBridge);
                 inboundConnectors.put(remoteBridge, inboundConnector);
             } else {
-                LOG.warn("Remote bridge " + remoteBridge + " does not specify inbound destinations" +
-                    (inboundDestinations == null ? ", it is unidirectional" : ", using default inbound connector"));
+                String reason;
+                if (inboundDestinations == null) {
+                    reason = ", since it is Unidirectional";
+                } else {
+                    reason = inboundDestinations.isUseStagingQueue() ?
+                        ", since it uses default inbound connector" : ", since staging queue is NOT used";
+                }
+                LOG.warn("Remote bridge " + remoteBridge + " does NOT require inbound connector" +
+                    reason);
             }
 
             if ((remoteBridge.getOutboundDestinations() != null) ||

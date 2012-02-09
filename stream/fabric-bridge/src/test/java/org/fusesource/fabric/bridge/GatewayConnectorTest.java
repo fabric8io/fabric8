@@ -16,14 +16,6 @@
  */
 package org.fusesource.fabric.bridge;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
 import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
@@ -34,6 +26,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jms.core.MessageCreator;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GatewayConnectorTest extends AbstractConnectorTestSupport {
 
@@ -227,6 +226,78 @@ public class GatewayConnectorTest extends AbstractConnectorTestSupport {
 		}
 	}
 	
+    @Test
+    public void testDispatchWithoutStagingQueues() throws Exception {
+        connector.getOutboundDestinations().setUseStagingQueue(false);
+        connector.getInboundDestinations().setUseStagingQueue(false);
+        connector.afterPropertiesSet();
+        connector.start();
+
+        // send messages to source destinations
+        for (String sourceName : TEST_SOURCES) {
+            sendMessages(TEST_LOCAL_BROKER_URL, sourceName, TEST_NUM_MESSAGES, null);
+        }
+
+        // check if we received the expected number of messages on remote queues
+        for (final String sourceName : TEST_SOURCES) {
+            receiveMessages(TEST_REMOTE_BROKER_URL, sourceName, TEST_NUM_MESSAGES, new BaseMatcher<TextMessage>() {
+
+                @Override
+                public boolean matches(Object message) {
+                    boolean retVal = false;
+                    try {
+                        retVal = ((TextMessage)message).getStringProperty(BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER).matches(sourceName);
+                    } catch (JMSException e) {
+                        fail(e.getMessage());
+                    }
+                    return retVal;
+                }
+
+                @Override
+                public void describeTo(Description description) {
+                    description.appendText("TextMessage containing " + BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER + " property");
+                }
+            });
+        }
+
+        // send messages to local staging queue, which should not be processed
+        sendMessages(TEST_LOCAL_BROKER_URL, BridgeDestinationsConfig.DEFAULT_STAGING_QUEUE_NAME, TEST_SOURCES.length * TEST_BATCH_SIZE, new MessageCreator() {
+
+            int index = 0;
+
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                TextMessage message = session.createTextMessage("Test Message " + index);
+                message.setStringProperty(BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER, TEST_SOURCES[index] + OUTBOUND_SUFFIX);
+                index = ++index < TEST_SOURCES.length ? index : 0;
+                return message;
+            }
+        });
+
+        // messages should not have been taken off the staging queue
+        receiveMessages(TEST_LOCAL_BROKER_URL, BridgeDestinationsConfig.DEFAULT_STAGING_QUEUE_NAME, TEST_SOURCES.length * TEST_BATCH_SIZE, new BaseMatcher<Message>() {
+
+            @Override
+            public boolean matches(Object message) {
+                boolean retVal = false;
+                try {
+                    retVal = ((TextMessage)message).getStringProperty(
+                        BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER).matches(
+                            "source[1-"+TEST_SOURCES.length+"]" + OUTBOUND_SUFFIX);
+                } catch (JMSException e) {
+                    fail(e.getMessage());
+                }
+                return retVal;
+            }
+
+            @Override
+            public void describeTo(Description desc) {
+                desc.appendText("Message contains property " + BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER);
+            }
+        });
+
+    }
+
 	@Test
 	public void testAddRemoteBridge() throws Exception {
 		connector.afterPropertiesSet();
