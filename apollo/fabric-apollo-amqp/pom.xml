@@ -20,22 +20,19 @@
   <parent>
     <groupId>org.fusesource.fabric.apollo</groupId>
     <artifactId>fabric-apollo-project</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.fusesource.fabric.apollo.amqp</groupId>
   <artifactId>fabric-apollo-amqp-project</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
   <description>Fuse Fabric :: Apollo AMQP Modules</description>
-
-  <prerequisites>
-    <maven>2.1.0</maven>
-  </prerequisites>
 
   <!--
   <properties>

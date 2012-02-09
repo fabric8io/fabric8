@@ -20,31 +20,35 @@
   <parent>
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
     
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.fusesource.fabric.apollo</groupId>
   <artifactId>fabric-apollo-project</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
   <description>Fuse Apollo :: Project</description>
 
   <prerequisites>
-    <maven>2.1.0</maven>
+    <maven>3.0.2</maven>
   </prerequisites>
 
   <properties>
+    <karaf-version>2.2.2</karaf-version>
+    <jetty-version>7.5.1.v20110908</jetty-version>
+    <hawtdispatch-version>1.9-SNAPSHOT</hawtdispatch-version>
     <osgi.fragment.host>org.apache.activemq.apollo-broker</osgi.fragment.host>
   </properties>
 
   <modules>
     <module>fabric-apollo-cluster</module>
     <module>fabric-apollo-cli</module>
-    <module>fabric-apollo-amqp</module>
+    <!-- <module>fabric-apollo-amqp</module> -->
     <module>fabric-apollo-mqtt</module>
     <module>fabric-apollo-haleveldb</module>
   </modules>

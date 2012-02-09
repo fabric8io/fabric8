@@ -23,12 +23,13 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 @Command(name = "profile-create", scope = "fabric", description = "Create a new profile")
 public class ProfileCreate extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     @Option(name = "--parents", multiValued = true, required = false)
     private List<String> parents;

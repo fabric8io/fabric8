@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.itests.paxexam;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,11 +51,11 @@ public class ContainerStartupTest extends FabricCommandsTestSupport {
 
         Thread.sleep(DEFAULT_WAIT);
 
-        Agent[] agents = fabricService.getAgents();
+        Container[] containers = fabricService.getContainers();
 
-        assertNotNull(agents);
-        assertEquals("Expected to find 1 agent",1,agents.length);
-        assertEquals("Expected to find the root agent","root",agents[0].getId());
+        assertNotNull(containers);
+        assertEquals("Expected to find 1 container",1, containers.length);
+        assertEquals("Expected to find the root container","root", containers[0].getId());
 
 
     }

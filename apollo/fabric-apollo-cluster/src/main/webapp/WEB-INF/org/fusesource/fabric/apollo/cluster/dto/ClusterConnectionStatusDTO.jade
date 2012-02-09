@@ -23,17 +23,35 @@
 p state: #{state} #{ uptime(state_since) } ago
 
 - if( state == "STARTED" )
-  form(method="post" action={path("action/shutdown")})
+  form(method="post" action={path("action/delete")})
     input(type="submit" value="shutdown")
 
+h4 Connection Info
+
+p connector: #{connector}
+p local address: #{local_address}
 p remote address: #{remote_address}
+
+h4 Protocol Info
+
 p protocol: #{protocol}
-p transport: #{transport}
+p protocol version: #{protocol_version}
+p protocol session id: #{protocol_session_id}
+p user: #{user}
+p subscription count: #{subscription_count}
+p waiting on: #{waiting_on}
+
+h4 Metrics
+
 p read counter: #{memory(read_counter)}
 p write counter: #{memory(write_counter)}
+p last read size: #{memory(last_read_size)}
+p last write size: #{memory(last_write_size)}
+
+h4 Cluster Status
 
 p node id: #{node_id}
-p waiting on: #{waiting_on}
+
 p exported consumer count: #{exported_consumer_count}
 p imported consumer count: #{imported_consumer_count}
 

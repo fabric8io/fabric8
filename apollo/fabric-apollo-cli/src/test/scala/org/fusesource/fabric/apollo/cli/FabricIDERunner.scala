@@ -17,7 +17,6 @@
 
 package org.fusesource.fabric.apollo.cli
 
-import org.junit.Test
 import java.io.File
 import org.apache.activemq.apollo.util.FileSupport._
 import org.apache.activemq.apollo.cli.Apollo

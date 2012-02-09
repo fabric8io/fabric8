@@ -39,12 +39,12 @@ shell:echo Create camel-cluster-port-9191 profile extending fabric-camel-cluster
 fabric:create-profile --parents fabric-camel-cluster camel-cluster-port-9191
 zk:create -r /fabric/configs/versions/base/profiles/camel-cluster-port-9191/fabricCamel/portNumber 9191
 
-shell:echo 1) Create fabric agent camel-9090 and wait 10s that it is created and configured
-fabric:agent-create --profile camel-cluster-port-9090 --parent root camel-9090
+shell:echo 1) Create fabric container camel-9090 and wait 10s that it is created and configured
+fabric:container-create --profile camel-cluster-port-9090 --parent root camel-9090
 shell:sleep 10000
 
-shell:echo 2) Create fabric agent camel-9191
-fabric:agent-create --profile camel-cluster-port-9191 --parent root camel-9191
+shell:echo 2) Create fabric container camel-9191
+fabric:container-create --profile camel-cluster-port-9191 --parent root camel-9191
 shell:sleep 10000
 
 shell:echo Installing camel features repository and deploy camel on the root instance

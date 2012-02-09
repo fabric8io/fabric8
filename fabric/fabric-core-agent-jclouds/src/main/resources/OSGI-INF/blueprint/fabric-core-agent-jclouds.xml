@@ -18,16 +18,16 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <service ref="jcloudsAgentProvider" auto-export="interfaces">
+    <service ref="jcloudsContainerProvider" auto-export="interfaces">
         <service-properties>
-            <entry key="fabric.agent.protocol" value="jclouds" />
+            <entry key="fabric.container.protocol" value="jclouds" />
         </service-properties>
     </service>
 
-    <bean id="jcloudsAgentProvider" class="org.fusesource.fabric.service.jclouds.JcloudsAgentProvider"/>
+    <bean id="jcloudsContainerProvider" class="org.fusesource.fabric.service.jclouds.JcloudsContainerProvider"/>
 
     <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
-        <reference-listener ref="jcloudsAgentProvider" bind-method="bind" unbind-method="unbind"/>
+        <reference-listener ref="jcloudsContainerProvider" bind-method="bind" unbind-method="unbind"/>
     </reference-list>
 
 </blueprint>

@@ -22,17 +22,18 @@ import java.util.List;
 
 public interface ZooKeeperClusterService {
 
-    static final String CLUSTER_AUTOSTART_PROPERTY="cluster.auto.cluster";
+    static final String ENSEMBLE_AUTOSTART ="ensemble.auto.start";
+    static final String PROFILES_AUTOIMPORT_PATH ="profiles.auto.import.path";
 
-    List<String> getClusterAgents();
+    List<String> getClusterContainers();
 
     String getZooKeeperUrl();
 
-    void createCluster(List<String> agents);
+    void createCluster(List<String> containers);
 
-    void addToCluster(List<String> agents);
+    void addToCluster(List<String> containers);
 
-    void removeFromCluster(List<String> agents);
+    void removeFromCluster(List<String> containers);
 
     void clean();
 

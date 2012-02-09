@@ -20,6 +20,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -27,11 +28,11 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import java.util.Properties;
 
 @Command(name = "join", scope = "fabric", description = "Join fabric cluster", detailedDescription = "classpath:join.txt")
-public class Join extends OsgiCommandSupport {
+public class Join extends OsgiCommandSupport implements org.fusesource.fabric.commands.service.Join {
 
     ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     @Argument(required = true, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
@@ -48,17 +49,44 @@ public class Join extends OsgiCommandSupport {
 
         String karafName = System.getProperty("karaf.name");
 
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_AGENT.getPath(karafName), version);
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, karafName), "default");
+        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
+        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default");
 
         return null;
     }
 
+    @Override
+    public Object run() throws Exception {
+        return doExecute();
+    }
+
+    @Override
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }
 
+    @Override
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    @Override
+    public String getZookeeperUrl() {
+        return zookeeperUrl;
+    }
+
+    @Override
+    public void setZookeeperUrl(String zookeeperUrl) {
+        this.zookeeperUrl = zookeeperUrl;
     }
 }

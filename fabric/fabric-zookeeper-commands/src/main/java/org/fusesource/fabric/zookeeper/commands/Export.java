@@ -19,6 +19,7 @@ package org.fusesource.fabric.zookeeper.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.zookeeper.utils.RegexSupport;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -27,9 +28,9 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.matches;
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.merge;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
 @Command(name = "export", scope = "zk", description = "Export data from zookeeper")
 public class Export extends ZooKeeperCommandSupport {
@@ -93,7 +94,7 @@ public class Export extends ZooKeeperCommandSupport {
         List<Pattern> include = getPatterns(regex);
         List<Pattern> exclude = getPatterns(nregex);
         List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
-        List<Pattern> agentProperties = getPatterns(new String[]{RegexSupport.PROFILE_AGENT_PROPERTIES_REGEX});
+        List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
 
         List<String> paths = getZooKeeper().getAllChildren(path);
         SortedSet<File> directories = new TreeSet<File>();
@@ -119,7 +120,7 @@ public class Export extends ZooKeeperCommandSupport {
                     }
                 }
                 //Make sure to append the parents
-                if(matches(agentProperties,p,false)) {
+                if(matches(containerProperties,p,false)) {
                   byte[] parentData = getZooKeeper().getData(p.substring(0,p.lastIndexOf("/")));
                     if (parentData != null) {
                         String parentValue = "parents=" + new String(parentData);

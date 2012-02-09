@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -34,6 +35,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
@@ -56,13 +58,12 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
         Thread.sleep(DEFAULT_WAIT);
-        //System.err.println(executeCommand("shell:source mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/karaf/profiles"));
         System.err.println(executeCommand("fabric:profile-list"));
         System.err.println(executeCommand("fabric:profile-display camel"));
-        System.err.println(executeCommand("fabric:agent-create --parent root --profile camel child1"));
+        System.err.println(executeCommand("fabric:container-create --parent root --profile camel child1"));
         Thread.sleep(3 * DEFAULT_WAIT);
-        System.err.println(executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0"));
-        String camelBundleCount = executeCommand("fabric:agent-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i camel");
+        System.err.println(executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list -t 0"));
+        String camelBundleCount = executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i camel");
         int count = Integer.parseInt(camelBundleCount.trim());
         assertTrue("At least one camel bundle is expected", count >= 1);
     }
@@ -71,6 +72,7 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
+                editConfigurationFileExtend("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion("org.fusesource.fabric","fuse-fabric")),
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

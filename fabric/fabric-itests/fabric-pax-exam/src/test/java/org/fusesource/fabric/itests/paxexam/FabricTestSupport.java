@@ -24,12 +24,10 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import javax.inject.Inject;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.service.FabricServiceImpl;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.ops4j.pax.exam.CoreOptions;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.osgi.framework.Bundle;
@@ -45,6 +43,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class FabricTestSupport {
@@ -67,7 +66,7 @@ public class FabricTestSupport {
      * @param name The name of the child {@ling Agent}.
      * @return
      */
-    protected Agent createChildAgent(String name) throws InterruptedException {
+    protected Container createChildAgent(String name) throws InterruptedException {
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
@@ -76,14 +75,14 @@ public class FabricTestSupport {
 
         Thread.sleep(DEFAULT_WAIT);
 
-        Agent[] agents = fabricService.getAgents();
-        assertNotNull(agents);
+        Container[] containers = fabricService.getContainers();
+        assertNotNull(containers);
 
-        assertEquals("Expected to find 1 agent", 1, agents.length);
-        Agent parent = agents[0];
-        assertEquals("Expected to find the root agent", "root", parent.getId());
+        assertEquals("Expected to find 1 container", 1, containers.length);
+        Container parent = containers[0];
+        assertEquals("Expected to find the root container", "root", parent.getId());
 
-        Agent child = fabricService.createAgent(parent, "child1");
+        Container child = fabricService.createContainer(parent, "child1");
         return child;
     }
 
@@ -96,8 +95,8 @@ public class FabricTestSupport {
             assertNotNull(fabricService);
 
             Thread.sleep(DEFAULT_WAIT);
-            Agent agent = fabricService.getAgent(name);
-            agent.destroy();
+            Container container = fabricService.getContainer(name);
+            container.destroy();
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -209,6 +208,16 @@ public class FabricTestSupport {
         }
     }
 
+    /**
+     * Make available system properties that are configured for the test, to the test container.
+     * <p>Note:</p> If not obvious the container runs in in forked mode and thus system properties passed
+     * form command line or surefire plugin are not available to the container without an approach like this.
+     * @param propertyName
+     * @return
+     */
+    public static Option copySystemProperty(String propertyName) {
+        return editConfigurationFileExtend("etc/system.properties", propertyName, System.getProperty(propertyName) != null ? System.getProperty(propertyName) : "");
+    }
 
     /*
      * Provides an iterable collection of references, even if the original array is null

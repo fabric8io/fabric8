@@ -10,6 +10,6 @@ config:update
 
 osgi:refresh --force "OPS4J Pax Logging - Service"
 
-sleep 1000
+sleep 2000
 
 

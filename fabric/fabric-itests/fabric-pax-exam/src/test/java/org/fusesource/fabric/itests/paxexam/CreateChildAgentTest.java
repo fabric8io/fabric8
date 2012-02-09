@@ -17,7 +17,7 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.junit.After;
@@ -56,16 +56,16 @@ public class CreateChildAgentTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        Agent child1 = createChildAgent("child1");
-        Agent result = fabricService.getAgent("child1");
-        assertEquals("Agents should have the same id",child1.getId(), result.getId());
+        Container child1 = createChildAgent("child1");
+        Container result = fabricService.getContainer("child1");
+        assertEquals("Containers should have the same id",child1.getId(), result.getId());
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
-                new VMOption("-D"+ZooKeeperClusterService.CLUSTER_AUTOSTART_PROPERTY+"=true") ,
+                new VMOption("-D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true") ,
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

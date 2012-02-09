@@ -27,7 +27,7 @@
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
     <packaging>pom</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
     <description>Fuse Fabric</description>
@@ -48,7 +48,7 @@
     </licenses>
 
     <prerequisites>
-        <maven>2.2.1</maven>
+        <maven>3.0.2</maven>
     </prerequisites>
 
     <properties>
@@ -97,7 +97,7 @@
 <!--
 <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
 -->
-        <apollo-version>1.0-SNAPSHOT</apollo-version>
+        <apollo-version>1.1-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <commons-codec-version>1.3_4</commons-codec-version>
@@ -111,7 +111,7 @@
         <felix.framework.version>3.0.9-fuse-03-${perfectus-build}</felix.framework.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
-        <hawtdispatch-version>1.7</hawtdispatch-version>
+        <hawtdispatch-version>1.8</hawtdispatch-version>
         <jackson-version>1.9.2</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
@@ -123,7 +123,7 @@
         <jetty-version>7.4.5.v20110725</jetty-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jna-version>3.3.0</jna-version>
-        <jna-bundle-version>3.3.0_1</jna-bundle-version>
+        <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
         <karaf-version>2.2.2-fuse-02-${perfectus-build}</karaf-version>
@@ -131,7 +131,7 @@
 <karaf-version>2.2.4-fuse-00-12</karaf-version>
 -->
         <libvirt-version>0.4.6</libvirt-version>
-        <libvirt-bundle-version>0.4.6_1</libvirt-bundle-version>
+        <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
@@ -296,7 +296,7 @@
                           </goals>
                         </pluginExecutionFilter>
                         <action>
-                          <ignore></ignore>
+                          <ignore />
                         </action>
                       </pluginExecution>
                     </pluginExecutions>
@@ -317,14 +317,8 @@
                     <configuration>
                       <args>
                         <arg>-deprecation</arg>
-                        <arg>-P:continuations:enable</arg>
                       </args>
                       <compilerPlugins>
-                        <compilerPlugin>
-                          <groupId>org.scala-lang.plugins</groupId>
-                          <artifactId>continuations</artifactId>
-                          <version>${scala-version}</version>
-                        </compilerPlugin>
                         <compilerPlugin>
                           <groupId>org.fusesource.jvmassert</groupId>
                           <artifactId>jvmassert</artifactId>

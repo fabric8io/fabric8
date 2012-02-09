@@ -21,6 +21,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
@@ -36,14 +37,16 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
+    
+    private static final String FRAMEWORK_VERSION = "mvn:org.apache.felix/org.apache.felix.framework/" + FabricConstants.FRAMEWORK_VERSION;
 
     private BundleContext bundleContext;
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     public void init() {
-        Boolean autoStart = Boolean.parseBoolean(System.getProperty(CLUSTER_AUTOSTART_PROPERTY));
+        Boolean autoStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART));
         if (autoStart) {
             createLocalServer();
         }
@@ -80,16 +83,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void createLocalServer(int port) {
         ZKClient client = null;
+        Configuration config = null;
+        String connectionUrl = null;
+        Properties properties = new Properties();
         String karafName = System.getProperty("karaf.name");
         String result = null; String exception = null;
+
         try {
-            Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-            Properties properties = new Properties();
-            String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
-            String mavenProxyUrl = "http://"+getLocalHostAddress() + ":" + 8040;
-            properties.put("zookeeper.url", connectionUrl);
-            config.setBundleLocation(null);
-            config.update(properties);
+            connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
+            String mavenProxyUrl = "http://" + getLocalHostAddress() + ":" + 8040;
+
             config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Properties();
             properties.put("tickTime",  "2000");
@@ -104,6 +107,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             client = new ZKClient(connectionUrl, Timespan.ONE_MINUTE, null);
             client.start();
             client.waitForStart(new Timespan(5, Timespan.TimeUnit.SECOND));
+
+            String autoImportFrom = System.getProperty(PROFILES_AUTOIMPORT_PATH);
+
+            if (autoImportFrom != null) {
+                ZookeeperImportUtils.importFromFileSystem(client, autoImportFrom, "/", null, null, false, false, false);
+            }
 
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
             setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
@@ -129,22 +138,23 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p = getProperties(client, defaultProfile + "/org.fusesource.fabric.agent.properties", new Properties());
             p.put("org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
             p.put("org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://scala-tools.org/repo-releases");
-            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/xml/features");
+            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features");
             p.put("feature.karaf", "karaf");
             p.put("feature.fabric-agent", "fabric-agent");
             p.put("feature.fabric-core", "fabric-core");
             p.put("feature.fabric-jaas", "fabric-jaas");
-            p.put("framework", "mvn:org.apache.felix/org.apache.felix.framework/3.0.9-fuse-00-10");
+            //p.put("framework", FRAMEWORK_VERSION);
 
             ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
-            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_AGENT.getPath(karafName), version);
-            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_AGENT.getPath(version, karafName), "default zk-server-0000-1");
+            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
+            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default zk-server-0000-1");
+
 
             // add auth
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.jaas/encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
             ZooKeeperUtils.createDefault(client, "fabric/authentication/encryption.enabled", "true");
-            ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "zookeeper");
+            ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "karaf");
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
 
             ZooKeeperUtils.createDefault(client,ZkPath.CONFIGS_MAVEN_REPO.getPath(),mavenProxyUrl);
@@ -159,7 +169,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 }
             }
             if (bundle == null) {
-                bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/1.1-SNAPSHOT");
+                bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
             }
             if (bundle.getState() == Bundle.ACTIVE) {
                 bundle.stop();
@@ -174,12 +184,19 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             throw new FabricException("Unable to create zookeeper server configuration", e);
         } finally {
             try {
-                ZooKeeperUtils.set(client, ZkPath.AGENT_PROVISION_RESULT.getPath(karafName), result);
-                ZooKeeperUtils.set(client, ZkPath.AGENT_PROVISION_EXCEPTION.getPath(karafName), exception);
-            } catch (Exception ignore) {}
-            if (client != null) {
-                client.destroy();
+                ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_RESULT.getPath(karafName), result);
+                ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(karafName), exception);
+                config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+                if (client != null) {
+                    client.destroy();
+                }
+                properties.put("zookeeper.url", connectionUrl);
+                config.setBundleLocation(null);
+                config.update(properties);
+            } catch (Exception ignore) {
+                ignore.printStackTrace(System.err);
             }
+
         }
     }
 
@@ -220,7 +237,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    public List<String> getClusterAgents() {
+    public List<String> getClusterContainers() {
         try {
             Configuration[] configs = configurationAdmin.listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
             if (configs == null || configs.length == 0) {
@@ -229,12 +246,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             List<String> list = new ArrayList<String>();
             if (zooKeeper.exists("/fabric/configs/versions/" + version + "/general/zookeeper-cluster") != null) {
                 String clusterId = zooKeeper.getStringData("/fabric/configs/versions/" + version + "/general/zookeeper-cluster");
-                String agents = zooKeeper.getStringData( "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/" + clusterId );
-                Collections.addAll( list, agents.split( "," ) );
+                String containers = zooKeeper.getStringData( "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/" + clusterId );
+                Collections.addAll(list, containers.split(","));
             }
             return list;
         } catch (Exception e) {
-            throw new FabricException("Unable to load zookeeper quorum agents", e);
+            throw new FabricException("Unable to load zookeeper quorum containers", e);
         }
     }
 
@@ -272,16 +289,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         return props.get("data");
     }
 
-    public void createCluster(List<String> agents) {
+    public void createCluster(List<String> containers) {
         try {
-            if (agents == null || agents.size() == 2) {
-                throw new IllegalArgumentException("One or at least 3 agents must be used to create a zookeeper cluster");
+            if (containers == null || containers.size() == 2) {
+                throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
             }
             Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
             if (zooKeeperUrl == null) {
-                if (agents.size() != 1 || !agents.get(0).equals(System.getProperty("karaf.name"))) {
-                    throw new FabricException("The first zookeeper cluster must be configured on this agent only.");
+                if (containers.size() != 1 || !containers.get(0).equals(System.getProperty("karaf.name"))) {
+                    throw new FabricException("The first zookeeper cluster must be configured on this container only.");
                 }
                 createLocalServer();
                 return;
@@ -291,9 +308,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             if (!url.equals(zooKeeperUrl)) {
                 throw new IllegalStateException("The zookeeper configuration is not properly backed in the zookeeper tree.");
             }
-            for (String agent : agents) {
-                if (zooKeeper.exists("/fabric/registry/agents/alive/" + agent) == null) {
-                    throw new FabricException("The agent " + agent + " is not alive");
+            for (String container : containers) {
+                if (zooKeeper.exists(ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
+                    throw new FabricException("The container " + container + " is not alive");
                 }
             }
 
@@ -333,35 +350,35 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             int index = 1;
             String connectionUrl = "";
             String realConnectionUrl = "";
-            String agentList = "";
-            for (String agent : agents) {
-                String ip = zooKeeper.getStringData("/fabric/registry/agents/config/" + agent + "/ip");
+            String containerList = "";
+            for (String container : containers) {
+                String ip = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(container));
                 String profNode = "/fabric/configs/versions/" + version + "/profiles/zk-server-" + newClusterId + "-" + Integer.toString(index);
-                String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId+".profile";
+                String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".profile";
                 Properties pidNodeProperties = new Properties();
 
                 ZooKeeperUtils.add(zooKeeper, profNode, "zk-server-" + newClusterId);
                 String port1 = Integer.toString(findPort(usedPorts, ip, 2181));
-                if (agents.size() > 1) {
+                if (containers.size() > 1) {
                     String port2 = Integer.toString(findPort(usedPorts, ip, 2888));
                     String port3 = Integer.toString(findPort(usedPorts, ip, 3888));
-                    profileNodeProperties.put("server." + Integer.toString(index), "${zk:" + agent + "/ip}:" + port2 + ":" + port3);
+                    profileNodeProperties.put("server." + Integer.toString(index), "${zk:" + container + "/ip}:" + port2 + ":" + port3);
                     pidNodeProperties.put("server.id", Integer.toString(index));
                 }
                 pidNodeProperties.put("clientPort", port1);
                 ZooKeeperUtils.set(zooKeeper, pidNode, toString(pidNodeProperties));
 
-                ZooKeeperUtils.add(zooKeeper, "/fabric/configs/versions/" + version + "/agents/" + agent, "zk-server-" + newClusterId + "-" + Integer.toString(index));
+                ZooKeeperUtils.add(zooKeeper, "/fabric/configs/versions/" + version + "/containers/" + container, "zk-server-" + newClusterId + "-" + Integer.toString(index));
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";
                     realConnectionUrl += ",";
                 }
-                connectionUrl += "${zk:" + agent + "/ip}:" + port1;
+                connectionUrl += "${zk:" + container + "/ip}:" + port1;
                 realConnectionUrl += ip + ":" + port1;
-                if (agentList.length() > 0) {
-                    agentList += ",";
+                if (containerList.length() > 0) {
+                    containerList += ",";
                 }
-                agentList += agent;
+                containerList += container;
                 index++;
             }
 
@@ -378,10 +395,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
                     ZooKeeperUtils.copy(src, dst, "/fabric/configs");
                     ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster", newClusterId);
-                    ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/" + newClusterId, agentList);
-
-                    for (String agent : dst.getChildren("/fabric/configs/versions/" + version + "/agents")) {
-                        ZooKeeperUtils.remove(dst, "/fabric/configs/versions/" + version + "/agents/" + agent, "zk-server-" + oldClusterId + "-.*");
+                    ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/zookeeper-cluster/" + newClusterId, containerList);
+                    for (String container : dst.getChildren("/fabric/configs/versions/" + version + "/containers")) {
+                        ZooKeeperUtils.remove(dst, "/fabric/configs/versions/" + version + "/containers/" + container, "zk-server-" + oldClusterId + "-.*");
                     }
                     setConfigProperty(dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
                     setConfigProperty(src, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
@@ -454,23 +470,23 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    public void addToCluster(List<String> agents) {
+    public void addToCluster(List<String> containers) {
         try {
-            List<String> current = getClusterAgents();
-            current.addAll(agents);
+            List<String> current = getClusterContainers();
+            current.addAll(containers);
             createCluster(current);
         } catch (Exception e) {
-            throw new FabricException("Unable to add agents to zookeeper quorum: " + e.getMessage(), e);
+            throw new FabricException("Unable to add containers to zookeeper quorum: " + e.getMessage(), e);
         }
     }
 
-    public void removeFromCluster(List<String> agents) {
+    public void removeFromCluster(List<String> containers) {
         try {
-            List<String> current = getClusterAgents();
-            current.removeAll(agents);
+            List<String> current = getClusterContainers();
+            current.removeAll(containers);
             createCluster(current);
         } catch (Exception e) {
-            throw new FabricException("Unable to add agents to zookeeper quorum: " + e.getMessage(), e);
+            throw new FabricException("Unable to remove containers to zookeeper quorum: " + e.getMessage(), e);
         }
     }
 

@@ -18,8 +18,6 @@ package org.fusesource.fabric.api.data;
 
 /**
  * Information about OSGi service.
- *
- * @author ldywicki
  */
 public interface ServiceInfo {
 
@@ -52,7 +50,6 @@ public interface ServiceInfo {
     String[] getObjectClasses();
 
     Property[] getProperties();
-
 
     interface Property {
         String getKey();

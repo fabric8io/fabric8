@@ -124,12 +124,12 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
 
         //The compute service needs some time to properly initialize.
         Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:agent-create --ensemble-server --url jclouds://aws-ec2?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
+        System.err.println(executeCommand(String.format("fabric:agent-container --ensemble-server --url jclouds://aws-ec2?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         Thread.sleep(DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
-        String agentList = executeCommand("fabric:agent-list");
+        String agentList = executeCommand("fabric:container-list");
         System.err.println(agentList);
         assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));
 
@@ -199,11 +199,11 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.identity", System.getProperty("fabricitest.aws.identity") != null ? System.getProperty("fabricitest.aws.identity") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.credential", System.getProperty("fabricitest.aws.credential") != null ? System.getProperty("fabricitest.aws.credential") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.image", System.getProperty("fabricitest.aws.image") != null ? System.getProperty("fabricitest.aws.image") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.location", System.getProperty("fabricitest.aws.location") != null ? System.getProperty("fabricitest.aws.location") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.aws.user", System.getProperty("fabricitest.aws.user") != null ? System.getProperty("fabricitest.aws.user") : ""),
+                copySystemProperty("fabricitest.aws.identity"),
+                copySystemProperty("fabricitest.aws.credential"),
+                copySystemProperty("fabricitest.aws.image"),
+                copySystemProperty("fabricitest.aws.location"),
+                copySystemProperty("fabricitest.aws.user"),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
                 scanFeatures("jclouds","jclouds-compute").start()
         };

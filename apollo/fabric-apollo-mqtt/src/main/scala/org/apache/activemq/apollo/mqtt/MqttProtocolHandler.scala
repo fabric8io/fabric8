@@ -17,7 +17,7 @@
 
 package org.apache.activemq.apollo.mqtt
 
-import _root_.org.fusesource.hawtbuf._
+import org.fusesource.hawtbuf._
 import dto.{MqttConnectionStatusDTO, MqttDTO}
 import org.fusesource.hawtdispatch._
 
@@ -28,24 +28,35 @@ import security.SecurityContext
 import org.apache.activemq.apollo.util._
 import java.util.concurrent.TimeUnit
 import java.util.Map.Entry
-import scala.util.continuations._
 import java.security.cert.X509Certificate
 import java.io.IOException
 import org.apache.activemq.apollo.dto._
-import org.fusesource.hawtdispatch.transport.{HeartBeatMonitor, SslTransport}
 import java.util.regex.Pattern
-import org.fusesource.mqtt.codec._
 import org.fusesource.mqtt.client.QoS._
-import org.fusesource.mqtt.codec.MessageSupport.Acked
-import store.StoreUOW
+import org.fusesource.mqtt.client.Topic
 import org.fusesource.mqtt.codec.CONNACK.Code._
-import collection.mutable.{ListBuffer, HashSet, HashMap}
 import org.fusesource.mqtt.client.QoS
+import org.fusesource.hawtdispatch.transport.{SecureTransport, HeartBeatMonitor, SslTransport}
+import org.apache.activemq.apollo.util.path.{Path, PathParser, PathMap}
+import org.fusesource.mqtt.codec._
+import scala.collection.mutable.{HashSet, HashMap}
+import org.apache.activemq.apollo.mqtt.MqttSessionManager._
+import org.apache.activemq.apollo.broker.store.{Store, StoreUOW}
+import scala.Array._
 
 object MqttProtocolHandler extends Log {
-  def noop = shift {  k: (Unit=>Unit) => k() }
-  def unit:Unit = {}
-  case class Request(id:Short, frame:MQTTFrame, cb: ()=>Unit)
+  
+  case class Request(id:Short, message:MessageSupport.Message, ack:(DeliveryResult)=>Unit) {
+    val frame = if(message==null) null else message.encode()
+    var delivered = false
+  }
+
+  def received[T](value:T):T = {
+    trace("received: %s", value)
+    value
+  }
+
+  val WAITING_ON_CLIENT_REQUEST = ()=> "client request"
 }
 
 /**
@@ -61,32 +72,9 @@ class MqttProtocolHandler extends ProtocolHandler {
 
   var connection_log:Log = MqttProtocolHandler
   var config:MqttDTO = _
-  var protocol_filters = List[ProtocolFilter]()
-  var destination_parser = MqttProtocol.destination_parser
 
-  /////////////////////////////////////////////////////////////////////
-  //
-  // Bits related setting up a client connection
-  //
-  /////////////////////////////////////////////////////////////////////
-  val security_context = new SecurityContext
-  var sink_manager:SinkMux[Request] = null
-  var connection_sink:Sink[Request] = null
-  var codec:MQTTProtocolCodec = _
-
-  override def on_transport_connected() = {
-    import collection.JavaConversions._
-
-    codec = connection.transport.getProtocolCodec.asInstanceOf[MQTTProtocolCodec]
-    val connector_config = connection.connector.config.asInstanceOf[AcceptingConnectorDTO]
-    config = connector_config.protocols.find( _.isInstanceOf[MqttDTO]).map(_.asInstanceOf[MqttDTO]).getOrElse(new MqttDTO)
-    protocol_filters = ProtocolFilter.create_filters(config.protocol_filters.toList, this)
-    import OptionSupport._
-    config.max_message_length.foreach( codec.setMaxMessageLength(_) )
-
-    //
-    // The protocol may have been configured with different destination
-    // parsing options.
+  def destination_parser = {
+    var destination_parser = MqttProtocol.destination_parser
     if( config.queue_prefix!=null ||
         config.path_separator!= null ||
         config.any_child_wildcard != null ||
@@ -104,21 +92,50 @@ class MqttProtocolHandler extends ProtocolHandler {
       if( config.regex_wildcard_end!=null ) { destination_parser.regex_wildcard_end = config.regex_wildcard_end }
       if( config.part_pattern!=null ) { destination_parser.part_pattern = Pattern.compile(config.part_pattern) }
     }
+    destination_parser
+  }
+
+  def protocol_filters = {
+    import collection.JavaConversions._
+    ProtocolFilter.create_filters(config.protocol_filters.toList, this)
+  }
+
+  /////////////////////////////////////////////////////////////////////
+  //
+  // Bits related setting up a client connection
+  //
+  /////////////////////////////////////////////////////////////////////
+  def session_id = security_context.session_id
+
+  val security_context = new SecurityContext
+  var sink_manager:SinkMux[Request] = null
+  var connection_sink:Sink[Request] = null
+  var codec:MQTTProtocolCodec = _
+
+  override def on_transport_connected() = {
+    import collection.JavaConversions._
+
+    codec = connection.transport.getProtocolCodec.asInstanceOf[MQTTProtocolCodec]
+    val connector_config = connection.connector.config.asInstanceOf[AcceptingConnectorDTO]
+    config = connector_config.protocols.find( _.isInstanceOf[MqttDTO]).map(_.asInstanceOf[MqttDTO]).getOrElse(new MqttDTO)
+    import OptionSupport._
+    config.max_message_length.foreach( codec.setMaxMessageLength(_) )
 
     connection.transport match {
       case t:SslTransport=>
         security_context.certificates = Option(t.getPeerX509Certificates).getOrElse(Array[X509Certificate]())
       case _ => None
     }
-    security_context.connection_id = Some(connection.id)
     security_context.local_address = connection.transport.getLocalAddress
     security_context.remote_address = connection.transport.getRemoteAddress
 
     connection_log = connection.connector.broker.connection_log
     sink_manager = new SinkMux[Request]( connection.transport_sink.map { request=>
+      trace("sent: %s", request.message)
       val frame = request.frame
-      if (request.id == 0 && request.cb != null) {
-        request.cb()
+      request.delivered = true
+      if (request.id == 0 && request.ack != null) {
+        request.ack(Consumed)
       }
       frame
     })
@@ -133,16 +150,12 @@ class MqttProtocolHandler extends ProtocolHandler {
   /////////////////////////////////////////////////////////////////////
   var closed = false
   def dead_handler(command:AnyRef):Unit = {}
+
   override def on_transport_disconnected() = {
     if( !closed ) {
-
-      if( connect_message.willTopic()!=null ) {
-        val will = new PUBLISH()
-        will.topicName(connect_message.willTopic())
-        will.payload(connect_message.willMessage())
-        will.qos(connect_message.willQos())
-        // TODO: publish the will
-      }
+      closed=true;
+      dead = true;
+      command_handler = dead_handler _
 
       security_context.logout( e => {
         if(e!=null) {
@@ -151,18 +164,22 @@ class MqttProtocolHandler extends ProtocolHandler {
       })
 
       heart_beat_monitor.stop
-      closed=true;
-      dead = true;
-      command_handler = dead_handler _
+      if( !connection.stopped ) {
+        connection.stop()
+      }
       trace("mqtt protocol resources released")
     }
   }
 
   override def on_transport_failure(error: IOException) = {
-    if( !connection.stopped ) {
-      suspend_read("shutdown")
-      connection_log.info(error, "Shutting connection '%s'  down due to: %s", security_context.remote_address, error)
-      super.on_transport_failure(error);
+    if( !dead ) {
+      command_handler("failure")
+      dead = true
+      command_handler = dead_handler _
+      if( !connection.stopped ) {
+        connection_log.info(error, "Shutting connection '%s'  down due to: %s", security_context.remote_address, error)
+        super.on_transport_failure(error);
+      }
     }
   }
 
@@ -172,15 +189,15 @@ class MqttProtocolHandler extends ProtocolHandler {
   //
   /////////////////////////////////////////////////////////////////////
 
-  var waiting_on:String = "client request"
-  def suspend_read(reason:String) = {
-    waiting_on = reason
+  var status = WAITING_ON_CLIENT_REQUEST
+  def suspend_read(reason: => String) = {
+    status = reason _
     connection.transport.suspendRead
     heart_beat_monitor.suspendRead
   }
 
   def resume_read() = {
-    waiting_on = "client request"
+    status = WAITING_ON_CLIENT_REQUEST
     connection.transport.resumeRead
     heart_beat_monitor.resumeRead
   }
@@ -225,11 +242,13 @@ class MqttProtocolHandler extends ProtocolHandler {
 
   def die[T](response:MessageSupport.Message):T = {
     if( !dead ) {
+      command_handler("failure")
       dead = true
-      waiting_on = "shutdown"
+      command_handler = dead_handler _
+      status = ()=>"shuting down"
       if( response!=null ) {
         connection.transport.resumeRead
-        connection_sink.offer(Request(0, response.encode(), null))
+        connection_sink.offer(Request(0, response, null))
         // TODO: if there are too many open connections we should just close the connection
         // without waiting for the error to get sent to the client.
         queue.after(die_delay, TimeUnit.MILLISECONDS) {
@@ -274,26 +293,27 @@ class MqttProtocolHandler extends ProtocolHandler {
   
   var connect_message:CONNECT = _
   var heart_beat_monitor = new HeartBeatMonitor
+  var host:VirtualHost = _
 
   def connect_handler(command:AnyRef):Unit = command match {
     case s:MQTTProtocolCodec =>
       // this is passed on to us by the protocol discriminator
       // so we know which wire format is being used.
     case frame:MQTTFrame=>
-      trace("received frame: %s", frame.messageType())
 
       var command = frame
       protocol_filters.foreach { filter =>
         command = filter.filter(command)
       }
 
-      frame.messageType() match {
+      command.messageType() match {
         case CONNECT.TYPE =>
-          connect_message = new CONNECT().decode(frame) 
+          connect_message = received(new CONNECT().decode(command)) 
           on_mqtt_connect
         case _ =>
           die("Expecting an MQTT CONNECT message, but got: "+command.getClass);
       }
+    case "failure" =>
     case _=>
       die("Internal Server Error: unexpected mqtt command: "+command.getClass);
   }
@@ -308,9 +328,16 @@ class MqttProtocolHandler extends ProtocolHandler {
     }
     
     val client_id = connect_message.clientId()
+
+    connection.transport match {
+      case t:SecureTransport=>
+        security_context.certificates = Option(t.getPeerX509Certificates).getOrElse(Array[X509Certificate]())
+      case _ =>
+    }
     security_context.user = Option(connect_message.userName).map(_.toString).getOrElse(null)
     security_context.password = Option(connect_message.password).map(_.toString).getOrElse(null)
-    
+    security_context.session_id = Some(client_id.toString)
+
     val keep_alive = connect_message.keepAlive
     if( keep_alive > 0 ) {
       heart_beat_monitor.setReadInterval((keep_alive*1.5).toLong*1000)
@@ -322,45 +349,41 @@ class MqttProtocolHandler extends ProtocolHandler {
     heart_beat_monitor.setTransport(connection.transport)
     heart_beat_monitor.start
 
-    reset {
-
-      suspend_read("virtual host lookup")
-      val host = connection.connector.broker.get_default_virtual_host
-      resume_read
-
-      if(host==null) {
-        connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
-        async_die(connack, "Default virtual host not found.")
-        noop
-      } else if(!host.service_state.is_started) {
-        connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
-        async_die(connack, "Default virtual host stopped.")
-        noop
-      } else {
-        connection_log = host.connection_log
-        if( host.authenticator!=null &&  host.authorizer!=null ) {
-          suspend_read("authenticating and authorizing connect")
-          var auth_err = host.authenticator.authenticate(security_context)
-          if( auth_err!=null ) {
-            connack.code(CONNECTION_REFUSED_BAD_USERNAME_OR_PASSWORD)
-            async_die(connack, auth_err+". Credentials="+security_context.credential_dump)
-            noop // to make the cps compiler plugin happy.
-          } else if( !host.authorizer.can(security_context, "connect", connection.connector) ) {
-            connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
-            async_die(connack, "Not authorized to connect to connector '%s'. Principals=".format(connection.connector.id, security_context.principal_dump))
-            noop // to make the cps compiler plugin happy.
-          } else if( !host.authorizer.can(security_context, "connect", host) ) {
-            connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
-            async_die(connack, "Not authorized to connect to virtual host '%s'. Principals=".format(host.id, security_context.principal_dump))
-            noop // to make the cps compiler plugin happy.
-          } else {
-            resume_read
-            on_host_connected(host)
-            noop // to make the cps compiler plugin happy.
-          }
+    suspend_read("virtual host lookup")
+    broker.dispatch_queue {
+      host = connection.connector.broker.get_default_virtual_host
+      queue {
+        resume_read
+        if(host==null) {
+          connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
+          async_die(connack, "Default virtual host not found.")
+        } else if(!host.service_state.is_started) {
+          connack.code(CONNECTION_REFUSED_SERVER_UNAVAILABLE)
+          async_die(connack, "Default virtual host stopped.")
         } else {
-          on_host_connected(host)
-          noop // to make the cps compiler plugin happy.
+          connection_log = host.connection_log
+          if( host.authenticator!=null &&  host.authorizer!=null ) {
+            suspend_read("authenticating and authorizing connect")
+            host.authenticator.authenticate(security_context) { auth_err =>
+              queue {
+                if( auth_err!=null ) {
+                  connack.code(CONNECTION_REFUSED_BAD_USERNAME_OR_PASSWORD)
+                  async_die(connack, auth_err+". Credentials="+security_context.credential_dump)
+                } else if( !host.authorizer.can(security_context, "connect", connection.connector) ) {
+                  connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
+                  async_die(connack, "Not authorized to connect to connector '%s'. Principals=".format(connection.connector.id, security_context.principal_dump))
+                } else if( !host.authorizer.can(security_context, "connect", host) ) {
+                  connack.code(CONNECTION_REFUSED_NOT_AUTHORIZED)
+                  async_die(connack, "Not authorized to connect to virtual host '%s'. Principals=".format(host.id, security_context.principal_dump))
+                } else {
+                  resume_read
+                  on_host_connected(host)
+                }
+              }
+            }
+          } else {
+            on_host_connected(host)
+          }
         }
       }
     }
@@ -375,22 +398,17 @@ class MqttProtocolHandler extends ProtocolHandler {
   // Other msic bits.
   //
   /////////////////////////////////////////////////////////////////////
-  def decode_destination(value:UTF8Buffer):DestinationDTO = {
-    val rc = destination_parser.decode_single_destination(value.toString, (name)=>{
-      new TopicDestinationDTO(destination_parser.parts(name))
-    })
-    if( rc==null ) {
-      die("Invalid mqtt destination name: "+value);
-    }
-    rc
-  }
+  var messages_sent = 0L
+  var messages_received = 0L
+  var subscription_count = 0
 
   override def create_connection_status = {
     var rc = new MqttConnectionStatusDTO
     rc.protocol_version = "3.1"
-//    rc.user = client_id.toString
-//    rc.subscription_count = 0 // consumers.size
-    rc.waiting_on = waiting_on
+    rc.messages_sent = messages_sent
+    rc.messages_received = messages_received
+    rc.subscription_count = subscription_count
+    rc.waiting_on = status()
     rc
   }
 
@@ -408,74 +426,144 @@ class MqttProtocolHandler extends ProtocolHandler {
  */
 object MqttSessionManager {
 
-  case class SessionKey(host:VirtualHost, client_id:UTF8Buffer)
+  val queue = createQueue("session manager")
 
-  case class SessionAssignment(key:SessionKey, session:MqttSession) {
-    val queue = createQueue("session assignment")
-    var current:MqttProtocolHandler = _
-    var disconnected = false
+  class SessionState {
+    var durable_sub:SubscriptionAddress = _
+    val subscriptions = HashMap[UTF8Buffer, (Topic, BindAddress)]()
+    val received_message_ids: HashSet[Short] = new HashSet[Short]
 
-    def disconnect(handler:MqttProtocolHandler) = queue {
-      if( current==handler ) {
-        disconnected = true
-        MqttSessionManager.remove(key)
-        handler.queue {
-          session.disconnect
-        }
+    trait StorageStrategy {
+      def update(cb: =>Unit)
+      def destroy(cb: =>Unit)
+      def create(store:Store, client_id:UTF8Buffer)
+    }
+    case class NoopStrategy() extends StorageStrategy {
+      def update(cb: =>Unit) = { cb }
+      def destroy(cb: =>Unit) { cb }
+      def create(store:Store, client_id:UTF8Buffer) = {
+        if(store!=null)
+          strategy = StoreStrategy(store, client_id)
       }
     }
 
-    def switch_to(next:MqttProtocolHandler):Unit = queue {
-      if(disconnected) {
-        // we are nto the assignment anymore.. got to the session manager
-        // again to operate against the real
-        MqttSessionManager.attach(key.host, key.client_id, next)
-      } else {
-        val previous = current
-        current = next
-        // so that we don't switch again until this current switch completes
-        queue.suspend()
-        def complete = next.queue {
-          session.attach(next)
-          queue.resume()
+    case class StoreStrategy(store:Store, client_id:UTF8Buffer) extends StorageStrategy {
+      val session_key = new UTF8Buffer("mqtt:"+client_id)
+      def update(cb: =>Unit) = {
+        val uow = store.create_uow()
+        val session_pb = new SessionPB.Bean
+        session_pb.setClientId(client_id)
+        received_message_ids.foreach(session_pb.addReceivedMessageIds(_))
+        subscriptions.values.foreach { case (topic, address) =>
+          val topic_pb = new TopicPB.Bean
+          topic_pb.setName(topic.name())
+          topic_pb.setQos(topic.qos().ordinal())
+          topic_pb.setAddress(new UTF8Buffer(address.toString))
+          session_pb.addSubscriptions(topic_pb)
         }
+        uow.put(session_key, session_pb.freeze().toUnframedBuffer)
 
-        if( previous!=null ) {
-          previous.queue {
-            session.detach(previous)
-            complete
+        val current = getCurrentQueue
+        uow.on_complete {
+          current {
+            cb
+          }
+        }
+        uow.release()
+      }
+
+      def destroy(cb: =>Unit) {
+        val uow = store.create_uow()
+        uow.put(session_key, null)
+        val current = getCurrentQueue
+        uow.on_complete {
+          current {
+            strategy = NoopStrategy()
+            cb
+          }
+        }
+        uow.release()
+      }
+      def create(store:Store, client_id:UTF8Buffer) = {
+      }
+    }
+    var strategy:StorageStrategy = new NoopStrategy
+
+  }
+
+
+  case class HostState(host:VirtualHost) {
+    val session_states = HashMap[UTF8Buffer, SessionState]()
+    val sessions = HashMap[UTF8Buffer, MqttSession]()
+
+    var loaded = false;
+    def on_load(func: =>Unit) = {
+      if( loaded ) {
+        func
+      } else {
+        if(host.store!=null) {
+          // We load all the persisted session's from the host's store when we are first accessed.
+          queue.suspend()
+          host.store.get_prefixed_map_entries(new AsciiBuffer("mqtt:")) { entries =>
+            queue.resume()
+            queue {
+              for( (_, value) <- entries ) {
+                import collection.JavaConversions._
+                val session_pb = SessionPB.FACTORY.parseUnframed(value)
+                val session_state = new SessionState()
+                session_state.strategy.create(host.store, session_pb.getClientId)
+                if( session_pb.hasReceivedMessageIds ) {
+                  session_state.received_message_ids ++= session_pb.getReceivedMessageIdsList.map(_.toShort)
+                }
+                if( session_pb.hasSubscriptions ) {
+                  session_pb.getSubscriptionsList.foreach { sub =>
+                    val address = SimpleAddress(sub.getAddress.toString)
+                    val topic = new Topic(sub.getName, QoS.values()(sub.getQos))
+                    session_state.subscriptions += sub.getName -> (topic,address)
+                  }
+                }
+                session_states.put(session_pb.getClientId, session_state)
+              }
+              loaded = true
+              func
+            }
           }
         } else {
-          complete
+          loaded = true
+          func
         }
       }
     }
   }
 
-  val queue = createQueue("session manager")
-  val sessions = HashMap[SessionKey, SessionAssignment]()
-
   def attach(host:VirtualHost, client_id:UTF8Buffer, handler:MqttProtocolHandler) = queue {
-    var key: SessionKey = SessionKey(host, client_id)
-    sessions.get(key) match {
-      case Some(assignment) =>
-        assignment.switch_to(handler)
-      case None =>
-        val assignment = SessionAssignment(key, MqttSession(host, client_id))
-        assignment.switch_to(handler)
-        sessions.put(key, assignment)
+    val host_state = host.plugin_state(new HostState(host), classOf[HostState])
+    host_state.on_load {
+      host_state.sessions.get(client_id) match {
+        case Some(assignment) =>
+          assignment.connect(handler)
+        case None =>
+          val state = if( handler.connect_message.cleanSession() ) {
+            host_state.session_states.remove(client_id).getOrElse(new SessionState())
+          } else {
+            host_state.session_states.getOrElseUpdate(client_id, new SessionState())
+          }
+          val assignment = MqttSession(host_state, client_id, state)
+          assignment.connect(handler)
+          host_state.sessions.put(client_id, assignment)
+      }
     }
   }
 
-  def disconnect(host:VirtualHost, client_id:UTF8Buffer, handler:MqttProtocolHandler) = queue {
-    sessions.get(SessionKey(host, client_id)) match {
+  def disconnect(host_state:HostState, client_id:UTF8Buffer, handler:MqttProtocolHandler) = queue {
+    host_state.sessions.get(client_id) match {
       case Some(assignment) => assignment.disconnect(handler)
       case None => // Don't expect this to hit.
     }
   }
 
-  def remove(key:SessionKey) = queue {
-    sessions.remove(key)
+  def remove(host_state:HostState, client_id:UTF8Buffer) = queue {
+    host_state.sessions.remove(client_id)
   }
 }
 
@@ -486,51 +574,169 @@ object MqttSessionManager {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
+case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state:SessionState) {
+  
   import MqttProtocolHandler._
 
+  def host = host_state.host
+
+  val queue = createQueue("mqtt: "+client_id)
+  var manager_disconnected = false
+
+  var handler:Option[MqttProtocolHandler] = None
+  var security_context:SecurityContext = _
+  var clean_session = false
+  var protocol_filters = List[ProtocolFilter]()
+  var connect_message:CONNECT = _
+  var destination_parser = MqttProtocol.destination_parser
+
+  def connect(next:MqttProtocolHandler):Unit = queue {
+    if(manager_disconnected) {
+      // we are not the assignment anymore.. go to the session manager
+      // again to setup a new session.
+      MqttSessionManager.attach(host, client_id, next)
+    } else {
+      
+      // so that we don't switch again until this current switch completes
+      queue.suspend()
+      if( handler != None ) {
+        detach
+        handler = None
+      }
+      queue {
+        handler=Some(next)
+        attach
+      }
+      
+      // switch the connection to the session queue..
+      next.connection.set_dispatch_queue(queue) {
+        queue.resume()
+      }
+    }
+  }
+
+  def disconnect(prev:MqttProtocolHandler) = queue {
+    if( handler==Some(prev) ) {
+      MqttSessionManager.remove(host_state, client_id)
+      manager_disconnected = true
+      detach
+      handler = None
+    }
+  }
   /////////////////////////////////////////////////////////////////////
   //
   // Bits that deal with connections attaching/detaching from the session
   //
   /////////////////////////////////////////////////////////////////////
-  var handler:MqttProtocolHandler = _
-  def security_context = handler.security_context
-  def queue = handler.queue
-
-  def detach(h:MqttProtocolHandler) = {
-    assert(handler == h)
+  def attach = {
     queue.assertExecuting()
+    val h = handler.get
+    clean_session = h.connect_message.cleanSession()
+    security_context = h.security_context
+    h.command_handler = on_transport_command _
+    protocol_filters = h.protocol_filters
+    destination_parser = h.destination_parser
+    mqtt_consumer.consumer_sink.downstream = Some(h.sink_manager.open)
 
-    handler.on_transport_disconnected()
-    handler.connection.stop()
-    handler = null
-  }
-
-  def attach(h:MqttProtocolHandler) = {
-    assert(this.handler==null)
-    handler = h
-    queue.assertExecuting()
-    handler.command_handler = on_transport_command _
-
-    val connack = new CONNACK
-    connack.code(CONNECTION_ACCEPTED)
-    send(connack)
-  }
-
-  def disconnect = {
-
-    import collection.JavaConversions._
-    producerRoutes.foreach{
-      case(dest,route)=> host.router.disconnect(Array(dest), route)
+    def ack_connect = {
+      queue.assertExecuting()
+      connect_message = h.connect_message
+      val connack = new CONNACK
+      connack.code(CONNECTION_ACCEPTED)
+      send(connack)
     }
-    producerRoutes.clear
-//      consumers.foreach {
-//        case (_,consumer)=>
-//          host.router.unbind(consumer.destination, consumer, false , security_context)
-//      }
-//      consumers = Map()
 
+    if( !clean_session ) {
+      // Setup the previous subscriptions..
+      session_state.strategy.create(host.store, client_id)
+      if( !session_state.subscriptions.isEmpty ) {
+        h.suspend_read("subscribing")
+        subscribe(session_state.subscriptions.map(_._2._1)) {
+          h.resume_read()
+          h.queue {
+            ack_connect
+          }
+        }
+      } else {
+        ack_connect
+      }
+    } else {
+      // do we need to clear the received ids?
+      // durable_session_state.received_message_ids.clear()
+      session_state.subscriptions.clear()
+      if( session_state.durable_sub !=null ) {
+        var addresses = Array(session_state.durable_sub)
+        session_state.durable_sub = null
+        host.dispatch_queue {
+          host.router.delete(addresses, security_context)
+        }
+      }
+      session_state.strategy.destroy {
+        ack_connect
+      }
+    }
+
+  }
+
+  def detach:Unit = {
+    queue.assertExecuting()
+
+    if(!producerRoutes.isEmpty) {
+      import collection.JavaConversions._
+      val routes = producerRoutes.toArray
+      host.dispatch_queue {
+        routes.foreach { case (dest, route)=>
+          host.router.disconnect(Array(dest), route)
+        }
+      }
+      producerRoutes.clear
+    }
+
+    if( clean_session ) {
+      if(!mqtt_consumer.addresses.isEmpty) {
+        var addresses = mqtt_consumer.addresses.keySet.toArray
+        host.dispatch_queue {
+          host.router.unbind(addresses, mqtt_consumer, false , security_context)
+        }
+        mqtt_consumer.addresses.clear()
+      }
+      session_state.subscriptions.clear()
+    } else {
+      if(session_state.durable_sub!=null) {
+        var addresses = Array(session_state.durable_sub)
+        host.dispatch_queue {
+          host.router.unbind(addresses, mqtt_consumer, false , security_context)
+        }
+        mqtt_consumer.addresses.clear()
+        session_state.durable_sub = null
+      }
+    }
+
+    in_flight_publishes.values.foreach { request =>
+      if( request.ack!=null ) {
+        if(request.delivered) {
+          request.ack(Delivered)
+        } else {
+          request.ack(Undelivered)
+        }
+      }
+    }
+    in_flight_publishes.clear()
+    
+    handler.get.sink_manager.close(mqtt_consumer.consumer_sink.downstream.get, (request)=>{})
+    mqtt_consumer.consumer_sink.downstream = None
+
+    handler.get.on_transport_disconnected()
+  }
+
+  def decode_destination(value:UTF8Buffer):SimpleAddress = {
+    val rc = destination_parser.decode_single_destination(value.toString, (name)=>{
+      SimpleAddress("topic", destination_parser.decode_path(name))
+    })
+    if( rc==null ) {
+      handler.foreach(_.die("Invalid mqtt destination name: "+value))
+    }
+    rc
   }
 
   /////////////////////////////////////////////////////////////////////
@@ -540,44 +746,27 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
   // reconnect.
   //
   /////////////////////////////////////////////////////////////////////
-  var nextMessageId = 1.toShort;
-  var requests = HashMap[Short, Request]()
-  var processed: HashSet[Short] = new HashSet[Short]
-  def getNextMessageId() = {
-    val rc = nextMessageId
-    nextMessageId = (nextMessageId+1).toShort
-    if(nextMessageId==0) {
-      nextMessageId=1
-    }
-    rc
-  }
+
+  var in_flight_publishes = HashMap[Short, Request]()
 
   def send(message: MessageSupport.Message): Unit = {
-    send(Request(0, message.encode, null))
-  }
-  def send(message: Acked, cb: ()=>Unit=null): Unit = {
-    var id: Short = 0
-    if (message.qos ne AT_MOST_ONCE) {
-      id = getNextMessageId
-      message.messageId(id)
-    }
-    send(Request(id, message.encode, cb))
-  }
-  def send(request: Request): Unit = {
-    if (request.id != 0) {
-      this.requests.put(request.id, request)
-    }
-    handler.connection_sink.offer(request)
+    queue.assertExecuting()
+    handler.foreach(_.connection_sink.offer(Request(0, message, null)))
   }
 
-  def request_completed(id: Short, originalType: Byte): Unit = {
-    val request = requests.remove(id).getOrElse(null)
-    if (request != null && originalType==request.frame.messageType) {
-      if (request.cb != null) {
-        request.cb()
-      }
-    } else {
-      handler.die("Message from client contained an invalid message id: " + id)
+  def publish_completed(id: Short): Unit = {
+    queue.assertExecuting()
+    in_flight_publishes.remove(id) match {
+      case Some(request) =>
+        if ( request.ack != null ) {
+          request.ack(Consumed)
+        }
+      case None =>
+        // It's possible that on a reconnect, we get an ACK
+        // in for message that was not dispatched yet. store
+        // a place holder so we ack it upon the dispatch 
+        // attempt.
+        in_flight_publishes.put(id, Request(id, null, null))
     }
   }
 
@@ -588,58 +777,67 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
   /////////////////////////////////////////////////////////////////////
   def on_transport_command(command:AnyRef):Unit = command match {
     case frame:MQTTFrame=>
-      trace("received frame: %s", frame.messageType())
-
+      
       var command = frame
-      handler.protocol_filters.foreach { filter =>
+      protocol_filters.foreach { filter =>
         command = filter.filter(command)
       }
 
-      frame.messageType() match {
+      command.messageType() match {
 
         case PUBLISH.TYPE =>
-          on_mqtt_publish(new PUBLISH().decode(frame))
+          on_mqtt_publish(received(new PUBLISH().decode(command)))
+
         // This follows a Publish with QoS EXACTLY_ONCE
         case PUBREL.TYPE =>
-          var ack = new PUBREL().decode(frame)
-          processed.remove(ack.messageId)
-          val reponse: PUBCOMP = new PUBCOMP
-          reponse.messageId(ack.messageId)
-          send(reponse)
+          var ack = received(new PUBREL().decode(command))
+          // TODO: perhaps persist the processed list.. otherwise
+          // we can't filter out dups after a broker restart.
+          session_state.received_message_ids.remove(ack.messageId)
+          session_state.strategy.update {
+            send(new PUBCOMP().messageId(ack.messageId))
+          }
 
         case SUBSCRIBE.TYPE =>
-          on_mqtt_subscribe(new SUBSCRIBE().decode(frame))
+          on_mqtt_subscribe(received(new SUBSCRIBE().decode(command)))
 
         case UNSUBSCRIBE.TYPE =>
-          on_mqtt_unsubscribe(new UNSUBSCRIBE().decode(frame))
+          on_mqtt_unsubscribe(received(new UNSUBSCRIBE().decode(command)))
 
         // AT_LEAST_ONCE ack flow for a client subscription
         case PUBACK.TYPE =>
-          val ack: PUBACK = new PUBACK().decode(frame)
-          request_completed(ack.messageId, PUBLISH.TYPE)
+          val ack = received(new PUBACK().decode(command))
+          publish_completed(ack.messageId)
 
         // EXACTLY_ONCE ack flow for a client subscription
         case PUBREC.TYPE =>
-          val ack: PUBREC = new PUBREC().decode(frame)
-          val reponse: PUBREL = new PUBREL
-          reponse.messageId(ack.messageId)
-          send(reponse)
+          val ack = received(new PUBREC().decode(command))
+          send(new PUBREL().messageId(ack.messageId))
 
         case PUBCOMP.TYPE =>
-          val ack: PUBCOMP = new PUBCOMP().decode(frame)
-          request_completed(ack.messageId, PUBLISH.TYPE)
+          val ack: PUBCOMP = received(new PUBCOMP().decode(command))
+          publish_completed(ack.messageId)
+
+        case PINGREQ.TYPE =>
+          received(new PINGREQ().decode(command))
+          send(new PINGRESP())
 
         case DISCONNECT.TYPE =>
-          handler.on_transport_disconnected
-          handler.connection.stop()
-          MqttSessionManager.disconnect(host, client_id, handler)
+          received(new DISCONNECT())
+          MqttSessionManager.disconnect(host_state, client_id, handler.get)
 
         case _ =>
-          handler.die("Invalid MQTT message type: "+frame.messageType());
+          handler.get.die("Invalid MQTT message type: "+command.messageType());
+      }
+    case "failure" =>
+      // Publish the client's will
+      publish_will {
+        // then disconnect him.
+        MqttSessionManager.disconnect(host_state, client_id, handler.get)
       }
 
     case _=>
-      handler.die("Internal Server Error: unexpected mqtt command: "+command.getClass);
+      handler.get.die("Internal Server Error: unexpected mqtt command: "+command.getClass);
   }
 
   /////////////////////////////////////////////////////////////////////
@@ -647,39 +845,50 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
   // Bits that deal with processing PUBLISH messages
   //
   /////////////////////////////////////////////////////////////////////
-  var producerRoutes = new LRUCache[DestinationDTO, DeliveryProducerRoute](10) {
-    override def onCacheEviction(eldest: Entry[DestinationDTO, DeliveryProducerRoute]) = {
+  var producerRoutes = new LRUCache[ConnectAddress, DeliveryProducerRoute](10) {
+    override def onCacheEviction(eldest: Entry[ConnectAddress, DeliveryProducerRoute]) = {
       host.router.disconnect(Array(eldest.getKey), eldest.getValue)
     }
   }
 
-  def on_mqtt_publish(publish:PUBLISH) = {
-    val destination = handler.decode_destination(publish.topicName())
+  def on_mqtt_publish(publish:PUBLISH):Unit = {
+
+    if( (publish.qos eq EXACTLY_ONCE) && session_state.received_message_ids.contains(publish.messageId)) {
+      val response = new PUBREC
+      response.messageId(publish.messageId)
+      send(response)
+      return
+    }
+
+    handler.get.messages_received += 1
+
+    queue.assertExecuting()
+    val h = handler.get
+    val destination = decode_destination(publish.topicName())
     producerRoutes.get(destination) match {
       case null =>
         // create the producer route...
 
         val route = new DeliveryProducerRoute(host.router) {
-          override def send_buffer_size = handler.codec.getReadBufferSize
-          override def connection = Some(handler.connection)
+          override def send_buffer_size = h.codec.getReadBufferSize
+          override def connection = Some(h.connection)
           override def dispatch_queue = queue
           refiller = ^{
-            handler.resume_read
+            h.resume_read
           }
         }
 
         // don't process commands until producer is connected...
-        handler.suspend_read("route publish lookup")
-        reset {
+        h.suspend_read("route publish lookup")
+        host.dispatch_queue {
           host.router.connect(Array(destination), route, security_context)
-          // We don't care if we are not allowed to send..
-          if (!handler.connection.stopped) {
-            handler.resume_read
-            producerRoutes.put(destination, route)
-            send_via_route(route, publish)
-            noop
-          } else {
-            noop
+          queue {
+            // We don't care if we are not allowed to send..
+            if (!h.connection.stopped) {
+              h.resume_read
+              producerRoutes.put(destination, route)
+              send_via_route(route, publish)
+            }
           }
         }
 
@@ -690,18 +899,23 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
   }
 
   def send_via_route(route:DeliveryProducerRoute, publish:PUBLISH):Unit = {
+    queue.assertExecuting()
 
-    def at_least_once_ack(r:DeliveryResult, uow:StoreUOW):Unit = {
+    def at_least_once_ack(r:DeliveryResult, uow:StoreUOW):Unit = queue {
       val response = new PUBACK
       response.messageId(publish.messageId)
       send(response)
     }
 
-    def exactly_once_ack(r:DeliveryResult, uow:StoreUOW):Unit = {
-      processed.add(publish.messageId)
-      val response = new PUBREC
-      response.messageId(publish.messageId)
-      send(response)
+    def exactly_once_ack(r:DeliveryResult, uow:StoreUOW):Unit = queue {
+      queue.assertExecuting()
+      // TODO: perhaps persist the processed list..
+      session_state.received_message_ids.add(publish.messageId)
+      session_state.strategy.update {
+        val response = new PUBREC
+        response.messageId(publish.messageId)
+        send(response)
+      }
     }
 
     val ack = publish.qos match {
@@ -710,24 +924,26 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
       case AT_MOST_ONCE => null
     }
 
-    if( (publish.qos eq EXACTLY_ONCE) && processed.contains(publish.messageId)) {
-      ack(null, null)
-      return
-    }
-
     if( !route.targets.isEmpty ) {
       val delivery = new Delivery
       val persistent = publish.qos().ordinal() > 0
       delivery.message = MqttMessage(persistent, publish.payload)
       delivery.size = publish.payload.length
       delivery.ack = ack
+      if( publish.retain() ) {
+        if( delivery.size == 0 ) {
+          delivery.retain = RetainRemove
+        } else {
+          delivery.retain = RetainSet
+        }
+      }
 
       // routes can always accept at least 1 delivery...
       assert( !route.full )
       route.offer(delivery)
       if( route.full ) {
         // but once it gets full.. suspend to flow control the producer.
-        handler.suspend_read("blocked sending to: "+route.overflowSessions.mkString(", "))
+        handler.get.suspend_read("blocked sending to: "+route.overflowSessions.mkString(", "))
       }
 
     } else {
@@ -735,48 +951,152 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
     }
   }
 
+  
+  //
+  def publish_will(complete_close: =>Unit) = {
+    if(connect_message!=null) {
+      if( connect_message.willTopic()==null ) {
+        complete_close
+      } else {
+  
+        val destination = decode_destination(connect_message.willTopic())
+        val prodcuer = new DeliveryProducerRoute(host.router) {
+          override def send_buffer_size = 1024*64
+          override def connection = handler.map(_.connection)
+          override def dispatch_queue = queue
+          refiller = NOOP
+        }
+  
+        host.dispatch_queue {
+          host.router.connect(Array(destination), prodcuer, security_context)
+          queue {
+            if(prodcuer.targets.isEmpty) {
+              complete_close
+            } else {
+              val delivery = new Delivery
+              val persistent = connect_message.willQos().ordinal() > 0
+              delivery.message = MqttMessage(persistent, connect_message.willMessage())
+              delivery.size = connect_message.willMessage().length
+              if( connect_message.willRetain() ) {
+                if( delivery.size == 0 ) {
+                  delivery.retain = RetainRemove
+                } else {
+                  delivery.retain = RetainSet
+                }
+              }
+  
+              delivery.ack = (x,y) => {
+                host.dispatch_queue {
+                  host.router.disconnect(Array(destination), prodcuer)
+                }
+                complete_close
+              }
+              handler.get.messages_received += 1
+              prodcuer.offer(delivery)
+            }
+          }
+        }
+      }
+    }
+  }
   /////////////////////////////////////////////////////////////////////
   //
   // Bits that deal with subscriptions
   //
   /////////////////////////////////////////////////////////////////////
+  
+  def on_mqtt_subscribe(sub:SUBSCRIBE):Unit = {
+    subscribe(sub.topics()) {
+      queue {
+        session_state.strategy.update {
+          val suback = new SUBACK
+          suback.messageId(sub.messageId())
+          suback.grantedQos(sub.topics().map(_.qos().ordinal().toByte))
+          send(suback)
+        }
+      }
+    }
+  }
+  
+  def subscribe(topics:Traversable[Topic])(on_subscribed: => Unit):Unit = {
+    var addresses:Array[_ <: BindAddress] = topics.toArray.map { topic =>
+      var address:BindAddress = decode_destination(topic.name)
+      session_state.subscriptions += topic.name -> (topic, address)
+      mqtt_consumer.addresses += address -> topic.qos
+      if(PathParser.containsWildCards(address.path)) {
+        mqtt_consumer.wildcards.put( address.path, topic.qos() )
+      }
+      address
+    }
 
-//  var session_manager:SessionSinkMux[Command] = null
-  var consumers = Map[DestinationDTO, MqttConsumer]()
+    handler.get.subscription_count = mqtt_consumer.addresses.size
 
-  def on_mqtt_subscribe(subscribe:SUBSCRIBE):Unit = {
-    val response = subscribe.topics.map { topic =>
-      val destination = handler.decode_destination(topic.name)
-      val consumer = new MqttConsumer(destination, topic.qos);
-      consumers += (destination -> consumer)
-      reset {
-        val rc = host.router.bind(Array(destination), consumer, security_context)
+    addresses = if( clean_session ) {
+      addresses
+    } else {
+      session_state.durable_sub = SubscriptionAddress(Path(client_id.toString), null, mqtt_consumer.addresses.keySet.toArray)
+      Array(session_state.durable_sub)
+    }      
+
+    host.dispatch_queue {
+      addresses.foreach { address=>
+        host.router.bind(Array[BindAddress](address), mqtt_consumer, security_context)
         // MQTT ignores subscribe failures.
       }
-      topic.qos.ordinal.toByte
+      on_subscribed
     }
-    
-    val suback = new SUBACK
-    suback.messageId(subscribe.messageId())
-    suback.grantedQos(response)
-    send(suback)
+
   }
 
   def on_mqtt_unsubscribe(unsubscribe:UNSUBSCRIBE):Unit = {
-    unsubscribe.topics.foreach { topic =>
-      val destination = handler.decode_destination(topic)
-      consumers.get(destination) match {
-        case None=>
-        case Some(consumer)=>
-          // consumer.setDisposer(^{ })
-          consumer.release
-          consumers -= destination
-          host.router.unbind(Array(consumer.destination), consumer, false, security_context)
+
+    val addresses:Array[_ <: BindAddress] = unsubscribe.topics.flatMap { topic =>
+      session_state.subscriptions.remove(topic).map { case (topic, address)=>
+        mqtt_consumer.addresses.remove(address)
+        if(PathParser.containsWildCards(address.path)) {
+          mqtt_consumer.wildcards.remove(address.path, topic.qos)
+        }
+        address
       }
     }
+
+    handler.get.subscription_count = mqtt_consumer.addresses.size
+
+    if(!clean_session) {
+      session_state.durable_sub = SubscriptionAddress(Path(client_id.toString), null, mqtt_consumer.addresses.keySet.toArray)
+    }
+    
+    host.dispatch_queue {
+      if(clean_session) {
+        host.router.unbind(addresses, mqtt_consumer, false, security_context)
+      } else {
+        if( mqtt_consumer.addresses.isEmpty ) {
+          host.router.unbind(Array(session_state.durable_sub), mqtt_consumer, true, security_context)
+          session_state.durable_sub = null
+        } else {
+          host.router.bind(Array(session_state.durable_sub), mqtt_consumer, security_context)
+        }
+      }
+      queue {
+        session_state.strategy.update {
+          val ack = new UNSUBACK
+          ack.messageId(unsubscribe.messageId())
+          send(ack)
+        }
+      }
+    }
+
   }
 
-  case class MqttConsumer(destination:DestinationDTO, qos:QoS) extends BaseRetained with DeliveryConsumer {
+  var publish_body = false
+
+  lazy val mqtt_consumer = new MqttConsumer
+  class MqttConsumer extends BaseRetained with DeliveryConsumer {
+    
+    override def toString = "mqtt client:"+client_id+" remote address: "+security_context.remote_address
+
+    val addresses = HashMap[BindAddress, QoS]()
+    val wildcards = new PathMap[QoS]()
 
     val credit_window_source = createSource(new EventAggregator[(Int, Int), (Int, Int)] {
       def mergeEvent(previous:(Int, Int), event:(Int, Int)) = {
@@ -789,71 +1109,135 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
       def mergeEvents(previous:(Int, Int), events:(Int, Int)) = mergeEvent(previous, events)
     }, dispatch_queue)
 
-    credit_window_source.setEventHandler(^ {
+    credit_window_source.setEventHandler(^{
       val data = credit_window_source.getData
       credit_window_filter.credit(data._1, data._2)
     });
     credit_window_source.resume
 
     val consumer_sink = new MutableSink[Request]()
-    consumer_sink.downstream = Some(handler.sink_manager.open)
+    consumer_sink.downstream = None
 
-    val credit_window_filter = new CreditWindowFilter[Delivery](consumer_sink.map { delivery =>
-
-      // Convert the Delivery into a Request
-      var publish = new PUBLISH
-
-      publish.topicName(new UTF8Buffer(handler.destination_parser.encode_destination(Array(delivery.sender))))
-      if( delivery.redeliveries > 0) {
-        publish.dup(true)
-      }
-
-      publish.payload(delivery.message.getBodyAs(classOf[Buffer]))
-      publish.qos(qos)
-
-      if (qos ne AT_MOST_ONCE) {
-        val id = getNextMessageId
-        publish.messageId(id)
-        val request = Request(id, publish.encode(), ()=>{ acked(delivery) })
-        requests.put(id, request)
-        request
-      } else {
-        Request(0, publish.encode(), ()=>{ acked(delivery) })
-      }
-    }, Delivery)
-
-    def acked(delivery:Delivery) = {
-      credit_window_source.merge((delivery.size, 1))
+    var next_seq_id = 1L
+    def get_next_seq_id = {
+      val rc = next_seq_id
+      next_seq_id += 1
+      rc
     }
 
-    credit_window_filter.credit(handler.codec.getWriteBufferSize, 1)
+    def to_message_id(value:Long):Short = (
+        0x8000 | // MQTT message ids cannot be zero, so we always set the highest bit.
+        (value & 0x7FFF) // the lower 15 bits come for the original seq id.
+      ).toShort
+
+    val credit_window_filter = new CreditWindowFilter[Delivery](consumer_sink.flatMap{ delivery =>
+      queue.assertExecuting()
+      
+      // Look up which QoS we need to send this message with..
+      var topic = delivery.sender.simple
+      import collection.JavaConversions._
+      addresses.get(topic).orElse(wildcards.get(topic.path).headOption) match {
+          
+        case None =>
+          // draining messages after an un-subscribe
+          acked(delivery, Consumed)
+          None
+          
+        case Some(qos) =>
+
+          // Convert the Delivery into a Request
+          var publish = new PUBLISH
+          publish.topicName(new UTF8Buffer(destination_parser.encode_destination(Array(delivery.sender))))
+          if( delivery.redeliveries > 0) {
+            publish.dup(true)
+          }
+
+          if( delivery.message.protocol eq MqttProtocol ) {
+            publish.payload(delivery.message.asInstanceOf[MqttMessage].payload)
+          } else {
+            if( publish_body ) {
+              publish.payload(delivery.message.getBodyAs(classOf[Buffer]))
+            } else {
+              publish.payload(delivery.message.encoded)
+            }
+          }
+
+          handler.get.messages_sent += 1
+
+          if (delivery.ack!=null && (qos ne AT_MOST_ONCE)) {
+            publish.qos(qos)
+            val id = to_message_id(if(clean_session) {
+              get_next_seq_id // generate our own seq id.
+            } else {
+              delivery.seq // use the durable sub's seq id..
+            })
+
+            publish.messageId(id)
+            val request = Request(id, publish, (result)=>{acked(delivery, result)})
+            in_flight_publishes.put(id, request) match {
+              case Some(r) =>
+                // A reconnecting client could have acked before
+                // we get dispatched by the durable sub.
+                if( r.message == null ) {
+                  in_flight_publishes.remove(id)
+                  acked(delivery, Consumed)
+                } else {
+                  // Looks we sent out a msg with that id.  This could only
+                  // happen once we send out 0x7FFF message and the first
+                  // one has not been acked.
+                  handler.foreach(_.async_die("Client not acking regularly.", null))
+                }
+              case None =>
+            }
+            
+            Some(request)
+
+          } else {
+            // This callback gets executed once the message
+            // sent to the transport.
+            publish.qos(AT_MOST_ONCE)
+            Some(Request(0, publish, (result)=>{ acked(delivery, result) }))
+          }
+      }
+      
+    }, Delivery)
+
+    def acked(delivery:Delivery, result:DeliveryResult) = {
+      queue.assertExecuting()
+      credit_window_source.merge((delivery.size, 1))
+      if( delivery.ack!=null ) {
+        delivery.ack(result, null)
+      }
+    }
+    
+    credit_window_filter.credit(handler.get.codec.getWriteBufferSize*2, 1)
 
     val session_manager = new SessionSinkMux[Delivery](credit_window_filter, queue, Delivery) {
-      override def time_stamp = handler.broker.now
+      override def time_stamp = host.broker.now
     }
 
     override def dispose() = queue {
       super.dispose()
-      consumer_sink.downstream.foreach(handler.sink_manager.close(_, (request)=>{
-        // just drop it we are closing out..
-      }))
     }
 
-    def dispatch_queue = handler.queue
-    override def connection = Some(handler.connection)
-    override def receive_buffer_size = handler.codec.getWriteBufferSize
+    def dispatch_queue = queue
+    override def connection = handler.map(_.connection)
+    override def receive_buffer_size = 1024*64; // handler.codec.getWriteBufferSize
     def is_persistent = false
     def matches(delivery:Delivery):Boolean = true
 
+    //
+    // Each destination we subscribe to will establish a session with us.
+    //
     class MqttConsumerSession(val producer:DeliveryProducer) extends DeliverySession with SessionSinkFilter[Delivery] {
       producer.dispatch_queue.assertExecuting()
       retain
 
       val downstream = session_manager.open(producer.dispatch_queue, receive_buffer_size)
 
-      override def toString = "connection to "+handler.connection.transport.getRemoteAddress
+      override def toString = "connection to "+handler.map(_.connection.transport.getRemoteAddress).getOrElse("unconnected")
 
-      def consumer = MqttConsumer.this
+      def consumer = mqtt_consumer
       var closed = false
 
       def close = {
@@ -875,6 +1259,11 @@ case class MqttSession(host:VirtualHost, client_id:UTF8Buffer) {
       }
 
       // Delegate all the flow control stuff to the session
+      override def full = {
+        val rc = super.full
+        rc
+      }
+
       def offer(delivery:Delivery) = {
         if( full ) {
           false

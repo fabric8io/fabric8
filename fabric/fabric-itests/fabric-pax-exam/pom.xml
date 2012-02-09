@@ -15,21 +15,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
       <groupId>org.fusesource.fabric.itests</groupId>
       <artifactId>fabric-itests</artifactId>
-      <version>1.1-SNAPSHOT</version>
-      <relativePath>../</relativePath>
+      <version>99-master-SNAPSHOT</version>
+      <relativePath>..</relativePath>
   </parent>
 
     <artifactId>fabric-pax-exam</artifactId>
     <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
-    <version>1.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -71,6 +68,10 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
@@ -163,6 +164,11 @@
                         <fabricitest.aws.image>${fabricitest.aws.image}</fabricitest.aws.image>
                         <fabricitest.aws.location>${fabricitest.aws.location}</fabricitest.aws.location>
                         <fabricitest.aws.user>${fabricitest.aws.user}</fabricitest.aws.user>
+
+                        <fabricitest.ssh.username>${fabricitest.ssh.username}</fabricitest.ssh.username>
+                        <fabricitest.ssh.password>${fabricitest.ssh.password}</fabricitest.ssh.password>
+                        <fabricitest.ssh.host>${fabricitest.ssh.host}</fabricitest.ssh.host>
+                        <fabricitest.ssh.port>${fabricitest.ssh.port}</fabricitest.ssh.port>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

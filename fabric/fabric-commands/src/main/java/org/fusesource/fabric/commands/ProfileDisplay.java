@@ -20,10 +20,11 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Agent;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.Map;
 public class ProfileDisplay extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = "base";
+    private String version = ZkDefs.DEFAULT_VERSION;
 
     @Option(name = "--overlay", aliases = "-o")
     private Boolean overlay = false;
@@ -54,10 +55,10 @@ public class ProfileDisplay extends FabricCommand {
         return null;
     }
 
-    private String toString(Agent[] agents) {
+    private String toString(Container[] containers) {
         StringBuffer rc = new StringBuffer();
-        for (Agent agent : agents) {
-            rc.append(agent.getId());
+        for (Container container : containers) {
+            rc.append(container.getId());
             rc.append(" ");
         }
         return rc.toString().trim();
@@ -79,12 +80,12 @@ public class ProfileDisplay extends FabricCommand {
 
         output.println("Parents   : " + toString(profile.getParents()));
 
-        output.printf("Associated Agents : %s\n", toString(profile.getAssociatedAgents()));
+        output.printf("Associated Containers : %s\n", toString(profile.getAssociatedContainers()));
 
         Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
 
         if (configuration.containsKey(AGENT_PID)) {
-            output.println("\nAgent settings");
+            output.println("\nContainer settings");
             output.println("----------------------------");
 
             if (profile.getRepositories().size() > 0) {

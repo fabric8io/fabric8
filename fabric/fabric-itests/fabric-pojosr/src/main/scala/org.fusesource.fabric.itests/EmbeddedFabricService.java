@@ -200,9 +200,9 @@ public class EmbeddedFabricService {
     public void createZooKeeperCluster() throws Exception {
         ZooKeeperClusterService clusterService = getZooKeeperClusterService();
 
-        List<String> agents = new ArrayList<String>();
-        agents.add("root");
-        clusterService.createCluster(agents);
+        List<String> containers = new ArrayList<String>();
+        containers.add("root");
+        clusterService.createCluster(containers);
     }
 
     public FabricService getFabricService() throws Exception {

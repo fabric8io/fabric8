@@ -98,19 +98,7 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
 
     cluster_weight = config.weight.getOrElse(16)
     cluster_address = Option(config.address).orElse {
-      // We can probably infer the cluster address if it's not set...
-      // Try to get the first cluster connectable connector address.
-      broker.connectors.flatMap { case (id, connector) =>
-        connector match {
-          case connector: AcceptingConnector =>
-            connector.protocol match {
-              case ClusterProtocol => Some(connector.transport_server.getConnectAddress)
-              case x: AnyProtocol => Some(connector.transport_server.getConnectAddress)
-              case _ => None
-            }
-          case _ => None
-        }
-      }.headOption
+      broker.get_connect_address
     }.getOrElse(throw new IllegalArgumentException("The cluster connector's address was not configured"))
 
     hash_ring = create_hash_ring()
@@ -153,6 +141,9 @@ class ClusterConnector(val broker:Broker, val id:String) extends Connector {
       connected.incrementAndGet()
       val outbound_connection = new BrokerConnection(this, broker.connection_id_counter.incrementAndGet)
       outbound_connection.protocol_handler = new ProtocolHandler() {
+
+        def session_id = None
+
         def protocol: String = "outbound"
 
         override def on_transport_connected = {

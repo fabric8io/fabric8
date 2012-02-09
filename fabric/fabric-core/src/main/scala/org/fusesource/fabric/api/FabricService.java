@@ -23,44 +23,44 @@ public interface FabricService {
 
     static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public-snapshots/";
 
-    Agent[] getAgents();
+    Container[] getContainers();
 
-    Agent getAgent(String name);
+    Container getContainer(String name);
 
-    Agent createAgent(String name);
+    Container createContainer(String name);
 
-    Agent createAgent(String url, String name);
+    Container createContainer(String url, String name);
 
-    Agent createAgent(String url, String name, boolean isClusterServer, boolean debugAgent);
+    Container createContainer(String url, String name, boolean isEnsembleServer, boolean debugContainer);
 
     /**
-     * Creates multiple Agents.
-     * Will create a number of Agents equal to the given number.
+     * Creates multiple Containers.
+     * Will create a number of Containers equal to the given number.
      * @param url
      * @param name
-     * @param isClusterServer
-     * @param debugAgent
+     * @param isEnsembleServer
+     * @param debugContainer
      * @param number
      * @return
      */
-    Agent[] createAgents(String url, String name, boolean isClusterServer, boolean debugAgent, int number);
+    Container[] createContainers(String url, String name, boolean isEnsembleServer, boolean debugContainer, int number);
 
-    Agent createAgent(Agent parent, String name);
+    Container createContainer(Container parent, String name);
 
-    Agent createAgent(Agent parent, String name, boolean debugAgent);
+    Container createContainer(Container parent, String name, boolean debugContainer);
 
-    Agent createAgent(CreateAgentArguments args, String name);
+    Container createContainer(CreateContainerArguments args, String name);
 
     /**
-     * Create multiple agents where the name is used as a prefix
+     * Create multiple containers where the name is used as a prefix
      */
-    Agent[] createAgents(CreateAgentArguments args, String name, int number);
+    Container[] createContainer(CreateContainerArguments args, String name, int number);
 
     /**
-     * Uses the given parent agent to create the new agent (so that locally
+     * Uses the given parent container to create the new container (so that locally
      * we don't have to have all the plugins like ssh and jclouds available)
      */
-    Agent createAgent(Agent parent, CreateAgentArguments args, String name);
+    Container createContainer(Container parent, CreateContainerArguments args, String name);
 
     Version getDefaultVersion();
 
@@ -75,7 +75,7 @@ public interface FabricService {
     Version createVersion(Version parent, String version);
 
     /**
-     * Returns the current maven proxy repository to use to create new agents
+     * Returns the current maven proxy repository to use to create new container
      */
     URI getMavenRepoURI();
 
@@ -87,7 +87,7 @@ public interface FabricService {
 
     void deleteProfile(Profile profile);
 
-    Agent getCurrentAgent();
+    Container getCurrentContainer();
 
-    String getCurrentAgentName();
+    String getCurrentContainerName();
 }

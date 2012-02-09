@@ -41,17 +41,17 @@ To create a profile with default configuration, run:
 
     shell:source mvn:org.fusesource.fabric/fuse-fabric/1.1-SNAPSHOT/karaf/installer
 
-Next you can create, agents with this profile like:
+Next you can create, containers with this profile like:
 
-    fabric:agent-create --profile activemq --parent $APPLICATION broker
+    fabric:container-create --profile activemq --parent $APPLICATION broker
 
-Wait for a few seconds for the agent to start. Check the status of the agent with:
+Wait for a few seconds for the container to start. Check the status of the container with:
 
-    fabric:agent-list
+    fabric:container-list
 
-You can (optionally) connect to the agent, with
+You can (optionally) connect to the container, with
 
-    fabric:agent-connect broker
+    fabric:container-connect broker
 
 If you want to start a demo that produces/consumes messages using 'fabric' transport run
 

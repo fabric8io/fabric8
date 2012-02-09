@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.fusesource.fabric.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -70,7 +70,26 @@
       <artifactId>activemq-camel</artifactId>
       <version>${activemq-version}</version>
     </dependency>
-    
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math</artifactId>
+      <version>2.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+
     <dependency>
       <groupId>org.iq80.snappy</groupId>
       <artifactId>snappy</artifactId>

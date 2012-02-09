@@ -16,13 +16,12 @@
   limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>99-master-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,7 +31,7 @@
     <description>Fuse Fabric :: Binary Distribution</description>
 
        <prerequisites>
-           <maven>2.2.1</maven>
+           <maven>3.0.2</maven>
        </prerequisites>
 
        <dependencies>
@@ -185,7 +184,67 @@
                        </execution>
                    </executions>
                </plugin>
-              
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-antrun-plugin</artifactId>
+                   <version>1.7</version>
+                   <executions>
+                       <execution>
+                           <id>update-properties</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>run</goal>
+                           </goals>
+                           <configuration>
+                               <target name="update-properties">
+                                   <echo message="Updating etc/config.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   </concat>
+                                   <echo message="Updating etc/custom.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   </concat>
+
+                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
+                                   </concat>
+                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
+                                   </concat>
+
+                                   <echo message="Updating etc/system.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/system.properties" />
+                                   </concat>
+                                   <echo message="Updating etc/system.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/system.properties" />
+                                   </concat>
+
+                                   <echo message="Updating etc/shell.init.script in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/shell.init.script" />
+                                   </concat>
+                                   <echo message="Updating etc/shell.init.script in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/shell.init.script" />
+                                   </concat>
+                                   
+                                   <echo message="Fixing start/stop scripts in windows assembly" />
+                                   <replace file="target/dependencies/win/apache-karaf-${karaf-version}/bin/start.bat" token="karaf.bat" value="fusefabric.bat"/>
+                                   <replace file="target/dependencies/win/apache-karaf-${karaf-version}/bin/stop.bat" token="karaf.bat" value="fusefabric.bat"/>
+                                   <echo message="Fixing start/stop scripts in unix assembly" />
+                                   <replace file="target/dependencies/unix/apache-karaf-${karaf-version}/bin/start" token="bin/karaf" value="bin/fusefabric"/>
+                                   <replace file="target/dependencies/unix/apache-karaf-${karaf-version}/bin/stop" token="bin/karaf" value="bin/fusefabric"/>
+
+                               </target>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-assembly-plugin</artifactId>
@@ -324,56 +383,6 @@
                        </execution>
                    </executions>
                </plugin>
-               <plugin>
-                   <groupId>org.apache.maven.plugins</groupId>
-                   <artifactId>maven-antrun-plugin</artifactId>
-                   <version>1.7</version>
-                   <executions>
-                       <execution>
-                           <id>update-properties</id>
-                           <phase>generate-resources</phase>
-                           <goals>
-                               <goal>run</goal>
-                           </goals>
-                           <configuration>
-                               <target name="update-properties">
-                                   <echo message="Updating etc/config.properties in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties"
-                                           append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/config.properties" />
-                                   </concat>
-                                   <echo message="Updating etc/custom.properties in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties"
-                                           append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/config.properties" />
-                                   </concat>
-
-                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg"
-                                           append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
-                                   </concat>
-                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg"
-                                           append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
-                                   </concat>
-
-                                   <echo message="Updating etc/system.properties in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties"
-                                           append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/system.properties" />
-                                   </concat>
-                                   <echo message="Updating etc/system.properties in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties"
-                                           append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/system.properties" />
-                                   </concat>
-                               </target>
-                           </configuration>
-                       </execution>
-                   </executions>
-               </plugin>
            </plugins>
            <pluginManagement>
            	<plugins>
@@ -403,7 +412,7 @@
            								</goals>
            							</pluginExecutionFilter>
            							<action>
-           								<ignore></ignore>
+           								<ignore />
            							</action>
            						</pluginExecution>
            					</pluginExecutions>

@@ -264,7 +264,7 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
 
     private Hashtable<String, String> getDefaultGatewayConfig() {
         Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put("versionName", "base");
+        properties.put("versionName", ZkDefs.DEFAULT_VERSION);
         properties.put("profileName", "test-gateway");
         properties.put("inboundDestinationsRef", "upstream");
         properties.put("outboundDestinationsRef", "downstream");
@@ -332,7 +332,7 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
 
     private Hashtable<String, String> getDefaultBridgeConfig() {
         Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put("versionName", "base");
+        properties.put("versionName", ZkDefs.DEFAULT_VERSION);
         properties.put("gatewayProfileName", "test-gateway");
         properties.put("gatewayConnectRetries", "5");
         properties.put("gatewayStartupDelay", "3");

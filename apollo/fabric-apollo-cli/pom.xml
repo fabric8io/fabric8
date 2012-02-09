@@ -22,18 +22,20 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>1.1-SNAPSHOT</version>
-    <relativePath>../../fabric-scala</relativePath>
+    <version>99-master-SNAPSHOT</version>
+    <relativePath>../../fabric/fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.fabric.apollo</groupId>
   <artifactId>fabric-apollo-cli</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
 
   <name>${project.artifactId}</name>
 
   <properties>
     <karaf-version>2.2.2</karaf-version>
+    <jetty-version>7.5.1.v20110908</jetty-version>
+    <hawtdispatch-version>1.9-SNAPSHOT</hawtdispatch-version>
   </properties>
     
   <dependencies>
@@ -46,14 +48,6 @@
       <version>${scala-version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-compiler</artifactId>
-      <version>${scala-version}</version>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-cli</artifactId>
@@ -68,19 +62,11 @@
     </dependency>
 
     <dependency>
-      <groupId>org.eclipse.jetty.aggregate</groupId>
-      <artifactId>jetty-all-server</artifactId>
-      <version>${jetty-version}</version>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
       <artifactId>fabric-apollo-cluster</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>99-master-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
-
 
     <!-- Testing Dependencies -->
     <dependency>
@@ -108,23 +94,11 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Optional Modules -->
-    <!-- <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>apollo-hawtdb</artifactId>
-      <version>${apollo-version}</version>
-      <scope>test</scope>
-    </dependency> -->
-    <!-- <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>apollo-cassandra</artifactId>
-      <version>${apollo-version}</version>
-      <scope>test</scope>
-    </dependency> -->
+    <!-- load all the store implementations -->
     <dependency>
       <groupId>org.fusesource.fabric.apollo</groupId>
-      <artifactId>fabric-apollo-leveldb</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <artifactId>fabric-apollo-haleveldb</artifactId>
+      <version>99-master-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -133,32 +107,40 @@
       <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>apollo-web</artifactId>
-      <version>${apollo-version}</version>
-      <scope>test</scope>
-    </dependency>
 
+    <!-- load all the protocols -->
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-stomp</artifactId>
       <version>${apollo-version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- <dependency>
+    <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>apollo-openwire</artifactId>
       <version>${apollo-version}</version>
       <scope>test</scope>
-    </dependency> -->
-    <!--<dependency>-->
-      <!--<groupId>org.fusesource.fabric.apollo</groupId>-->
-      <!--<artifactId>fabric-apollo-amqp-broker</artifactId>-->
-      <!--<version>1.1-SNAPSHOT</version>-->
-      <!--<scope>test</scope>-->
-    <!--</dependency>-->
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric.apollo</groupId>
+      <artifactId>fabric-apollo-mqtt</artifactId>
+      <version>99-master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
 
+    <!-- load the web interface -->
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>apollo-web</artifactId>
+      <version>${apollo-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.aggregate</groupId>
+      <artifactId>jetty-all-server</artifactId>
+      <version>${jetty-version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 

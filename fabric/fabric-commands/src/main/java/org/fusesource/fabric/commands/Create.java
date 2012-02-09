@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.fabric.commands;
 
 import java.io.File;
@@ -27,7 +26,7 @@ import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.zookeeper.commands.Import;
 
 @Command(name = "create", scope = "fabric", description = "Create a new ZooKeeper ensemble and imports Fabric profiles")
-public class Create extends EnsembleCommandSupport {
+public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.commands.service.Create {
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
@@ -44,42 +43,25 @@ public class Create extends EnsembleCommandSupport {
     @Option(name = "-t", aliases = {"--time"}, description = "The amount of time to wait for the ensemble to startup before trying to import the default data")
     long ensembleStartupTime = 2000L;
 
-    @Argument(required = false, multiValued = true, description = "List of agents")
-    private List<String> agents;
+    @Argument(required = false, multiValued = true, description = "List of containers")
+    private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
-        if (agents == null || agents.isEmpty()) {
-            agents = Arrays.asList(System.getProperty("karaf.name"));
+        if (containers == null || containers.isEmpty()) {
+            containers = Arrays.asList(System.getProperty("karaf.name"));
         }
 
         if (clean) {
             service.clean();
         }
 
-        if (agents != null && !agents.isEmpty()) {
-            service.createCluster(agents);
+        if (!noImport && importDir != null) {
+            System.setProperty("profiles.auto.import.path",importDir);
+        }
 
-            // now lets populate the registry with files from a mvn plugin
-            if (!noImport) {
-                // now lets sleep for a bit to give the ensemble chance to get ready :)
-                if (ensembleStartupTime > 0L) {
-                    try {
-                        Thread.sleep(ensembleStartupTime);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-
-                Import tool = new Import();
-                tool.setSource(importDir);
-                tool.setBundleContext(getBundleContext());
-                tool.setZooKeeper(service.getZooKeeper());
-                if (verbose) {
-                    tool.setVerbose(verbose);
-                }
-                return tool.execute(session);
-            }
+        if (containers != null && !containers.isEmpty()) {
+            service.createCluster(containers);
         }
         return null;
     }
@@ -88,4 +70,68 @@ public class Create extends EnsembleCommandSupport {
         return System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
     }
 
+    @Override
+    public Object run() throws Exception {
+        return doExecute();
+    }
+
+    @Override
+    public boolean isClean() {
+        return clean;
+    }
+
+    @Override
+    public void setClean(boolean clean) {
+        this.clean = clean;
+    }
+
+    @Override
+    public boolean isNoImport() {
+        return noImport;
+    }
+
+    @Override
+    public void setNoImport(boolean noImport) {
+        this.noImport = noImport;
+    }
+
+    @Override
+    public String getImportDir() {
+        return importDir;
+    }
+
+    @Override
+    public void setImportDir(String importDir) {
+        this.importDir = importDir;
+    }
+
+    @Override
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    @Override
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    @Override
+    public long getEnsembleStartupTime() {
+        return ensembleStartupTime;
+    }
+
+    @Override
+    public void setEnsembleStartupTime(long ensembleStartupTime) {
+        this.ensembleStartupTime = ensembleStartupTime;
+    }
+
+    @Override
+    public List<String> getContainers() {
+        return containers;
+    }
+
+    @Override
+    public void setContainers(List<String> containers) {
+        this.containers = containers;
+    }
 }

@@ -52,6 +52,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.BufferUnderflowException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -127,7 +128,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         bundleContext.addFrameworkListener(this);
     }
 
-    public void stop() {
+    public void stop() throws InterruptedException {
+        executor.awaitTermination(30,TimeUnit.SECONDS);
         bundleContext.removeFrameworkListener(this);
         manager.shutdown();
         executor.shutdown();
@@ -165,8 +167,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                             r = ZkDefs.ERROR;
                             e = sw.toString();
                         }
-                        zk.createOrSetWithParents(ZkPath.AGENT_PROVISION_RESULT.getPath(name), r, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                        zk.createOrSetWithParents(ZkPath.AGENT_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_RESULT.getPath(name), r, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                     } else {
                         LOGGER.info("ZooKeeper not available");
                     }

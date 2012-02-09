@@ -1,0 +1,42 @@
+Usage: (--broker <url>)+ (--destination <name>)+ [other-arguments]
+
+Load Processing Arguments:
+ --broker <url>
+     The ActiveMQ broker URL to send events to. If you specify
+     multiple broker urls, the producers will be evenly distributed
+     over them.  At least one is required.
+ --destination <name>
+     The ActiveMQ destination name to send events to. If you specify
+     multiple destination, the producers will be evenly distributed
+     over them.  At least one is required.
+ --batch-size <bytes:65536>
+     The number bytes to batch up before sending log events to the broker
+ --batch-timeout <ms:50000>
+     The maximum amount of time we spend trying to build a bigger batch.
+ --compress <bool:true>
+     Should the batch be compressed with Snappy?
+
+Load Generation Arguments:
+ --producers <n:1>
+     The number of producers to use
+ --entries-per-sec <float:10>
+     The number of log entries each producers will generate per second.
+ --entries-per-sec-sd <float:0>
+     Randomly varies the the number of log entries per second
+     each producer generates by the configured standard deviation.
+ --session-size <bytes:512>
+     The amount of session data to store in the cookie section of the log entry.
+ --session-size-sd <n:0>
+     Randomly varies the amount of session data each producer generates by
+     the configured standard deviation.
+
+Other Arguments:
+ --warmup-time <secs:5>
+     The number of seconds to wait before we start to sample throughput
+     results.  This gives producers time to achieve a steady state.
+ --sample-time <secs:60>
+     The number of seconds taken to measure the throughput performance
+     of the producers.
+ --help
+     Displays this help screen.
+

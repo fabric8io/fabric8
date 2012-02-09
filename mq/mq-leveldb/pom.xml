@@ -22,13 +22,13 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <relativePath>../../fabric/fabric-scala</relativePath>
   </parent>
 
   <groupId>org.fusesource.mq</groupId>
   <artifactId>mq-leveldb</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>99-master-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -123,6 +123,12 @@
       <artifactId>activemq-core</artifactId>
       <version>${activemq-version}</version>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-console</artifactId>
+      <version>${activemq-version}</version>
       <scope>test</scope>
     </dependency>
 

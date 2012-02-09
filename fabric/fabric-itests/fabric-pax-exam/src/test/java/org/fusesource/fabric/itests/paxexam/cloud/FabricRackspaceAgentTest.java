@@ -120,13 +120,13 @@ public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
 
         //The compute service needs some time to properly initialize.
         Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:agent-create --ensemble-server --url jclouds://cloudservers-us?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
+        System.err.println(executeCommand(String.format("fabric:container-create --ensemble-server --url jclouds://cloudservers-us?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
         Thread.sleep(DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
-        String agentList = executeCommand("fabric:agent-list");
+        String agentList = executeCommand("fabric:container-list");
         System.err.println(agentList);
         assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));
 
@@ -168,15 +168,13 @@ public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.identity", System.getProperty("fabricitest.rackspace.identity") != null ? System.getProperty("fabricitest.rackspace.identity") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.credential", System.getProperty("fabricitest.rackspace.credential") != null ? System.getProperty("fabricitest.rackspace.credential") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.image", System.getProperty("fabricitest.rackspace.image") != null ? System.getProperty("fabricitest.rackspace.image") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.location", System.getProperty("fabricitest.rackspace.location") != null ? System.getProperty("fabricitest.rackspace.location") : ""),
-                editConfigurationFileExtend("etc/system.properties", "fabricitest.rackspace.user", System.getProperty("fabricitest.rackspace.user") != null ? System.getProperty("fabricitest.rackspace.user") : ""),
+                copySystemProperty("fabricitest.rackspace.identity"),
+                copySystemProperty("fabricitest.rackspace.credential"),
+                copySystemProperty("fabricitest.rackspace.image"),
+                copySystemProperty("fabricitest.rackspace.location"),
+                copySystemProperty("fabricitest.rackspace.user"),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
                 scanFeatures("jclouds","jclouds-compute").start()
         };
     }
-
-
 }

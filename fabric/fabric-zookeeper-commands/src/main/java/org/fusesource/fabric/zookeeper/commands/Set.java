@@ -22,7 +22,7 @@ import org.apache.felix.gogo.commands.Option;
 
 import java.net.URL;
 
-@Command(name = "set", scope = "zk", description = "set a node's data")
+@Command(name = "set", scope = "zk", description = "Set a node's data")
 public class Set extends ZooKeeperCommandSupport {
 
     @Option(name = "-i", aliases = {"--import"}, description = "Import data from an url")
