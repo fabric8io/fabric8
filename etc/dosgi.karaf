@@ -37,11 +37,11 @@ shell:echo Creating containers
 shell:echo 1. Create provider node
 fabric:container-create --profile dosgi-provider --parent $APPLICATION dosgi-provider
 shell:echo Wait 10s.. be patient
-shell:sleep 10
+shell:sleep 10000
 
 shell:echo 2. Create camel consumer node
 fabric:container-create --profile dosgi-camel --parent $APPLICATION dosgi-camel
 shell:echo Wait 10s.. be patient
-shell:sleep 10
+shell:sleep 10000
 
 shell:echo done.

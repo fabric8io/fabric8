@@ -42,12 +42,12 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
 # or create a new one
  if {$1} {
     echo "Joining cluster " $1
-    shell:sleep 2
+    shell:sleep 2000
     fabric:join $1
     #config:edit org.fusesource.fabric.zookeeper
     #config:propset zookeeper.url $1
     #config:update
-    #shell:sleep 2
+    #shell:sleep 2000
     #zk:create /fabric/configs/containers/$APPLICATION base
     #zk:create /fabric/configs/versions/base/containers/$APPLICATION default
 } {
@@ -55,7 +55,7 @@ wait-for-service  "(&(objectClass=org.apache.karaf.jaas.config.JaasRealm)(org.ap
     fabric:ensemble-create --clean $APPLICATION
 
     echo Wait a few seconds for the cluster to initialize
-    shell:sleep 5
+    shell:sleep 5000
 
     # Lets define a bunch of default profiles
     echo Creating some default profiles

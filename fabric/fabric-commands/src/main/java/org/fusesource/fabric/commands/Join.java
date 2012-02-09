@@ -28,7 +28,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import java.util.Properties;
 
 @Command(name = "join", scope = "fabric", description = "Join fabric cluster", detailedDescription = "classpath:join.txt")
-public class Join extends OsgiCommandSupport {
+public class Join extends OsgiCommandSupport implements org.fusesource.fabric.commands.service.Join {
 
     ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
@@ -55,11 +55,38 @@ public class Join extends OsgiCommandSupport {
         return null;
     }
 
+    @Override
+    public Object run() throws Exception {
+        return doExecute();
+    }
+
+    @Override
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }
 
+    @Override
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    @Override
+    public String getZookeeperUrl() {
+        return zookeeperUrl;
+    }
+
+    @Override
+    public void setZookeeperUrl(String zookeeperUrl) {
+        this.zookeeperUrl = zookeeperUrl;
     }
 }

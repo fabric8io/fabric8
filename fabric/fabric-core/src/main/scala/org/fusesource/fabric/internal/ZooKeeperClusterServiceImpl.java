@@ -37,7 +37,7 @@ import java.util.*;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     
-    private static final String FRAMEWORK_VERSION = "mvn:org.apache.felix/org.apache.felix.framework/3.0.9-fuse-03-20";
+    private static final String FRAMEWORK_VERSION = "mvn:org.apache.felix/org.apache.felix.framework/" + FabricConstants.FRAMEWORK_VERSION;
 
     private BundleContext bundleContext;
     private ConfigurationAdmin configurationAdmin;
@@ -131,12 +131,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p = getProperties(client, defaultProfile + "/org.fusesource.fabric.agent.properties", new Properties());
             p.put("org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
             p.put("org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://scala-tools.org/repo-releases");
-            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.VERSION + "/xml/features");
+            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features");
             p.put("feature.karaf", "karaf");
             p.put("feature.fabric-agent", "fabric-agent");
             p.put("feature.fabric-core", "fabric-core");
             p.put("feature.fabric-jaas", "fabric-jaas");
-            // TODO: We should not have this hardcoded framework version in here
             p.put("framework", FRAMEWORK_VERSION);
 
             ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.agent.properties", toString(p));
@@ -162,7 +161,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 }
             }
             if (bundle == null) {
-                bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.VERSION);
+                bundle = bundleContext.installBundle("mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
             }
             if (bundle.getState() == Bundle.ACTIVE) {
                 bundle.stop();

@@ -55,7 +55,7 @@ public class ChildContainerProvider implements ContainerProvider {
                     javaOpts += ENSEMBLE_SERVER_CONTAINER;
                 }
                 String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.VERSION + "/xml/features";
+                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
 
                 for (int i = 1; i <= number; i++) {
                     String containerName = name;
