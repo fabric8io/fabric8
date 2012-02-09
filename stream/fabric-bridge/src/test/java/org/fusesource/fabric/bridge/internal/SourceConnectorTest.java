@@ -17,13 +17,6 @@
 package org.fusesource.fabric.bridge.internal;
 
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.TextMessage;
-
 import org.fusesource.fabric.bridge.MessageConverter;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BridgedDestination;
@@ -36,6 +29,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.TextMessage;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Dhiraj Bokde
@@ -83,41 +82,48 @@ public class SourceConnectorTest extends AbstractConnectorTestSupport {
 	}
 
 	@Test(expected=IllegalArgumentException.class)
-	public void testMissingSourceBrokerConfig() throws Exception {
+	public void testMissingLocalBrokerConfig() throws Exception {
 		connector.setLocalBrokerConfig(null);
 		testAfterPropertiesSet();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testMissingSourceDestinations() throws Exception {
+	public void testMissingLocalDestinations() throws Exception {
 		connector.setOutboundDestinations(null);
 		testAfterPropertiesSet();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testMissingTargetBrokerConfig() throws Exception {
+	public void testMissingRemoteBrokerConfig() throws Exception {
 		connector.setRemoteBrokerConfig(null);
 		testAfterPropertiesSet();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testIgnoredTargetBrokerConfig() throws Exception {
+	public void testIgnoredRemoteBrokerConfig() throws Exception {
 		connector.getOutboundDestinations().setDefaultStagingLocation(false);
 		testAfterPropertiesSet();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testInvalidSourceBrokerConfig() throws Exception {
+	public void testInvalidLocalBrokerConfig() throws Exception {
 		connector.getLocalBrokerConfig().setBrokerUrl(null);
 		testAfterPropertiesSet();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testInvalidTargetBrokerConfig() throws Exception {
+	public void testInvalidRemoteBrokerConfig() throws Exception {
 		connector.getRemoteBrokerConfig().setBrokerUrl(null);
 		testAfterPropertiesSet();
 	}
 	
+    @Test(expected=IllegalArgumentException.class)
+    public void testInvalidNoStagingQueue() throws Exception {
+        connector.getRemoteBrokerConfig().setBrokerUrl(null);
+        connector.getOutboundDestinations().setUseStagingQueue(false);
+        testAfterPropertiesSet();
+    }
+
 	@Test
 	public void testStart() throws Exception {
 		connector.afterPropertiesSet();
@@ -231,7 +237,7 @@ public class SourceConnectorTest extends AbstractConnectorTestSupport {
 	}
 	
 	@Test
-	public void testDispatchWithSourceBroker() throws Exception {
+	public void testDispatchWithLocalBroker() throws Exception {
 
 		connector.getOutboundDestinations().setDefaultStagingLocation(false);
 		connector.setRemoteBrokerConfig(null);
@@ -375,4 +381,43 @@ public class SourceConnectorTest extends AbstractConnectorTestSupport {
 		connector.removeDestinations(defaultDestinations);
 	}
 
+    @Test
+    public void testDispatchWithoutStagingQueue() throws Exception {
+        // disable staging queue
+        connector.getDestinationsConfig().setUseStagingQueue(false);
+
+		// start connector
+		connector.afterPropertiesSet();
+		connector.start();
+
+		final long startNanos = System.nanoTime();
+		// send messages
+		for (String sourceName : TEST_SOURCES) {
+			sendMessages(TEST_LOCAL_BROKER_URL, sourceName, TEST_NUM_MESSAGES, null);
+		}
+		// check if we received the expected number of messages on every target queue
+        for (final String sourceName : TEST_SOURCES) {
+            receiveMessages(TEST_REMOTE_BROKER_URL, sourceName, TEST_NUM_MESSAGES, new BaseMatcher<TextMessage>() {
+
+                @Override
+                public boolean matches(Object message) {
+                    boolean retVal = false;
+                    try {
+                        retVal = ((TextMessage)message).getStringProperty(BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER).matches(sourceName);
+                    } catch (JMSException e) {
+                        fail(e.getMessage());
+                    }
+                    return retVal;
+                }
+
+                @Override
+                public void describeTo(Description description) {
+                    description.appendText("TextMessage containing " + BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER + " property");
+                }
+            });
+        }
+
+		final long stopNanos = System.nanoTime();
+		LOG.info("Test took " + TimeUnit.NANOSECONDS.toMillis(stopNanos - startNanos) + " milliseconds");
+    }
 }
