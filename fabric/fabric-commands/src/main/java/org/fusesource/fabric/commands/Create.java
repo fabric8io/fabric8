@@ -56,29 +56,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             service.clean();
         }
 
+        if (!noImport && importDir != null) {
+            System.setProperty("profiles.auto.import.path",importDir);
+        }
+
         if (containers != null && !containers.isEmpty()) {
             service.createCluster(containers);
-
-            // now lets populate the registry with files from a mvn plugin
-            if (!noImport) {
-                // now lets sleep for a bit to give the ensemble chance to get ready :)
-                if (ensembleStartupTime > 0L) {
-                    try {
-                        Thread.sleep(ensembleStartupTime);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-
-                Import tool = new Import();
-                tool.setSource(importDir);
-                tool.setBundleContext(getBundleContext());
-                tool.setZooKeeper(service.getZooKeeper());
-                if (verbose) {
-                    tool.setVerbose(verbose);
-                }
-                return tool.execute(session);
-            }
         }
         return null;
     }

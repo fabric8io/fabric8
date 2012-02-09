@@ -21,6 +21,8 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.zookeeper.utils.RegexSupport;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 
 import java.io.*;
 import java.net.URL;
@@ -28,9 +30,9 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.matches;
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.merge;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
 @Command(name = "import", scope = "zk", description = "Import data into zookeeper")
 public class Import extends ZooKeeperCommandSupport {
@@ -81,140 +83,14 @@ public class Import extends ZooKeeperCommandSupport {
         }
         checkZooKeeperConnected();
         if (properties) {
-            readPropertiesFile();
+            ZookeeperImportUtils.importFromPropertiesFile(getZooKeeper(), source, target, regex, nregex, dryRun);
         }
         if (filesystem) {
-            readFileSystem();
+            ZookeeperImportUtils.importFromFileSystem(getZooKeeper(), source, target, regex, nregex, delete, dryRun, verbose);
         }
         System.out.println("imported ZK data from: " + source);
         return null;
     }
-
-    private String buildZKPath(File parent, File current) {
-        String rc = "";
-        if (current != null && !parent.equals(current)) {
-            rc = buildZKPath(parent, current.getParentFile()) + "/" + current.getName();
-        }
-        return rc;
-    }
-
-    private void getCandidates(File parent, File current, Map<String, String> settings) throws Exception {
-        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
-        List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
-        if (current.isDirectory()) {
-            for (File child : current.listFiles()) {
-                getCandidates(parent, child, settings);
-            }
-            String p = buildZKPath(parent, current).replaceFirst("/", "");
-            if (!matches(profile, "/" + p, false)) {
-                settings.put(p, null);
-            }
-        } else {
-            BufferedInputStream in = new BufferedInputStream(new FileInputStream(current));
-            byte[] contents = new byte[in.available()];
-            in.read(contents);
-            in.close();
-            String p = buildZKPath(parent, current).replaceFirst("/", "");
-            if (p.endsWith(".cfg")) {
-                p = p.substring(0, p.length() - ".cfg".length());
-            }
-
-            if (matches(containerProperties,"/" + p,false)) {
-                settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX,""));
-                Properties props = new Properties();
-                props.load(new StringReader(new String(contents)));
-                String parents = (String) props.get("parents");
-                settings.put(p.substring(0,p.lastIndexOf("/")),parents);
-            } else if (!matches(profile,"/" + p ,false)) {
-                settings.put(p, new String(contents));
-            }
-        }
-    }
-
-    private void readFileSystem() throws Exception {
-        Map<String, String> settings = new TreeMap<String, String>();
-        File s = new File(source);
-        getCandidates(s, s, settings);
-        List<Pattern> include = getPatterns(regex);
-        List<Pattern> exclude = getPatterns(nregex);
-
-        if (!target.endsWith("/")) {
-            target = target + "/";
-        }
-        if (!target.startsWith("/")) {
-            target = "/" + target;
-        }
-
-        List<String> paths = new ArrayList<String>();
-
-        for(String key : settings.keySet()) {
-            String data = settings.get(key);
-            key = target + key;
-            paths.add(key);
-            if (!matches(include, key, true) || matches(exclude, key, false)) {
-                continue;
-            }
-            if (!dryRun) {
-                if (data != null) {
-                    if (verbose) {
-                        System.out.println("importing: " + key);
-                    }
-                    getZooKeeper().createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                }
-            } else {
-                System.out.printf("Creating path \"%s\" with value \"%s\"\n", key, data);
-            }
-        }
-
-        if (delete) {
-            deletePathsNotIn(paths);
-        }
-    }
-
-    private void deletePathsNotIn(List<String> paths) throws Exception {
-        List<String> zkPaths = getZooKeeper().getAllChildren(target);
-
-        for (String path : zkPaths) {
-            path = "/" + path;
-            if (!paths.contains(path)) {
-                if (!dryRun) {
-                    getZooKeeper().deleteWithChildren(path);
-                } else {
-                    System.out.printf("Deleting path %s and everything under it\n", path);
-                }
-            }
-        }
-
-    }
-
-    private void readPropertiesFile() throws Exception {
-        List<Pattern> includes = getPatterns(regex);
-        List<Pattern> excludes = getPatterns(nregex);
-        InputStream in = new BufferedInputStream(new URL(source).openStream());
-        List<String> paths = new ArrayList<String>();
-        Properties props = new Properties();
-        props.load(in);
-        for (Enumeration names = props.propertyNames(); names.hasMoreElements();) {
-            String name = (String) names.nextElement();
-            String value = props.getProperty(name);
-            if (value != null && value.isEmpty()) {
-                value = null;
-            }
-            if (!name.startsWith("/")) {
-                name = "/" + name;
-            }
-            name = target + name;
-            if (!matches(includes, name, true) || matches(excludes, name, false)) {
-                continue;
-            }
-            if (!dryRun) {
-                getZooKeeper().createOrSetWithParents(name, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            } else {
-                System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
-            }
-        }
-    }
-
 
     public boolean isFilesystem() {
         return filesystem;

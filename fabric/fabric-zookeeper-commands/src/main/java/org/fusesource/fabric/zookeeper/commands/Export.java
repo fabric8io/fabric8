@@ -19,6 +19,7 @@ package org.fusesource.fabric.zookeeper.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.zookeeper.utils.RegexSupport;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -27,9 +28,9 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.getPatterns;
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.matches;
-import static org.fusesource.fabric.zookeeper.commands.RegexSupport.merge;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
+import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
 @Command(name = "export", scope = "zk", description = "Export data from zookeeper")
 public class Export extends ZooKeeperCommandSupport {
