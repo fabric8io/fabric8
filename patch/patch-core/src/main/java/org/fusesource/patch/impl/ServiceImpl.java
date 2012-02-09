@@ -169,6 +169,10 @@ public class ServiceImpl implements Service {
                 file.renameTo(new File(patchDir, patch.getId() + ".patch"));
                 patches.add(patch);
             }
+            // Add them to the list of downloaded patches
+            for (Patch patch : patches) {
+                this.patches.put(patch.getId(), patch);
+            }
             return patches;
         } catch (Exception e) {
             throw new PatchException("Unable to download patch from url " + url, e);

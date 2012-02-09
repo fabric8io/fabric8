@@ -55,54 +55,75 @@ public class ServiceImplTest {
 
     File baseDir;
     
+    File storage;
+    File bundlev131;
+    File bundlev132;
+    File bundlev140;
+    File patch132;
+    File patch140;
+    
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         URL base = getClass().getClassLoader().getResource("log4j.properties");
         try {
             baseDir = new File(base.toURI()).getParentFile();
         } catch(URISyntaxException e) {
             baseDir = new File(base.getPath()).getParentFile();
         }
+        
+        generateData();
     }
     
-    @Test
-    public void testPatch() throws Exception {
-        String bundleSymbolicName = "my-bsn";
-        String bundleVersion = "1.3.1";
-        String newBundleVersion = "1.3.2";
-        
-        File storage = new File(baseDir, "storage");
+    private void generateData() throws Exception {
+        storage = new File(baseDir, "storage");
         delete(storage);
         storage.mkdirs();
+
+        bundlev131 = createBundle("my-bsn", "1.3.1");
+        bundlev132 = createBundle("my-bsn", "1.3.2");
+        bundlev140 = createBundle("my-bsn", "1.4.0");
         
-        File jar = new File(storage, "temp/bundle.jar");
-        File man = new File(storage, "temp/bundle/META-INF/MANIFEST.MF");
+        patch132 = createPatch("patch-1.3.2", bundlev132);
+        patch140 = createPatch("patch-1.4.0", bundlev140);
+    }
+    
+    private File createPatch(String id, File bundle) throws Exception {
+        File patchFile = new File(storage, "temp/" + id + ".zip");
+        File pd = new File(storage, "temp/" + id + "/" + id + ".patch");
+        pd.getParentFile().mkdirs();
+        Properties props = new Properties();
+        props.put("id", id);
+        props.put("bundle.count", "1");
+        props.put("bundle.0", bundle.toURI().toURL().toString());
+        FileOutputStream fos = new FileOutputStream(pd);
+        props.store(fos, null);
+        fos.close();
+        fos = new FileOutputStream(patchFile);
+        jarDir(pd.getParentFile(), fos);
+        fos.close();
+        return patchFile;
+    }
+    
+    private File createBundle(String bundleSymbolicName, String version) throws Exception {
+        File jar = new File(storage, "temp/" + bundleSymbolicName + "-" + version + ".jar");
+        File man = new File(storage, "temp/" + bundleSymbolicName + "-" + version + "/META-INF/MANIFEST.MF");
         man.getParentFile().mkdirs();
         Manifest mf = new Manifest();
         mf.getMainAttributes().putValue("Manifest-Version", "1.0");
         mf.getMainAttributes().putValue("Bundle-ManifestVersion", "2");
         mf.getMainAttributes().putValue("Bundle-SymbolicName", bundleSymbolicName);
-        mf.getMainAttributes().putValue("Bundle-Version", newBundleVersion);
+        mf.getMainAttributes().putValue("Bundle-Version", version);
         FileOutputStream fos = new FileOutputStream(man);
         mf.write(fos);
         fos.close();
         fos = new FileOutputStream(jar);
         jarDir(man.getParentFile().getParentFile(), fos);
         fos.close();
-        
-        File patchFile = new File(storage, "temp/patch.zip");
-        File pd = new File(storage, "temp/patch/my.patch");
-        pd.getParentFile().mkdirs();
-        Properties props = new Properties();
-        props.put("id", "fuse-7.0.1");
-        props.put("bundle.count", "1");
-        props.put("bundle.0", jar.toURI().toURL().toString());
-        fos = new FileOutputStream(pd);
-        props.store(fos, null);
-        fos.close();
-        fos = new FileOutputStream(patchFile);
-        jarDir(pd.getParentFile(), fos);
-        fos.close();
+        return jar;
+    }
+    
+    @Test
+    public void testPatch() throws Exception {
 
         BundleContext bundleContext = createMock(BundleContext.class);
         Bundle bundle0 = createMock(Bundle.class);
@@ -119,17 +140,17 @@ public class ServiceImplTest {
         replay(bundleContext, bundle);
 
         ServiceImpl service = new ServiceImpl(bundleContext);
-        Iterable<Patch> patches = service.download(patchFile.toURI().toURL());
+        Iterable<Patch> patches = service.download(patch132.toURI().toURL());
         assertNotNull(patches);
         Iterator<Patch> it = patches.iterator();
         assertTrue( it.hasNext() );
         Patch patch = it.next();
         assertNotNull( patch );
-        assertEquals("fuse-7.0.1", patch.getId());
+        assertEquals("patch-1.3.2", patch.getId());
         assertNotNull(patch.getBundles());
         assertEquals(1, patch.getBundles().size());
         Iterator<String> itb = patch.getBundles().iterator();
-        assertEquals(jar.toURI().toURL().toString(), itb.next());
+        assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
         assertNull(patch.getResult());
         verify(bundleContext, bundle);
 
@@ -140,8 +161,8 @@ public class ServiceImplTest {
         reset(bundleContext, bundle);
         
         expect(bundleContext.getBundles()).andReturn(new Bundle[] { bundle });
-        expect(bundle.getSymbolicName()).andReturn(bundleSymbolicName);
-        expect(bundle.getVersion()).andReturn(new Version(bundleVersion));
+        expect(bundle.getSymbolicName()).andReturn("my-bsn");
+        expect(bundle.getVersion()).andReturn(new Version("1.3.1"));
         expect(bundle.getLocation()).andReturn("location");
         replay(bundleContext, bundle);
         
@@ -168,11 +189,11 @@ public class ServiceImplTest {
         assertTrue( it.hasNext() );
         patch = it.next();
         assertNotNull( patch );
-        assertEquals("fuse-7.0.1", patch.getId());
+        assertEquals("patch-1.3.2", patch.getId());
         assertNotNull(patch.getBundles());
         assertEquals(1, patch.getBundles().size());
         itb = patch.getBundles().iterator();
-        assertEquals(jar.toURI().toURL().toString(), itb.next());
+        assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
         assertNull(patch.getResult());
         verify(bundleContext, bundle);
 
@@ -183,11 +204,11 @@ public class ServiceImplTest {
         reset(bundleContext, bundle);
 
         expect(bundleContext.getBundles()).andReturn(new Bundle[] { bundle });
-        expect(bundle.getSymbolicName()).andReturn(bundleSymbolicName);
-        expect(bundle.getVersion()).andReturn(new Version(bundleVersion));
+        expect(bundle.getSymbolicName()).andReturn("my-bsn");
+        expect(bundle.getVersion()).andReturn(new Version("1.3.1"));
         expect(bundle.getLocation()).andReturn("location");
         bundle.uninstall();
-        expect(bundleContext.installBundle(jar.toURI().toURL().toString())).andReturn(bundle2);
+        expect(bundleContext.installBundle(bundlev132.toURI().toURL().toString())).andReturn(bundle2);
         expect(bundleContext.getBundles()).andReturn(new Bundle[] { bundle2 });
         expect(bundle2.getState()).andReturn(Bundle.INSTALLED);
         expect(bundle2.getHeaders()).andReturn(new Hashtable());
@@ -229,11 +250,11 @@ public class ServiceImplTest {
         assertTrue( it.hasNext() );
         patch = it.next();
         assertNotNull( patch );
-        assertEquals("fuse-7.0.1", patch.getId());
+        assertEquals("patch-1.3.2", patch.getId());
         assertNotNull(patch.getBundles());
         assertEquals(1, patch.getBundles().size());
         itb = patch.getBundles().iterator();
-        assertEquals(jar.toURI().toURL().toString(), itb.next());
+        assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
         assertNotNull(patch.getResult());
         verify(bundleContext, bundle);
 

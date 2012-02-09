@@ -38,7 +38,7 @@ public class Install extends PatchCommandSupport {
         if (patch.isInstalled()) {
             throw new PatchException("Patch '" + patchId + "' is already installed");
         }
-        Result result = patch.simulate();
+        Result result = patch.install();
         display(result);
     }
 
