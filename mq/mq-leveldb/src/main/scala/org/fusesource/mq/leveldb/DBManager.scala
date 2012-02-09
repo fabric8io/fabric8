@@ -558,6 +558,9 @@ class DBManager(parent:LevelDBStore) {
   def createQueueStore(dest:ActiveMQQueue) = {
     parent.createQueueMessageStore(dest, createStore(dest, QUEUE_COLLECTION_TYPE))
   }
+  def destroyQueueStore(key:Long) = writeExecutor.sync {
+    client.removeCollection(key)
+  }
 
   def getLogAppendPosition = writeExecutor.sync {
     client.getLogAppendPosition

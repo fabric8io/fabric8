@@ -36,6 +36,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicLong
 import util.Log
 import reflect.BeanProperty
+import org.apache.activemq.store.memory.MemoryTransactionStore
 
 object LevelDBStore extends Log {
   def toIOException(e: Throwable): IOException = {
@@ -67,7 +68,6 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   import LevelDBStore._
 
   final val wireFormat = new OpenWireFormat
-  final val transactionStore = new LevelDBTransactionStore(this)
   final val db = new DBManager(this)
 
   @BeanProperty
@@ -97,7 +97,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   @BeanProperty
   var flushDelay = 1000*5
   @BeanProperty
-  var asyncBufferSize = 1024*1024*50
+  var asyncBufferSize = 1024*1024*4
   @BeanProperty
   var monitorStats = false
 
@@ -154,11 +154,6 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   def rollbackTransaction(context: ConnectionContext): Unit = {
   }
 
-  def removeQueueMessageStore(destination: ActiveMQQueue): Unit = {
-  }
-
-  def removeTopicMessageStore(destination: ActiveMQTopic): Unit = {
-  }
 
   def createTransactionStore: TransactionStore = {
     return this.transactionStore
@@ -172,14 +167,6 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     return rc
   }
 
-  def createTopicMessageStore(destination: ActiveMQTopic): TopicMessageStore = {
-    var rc: TopicMessageStore = topics.get(destination)
-    if (rc == null) {
-      rc = db.createTopicStore(destination)
-    }
-    return rc
-  }
-
   def createQueueMessageStore(destination: ActiveMQQueue, key: Long): MessageStore = {
     var rc: MessageStore = this.transactionStore.proxy(new LevelDBMessageStore(destination, key))
     this synchronized {
@@ -188,7 +175,23 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     return rc
   }
 
-  def getLogAppendPosition = db.getLogAppendPosition
+  def removeQueueMessageStore(destination: ActiveMQQueue): Unit = this synchronized {
+    var store = queues.remove(destination)
+    if (store != null) {
+      store match {
+        case store:LevelDBTxMessageStore => db.destroyQueueStore(store.store.key)
+        case store:LevelDBTxTopicMessageStore => db.destroyQueueStore(store.store.key)
+      }
+    }
+  }
+
+  def createTopicMessageStore(destination: ActiveMQTopic): TopicMessageStore = {
+    var rc: TopicMessageStore = topics.get(destination)
+    if (rc == null) {
+      rc = db.createTopicStore(destination)
+    }
+    return rc
+  }
 
   def createTopicMessageStore(destination: ActiveMQTopic, key: Long): TopicMessageStore = {
     var rc: TopicMessageStore = this.transactionStore.proxy(new LevelDBTopicMessageStore(destination, key))
@@ -197,6 +200,11 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     }
     return rc
   }
+
+  def removeTopicMessageStore(destination: ActiveMQTopic): Unit = {
+  }
+
+  def getLogAppendPosition = db.getLogAppendPosition
 
   def getDestinations: Set[ActiveMQDestination] = {
     var rc: HashSet[ActiveMQDestination] = new HashSet[ActiveMQDestination]
@@ -228,7 +236,18 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     return clientId + ":" + subscriptionName
   }
 
-  class LevelDBMessageStore(destination: ActiveMQDestination, key: Long) extends AbstractMessageStore(destination) {
+  case class LevelDBTxMessageStore(store: LevelDBMessageStore) extends ProxyMessageStore(store) {
+  }
+
+  case class LevelDBTxTopicMessageStore(store: LevelDBTopicMessageStore) extends ProxyTopicMessageStore(store) {
+  }
+
+  final val transactionStore = new MemoryTransactionStore(this) {
+    override def proxy(store: MessageStore) = LevelDBTxMessageStore(store.asInstanceOf[LevelDBMessageStore])
+    override def proxy(store: TopicMessageStore) = LevelDBTxTopicMessageStore(store.asInstanceOf[LevelDBTopicMessageStore])
+  }
+
+  case class LevelDBMessageStore(dest: ActiveMQDestination, val key: Long) extends AbstractMessageStore(dest) {
 
     private val lastSeq: AtomicLong = new AtomicLong(0)
     private var cursorPosition: Long = 0
@@ -315,7 +334,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
   }
 
-  class LevelDBTopicMessageStore(destination: ActiveMQDestination, key: Long) extends LevelDBMessageStore(destination, key) with TopicMessageStore {
+  class LevelDBTopicMessageStore(dest: ActiveMQDestination, key: Long) extends LevelDBMessageStore(dest, key) with TopicMessageStore {
 
     def acknowledge(context: ConnectionContext, clientId: String, subscriptionName: String, messageId: MessageId, ack: MessageAck): Unit = {
       throw new RuntimeException("implement me")
