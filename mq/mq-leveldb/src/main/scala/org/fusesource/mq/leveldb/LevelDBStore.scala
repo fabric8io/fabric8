@@ -21,22 +21,20 @@ import org.apache.activemq.broker.BrokerServiceAware
 import org.apache.activemq.broker.ConnectionContext
 import org.apache.activemq.command._
 import org.apache.activemq.openwire.OpenWireFormat
-import org.apache.activemq.store._
 import org.apache.activemq.usage.SystemUsage
 import org.apache.activemq.util.IOExceptionSupport
 import org.apache.activemq.util.ServiceStopper
 import org.apache.activemq.util.ServiceSupport
 import java.io.File
 import java.io.IOException
-import java.util.HashMap
-import java.util.HashSet
-import java.util.Set
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicLong
 import util.Log
 import reflect.BeanProperty
 import org.apache.activemq.store.memory.MemoryTransactionStore
+import org.apache.activemq.store._
+import java.util._
 
 object LevelDBStore extends Log {
   def toIOException(e: Throwable): IOException = {
@@ -62,6 +60,11 @@ object LevelDBStore extends Log {
       }
     }
   }
+}
+
+case class DurableSubscription(subKey:Long, topicKey:Long, info: SubscriptionInfo) {
+  var lastAckPosition = 0L
+  var cursorPosition = 0L
 }
 
 class LevelDBStore extends ServiceSupport with BrokerServiceAware with PersistenceAdapter {
@@ -103,8 +106,10 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
   var purgeOnStatup: Boolean = false
   var brokerService: BrokerService = null
-  var queues: HashMap[ActiveMQQueue, MessageStore] = new HashMap[ActiveMQQueue, MessageStore]
-  var topics: HashMap[ActiveMQTopic, TopicMessageStore] = new HashMap[ActiveMQTopic, TopicMessageStore]
+
+  var queues: HashMap[ActiveMQQueue, LevelDBStore#LevelDBTxMessageStore] = new HashMap[ActiveMQQueue, LevelDBStore#LevelDBTxMessageStore]
+  var topics: HashMap[ActiveMQTopic, LevelDBStore#LevelDBTxTopicMessageStore] = new HashMap[ActiveMQTopic, LevelDBStore#LevelDBTxTopicMessageStore]
+  var topicsById: HashMap[Long, LevelDBStore#LevelDBTxTopicMessageStore] = new HashMap[Long, LevelDBStore#LevelDBTxTopicMessageStore]
 
   override def toString: String = {
     return "LevelDB:[" + directory.getAbsolutePath + "]"
@@ -168,7 +173,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   }
 
   def createQueueMessageStore(destination: ActiveMQQueue, key: Long): MessageStore = {
-    var rc: MessageStore = this.transactionStore.proxy(new LevelDBMessageStore(destination, key))
+    var rc = this.transactionStore.proxy(new LevelDBMessageStore(destination, key))
     this synchronized {
       queues.put(destination, rc)
     }
@@ -186,19 +191,20 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   }
 
   def createTopicMessageStore(destination: ActiveMQTopic): TopicMessageStore = {
-    var rc: TopicMessageStore = topics.get(destination)
+    var rc = topics.get(destination)
     if (rc == null) {
       rc = db.createTopicStore(destination)
     }
     return rc
   }
 
-  def createTopicMessageStore(destination: ActiveMQTopic, key: Long): TopicMessageStore = {
-    var rc: TopicMessageStore = this.transactionStore.proxy(new LevelDBTopicMessageStore(destination, key))
+  def createTopicMessageStore(destination: ActiveMQTopic, key: Long) = {
+    var rc = this.transactionStore.proxy(new LevelDBTopicMessageStore(destination, key))
     this synchronized {
       topics.put(destination, rc)
+      topicsById.put(key, rc)
     }
-    return rc
+    rc
   }
 
   def removeTopicMessageStore(destination: ActiveMQTopic): Unit = {
@@ -249,8 +255,8 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
   case class LevelDBMessageStore(dest: ActiveMQDestination, val key: Long) extends AbstractMessageStore(dest) {
 
-    private val lastSeq: AtomicLong = new AtomicLong(0)
-    private var cursorPosition: Long = 0
+    protected val lastSeq: AtomicLong = new AtomicLong(0)
+    protected var cursorPosition: Long = 0
 
     lastSeq.set(db.getLastQueueEntrySeq(key))
 
@@ -304,73 +310,143 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     }
 
     def recoverNextMessages(maxReturned: Int, listener: MessageRecoveryListener): Unit = {
-      cursorPosition = db.cursorMessages(key, new MessageRecoveryListener {
-        def hasSpace: Boolean = {
-          return count < maxReturned && listener.hasSpace
-        }
-
-        def recoverMessage(message: Message): Boolean = {
-          ({
-            count += 1; count
-          })
-          return listener.recoverMessage(message)
-        }
-
-        def recoverMessageReference(ref: MessageId): Boolean = {
-          throw new RuntimeException
-        }
-
-        def isDuplicate(ref: MessageId): Boolean = {
-          throw new RuntimeException
-        }
-
-        private var count: Int = 0
-      }, cursorPosition)
+      cursorPosition = db.cursorMessages(key, LimitingRecoveryListener(maxReturned, listener), cursorPosition)
     }
 
     override def setBatch(id: MessageId): Unit = {
-      cursorPosition = db.getCursorPosition(key, id, cursorPosition)
+      cursorPosition = db.queuePosition(id)
     }
 
+  }
+
+  case class LimitingRecoveryListener(max: Int, listener: MessageRecoveryListener) extends MessageRecoveryListener {
+    private var recovered: Int = 0
+    def hasSpace = recovered < max && listener.hasSpace
+    def recoverMessage(message: Message) = {
+      recovered += 1;
+      listener.recoverMessage(message)
+    }
+    def recoverMessageReference(ref: MessageId) = {
+      recovered += 1;
+      listener.recoverMessageReference(ref)
+    }
+    def isDuplicate(ref: MessageId) = listener.isDuplicate(ref)
+  }
+  
+
+  //
+  // This gts called when the store is first loading up, it restores
+  // the existing durable subs..
+  def createSubscription(sub:DurableSubscription) = {
+    val topic = this.synchronized {
+      topicsById.get(sub.topicKey)
+    }
+    if( topic!=null ) {
+      topic.store.synchronized {
+        topic.store.subscriptions.put((sub.info.getClientId, sub.info.getSubcriptionName), sub)
+      }
+    } else {
+      // Topic does not exist.. so kill the durable sub..
+      db.removeSubscription(sub)
+    }
+  }
+  
+  
+  def getTopicGCPositions = {
+    import collection.JavaConversions._
+    val topics = this.synchronized {
+      new ArrayList(topicsById.values())
+    }
+    topics.flatMap(_.store.gcPosition).toSeq
   }
 
   class LevelDBTopicMessageStore(dest: ActiveMQDestination, key: Long) extends LevelDBMessageStore(dest, key) with TopicMessageStore {
+    var subscriptions = new  HashMap[(String, String), DurableSubscription]()
+    var firstSeq = 0L
 
-    def acknowledge(context: ConnectionContext, clientId: String, subscriptionName: String, messageId: MessageId, ack: MessageAck): Unit = {
-      throw new RuntimeException("implement me")
+    def gcPosition:Option[(Long, Long)] = {
+      var pos = lastSeq.get()
+      subscriptions.synchronized {
+        import collection.JavaConversions._
+        subscriptions.values().foreach { sub =>
+          if( sub.lastAckPosition < pos ) {
+            pos = sub.lastAckPosition
+          }
+        }
+        if( firstSeq != pos+1) {
+          firstSeq = pos+1
+          Some(key, firstSeq)
+        } else {
+          None
+        }
+      }
+    }
+    
+    def addSubsciption(info: SubscriptionInfo, retroactive: Boolean) = {
+      var sub = db.addSubscription(key, info)
+      subscriptions.synchronized {
+        subscriptions.put((info.getClientId, info.getSubcriptionName), sub)
+      }
+      sub.lastAckPosition = if (retroactive) 0 else lastSeq.get()
+      withUow{ uow=>
+        uow.updateAckPosition(sub)
+      }
+    }
+    
+    def getAllSubscriptions: Array[SubscriptionInfo] = subscriptions.synchronized {
+      import collection.JavaConversions._
+      subscriptions.values().map(_.info).toArray
+    }
+
+    def lookupSubscription(clientId: String, subscriptionName: String): SubscriptionInfo = subscriptions.synchronized {
+      Option(subscriptions.get((clientId, subscriptionName))).map(_.info).getOrElse(null)
     }
 
     def deleteSubscription(clientId: String, subscriptionName: String): Unit = {
-      throw new RuntimeException("implement me")
+      val sub = subscriptions.synchronized {
+        subscriptions.remove((clientId, subscriptionName))
+      }
+      if(sub!=null) {
+        db.removeSubscription(sub)
+      }
     }
 
-    def recoverSubscription(clientId: String, subscriptionName: String, listener: MessageRecoveryListener): Unit = {
-      throw new RuntimeException("implement me")
+    private def lookup(clientId: String, subscriptionName: String): Option[DurableSubscription] = subscriptions.synchronized {
+      Option(subscriptions.get((clientId, subscriptionName)))
     }
 
-    def recoverNextMessages(clientId: String, subscriptionName: String, maxReturned: Int, listener: MessageRecoveryListener): Unit = {
-      throw new RuntimeException("implement me")
+    def acknowledge(context: ConnectionContext, clientId: String, subscriptionName: String, messageId: MessageId, ack: MessageAck): Unit = {
+      lookup(clientId, subscriptionName).foreach { sub =>
+        sub.lastAckPosition = db.queuePosition(messageId)
+        withUow{ uow=>
+          uow.updateAckPosition(sub)
+        }
+      }
     }
-
+    
     def resetBatching(clientId: String, subscriptionName: String): Unit = {
-      throw new RuntimeException("implement me")
+      lookup(clientId, subscriptionName).foreach { sub =>
+        sub.cursorPosition = 0
+      }
+    }
+    def recoverSubscription(clientId: String, subscriptionName: String, listener: MessageRecoveryListener): Unit = {
+      lookup(clientId, subscriptionName).foreach { sub =>
+        sub.cursorPosition = db.cursorMessages(key, listener, sub.cursorPosition.max(sub.lastAckPosition+1))
+      }
+    }
+    
+    def recoverNextMessages(clientId: String, subscriptionName: String, maxReturned: Int, listener: MessageRecoveryListener): Unit = {
+      lookup(clientId, subscriptionName).foreach { sub =>
+        sub.cursorPosition = db.cursorMessages(key,  LimitingRecoveryListener(maxReturned, listener), sub.cursorPosition.max(sub.lastAckPosition+1))
+      }
+    }
+    
+    def getMessageCount(clientId: String, subscriptionName: String): Int = {
+      lookup(clientId, subscriptionName) match {
+        case Some(sub) => db.queueSizeFrom(key, sub.lastAckPosition+1)
+        case None => 0
+      }
     }
 
-    def getMessageCount(clientId: String, subscriberName: String): Int = {
-      throw new RuntimeException("implement me")
-    }
-
-    def lookupSubscription(clientId: String, subscriptionName: String): SubscriptionInfo = {
-      throw new RuntimeException("implement me")
-    }
-
-    def getAllSubscriptions: Array[SubscriptionInfo] = {
-      return Array[SubscriptionInfo]()
-    }
-
-    def addSubsciption(subscriptionInfo: SubscriptionInfo, retroactive: Boolean): Unit = {
-      throw new RuntimeException("implement me")
-    }
   }
-
 }

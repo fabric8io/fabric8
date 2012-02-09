@@ -20,16 +20,16 @@ import collection.mutable.ListBuffer
 import java.util.HashMap
 import org.fusesource.hawtdispatch._
 import org.fusesource.hawtdispatch.{BaseRetained, ListEventAggregator}
-import org.apache.activemq.command._
-import record.CollectionRecord
 import java.util.concurrent._
 import atomic._
 import org.fusesource.hawtbuf.Buffer
-import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.util.ByteSequence
 import org.apache.activemq.store.MessageRecoveryListener
 import java.lang.ref.WeakReference
 import scala.Option._
+import org.fusesource.hawtbuf.Buffer._
+import org.apache.activemq.command._
+import org.fusesource.mq.leveldb.record.{EntryRecord, SubscriptionRecord, CollectionRecord}
 
 case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
   var locator:(Long, Int) = _
@@ -38,6 +38,7 @@ case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
 case class QueueEntryRecord(id:MessageId, queueKey:Long, queueSeq:Long)
 case class QueueRecord(id:ActiveMQDestination, queue_key:Long)
 case class QueueEntryRange()
+case class SubAckRecord(subKey:Long, ackPosition:Long)
 
 sealed trait UowState {
   def stage:Int
@@ -111,6 +112,7 @@ object UowManagerConstants {
   val QUEUE_COLLECTION_TYPE = 1
   val TOPIC_COLLECTION_TYPE = 2
   val TRANSACTION_COLLECTION_TYPE = 3
+  val SUBSCRIPTION_COLLECTION_TYPE = 4
 }
 
 /**
@@ -119,7 +121,7 @@ object UowManagerConstants {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class DBManager(parent:LevelDBStore) {
+class DBManager(val parent:LevelDBStore) {
   import UowManagerConstants._
 
   var lastCollectionKey = new AtomicLong(0)
@@ -146,6 +148,7 @@ class DBManager(parent:LevelDBStore) {
 
     val uowId:Int = lastUowId.incrementAndGet()
     var actions = Map[MessageId, MessageAction]()
+    var subAcks = ListBuffer[SubAckRecord]()
     var completed = false
     var disableDelay = false
     var delayableActions = 0
@@ -219,6 +222,10 @@ class DBManager(parent:LevelDBStore) {
         pendingStores.put(record.id, action)
       }
       delayableActions += 1
+    }
+
+    def updateAckPosition(sub:DurableSubscription) = {
+      subAcks += SubAckRecord(sub.subKey, sub.lastAckPosition)
     }
 
     def enqueue(queueKey:Long, queueSeq:Long, message:Message)  = {
@@ -481,9 +488,10 @@ class DBManager(parent:LevelDBStore) {
 
   def pollGc:Unit = dispatchQueue.after(10, TimeUnit.SECONDS) {
     if( started ) {
+      val positions = parent.getTopicGCPositions
       writeExecutor {
         if( started ) {
-          client.gc
+          client.gc(positions)
           pollGc
         }
       }
@@ -546,10 +554,10 @@ class DBManager(parent:LevelDBStore) {
     nextPos
   }
 
-  def getCursorPosition(key:Long, id: MessageId, cursorPosition:Long):Long = {
-    val keyLocation = id.getEntryLocator.asInstanceOf[(Long, Long)]
-    assert(keyLocation!=null)
-    keyLocation._2
+  def queueSizeFrom(key:Long, pos:Long) = client.queueSizeFrom(key, pos)
+
+  def queuePosition(id: MessageId):Long = {
+    id.getEntryLocator.asInstanceOf[(Long, Long)]._2
   }
 
   def createQueueStore(dest:ActiveMQQueue) = {
@@ -563,8 +571,37 @@ class DBManager(parent:LevelDBStore) {
     client.getLogAppendPosition
   }
 
+  def addSubscription(topic_key:Long, info:SubscriptionInfo):DurableSubscription = {
+    val record = new SubscriptionRecord.Bean
+    record.setTopicKey(topic_key)
+    record.setClientId(info.getClientId)
+    record.setSubscriptionName(info.getSubcriptionName)
+    if( info.getSelector!=null ) {
+      record.setSelector(info.getSelector)
+    }
+    if( info.getDestination!=null ) {
+      record.setDestinationName(info.getDestination.getQualifiedName)
+    }
+    val collection = new CollectionRecord.Bean()
+    collection.setType(SUBSCRIPTION_COLLECTION_TYPE)
+    collection.setKey(lastCollectionKey.incrementAndGet())
+    collection.setMeta(record.freeze().toUnframedBuffer)
+
+    val buffer = collection.freeze()
+    buffer.toFramedBuffer // eager encode the record.
+    writeExecutor.sync {
+      client.addCollection(buffer)
+    }
+    DurableSubscription(collection.getKey, topic_key, info)
+  }
+
+  def removeSubscription(sub:DurableSubscription) = {
+    client.removeCollection(sub.subKey)
+  }
+
   def createTopicStore(dest:ActiveMQTopic) = {
-    parent.createTopicMessageStore(dest, createStore(dest, TOPIC_COLLECTION_TYPE))
+    var key = createStore(dest, TOPIC_COLLECTION_TYPE)
+    parent.createTopicMessageStore(dest, key)
   }
 
   def createStore(destination:ActiveMQDestination, collectionType:Int) = {
@@ -594,8 +631,22 @@ class DBManager(parent:LevelDBStore) {
         case TOPIC_COLLECTION_TYPE =>
           val dest = ActiveMQDestination.createDestination(record.getMeta.utf8().toString, ActiveMQDestination.TOPIC_TYPE).asInstanceOf[ActiveMQTopic]
           parent.createTopicMessageStore(dest, key)
-        case x =>
-          println("Unknown collection type: "+x)
+        case SUBSCRIPTION_COLLECTION_TYPE =>
+          val sr = SubscriptionRecord.FACTORY.parseUnframed(record.getMeta)
+          val info = new SubscriptionInfo
+          info.setClientId(sr.getClientId)
+          info.setSubcriptionName(sr.getSubscriptionName)
+          if( sr.hasSelector ) {
+            info.setSelector(sr.getSelector)
+          }
+          if(sr.hasDestinationName) {
+            info.setSubscribedDestination(ActiveMQDestination.createDestination(sr.getDestinationName, ActiveMQDestination.TOPIC_TYPE))
+          }
+
+          var sub = DurableSubscription(key, sr.getTopicKey, info)
+          sub.lastAckPosition = client.getAckPosition(key);
+          parent.createSubscription(sub)
+        case _ =>
       }
     }
     lastCollectionKey.set(last)

@@ -56,6 +56,7 @@ object LevelDBClient extends Log {
   final val LOG_REF_INDEX_KEY = bytes(":log-refs")
   final val TRUE = bytes("true")
   final val FALSE = bytes("false")
+  final val ACK_POSITION = new AsciiBuffer("p")
 
   final val COLLECTION_PREFIX = 'c'.toByte
   final val COLLECTION_PREFIX_ARRAY = Array(COLLECTION_PREFIX)
@@ -851,6 +852,10 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
+  def queueSizeFrom(collectionKey: Long, seq:Long) = {
+    collectionSizeFrom(collectionKey, encodeLong(seq))
+  }
+
   def queueCursor(collectionKey: Long, seq:Long)(func: (Message)=>Boolean) = {
     collectionCursor(collectionKey, encodeLong(seq)) { value =>
       val seq = decodeLong(value.getEntryKey)
@@ -859,6 +864,15 @@ class LevelDBClient(store: LevelDBStore) {
       msg.getMessageId().setEntryLocator((collectionKey, seq))
       msg.getMessageId().setDataLocator(locator)
       func(msg)
+    }
+  }
+
+  def getAckPosition(subKey: Long): Long = {
+    retryUsingIndex {
+      index.get(encodeEntryKey(ENTRY_PREFIX, subKey, ACK_POSITION)).map{ value=>
+        val record = decodeEntryRecord(value)
+        record.getValueLocation()
+      }.getOrElse(0L)
     }
   }
 
@@ -901,6 +915,22 @@ class LevelDBClient(store: LevelDBStore) {
       ro.fillCache(false)
       ro.verifyChecksums(verifyChecksums)
       index.cursorKeysPrefixed(entryKeyPrefix, ro) { key =>
+        count += 1
+        true
+      }
+    }
+    count
+  }
+
+  def collectionSizeFrom(collectionKey: Long,  cursorPosition:Buffer) = {
+    var count = 0
+    retryUsingIndex {
+      val ro = new ReadOptions
+      ro.fillCache(false)
+      ro.verifyChecksums(verifyChecksums)
+      val start = encodeEntryKey(ENTRY_PREFIX, collectionKey, cursorPosition)
+      val end = encodeLongKey(ENTRY_PREFIX, collectionKey+1)
+      index.cursorRangeKeys(start, end, ro) { key =>
         count += 1
         true
       }
@@ -978,7 +1008,20 @@ class LevelDBClient(store: LevelDBStore) {
                 batch.put(key, encoded.toByteArray)
                 logRefIncrement(dataLocator._1)
               }
+
             }
+            uow.subAcks.foreach { entry =>
+              val key = encodeEntryKey(ENTRY_PREFIX, entry.subKey, ACK_POSITION)
+              val record = new EntryRecord.Bean()
+              record.setCollectionKey(entry.subKey)
+              record.setEntryKey(ACK_POSITION)
+              record.setValueLocation(entry.ackPosition)
+
+              val encoded = encodeEntryRecord(record.freeze())
+              appender.append(LOG_ADD_ENTRY, encoded)
+              batch.put(key, encoded.toByteArray)
+            }
+
             if( !syncNeeded && uow.syncNeeded ) {
               syncNeeded = true
             }
@@ -1001,16 +1044,6 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
-//  def getQueueEntries(collectionKey: Long, firstSeq:Long, lastSeq:Long): Seq[QueueEntryRecord] = {
-//    getCollectionEntries(collectionKey, firstSeq, lastSeq).map { case (key, value) =>
-//      val seq = key.bigEndianEditor().readLong()
-//      val msgId = new MessageId(value.getMeta.ascii().toString)
-//      msgId.setEntryLocator((collectionKey, seq))
-//      msgId.setDataLocator((value.getValueLocation, value.getValueLength))
-//      QueueEntryRecord(msgId, collectionKey, seq)
-//    }
-//  }
-  
   def getCollectionEntries(collectionKey: Long, firstSeq:Long, lastSeq:Long): Seq[(Buffer, EntryRecord.Buffer)] = {
     var rc = ListBuffer[(Buffer, EntryRecord.Buffer)]()
     val ro = new ReadOptions
@@ -1041,7 +1074,29 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
-  def gc:Unit = {
+  def gc(topicPositions:Seq[(Long, Long)]):Unit = {
+
+    // Delete message refs for topics who's consumers have advanced..
+    if( !topicPositions.isEmpty ) {
+      retryUsingIndex {
+        index.write() { batch =>
+          for( (topic, first) <- topicPositions ) {
+            val ro = new ReadOptions
+            ro.fillCache(true)
+            ro.verifyChecksums(verifyChecksums)
+            val start = encodeEntryKey(ENTRY_PREFIX, topic, 0)
+            val end =  encodeEntryKey(ENTRY_PREFIX, topic, first)
+            index.cursorRange(start, end, ro) { case (key, value) =>
+              val entry = EntryRecord.FACTORY.parseFramed(value)
+              batch.delete(key)
+              logRefDecrement(entry.getValueLocation)
+              true
+            }
+          }
+        }
+      }
+    }
+
     lastIndexSnapshotPos
     val emptyJournals = log.log_infos.keySet.toSet -- logRefs.keySet
 
