@@ -160,6 +160,14 @@
           <ref component-id="containerCompleter"/>
         </completers>
       </command>
+      <command name="fabric/container-rollback">
+        <action class="org.fusesource.fabric.commands.ContainerRollback">
+          <property name="fabricService" ref="fabricService"/>
+        </action>
+        <completers>
+          <ref component-id="containerCompleter"/>
+        </completers>
+      </command>
 
         <command name="fabric/container-domains">
             <action class="org.fusesource.fabric.commands.ContainerDomains">
