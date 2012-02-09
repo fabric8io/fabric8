@@ -16,6 +16,36 @@
  */
 package org.fusesource.fabric.agent;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Parser;
@@ -40,21 +70,19 @@ import org.fusesource.fabric.agent.utils.MultiException;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.Version;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.nio.BufferUnderflowException;
-import java.util.*;
-import java.util.concurrent.*;
 
 public class DeploymentAgent implements ManagedService, FrameworkListener {
 
@@ -153,36 +181,39 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     result = e;
                     LOGGER.error("Unable to update agent", e);
                 }
-                try {
-                    IZKClient zk = zkClient.call();
-                    if (zk != null) {
-                        String name = System.getProperty("karaf.name");
-                        String r, e;
-                        if (result == null) {
-                            r = ZkDefs.SUCCESS;
-                            e = null;
-                        } else {
-                            StringWriter sw = new StringWriter();
-                            result.printStackTrace(new PrintWriter(sw));
-                            r = ZkDefs.ERROR;
-                            e = sw.toString();
-                        }
-                        zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_RESULT.getPath(name), r, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                        zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    } else {
-                        LOGGER.info("ZooKeeper not available");
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Unable to set provisioning result");
-                }
+                updateStatus(result == null ? ZkDefs.SUCCESS : ZkDefs.ERROR, result);
             }
         });
+    }
+
+    private void updateStatus(String status, Exception result) {
+        try {
+            IZKClient zk = zkClient.call();
+            if (zk != null) {
+                String name = System.getProperty("karaf.name");
+                String e;
+                if (result == null) {
+                    e = null;
+                } else {
+                    StringWriter sw = new StringWriter();
+                    result.printStackTrace(new PrintWriter(sw));
+                    e = sw.toString();
+                }
+                zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_RESULT.getPath(name), status, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            } else {
+                LOGGER.info("ZooKeeper not available");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Unable to set provisioning result");
+        }
     }
 
     public void doUpdate(Dictionary props) throws Exception {
         if (props == null) {
             return;
         }
+        updateStatus("analyzing", null);
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
                 new DictionaryPropertyResolver(props,
                         new PropertiesPropertyResolver(System.getProperties())),
@@ -223,6 +254,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             }
         }
         if (restart) {
+            updateStatus("restarting", null);
             configProps.save();
             systemProps.save();
             System.setProperty("karaf.restart", "true");
@@ -348,9 +380,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private void updateDeployment(Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles) throws Exception {
         Set<Feature> allFeatures = addFeatures(features, repositories.values());
+        updateStatus("downloading", null);
         Map<String, File> downloads = downloadBundles(allFeatures, bundles);
+        updateStatus("resolving", null);
         List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles);
 
+        updateStatus("installing", null);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
 
         StringBuilder sb = new StringBuilder();
@@ -461,6 +496,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
         findBundlesWithFramentsToRefresh(toRefresh);
 
+        updateStatus("finalizing", null);
         LOGGER.info("Refreshing bundles:");
         for (Bundle bundle : toRefresh) {
             LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
