@@ -19,6 +19,7 @@ package org.fusesource.fabric.zookeeper.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.linkedin.zookeeper.client.IZKClient;
 
 @Command(name = "list", scope = "zk", description = "List a node's children")
 public class List extends ZooKeeperCommandSupport {
@@ -35,31 +36,30 @@ public class List extends ZooKeeperCommandSupport {
     //TODO - Be good to also have an option to show other ZK attributes for a node similar to ls -la
 
     @Override
-    protected Object doExecute() throws Exception {
-        display(path);
-        return null;
+    protected void doExecute(IZKClient zk) throws Exception {
+        display(zk, path);
     }
 
-    private java.util.List<String> getPaths() throws Exception {
+    private java.util.List<String> getPaths(IZKClient zk) throws Exception {
         if (recursive) {
-            return getZooKeeper().getAllChildren(path);
+            return zk.getAllChildren(path);
         } else {
-            return getZooKeeper().getChildren(path);
+            return zk.getChildren(path);
         }
     }
 
-    protected void display(String path) throws Exception {
+    protected void display(IZKClient zk, String path) throws Exception {
         if (!path.endsWith("/")) {
             path = path + "/";
         }
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
-        java.util.List<String> paths = getPaths();
+        java.util.List<String> paths = getPaths(zk);
 
         for(String p : paths) {
             if (display) {
-                byte[] data = getZooKeeper().getData(path + p);
+                byte[] data = zk.getData(path + p);
                 if (data != null) {
                     System.out.printf("%s = %s\n", p, new String(data));
                 } else {

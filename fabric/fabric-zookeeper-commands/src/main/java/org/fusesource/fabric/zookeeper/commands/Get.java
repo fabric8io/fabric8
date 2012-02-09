@@ -18,6 +18,7 @@ package org.fusesource.fabric.zookeeper.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.linkedin.zookeeper.client.IZKClient;
 
 @Command(name = "get", scope = "zk", description = "Get a node's data")
 public class Get extends ZooKeeperCommandSupport {
@@ -26,8 +27,7 @@ public class Get extends ZooKeeperCommandSupport {
     String path;
 
     @Override
-    protected Object doExecute() throws Exception {
-        System.out.println(getZooKeeper().getStringData(path));
-        return null;
+    protected void doExecute(IZKClient zk) throws Exception {
+        System.out.println(zk.getStringData(path));
     }
 }

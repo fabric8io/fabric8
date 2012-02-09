@@ -21,45 +21,58 @@ import java.util.List;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.zookeeper.KeeperException;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 public class ZNodeCompleter implements Completer {
-    private IZKClient zk;
+    private BundleContext bundleContext;
 
     public ZNodeCompleter() {
-        this.zk = zk;
     }
 
-    public void setZooKeeper(IZKClient zk) {
-        this.zk = zk;
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
     @SuppressWarnings("unchecked")
     public int complete(String buffer, int cursor, List candidates) {
-        // Guarantee that the final token is the one we're expanding
-        if (buffer == null) {
-            candidates.add("/");
-            return 1;
-        } else if (!buffer.startsWith("/")) {
+        ServiceReference sr = bundleContext.getServiceReference(IZKClient.class.getName());
+        if (sr == null) {
             return 0;
         }
-        buffer = buffer.substring(0, cursor);
-        String path = buffer;
-        int idx = path.lastIndexOf("/") + 1;
-        String prefix = path.substring(idx);
+        IZKClient zk = (IZKClient) bundleContext.getService(sr);
+        if (zk == null) {
+            return 0;
+        }
         try {
-            // Only the root path can end in a /, so strip it off every other prefix
-            String dir = idx == 1 ? "/" : path.substring(0, idx - 1);
-            List<String> children = zk.getChildren(dir, false);
-            for (String child : children) {
-                if (child.startsWith(prefix)) {
-                    candidates.add(child);
-                }
+            // Guarantee that the final token is the one we're expanding
+            if (buffer == null) {
+                candidates.add("/");
+                return 1;
+            } else if (!buffer.startsWith("/")) {
+                return 0;
             }
-        } catch (InterruptedException e) {
-            return 0;
-        } catch (KeeperException e) {
-            return 0;
+            buffer = buffer.substring(0, cursor);
+            String path = buffer;
+            int idx = path.lastIndexOf("/") + 1;
+            String prefix = path.substring(idx);
+            try {
+                // Only the root path can end in a /, so strip it off every other prefix
+                String dir = idx == 1 ? "/" : path.substring(0, idx - 1);
+                List<String> children = zk.getChildren(dir, false);
+                for (String child : children) {
+                    if (child.startsWith(prefix)) {
+                        candidates.add(child);
+                    }
+                }
+            } catch (InterruptedException e) {
+                return 0;
+            } catch (KeeperException e) {
+                return 0;
+            }
+            return candidates.size() == 0 ? buffer.length() : buffer.lastIndexOf("/") + 1;
+        } finally {
+            bundleContext.ungetService(sr);
         }
-        return candidates.size() == 0 ? buffer.length() : buffer.lastIndexOf("/") + 1;
     }
 }

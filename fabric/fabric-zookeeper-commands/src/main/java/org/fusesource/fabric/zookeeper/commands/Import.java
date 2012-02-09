@@ -16,22 +16,14 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import java.io.File;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.zookeeper.utils.RegexSupport;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
+import org.linkedin.zookeeper.client.IZKClient;
 
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
-import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
 @Command(name = "import", scope = "zk", description = "Import data into zookeeper")
@@ -68,7 +60,7 @@ public class Import extends ZooKeeperCommandSupport {
     File include = new File(".fabricinclude");
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected void doExecute(IZKClient zk) throws Exception {
         if (ignore.exists() && ignore.isFile()) {
             nregex = merge(ignore, nregex);
         }
@@ -81,15 +73,13 @@ public class Import extends ZooKeeperCommandSupport {
         if (filesystem == true) {
             properties = false;
         }
-        checkZooKeeperConnected();
         if (properties) {
-            ZookeeperImportUtils.importFromPropertiesFile(getZooKeeper(), source, target, regex, nregex, dryRun);
+            ZookeeperImportUtils.importFromPropertiesFile(zk, source, target, regex, nregex, dryRun);
         }
         if (filesystem) {
-            ZookeeperImportUtils.importFromFileSystem(getZooKeeper(), source, target, regex, nregex, delete, dryRun, verbose);
+            ZookeeperImportUtils.importFromFileSystem(zk, source, target, regex, nregex, delete, dryRun, verbose);
         }
         System.out.println("imported ZK data from: " + source);
-        return null;
     }
 
     public boolean isFilesystem() {
