@@ -30,7 +30,6 @@
              <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
              <exclude>etc/users.properties</exclude>
              <exclude>etc/custom.properties</exclude>
-             <exclude>etc/jre.properties</exclude>
              <exclude>system/**</exclude>
              <exclude>LICENSE</exclude>
              <exclude>NOTICE</exclude>
