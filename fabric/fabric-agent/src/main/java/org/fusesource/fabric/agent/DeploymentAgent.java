@@ -52,6 +52,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.BufferUnderflowException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -127,7 +128,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         bundleContext.addFrameworkListener(this);
     }
 
-    public void stop() {
+    public void stop() throws InterruptedException {
+        executor.awaitTermination(30,TimeUnit.SECONDS);
         bundleContext.removeFrameworkListener(this);
         manager.shutdown();
         executor.shutdown();

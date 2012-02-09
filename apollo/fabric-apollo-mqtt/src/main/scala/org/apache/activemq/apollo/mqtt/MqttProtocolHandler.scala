@@ -398,12 +398,16 @@ class MqttProtocolHandler extends ProtocolHandler {
   // Other msic bits.
   //
   /////////////////////////////////////////////////////////////////////
+  var messages_sent = 0L
+  var messages_received = 0L
+  var subscription_count = 0
 
   override def create_connection_status = {
     var rc = new MqttConnectionStatusDTO
     rc.protocol_version = "3.1"
-//    rc.user = client_id.toString
-//    rc.subscription_count = 0 // consumers.size
+    rc.messages_sent = messages_sent
+    rc.messages_received = messages_received
+    rc.subscription_count = subscription_count
     rc.waiting_on = status()
     rc
   }
@@ -847,7 +851,17 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
     }
   }
 
-  def on_mqtt_publish(publish:PUBLISH) = {
+  def on_mqtt_publish(publish:PUBLISH):Unit = {
+
+    if( (publish.qos eq EXACTLY_ONCE) && session_state.received_message_ids.contains(publish.messageId)) {
+      val response = new PUBREC
+      response.messageId(publish.messageId)
+      send(response)
+      return
+    }
+
+    handler.get.messages_received += 1
+
     queue.assertExecuting()
     val h = handler.get
     val destination = decode_destination(publish.topicName())
@@ -908,11 +922,6 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
       case AT_LEAST_ONCE => at_least_once_ack _
       case EXACTLY_ONCE => exactly_once_ack _
       case AT_MOST_ONCE => null
-    }
-
-    if( (publish.qos eq EXACTLY_ONCE) && session_state.received_message_ids.contains(publish.messageId)) {
-      ack(null, null)
-      return
     }
 
     if( !route.targets.isEmpty ) {
@@ -982,6 +991,7 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
                 }
                 complete_close
               }
+              handler.get.messages_received += 1
               prodcuer.offer(delivery)
             }
           }
@@ -1019,6 +1029,8 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
       address
     }
 
+    handler.get.subscription_count = mqtt_consumer.addresses.size
+
     addresses = if( clean_session ) {
       addresses
     } else {
@@ -1047,6 +1059,8 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
         address
       }
     }
+
+    handler.get.subscription_count = mqtt_consumer.addresses.size
 
     if(!clean_session) {
       session_state.durable_sub = SubscriptionAddress(Path(client_id.toString), null, mqtt_consumer.addresses.keySet.toArray)
@@ -1148,6 +1162,7 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
             }
           }
 
+          handler.get.messages_sent += 1
 
           if (delivery.ack!=null && (qos ne AT_MOST_ONCE)) {
             publish.qos(qos)

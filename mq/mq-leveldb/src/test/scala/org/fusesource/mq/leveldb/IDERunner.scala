@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
@@ -14,28 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.api;
+package org.fusesource.mq.leveldb
 
-import org.linkedin.zookeeper.client.IZKClient;
+import org.apache.activemq.console.Main
 
-import java.util.List;
-
-public interface ZooKeeperClusterService {
-
-    static final String ENSEMBLE_AUTOSTART ="ensemble.auto.start";
-    static final String PROFILES_AUTOIMPORT_PATH ="profiles.auto.import.path";
-
-    List<String> getClusterContainers();
-
-    String getZooKeeperUrl();
-
-    void createCluster(List<String> containers);
-
-    void addToCluster(List<String> containers);
-
-    void removeFromCluster(List<String> containers);
-
-    void clean();
-
-    IZKClient getZooKeeper();
+object IDERunner {
+  def main(args:Array[String]) ={
+    Main.main(args)
+  }
 }

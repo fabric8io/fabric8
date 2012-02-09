@@ -21,6 +21,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
@@ -82,16 +83,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void createLocalServer(int port) {
         ZKClient client = null;
+        Configuration config = null;
+        String connectionUrl = null;
+        Properties properties = new Properties();
         String karafName = System.getProperty("karaf.name");
         String result = null; String exception = null;
+
         try {
-            Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-            Properties properties = new Properties();
-            String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
+            connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
             String mavenProxyUrl = "http://" + getLocalHostAddress() + ":" + 8040;
-            properties.put("zookeeper.url", connectionUrl);
-            config.setBundleLocation(null);
-            config.update(properties);
+
             config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Properties();
             properties.put("tickTime",  "2000");
@@ -106,6 +107,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             client = new ZKClient(connectionUrl, Timespan.ONE_MINUTE, null);
             client.start();
             client.waitForStart(new Timespan(5, Timespan.TimeUnit.SECOND));
+
+            String autoImportFrom = System.getProperty(PROFILES_AUTOIMPORT_PATH);
+
+            if (autoImportFrom != null) {
+                ZookeeperImportUtils.importFromFileSystem(client, autoImportFrom, "/", null, null, false, false, false);
+            }
 
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
             setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
@@ -136,17 +143,18 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p.put("feature.fabric-agent", "fabric-agent");
             p.put("feature.fabric-core", "fabric-core");
             p.put("feature.fabric-jaas", "fabric-jaas");
-            p.put("framework", FRAMEWORK_VERSION);
+            //p.put("framework", FRAMEWORK_VERSION);
 
             ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
             ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
             ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default zk-server-0000-1");
 
+
             // add auth
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.jaas/encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
             ZooKeeperUtils.createDefault(client, "fabric/authentication/encryption.enabled", "true");
-            ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "zookeeper");
+            ZooKeeperUtils.createDefault(client, "fabric/authentication/domain", "karaf");
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
 
             ZooKeeperUtils.createDefault(client,ZkPath.CONFIGS_MAVEN_REPO.getPath(),mavenProxyUrl);
@@ -178,10 +186,17 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             try {
                 ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_RESULT.getPath(karafName), result);
                 ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(karafName), exception);
-            } catch (Exception ignore) {}
-            if (client != null) {
-                client.destroy();
+                config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+                if (client != null) {
+                    client.destroy();
+                }
+                properties.put("zookeeper.url", connectionUrl);
+                config.setBundleLocation(null);
+                config.update(properties);
+            } catch (Exception ignore) {
+                ignore.printStackTrace(System.err);
             }
+
         }
     }
 
