@@ -52,10 +52,8 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private BundleContext bundleContext;
-    private Set<String> domains = new CopyOnWriteArraySet<String>();
-
+    private final Set<String> domains = new CopyOnWriteArraySet<String>();
     private volatile MBeanServer mbeanServer;
-    private volatile boolean connected;
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -74,8 +72,8 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
     }
 
     public void onConnected() {
+        logger.trace("onConnected");
         try {
-            connected = true;
             String name = System.getProperty("karaf.name");
             String nodeAlive = CONTAINER_ALIVE.getPath(name);
             Stat stat = zooKeeper.exists(nodeAlive);
@@ -120,7 +118,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
             }
             registerDomains();
         } catch (Exception e) {
-            logger.warn("Error updating Fabric Container informations", e);
+            logger.warn("Error updating Fabric Container information. This exception will be ignored.", e);
         }
     }
 
@@ -162,43 +160,49 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
     }
 
     public void destroy() {
+        logger.trace("destroy");
         try {
             unregisterDomains();
         } catch (ServiceException e) {
             logger.trace("ZooKeeper is no longer available", e);
         } catch (Exception e) {
-            logger.warn("An error occured during disconnecting to zookeeper", e);
+            logger.warn("An error occurred during disconnecting to zookeeper. This exception will be ignored.", e);
         }
     }
 
     public void onDisconnected() {
-        connected = false;
+        logger.trace("onDisconnected");
+        // noop
     }
 
     public void registerMBeanServer(ServiceReference ref) {
         try {
             String name = System.getProperty("karaf.name");
             mbeanServer = (MBeanServer) bundleContext.getService(ref);
-            mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
-            registerDomains();
+            if (mbeanServer != null) {
+                mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
+                registerDomains();
+            }
         } catch (Exception e) {
-            logger.warn("An error occured during mbean server registration", e);
+            logger.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
         }
     }
 
     public void unregisterMBeanServer(ServiceReference ref) {
-        try {
-            mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
-            unregisterDomains();
-        } catch (Exception e) {
-            logger.warn("An error occured during mbean server unregistration", e);
+        if (mbeanServer != null) {
+            try {
+                mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
+                unregisterDomains();
+            } catch (Exception e) {
+                logger.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
+            }
         }
         mbeanServer = null;
         bundleContext.ungetService(ref);
     }
 
     protected void registerDomains() throws InterruptedException, KeeperException {
-        if (connected && mbeanServer != null) {
+        if (isConnected() && mbeanServer != null) {
             String name = System.getProperty("karaf.name");
             domains.addAll(Arrays.asList(mbeanServer.getDomains()));
             for (String domain : mbeanServer.getDomains()) {
@@ -208,7 +212,7 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
     }
 
     protected void unregisterDomains() throws InterruptedException, KeeperException {
-        if (connected) {
+        if (isConnected()) {
             String name = System.getProperty("karaf.name");
             String domainsPath = CONTAINER_DOMAINS.getPath(name);
             if (zooKeeper.exists(domainsPath) != null) {
@@ -221,8 +225,11 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
 
     @Override
     public void handleNotification(Notification notif, Object o) {
+        logger.trace("handleNotification[{}]", notif);
+
+        // we may get notifications when zookeeper client is not really connected
         // handle mbeans registration and de-registration events
-        if (connected && mbeanServer != null && notif instanceof MBeanServerNotification) {
+        if (isConnected() && mbeanServer != null && notif instanceof MBeanServerNotification) {
             MBeanServerNotification notification = (MBeanServerNotification) notif;
             String domain = notification.getMBeanName().getDomain();
             String path = CONTAINER_DOMAIN.getPath((String) o, domain);
@@ -243,8 +250,14 @@ public class KarafContainerRegistration implements LifecycleListener, ZooKeeperA
 //                logger.debug("Session expiry detected. Handling notification once again", e);
 //                handleNotification(notif, o);
             } catch (Exception e) {
-                logger.warn("Exception while jmx domain synchronization", e);
+                logger.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
             }
         }
     }
+
+    private boolean isConnected() {
+        // we are only considered connected if we have a client and its connected
+        return zooKeeper != null && zooKeeper.isConnected();
+    }
+
 }
