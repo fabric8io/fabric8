@@ -39,6 +39,7 @@
     <!--
     <module>patch-management</module>
     -->
+    <module>patch-features</module>
   </modules>
 
 </project>
