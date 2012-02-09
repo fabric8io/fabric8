@@ -275,6 +275,46 @@ public class SourceConnectorTest extends AbstractConnectorTestSupport {
 
 	}
 	
+    @Test
+    public void testDispatchWithoutRemoteStagingQueue() throws Exception {
+        // disable staging queue
+        connector.getDestinationsConfig().setUseStagingQueue(false);
+
+		// start connector
+		connector.afterPropertiesSet();
+		connector.start();
+
+		final long startNanos = System.nanoTime();
+		// send messages
+		for (String sourceName : TEST_SOURCES) {
+			sendMessages(TEST_LOCAL_BROKER_URL, sourceName, TEST_NUM_MESSAGES, null);
+		}
+		// check if we received the expected number of messages on every target queue
+        for (final String sourceName : TEST_SOURCES) {
+            receiveMessages(TEST_REMOTE_BROKER_URL, sourceName, TEST_NUM_MESSAGES, new BaseMatcher<TextMessage>() {
+
+                @Override
+                public boolean matches(Object message) {
+                    boolean retVal = false;
+                    try {
+                        retVal = ((TextMessage)message).getStringProperty(BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER).matches(sourceName);
+                    } catch (JMSException e) {
+                        fail(e.getMessage());
+                    }
+                    return retVal;
+                }
+
+                @Override
+                public void describeTo(Description description) {
+                    description.appendText("TextMessage containing " + BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER + " property");
+                }
+            });
+        }
+
+		final long stopNanos = System.nanoTime();
+		LOG.info("Test took " + TimeUnit.NANOSECONDS.toMillis(stopNanos - startNanos) + " milliseconds");
+    }
+
 	@Test
 	public void testStop() {
 		// test stop without starting
@@ -381,43 +421,4 @@ public class SourceConnectorTest extends AbstractConnectorTestSupport {
 		connector.removeDestinations(defaultDestinations);
 	}
 
-    @Test
-    public void testDispatchWithoutStagingQueue() throws Exception {
-        // disable staging queue
-        connector.getDestinationsConfig().setUseStagingQueue(false);
-
-		// start connector
-		connector.afterPropertiesSet();
-		connector.start();
-
-		final long startNanos = System.nanoTime();
-		// send messages
-		for (String sourceName : TEST_SOURCES) {
-			sendMessages(TEST_LOCAL_BROKER_URL, sourceName, TEST_NUM_MESSAGES, null);
-		}
-		// check if we received the expected number of messages on every target queue
-        for (final String sourceName : TEST_SOURCES) {
-            receiveMessages(TEST_REMOTE_BROKER_URL, sourceName, TEST_NUM_MESSAGES, new BaseMatcher<TextMessage>() {
-
-                @Override
-                public boolean matches(Object message) {
-                    boolean retVal = false;
-                    try {
-                        retVal = ((TextMessage)message).getStringProperty(BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER).matches(sourceName);
-                    } catch (JMSException e) {
-                        fail(e.getMessage());
-                    }
-                    return retVal;
-                }
-
-                @Override
-                public void describeTo(Description description) {
-                    description.appendText("TextMessage containing " + BridgeDestinationsConfig.DEFAULT_DESTINATION_NAME_HEADER + " property");
-                }
-            });
-        }
-
-		final long stopNanos = System.nanoTime();
-		LOG.info("Test took " + TimeUnit.NANOSECONDS.toMillis(stopNanos - startNanos) + " milliseconds");
-    }
 }
