@@ -49,6 +49,12 @@
     <bridge:destination name="mydestination2"/>
   </bridge:destinations-config>
 
+  <bridge:destinations-config id="mydestinationsconfigwithnostaging"
+                              useStagingQueue="false">
+    <bridge:destination name="mydestination1"/>
+    <bridge:destination name="mydestination2"/>
+  </bridge:destinations-config>
+
   <bean id="myconnectionfactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory"/>
 
   <bean id="mydestinationresolver" class="org.springframework.jms.support.destination.BeanFactoryDestinationResolver"/>
