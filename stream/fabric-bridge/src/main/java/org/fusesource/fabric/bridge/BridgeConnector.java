@@ -98,11 +98,13 @@ public class BridgeConnector extends AbstractConnector {
 				throw new IllegalArgumentException(msg, e);
 			}
 			LOG.info("Outbound connector created");
-		}
+		} else {
+            LOG.info("Outbound connector NOT created since outbound destinations are not configured");
+        }
 	}
 
 	private void createTargetConnector() {
-		if (inboundDestinations != null) {
+		if (inboundDestinations != null && inboundDestinations.isUseStagingQueue()) {
 			inboundConnector = new TargetConnector();
 			inboundConnector.setAutoStartup(isAutoStartup());
 			inboundConnector.setPhase(getPhase());
@@ -123,7 +125,11 @@ public class BridgeConnector extends AbstractConnector {
 				throw new IllegalArgumentException(msg, e);
 			}
 			LOG.info("Inbound connector created");
-		}
+		} else if (inboundDestinations != null && !inboundDestinations.isUseStagingQueue()) {
+            LOG.info("Inbound connector NOT created since a staging queue is not used");
+        } else if (inboundDestinations == null) {
+            LOG.info("Inbound connector NOT created since inbound destinations are not configured");
+        }
 	}
 
 	@Override

@@ -68,6 +68,7 @@
           <xs:element ref="tns:dispatch-policy" minOccurs="0"/>
           <xs:element ref="tns:destination" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
+        <xs:attribute name="useStagingQueue" type="xs:boolean"/>
         <xs:attribute name="stagingQueueName" type="xs:string"/>
         <xs:attribute name="defaultStagingLocation" type="xs:boolean"/>
         <xs:attribute name="destinationNameHeader" type="xs:string"/>

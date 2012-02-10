@@ -35,6 +35,9 @@ public class BridgeDestinationsConfig extends IdentifiedType {
 
 	public static final String DEFAULT_DESTINATION_TYPE_HEADER = "org.fusesource.fabric.bridge.destinationTypePubSub";
 
+    @XmlAttribute
+    private boolean useStagingQueue = true;
+
 	@XmlAttribute
 	private String stagingQueueName = DEFAULT_STAGING_QUEUE_NAME;
 
@@ -59,6 +62,14 @@ public class BridgeDestinationsConfig extends IdentifiedType {
 	@XmlElement(name="destination")
 	private List<BridgedDestination> destinations = new ArrayList<BridgedDestination>();
 	
+    public boolean isUseStagingQueue() {
+        return useStagingQueue;
+    }
+
+    public void setUseStagingQueue(boolean useStagingQueue) {
+        this.useStagingQueue = useStagingQueue;
+    }
+
 	public final void setStagingQueueName(String stagingQueueName) {
 		this.stagingQueueName = stagingQueueName;
 	}
@@ -120,7 +131,8 @@ public class BridgeDestinationsConfig extends IdentifiedType {
 		boolean retVal = false;
 		if (other != null && other instanceof BridgeDestinationsConfig) {
 			BridgeDestinationsConfig config = (BridgeDestinationsConfig) other;
-			retVal = this.stagingQueueName.equals(config.stagingQueueName) &&
+			retVal = this.useStagingQueue == config.useStagingQueue &&
+                    this.stagingQueueName.equals(config.stagingQueueName) &&
 					defaultStagingLocation == config.defaultStagingLocation &&
 					destinationNameHeader.equals(config.destinationNameHeader) &&
 					destinationTypeHeader.equals(config.destinationTypeHeader) &&

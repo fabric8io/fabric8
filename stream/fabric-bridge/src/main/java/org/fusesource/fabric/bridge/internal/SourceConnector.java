@@ -23,8 +23,6 @@ import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.DispatchPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.UncategorizedJmsException;
@@ -34,9 +32,9 @@ import org.springframework.jms.support.destination.DestinationResolver;
 
 import javax.jms.*;
 import java.beans.PropertyDescriptor;
+import java.lang.IllegalStateException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.lang.IllegalStateException;
 
 /**
  * Connects destinations on local broker to a staging queue on remote broker. 
@@ -70,9 +68,12 @@ public class SourceConnector extends AbstractConnector {
 		if (outboundDestinations == null || localBrokerConfig == null) {
 			throw new IllegalArgumentException("Both outboundDestinations and localBrokerConfig properties must be set");
 		}
-		if (remoteBrokerConfig == null && outboundDestinations.isDefaultStagingLocation()) {
-			throw new IllegalArgumentException("Property remoteBrokerConfig is missing but property defaultStagingLocation is true");
-		}
+        if (remoteBrokerConfig == null && !outboundDestinations.isUseStagingQueue()) {
+            throw new IllegalArgumentException("Property remoteBrokerConfig is missing but property useStagingQueue is false");
+        }
+        if (remoteBrokerConfig == null && outboundDestinations.isDefaultStagingLocation()) {
+            throw new IllegalArgumentException("Property remoteBrokerConfig is missing but property defaultStagingLocation is true");
+        }
 		if (remoteBrokerConfig != null && !outboundDestinations.isDefaultStagingLocation()) {
 			throw new IllegalArgumentException("Property remoteBrokerConfig is set but property defaultStagingLocation is false");
 		}
@@ -112,14 +113,16 @@ public class SourceConnector extends AbstractConnector {
 		}
 		
 		reuseMessage = false;
-		try {
+        Connection localConnection = null;
+        Connection remoteConnection = null;
+        try {
 			
 			// check if messages need to be copied for different JMS providers
-			Connection localConnection = localConnectionFactory.createConnection();
+			localConnection = localConnectionFactory.createConnection();
 			Session localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			Message localMessage = localSession.createMessage();
 			
-			Connection remoteConnection = remoteConnectionFactory.createConnection();
+			remoteConnection = remoteConnectionFactory.createConnection();
 			Session remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			Message remoteMessage = remoteSession.createMessage();
 			
@@ -134,8 +137,19 @@ public class SourceConnector extends AbstractConnector {
 			String msg = "Error checking whether local and remote broker providers are the same: " + e.getMessage();
 			LOG.error(msg, e);
 			throw new IllegalStateException(msg, e);
-		}
-		
+		} finally {
+            if (localConnection != null) {
+                try {
+                    localConnection.close();
+                } catch (JMSException e) {}
+            }
+            if (remoteConnection != null) {
+                try {
+                    remoteConnection.close();
+                } catch (JMSException e) {}
+            }
+        }
+
 		for (BridgedDestination destination : outboundDestinations.getDestinations()) {
 			try {
 				listenerMap.put(destination, createListenerContainer(destination));
@@ -150,6 +164,11 @@ public class SourceConnector extends AbstractConnector {
 	}
 
 	private Destination getStagingQueue(Session remoteSession) throws JMSException {
+        // check if a staging queue is required
+        if (!outboundDestinations.isUseStagingQueue()) {
+            return null;
+        }
+
 		DestinationResolver destinationResolver = null;
 		if (remoteBrokerConfig != null) {
 			destinationResolver  = remoteBrokerConfig.getDestinationResolver();
@@ -218,16 +237,6 @@ public class SourceConnector extends AbstractConnector {
 			}
 		}
 
-        // stop connection factories
-        if (localConnectionFactory != null && (localConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping local connection factory");
-            ((PooledConnectionFactory)localConnectionFactory).stop();
-        }
-        if (remoteConnectionFactory != null && (remoteConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping remote connection factory");
-            ((PooledConnectionFactory)remoteConnectionFactory).stop();
-        }
-
 		LOG.info("Stopped");
 	}
 
@@ -260,10 +269,11 @@ public class SourceConnector extends AbstractConnector {
 		listenerMap.clear();
 		
 		// check if we created pooled connection factories
-		if (localBrokerConfig.getConnectionFactory() == null) {
+		if (localBrokerConfig.getConnectionFactory() == null && localConnectionFactory != null) {
 			((PooledConnectionFactory)localConnectionFactory).stop();
 		}
-		if (remoteBrokerConfig != null && remoteBrokerConfig.getConnectionFactory() == null) {
+        if (remoteBrokerConfig != null && remoteBrokerConfig.getConnectionFactory() == null
+            && remoteConnectionFactory != null) {
 			((PooledConnectionFactory)remoteConnectionFactory).stop();
 		}
 
@@ -348,8 +358,8 @@ public class SourceConnector extends AbstractConnector {
 		return resolvedPolicy;
 	}
 
-	protected AbstractDeliveryHandler createDeliveryHandler(DispatchPolicy resolvedPolicy, String destinationName, boolean pubSubDomain) {
-		// create delivery handler for staging queue using remoteConnectionFactory
+    protected AbstractDeliveryHandler createDeliveryHandler(DispatchPolicy resolvedPolicy, String destinationName, boolean pubSubDomain) {
+        // create delivery handler for staging queue using remoteConnectionFactory
 		// delivery is always done in the same thread as the receiving destination
 		SourceDeliveryHandler deliveryHandler = new SourceDeliveryHandler();
 
@@ -361,8 +371,30 @@ public class SourceConnector extends AbstractConnector {
 		deliveryHandler.setReuseSession(reuseSession);
 		deliveryHandler.setReuseMessage(reuseMessage);
 		deliveryHandler.setTargetConnectionFactory(remoteConnectionFactory);
-		
-		deliveryHandler.setStagingDestination(stagingQueue);
+
+        // check if a staging queue is used or not
+        if (stagingQueue != null) {
+		    deliveryHandler.setStagingDestination(stagingQueue);
+        } else {
+            // creating a connection for every remote destination resolve seems inefficient,
+            // but we cannot make that stateful, also pooling makes it a moot point
+            Connection remoteConnection = null;
+            try {
+                remoteConnection = remoteConnectionFactory.createConnection();
+                Session remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                deliveryHandler.setStagingDestination(
+                    remoteBrokerConfig.getDestinationResolver().resolveDestinationName(
+                        remoteSession, destinationName, pubSubDomain));
+            } catch (JMSException e) {
+                String msg = "Error resolving remote destination " + destinationName + " : " + e.getMessage();
+                LOG.error(msg, e);
+                throw new IllegalStateException(msg, e);
+            } finally {
+                try {
+                    remoteConnection.close();
+                } catch (JMSException e) {}
+            }
+        }
 		return deliveryHandler;
 	}
 
