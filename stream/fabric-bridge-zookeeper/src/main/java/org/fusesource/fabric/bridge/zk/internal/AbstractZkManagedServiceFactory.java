@@ -18,8 +18,11 @@
 package org.fusesource.fabric.bridge.zk.internal;
 
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.bridge.MessageConverter;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
+import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
+import org.fusesource.fabric.bridge.model.DispatchPolicy;
 import org.fusesource.fabric.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleContext;
@@ -50,6 +53,7 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
 
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();
     private static final String DESTINATION_RESOLVER_CLASS_NAME = DestinationResolver.class.getName();
+    private static final String MESSAGE_CONVERTER_CLASS_NAME = MessageConverter.class.getName();
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
@@ -123,12 +127,48 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
                 LOG.debug("Found [" + pid + "." + destinationsRef + "]: " + destinationsConfig);
             }
 
+            // check if we need to resolve references to MessageConverter services
+            DispatchPolicy dispatchPolicy = destinationsConfig.getDispatchPolicy();
+            resolveDispatchPolicyRefs(pid, dispatchPolicy);
+
+            for (BridgedDestination destination : destinationsConfig.getDestinations()) {
+                if (destination.getDispatchPolicy() != null) {
+                    resolveDispatchPolicyRefs(pid, destination.getDispatchPolicy());
+                }
+            }
+
             return destinationsConfig;
         } catch (Exception e) {
             String msg = "Error getting destinations for " +
             pid + "." + destinationsRef + " : " + e.getMessage();
             LOG.error(msg, e);
             throw new ConfigurationException(destinationsRef, msg, e);
+        }
+    }
+
+    private void resolveDispatchPolicyRefs(String pid, DispatchPolicy dispatchPolicy) throws ConfigurationException {
+        final String messageConverterRef = dispatchPolicy.getMessageConverterRef();
+        if (StringUtils.hasText(messageConverterRef)) {
+            // resolve connection factory OSGi service
+            final String filter = "(" + Constants.SERVICE_PID + "=" + messageConverterRef + ")";
+            ServiceReference[] serviceReferences;
+            try {
+                serviceReferences = bundleContext.getServiceReferences(MESSAGE_CONVERTER_CLASS_NAME, filter);
+            } catch (InvalidSyntaxException e1) {
+                String msg = "Error looking up " + messageConverterRef + " with filter [" + filter + "]";
+                LOG.error(msg);
+                throw new ConfigurationException(messageConverterRef, msg);
+            }
+            if (serviceReferences != null) {
+                dispatchPolicy.setMessageConverter((MessageConverter) bundleContext.getService(serviceReferences[0]));
+                // remember the service so we can unget it later
+                addServiceReference(pid, serviceReferences[0]);
+            } else {
+                String msg = "No service found for " + messageConverterRef +
+                    " with filter [" + filter + "]";
+                LOG.error(msg);
+                throw new ConfigurationException(messageConverterRef, msg);
+            }
         }
     }
 
