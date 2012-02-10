@@ -26,6 +26,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
+import org.linkedin.zookeeper.client.IZKClient;
 
 @Command(name = "create", scope = "zk", description = "Create a node")
 public class Create extends ZooKeeperCommandSupport {
@@ -55,7 +56,7 @@ public class Create extends ZooKeeperCommandSupport {
     String data;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected void doExecute(IZKClient zk) throws Exception {
         List<ACL> acls = acl == null ? ZooDefs.Ids.OPEN_ACL_UNSAFE : parseACLs(acl);
         CreateMode mode;
         if (ephemeral && sequential) {
@@ -76,17 +77,16 @@ public class Create extends ZooKeeperCommandSupport {
 
         try {
             if (recursive) {
-                getZooKeeper().createWithParents(path, nodeData, acls, mode);
+                zk.createWithParents(path, nodeData, acls, mode);
             } else {
-                getZooKeeper().create(path, nodeData, acls, mode);
+                zk.create(path, nodeData, acls, mode);
             }
         } catch (KeeperException.NodeExistsException e) {
             if (overwrite) {
-                getZooKeeper().setData(path, nodeData);
+                zk.setData(path, nodeData);
             } else {
                 throw e;
             }
         }
-        return null;
     }
 }

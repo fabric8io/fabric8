@@ -19,6 +19,7 @@ package org.fusesource.fabric.zookeeper.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.linkedin.zookeeper.client.IZKClient;
 
 @Command(name = "delete", scope = "zk", description = "Delete a node")
 public class Delete extends ZooKeeperCommandSupport {
@@ -33,15 +34,14 @@ public class Delete extends ZooKeeperCommandSupport {
     String path;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected void doExecute(IZKClient zk) throws Exception {
         if (recursive) {
             if (version >= 0) {
                 throw new UnsupportedOperationException("Unable to delete a version recursively");
             }
-            getZooKeeper().deleteWithChildren(path);
+            zk.deleteWithChildren(path);
         } else {
-            getZooKeeper().delete(path, version);
+            zk.delete(path, version);
         }
-        return null;
     }
 }

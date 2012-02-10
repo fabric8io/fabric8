@@ -65,7 +65,8 @@ public class ZkServerSetupBean implements SmartLifecycle {
         TestImport testImport = new TestImport();
         testImport.setSource("target/test-classes/zkexport");
         testImport.setNRegEx(new String[] {"dummy"});
-        testImport.setZooKeeper(client);
+        // TODO do we need this?
+        // testImport.setZooKeeper(client);
         try {
             testImport.doExecute();
         } catch (Exception e) {

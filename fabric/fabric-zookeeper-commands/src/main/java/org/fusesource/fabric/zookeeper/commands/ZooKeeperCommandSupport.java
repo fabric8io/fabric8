@@ -27,6 +27,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.ServiceReference;
 
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 
@@ -34,13 +35,19 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
     private long maximumConnectionTimeout = 10 * 1000L;
     private long connectionRetryTime = 100L;
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    @Override
+    protected Object doExecute() throws Exception {
+        ServiceReference sr = getBundleContext().getServiceReference(IZKClient.class.getName());
+        if (sr == null) {
+            throw new Exception("ZooKeeper client not available");
+        }
+        IZKClient zk = getService(IZKClient.class, sr);
+        checkZooKeeperConnected(zk);
+        doExecute(zk);
+        return null;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
-    }
+    protected abstract void doExecute(IZKClient zk) throws Exception;
 
     protected static String getPermString(int perms) {
         StringBuilder p = new StringBuilder();
@@ -127,8 +134,7 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
      * while for the connection to be established, so we keep checking up to the {@link #getMaximumConnectionTimeout()}
      * until we throw the exception
      */
-    protected void checkZooKeeperConnected() throws Exception {
-        IZKClient zkClient = getZooKeeper();
+    protected void checkZooKeeperConnected(IZKClient zkClient) throws Exception {
         long start = System.currentTimeMillis();
         do {
             if (zkClient.isConnected()) {

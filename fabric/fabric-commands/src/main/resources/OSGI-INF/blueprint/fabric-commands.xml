@@ -253,7 +253,7 @@
         <property name="fabricService" ref="fabricService"/>
     </bean>
     <bean id="clusterCompleter" class="org.fusesource.fabric.commands.ClusterCompleter">
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
     <bean id="profileCompleter" class="org.fusesource.fabric.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>

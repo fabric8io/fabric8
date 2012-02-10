@@ -16,17 +16,21 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.zookeeper.utils.RegexSupport;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
-import java.util.List;
-import java.util.regex.Pattern;
+import org.linkedin.zookeeper.client.IZKClient;
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
@@ -60,16 +64,15 @@ public class Export extends ZooKeeperCommandSupport {
     File include = new File(".fabricinclude");
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected void doExecute(IZKClient zk) throws Exception {
         if (ignore.exists() && ignore.isFile()) {
             nregex = merge(ignore, nregex);
         }
         if (include.exists() && include.isFile()) {
             regex = merge(include, regex);
         }
-        export(topLevel);
+        export(zk, topLevel);
         System.out.printf("Export to %s completed successfully\n", target);
-        return null;
     }
 
     private void delete(File parent) throws Exception {
@@ -84,7 +87,7 @@ public class Export extends ZooKeeperCommandSupport {
         parent.delete();
     }
 
-    protected void export(String path) throws Exception {
+    protected void export(IZKClient zk, String path) throws Exception {
         if (!path.endsWith("/")) {
             path = path + "/";
         }
@@ -96,7 +99,7 @@ public class Export extends ZooKeeperCommandSupport {
         List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
         List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
 
-        List<String> paths = getZooKeeper().getAllChildren(path);
+        List<String> paths = zk.getAllChildren(path);
         SortedSet<File> directories = new TreeSet<File>();
         Map<File, String> settings = new HashMap<File, String>();
 
@@ -105,7 +108,7 @@ public class Export extends ZooKeeperCommandSupport {
             if (!matches(include, p, true) || matches(exclude, p, false) || matches(profile,p,false)) {
                 continue;
             }
-            byte[] data = getZooKeeper().getData(p);
+            byte[] data = zk.getData(p);
             if (data != null) {
                 String name = p;
                 if (!p.contains(".")) {
@@ -121,7 +124,7 @@ public class Export extends ZooKeeperCommandSupport {
                 }
                 //Make sure to append the parents
                 if(matches(containerProperties,p,false)) {
-                  byte[] parentData = getZooKeeper().getData(p.substring(0,p.lastIndexOf("/")));
+                  byte[] parentData = zk.getData(p.substring(0,p.lastIndexOf("/")));
                     if (parentData != null) {
                         String parentValue = "parents=" + new String(parentData);
                         value += "\n" + parentValue;

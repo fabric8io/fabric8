@@ -16,11 +16,12 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import java.net.URL;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-
-import java.net.URL;
+import org.linkedin.zookeeper.client.IZKClient;
 
 @Command(name = "set", scope = "zk", description = "Set a node's data")
 public class Set extends ZooKeeperCommandSupport {
@@ -35,7 +36,7 @@ public class Set extends ZooKeeperCommandSupport {
     String data;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected void doExecute(IZKClient zk) throws Exception {
 
         String nodeData = data;
 
@@ -43,7 +44,6 @@ public class Set extends ZooKeeperCommandSupport {
             nodeData = loadUrl(new URL(data));
         }
 
-        getZooKeeper().setData(path, nodeData);
-        return null;
+        zk.setData(path, nodeData);
     }
 }
