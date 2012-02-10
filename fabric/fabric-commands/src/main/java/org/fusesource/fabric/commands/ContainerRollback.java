@@ -84,7 +84,6 @@ public class ContainerRollback extends ContainerUpgradeSupport {
             // then set new profiles, which triggers container to update bundles and whatnot
             container.setProfiles(newProfiles);
 
-            // get the profile for version 1.1
             log.debug("Rolled back container {} from {} to {}", new Object[]{container, oldVersion, version});
             System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion + " to " + version);
         }

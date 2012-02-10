@@ -23,6 +23,8 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
+import static org.fusesource.fabric.commands.support.CommandUtils.countContainersByVersion;
+
 @Command(name = "version-list", scope = "fabric", description = "List existing versions")
 public class VersionList extends FabricCommand {
 
@@ -42,18 +44,9 @@ public class VersionList extends FabricCommand {
         // they are sorted in the correct order by default
         for (Version version : versions) {
             boolean isDefault = defaultVersion.getName().equals(version.getName());
-            int active = countActiveContainers(containers, version);
+            int active = countContainersByVersion(containers, version);
             out.println(String.format("%-15s %-9s %-14s", version.getName(), (isDefault ? "true" : "false"), active));
         }
     }
-    
-    private static int countActiveContainers(Container[] containers, Version version) {
-        int answer = 0;
-        for (Container container : containers) {
-            if (container.getVersion().getName().equals(version.getName())) {
-                answer++;
-            }
-        }
-        return answer;
-    }
+
 }

@@ -17,17 +17,16 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
+
+import static org.fusesource.fabric.commands.support.CommandUtils.matchVersion;
+import static org.fusesource.fabric.commands.support.CommandUtils.sortContainers;
+import static org.fusesource.fabric.commands.support.CommandUtils.status;
 
 @Command(name = "container-list", scope = "fabric", description = "List existing containers")
 public class ContainerList extends FabricCommand {
@@ -83,24 +82,6 @@ public class ContainerList extends FabricCommand {
         }
     }
 
-    /**
-     * Lets trim the status to a maximum size
-     * @param container
-     * @return
-     */
-    protected String status(Container container) {
-        String status = container.getProvisionStatus();
-        if (status == null) {
-            return "";
-        }
-        status = status.trim();
-        if (status.length() > 100) {
-            return status.substring(0, 100);
-        } else {
-            return status;
-        }
-    }
-
     protected void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
         out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
         for (Container container : containers) {
@@ -119,30 +100,5 @@ public class ContainerList extends FabricCommand {
         }
     }
     
-    private boolean matchVersion(Container container, Version version) {
-        if (version == null) {
-            // always match if no version in filter
-            return true;
-        }
-
-        return version.equals(container.getVersion());
-    }
-    
-    private static Container[] sortContainers(Container[] containers) {
-        if (containers == null || containers.length <= 1) {
-            return containers;
-        }
-        List<Container> list = new ArrayList<Container>(containers.length);
-        list.addAll(Arrays.asList(containers));
-        
-        Collections.sort(list, new Comparator<Container>() {
-            @Override
-            public int compare(Container c1, Container c2) {
-                return c1.getId().compareTo(c2.getId());
-            }
-        });
-        
-        return list.toArray(new Container[0]);
-    }
 
 }
