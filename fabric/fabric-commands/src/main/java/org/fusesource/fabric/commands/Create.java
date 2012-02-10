@@ -52,8 +52,6 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             containers = Arrays.asList(System.getProperty("karaf.name"));
         }
 
-        preValidateCreate();
-        
         if (clean) {
             service.clean();
         }
@@ -66,17 +64,6 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             service.createCluster(containers);
         }
         return null;
-    }
-
-    protected void preValidateCreate() {
-        // validate the containers are not already cluster containers
-        List<String> existing = service.getClusterContainers();
-        // check that none of the containers exists
-        for (String container : existing) {
-            if (containers.contains(container)) {
-                throw new IllegalArgumentException("Container " + container + " is already enlisted as a cluster container.");
-            }
-        }
     }
 
     private static String getDefaultImportDir() {
