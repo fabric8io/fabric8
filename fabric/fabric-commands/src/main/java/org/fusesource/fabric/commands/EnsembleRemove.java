@@ -16,11 +16,11 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
-
-import java.util.List;
 
 @Command(name = "ensemble-remove", scope = "fabric", description = "Removes containers from a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemove extends EnsembleCommandSupport {
@@ -30,6 +30,7 @@ public class EnsembleRemove extends EnsembleCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         service.removeFromCluster(containers);
         return null;
     }

@@ -16,17 +16,17 @@
  */
 package org.fusesource.fabric.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.zookeeper.KeeperException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.fusesource.fabric.commands.support.FabricCommand;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.zookeeper.KeeperException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.fusesource.fabric.commands.support.FabricCommand;
 
 @Command(name = "cluster-list", scope = "fabric", description = "List the contents of a cluster")
 public class ClusterList extends FabricCommand {
@@ -38,6 +38,8 @@ public class ClusterList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
+
         String realPath = path;
         if (!realPath.startsWith("/")) {
             realPath = CLUSTER_PREFIX;
@@ -74,6 +76,9 @@ public class ClusterList extends FabricCommand {
                     }
                     if (clusterName.startsWith("/")) {
                         clusterName = clusterName.substring(1);
+                    }
+                    if (clusterName.length() == 0) {
+                        clusterName = ".";
                     }
                     ObjectMapper mapper = new ObjectMapper();
                     Map<String, Object> map = mapper.readValue(data, HashMap.class);

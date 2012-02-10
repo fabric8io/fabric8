@@ -39,6 +39,7 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         // check and validate version
         Version version = fabricService.getVersion(this.version);
 
@@ -83,7 +84,6 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
             // then set new profiles, which triggers container to update bundles and whatnot
             container.setProfiles(newProfiles);
             
-            // get the profile for version 1.1
             log.debug("Upgraded container {} from {} to {}", new Object[]{container, oldVersion, version});
             System.out.println("Upgraded container " + container.getId() + " from version " + oldVersion + " to " + version);
         }

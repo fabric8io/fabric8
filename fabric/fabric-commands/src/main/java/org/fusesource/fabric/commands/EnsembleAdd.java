@@ -30,6 +30,7 @@ public class EnsembleAdd extends EnsembleCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         service.addToCluster(containers);
         return null;
     }

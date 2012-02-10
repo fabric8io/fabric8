@@ -24,6 +24,8 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
+import static org.fusesource.fabric.commands.support.CommandUtils.sortProfiles;
+
 @Command(name = "profile-list", scope = "fabric", description = "List existing profiles")
 public class ProfileList extends FabricCommand {
 
@@ -32,8 +34,11 @@ public class ProfileList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
         Profile[] profiles = ver.getProfiles();
+        // we want the list to be sorted
+        profiles = sortProfiles(profiles);
         printProfiles(profiles, System.out);
         return null;
     }

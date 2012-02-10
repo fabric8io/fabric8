@@ -95,5 +95,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
             // for cloud we accept 3 digits
             throw new IllegalArgumentException("The number of containers must be between 1 and 999.");
         }
+        if (isEnsembleServer && number > 1) {
+            throw new IllegalArgumentException("Can not create a new ZooKeeper ensemble on multiple containers.  Create the containers and then use the fabric:create command instead.");
+        }
     }
 }
