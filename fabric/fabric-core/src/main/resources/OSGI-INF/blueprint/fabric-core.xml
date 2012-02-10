@@ -30,7 +30,7 @@
         <reference-listener ref="fabricService" bind-method="registerProvider" unbind-method="unregisterProvider"/>
     </reference-list>
 
-    <service ref="fabricService" auto-export="interfaces" />
+    <service ref="fabricService" interface="org.fusesource.fabric.api.FabricService" />
 
     <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl" init-method="init">
         <property name="bundleContext" ref="blueprintBundleContext"/>
@@ -38,6 +38,6 @@
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
-    <service ref="zooKeeperClusterService" auto-export="interfaces" />
+    <service ref="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" />
 
 </blueprint>

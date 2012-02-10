@@ -157,10 +157,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     public void stop() throws InterruptedException {
+        executor.shutdown();
         executor.awaitTermination(30,TimeUnit.SECONDS);
         bundleContext.removeFrameworkListener(this);
         manager.shutdown();
-        executor.shutdown();
     }
 
     public void loadState() {
@@ -516,7 +516,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Resource resource : allResources) {
             Bundle bundle = resToBnd.get(resource);
             String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
-            if (hostHeader == null) {
+            if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
                 LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
                 try {
                     bundle.start();
