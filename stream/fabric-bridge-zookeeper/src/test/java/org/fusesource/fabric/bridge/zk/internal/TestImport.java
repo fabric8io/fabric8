@@ -18,6 +18,7 @@ package org.fusesource.fabric.bridge.zk.internal;
 
 
 import org.fusesource.fabric.zookeeper.commands.Import;
+import org.linkedin.zookeeper.client.IZKClient;
 
 /**
  * User: dbokde
@@ -35,7 +36,7 @@ public class TestImport extends Import {
     }
 
     @Override
-    public Object doExecute() throws Exception {
-        return super.doExecute();
+    public void doExecute(IZKClient client) throws Exception {
+        super.doExecute(client);
     }
 }
