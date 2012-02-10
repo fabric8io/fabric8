@@ -74,11 +74,11 @@ sort_info: 10
       | ode                            servicemix
       | hadoop-namenode                
       | mq                             karaf
-      | example-fabric-camel           examples, karaf
+      | example-camel                  examples, karaf
       | esb                            mq, nmr, camel
       | hadoop-datanode                
       | hadoop                         
-      | example-fabric-mq              examples
+      | example-mq                    examples
       | camel                          karaf
       | default                        
       | nmr                            karaf
@@ -151,10 +151,10 @@ sort_info: 10
       # Create a Camel process 
   .span12
     :&markdown
-      Now lets create a separate container running a Camel route using the default **example-fabric-camel** profile as a child container on the **root** process.
+      Now lets create a separate container running a Camel route using the default **example-camel** profile as a child container on the **root** process.
 
     pre
-      | FuseFabric:karaf@root> container-create-child --profile example-fabric-camel root camel1
+      | FuseFabric:karaf@root> container-create-child --profile example-camel root camel1
       | ...
 
     :&markdown
@@ -165,7 +165,7 @@ sort_info: 10
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
       | root                           true       default, zk-server-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
-      | &nbsp;&nbsp;camel1                       true       example-fabric-camel           success                                                                                                    
+      | &nbsp;&nbsp;camel1                       true       example-camel           success
   
     :&markdown
       Now we should be able to connect to it and list the Camel routes
@@ -183,7 +183,7 @@ sort_info: 10
       # Running Camel Example 
   .span12
     :&markdown
-      The **example-fabric-camel** example which we just installed, will every 5th second send a message to the message broker. And the consume
+      The **example-camel** example which we just installed, will every 5th second send a message to the message broker. And the consume
       the message and print it to the log. This is implemented using the two Camel routes, which you can view in more details using **camel:info-route route1**
 
     pre
