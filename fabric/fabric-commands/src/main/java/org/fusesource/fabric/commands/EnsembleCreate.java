@@ -17,6 +17,7 @@
 package org.fusesource.fabric.commands;
 
 import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -28,21 +29,15 @@ public class EnsembleCreate extends EnsembleCommandSupport {
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
 
-    @Argument(required = false, multiValued = true, description = "List of containers")
+    @Argument(required = true, multiValued = true, description = "List of containers")
     private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
         if (clean) {
             service.clean();
-        } else {
-            if (containers == null || containers.isEmpty()) {
-                throw new IllegalStateException("No containers specified.");
-            }
         }
-        if (containers != null && !containers.isEmpty()) {
-            service.createCluster(containers);
-        }
+        service.createCluster(containers);
         return null;
     }
 }

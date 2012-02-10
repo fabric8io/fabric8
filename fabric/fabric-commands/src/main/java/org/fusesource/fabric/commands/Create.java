@@ -19,11 +19,11 @@ package org.fusesource.fabric.commands;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
-import org.fusesource.fabric.zookeeper.commands.Import;
 
 @Command(name = "create", scope = "fabric", description = "Create a new ZooKeeper ensemble and imports Fabric profiles")
 public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.commands.service.Create {
@@ -43,7 +43,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Option(name = "-t", aliases = {"--time"}, description = "The amount of time to wait for the ensemble to startup before trying to import the default data")
     long ensembleStartupTime = 2000L;
 
-    @Argument(required = false, multiValued = true, description = "List of containers")
+    @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
     private List<String> containers;
 
     @Override
@@ -52,6 +52,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             containers = Arrays.asList(System.getProperty("karaf.name"));
         }
 
+        preValidateCreate();
+        
         if (clean) {
             service.clean();
         }
@@ -64,6 +66,17 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             service.createCluster(containers);
         }
         return null;
+    }
+
+    protected void preValidateCreate() {
+        // validate the containers are not already cluster containers
+        List<String> existing = service.getClusterContainers();
+        // check that none of the containers exists
+        for (String container : existing) {
+            if (containers.contains(container)) {
+                throw new IllegalArgumentException("Container " + container + " is already enlisted as a cluster container.");
+            }
+        }
     }
 
     private static String getDefaultImportDir() {
