@@ -23,6 +23,7 @@
     <groupId>org.fusesource.patch</groupId>
     <artifactId>patch-project</artifactId>
     <version>7.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <artifactId>patch-management</artifactId>

@@ -649,7 +649,7 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
-			          <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
+                <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
