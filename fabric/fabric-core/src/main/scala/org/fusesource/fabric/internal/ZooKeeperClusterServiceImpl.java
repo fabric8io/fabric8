@@ -18,7 +18,6 @@ package org.fusesource.fabric.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.InetAddress;
@@ -94,13 +93,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createLocalServer(int port) {
-        IZKClient client = null;
-        Configuration config;
-        String connectionUrl;
-        Properties properties;
-        String karafName = System.getProperty("karaf.name");
-
         try {
+            IZKClient client;
+            Properties properties;
+            String karafName = System.getProperty("karaf.name");
+
             // Install or stop the fabric-configadmin bridge
             Bundle bundleFabricConfigAdmin = installOrStopBundle("org.fusesource.fabric.fabric-configadmin",
                                                                  "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
@@ -108,10 +105,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                                                                "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
 
             // Create configuration
-            connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
+            String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
             String mavenProxyUrl = "http://" + getLocalHostAddress() + ":" + 8040;
 
-            config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
+            Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Properties();
             properties.put("tickTime", "2000");
             properties.put("initLimit", "10");
@@ -181,8 +178,14 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
+            String fabricProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric");
+            ZooKeeperUtils.createDefault(client, fabricProfile, "default");
+            p = getProperties(client, fabricProfile + "/org.fusesource.fabric.agent.properties", new Properties());
+            p.put("feature.fabric-commands", "fabric-commands");
+            ZooKeeperUtils.set(client, fabricProfile + "/org.fusesource.fabric.agent.properties", toString(p));
+
             ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
-            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default zk-server-0000-1");
+            ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "fabric zk-server-0000-1");
 
             // add auth
             ZooKeeperUtils.createDefault(client, defaultProfile + "/org.fusesource.fabric.jaas/encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
@@ -195,19 +198,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             // Restart fabric-configadmin bridge
             bundleFabricConfigAdmin.start();
 
-            // Write status
-            ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_RESULT.getPath(karafName), ZkDefs.SUCCESS);
-            ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(karafName), null);
         } catch (Exception e) {
-            if (client != null) {
-                try {
-                    StringWriter sw = new StringWriter();
-                    e.printStackTrace(new PrintWriter(sw));
-                    ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_RESULT.getPath(karafName), ZkDefs.ERROR);
-                    ZooKeeperUtils.set(client, ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(karafName), sw.toString());
-                } catch (Throwable t) {
-                }
-            }
             throw new FabricException("Unable to create zookeeper server configuration", e);
         }
     }

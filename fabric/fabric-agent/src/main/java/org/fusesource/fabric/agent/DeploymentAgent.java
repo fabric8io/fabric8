@@ -157,10 +157,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     public void stop() throws InterruptedException {
+        executor.shutdown();
         executor.awaitTermination(30,TimeUnit.SECONDS);
         bundleContext.removeFrameworkListener(this);
         manager.shutdown();
-        executor.shutdown();
     }
 
     public void loadState() {

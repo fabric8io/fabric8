@@ -23,15 +23,16 @@
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
-        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.2.8-fuse-03-20</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix.configadmin.version}</bundle>
 
-        <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.mvn.version}</bundle>
-        <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/1.2.6</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
 
-        <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/1.6.2</bundle>
-        <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/1.6.2</bundle>
+        <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/${pax.logging.version}</bundle>
 
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.shell/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.commands/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/${karaf-version}</bundle>
@@ -39,17 +40,17 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
 
-        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint/0.3.1</bundle>
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint/${aries.blueprint.version}</bundle>
         <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/${asm.bundle.version}</bundle>
 
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx/0.3</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
         <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
         <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/${asm.bundle.version}</bundle>
 
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
         <bundle dependency="true">mvn:org.apache.sshd/sshd-core/0.5.0</bundle>
@@ -72,7 +73,7 @@
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle>
 
-        <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/3.3.1-fuse-02-20</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/${felix.fileinstall.version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.spring/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.kar/${karaf-version}</bundle>
