@@ -32,6 +32,7 @@ public class ProfileList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
         Profile[] profiles = ver.getProfiles();
         printProfiles(profiles, System.out);

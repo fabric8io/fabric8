@@ -28,6 +28,8 @@ public class VersionList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
+
         Container[] containers = fabricService.getContainers();
         Version[] versions = fabricService.getVersions();
         printVersions(containers, versions, fabricService.getDefaultVersion(), System.out);

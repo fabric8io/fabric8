@@ -16,13 +16,13 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.io.PrintStream;
+
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
-
-import java.io.PrintStream;
 
 @Command(name = "container-list", scope = "fabric", description = "List existing containers")
 public class ContainerList extends FabricCommand {
@@ -41,6 +41,7 @@ public class ContainerList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         Container[] containers = fabricService.getContainers();
         
         Version ver = null;

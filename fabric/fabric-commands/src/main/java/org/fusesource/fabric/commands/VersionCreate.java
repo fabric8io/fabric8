@@ -33,6 +33,8 @@ public class VersionCreate extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
+
         Version latestVersion = null;
 
         Version[] versions = fabricService.getVersions();

@@ -62,6 +62,7 @@ public class ProfileEdit extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         if (delete) {
             set = false;
         }

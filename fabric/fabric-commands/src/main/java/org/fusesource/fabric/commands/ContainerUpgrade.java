@@ -37,6 +37,7 @@ public class ContainerUpgrade extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         // check and validate version
         Version version = fabricService.getVersion(this.version);
 

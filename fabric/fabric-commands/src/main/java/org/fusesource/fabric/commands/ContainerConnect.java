@@ -16,13 +16,13 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
-
-import java.util.List;
 
 @Command(name = "container-connect", scope = "fabric", description = "Connect to a remote fabric container")
 public class ContainerConnect extends FabricCommand {
@@ -40,6 +40,8 @@ public class ContainerConnect extends FabricCommand {
     private List<String> command;
 
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
+
         String cmdStr = "";
         if (command != null) {
             StringBuilder sb = new StringBuilder();

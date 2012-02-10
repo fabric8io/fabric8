@@ -37,6 +37,7 @@ public class ProfileDelete extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         Version version = fabricService.getVersion(this.version);
 
         for (Profile profile : version.getProfiles()) {
