@@ -17,6 +17,11 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -34,6 +39,8 @@ public class ProfileList extends FabricCommand {
     protected Object doExecute() throws Exception {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
         Profile[] profiles = ver.getProfiles();
+        // we want the list to be sorted
+        profiles = sortProfiles(profiles);
         printProfiles(profiles, System.out);
         return null;
     }
@@ -44,6 +51,23 @@ public class ProfileList extends FabricCommand {
             int active = profile.getAssociatedContainers().length;
             out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
         }
+    }
+
+    private static Profile[] sortProfiles(Profile[] profiles) {
+        if (profiles == null || profiles.length <= 1) {
+            return profiles;
+        }
+        List<Profile> list = new ArrayList<Profile>(profiles.length);
+        list.addAll(Arrays.asList(profiles));
+
+        Collections.sort(list, new Comparator<Profile>() {
+            @Override
+            public int compare(Profile p1, Profile p2) {
+                return p1.getId().compareTo(p2.getId());
+            }
+        });
+
+        return list.toArray(new Profile[0]);
     }
 
 }
