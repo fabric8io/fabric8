@@ -19,7 +19,9 @@ package org.fusesource.fabric.bridge.zk.internal;
 
 import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.bridge.MessageConverter;
 import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
+import org.fusesource.fabric.bridge.spring.TestMessageConverter;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.junit.*;
@@ -43,6 +45,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
 
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();
     private static final String DESTINATION_RESOLVER_CLASS_NAME = DestinationResolver.class.getName();
+    private static final String MESSAGE_CONVERTER_CLASS_NAME = MessageConverter.class.getName();
     private static final String LOCAL_FACTORY_FILTER = "(" + Constants.SERVICE_PID + "=localCF" + ")";
 
     private static ClassPathXmlApplicationContext applicationContextZkServer;
@@ -68,19 +71,30 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
 
             @Override
             public ServiceReference[] getServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
+
                 Hashtable<String, Object> properties = new Hashtable<String, Object>();
                 if (CONNECTION_FACTORY_CLASS_NAME.equals(clazz)) {
+
                     if (LOCAL_FACTORY_FILTER.equals(filter)) {
                         properties.put(SERVICE_PROPERTY, localConnectionFactory);
                     } else {
                         return null;
                     }
+
                 } else if (DESTINATION_RESOLVER_CLASS_NAME.equals(clazz)) {
+
                     properties.put(SERVICE_PROPERTY, new DynamicDestinationResolver());
+
+                } else if (MESSAGE_CONVERTER_CLASS_NAME.equals(clazz)) {
+
+                    properties.put(SERVICE_PROPERTY, new TestMessageConverter());
+
                 } else {
                     return null;
                 }
+
                 return new ServiceReference[] { new MockServiceReference(null, properties, null) };
+
             }
 
             @Override
@@ -145,6 +159,23 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
 
         properties.put("localBroker.destinationResolverRef", "localResolver");
         properties.put("exportedBroker.destinationResolverRef", "localResolver");
+
+        serviceFactory.updated(TEST_PID, properties);
+
+        // TODO assert that the bridge was started
+    }
+
+    @Test
+    public void testBridgeDestinationsConfigProperties() throws Exception {
+        // start
+        serviceFactory.init();
+
+        // create a simple broker URL based bridge
+        Hashtable<String, String> properties = getDefaultConfig();
+        properties.put("inboundDestinationsRef", "downstreamProps");
+        properties.put("outboundDestinationsRef", "upstreamProps");
+        properties.put("localBroker.brokerUrl", TEST_LOCAL_BROKER_URL);
+        properties.put("exportedBroker.brokerUrl", TEST_LOCAL_BROKER_URL);
 
         serviceFactory.updated(TEST_PID, properties);
 

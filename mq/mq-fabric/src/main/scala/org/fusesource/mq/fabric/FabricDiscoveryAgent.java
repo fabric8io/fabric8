@@ -222,7 +222,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
                 managedZkClient = false;
             }
 
-            group = ZooKeeperGroupFactory.create(zkClient, "/fabric/registry/clusters/activemq/" + groupName, acl);
+            group = ZooKeeperGroupFactory.create(zkClient, "/fabric/registry/clusters/fusemq/" + groupName, acl);
             singleton.start(group);
             if( id!=null ) {
                 singleton.join(createState());

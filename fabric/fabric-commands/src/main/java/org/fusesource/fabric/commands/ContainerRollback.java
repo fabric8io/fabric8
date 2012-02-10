@@ -28,13 +28,13 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
 
-@Command(name = "container-upgrade", scope = "fabric", description = "Upgrade containers to a new version")
-public class ContainerUpgrade extends ContainerUpgradeSupport {
+@Command(name = "container-rollback", scope = "fabric", description = "Rollback containers to an older version")
+public class ContainerRollback extends ContainerUpgradeSupport {
 
-    @Option(name = "--version", description = "The version to upgrade", required = true)
+    @Option(name = "--version", description = "The version to rollback", required = true)
     private String version;
 
-    @Argument(index = 0, name = "container", description = "The list of containers to upgrade. Empty list assumes current container only.", required = false, multiValued = true)
+    @Argument(index = 0, name = "container", description = "The list of containers to rollback. Empty list assumes current container only.", required = false, multiValued = true)
     private List<String> containerIds;
 
     @Override
@@ -47,22 +47,22 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
             containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
         }
 
-        List<Container> toUpgrade = new ArrayList<Container>();
+        List<Container> toRollback = new ArrayList<Container>();
         List<Container> same = new ArrayList<Container>();
         for (String containerName : containerIds) {
             Container container = fabricService.getContainer(containerName);
 
-            // check first that all can upgrade
-            int num = canUpgrade(version, container);
+            // check first that all can rollback
+            int num = canRollback(version, container);
             if (num < 0) {
-                throw new IllegalArgumentException("Container " + container.getId() + " has already higher version " + container.getVersion()
-                        + " than the requested version " + version + " to update.");
+                throw new IllegalArgumentException("Container " + container.getId() + " has already lower version " + container.getVersion()
+                        + " than the requested version " + version + " to rollback.");
             } else if (num == 0) {
                 // same version
                 same.add(container);
             } else {
-                // needs upgrade
-                toUpgrade.add(container);
+                // needs rollback
+                toRollback.add(container);
             }
         }
         
@@ -71,25 +71,25 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
             System.out.println("Container " + container.getId() + " is already version " + version);
         }
         
-        // report and do upgrades
-        for (Container container : toUpgrade) {
+        // report and do rollbacks
+        for (Container container : toRollback) {
             Version oldVersion = container.getVersion();
             Profile[] oldProfiles = container.getProfiles();
-            
+
             // create list of new profiles
             Profile[] newProfiles = getProfilesForUpgradeOrRollback(oldProfiles, version);
 
-            // upgrade version first
+            // rollback version first
             container.setVersion(version);
             // then set new profiles, which triggers container to update bundles and whatnot
             container.setProfiles(newProfiles);
-            
+
             // get the profile for version 1.1
-            log.debug("Upgraded container {} from {} to {}", new Object[]{container, oldVersion, version});
-            System.out.println("Upgraded container " + container.getId() + " from version " + oldVersion + " to " + version);
+            log.debug("Rolled back container {} from {} to {}", new Object[]{container, oldVersion, version});
+            System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion + " to " + version);
         }
 
         return null;
     }
-    
+
 }

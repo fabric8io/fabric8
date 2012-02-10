@@ -38,12 +38,12 @@ sort_info: 10
       | |  _|| | | |/ __| / _ \ |  _|/ _` || '_ \ | '__|| | / __|
       | | |  | |_| |\__ \|  __/ | | | (_| || |_) || |   | || (__ 
       | \_|   \__,_||___/ \___| \_|  \__,_||_.__/ |_|   |_| \___|
-      |   Fuse Fabric Agent (1.1)
-      |   http://fabric.fusesource.org/
+      |   Fuse Fabric Container (1.2)
+      |   http://fuse.fusesource.org/fabric/
       |
       | Hit '<tab>' for a list of available commands
       | and '[cmd] --help' for help on a specific command.
-      | Hit '<ctrl-d>' or 'osgi:shutdown' to shutdown this Fuse Fabric Agent.
+      | Hit '<ctrl-d>' or 'osgi:shutdown' to shutdown this Fuse Fabric Container.
       |
       | Create a new Fabric via 'fabric:create'
       | or join an existing Fabric via 'fabric:join [someUrls]'
@@ -87,10 +87,10 @@ sort_info: 10
       | zk-server-0000
 
     :&markdown
-      Or list the available agents via **agent-list**
+      Or list the available containers via **container-list**
 
     pre
-      | FuseFabric:admin@root> agent-list
+      | FuseFabric:admin@root> container-list
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
       | root                           true       default, zk-server-0000-1      success                                                                                             
 
@@ -100,24 +100,24 @@ sort_info: 10
       # Create a Broker process 
   .span12
     :&markdown
-      Lets start by creating a message broker using the default **mq** profile as a child agent on the **root** process, and naming the agent **broker1**.
-      Child agents are separate JVMs which can be connected to via the shell or JMX and started/stopped independently.
+      Lets start by creating a message broker using the default **mq** profile as a child container on the **root** process, and naming the container **broker1**.
+      Child containers are separate JVMs which can be connected to via the shell or JMX and started/stopped independently.
 
     pre
-      | FuseFabric:karaf@root> agent-create-child --profile mq root broker1
+      | FuseFabric:karaf@root> container-create-child --profile mq root broker1
       | ...
 
     :&markdown
-      Check that the agent has been created (it can take a few seconds):  
+      Check that the container has been created (it can take a few seconds):  
 
     pre
-      | FuseFabric:admin@root> fabric:agent-list
+      | FuseFabric:admin@root> fabric:container-list
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
       | root                           true       default, zk-server-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
 
     :&markdown
-      Check that the agent has been created (it can take a few seconds):  
+      Check that the container has been created (it can take a few seconds):  
 
     pre
       | FuseFabric:admin@test> help activemq:list
@@ -125,7 +125,7 @@ sort_info: 10
 
     :&markdown
       The message broker provides a set of commands (**activemq**) you can use to access details from the broker.
-      For example running **activemq:list** will show the broker names running on the agent:
+      For example running **activemq:list** will show the broker names running on the container:
 
     pre
       | admin@broker1> activemq:list
@@ -134,10 +134,10 @@ sort_info: 10
 .row
   .span4
     :markdown
-      # Exit an Agent 
+      # Exit an Container 
   .span12
     :&markdown
-      After creating the message broker, we want to disconnect the agent, to return to Fuse Fabric.
+      After creating the message broker, we want to disconnect the container, to return to Fuse Fabric.
       You can do this by pressing `ctrl + d` in the console, or run the **logout** command:
 
     pre
@@ -151,17 +151,17 @@ sort_info: 10
       # Create a Camel process 
   .span12
     :&markdown
-      Now lets create a separate agent running a Camel route using the default **example-fabric-camel** profile as a child agent on the **root** process.
+      Now lets create a separate container running a Camel route using the default **example-fabric-camel** profile as a child container on the **root** process.
 
     pre
-      | FuseFabric:karaf@root> agent-create-child --profile example-fabric-camel root camel1
+      | FuseFabric:karaf@root> container-create-child --profile example-fabric-camel root camel1
       | ...
 
     :&markdown
-      Check that the agent has been created and started (it can take a few seconds). You can run the **agent-list** command repeatably to see the current stats:  
+      Check that the container has been created and started (it can take a few seconds). You can run the **container-list** command repeatably to see the current stats:  
 
     pre
-      | FuseFabric:admin@root> agent-list
+      | FuseFabric:admin@root> container-list
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
       | root                           true       default, zk-server-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
@@ -171,7 +171,7 @@ sort_info: 10
       Now we should be able to connect to it and list the Camel routes
 
     pre
-      | FuseFabric:admin@root> agent-connect camel1
+      | FuseFabric:admin@root> container-connect camel1
       | ...
       | admin@camel1> camel:list-routes 
       | [route1              ]
@@ -191,17 +191,17 @@ sort_info: 10
       | ... 
 
     :&markdown
-      Among the details will be statistics for number of messages processed, represented as `Exchanges Total`. We can now logout from the *camel1* agent
+      Among the details will be statistics for number of messages processed, represented as `Exchanges Total`. We can now logout from the *camel1* container
       and connect to the message broker:
 
     pre
       | admin@camel1> logout
       | ...
-      | FuseFabric:admin@root> agent-connect broker1
+      | FuseFabric:admin@root> container-connect broker1
       | ...
 
     :&markdown
-      From the message broker agent, we can view statistics from the message broker, such as the `camel-test` queue which is used by the example.
+      From the message broker container, we can view statistics from the message broker, such as the `camel-test` queue which is used by the example.
       The following command shows a number of stats for the given queue.
 
     pre
@@ -211,15 +211,15 @@ sort_info: 10
 .row
   .span4
     :markdown
-      # Stopping Agents and Fuse Fabric
+      # Stopping Containers and Fuse Fabric
   .span12
     :&markdown
-      You can manage agents from the Fuse Fabric shell. For example to stop the **camel1** agent, you can do as shown below.
-      Remember you have to in the Fuse Fabric shell, which you can notice in the prompt. If you are connected to another agent, you
-      can logout from the agent, to get back to the Fuse Fabric agent.
+      You can manage containers from the Fuse Fabric shell. For example to stop the **camel1** container, you can do as shown below.
+      Remember you have to in the Fuse Fabric shell, which you can notice in the prompt. If you are connected to another container, you
+      can logout from the container, to get back to the Fuse Fabric container.
 
     pre
-      | FuseFabric:admin@root> agent-stop camel1
+      | FuseFabric:admin@root> container-stop camel1
       | ... 
 
     :&markdown
@@ -232,8 +232,8 @@ sort_info: 10
       | ... 
 
     :&markdown
-      Congratulations, you are now started with Fuse Fabric, and have successfully managed to install two child agents. Install an example, which
-      exchanges messages between the agents using the message broker.
+      Congratulations, you are now started with Fuse Fabric, and have successfully managed to install two child containers. Install an example, which
+      exchanges messages between the containers using the message broker.
 
 .row
   .span4

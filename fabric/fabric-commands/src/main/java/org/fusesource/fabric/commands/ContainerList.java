@@ -17,6 +17,11 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -43,6 +48,8 @@ public class ContainerList extends FabricCommand {
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         Container[] containers = fabricService.getContainers();
+        // we want the list to be sorted
+        containers = sortContainers(containers);
         
         Version ver = null;
         if (version != null) {
@@ -57,7 +64,6 @@ public class ContainerList extends FabricCommand {
         }
         return null;
     }
-
 
     protected void printContainers(Container[] containers, Version version, PrintStream out) {
         out.println(String.format(FORMAT, HEADERS));
@@ -103,4 +109,22 @@ public class ContainerList extends FabricCommand {
 
         return version.equals(container.getVersion());
     }
+    
+    private static Container[] sortContainers(Container[] containers) {
+        if (containers == null || containers.length <= 1) {
+            return containers;
+        }
+        List<Container> list = new ArrayList<Container>(containers.length);
+        list.addAll(Arrays.asList(containers));
+        
+        Collections.sort(list, new Comparator<Container>() {
+            @Override
+            public int compare(Container c1, Container c2) {
+                return c1.getId().compareTo(c2.getId());
+            }
+        });
+        
+        return list.toArray(new Container[0]);
+    }
+
 }
