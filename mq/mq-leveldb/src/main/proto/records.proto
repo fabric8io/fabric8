@@ -45,3 +45,11 @@ message EntryRecord {
   optional bytes value = 5 [java_override_type = "Buffer"];
   optional bytes meta = 6 [java_override_type = "Buffer"];
 }
+
+message SubscriptionRecord {
+  required int64 topic_key = 1;
+  required string client_id = 2;
+  required string subscription_name = 3;
+  optional string selector = 4;
+  optional string destination_name = 5;
+}
