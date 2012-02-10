@@ -18,6 +18,8 @@ package org.fusesource.fabric.commands.support;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.ServiceReference;
 
 /**
  */
@@ -31,4 +33,12 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
     public void setService(ZooKeeperClusterService service) {
         this.service = service;
     }
+
+    protected void checkFabricAvailable() {
+        ServiceReference sr = getBundleContext().getServiceReference(IZKClient.class.getName());
+        if (sr == null) {
+            throw new IllegalStateException("No Fabric available, please create one using fabric:create or fabric:join.");
+        }
+    }
+
 }

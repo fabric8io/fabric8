@@ -24,7 +24,9 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.osgi.framework.ServiceReference;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
@@ -51,6 +53,18 @@ public abstract class ContainerCreateSupport extends FabricCommand {
      * @throws IllegalArgumentException is thrown if input is invalid
      */
     protected void preCreateContainer(String name) throws IllegalArgumentException {
+        ServiceReference sr = getBundleContext().getServiceReference(ZooKeeperClusterService.class.getName());
+        ZooKeeperClusterService zkcs = sr != null ? getService(ZooKeeperClusterService.class, sr) : null;
+        if (zkcs == null) {
+            throw new IllegalStateException("Unable to find ZooKeeperClusterService service");
+        }
+        if (zkcs.getClusterContainers().isEmpty()) {
+            if (!isEnsembleServer) {
+                throw new IllegalStateException("The use of the --ensemble-server option is mandatory when creating an initial container");
+            }
+            return;
+        }
+
         Container existing = getContainer(name);
         if (existing != null) {
             throw new IllegalArgumentException("A container with name " + name + " already exists.");

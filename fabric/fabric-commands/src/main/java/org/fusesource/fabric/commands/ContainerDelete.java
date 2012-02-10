@@ -29,6 +29,7 @@ public class ContainerDelete extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         Container found = getContainer(name);
         if (found == null) {
             throw new IllegalArgumentException("Container " + name + " does not exist.");
