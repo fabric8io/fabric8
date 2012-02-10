@@ -32,7 +32,6 @@
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/${pax.logging.version}</bundle>
 
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.shell/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.commands/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/${karaf-version}</bundle>
