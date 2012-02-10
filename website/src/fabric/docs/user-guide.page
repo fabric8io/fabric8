@@ -54,7 +54,7 @@ Through the use of profiles you can then control all or a group of nodes in each
 
 ### How discovery works
 
-Each agent registers itself into the ZooKeeper runtime registry details of its machine, host name and connection details (e.g. JMX URL) so its easy to discover and introspect the Fabric and to delve into any node to introspect or control it in more detail.
+Each container registers itself into the ZooKeeper runtime registry details of its machine, host name and connection details (e.g. JMX URL) so its easy to discover and introspect the Fabric and to delve into any node to introspect or control it in more detail.
 
 In addition Fabric supports a number of additional discovery mechanisms which are framework specific in the Fabric Extensions.
 
@@ -159,7 +159,7 @@ For the CXF client, you just need to set the FabricLoadBalancerFeature directly 
 ### OSGi Fabric
 
 The OSGi registry by default contains local services. However since Fabric has a Configuration Registry defining profiles along with a Runtime Registry for discovery, its easy to configure Fabric to expose remote OSGi services into the Runtime Registry for different profiles so that you can get invisible remoting of services with dynamic discovery, load balancing and fail over.
-The OSGi Fabric follows the OSGi Remote Services specification.  Any service exported in the OSGi registry with a property named "service.exported.interfaces" (with a value of either "*" or a list of interfaces to export) will be automatically exported in Fabric Registry and imported on other Fabric agents as needed.
+The OSGi Fabric follows the OSGi Remote Services specification.  Any service exported in the OSGi registry with a property named "service.exported.interfaces" (with a value of either "*" or a list of interfaces to export) will be automatically exported in Fabric Registry and imported on other Fabric containers as needed.
 
 #### Exposing an OSGi service into the Fabric using Blueprint
 {pygmentize:: xml}

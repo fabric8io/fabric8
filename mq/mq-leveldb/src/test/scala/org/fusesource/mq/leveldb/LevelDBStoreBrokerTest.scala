@@ -38,14 +38,6 @@ object LevelDBStoreBrokerTest {
 
 class LevelDBStoreBrokerTest extends BrokerTest {
 
-  // TODO: this test case is failing..
-  override def testTopicDurableSubscriptionCanBeRestored() {
-  }
-
-  // TODO: this test case is failing..
-  override def testTopicDispatchIsBroadcast() {
-  }
-
   protected def createPersistenceAdapter(delete: Boolean): PersistenceAdapter = {
     var store: LevelDBStore = new LevelDBStore
     store.setDirectory(new File("target/activemq-data/leveldb"))

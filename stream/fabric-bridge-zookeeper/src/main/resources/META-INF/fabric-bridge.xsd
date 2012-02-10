@@ -73,6 +73,7 @@
         <xs:attribute name="destinationNameHeader" type="xs:string"/>
         <xs:attribute name="defaultStagingLocation" type="xs:boolean"/>
         <xs:attribute name="stagingQueueName" type="xs:string"/>
+        <xs:attribute name="useStagingQueue" type="xs:boolean"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

@@ -101,14 +101,16 @@ public class TargetConnector extends AbstractConnector {
 		}
 		
 		reuseMessage = false;
-		try {
+        Connection remoteConnection = null;
+        Connection localConnection = null;
+        try {
 			
 			// check if messages need to be copied for different JMS providers
-			Connection remoteConnection = remoteConnectionFactory.createConnection();
+			remoteConnection = remoteConnectionFactory.createConnection();
 			Session remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			Message remoteMessage = remoteSession.createMessage();
 			
-			Connection localConnection = localConnectionFactory.createConnection();
+			localConnection = localConnectionFactory.createConnection();
 			Session localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			Message localMessage = localSession.createMessage();
 			
@@ -120,7 +122,18 @@ public class TargetConnector extends AbstractConnector {
 			String msg = "Error checking whether remote and local broker providers are the same: " + e.getMessage();
 			LOG.error(msg, e);
 			throw new IllegalStateException(msg, e);
-		}
+		} finally {
+            if (remoteConnection != null) {
+                try {
+                    remoteConnection.close();
+                } catch (JMSException e) {}
+            }
+            if (localConnection != null) {
+                try {
+                    localConnection.close();
+                } catch (JMSException e) {}
+            }
+        }
 
 		// create listener container for staging queue
 		createListenerContainer();
@@ -164,15 +177,14 @@ public class TargetConnector extends AbstractConnector {
 			}
 		}
 
-        // stop connection factories
-        if (localConnectionFactory != null && (localConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping local connection factory");
-            ((PooledConnectionFactory)localConnectionFactory).stop();
-        }
-        if (remoteConnectionFactory != null && (remoteConnectionFactory instanceof PooledConnectionFactory)) {
-            LOG.debug("Stopping remote connection factory");
-            ((PooledConnectionFactory)remoteConnectionFactory).stop();
-        }
+		// check if we created pooled connection factories
+        if (localBrokerConfig.getConnectionFactory() == null && localConnectionFactory != null) {
+			((PooledConnectionFactory)localConnectionFactory).stop();
+		}
+		if (remoteBrokerConfig != null && remoteBrokerConfig.getConnectionFactory() == null
+            && remoteConnectionFactory != null) {
+			((PooledConnectionFactory)remoteConnectionFactory).stop();
+		}
 
         LOG.info("Destroyed");
 	}
