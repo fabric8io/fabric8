@@ -20,12 +20,18 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
+import org.fusesource.fabric.bridge.model.BridgedDestination;
+import org.fusesource.fabric.bridge.model.DispatchPolicy;
 import org.fusesource.fabric.bridge.model.IdentifiedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.ConfigurablePropertyAccessor;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -34,6 +40,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.ByteArrayInputStream;
+import java.util.*;
 
 /**
  * @author Dhiraj Bokde
@@ -45,10 +52,12 @@ public class ZkBridgeDestinationsConfigFactory
     implements FactoryBean<BridgeDestinationsConfig>, InitializingBean {
 
     private static final String BRIDGE_DESTINATIONS_PID = "org.fusesource.fabric.bridge.bridgeDestinationsConfig";
-    private static final String PID_EXTENSION = ".xml";
+    private static final String DISPATCH_POLICY_PID = "org.fusesource.fabric.bridge.dispatchPolicy";
+    private static final String PID_XML_EXTENSION = ".xml";
     private static JAXBContext jaxbContext;
 
     private static final Logger LOG = LoggerFactory.getLogger(ZkBridgeDestinationsConfigFactory.class);
+    private static final String NAME_SUFFIX = ".name";
 
     static {
         try {
@@ -72,15 +81,23 @@ public class ZkBridgeDestinationsConfigFactory
         Container container = fabricService.getContainer(System.getProperty("karaf.name"));
 
         // find destination config with name in associated profiles
-        String bridgeDestinationsConfigName = BRIDGE_DESTINATIONS_PID + "." + getId() + PID_EXTENSION;
+        String bridgeDestinationsXml = BRIDGE_DESTINATIONS_PID + "." + getId() + PID_XML_EXTENSION;
+        String bridgeDestinationsProperties = BRIDGE_DESTINATIONS_PID + "." + getId();
 
+        List<Profile> profiles = new ArrayList<Profile>();
         for (Profile profile : container.getProfiles()) {
 
             if (profile.getParents().length > 0) {
                 profile = profile.getOverlay();
             }
+            profiles.add(profile);
 
-            byte[] bytes = profile.getFileConfigurations().get(bridgeDestinationsConfigName);
+        }
+
+        for (Profile profile : profiles) {
+
+            // look for XML config
+            byte[] bytes = profile.getFileConfigurations().get(bridgeDestinationsXml);
             if (bytes != null) {
 
                 Object object = jaxbContext.createUnmarshaller().unmarshal(new ByteArrayInputStream(bytes));
@@ -88,19 +105,154 @@ public class ZkBridgeDestinationsConfigFactory
                     return (BridgeDestinationsConfig) object;
                 } else {
                     String msg = "Object at " +
-                        bridgeDestinationsConfigName + " is not of type " +
+                        bridgeDestinationsXml + " is not of type " +
                         BridgeDestinationsConfig.class.getName() +
                         ", but instead of type " + object.getClass().getName();
                     LOG.error(msg);
                     throw new IllegalArgumentException(msg);
                 }
 
+            } else {
+                // look for Properties config
+                Map<String,String> properties = profile.getConfigurations().get(bridgeDestinationsProperties);
+                if (properties != null) {
+                    try {
+
+                        return getBridgeDestinationsProperties(profiles, properties);
+
+                    } catch (BeansException e) {
+                        String msg = "Error parsing config properties " + bridgeDestinationsProperties + ": " + e.getMessage();
+                        LOG.error(msg, e);
+                        throw new BeanCreationException(msg, e);
+                    }
+                }
             }
         }
 
-        String msg = "No configuration " + bridgeDestinationsConfigName + " found in container profiles";
+        String msg = "No configuration " + bridgeDestinationsXml + " or " +
+            bridgeDestinationsProperties + " found in container profiles";
         LOG.error(msg);
         throw new BeanCreationException(msg);
+    }
+
+    private BridgeDestinationsConfig getBridgeDestinationsProperties(List<Profile> profiles, Map<String, String> properties)
+        throws BeansException {
+
+        // parse bridge config properties
+        BridgeDestinationsConfig config = new BridgeDestinationsConfig();
+        properties.put("id", getId());
+
+        // first find destination names
+        Set<String> prefixSet = new HashSet<String>();
+        for (String key : properties.keySet()) {
+            if (key.endsWith(NAME_SUFFIX)) {
+                String prefix = key.substring(0, key.length() - NAME_SUFFIX.length() + 1);
+                if (prefix.matches("^[0-9]+\\.")) {
+                    prefixSet.add(prefix);
+                } else {
+                    String msg = "Invalid destination name " + key + ", must be of the form [0-9]+\\.name";
+                    LOG.error(msg);
+                    throw new BeanCreationException(msg);
+                }
+            }
+        }
+
+        // extract config properties
+        Map<String, String> configProperties = new HashMap<String, String>();
+        for (String key : properties.keySet()) {
+            boolean skip = false;
+            for (String prefix : prefixSet) {
+                if (key.startsWith(prefix)) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip) {
+                configProperties.put(key, properties.get(key));
+            }
+        }
+
+        ConfigurablePropertyAccessor accessor = PropertyAccessorFactory.forDirectFieldAccess(config);
+        accessor.setPropertyValues(configProperties);
+
+        Map<String, DispatchPolicy> dispatchPolicies = new HashMap<String, DispatchPolicy>();
+        config.setDestinations(getDestinations(properties, prefixSet, getId(), profiles, dispatchPolicies));
+
+        // find and set dispatch policy
+        String dispatchPolicyRef = config.getDispatchPolicyRef();
+        if (StringUtils.hasText(dispatchPolicyRef)) {
+            config.setDispatchPolicy(getDispatchPolicy(dispatchPolicies, profiles,
+                dispatchPolicyRef, getId() + "." + dispatchPolicyRef));
+        }
+
+        return config;
+    }
+
+    private DispatchPolicy getDispatchPolicy(Map<String, DispatchPolicy> dispatchPolicies,
+                                             List<Profile> profiles, String dispatchPolicyRef, String id) {
+
+        String dispatchPolicyConfig = DISPATCH_POLICY_PID + "." + dispatchPolicyRef;
+        // has the named policy been parsed already??
+        if (dispatchPolicies.get(dispatchPolicyConfig) != null) {
+            return dispatchPolicies.get(dispatchPolicyConfig);
+        }
+
+        for (Profile profile : profiles) {
+
+            Map<String, String> properties = profile.getConfigurations().get(
+                dispatchPolicyConfig);
+
+            if (properties != null) {
+                DispatchPolicy dispatchPolicy = new DispatchPolicy();
+                dispatchPolicy.setId(id);
+
+                ConfigurablePropertyAccessor accessor = PropertyAccessorFactory.forDirectFieldAccess(dispatchPolicy);
+                accessor.setPropertyValues(properties);
+
+                // add it to the cache
+                dispatchPolicies.put(dispatchPolicyConfig, dispatchPolicy);
+                return dispatchPolicy;
+            }
+
+        }
+
+        String msg = "No configuration " + dispatchPolicyConfig + " found in container profiles";
+        LOG.error(msg);
+        throw new BeanCreationException(msg);
+    }
+
+    private List<BridgedDestination> getDestinations(Map<String, String> properties,
+                                                     Set<String> prefixSet, String id, List<Profile> profiles,
+                                                     Map<String, DispatchPolicy> dispatchPolicies) {
+
+        List<BridgedDestination> destinations = new ArrayList<BridgedDestination>();
+        for (String prefix : prefixSet) {
+            // extract destination properties
+            Map<String, String> destinationProps = new HashMap<String, String>();
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                 if (entry.getKey().startsWith(prefix)) {
+                     destinationProps.put(entry.getKey().substring(prefix.length()), entry.getValue());
+                 }
+            }
+
+            BridgedDestination destination = new BridgedDestination();
+            String destinationId = id + "." + prefix.substring(0, prefix.length() - 1);
+            destination.setId(destinationId);
+
+            ConfigurablePropertyAccessor accessor = PropertyAccessorFactory.forDirectFieldAccess(destination);
+            accessor.setPropertyValues(destinationProps);
+
+            String dispatchPolicyRef = destination.getDispatchPolicyRef();
+            if (StringUtils.hasText(dispatchPolicyRef)) {
+                destination.setDispatchPolicy(
+                    getDispatchPolicy(dispatchPolicies, profiles,
+                        dispatchPolicyRef, destinationId + "." + dispatchPolicyRef));
+            }
+
+            destinations.add(destination);
+        }
+
+        return destinations;
     }
 
     @Override
