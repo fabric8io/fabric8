@@ -100,7 +100,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   @BeanProperty
   var flushDelay = 1000*5
   @BeanProperty
-  var asyncBufferSize = 1024*1024*50
+  var asyncBufferSize = 1024*1024*4
   @BeanProperty
   var monitorStats = false
 

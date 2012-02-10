@@ -31,8 +31,7 @@ import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.command._
 import org.fusesource.mq.leveldb.record.{EntryRecord, SubscriptionRecord, CollectionRecord}
 
-case class MessageRecord(id:MessageId, syncNeeded:Boolean=false, message:Message) {
-  var data:Buffer = _
+case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
   var locator:(Long, Int) = _
 }
 
@@ -181,7 +180,7 @@ class DBManager(val parent:LevelDBStore) {
       }
 
       def syncNeeded = messageRecord!=null && messageRecord.syncNeeded
-      def size = (if(messageRecord!=null) messageRecord.message.getSize else 0) + ((enqueues.size+dequeues.size)*50)
+      def size = (if(messageRecord!=null) messageRecord.data.length+20 else 0) + ((enqueues.size+dequeues.size)*50)  
     }
 
     def completeAsap() = this.synchronized { disableDelay=true }
@@ -233,7 +232,8 @@ class DBManager(val parent:LevelDBStore) {
 
       val id = message.getMessageId
       if( id.getDataLocator==null ) {
-        val record = MessageRecord(id, message.isResponseRequired, message)
+        var packet = parent.wireFormat.marshal(message)
+        val record = MessageRecord(id, new Buffer(packet.data, packet.offset, packet.length), message.isResponseRequired)
         id.setDataLocator(record)
         store(record)
       }
@@ -245,7 +245,7 @@ class DBManager(val parent:LevelDBStore) {
       val a = this.synchronized {
         // Need to figure out a better way for the the broker to hint when
         // a store should be delayed or not.
-        disableDelay = message.isResponseRequired || message.getDestination.isTopic
+        disableDelay = true // message.isResponseRequired
 
         val a = action(entry.id)
         a.enqueues += entry
@@ -432,14 +432,6 @@ class DBManager(val parent:LevelDBStore) {
         // It will not be possible to cancel the UOW anymore..
         uow.state = UowFlushing
         uow.actions.foreach { case (_, action) =>
-          val record = action.messageRecord
-
-          if(record!=null) {
-            // lets encode it now since we finally decided it's going to disk.
-            var packet = parent.wireFormat.marshal(record.message)
-            record.data = new Buffer(packet.data, packet.offset, packet.length)
-          }
-
           action.enqueues.foreach { queue_entry=>
             val action = cancelable_enqueue_actions.remove(key(queue_entry))
             assert(action!=null)

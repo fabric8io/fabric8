@@ -878,17 +878,19 @@ class LevelDBClient(store: LevelDBStore) {
 
   def getMessage(locator:AnyRef):Message = {
     assert(locator!=null)
-    locator match {
+    val buffer = locator match {
       case x:MessageRecord =>
-        // It's on the way to disk, but not there yet.
-        x.message
+        // Encoded form is still in memory..
+        Some(x.data)
       case (pos:Long, len:Int) =>
         // Load the encoded form from disk.
-        log.read(pos, len).map { x=>
-          // Lets decode
-          store.wireFormat.unmarshal(new ByteSequence(x, 0, x.length)).asInstanceOf[Message]
-        }.getOrElse(null)
-  }
+        log.read(pos, len).map(new Buffer(_))
+    }
+
+    // Lets decode
+    buffer.map{ x =>
+      store.wireFormat.unmarshal(new ByteSequence(x.data, x.offset, x.length)).asInstanceOf[Message]
+    }.getOrElse(null)
   }
 
 
