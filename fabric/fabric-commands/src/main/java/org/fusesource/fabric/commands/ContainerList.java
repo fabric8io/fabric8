@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
@@ -32,8 +32,8 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 @Command(name = "container-list", scope = "fabric", description = "List existing containers")
 public class ContainerList extends FabricCommand {
 
-    static final String FORMAT = "%-30s %-9s %-7s %-30s %-100s";
-    static final String VERBOSE_FORMAT = "%-20s %-9s %-7s %-30s  %-30s %-90s %-100s";
+    static final String FORMAT = "%-30s %-9s %-7s %-30s %s";
+    static final String VERBOSE_FORMAT = "%-20s %-9s %-7s %-30s  %-30s %-90s %s";
 
     static final String[] HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[provision status]"};
     static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
@@ -70,16 +70,34 @@ public class ContainerList extends FabricCommand {
         for (Container container : containers) {
             if (container.isRoot()) {
                 if (matchVersion(container, version)) {
-                    out.println(String.format(FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getProvisionStatus()));
+                    out.println(String.format(FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
                 }
                 for (Container child : containers) {
                     if (child.getParent() == container) {
                         if (matchVersion(child, version)) {
-                            out.println(String.format(FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getProvisionStatus()));
+                            out.println(String.format(FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), status(child)));
                         }
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Lets trim the status to a maximum size
+     * @param container
+     * @return
+     */
+    protected String status(Container container) {
+        String status = container.getProvisionStatus();
+        if (status == null) {
+            return "";
+        }
+        status = status.trim();
+        if (status.length() > 100) {
+            return status.substring(0, 100);
+        } else {
+            return status;
         }
     }
 
@@ -88,12 +106,12 @@ public class ContainerList extends FabricCommand {
         for (Container container : containers) {
             if (container.isRoot()) {
                 if (matchVersion(container, version)) {
-                    out.println(String.format(VERBOSE_FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), container.getProvisionStatus()));
+                    out.println(String.format(VERBOSE_FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
                 }
                 for (Container child : containers) {
                     if (child.getParent() == container) {
                         if (matchVersion(child, version)) {
-                            out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), child.getProvisionStatus()));
+                            out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), status(child)));
                         }
                     }
                 }

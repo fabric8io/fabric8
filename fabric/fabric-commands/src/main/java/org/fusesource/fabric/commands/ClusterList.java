@@ -77,6 +77,9 @@ public class ClusterList extends FabricCommand {
                     if (clusterName.startsWith("/")) {
                         clusterName = clusterName.substring(1);
                     }
+                    if (clusterName.length() == 0) {
+                        clusterName = ".";
+                    }
                     ObjectMapper mapper = new ObjectMapper();
                     Map<String, Object> map = mapper.readValue(data, HashMap.class);
 
