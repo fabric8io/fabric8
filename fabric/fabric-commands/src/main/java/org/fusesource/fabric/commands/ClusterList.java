@@ -33,7 +33,7 @@ public class ClusterList extends FabricCommand {
 
     protected static String CLUSTER_PREFIX = "/fabric/registry/clusters";
 
-    @Argument(description = "Path of the node to list")
+    @Argument(required = false, description = "Path of the cluster to list. If empty will list all clusters.")
     String path = "";
 
     @Override
@@ -55,6 +55,11 @@ public class ClusterList extends FabricCommand {
     }
 
     private void printChildren(String rootDir, String dir, PrintStream out) throws KeeperException, InterruptedException, IOException {
+        // do we have any clusters at all?
+        if (getZooKeeper().exists(dir) == null) {
+            return;
+        }
+
         List<String> children = getZooKeeper().getChildren(dir, false);
         boolean master = true;
         for (String child : children) {
