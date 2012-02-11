@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.commands.support;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -67,8 +68,12 @@ public abstract class ContainerCreateSupport extends FabricCommand {
                 throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
             }
         }
-    }
 
+
+        if (!isEnsembleServer && fabricService.getZookeeperUrl() == null) {
+            throw new IllegalArgumentException("Either start a zookeeper ensemble or use --ensemble-server.");
+        }
+    }
     /**
      * Post logic after the containers have been created.
      *

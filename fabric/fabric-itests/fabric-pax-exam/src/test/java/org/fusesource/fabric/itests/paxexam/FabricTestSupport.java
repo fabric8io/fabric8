@@ -25,6 +25,8 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import javax.inject.Inject;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricService;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.ops4j.pax.exam.CoreOptions;
@@ -82,7 +84,8 @@ public class FabricTestSupport {
         Container parent = containers[0];
         assertEquals("Expected to find the root container", "root", parent.getId());
 
-        Container child = fabricService.createContainer(parent, "child1");
+        CreateContainerOptions args = CreateContainerOptionsBuilder.basic().name("chlid1").parent(parent.getId());
+        Container child = fabricService.createContainers(args)[0];
         return child;
     }
 

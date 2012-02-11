@@ -14,18 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service;
 
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
+package org.fusesource.fabric.api;
 
-import java.util.Set;
+import java.io.Serializable;
 
-/**
- * API for working with a remote FabricService over JMX
- */
-public interface FabricServiceImplMBean {
+public interface CreateContainerMetadata extends Serializable {
 
-    Set<? extends CreateContainerMetadata> createRemoteContainer(CreateContainerOptions options);
-
+    String getContainerName();
 }

@@ -18,6 +18,8 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
 import org.junit.Before;
@@ -81,7 +83,7 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
-        fabricService.createContainer("ssh://"+username+":"+password+"@"+host+":"+port,"ssh1");
+        CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1").proxyUri("ssh://"+username+":"+password+"@"+host+":"+port);
         Thread.sleep(5*DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:container-list"));
         Container container = fabricService.getContainer("ssh1");

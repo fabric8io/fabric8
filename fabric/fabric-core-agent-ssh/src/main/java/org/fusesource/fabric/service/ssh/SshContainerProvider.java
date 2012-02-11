@@ -17,125 +17,75 @@
 package org.fusesource.fabric.service.ssh;
 
 import java.io.ByteArrayOutputStream;
-import java.net.URI;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerArguments;
-import org.fusesource.fabric.api.CreateSshContainerArguments;
+import org.fusesource.fabric.api.CreateSshContainerMetadata;
+import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.api.FabricException;
 
 
-import static org.fusesource.fabric.internal.ContainerProviderUtils.DEFAULT_SSH_PORT;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartupScript;
 
 /**
- * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that builds {@link Container}s via ssh.
+ * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that builds Containers via ssh.
  */
-public class SshContainerProvider implements ContainerProvider {
+public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata> {
 
-    private boolean debug = false;
-
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri               The uri of the maven proxy to use.
-     * @param containerUri           The uri that contains required information to build the Container.
-     * @param name                   The name of the Container.
-     * @param zooKeeperUrl           The url of Zoo Keeper.
-     * @param isEnsembleServer       Marks if the container will have the role of the cluster server.
-     * @param debugContainer
-     */
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, final boolean isEnsembleServer, final boolean debugContainer) {
-        create(proxyUri, containerUri, name, zooKeeperUrl, isEnsembleServer, debugContainer, 1);
-    }
+    private boolean verbose = false;
 
     /**
      * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri         The uri of the maven proxy to use.
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name             The name of the Container.
-     * @param zooKeeperUrl     The url of Zoo Keeper.
-     * @param debugContainer       Flag to enable debuging on the created Containers.
-     * @param number           The number of Containers to create.
      */
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, final boolean isEnsembleServer, final boolean debugContainer, int number) {
+    public Set<CreateSshContainerMetadata> create(CreateSshContainerOptions options) {
+        Set<CreateSshContainerMetadata> result = new LinkedHashSet<CreateSshContainerMetadata>();
         try {
-            String path = containerUri.getPath();
-            String host = containerUri.getHost();
-            if (containerUri.getQuery() != null) {
-                debug = containerUri.getQuery().contains("debug");
+            String path = options.getPath();
+            String host = options.getHost();
+            if (options.getProviderURI()!= null && options.getProviderURI().getQuery() != null) {
+                verbose = options.getProviderURI().getQuery().contains("verbose");
             }
             if (host == null) {
-                throw new IllegalArgumentException("host name must be specified in uri '" + containerUri + "'");
+                throw new IllegalArgumentException("host name must be specified in uri '" + options.getProviderURI() + "'");
             }
-            int port = containerUri.getPort();
+            int port = options.getPort();
             if (port == -1) {
                 port = 22;
             }
-            String ui = containerUri.getUserInfo();
-            String[] uip = ui != null ? ui.split(":") : null;
-            if (uip == null || uip.length != 2) {
-                throw new IllegalArgumentException("user and password must be supplied in the uri '" + containerUri + "'");
-            }
-            String username = uip[0];
-            String password = uip[1];
-            int sshRetries = 6;
+            String username = options.getUsername();
+            String password = options.getPassword();
+            int sshRetries = options.getSshRetries();
             int retryDelay = 1;
 
-            doCreateContainer(proxyUri, name, number, zooKeeperUrl, isEnsembleServer, debugContainer, path, host, port, username, password, sshRetries, retryDelay);
+            for (int i = 0; i < options.getNumber(); i++) {
+
+                String containerName = options.getName();
+                if (options.getNumber() != 1) {
+                    containerName += i + 1;
+                }
+                CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
+                metadata.setContainerName(containerName);
+                String script = buildStartupScript(options.name(containerName));
+                try {
+                    runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+                    result.add(metadata);
+                } catch (Exception ex) {
+                    //Skip this node.
+                }
+            }
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
+        return result;
     }
 
-    @Override
-    public boolean create(CreateContainerArguments createArgs, String name, String zooKeeperUrl) throws Exception {
-        if (createArgs instanceof CreateSshContainerArguments) {
-            CreateSshContainerArguments args = (CreateSshContainerArguments) createArgs;
-            boolean isClusterServer = args.isEnsembleServer();
-            boolean debugContainer = args.isDebugContainer();
-            int number = args.getNumber();
-            String path = args.getPath();
-            String host = args.getHost();
-            int port = args.getPort();
-            String username = args.getUsername();
-            String password = args.getPassword();
-            int sshRetries = args.getSshRetries();
-            int retryDelay = args.getRetryDelay();
-            URI proxyUri = args.getProxyUri();
-            doCreateContainer(proxyUri, name, number, zooKeeperUrl, isClusterServer, debugContainer, path, host, port, username, password, sshRetries, retryDelay);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    protected void doCreateContainer(URI proxyUri, String name, int number, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer, String path, String host, int port, String username, String password, int sshRetries, int retryDelay) throws Exception {
-        for (int i = 0; i < number; i++) {
-            String containerName = name;
-            if (number != 1) {
-                containerName += i + 1;
-            }
-            String script = buildStartupScript(proxyUri, containerName, path, zooKeeperUrl, DEFAULT_SSH_PORT + i, isEnsembleServer, debugContainer);
-            createContainer(host, port, username, password, script, sshRetries, retryDelay);
-        }
-    }
-
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     *
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name             The name of the Container.
-     * @param zooKeeperUrl     The url of Zoo Keeper.
-     */
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl) {
-        create(proxyUri, containerUri, name, zooKeeperUrl, false, false);
-    }
-
-    protected void createContainer(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
+    protected void runScriptOnHost(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
         Session session = null;
         Exception connectException = null;
         for (int i = 0; i < sshRetries; i++) {
@@ -185,7 +135,7 @@ public class SshContainerProvider implements ContainerProvider {
                     break;
                 }
             }
-            if (debug) {
+            if (verbose) {
                 System.out.println("Output : " + output.toString());
                 System.out.println("Error : " + error.toString());
             }

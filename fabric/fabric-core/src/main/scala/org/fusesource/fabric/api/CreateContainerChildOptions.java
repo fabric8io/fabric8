@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fusesource.fabric.api;
 
-import java.io.Serializable;
-
-/**
- */
-public interface CreateContainerArguments extends Serializable {
+public class CreateContainerChildOptions extends CreateContainerBasicOptions<CreateContainerChildOptions> {
 }

@@ -20,7 +20,11 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
+
+import java.net.URI;
 
 @Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers")
 public class ContainerCreate extends ContainerCreateSupport {
@@ -30,6 +34,8 @@ public class ContainerCreate extends ContainerCreateSupport {
 
     @Option(name = "--url", multiValued = false, required = false, description = "The URL")
     private String url;
+    @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
+    private URI proxyUri;
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
@@ -40,11 +46,28 @@ public class ContainerCreate extends ContainerCreateSupport {
         // validate input before creating containers
         preCreateContainer(name);
 
+        String type = null;
         if (url == null && parent != null) {
             url = "child://" + parent;
+        } else if (parent == null && url != null) {
+            URI uri = new URI(url);
+            type = uri.getScheme();
+            if ("child".equals(type)) {
+                parent = uri.getHost();
+            }
         }
 
-        Container[] containers = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
+        CreateContainerOptions args = CreateContainerOptionsBuilder.type(type).
+                name(name)
+                .parent(parent)
+                .number(number)
+                .debugContainer(debugContainer)
+                .ensembleServer(isEnsembleServer)
+                .providerUri(url)
+                .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
+                .zookeeperUrl(fabricService.getZookeeperUrl());
+
+        Container[] containers = fabricService.createContainers(args);
         // and set its profiles and versions after creation
         postCreateContainer(containers);
         return null;
