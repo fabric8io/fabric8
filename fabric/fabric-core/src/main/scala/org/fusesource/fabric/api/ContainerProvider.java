@@ -29,6 +29,9 @@ public interface ContainerProvider<O extends CreateContainerOptions, M extends C
 
     /**
      * Creates a container using a set of arguments
+     * @param options   The {@link CreateContainerOptions} that will be used to build the container.
+     * @return          A set of {@link CreateContainerMetadata}, which contains information about the created container.
+     * @throws Exception
      */
     Set<M> create(O options) throws Exception;
 }

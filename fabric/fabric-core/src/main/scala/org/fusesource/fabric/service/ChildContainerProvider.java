@@ -33,7 +33,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
     @Override
     public Set<CreateContainerChildMetadata> create(final CreateContainerChildOptions options) throws Exception {
-        Set<CreateContainerChildMetadata> result = new LinkedHashSet<CreateContainerChildMetadata>();
+        final Set<CreateContainerChildMetadata> result = new LinkedHashSet<CreateContainerChildMetadata>();
         String parentName = options.getParent();
         final Container parent = service.getContainer(parentName);
         ContainerTemplate containerTemplate = service.getContainerTemplate(parent);
@@ -68,6 +68,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                     CreateContainerChildMetadata metadata = new CreateContainerChildMetadata();
                     metadata.setContainerName(containerName);
+                    result.add(metadata);
                 }
                 return null;
             }

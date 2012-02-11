@@ -111,43 +111,87 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return imageId;
     }
 
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
+    }
+
     public String getHardwareId() {
         return hardwareId;
+    }
+
+    public void setHardwareId(String hardwareId) {
+        this.hardwareId = hardwareId;
     }
 
     public String getLocationId() {
         return locationId;
     }
 
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
+    }
+
     public String getGroup() {
         return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public String getUser() {
         return user;
     }
 
+    public void setUser(String user) {
+        this.user = user;
+    }
+
     public String getProviderName() {
         return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
     public JCloudsInstanceType getInstanceType() {
         return instanceType;
     }
 
+    public void setInstanceType(JCloudsInstanceType instanceType) {
+        this.instanceType = instanceType;
+    }
+
     public String getIdentity() {
         return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
     }
 
     public String getCredential() {
         return credential;
     }
 
+    public void setCredential(String credential) {
+        this.credential = credential;
+    }
+
     public String getOwner() {
         return owner;
     }
 
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     public Integer getServicePort() {
         return servicePort;
+    }
+
+    public void setServicePort(Integer servicePort) {
+        this.servicePort = servicePort;
     }
 }

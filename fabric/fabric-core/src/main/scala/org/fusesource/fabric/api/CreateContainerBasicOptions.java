@@ -91,39 +91,75 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return (T) this;
     }
 
+    public String getProviderType() {
+        return providerURI != null ? providerURI.getScheme() : providerType;
+    }
+
+    public void setProviderType(String providerType) {
+        this.providerType = providerType;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getParent() {
         return parent;
     }
 
-    public String getProviderType() {
-        return providerURI != null ? providerURI.getScheme() : providerType;
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 
     public URI getProviderURI() {
         return providerURI;
     }
 
+    public void setProviderURI(URI providerURI) {
+        this.providerURI = providerURI;
+    }
+
     public boolean isEnsembleServer() {
         return ensembleServer;
+    }
+
+    public void setEnsembleServer(boolean ensembleServer) {
+        this.ensembleServer = ensembleServer;
     }
 
     public boolean isDebugContainer() {
         return debugContainer;
     }
 
-    public int getNumber() {
+    public void setDebugContainer(boolean debugContainer) {
+        this.debugContainer = debugContainer;
+    }
+
+    public Integer getNumber() {
         return number;
+    }
+
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public URI getProxyUri() {
         return proxyUri;
     }
 
+    public void setProxyUri(URI proxyUri) {
+        this.proxyUri = proxyUri;
+    }
+
     public String getZookeeperUrl() {
         return zookeeperUrl;
+    }
+
+    public void setZookeeperUrl(String zookeeperUrl) {
+        this.zookeeperUrl = zookeeperUrl;
     }
 }

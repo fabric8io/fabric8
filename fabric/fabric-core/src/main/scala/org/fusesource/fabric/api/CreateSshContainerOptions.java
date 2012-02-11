@@ -87,6 +87,10 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         }
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public String getPassword() {
         try {
         return password != null && !password.isEmpty() ? password : getProviderURI().getUserInfo().split(":")[1];
@@ -95,8 +99,16 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         }
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getHost() {
         return host != null && !host.isEmpty() ? host : getProviderURI().getHost();
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public Integer getPort() {
@@ -104,15 +116,31 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                 (getProxyUri().getPort() != 0 ? getProxyUri().getPort() : DEFAULT_SSH_PORT);
     }
 
-    public String getPath() {
-        return path;
+    public void setPort(Integer port) {
+        this.port = port;
     }
 
     public Integer getSshRetries() {
         return sshRetries != null ? sshRetries : DEFAULT_SSH_RETRIES;
     }
 
+    public void setSshRetries(Integer sshRetries) {
+        this.sshRetries = sshRetries;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public Integer getRetryDelay() {
         return retryDelay;
+    }
+
+    public void setRetryDelay(Integer retryDelay) {
+        this.retryDelay = retryDelay;
     }
 }

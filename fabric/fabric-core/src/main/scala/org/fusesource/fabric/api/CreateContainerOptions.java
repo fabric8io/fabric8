@@ -24,20 +24,29 @@ import java.net.URI;
 public interface CreateContainerOptions extends Serializable {
 
     public String getName();
+    public void setName(String name);
 
     public String getParent();
+    public void setParent(String parent);
 
     public String getProviderType();
+    public void setProviderType(String providerType);
 
     public URI getProviderURI();
+    public void setProviderURI(URI providerURI);
 
     public boolean isEnsembleServer();
+    public void setEnsembleServer(boolean setEnsembleServer);
 
     public boolean isDebugContainer();
+    public void setDebugContainer(boolean debugContainer);
 
-    public int getNumber();
+    public Integer getNumber();
+    public void setNumber(Integer number);
 
     public URI getProxyUri();
+    public void setProxyUri(URI proxyUri);
 
     public String getZookeeperUrl();
+    public void setZookeeperUrl(String zookeeperUrl);
 }
