@@ -19,23 +19,16 @@ package org.fusesource.fabric.service.jclouds;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerArguments;
-import org.fusesource.fabric.api.CreateJCloudsContainerArguments;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.JCloudsInstanceType;
+import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.ComputeServiceContextFactory;
@@ -47,21 +40,12 @@ import org.jclouds.domain.Credentials;
 import org.jclouds.rest.RestContextFactory;
 
 
-import static org.fusesource.fabric.internal.ContainerProviderUtils.DEFAULT_SSH_PORT;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartupScript;
 
 /**
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that creates {@link org.fusesource.fabric.api.Container}s via jclouds {@link ComputeService}.
  */
-public class JcloudsContainerProvider implements ContainerProvider {
-
-    private static final String IMAGE_ID = "imageId";
-    private static final String LOCATION_ID = "locationId";
-    private static final String HARDWARE_ID = "hardwareId";
-    private static final String USER = "user";
-    private static final String GROUP = "group";
-
-    private static final String INSTANCE_TYPE = "instanceType";
+public class JcloudsContainerProvider implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
@@ -87,137 +71,30 @@ public class JcloudsContainerProvider implements ContainerProvider {
         return computeServiceMap;
     }
 
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri         The uri of the maven proxy to use.
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name             The name of the Container.
-     * @param zooKeeperUrl     The url of Zoo Keeper.
-     * @param isEnsembleServer           Marks if the container will have the role of the ensemble server.
-     * @param debugContainer
-     */
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer) {
-           create(proxyUri, containerUri,name,zooKeeperUrl,isEnsembleServer,debugContainer,1);
-    }
+    public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException {
+        Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
 
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri          The uri of the maven proxy to use.
-     * @param containerUri      The uri that contains required information to build the Container.
-     * @param name              The name of the Container.
-     * @param zooKeeperUrl      The url of Zoo Keeper.
-     * @param isEnsembleServer   Marks if the container will have the role of the cluster server.
-     * @param debugContainer        Flag used to enable debugging on the new Container.
-     * @param number            The number of Container to create.
-     */
-    @Override
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer, int number) {
-        String imageId = null;
-        String hardwareId = null;
-        String locationId = null;
-        String group = null;
-        String user = null;
-        JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
-        String identity = null;
-        String credential = null;
-        String owner = null;
-
-        try {
-            String providerName = containerUri.getHost();
-
-            if (containerUri.getQuery() != null) {
-                Map<String, String> parameters = parseQuery(containerUri.getQuery());
-                if (parameters != null) {
-                    imageId = parameters.get(IMAGE_ID);
-                    group = parameters.get(GROUP);
-                    locationId = parameters.get(LOCATION_ID);
-                    hardwareId = parameters.get(HARDWARE_ID);
-                    user = parameters.get(USER);
-                    if (parameters.get(INSTANCE_TYPE) != null) {
-                        instanceType = JCloudsInstanceType.get(parameters.get(INSTANCE_TYPE), instanceType);
-                    }
-                }
-            }
-
-            doCreateContainer(proxyUri, name, number, zooKeeperUrl, isEnsembleServer, debugContainer, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, DEFAULT_SSH_PORT);
-        } catch (FabricException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    /**
-     * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri         The uri of the maven proxy to use.
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name             The name of the Container.
-     * @param zooKeeperUrl     The url of Zoo Keeper.
-     */
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl) {
-        create(proxyUri,containerUri, name, zooKeeperUrl);
-    }
-
-    @Override
-    public boolean create(CreateContainerArguments createArgs, String name, String zooKeeperUrl) throws Exception {
-        if (createArgs instanceof CreateJCloudsContainerArguments) {
-            CreateJCloudsContainerArguments args = (CreateJCloudsContainerArguments) createArgs;
-            return doCreateContainer(args, name, zooKeeperUrl, DEFAULT_SSH_PORT) != null;
-        }
-        return false;
-    }
-
-    protected String doCreateContainer(CreateJCloudsContainerArguments args, String name, String zooKeeperUrl, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
-        boolean isClusterServer = args.isEnsembleServer();
-        boolean debugContainer = args.isDebugContainer();
-        int number = args.getNumber();
-        String imageId = args.getImageId();
-        String hardwareId = args.getHardwareId();
-        String locationId = args.getLocationId();
-        String group = args.getGroup();
-        String user = args.getUser();
-        JCloudsInstanceType instanceType = args.getInstanceType();
-        String providerName = args.getProviderName();
-        String identity = args.getIdentity();
-        String credential = args.getCredential();
-        String owner = args.getOwner();
-        URI proxyURI = args.getProxyUri();
-
-        return doCreateContainer(proxyURI, name, number, zooKeeperUrl, isClusterServer, debugContainer, imageId, hardwareId, locationId, group, user, instanceType, providerName, identity, credential, owner, returnPort);
-    }
-
-    /**
-     * Creates a new fabric on a remote JClouds machine, returning the new ZK connection URL
-     */
-    public String createClusterServer(CreateJCloudsContainerArguments createArgs, String name) throws Exception {
-        // TODO how can we get this value from the tarball I wonder, in case it ever changes?
-        int zkPort = 2181;
-        createArgs.setEnsembleServer(true);
-        return doCreateContainer(createArgs, name, null, zkPort);
-    }
-
-    protected String doCreateContainer(URI proxyUri, String name, int number, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer, String imageId, String hardwareId, String locationId, String group, String user, JCloudsInstanceType instanceType, String providerName, String identity, String credential, String owner, int returnPort) throws MalformedURLException, RunNodesException, URISyntaxException {
-        ComputeService computeService = computeServiceMap.get(providerName);
+        ComputeService computeService = computeServiceMap.get(options.getProviderName());
         if (computeService == null) {
-            //Iterable<? extends Module> modules = ImmutableSet.of(new Log4JLoggingModule(), new JschSshClientModule());
+
             Iterable<? extends Module> modules = ImmutableSet.of();
 
             Properties props = new Properties();
-            props.put("provider", providerName);
-            props.put("identity", identity);
-            props.put("credential", credential);
-            if (!Strings.isNullOrEmpty(owner)) {
-                props.put("jclouds.ec2.ami-owners", owner);
+            props.put("provider", options.getProviderName());
+            props.put("identity", options.getIdentity());
+            props.put("credential", options.getCredential());
+            if (!Strings.isNullOrEmpty(options.getOwner()) && options.getProviderName().equals("aws-ec2")) {
+                props.put("jclouds.ec2.ami-owners", options.getOwner());
             }
 
             RestContextFactory restFactory = new RestContextFactory();
-            ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(providerName, identity, credential, modules, props);
+            ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(options.getProviderName(), options.getIdentity(), options.getCredential(), modules, props);
             computeService = context.getComputeService();
         }
 
         TemplateBuilder builder = computeService.templateBuilder();
         builder.any();
-        switch (instanceType) {
+        switch (options.getInstanceType()) {
             case Smallest:
                 builder.smallest();
                 break;
@@ -228,29 +105,32 @@ public class JcloudsContainerProvider implements ContainerProvider {
                 builder.fastest();
         }
 
-        if (locationId != null) {
-            builder.locationId(locationId);
+        if (options.getLocationId() != null) {
+            builder.locationId(options.getLocationId());
         }
-        if (imageId != null) {
-            builder.imageId(imageId);
+        if (options.getImageId() != null) {
+            builder.imageId(options.getImageId());
         }
-        if (hardwareId != null) {
-            builder.hardwareId(hardwareId);
+        if (options.getHardwareId() != null) {
+            builder.hardwareId(options.getHardwareId());
         }
 
         Set<? extends NodeMetadata> metadatas = null;
-        Credentials credentials = null;
-        if (user != null && credentials == null) {
-            credentials = new Credentials(user, null);
-        }
 
-        metadatas = computeService.createNodesInGroup(group, number, builder.build());
+        metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
 
         int suffix = 1;
         StringBuilder buffer = new StringBuilder();
         boolean first = true;
         if (metadatas != null) {
             for (NodeMetadata nodeMetadata : metadatas) {
+                Credentials credentials = null;
+                //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
+                if (options.getUser() != null) {
+                    credentials = new Credentials(options.getUser(), nodeMetadata.getCredentials().credential);
+                } else {
+                    credentials = nodeMetadata.getCredentials();
+                }
                 String id = nodeMetadata.getId();
                 Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
                 for (String pa: publicAddresses) {
@@ -259,21 +139,29 @@ public class JcloudsContainerProvider implements ContainerProvider {
                     } else {
                         buffer.append(",");
                     }
-                    buffer.append(pa + ":" + returnPort);
+                    buffer.append(pa + ":" + options.getServicePort());
                 }
-                String containerName = name;
-                if(number > 1) {
+                String containerName = options.getName();
+                if(options.getNumber() > 1) {
                     containerName+=suffix++;
                 }
-                String script = buildStartupScript(proxyUri, containerName, "~/", zooKeeperUrl, DEFAULT_SSH_PORT,isEnsembleServer, debugContainer);
+                String script = buildStartupScript(options.name(containerName));
                 if (credentials != null) {
                     computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                 } else {
                     computeService.runScriptOnNode(id, script);
                 }
+
+                CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
+                jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
+                jCloudsContainerMetadata.setContainerName(containerName);
+                jCloudsContainerMetadata.setPublicAddresses(nodeMetadata.getPublicAddresses());
+                jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
+
             }
         }
-        return buffer.toString();
+
+        return result;
     }
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {

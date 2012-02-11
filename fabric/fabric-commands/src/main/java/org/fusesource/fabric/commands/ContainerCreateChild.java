@@ -19,6 +19,8 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers")
@@ -38,7 +40,16 @@ public class ContainerCreateChild extends ContainerCreateSupport {
         
         // okay create child container
         String url = "child://" + parent;
-        Container[] containers = fabricService.createContainers(url, name, isEnsembleServer, debugContainer, number);
+        CreateContainerOptions options = CreateContainerOptionsBuilder.child()
+                .name(name)
+                .parent(parent)
+                .providerUri(url)
+                .ensembleServer(isEnsembleServer)
+                .debugContainer(debugContainer)
+                .number(number)
+                .zookeeperUrl(fabricService.getZookeeperUrl());
+
+        Container[] containers = fabricService.createContainers(options);
         // and set its profiles and versions after creation
         postCreateContainer(containers);
         return null;
@@ -47,7 +58,6 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     @Override
     protected void preCreateContainer(String name) {
         super.preCreateContainer(name);
-
         // validate number is not out of bounds
         if (number < 1 || number > 99) {
             throw new IllegalArgumentException("The number of containers must be between 1 and 99.");

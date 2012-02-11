@@ -16,14 +16,14 @@
  */
 package org.fusesource.fabric.service;
 
-import java.net.URI;
 import org.apache.karaf.admin.management.AdminServiceMBean;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerArguments;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.internal.FabricConstants;
 
-public class ChildContainerProvider implements ContainerProvider {
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
 
     final FabricServiceImpl service;
 
@@ -32,13 +32,14 @@ public class ChildContainerProvider implements ContainerProvider {
     }
 
     @Override
-    public void create(URI proxyUri, final URI containerUri, final String name, final String zooKeeperUrl, final boolean isEnsembleServer, final boolean debugContainer, final int number) {
-        String parentName = FabricServiceImpl.getParentFromURI(containerUri);
+    public Set<CreateContainerChildMetadata> create(final CreateContainerChildOptions options) throws Exception {
+        Set<CreateContainerChildMetadata> result = new LinkedHashSet<CreateContainerChildMetadata>();
+        String parentName = options.getParent();
         final Container parent = service.getContainer(parentName);
         ContainerTemplate containerTemplate = service.getContainerTemplate(parent);
 
         //Retrieve the credentials from the URI if available.
-        String ui = containerUri.getUserInfo();
+        String ui = options.getProviderURI().getUserInfo();
         String[] uip = ui != null ? ui.split(":") : null;
         if (uip != null) {
             containerTemplate.setLogin(uip[0]);
@@ -47,41 +48,30 @@ public class ChildContainerProvider implements ContainerProvider {
 
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
-                if (debugContainer) {
+                String javaOpts =  options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\" -Xmx512M -server" : "";
+                if (options.isDebugContainer()) {
                     javaOpts += DEBUG_CONTAINER;
                 }
-                if (isEnsembleServer) {
+                if (options.isEnsembleServer()) {
                     javaOpts += ENSEMBLE_SERVER_CONTAINER;
                 }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
 
-                for (int i = 1; i <= number; i++) {
-                    String containerName = name;
-                    if (number > 1) {
+                for (int i = 1; i <= options.getNumber(); i++) {
+                    String containerName = options.getName();
+                    if (options.getNumber() > 1) {
                         containerName += i;
                     }
                     adminService.createInstance(containerName, 0, 0, 0, null, javaOpts, features, featuresUrls);
                     adminService.startInstance(containerName, null);
+
+                    CreateContainerChildMetadata metadata = new CreateContainerChildMetadata();
+                    metadata.setContainerName(containerName);
                 }
                 return null;
             }
         });
-    }
-
-    @Override
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer) {
-        create(proxyUri, containerUri, name, zooKeeperUrl, isEnsembleServer, debugContainer,1);
-    }
-
-    @Override
-    public void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl) {
-        create(proxyUri, containerUri, name, zooKeeperUrl,false, false);
-    }
-
-    @Override
-    public boolean create(CreateContainerArguments args, String name, String zooKeeperUrl) throws Exception {
-        return false;
+        return result;
     }
 }

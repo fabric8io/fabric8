@@ -21,9 +21,7 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateJCloudsContainerArguments;
-import org.fusesource.fabric.api.JCloudsInstanceType;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
@@ -61,26 +59,25 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         // validate input before creating containers
         preCreateContainer(name);
 
-        CreateJCloudsContainerArguments args = new CreateJCloudsContainerArguments();
-        args.setEnsembleServer(isEnsembleServer);
-        args.setCredential(credential);
-        args.setDebugContainer(debugContainer);
-        args.setGroup(group);
-        args.setHardwareId(hardwareId);
-        args.setIdentity(identity);
-        args.setImageId(imageId);
-        args.setInstanceType(instanceType);
-        args.setLocationId(locationId);
-        args.setNumber(number);
-        args.setOwner(owner);
-        args.setProviderName(providerName);
-        args.setUser(user);
-        if (proxyUri != null) {
-            args.setProxyUri(proxyUri);
-        } else {
-            args.setProxyUri(fabricService.getMavenRepoURI());
-        }
-        Container[] containers = fabricService.createContainer(args, name, number);
+        CreateContainerOptions args = CreateContainerOptionsBuilder.jclouds()
+        .name(name)
+        .ensembleServer(isEnsembleServer)
+        .credential(credential)
+        .debugContainer(debugContainer)
+        .group(group)
+        .hardwareId(hardwareId)
+        .identity(identity)
+        .imageId(imageId)
+        .instanceType(instanceType)
+        .locationId(locationId)
+        .number(number)
+        .owner(owner)
+        .providerName(providerName)
+        .user(user)
+        .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
+        .zookeeperUrl(fabricService.getZookeeperUrl());;
+
+        Container[] containers = fabricService.createContainers(args);
         // and set its profiles and versions after creation
         postCreateContainer(containers);
         return null;

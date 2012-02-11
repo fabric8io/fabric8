@@ -22,6 +22,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 
 public class ContainerProviderUtils {
@@ -35,26 +37,26 @@ public class ContainerProviderUtils {
         //Utility Class
     }
 
-    public static String buildStartupScript(URI proxy, String name, String path,  String zooKeeperUrl, int sshPort, boolean isClusterServer, boolean debugContainer) throws MalformedURLException {
+    public static String buildStartupScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
         sb.append("run mkdir -p ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
-        sb.append("run mkdir -p ").append(name).append("\n");
-        sb.append("run cd ").append(name).append("\n");
-        extractTargzIntoDirectory(sb, proxy, "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
+        sb.append("run mkdir -p ").append(options.getName()).append("\n");
+        sb.append("run cd ").append(options.getName()).append("\n");
+        extractTargzIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd ").append("fuse-fabric-" + FabricConstants.FABRIC_VERSION).append("\n");
         List<String> lines = new ArrayList<String>();
         appendFile(sb, "etc/startup.properties", lines);
-        replaceLineInFile(sb,"etc/system.properties","karaf.name=root","karaf.name = "+name);
-        replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+sshPort);
+        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name = " +options.getName());
+        replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+DEFAULT_SSH_PORT);
         appendFile(sb, "etc/system.properties",Arrays.asList("\n"));
-        if(isClusterServer) {
+        if(options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"));
         } else {
-            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + zooKeeperUrl));
+            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
         }
-        if(debugContainer) {
+        if(options.isDebugContainer()) {
            sb.append("run export KARAF_DEBUG=true").append("\n");
         }
         appendToLineInFile(sb,"etc/org.apache.karaf.features.cfg","featuresBoot=","fabric-agent,");

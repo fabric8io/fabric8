@@ -16,51 +16,19 @@
  */
 package org.fusesource.fabric.api;
 
-import java.net.URI;
+import java.util.Set;
 
 /**
  * A Factory that creates {@link Container}.
  */
-public interface ContainerProvider {
+public interface ContainerProvider<O extends CreateContainerOptions, M extends CreateContainerMetadata> {
 
     static final String DEBUG_CONTAINER =" -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005";
     static final String ENSEMBLE_SERVER_CONTAINER =" -D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true";
     static final String PROTOCOL = "fabric.container.protocol";
 
     /**
-     * Creates an {@link Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri     The uri of the maven proxy to use.
-     * @param containerUri The uri that contains required information to build the Container.
-     * @param name         The name of the Container.
-     * @param zooKeeperUrl The url of Zoo Keeper.
-     */
-    void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl);
-
-    /**
-     * Creates an {@link Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri         The uri of the maven proxy to use.
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name             The name of the Container.
-     * @param zooKeeperUrl     The url of Zoo Keeper.
-     * @param isEnsembleServer Marks that the Container will have the role of ensemble server.
-     * @param debugContainer   Flag used to enable debugging on the new Container.
-     */
-    void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer);
-
-    /**
-     * Creates an {@link Container} with the given name pointing to the specified zooKeeperUrl.
-     * @param proxyUri         The uri of the maven proxy to use.
-     * @param containerUri     The uri that contains required information to build the Container.
-     * @param name             The name of the Container.
-     * @param zooKeeperUrl     The url of Zoo Keeper.
-     * @param isEnsembleServer Marks that the Container will have the role of ensemble server.
-     * @param debugContainer   Flag used to enable debugging on the new Container.
-     * @param number           The number of Container to create.
-     */
-    void create(URI proxyUri, URI containerUri, String name, String zooKeeperUrl, boolean isEnsembleServer, boolean debugContainer, int number);
-
-    /**
      * Creates a container using a set of arguments
      */
-    boolean create(CreateContainerArguments args, String name, String zooKeeperUrl) throws Exception;
+    Set<M> create(O options) throws Exception;
 }

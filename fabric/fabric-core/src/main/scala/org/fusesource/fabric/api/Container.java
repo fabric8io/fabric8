@@ -46,6 +46,9 @@ public interface Container {
     String getLocation();
     void setLocation(String location);
 
+    CreateContainerMetadata getCreateContainerMetadata();
+    void setCreateContainerMetadata(CreateContainerMetadata createContainerMetadata);
+
     void start();
     void stop();
     void destroy();
@@ -73,4 +76,5 @@ public interface Container {
     String getProvisionException();
     
     String getProvisionStatus();
+
 }
