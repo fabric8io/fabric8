@@ -209,6 +209,14 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     public Container[] createContainers(final CreateContainerOptions options) {
 
         Container[] containers = new Container[options.getNumber()];
+        if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
+            options.setZookeeperUrl(getZookeeperUrl());
+        }
+
+        if (options.getProxyUri() == null) {
+            options.setProxyUri(getMavenRepoURI());
+        }
+
         try {
 
             ContainerProvider provider = getProvider(options.getProviderType());

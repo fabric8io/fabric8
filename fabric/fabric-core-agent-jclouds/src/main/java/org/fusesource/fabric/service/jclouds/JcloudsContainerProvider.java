@@ -157,6 +157,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 jCloudsContainerMetadata.setContainerName(containerName);
                 jCloudsContainerMetadata.setPublicAddresses(nodeMetadata.getPublicAddresses());
                 jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
+                result.add(jCloudsContainerMetadata);
 
             }
         }

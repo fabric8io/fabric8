@@ -23,22 +23,64 @@ public interface FabricService {
 
     static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public-snapshots/";
 
+    /**
+     * Gets the existing {@link Container}s.
+     * @return An array of @{link Container}s
+     */
     Container[] getContainers();
 
+    /**
+     * Finds the {@link Container} with the specified name.
+     * @param name  The name of the {@link Container}.
+     * @return      The {@link Container}.
+     */
     Container getContainer(String name);
 
-    Container[] createContainers(CreateContainerOptions args);
+    /**
+     * Creates one or more new {@link Container}s with the specified {@link CreateContainerOptions}.
+     * @param options   The options for the creation of the {@link Container}.
+     * @return          An array of the created {@llink Container}s
+     */
+    Container[] createContainers(CreateContainerOptions options);
 
+    /**
+     * Returns the default {@link Version}.
+     * @return
+     */
     Version getDefaultVersion();
 
+    /**
+     * Sets the default {@link Version}.
+     * @param version
+     */
     void setDefaultVersion( Version version );
 
+    /**
+     * Returns all {@link Version}s.
+     * @return
+     */
     Version[] getVersions();
 
+    /**
+     * Finds the {@link Version} with the specified name.
+     * @param name  The name of the {@link Version}.
+     * @return      The {@link Version} that mathces the name.
+     */
     Version getVersion(String name);
 
+    /**
+     * Creates a new {@link Version}.
+     * @param version   The name of the {@link Version} to be created.
+     * @return          The new {@link Version}.
+     */
     Version createVersion(String version);
 
+    /**
+     * Creates a new {@link Version} with the specified parent {@link Version} and name.
+     * @param parent        The parent {@link Version}
+     * @param version       The name of the new {@link Version}.
+     * @return
+     */
     Version createVersion(Version parent, String version);
 
     /**
@@ -46,17 +88,51 @@ public interface FabricService {
      */
     URI getMavenRepoURI();
 
+    /**
+     * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
+     * It's of the format <p>ip:port</p>
+     * @return
+     */
     String getZookeeperUrl();
 
+    /**
+     * Returns all the {@link Profile}s for the specified {@link Version}.
+     * @param version   The {@link Version} that will be used for querying {@link Profile}s.
+     * @return          The matching {@link Profile}s.
+     */
     Profile[] getProfiles(String version);
 
+    /**
+     * Gets the {@link Profile} that matches the specified {@link Version} and name.
+     * @param version
+     * @param name
+     * @return
+     */
     Profile getProfile(String version, String name);
 
+    /**
+     * Creates a new {@link Profile} with the specified {@link Version} and name.
+     * @param version   The string value of the {@link Version}.
+     * @param name      The name of the new {@link Profile}.
+     * @return
+     */
     Profile createProfile(String version, String name);
 
+    /**
+     * Deletes the specified {@link Profile}.
+     * @param profile
+     */
     void deleteProfile(Profile profile);
 
+    /**
+     * Returns the {@link Container} on which the method is executed.
+     * @return
+     */
     Container getCurrentContainer();
 
+    /**
+     * Returns the name of the current {@link Container}.
+     * @return
+     */
     String getCurrentContainerName();
 }
