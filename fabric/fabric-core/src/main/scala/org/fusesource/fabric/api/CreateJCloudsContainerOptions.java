@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Arguments for creating a new container via JClouds
  */
@@ -29,7 +32,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String group;
     private String user;
     private String providerName;
-    private JCloudsInstanceType instanceType;
+    private JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
     private String identity;
     private String credential;
     private String owner;
@@ -37,6 +40,23 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public CreateJCloudsContainerOptions() {
         this.providerType = "jclouds";
+    }
+
+    /**
+     * Converts provider URI Query to a Map.
+     * @return
+     */
+    private  Map<String, String> getParameters()
+    {
+        String[] params = providerURI.getQuery().split("&");
+        Map<String, String> map = new HashMap<String, String>();
+        for (String param : params)
+        {
+            String name = param.split("=")[0];
+            String value = param.split("=")[1];
+            map.put(name, value);
+        }
+        return map;
     }
 
     @Override
@@ -108,15 +128,15 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getImageId() {
-        return imageId;
+        return imageId != null ? imageId : getParameters().get("imageId");
     }
 
     public void setImageId(String imageId) {
-        this.imageId = imageId;
+         this.imageId = imageId;
     }
 
     public String getHardwareId() {
-        return hardwareId;
+        return hardwareId != null ? hardwareId : getParameters().get("hardwareId");
     }
 
     public void setHardwareId(String hardwareId) {
@@ -124,7 +144,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getLocationId() {
-        return locationId;
+        return locationId != null ? locationId : getParameters().get("locationId");
     }
 
     public void setLocationId(String locationId) {
@@ -132,7 +152,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getGroup() {
-        return group;
+        return group != null ? group : getParameters().get("group");
     }
 
     public void setGroup(String group) {
@@ -140,7 +160,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getUser() {
-        return user;
+        return user != null ? user : getParameters().get("user");
     }
 
     public void setUser(String user) {
@@ -148,7 +168,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getProviderName() {
-        return providerName;
+        return providerName != null ? providerName : providerURI.getHost();
     }
 
     public void setProviderName(String providerName) {
@@ -194,4 +214,5 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     public void setServicePort(Integer servicePort) {
         this.servicePort = servicePort;
     }
+
 }

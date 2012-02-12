@@ -237,7 +237,11 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
             containers = new Container[createMetadata.size()];
             int container = 0;
             for(CreateContainerMetadata metadata : createMetadata) {
-                createContainerConfig(parent, metadata.getContainerName());
+                //An ensemble server can be created without an existing ensemble.
+                //In this case container config will be created by the newly created container.
+                if (!options.isEnsembleServer()) {
+                    createContainerConfig(parent, metadata.getContainerName());
+                }
                 containers[container] = new ContainerImpl(parentContainer, metadata.getContainerName(), FabricServiceImpl.this);
                 containers[container++].setCreateContainerMetadata(metadata);
             }
