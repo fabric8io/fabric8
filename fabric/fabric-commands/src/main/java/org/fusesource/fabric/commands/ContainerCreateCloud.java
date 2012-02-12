@@ -27,6 +27,9 @@ import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
 
+    static final String DISPLAY_FORMAT = "%12s %-30s %30s";
+    static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]" };
+
     @Option(name = "--provider", required = true, description = "JClouds provider name")
     private String providerName;
     @Option(name = "--identity", required = true, description = "The cloud identity to use")
@@ -75,9 +78,16 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .providerName(providerName)
         .user(user)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-        .zookeeperUrl(fabricService.getZookeeperUrl());;
+        .zookeeperUrl(fabricService.getZookeeperUrl());
 
         Container[] containers = fabricService.createContainers(args);
+        System.out.println(String.format(DISPLAY_FORMAT,OUTPUT_HEADERS));
+        if (containers != null && containers.length > 0) {
+            for (Container container : containers) {
+                CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) container.getCreateContainerMetadata();
+                System.out.println(String.format(DISPLAY_FORMAT,metadata.getNodeId(), metadata.getContainerName(), metadata.getPublicAddresses()));
+            }
+        }
         // and set its profiles and versions after creation
         postCreateContainer(containers);
         return null;
@@ -86,7 +96,6 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     @Override
     protected void preCreateContainer(String name) {
         super.preCreateContainer(name);
-
         // validate number is not out of bounds
         if (number < 1 || number > 999) {
             // for cloud we accept 3 digits

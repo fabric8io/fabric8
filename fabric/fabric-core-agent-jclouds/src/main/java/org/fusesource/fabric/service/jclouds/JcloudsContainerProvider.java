@@ -71,8 +71,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         return computeServiceMap;
     }
 
-    public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException {
-        Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
+    public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+       final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
 
         ComputeService computeService = computeServiceMap.get(options.getProviderName());
         if (computeService == null) {
@@ -119,6 +119,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
         metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
 
+        Thread.sleep(5000);
+
         int suffix = 1;
         StringBuilder buffer = new StringBuilder();
         boolean first = true;
@@ -133,14 +135,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 }
                 String id = nodeMetadata.getId();
                 Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                for (String pa: publicAddresses) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        buffer.append(",");
-                    }
-                    buffer.append(pa + ":" + options.getServicePort());
-                }
+
                 String containerName = options.getName();
                 if(options.getNumber() > 1) {
                     containerName+=suffix++;
@@ -158,7 +153,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 jCloudsContainerMetadata.setPublicAddresses(nodeMetadata.getPublicAddresses());
                 jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
                 result.add(jCloudsContainerMetadata);
-
             }
         }
 
