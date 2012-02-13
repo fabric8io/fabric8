@@ -23,7 +23,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     private static final long serialVersionUID = -1171578973712670970L;
 
-    static final Integer DEFAULT_SSH_RETRIES = 6;
+    static final Integer DEFAULT_SSH_RETRIES = 5;
     static final Integer DEFAULT_SSH_PORT = 22;
 
     private String username;

@@ -88,7 +88,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     protected void runScriptOnHost(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
         Session session = null;
         Exception connectException = null;
-        for (int i = 0; i < sshRetries; i++) {
+        for (int i = 0; i <= sshRetries; i++) {
             if (i > 0) {
                 long delayMs = (long) (200L * Math.pow(i, 2));
                 Thread.sleep(delayMs);
