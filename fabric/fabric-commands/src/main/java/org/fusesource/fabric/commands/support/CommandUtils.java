@@ -50,6 +50,11 @@ public final class CommandUtils {
         Collections.sort(list, new Comparator<Profile>() {
             @Override
             public int compare(Profile p1, Profile p2) {
+                if (p1 == null) {
+                    return 1;
+                } else if (p2 == null) {
+                    return -1;
+                }
                 return p1.getId().compareTo(p2.getId());
             }
         });
@@ -67,15 +72,72 @@ public final class CommandUtils {
         if (containers == null || containers.length <= 1) {
             return containers;
         }
-        List<Container> list = new ArrayList<Container>(containers.length);
+
+        List<Container> list = new ArrayList<Container>();
         list.addAll(Arrays.asList(containers));
 
         Collections.sort(list, new Comparator<Container>() {
             @Override
             public int compare(Container c1, Container c2) {
+                if (c1 == null) {
+                    return 1;
+                } else if (c2 == null) {
+                    return -1;
+                }
+
+                // root should be first
+                if (c1.isRoot() && !c2.isRoot()) {
+                    return -1;
+                } else if (!c1.isRoot() && c2.isRoot()) {
+                    return 1;
+                }
+                
+                // root should include its children
+                if (c1.isRoot() && c2.getParent() == c1) {
+                    return -1;
+                } else if (c2.isRoot() && c1.getParent() == c2) {
+                    return 1;
+                }
+
+                // compare names
                 return c1.getId().compareTo(c2.getId());
             }
         });
+
+        return list.toArray(new Container[0]);
+    }
+
+    /**
+     * Filter the containers by id and profiles, using the given filter.
+     * <p/>
+     * A container will be included if its id or profile ids contains part of the given filter.
+     *
+     * @param containers the containers
+     * @param filter optional filter to match
+     * @return the matching containers
+     */
+    public static Container[] filterContainers(Container[] containers, String filter) {
+        if (containers == null || containers.length == 0) {
+            return containers;
+        }
+
+        if (filter == null || filter.trim().length() == 0) {
+            return containers;
+        }
+
+        List<Container> list = new ArrayList<Container>();
+        for (Container container : containers) {
+            if (container.getId().contains(filter)) {
+                list.add(container);
+            } else {
+                for (Profile profile : container.getProfiles()) {
+                    if (profile.getId().contains(filter)) {
+                        list.add(container);
+                        break;
+                    }
+                }
+            }
+        }
 
         return list.toArray(new Container[0]);
     }

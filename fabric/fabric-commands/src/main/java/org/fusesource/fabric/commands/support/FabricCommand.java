@@ -53,7 +53,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
     }
-    
+
     protected void checkFabricAvailable() {
         ServiceReference sr = getBundleContext().getServiceReference(IZKClient.class.getName());
         if (sr == null) {
