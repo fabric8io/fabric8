@@ -35,6 +35,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerBasicMetadata;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricException;
@@ -56,7 +57,8 @@ import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 public class FabricServiceImpl implements FabricService {
-    private transient Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
     private IZKClient zooKeeper;
     private Map<String, ContainerProvider> providers;
@@ -217,7 +219,7 @@ public class FabricServiceImpl implements FabricService {
         return parent;
     }
 
-    public Container[] createContainers(final CreateContainerOptions options) {
+    public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
         if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
             options.setZookeeperUrl(getZookeeperUrl());
         }
@@ -227,24 +229,26 @@ public class FabricServiceImpl implements FabricService {
         try {
             ContainerProvider provider = getProvider(options.getProviderType());
             if (provider == null) {
-                throw new FabricException("Unable to find an container provider type '" + options.getProviderType() + "'");
+                throw new FabricException("Unable to find a container provider supporting '" + options.getProviderType() + "'");
             }
 
             Container parent = options.getParent() != null ? getContainer(options.getParent()) : null;
-            Set<? extends CreateContainerMetadata>  createMetadata = provider.create(options);
+            Set<? extends CreateContainerMetadata>  metadatas = provider.create(options);
 
-            Container[] containers = new Container[createMetadata.size()];
-            int container = 0;
-            for (CreateContainerMetadata metadata : createMetadata) {
-                //An ensemble server can be created without an existing ensemble.
-                //In this case container config will be created by the newly created container.
-                if (!options.isEnsembleServer()) {
-                    createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
+            for (CreateContainerMetadata metadata : metadatas) {
+                if (metadata.isSuccess()) {
+                    //An ensemble server can be created without an existing ensemble.
+                    //In this case container config will be created by the newly created container.
+                    if (!options.isEnsembleServer()) {
+                        createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
+                    }
+                    ((CreateContainerBasicMetadata) metadata).setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
+                    logger.info("The container " + metadata.getContainerName() + " has been successfully created");
+                } else {
+                    logger.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
                 }
-                containers[container] = new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this);
-                containers[container++].setCreateContainerMetadata(metadata);
             }
-            return containers;
+            return metadatas.toArray(new CreateContainerMetadata[metadatas.size()]);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -262,9 +266,8 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public URI getMavenRepoURI() {
-        URI uri = null;
+        URI uri = URI.create(DEFAULT_REPO_URI);
         try {
-            uri = new URI(DEFAULT_REPO_URI);
             if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_REPO.getPath()) != null) {
                 String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_REPO.getPath());
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {

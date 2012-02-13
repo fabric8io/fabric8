@@ -16,12 +16,15 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.karaf.admin.management.AdminServiceMBean;
-import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.internal.FabricConstants;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.apache.karaf.admin.management.AdminServiceMBean;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerChildMetadata;
+import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.internal.FabricConstants;
 
 public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
 
@@ -48,7 +51,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                String javaOpts =  options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\" -Xmx512M -server" : "";
+                String javaOpts = options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\" -Xmx512M -server" : "";
                 if (options.isDebugContainer()) {
                     javaOpts += DEBUG_CONTAINER;
                 }
@@ -63,11 +66,14 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     if (options.getNumber() > 1) {
                         containerName += i;
                     }
-                    adminService.createInstance(containerName, 0, 0, 0, null, javaOpts, features, featuresUrls);
-                    adminService.startInstance(containerName, null);
-
                     CreateContainerChildMetadata metadata = new CreateContainerChildMetadata();
                     metadata.setContainerName(containerName);
+                    try {
+                        adminService.createInstance(containerName, 0, 0, 0, null, javaOpts, features, featuresUrls);
+                        adminService.startInstance(containerName, null);
+                    } catch (Throwable t) {
+                        metadata.setFailure(t);
+                    }
                     result.add(metadata);
                 }
                 return null;

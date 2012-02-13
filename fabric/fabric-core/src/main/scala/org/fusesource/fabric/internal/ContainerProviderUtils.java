@@ -97,7 +97,7 @@ public class ContainerProviderUtils {
         String artifactParentUri = proxy.resolve(directory).toString();
         String artifactUri = proxy.resolve(directory+file).toString();
 
-        //To cover the case of SNAPSHOT dependencies where URL can't be determined we are quering for the availale versions first
+        //To cover the case of SNAPSHOT dependencies where URL can't be determined we are querying for the available versions first
         if(version.contains("SNAPSHOT")) {
             sb.append("run export DISTRO_URL=`curl --silent ").append(artifactParentUri).append("| grep href | grep \"tar.gz\\\"\" | sed 's/^.*<a href=\"//' | sed 's/\".*$//'  | tail -1`").append("\n");
         } else {

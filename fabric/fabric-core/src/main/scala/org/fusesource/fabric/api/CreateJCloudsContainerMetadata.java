@@ -22,8 +22,6 @@ import java.util.Set;
 
 public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata {
 
-    private static final long serialVersionUID = 3514453494822152116L;
-
     private String nodeId;
     private String hostname;
     private Set<String> publicAddresses = new LinkedHashSet<String>();

@@ -164,7 +164,7 @@
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                                   <descriptor>file:${basedir}/target/classes/distro/fabric-features.xml</descriptor>
+                                   <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
                                </descriptors>
                                <features>
                                    <feature>fabric-agent</feature>
@@ -294,7 +294,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>target/classes/distro/fabric-features.xml</file>
+                                    <file>target/classes/fabric-features.xml</file>
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                   </artifact>

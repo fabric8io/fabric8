@@ -16,13 +16,10 @@
  */
 package org.fusesource.fabric.api;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions, Serializable {
-
-    private static final long serialVersionUID = 7806030498786182100L;
+public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
 
     protected String name;
     protected String parent;

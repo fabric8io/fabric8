@@ -16,15 +16,15 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.net.URI;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
-
-import java.net.URI;
 
 @Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers")
 public class ContainerCreate extends ContainerCreateSupport {
@@ -57,8 +57,8 @@ public class ContainerCreate extends ContainerCreateSupport {
             }
         }
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.type(type).
-                name(name)
+        CreateContainerOptions args = CreateContainerOptionsBuilder.type(type)
+                .name(name)
                 .parent(parent)
                 .number(number)
                 .debugContainer(debugContainer)
@@ -67,9 +67,11 @@ public class ContainerCreate extends ContainerCreateSupport {
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
                 .zookeeperUrl(fabricService.getZookeeperUrl());
 
-        Container[] containers = fabricService.createContainers(args);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+        // display containers
+        displayContainers(metadatas);
         // and set its profiles and versions after creation
-        postCreateContainer(containers);
+        postCreateContainers(metadatas);
         return null;
     }
 
