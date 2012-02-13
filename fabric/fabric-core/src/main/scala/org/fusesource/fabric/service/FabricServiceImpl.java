@@ -26,6 +26,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
@@ -228,12 +229,8 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
             String parent = options.getParent() != null ? options.getParent() : "";
             Container parentContainer = null;
-            String currentID = "";
-            Container currentContainer = getCurrentContainer();
-            if (currentContainer != null) {
-                currentID = currentContainer.getId();
-            }
-            if (provider instanceof ChildContainerProvider && !parent.equals(currentID)) {
+            String currentID = getCurrentContainerId();
+            if (provider instanceof ChildContainerProvider && !Objects.equal(getCurrentContainerId(), parent)) {
                 createMetadata = createChildContainer(options);
             } else {
                 createMetadata = provider.create(options);
@@ -258,11 +255,20 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return containers;
     }
 
+    private String getCurrentContainerId() {
+        String currentID = "";
+        Container currentContainer = getCurrentContainer();
+        if (currentContainer != null) {
+            currentID = currentContainer.getId();
+        }
+        return currentID;
+    }
+
     private Set<CreateContainerMetadata> createChildContainer(final CreateContainerOptions options) throws Exception {
         Set<CreateContainerMetadata> result = new LinkedHashSet<CreateContainerMetadata>();
         String parent = getParentFromURI(options.getProviderURI());
         Container parentContainer = getContainer(parent);
-        if (!getCurrentContainer().getId().equals(parent)) {
+        if (!Objects.equal(getCurrentContainerId(), parent)) {
             ContainerTemplate containerTemplate = getContainerTemplate(parentContainer);
             result = containerTemplate.execute(new ContainerTemplate.FabricServiceCallback<Set<CreateContainerMetadata>>() {
                 public Set<CreateContainerMetadata> doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
