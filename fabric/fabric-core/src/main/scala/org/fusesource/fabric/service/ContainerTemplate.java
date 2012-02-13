@@ -16,19 +16,19 @@
  */
 package org.fusesource.fabric.service;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.insight.log.service.LogQueryCallback;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
-
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A utitily class for interacting with a remote Container via JMX
@@ -70,12 +70,6 @@ public class ContainerTemplate {
 
     }
 
-    public interface FabricServiceCallback<T> {
-
-        T doWithFabricService(FabricServiceImplMBean fabricService) throws Exception;
-
-    }
-
     public interface BundleStateCallback<T> {
 
         T doWithBundleState(BundleStateMBean bundleState) throws Exception;
@@ -102,15 +96,6 @@ public class ContainerTemplate {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[]{"type", "admin", "name", container.getId()};
                 return callback.doWithAdminService(jmxTemplate.getMBean(connector, AdminServiceMBean.class, "org.apache.karaf", bean));
-            }
-        });
-    }
-
-    public <T> T execute(final FabricServiceCallback<T> callback) {
-        return jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
-            public T doWithJmxConnector(JMXConnector connector) throws Exception {
-                String[] bean = new String[]{"type", "FabricService"};
-                return callback.doWithFabricService(jmxTemplate.getMBean(connector, FabricServiceImplMBean.class, "org.fusesource.fabric", bean));
             }
         });
     }

@@ -17,14 +17,30 @@
 package org.fusesource.fabric.service;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
@@ -37,14 +53,9 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
-public class FabricServiceImpl implements FabricService, FabricServiceImplMBean {
+public class FabricServiceImpl implements FabricService {
     private transient Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
     private IZKClient zooKeeper;
@@ -207,83 +218,38 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
     }
 
     public Container[] createContainers(final CreateContainerOptions options) {
-
-        Container[] containers = new Container[options.getNumber()];
         if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
             options.setZookeeperUrl(getZookeeperUrl());
         }
-
         if (options.getProxyUri() == null) {
             options.setProxyUri(getMavenRepoURI());
         }
-
         try {
-
             ContainerProvider provider = getProvider(options.getProviderType());
             if (provider == null) {
                 throw new FabricException("Unable to find an container provider type '" + options.getProviderType() + "'");
             }
 
-            Set<? extends CreateContainerMetadata> createMetadata = new LinkedHashSet<CreateContainerMetadata>();
+            Container parent = options.getParent() != null ? getContainer(options.getParent()) : null;
+            Set<? extends CreateContainerMetadata>  createMetadata = provider.create(options);
 
-            String parent = options.getParent() != null ? options.getParent() : "";
-            Container parentContainer = null;
-            if (provider instanceof ChildContainerProvider && !getCurrentContainer().getId().equals(parent)) {
-                createMetadata = createChildContainer((CreateContainerChildOptions) options);
-            } else {
-                createMetadata = provider.create(options);
-            }
-
-            containers = new Container[createMetadata.size()];
+            Container[] containers = new Container[createMetadata.size()];
             int container = 0;
-            for(CreateContainerMetadata metadata : createMetadata) {
+            for (CreateContainerMetadata metadata : createMetadata) {
                 //An ensemble server can be created without an existing ensemble.
                 //In this case container config will be created by the newly created container.
                 if (!options.isEnsembleServer()) {
-                    createContainerConfig(parent, metadata.getContainerName());
+                    createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
                 }
-                containers[container] = new ContainerImpl(parentContainer, metadata.getContainerName(), FabricServiceImpl.this);
+                containers[container] = new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this);
                 containers[container++].setCreateContainerMetadata(metadata);
             }
+            return containers;
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
-        return containers;
-    }
-
-    private Set<CreateContainerMetadata> createChildContainer(final CreateContainerOptions options) throws Exception {
-        Set<CreateContainerMetadata> result = new LinkedHashSet<CreateContainerMetadata>();
-        String parent = getParentFromURI(options.getProviderURI());
-        Container parentContainer = getContainer(parent);
-        if (!getCurrentContainer().getId().equals(parent)) {
-            ContainerTemplate containerTemplate = getContainerTemplate(parentContainer);
-            result = containerTemplate.execute(new ContainerTemplate.FabricServiceCallback<Set<CreateContainerMetadata>>() {
-                public Set<CreateContainerMetadata> doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
-                    return (Set<CreateContainerMetadata>) fabricService.createRemoteContainer(options);
-                }
-            });
-        } else {
-            result = getProvider("child").create(options);
-        }
-        return result;
-    }
-
-    @Override
-    public Set<CreateContainerMetadata> createRemoteContainer(CreateContainerOptions args) {
-        Set<CreateContainerMetadata> result = new LinkedHashSet<CreateContainerMetadata>();
-        try {
-            Container[] containers = createContainers(args);
-            for (Container container: containers) {
-                 result.add(container.getCreateContainerMetadata());
-            }
-        } catch (FabricException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-        return result;
     }
 
     public ContainerProvider getProvider(final String scheme) {
