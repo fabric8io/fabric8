@@ -22,7 +22,8 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateSshContainerArguments;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH")
@@ -52,26 +53,22 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         // validate input before creating containers
         preCreateContainer(name);
 
-        CreateSshContainerArguments args = new CreateSshContainerArguments();
-        args.setEnsembleServer(isEnsembleServer);
-        args.setDebugContainer(debugContainer);
-        args.setNumber(number);
-        args.setHost(host);
-        args.setPath(path);
-        args.setPassword(password);
-        if (proxyUri != null) {
-            args.setProxyUri(proxyUri);
-        } else {
-            args.setProxyUri(fabricService.getMavenRepoURI());
-        }
-        args.setUsername(user);
-        if (port != null) {
-            args.setPort(port);
-        }
-        if (sshRetries != null) {
-            args.setSshRetries(sshRetries);
-        }
-        Container[] containers = fabricService.createContainer(args, name, number);
+        CreateContainerOptions args = CreateContainerOptionsBuilder.ssh()
+        .name(name)
+        .ensembleServer(isEnsembleServer)
+        .debugContainer(debugContainer)
+        .number(number)
+        .host(host)
+        .username(user)
+        .password(password)
+        .path(path)
+        .port(port)
+        .sshRetries(sshRetries)
+        .password(password)
+        .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
+        .zookeeperUrl(fabricService.getZookeeperUrl());
+
+        Container[] containers = fabricService.createContainers(args);
         // and set its profiles and versions after creation
         postCreateContainer(containers);
         return null;
@@ -85,5 +82,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         if (number < 1 || number > 99) {
             throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
         }
+
     }
 }

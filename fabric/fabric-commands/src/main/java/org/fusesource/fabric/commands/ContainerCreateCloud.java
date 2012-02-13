@@ -21,13 +21,14 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateJCloudsContainerArguments;
-import org.fusesource.fabric.api.JCloudsInstanceType;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
+
+    static final String DISPLAY_FORMAT = "%12s %-30s %30s";
+    static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]" };
 
     @Option(name = "--provider", required = true, description = "JClouds provider name")
     private String providerName;
@@ -61,26 +62,32 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         // validate input before creating containers
         preCreateContainer(name);
 
-        CreateJCloudsContainerArguments args = new CreateJCloudsContainerArguments();
-        args.setEnsembleServer(isEnsembleServer);
-        args.setCredential(credential);
-        args.setDebugContainer(debugContainer);
-        args.setGroup(group);
-        args.setHardwareId(hardwareId);
-        args.setIdentity(identity);
-        args.setImageId(imageId);
-        args.setInstanceType(instanceType);
-        args.setLocationId(locationId);
-        args.setNumber(number);
-        args.setOwner(owner);
-        args.setProviderName(providerName);
-        args.setUser(user);
-        if (proxyUri != null) {
-            args.setProxyUri(proxyUri);
-        } else {
-            args.setProxyUri(fabricService.getMavenRepoURI());
+        CreateContainerOptions args = CreateContainerOptionsBuilder.jclouds()
+        .name(name)
+        .ensembleServer(isEnsembleServer)
+        .credential(credential)
+        .debugContainer(debugContainer)
+        .group(group)
+        .hardwareId(hardwareId)
+        .identity(identity)
+        .imageId(imageId)
+        .instanceType(instanceType)
+        .locationId(locationId)
+        .number(number)
+        .owner(owner)
+        .providerName(providerName)
+        .user(user)
+        .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
+        .zookeeperUrl(fabricService.getZookeeperUrl());
+
+        Container[] containers = fabricService.createContainers(args);
+        System.out.println(String.format(DISPLAY_FORMAT,OUTPUT_HEADERS));
+        if (containers != null && containers.length > 0) {
+            for (Container container : containers) {
+                CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) container.getCreateContainerMetadata();
+                System.out.println(String.format(DISPLAY_FORMAT,metadata.getNodeId(), metadata.getContainerName(), metadata.getPublicAddresses()));
+            }
         }
-        Container[] containers = fabricService.createContainer(args, name, number);
         // and set its profiles and versions after creation
         postCreateContainer(containers);
         return null;
@@ -89,7 +96,6 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     @Override
     protected void preCreateContainer(String name) {
         super.preCreateContainer(name);
-
         // validate number is not out of bounds
         if (number < 1 || number > 999) {
             // for cloud we accept 3 digits

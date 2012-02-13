@@ -18,10 +18,7 @@ package org.fusesource.fabric.internal;
 
 import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
@@ -50,6 +47,7 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricServiceImpl service;
+    private CreateContainerMetadata createContainerMetadata;
 
     public ContainerImpl(Container parent, String id, FabricServiceImpl service) {
         this.parent = parent;
@@ -147,6 +145,14 @@ public class ContainerImpl implements Container {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public CreateContainerMetadata getCreateContainerMetadata() {
+        return createContainerMetadata;
+    }
+
+    public void setCreateContainerMetadata(CreateContainerMetadata createContainerMetadata) {
+        this.createContainerMetadata = createContainerMetadata;
     }
 
     public Profile[] getProfiles() {

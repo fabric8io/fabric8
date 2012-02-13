@@ -17,26 +17,16 @@
 package org.fusesource.fabric.service;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerArguments;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.internal.ContainerImpl;
-import org.fusesource.fabric.internal.FabricConstants;
+import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
@@ -209,63 +199,6 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         });
     }
 
-
-    public Container createContainer(String name) {
-        try {
-            final String zooKeeperUrl = getZooKeeperUrl();
-            createContainerConfig("", name);
-            return new ContainerImpl(null, name, FabricServiceImpl.this);
-        } catch (FabricException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    public Container createContainer(String url, String name, boolean isEnsembleServer, boolean debugContainer) {
-        return createContainers(url, name, isEnsembleServer, debugContainer, 1)[0];
-    }
-
-    public Container[] createContainers(String url, String name, boolean isEnsembleServer, boolean debugContainer, int number) {
-        Container[] containers = new Container[number];
-        try {
-
-            URI uri = URI.create(url);
-            ContainerProvider provider = getProvider(uri.getScheme());
-            if (provider == null) {
-                throw new FabricException("Unable to find an container provider supporting uri '" + url + "'");
-            }
-
-            if (!isEnsembleServer) {
-                final String zooKeeperUrl = getZooKeeperUrl();
-
-                for (int i = 0; i < number; i++) {
-                    String containerName = name;
-                    if (number > 1) {
-                        containerName += i + 1;
-                    }
-
-                    String parent = "";
-                    if( provider instanceof ChildContainerProvider) {
-                        parent = getParentFromURI(uri);
-                    }
-
-                    createContainerConfig(parent, containerName);
-                    containers[i] = new ContainerImpl(null, containerName, FabricServiceImpl.this);
-                }
-
-                provider.create(getMavenRepoURI(), uri, name, zooKeeperUrl, isEnsembleServer, debugContainer, number);
-            } else {
-                provider.create(getMavenRepoURI(), uri, name, null, isEnsembleServer, debugContainer, number);
-            }
-        } catch (FabricException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-        return containers;
-    }
-
     public static String getParentFromURI(URI uri) {
         String parent = uri.getHost();
         if (parent == null) {
@@ -274,16 +207,45 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return parent;
     }
 
-    @Override
-    public Container[] createContainer(CreateContainerArguments args, String name, int number) {
-        Container[] containers = new Container[number];
+    public Container[] createContainers(final CreateContainerOptions options) {
+
+        Container[] containers = new Container[options.getNumber()];
+        if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
+            options.setZookeeperUrl(getZookeeperUrl());
+        }
+
+        if (options.getProxyUri() == null) {
+            options.setProxyUri(getMavenRepoURI());
+        }
+
         try {
-            for (int i = 0; i < number; i++) {
-                String containerName = name;
-                if (number > 1) {
-                    containerName += i + 1;
+
+            ContainerProvider provider = getProvider(options.getProviderType());
+            if (provider == null) {
+                throw new FabricException("Unable to find an container provider type '" + options.getProviderType() + "'");
+            }
+
+            Set<? extends CreateContainerMetadata> createMetadata = new LinkedHashSet<CreateContainerMetadata>();
+
+            String parent = options.getParent() != null ? options.getParent() : "";
+            Container parentContainer = null;
+            String currentID = getCurrentContainerId();
+            if (provider instanceof ChildContainerProvider && !Objects.equal(getCurrentContainerId(), parent)) {
+                createMetadata = createChildContainer(options);
+            } else {
+                createMetadata = provider.create(options);
+            }
+
+            containers = new Container[createMetadata.size()];
+            int container = 0;
+            for(CreateContainerMetadata metadata : createMetadata) {
+                //An ensemble server can be created without an existing ensemble.
+                //In this case container config will be created by the newly created container.
+                if (!options.isEnsembleServer()) {
+                    createContainerConfig(parent, metadata.getContainerName());
                 }
-                containers[i] = createContainer(args, containerName);
+                containers[container] = new ContainerImpl(parentContainer, metadata.getContainerName(), FabricServiceImpl.this);
+                containers[container++].setCreateContainerMetadata(metadata);
             }
         } catch (FabricException e) {
             throw e;
@@ -293,62 +255,46 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return containers;
     }
 
-    public Container createContainer(CreateContainerArguments args, String name) {
-        try {
-            final String zooKeeperUrl = getZooKeeperUrl();
-            createContainerConfig("", name);
-            Container container = doCreateContainerFromArguments(args, name, zooKeeperUrl);
-            if (container == null) {
-                throw new IllegalArgumentException("Unknown CreateContainerArguments " + args + " when creating container " + name);
-            }
-            return container;
-        } catch (FabricException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FabricException(e);
+    private String getCurrentContainerId() {
+        String currentID = "";
+        Container currentContainer = getCurrentContainer();
+        if (currentContainer != null) {
+            currentID = currentContainer.getId();
         }
+        return currentID;
     }
 
-    @Override
-    public boolean createRemoteContainer(CreateContainerArguments args, String name) {
-        try {
-            final String zooKeeperUrl = getZooKeeperUrl();
-            Container container = doCreateContainerFromArguments(args, name, zooKeeperUrl);
-            return container != null;
-        } catch (FabricException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    protected Container doCreateContainerFromArguments(CreateContainerArguments args, String name, String zooKeeperUrl) throws Exception {
-        for (ContainerProvider provider : providers.values()) {
-            if (provider.create(args, name, zooKeeperUrl)) {
-                return new ContainerImpl(null, name, FabricServiceImpl.this);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Container createContainer(final Container parent, final CreateContainerArguments args, final String name) {
-        createContainerConfig(parent.getId(), name);
-        ContainerTemplate containerTemplate = getContainerTemplate(parent);
-
-        if (containerTemplate.execute(new ContainerTemplate.FabricServiceCallback<Boolean>() {
-            public Boolean doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
-                return fabricService.createRemoteContainer(args, name);
-            }
-        })) {
-            return new ContainerImpl(null, name, FabricServiceImpl.this);
+    private Set<CreateContainerMetadata> createChildContainer(final CreateContainerOptions options) throws Exception {
+        Set<CreateContainerMetadata> result = new LinkedHashSet<CreateContainerMetadata>();
+        String parent = getParentFromURI(options.getProviderURI());
+        Container parentContainer = getContainer(parent);
+        if (!Objects.equal(getCurrentContainerId(), parent)) {
+            ContainerTemplate containerTemplate = getContainerTemplate(parentContainer);
+            result = containerTemplate.execute(new ContainerTemplate.FabricServiceCallback<Set<CreateContainerMetadata>>() {
+                public Set<CreateContainerMetadata> doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
+                    return (Set<CreateContainerMetadata>) fabricService.createRemoteContainer(options);
+                }
+            });
         } else {
-            return null;
+            result = getProvider("child").create(options);
         }
+        return result;
     }
 
-    public Container createContainer(final String url, final String name) {
-        return createContainer(url, name, false, false);
+    @Override
+    public Set<CreateContainerMetadata> createRemoteContainer(CreateContainerOptions args) {
+        Set<CreateContainerMetadata> result = new LinkedHashSet<CreateContainerMetadata>();
+        try {
+            Container[] containers = createContainers(args);
+            for (Container container: containers) {
+                 result.add(container.getCreateContainerMetadata());
+            }
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+        return result;
     }
 
     public ContainerProvider getProvider(final String scheme) {
@@ -416,27 +362,6 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         }
     }
 
-    public Container createContainer(final Container parent, final String name, final boolean debugContainer) {
-        final String zooKeeperUrl = getZooKeeperUrl();
-        createContainerConfig(parent.getId(), name);
-        return getContainerTemplate(parent).execute(new ContainerTemplate.AdminServiceCallback<Container>() {
-            public Container doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                String javaOpts = zooKeeperUrl != null ? "-Dzookeeper.url=\"" + zooKeeperUrl + "\" -Xmx512M -server" : "";
-                if (debugContainer) {
-                    javaOpts += ContainerProvider.DEBUG_CONTAINER;
-                }
-                String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
-                adminService.createInstance(name, 0, 0, 0, null, javaOpts, features, featuresUrls);
-                adminService.startInstance(name, null);
-                return new ContainerImpl(parent, name, FabricServiceImpl.this);
-            }
-        });
-    }
-
-    public Container createContainer(final Container parent, final String name) {
-        return createContainer(parent, name, false);
-    }
 
     public void destroy(Container container) {
         if (container.getParent() != null) {
@@ -457,17 +382,13 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         });
     }
 
-    private String getZooKeeperUrl() {
+    public String getZookeeperUrl() {
         String zooKeeperUrl = null;
         try {
             Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
             zooKeeperUrl = (String) config.getProperties().get("zookeeper.url");
-            if (zooKeeperUrl == null) {
-                throw new IllegalStateException("Unable to find the zookeeper url");
-            }
-
         } catch (Exception e) {
-          //Ignore it.
+            //Ignore it.
         }
         return zooKeeperUrl;
     }

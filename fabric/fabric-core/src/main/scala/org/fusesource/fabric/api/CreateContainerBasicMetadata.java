@@ -14,18 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service;
 
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
+package org.fusesource.fabric.api;
 
-import java.util.Set;
+public class CreateContainerBasicMetadata implements CreateContainerMetadata {
 
-/**
- * API for working with a remote FabricService over JMX
- */
-public interface FabricServiceImplMBean {
+    private static final long serialVersionUID = 5331911342234445444L;
 
-    Set<? extends CreateContainerMetadata> createRemoteContainer(CreateContainerOptions options);
+    private String containerName;
 
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
 }
