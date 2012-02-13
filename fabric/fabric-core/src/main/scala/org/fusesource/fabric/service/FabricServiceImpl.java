@@ -228,8 +228,13 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
             String parent = options.getParent() != null ? options.getParent() : "";
             Container parentContainer = null;
-            if (provider instanceof ChildContainerProvider && !getCurrentContainer().getId().equals(parent)) {
-                createMetadata = createChildContainer((CreateContainerChildOptions) options);
+            String currentID = "";
+            Container currentContainer = getCurrentContainer();
+            if (currentContainer != null) {
+                currentID = currentContainer.getId();
+            }
+            if (provider instanceof ChildContainerProvider && !parent.equals(currentID)) {
+                createMetadata = createChildContainer(options);
             } else {
                 createMetadata = provider.create(options);
             }
