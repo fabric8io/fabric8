@@ -91,16 +91,16 @@ object LevelDBClient extends Log {
   implicit def toByteArray(buffer:Buffer) = buffer.toByteArray
   implicit def toBuffer(buffer:Array[Byte]) = new Buffer(buffer)
   
-  def encodeCollectionRecord(v: CollectionRecord.Buffer) = v.toFramedByteArray
-  def decodeCollectionRecord(data: Buffer):CollectionRecord.Buffer = CollectionRecord.FACTORY.parseFramed(data)
-  def encodeCollectionKeyRecord(v: CollectionKey.Buffer) = v.toFramedByteArray
-  def decodeCollectionKeyRecord(data: Buffer):CollectionKey.Buffer = CollectionKey.FACTORY.parseFramed(data)
+  def encodeCollectionRecord(v: CollectionRecord.Buffer) = v.toUnframedByteArray
+  def decodeCollectionRecord(data: Buffer):CollectionRecord.Buffer = CollectionRecord.FACTORY.parseUnframed(data)
+  def encodeCollectionKeyRecord(v: CollectionKey.Buffer) = v.toUnframedByteArray
+  def decodeCollectionKeyRecord(data: Buffer):CollectionKey.Buffer = CollectionKey.FACTORY.parseUnframed(data)
 
-  def encodeEntryRecord(v: EntryRecord.Buffer) = v.toFramedBuffer
-  def decodeEntryRecord(data: Buffer):EntryRecord.Buffer = EntryRecord.FACTORY.parseFramed(data)
+  def encodeEntryRecord(v: EntryRecord.Buffer) = v.toUnframedBuffer
+  def decodeEntryRecord(data: Buffer):EntryRecord.Buffer = EntryRecord.FACTORY.parseUnframed(data)
 
-  def encodeEntryKeyRecord(v: EntryKey.Buffer) = v.toFramedByteArray
-  def decodeEntryKeyRecord(data: Buffer):EntryKey.Buffer = EntryKey.FACTORY.parseFramed(data)
+  def encodeEntryKeyRecord(v: EntryKey.Buffer) = v.toUnframedByteArray
+  def decodeEntryKeyRecord(data: Buffer):EntryKey.Buffer = EntryKey.FACTORY.parseUnframed(data)
 
   def encodeLocator(pos:Long, len:Int):Array[Byte] = {
     val out = new DataByteArrayOutputStream(
@@ -160,7 +160,7 @@ object LevelDBClient extends Log {
   }
 
   def encodeEntryKey(a1:Byte, a2:Long, a3:Long):Array[Byte] = {
-    val out = new DataByteArrayOutputStream(13)
+    val out = new DataByteArrayOutputStream(17)
     out.writeByte(a1.toInt)
     out.writeLong(a2)
     out.writeLong(a3)
@@ -537,33 +537,30 @@ class LevelDBClient(store: LevelDBStore) {
 
                   case LOG_ADD_ENTRY =>
                     val record = decodeEntryRecord(data)
-                    index.put(encodeEntryKey(ENTRY_PREFIX, record.getCollectionKey, record.getEntryKey), data)
 
-                    val pos = if ( record.hasValueLocation ) {
-                      Some(record.getValueLocation)
-                    } else {
-                      None
+                    val index_record = new EntryRecord.Bean()
+                    index_record.setValueLocation(record.getValueLocation)
+                    index_record.setValueLength(record.getValueLength)
+                    val index_value = encodeEntryRecord(index_record.freeze()).toByteArray
+
+                    index.put(encodeEntryKey(ENTRY_PREFIX, record.getCollectionKey, record.getEntryKey), index_value)
+
+                    if ( record.hasValueLocation ) {
+                      logRefIncrement(record.getValueLocation)
                     }
-                    pos.foreach(logRefIncrement(_))
 
                   case LOG_REMOVE_ENTRY =>
                     index.get(data, new ReadOptions).foreach { value=>
                       val record = decodeEntryRecord(value)
-  
                       // Figure out which log file this message reference is pointing at..
-                      val pos = if ( record.hasValueLocation ) {
-                        Some(record.getValueLocation)
-                      } else {
-                        None
+                      if ( record.hasValueLocation ) {
+                        logRefDecrement(record.getValueLocation)
                       }
-                      pos.foreach(logRefDecrement(_))
                       index.delete(data)
                     }
 
-                  case LOG_DATA =>
-                  case LOG_TRACE =>
-                  case _ =>
-                  // Skip unknown records like the RecordLog headers.
+                  case _ => // Skip other records, they don't modify the index.
+
                 }
                 pos = nextPos
             }
@@ -770,7 +767,7 @@ class LevelDBClient(store: LevelDBStore) {
 
   def addCollection(record: CollectionRecord.Buffer) = {
     val key = encodeLongKey(COLLECTION_PREFIX, record.getKey)
-    val value = record.toFramedBuffer
+    val value = record.toUnframedBuffer
     retryUsingIndex {
       log.appender { appender =>
         appender.append(LOG_ADD_COLLECTION, value)
@@ -788,7 +785,7 @@ class LevelDBClient(store: LevelDBStore) {
       ro.verifyChecksums(verifyChecksums)
       ro.fillCache(false)
       index.cursorPrefixed(COLLECTION_PREFIX_ARRAY, ro) { (key, value) =>
-        rc.append(( decodeLongKey(key)._2, CollectionRecord.FACTORY.parseFramed(value) ))
+        rc.append(( decodeLongKey(key)._2, CollectionRecord.FACTORY.parseUnframed(value) ))
         true // to continue cursoring.
       }
     }
@@ -857,8 +854,8 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   def queueCursor(collectionKey: Long, seq:Long)(func: (Message)=>Boolean) = {
-    collectionCursor(collectionKey, encodeLong(seq)) { value =>
-      val seq = decodeLong(value.getEntryKey)
+    collectionCursor(collectionKey, encodeLong(seq)) { (key, value) =>
+      val seq = decodeLong(key)
       var locator = (value.getValueLocation, value.getValueLength)
       val msg = getMessage(locator)
       msg.getMessageId().setEntryLocator((collectionKey, seq))
@@ -894,7 +891,7 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
 
-  def collectionCursor(collectionKey: Long, cursorPosition:Buffer)(func: (EntryRecord.Buffer)=>Boolean) = {
+  def collectionCursor(collectionKey: Long, cursorPosition:Buffer)(func: (Buffer, EntryRecord.Buffer)=>Boolean) = {
     val ro = new ReadOptions
     ro.fillCache(true)
     ro.verifyChecksums(verifyChecksums)
@@ -902,7 +899,7 @@ class LevelDBClient(store: LevelDBStore) {
     val end = encodeLongKey(ENTRY_PREFIX, collectionKey+1)
     retryUsingIndex {
       index.cursorRange(start, end, ro) { case (key, value) =>
-        func(EntryRecord.FACTORY.parseFramed(value))
+        func(key.buffer.moveHead(9), EntryRecord.FACTORY.parseUnframed(value))
       }
     }
   }
@@ -997,29 +994,33 @@ class LevelDBClient(store: LevelDBStore) {
 
                 assert(entry.id.getDataLocator()!=null)
 
-                val record = new EntryRecord.Bean()
-                record.setCollectionKey(entry.queueKey)
-                record.setEntryKey(new Buffer(key, 9, 8))
-                record.setValueLocation(dataLocator._1)
-                record.setValueLength(dataLocator._2)
+                val log_record = new EntryRecord.Bean()
+                log_record.setCollectionKey(entry.queueKey)
+                log_record.setEntryKey(new Buffer(key, 9, 8))
+                log_record.setValueLocation(dataLocator._1)
+                log_record.setValueLength(dataLocator._2)
+                appender.append(LOG_ADD_ENTRY, encodeEntryRecord(log_record.freeze()))
 
-                val encoded = encodeEntryRecord(record.freeze())
-                appender.append(LOG_ADD_ENTRY, encoded)
-                batch.put(key, encoded.toByteArray)
+                val index_record = new EntryRecord.Bean()
+                index_record.setValueLocation(dataLocator._1)
+                index_record.setValueLength(dataLocator._2)
+                batch.put(key,  encodeEntryRecord(index_record.freeze()).toByteArray)
+
                 logRefIncrement(dataLocator._1)
               }
 
             }
             uow.subAcks.foreach { entry =>
               val key = encodeEntryKey(ENTRY_PREFIX, entry.subKey, ACK_POSITION)
-              val record = new EntryRecord.Bean()
-              record.setCollectionKey(entry.subKey)
-              record.setEntryKey(ACK_POSITION)
-              record.setValueLocation(entry.ackPosition)
+              val log_record = new EntryRecord.Bean()
+              log_record.setCollectionKey(entry.subKey)
+              log_record.setEntryKey(ACK_POSITION)
+              log_record.setValueLocation(entry.ackPosition)
+              appender.append(LOG_ADD_ENTRY, encodeEntryRecord(log_record.freeze()))
 
-              val encoded = encodeEntryRecord(record.freeze())
-              appender.append(LOG_ADD_ENTRY, encoded)
-              batch.put(key, encoded.toByteArray)
+              val index_record = new EntryRecord.Bean()
+              index_record.setValueLocation(entry.ackPosition)
+              batch.put(key, encodeEntryRecord(log_record.freeze()).toByteArray)
             }
 
             if( !syncNeeded && uow.syncNeeded ) {
@@ -1056,7 +1057,7 @@ class LevelDBClient(store: LevelDBStore) {
         val end = encodeEntryKey(ENTRY_PREFIX, collectionKey, lastSeq+1)
         index.cursorRange( start, end, ro ) { (key, value) =>
           val (_, _, seq) = decodeEntryKey(key)
-          rc.append((seq, EntryRecord.FACTORY.parseFramed(value)))
+          rc.append((seq, EntryRecord.FACTORY.parseUnframed(value)))
           true
         }
       }
@@ -1087,7 +1088,7 @@ class LevelDBClient(store: LevelDBStore) {
             val start = encodeEntryKey(ENTRY_PREFIX, topic, 0)
             val end =  encodeEntryKey(ENTRY_PREFIX, topic, first)
             index.cursorRange(start, end, ro) { case (key, value) =>
-              val entry = EntryRecord.FACTORY.parseFramed(value)
+              val entry = EntryRecord.FACTORY.parseUnframed(value)
               batch.delete(key)
               logRefDecrement(entry.getValueLocation)
               true

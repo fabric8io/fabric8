@@ -24,8 +24,8 @@ message CollectionKey {
   required int64 key = 1;
 }
 message CollectionRecord {
-  required int64 key = 1;
-  required int32 type = 2;
+  optional int64 key = 1;
+  optional int32 type = 2;
   optional bytes meta = 3 [java_override_type = "Buffer"];
 }
 
@@ -38,8 +38,8 @@ message EntryKey {
   required bytes entry_key = 2 [java_override_type = "Buffer"];
 }
 message EntryRecord {
-  required int64 collection_key = 1;
-  required bytes entry_key = 2 [java_override_type = "Buffer"];
+  optional int64 collection_key = 1;
+  optional bytes entry_key = 2 [java_override_type = "Buffer"];
   optional int64 value_location = 3;
   optional int32 value_length = 4;
   optional bytes value = 5 [java_override_type = "Buffer"];
@@ -47,9 +47,9 @@ message EntryRecord {
 }
 
 message SubscriptionRecord {
-  required int64 topic_key = 1;
-  required string client_id = 2;
-  required string subscription_name = 3;
+  optional int64 topic_key = 1;
+  optional string client_id = 2;
+  optional string subscription_name = 3;
   optional string selector = 4;
   optional string destination_name = 5;
 }
