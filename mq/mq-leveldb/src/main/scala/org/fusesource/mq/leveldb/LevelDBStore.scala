@@ -32,11 +32,16 @@ import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicLong
 import util.Log
 import reflect.BeanProperty
-import org.apache.activemq.store.memory.MemoryTransactionStore
 import org.apache.activemq.store._
 import java.util._
+import scala.collection.mutable.ListBuffer
+import org.fusesource.hawtbuf.Buffer
 
 object LevelDBStore extends Log {
+  
+  val DONE = new CountDownFuture();
+  DONE.countDown
+  
   def toIOException(e: Throwable): IOException = {
     if (e.isInstanceOf[ExecutionException]) {
       var cause: Throwable = (e.asInstanceOf[ExecutionException]).getCause
@@ -67,7 +72,7 @@ case class DurableSubscription(subKey:Long, topicKey:Long, info: SubscriptionInf
   var cursorPosition = 0L
 }
 
-class LevelDBStore extends ServiceSupport with BrokerServiceAware with PersistenceAdapter {
+class LevelDBStore extends ServiceSupport with BrokerServiceAware with PersistenceAdapter with TransactionStore {
   import LevelDBStore._
 
   final val wireFormat = new OpenWireFormat
@@ -107,9 +112,9 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   var purgeOnStatup: Boolean = false
   var brokerService: BrokerService = null
 
-  var queues: HashMap[ActiveMQQueue, LevelDBStore#LevelDBTxMessageStore] = new HashMap[ActiveMQQueue, LevelDBStore#LevelDBTxMessageStore]
-  var topics: HashMap[ActiveMQTopic, LevelDBStore#LevelDBTxTopicMessageStore] = new HashMap[ActiveMQTopic, LevelDBStore#LevelDBTxTopicMessageStore]
-  var topicsById: HashMap[Long, LevelDBStore#LevelDBTxTopicMessageStore] = new HashMap[Long, LevelDBStore#LevelDBTxTopicMessageStore]
+  val queues = collection.mutable.HashMap[ActiveMQQueue, LevelDBStore#LevelDBMessageStore]()
+  val topics = collection.mutable.HashMap[ActiveMQTopic, LevelDBStore#LevelDBTopicMessageStore]()
+  val topicsById = collection.mutable.HashMap[Long, LevelDBStore#LevelDBTopicMessageStore]()
 
   override def toString: String = {
     return "LevelDB:[" + directory.getAbsolutePath + "]"
@@ -150,56 +155,90 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     return 0
   }
 
-  def beginTransaction(context: ConnectionContext): Unit = {
+  def createTransactionStore = this
+
+  val transactions = collection.mutable.HashMap[TransactionId, Transaction]()
+  
+  trait TransactionAction {
+    def apply(uow:DBManager#DelayableUOW):Unit
   }
-
-  def commitTransaction(context: ConnectionContext): Unit = {
-  }
-
-  def rollbackTransaction(context: ConnectionContext): Unit = {
-  }
-
-
-  def createTransactionStore: TransactionStore = {
-    return this.transactionStore
-  }
-
-  def createQueueMessageStore(destination: ActiveMQQueue): MessageStore = {
-    var rc: MessageStore = queues.get(destination)
-    if (rc == null) {
-      rc = db.createQueueStore(destination)
+  
+  case class Transaction(id:TransactionId) {
+    val commitActions = ListBuffer[TransactionAction]() 
+    def add(store:LevelDBMessageStore, message: Message) = {
+      commitActions += new TransactionAction() {
+        def apply(uow:DBManager#DelayableUOW) = {
+          store.doAdd(uow, message)
+        }
+      }
     }
-    return rc
+    def remove(store:LevelDBMessageStore, msgid:MessageId) = {
+      commitActions += new TransactionAction() {
+        def apply(uow:DBManager#DelayableUOW) = {
+          store.doRemove(uow, msgid)
+        }
+      }
+    }
+    def updateAckPosition(store:LevelDBTopicMessageStore, sub: DurableSubscription, position: Long) = {
+      commitActions += new TransactionAction() {
+        def apply(uow:DBManager#DelayableUOW) = {
+          store.doUpdateAckPosition(uow, sub, position)
+        }
+      }
+    }
+  }
+  
+  def transaction(txid: TransactionId) = transactions.getOrElseUpdate(txid, Transaction(txid))
+  
+  def commit(txid: TransactionId, wasPrepared: Boolean, preCommit: Runnable, postCommit: Runnable) = {
+    transactions.remove(txid) match {
+      case None=> throw new IOException("The transaction does not exist")
+      case Some(tx)=>
+        withUow { uow =>
+          for( action <- tx.commitActions ) {
+            action(uow)
+          }
+        }
+    }
   }
 
-  def createQueueMessageStore(destination: ActiveMQQueue, key: Long): MessageStore = {
-    var rc = this.transactionStore.proxy(new LevelDBMessageStore(destination, key))
-    this synchronized {
+  def rollback(txid: TransactionId) = {
+    transactions.remove(txid) match {
+      case None=> throw new IOException("The transaction does not exist")
+      case Some(tx)=>
+    }
+  }
+
+  def prepare(tx: TransactionId) = {
+    sys.error("XA transactions not yet supported.")
+  }
+  def recover(listener: TransactionRecoveryListener) = {
+  }
+
+  def createQueueMessageStore(destination: ActiveMQQueue) = {
+    this.synchronized(queues.get(destination)).getOrElse(db.createQueueStore(destination))
+  }
+
+  def createQueueMessageStore(destination: ActiveMQQueue, key: Long):LevelDBMessageStore = {
+    var rc = new LevelDBMessageStore(destination, key)
+    this.synchronized {
       queues.put(destination, rc)
     }
-    return rc
+    rc
   }
 
   def removeQueueMessageStore(destination: ActiveMQQueue): Unit = this synchronized {
-    var store = queues.remove(destination)
-    if (store != null) {
-      store match {
-        case store:LevelDBTxMessageStore => db.destroyQueueStore(store.store.key)
-        case store:LevelDBTxTopicMessageStore => db.destroyQueueStore(store.store.key)
-      }
+    queues.remove(destination).foreach { store=>
+      db.destroyQueueStore(store.key)
     }
   }
 
   def createTopicMessageStore(destination: ActiveMQTopic): TopicMessageStore = {
-    var rc = topics.get(destination)
-    if (rc == null) {
-      rc = db.createTopicStore(destination)
-    }
-    return rc
+    this.synchronized(topics.get(destination)).getOrElse(db.createTopicStore(destination))
   }
 
-  def createTopicMessageStore(destination: ActiveMQTopic, key: Long) = {
-    var rc = this.transactionStore.proxy(new LevelDBTopicMessageStore(destination, key))
+  def createTopicMessageStore(destination: ActiveMQTopic, key: Long):LevelDBTopicMessageStore = {
+    var rc = new LevelDBTopicMessageStore(destination, key)
     this synchronized {
       topics.put(destination, rc)
       topicsById.put(key, rc)
@@ -208,14 +247,22 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   }
 
   def removeTopicMessageStore(destination: ActiveMQTopic): Unit = {
+    topics.remove(destination).foreach { store=>
+      store.subscriptions.values.foreach { sub =>
+        db.removeSubscription(sub)
+      }
+      store.subscriptions.clear()
+      db.destroyQueueStore(store.key)
+    }
   }
 
   def getLogAppendPosition = db.getLogAppendPosition
 
   def getDestinations: Set[ActiveMQDestination] = {
+    import collection.JavaConversions._
     var rc: HashSet[ActiveMQDestination] = new HashSet[ActiveMQDestination]
-    rc.addAll(topics.keySet)
-    rc.addAll(queues.keySet)
+    rc.addAll(topics.keys)
+    rc.addAll(queues.keys)
     return rc
   }
 
@@ -242,17 +289,6 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     return clientId + ":" + subscriptionName
   }
 
-  case class LevelDBTxMessageStore(store: LevelDBMessageStore) extends ProxyMessageStore(store) {
-  }
-
-  case class LevelDBTxTopicMessageStore(store: LevelDBTopicMessageStore) extends ProxyTopicMessageStore(store) {
-  }
-
-  final val transactionStore = new MemoryTransactionStore(this) {
-    override def proxy(store: MessageStore) = LevelDBTxMessageStore(store.asInstanceOf[LevelDBMessageStore])
-    override def proxy(store: TopicMessageStore) = LevelDBTxTopicMessageStore(store.asInstanceOf[LevelDBTopicMessageStore])
-  }
-
   case class LevelDBMessageStore(dest: ActiveMQDestination, val key: Long) extends AbstractMessageStore(dest) {
 
     protected val lastSeq: AtomicLong = new AtomicLong(0)
@@ -260,9 +296,18 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
     lastSeq.set(db.getLastQueueEntrySeq(key))
 
+    def doAdd(uow: DBManager#DelayableUOW, message: Message): CountDownFuture = {
+      uow.enqueue(key, lastSeq.incrementAndGet, message)
+    }
+
     override def asyncAddQueueMessage(context: ConnectionContext, message: Message): Future[AnyRef] = {
-      withUow{uow=>
-        uow.enqueue(key, lastSeq.incrementAndGet, message)
+      if(  message.getTransactionId!=null ) {
+        transaction(message.getTransactionId).add(this, message)
+        DONE
+      } else {
+        withUow { uow=>
+          doAdd(uow, message)
+        }
       }
     }
 
@@ -270,10 +315,19 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
       waitOn(asyncAddQueueMessage(context, message))
     }
 
+    def doRemove(uow: DBManager#DelayableUOW, id: MessageId): CountDownFuture = {
+      uow.dequeue(key, id)
+    }
+
     override def removeAsyncMessage(context: ConnectionContext, ack: MessageAck): Unit = {
-      waitOn(withUow{uow=>
-        uow.dequeue(key, ack.getLastMessageId)
-      })
+      if(  ack.getTransactionId!=null ) {
+        transaction(ack.getTransactionId).remove(this, ack.getLastMessageId)
+        DONE
+      } else {
+        waitOn(withUow{uow=>
+          doRemove(uow, ack.getLastMessageId)
+        })
+      }
     }
 
     def removeMessage(context: ConnectionContext, ack: MessageAck): Unit = {
@@ -338,16 +392,14 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   // This gts called when the store is first loading up, it restores
   // the existing durable subs..
   def createSubscription(sub:DurableSubscription) = {
-    val topic = this.synchronized {
-      topicsById.get(sub.topicKey)
-    }
-    if( topic!=null ) {
-      topic.store.synchronized {
-        topic.store.subscriptions.put((sub.info.getClientId, sub.info.getSubcriptionName), sub)
-      }
-    } else {
-      // Topic does not exist.. so kill the durable sub..
-      db.removeSubscription(sub)
+    this.synchronized(topicsById.get(sub.topicKey)) match {
+      case Some(topic) =>
+        topic.synchronized {
+          topic.subscriptions.put((sub.info.getClientId, sub.info.getSubcriptionName), sub)
+        }
+      case None =>
+        // Topic does not exist.. so kill the durable sub..
+        db.removeSubscription(sub)
     }
   }
   
@@ -357,11 +409,11 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     val topics = this.synchronized {
       new ArrayList(topicsById.values())
     }
-    topics.flatMap(_.store.gcPosition).toSeq
+    topics.flatMap(_.gcPosition).toSeq
   }
 
   class LevelDBTopicMessageStore(dest: ActiveMQDestination, key: Long) extends LevelDBMessageStore(dest, key) with TopicMessageStore {
-    var subscriptions = new  HashMap[(String, String), DurableSubscription]()
+    val subscriptions = collection.mutable.HashMap[(String, String), DurableSubscription]()
     var firstSeq = 0L
 
     def gcPosition:Option[(Long, Long)] = {
@@ -399,28 +451,36 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     }
 
     def lookupSubscription(clientId: String, subscriptionName: String): SubscriptionInfo = subscriptions.synchronized {
-      Option(subscriptions.get((clientId, subscriptionName))).map(_.info).getOrElse(null)
+      subscriptions.get((clientId, subscriptionName)).map(_.info).getOrElse(null)
     }
 
     def deleteSubscription(clientId: String, subscriptionName: String): Unit = {
-      val sub = subscriptions.synchronized {
+      subscriptions.synchronized {
         subscriptions.remove((clientId, subscriptionName))
-      }
-      if(sub!=null) {
-        db.removeSubscription(sub)
-      }
+      }.foreach(db.removeSubscription(_))
     }
 
     private def lookup(clientId: String, subscriptionName: String): Option[DurableSubscription] = subscriptions.synchronized {
-      Option(subscriptions.get((clientId, subscriptionName)))
+      subscriptions.get((clientId, subscriptionName))
+    }
+
+    def doUpdateAckPosition(uow: DBManager#DelayableUOW, sub: DurableSubscription, position: Long) = {
+      sub.lastAckPosition = position
+      uow.updateAckPosition(sub)
     }
 
     def acknowledge(context: ConnectionContext, clientId: String, subscriptionName: String, messageId: MessageId, ack: MessageAck): Unit = {
       lookup(clientId, subscriptionName).foreach { sub =>
-        sub.lastAckPosition = db.queuePosition(messageId)
-        withUow{ uow=>
-          uow.updateAckPosition(sub)
+        var position = db.queuePosition(messageId)
+        if(  ack.getTransactionId!=null ) {
+          transaction(ack.getTransactionId).updateAckPosition(this, sub, position)
+          DONE
+        } else {
+          withUow{ uow=>
+            doUpdateAckPosition(uow, sub, position)
+          }
         }
+
       }
     }
     
@@ -449,4 +509,12 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     }
 
   }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // The following methods actually have nothing to do with JMS txs... It's more like
+  // operation batch.. we handle that in the DBManager tho.. 
+  ///////////////////////////////////////////////////////////////////////////
+  def beginTransaction(context: ConnectionContext): Unit = {}
+  def commitTransaction(context: ConnectionContext): Unit = {}
+  def rollbackTransaction(context: ConnectionContext): Unit = {}
 }

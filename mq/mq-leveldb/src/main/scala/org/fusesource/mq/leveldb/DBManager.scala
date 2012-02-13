@@ -560,7 +560,7 @@ class DBManager(val parent:LevelDBStore) {
     id.getEntryLocator.asInstanceOf[(Long, Long)]._2
   }
 
-  def createQueueStore(dest:ActiveMQQueue) = {
+  def createQueueStore(dest:ActiveMQQueue):parent.LevelDBMessageStore = {
     parent.createQueueMessageStore(dest, createStore(dest, QUEUE_COLLECTION_TYPE))
   }
   def destroyQueueStore(key:Long) = writeExecutor.sync {
