@@ -71,9 +71,6 @@
 
         <fileSet>
             <directory>target/classes/distro</directory>
-            <excludes>
-                <exclude>fabric-features.xml</exclude>
-            </excludes>
             <outputDirectory>/</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>

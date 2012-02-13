@@ -16,13 +16,14 @@
  */
 package org.fusesource.fabric.commands.support;
 
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -77,26 +78,49 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     /**
      * Post logic after the containers have been created.
      *
-     * @param containers the created containers
+     * @param metadatas the created containers
      */
-    protected void postCreateContainer(Container[] containers) {
+    protected void postCreateContainers(CreateContainerMetadata[] metadatas) {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         List<String> names = getProfileNames();
         try {
             Profile[] profiles = getProfiles(version, names);
-            for (Container child : containers) {
-                log.trace("Setting version " + ver.getName() + " on container " + child.getId());
-                child.setVersion(ver);
-                log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
-                child.setProfiles(profiles);
+            for (CreateContainerMetadata metadata : metadatas) {
+                if (metadata.isSuccess()) {
+                    Container child = metadata.getContainer();
+                    log.trace("Setting version " + ver.getName() + " on container " + child.getId());
+                    child.setVersion(ver);
+                    log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
+                    child.setProfiles(profiles);
+                }
             }
         } catch (Exception ex) {
-            log.warn("Error during postCreateContainer. This exception will be ignored.", ex);
+            log.warn("Error during postCreateContainers. This exception will be ignored.", ex);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("postCreateContainer completed for " + Arrays.asList(containers) + " containers.");
+            log.debug("postCreateContainers completed for " + Arrays.asList(metadatas) + " containers.");
+        }
+    }
+    
+    protected void displayContainers(CreateContainerMetadata[] metadatas) {
+        List<CreateContainerMetadata> success = new ArrayList<CreateContainerMetadata>();
+        List<CreateContainerMetadata> failures = new ArrayList<CreateContainerMetadata>();
+        for (CreateContainerMetadata metadata : metadatas) {
+            (metadata.isSuccess() ? success : failures).add(metadata); 
+        }
+        if (success.size() > 0) {
+            System.out.println("The following containers have been created successfully:");
+            for (CreateContainerMetadata m : success) {
+                System.out.println("\t" + m.getContainerName());
+            }
+        }
+        if (failures.size() > 0) {
+            System.out.println("The following containers have failed:");
+            for (CreateContainerMetadata m : failures) {
+                System.out.println("\t" + m.getContainerName() + ": " + m.getFailure().getMessage());
+            }
         }
     }
 

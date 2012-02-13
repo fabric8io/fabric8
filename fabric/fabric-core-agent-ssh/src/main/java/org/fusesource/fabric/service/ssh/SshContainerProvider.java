@@ -27,7 +27,8 @@ import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateSshContainerMetadata;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.api.FabricException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartupScript;
 
@@ -35,6 +36,8 @@ import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartup
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that builds Containers via ssh.
  */
 public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata> {
+
+    private static final Logger logger = LoggerFactory.getLogger(SshContainerProvider.class);
 
     private boolean verbose = false;
 
@@ -70,12 +73,13 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
                 metadata.setContainerName(containerName);
                 String script = buildStartupScript(options.name(containerName));
+                logger.debug("Running script on host {}:\n{}", host, script);
                 try {
                     runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
-                    result.add(metadata);
-                } catch (Exception ex) {
-                    //Skip this node.
+                } catch (Throwable ex) {
+                    metadata.setFailure(ex);
                 }
+                result.add(metadata);
             }
         } catch (FabricException e) {
             throw e;
@@ -135,6 +139,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                     break;
                 }
             }
+            logger.debug("Output: {}", output.toString());
+            logger.debug("Error:  {}", error.toString());
             if (verbose) {
                 System.out.println("Output : " + output.toString());
                 System.out.println("Error : " + error.toString());

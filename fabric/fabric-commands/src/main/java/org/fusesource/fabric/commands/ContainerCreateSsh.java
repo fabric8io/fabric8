@@ -23,7 +23,7 @@ import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
@@ -70,9 +70,11 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl());
 
-        Container[] containers = fabricService.createContainers(args);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+        // display containers
+        displayContainers(metadatas);
         // and set its profiles and versions after creation
-        postCreateContainer(containers);
+        postCreateContainers(metadatas);
         return null;
     }
 

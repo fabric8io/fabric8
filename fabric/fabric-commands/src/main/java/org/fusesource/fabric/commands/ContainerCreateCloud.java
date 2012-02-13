@@ -80,17 +80,22 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl());
 
-        Container[] containers = fabricService.createContainers(args);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+        // display containers
+        displayContainers(metadatas);
+        // and set its profiles and versions after creation
+        postCreateContainers(metadatas);
+        return null;
+    }
+
+    protected void displayContainers(CreateContainerMetadata[] metadatas) {
         System.out.println(String.format(DISPLAY_FORMAT,OUTPUT_HEADERS));
-        if (containers != null && containers.length > 0) {
-            for (Container container : containers) {
-                CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) container.getCreateContainerMetadata();
+        if (metadatas != null && metadatas.length > 0) {
+            for (CreateContainerMetadata ccm : metadatas) {
+                CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
                 System.out.println(String.format(DISPLAY_FORMAT,metadata.getNodeId(), metadata.getContainerName(), metadata.getPublicAddresses()));
             }
         }
-        // and set its profiles and versions after creation
-        postCreateContainer(containers);
-        return null;
     }
 
     @Override

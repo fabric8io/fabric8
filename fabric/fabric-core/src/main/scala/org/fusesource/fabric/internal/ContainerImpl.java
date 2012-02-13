@@ -16,9 +16,18 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.apache.maven.model.profile.ProfileSelector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
@@ -30,13 +39,6 @@ import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class ContainerImpl implements Container {
 
     /**
@@ -47,7 +49,6 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricServiceImpl service;
-    private CreateContainerMetadata createContainerMetadata;
 
     public ContainerImpl(Container parent, String id, FabricServiceImpl service) {
         this.parent = parent;
@@ -145,14 +146,6 @@ public class ContainerImpl implements Container {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public CreateContainerMetadata getCreateContainerMetadata() {
-        return createContainerMetadata;
-    }
-
-    public void setCreateContainerMetadata(CreateContainerMetadata createContainerMetadata) {
-        this.createContainerMetadata = createContainerMetadata;
     }
 
     public Profile[] getProfiles() {

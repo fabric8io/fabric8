@@ -39,9 +39,9 @@ public interface FabricService {
     /**
      * Creates one or more new {@link Container}s with the specified {@link CreateContainerOptions}.
      * @param options   The options for the creation of the {@link Container}.
-     * @return          An array of the created {@llink Container}s
+     * @return          An array of metadata for the created {@llink Container}s
      */
-    Container[] createContainers(CreateContainerOptions options);
+    CreateContainerMetadata[] createContainers(CreateContainerOptions options);
 
     /**
      * Returns the default {@link Version}.
