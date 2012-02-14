@@ -24,7 +24,7 @@
         </ext:default-properties>
     </ext:property-placeholder>
 
-    <cm:property-placeholder persistent-id="org.fusesource.fabric.zookeeper" update-strategy="reload">
+    <cm:property-placeholder persistent-id="org.fusesource.fabric.zookeeper">
         <cm:default-properties>
             <cm:property name="zookeeper.url" value="\$[zookeeper.url]"/>
             <cm:property name="zookeeper.timeout" value="10s"/>
@@ -32,12 +32,14 @@
     </cm:property-placeholder>
 
     <bean id="zkClientFactory" class="org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean" destroy-method="destroy" depends-on="zkServerFactory">
+        <cm:managed-properties persistent-id="org.fusesource.fabric.zookeeper" update-method="update" update-strategy="component-managed"/>
         <property name="connectString" value="${zookeeper.url}"/>
         <property name="timeoutText" value="${zookeeper.timeout}"/>
         <property name="listeners">
             <list>
                 <ref component-id="karafContainerRegistration"/>
                 <ref component-id="serviceRegistrationListener"/>
+                <ref component-id="facade"/>
             </list>
         </property>
     </bean>
@@ -63,10 +65,22 @@
     <bean id="zkServerFactory" class="org.fusesource.fabric.zookeeper.internal.ZKServerFactoryBean" destroy-method="destroy">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
+
+    <bean id="facade" class="org.fusesource.fabric.zookeeper.internal.ZkClientFacadeImpl">
+        <cm:managed-properties persistent-id="org.fusesource.fabric.zookeeper" update-method="update" update-strategy="component-managed" />
+    </bean>
+
     <service ref="zkServerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
             <entry key="service.pid" value="org.fusesource.fabric.zookeeper.server"/>
         </service-properties>
+    </service>
+
+    <service ref="facade" ranking="10">
+        <interfaces>
+            <value>org.linkedin.zookeeper.client.IZKClient</value>
+            <value>org.fusesource.fabric.zookeeper.ZkClientFacade</value>
+        </interfaces>
     </service>
 
     <reference-list interface="org.linkedin.zookeeper.client.LifecycleListener" availability="optional">

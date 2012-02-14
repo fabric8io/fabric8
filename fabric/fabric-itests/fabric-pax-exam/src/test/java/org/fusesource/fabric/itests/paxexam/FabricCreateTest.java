@@ -20,6 +20,7 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +50,8 @@ public class FabricCreateTest extends FabricCommandsTestSupport {
 
         System.err.println(executeCommand("fabric:create"));
          //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
+        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
+        zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
 
         Profile karafProfile = fabricService.getProfile(ZkDefs.DEFAULT_VERSION,"karaf");
         assertNotNull(karafProfile);

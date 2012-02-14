@@ -29,6 +29,7 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -53,6 +54,7 @@ public class FabricTestSupport {
 
     public static final Long DEFAULT_TIMEOUT = 10000L;
     public static final Long DEFAULT_WAIT = 10000L;
+    public static final Long PROVISION_TIMEOUT = 120000L;
 
     static final String GROUP_ID = "org.fusesource.fabric";
     static final String ARTIFACT_ID = "fuse-fabric";
@@ -66,34 +68,36 @@ public class FabricTestSupport {
     /**
      * Creates a child {@ling Agent} witht the given name.
      *
+     *
      * @param name The name of the child {@ling Agent}.
+     * @param parent
      * @return
      */
-    protected Container createChildAgent(String name) throws Exception {
+    protected Container createChildContainer(String name, String parent) throws Exception {
         //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
+        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
+        assertNotNull(zooKeeper.getZookeeper(DEFAULT_TIMEOUT));
 
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
         Thread.sleep(DEFAULT_WAIT);
 
-        Container[] containers = fabricService.getContainers();
-        assertNotNull(containers);
+        Container parentContainer = fabricService.getContainer(parent);
+        assertNotNull(parentContainer);
 
-        assertEquals("Expected to find 1 container", 1, containers.length);
-        Container parent = containers[0];
-        assertEquals("Expected to find the root container", "root", parent.getId());
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.basic().name("chlid1").parent(parent.getId());
+        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent);
         CreateContainerMetadata[] metadata = fabricService.createContainers(args);
         if (metadata.length > 0) {
-            return metadata[0].getContainer();
+            Container container =  metadata[0].getContainer();
+            waitForProvisionSuccess(container, PROVISION_TIMEOUT);
+            return container;
         }
-        throw new Exception("Cohild container not created");
+        throw new Exception("Could container not created");
     }
 
-    protected void destroyChildAgent(String name) throws InterruptedException {
+    protected void destroyChildContainer(String name) throws InterruptedException {
         try {
             //Wait for zookeeper service to become available.
             IZKClient zooKeeper = getOsgiService(IZKClient.class);
@@ -107,7 +111,39 @@ public class FabricTestSupport {
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
+    }
 
+
+    /**
+     * Waits for a container to successfully provision.
+     * @param container
+     * @param timeout
+     * @throws Exception
+     */
+    public void waitForProvisionSuccess(Container container, Long timeout) throws Exception {
+        for (long t = 0; (!(container.isAlive() && container.isProvisioningComplete()) && t < timeout); t += 1000L) {
+            if (container.getProvisionException() != null) {
+                throw new Exception(container.getProvisionException());
+            }
+            Thread.sleep(1000L);
+        }
+        if (!container.isAlive() || container.isProvisioningComplete()) {
+            throw new Exception("Could not providion " + container.getId() + " after " + timeout + " seconds.");
+        }
+    }
+
+
+    public void createAndAssetChildContainer(String name, String parent) throws Exception {
+        //Wait for zookeeper service to become available.
+        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
+        zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
+
+        FabricService fabricService = getOsgiService(FabricService.class);
+        assertNotNull(fabricService);
+
+        Container child1 = createChildContainer(name, parent);
+        Container result = fabricService.getContainer(name);
+        assertEquals("Containers should have the same id", child1.getId(), result.getId());
     }
 
     /**

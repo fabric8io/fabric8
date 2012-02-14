@@ -20,21 +20,23 @@ import java.util.List;
 
 import org.apache.karaf.shell.console.Completer;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
 
 public class ZNodeCompleter implements Completer {
-    private IZKClient zk;
+    private ZkClientFacade zk;
 
     public ZNodeCompleter() {
         this.zk = zk;
     }
 
-    public void setZooKeeper(IZKClient zk) {
+    public void setZooKeeper(ZkClientFacade zk) {
         this.zk = zk;
     }
 
     @SuppressWarnings("unchecked")
     public int complete(String buffer, int cursor, List candidates) {
+        if (zk.isZooKeeperConnected()) {
         // Guarantee that the final token is the one we're expanding
         if (buffer == null) {
             candidates.add("/");
@@ -61,5 +63,6 @@ public class ZNodeCompleter implements Completer {
             return 0;
         }
         return candidates.size() == 0 ? buffer.length() : buffer.lastIndexOf("/") + 1;
+        } else return 0;
     }
 }

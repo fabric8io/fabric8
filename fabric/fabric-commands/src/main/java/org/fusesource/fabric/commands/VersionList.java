@@ -28,6 +28,7 @@ public class VersionList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        getZooKeeper().checkConnected(0L);
         Container[] containers = fabricService.getContainers();
         Version[] versions = fabricService.getVersions();
         printVersions(containers, versions, fabricService.getDefaultVersion(), System.out);

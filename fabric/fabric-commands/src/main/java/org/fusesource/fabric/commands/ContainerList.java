@@ -55,7 +55,7 @@ public class ContainerList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        checkFabricAvailable();
+        getZooKeeper().checkConnected(0L);
         Container[] containers = fabricService.getContainers();
 
         // filter unwanted containers, and split list into parent/child,

@@ -18,7 +18,6 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,6 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 
@@ -45,8 +43,8 @@ public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
-       destroyChildAgent("dosgi-camel");
-       destroyChildAgent("dosgi-provider");
+       destroyChildContainer("dosgi-camel");
+       destroyChildContainer("dosgi-provider");
     }
 
     @Test
@@ -62,12 +60,14 @@ public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
         System.err.println(executeCommand("shell:source mvn:org.fusesource.fabric/fuse-fabric/"+System.getProperty("fabric.version")+"/karaf/dosgi"));
-        Thread.sleep(2 * DEFAULT_WAIT);
-        String response = executeCommand("fabric:container-connect -u admin -p admin dosgi-camel log:display | grep \"Message from distributed service to\"");
+        waitForProvisionSuccess(fabricService.getContainer("dosgi-camel"), PROVISION_TIMEOUT);
+        waitForProvisionSuccess(fabricService.getContainer("dosgi-provider"), PROVISION_TIMEOUT);
+        String response = executeCommand("fabric:container-connect dosgi-camel log:display | grep \"Message from distributed service to\"");
+        System.err.println(executeCommand("fabric:container-connect dosgi-camel camel:route-info fabric-client"));
         assertNotNull(response);
         System.err.println(response);
         String[] lines = response.split("\n");
-        assertTrue("At least one camel bundle is expected", lines.length >= 1);
+        assertTrue("At least one message is expected", lines.length >= 1);
     }
 
     @Configuration

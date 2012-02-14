@@ -34,6 +34,7 @@ public class Delete extends ZooKeeperCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkZooKeeperConnected();
         if (recursive) {
             if (version >= 0) {
                 throw new UnsupportedOperationException("Unable to delete a version recursively");

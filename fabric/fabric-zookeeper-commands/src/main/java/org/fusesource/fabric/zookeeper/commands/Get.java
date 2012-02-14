@@ -27,6 +27,7 @@ public class Get extends ZooKeeperCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkZooKeeperConnected();
         System.out.println(getZooKeeper().getStringData(path));
         return null;
     }
