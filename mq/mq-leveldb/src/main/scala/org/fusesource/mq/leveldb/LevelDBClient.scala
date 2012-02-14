@@ -34,6 +34,7 @@ import java.io.{ObjectInputStream, ObjectOutputStream, File}
 import scala.Option._
 import org.apache.activemq.command.{Message, MessageId}
 import org.apache.activemq.util.ByteSequence
+import org.fusesource.mq.leveldb.RecordLog.LogInfo
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -758,6 +759,7 @@ class LevelDBClient(store: LevelDBStore) {
         rc = Some(func)
       } catch {
         case e:Throwable =>
+          e.printStackTrace()
           if( error==null ) {
             warn(e, "DB operation failed. (entering recovery mode)")
           }
@@ -958,6 +960,9 @@ class LevelDBClient(store: LevelDBStore) {
     empty
   }
 
+  val max_write_message_latency = TimeMetric()
+  val max_write_enqueue_latency = TimeMetric()
+
   val max_index_write_latency = TimeMetric()
 
   def store(uows: Seq[DBManager#DelayableUOW]) {
@@ -967,17 +972,26 @@ class LevelDBClient(store: LevelDBStore) {
         var syncNeeded = false
         index.write(new WriteOptions, max_index_write_latency) { batch =>
 
+          var write_message_total = 0L
+          var write_enqueue_total = 0L
+
           uows.foreach { uow =>
+
 
             uow.actions.foreach { case (msg, action) =>
               val messageRecord = action.messageRecord
+              var log_info:LogInfo = null
               var pos = -1L
               var dataLocator:(Long, Int) = null
 
               if (messageRecord != null) {
-                pos = appender.append(LOG_DATA, messageRecord.data)
+                val start = System.nanoTime()
+                val p = appender.append(LOG_DATA, messageRecord.data)
+                pos = p._1
+                log_info = p._2
                 dataLocator = (pos, messageRecord.data.length)
                 messageRecord.locator = dataLocator
+                write_message_total += System.nanoTime() - start
               }
 
 
@@ -1000,6 +1014,7 @@ class LevelDBClient(store: LevelDBStore) {
               }
 
               action.enqueues.foreach { entry =>
+                val start = System.nanoTime()
 
                 val key = encodeEntryKey(ENTRY_PREFIX, entry.queueKey, entry.queueSeq)
 
@@ -1017,8 +1032,18 @@ class LevelDBClient(store: LevelDBStore) {
                 index_record.setValueLength(dataLocator._2)
                 batch.put(key,  encodeEntryRecord(index_record.freeze()).toByteArray)
 
-                logRefIncrement(dataLocator._1)
+                val log_data = encodeEntryRecord(log_record.freeze())
+                val index_data = encodeEntryRecord(index_record.freeze()).toByteArray
+
+                appender.append(LOG_ADD_ENTRY, log_data)
+                batch.put(key, index_data)
+
+                Option(log_info).orElse(log.log_info(dataLocator._1)).foreach { logInfo =>
+                  logRefs.getOrElseUpdate(logInfo.position, new LongCounter()).incrementAndGet()
+                }
+
                 collectionIncrementSize(entry.queueKey)
+                write_enqueue_total += System.nanoTime() - start
               }
 
             }
@@ -1039,6 +1064,9 @@ class LevelDBClient(store: LevelDBStore) {
               syncNeeded = true
             }
           }
+
+          max_write_message_latency.add(write_message_total)
+          max_write_enqueue_latency.add(write_enqueue_total)
         }
         if( syncNeeded && sync ) {
           appender.force
