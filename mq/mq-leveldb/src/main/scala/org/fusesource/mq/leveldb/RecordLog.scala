@@ -26,9 +26,10 @@ import java.util.concurrent.atomic.AtomicLong
 import java.io._
 import org.fusesource.hawtbuf.{DataByteArrayInputStream, DataByteArrayOutputStream, Buffer}
 import org.fusesource.hawtdispatch.BaseRetained
-import org.fusesource.mq.leveldb.util.Log
 import org.fusesource.mq.leveldb.util.FileSupport._
 import org.apache.activemq.util.LRUCache
+import util.TimeMetric._
+import util.{TimeMetric, Log}
 
 object RecordLog extends Log {
 
@@ -383,6 +384,10 @@ case class RecordLog(directory: File, logSuffix:String) {
     }
   }
 
+  val max_uow_write_latency = TimeMetric()
+  val max_uow_flush_latency = TimeMetric()
+  val max_append_rotate_latency = TimeMetric()
+
   def open = {
     log_mutex.synchronized {
       log_infos = LevelDBClient.find_sequence_files(directory, logSuffix).map { case (position,file) =>
@@ -426,19 +431,25 @@ case class RecordLog(directory: File, logSuffix:String) {
   def appender[T](func: (LogAppender)=>T):T= {
     val intial_position = current_appender.append_position
     try {
-      val rc = func(current_appender)
-      if( current_appender.append_position != intial_position ) {
-        // Record a UOW_END_RECORD so that on recovery we only replay full units of work.
-        current_appender.append(UOW_END_RECORD,encode_long(intial_position))
+      max_uow_write_latency {
+        val rc = func(current_appender)
+        if( current_appender.append_position != intial_position ) {
+          // Record a UOW_END_RECORD so that on recovery we only replay full units of work.
+          current_appender.append(UOW_END_RECORD,encode_long(intial_position))
+        }
+        rc
       }
-      rc
     } finally {
-      current_appender.flush
-      log_mutex.synchronized {
-        if ( current_appender.append_offset >= logSize ) {
-          current_appender.release()
-          on_log_rotate()
-          create_appender(current_appender.append_position)
+      max_uow_flush_latency {
+        current_appender.flush
+      }
+      max_append_rotate_latency {
+        log_mutex.synchronized {
+          if ( current_appender.append_offset >= logSize ) {
+            current_appender.release()
+            on_log_rotate()
+            create_appender(current_appender.append_position)
+          }
         }
       }
     }

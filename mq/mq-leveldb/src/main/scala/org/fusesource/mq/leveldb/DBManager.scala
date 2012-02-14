@@ -30,6 +30,7 @@ import scala.Option._
 import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.command._
 import org.fusesource.mq.leveldb.record.{EntryRecord, SubscriptionRecord, CollectionRecord}
+import util.TimeMetric
 
 case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
   var locator:(Long, Int) = _
@@ -141,6 +142,8 @@ class DBManager(val parent:LevelDBStore) {
   var uowCanceledCounter = 0L
   var uowStoringCounter = 0L
   var uowStoredCounter = 0L
+
+  val uow_complete_latency = TimeMetric() 
   
   class DelayableUOW extends BaseRetained {
     val countDownFuture = CountDownFuture()
@@ -277,9 +280,11 @@ class DBManager(val parent:LevelDBStore) {
     }
 
     var asyncCapacityUsed = 0L
+    var disposed_at = 0L
     
     override def dispose = this.synchronized {
       state = UowClosed
+      disposed_at = System.nanoTime()
       if( !syncNeeded ) {
         val s = size
         if( asyncCapacityRemaining.addAndGet(-s) > 0 ) {
@@ -298,6 +303,7 @@ class DBManager(val parent:LevelDBStore) {
           asyncCapacityRemaining.addAndGet(asyncCapacityUsed)
           asyncCapacityUsed = 0
         } else {
+          uow_complete_latency.add(System.nanoTime() - disposed_at)
           countDownFuture.countDown
         }
         super.dispose
@@ -500,7 +506,15 @@ class DBManager(val parent:LevelDBStore) {
 
   def monitorStats:Unit = dispatchQueue.after(1, TimeUnit.SECONDS) {
     if( started ) {
-      println("committed: %d, canceled: %d, storing: %d, stored: %d, ".format(uowClosedCounter, uowCanceledCounter, uowStoringCounter, uowStoredCounter))
+      println(("committed: %d, canceled: %d, storing: %d, stored: %d, " +
+        "uow complete: %,.3f ms, " +
+        "index write: %,.3f ms, " +
+        "low uow write: %,.3f ms, log uow flush: %,.3f ms, log rotate: %,.3f ms").format(
+          uowClosedCounter, uowCanceledCounter, uowStoringCounter, uowStoredCounter,
+          uow_complete_latency.reset,
+          LevelDBClient.max_write_latency.reset,
+          client.log.max_uow_write_latency.reset, client.log.max_uow_flush_latency.reset, client.log.max_append_rotate_latency.reset
+      ))
       uowClosedCounter = 0
       uowCanceledCounter = 0
       uowStoringCounter = 0

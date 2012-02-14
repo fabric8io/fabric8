@@ -180,6 +180,9 @@ object LevelDBClient extends Log {
     (in.readByte(), in.readLong(), in.readBuffer(in.available()))
   }
 
+  val max_write_build_ns = TimeMetric()
+  val max_write_latency = TimeMetric()
+
   final class RichDB(val db: DB) {
 
     val isPureJavaVersion = db.getClass.getName == "org.iq80.leveldb.impl.DbImpl"
@@ -201,13 +204,16 @@ object LevelDBClient extends Log {
     def put(key:Array[Byte], value:Array[Byte], wo:WriteOptions=new WriteOptions):Unit = {
       db.put(key, value, wo)
     }
-
+    
     def write[T](wo:WriteOptions=new WriteOptions)(func: WriteBatch=>T):T = {
       val updates = db.createWriteBatch()
       try {
-
-        val rc=Some(func(updates))
-        db.write(updates, wo)
+        val rc=Some(max_write_build_ns{
+          func(updates)
+        })
+        max_write_latency {
+          db.write(updates, wo)
+        }
         return rc.get
       } finally {
         updates.close();
