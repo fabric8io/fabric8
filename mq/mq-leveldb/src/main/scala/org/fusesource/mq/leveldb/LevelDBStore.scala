@@ -22,9 +22,6 @@ import org.apache.activemq.broker.ConnectionContext
 import org.apache.activemq.command._
 import org.apache.activemq.openwire.OpenWireFormat
 import org.apache.activemq.usage.SystemUsage
-import org.apache.activemq.util.IOExceptionSupport
-import org.apache.activemq.util.ServiceStopper
-import org.apache.activemq.util.ServiceSupport
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ExecutionException
@@ -35,7 +32,9 @@ import reflect.BeanProperty
 import org.apache.activemq.store._
 import java.util._
 import scala.collection.mutable.ListBuffer
-import org.fusesource.hawtbuf.Buffer
+import javax.management.ObjectName
+import org.apache.activemq.broker.jmx.AnnotatedMBean
+import org.apache.activemq.util._
 
 object LevelDBStore extends Log {
   
@@ -72,6 +71,44 @@ case class DurableSubscription(subKey:Long, topicKey:Long, info: SubscriptionInf
   var cursorPosition = 0L
 }
 
+class LevelDBStoreView(val store:LevelDBStore) extends LevelDBStoreViewMBean {
+  import store._
+
+  def getAsyncBufferSize = asyncBufferSize
+  def getIndexDirectory = directory.getCanonicalPath
+  def getLogDirectory = Option(logDirectory).getOrElse(directory).getCanonicalPath
+  def getIndexBlockRestartInterval = indexBlockRestartInterval
+  def getIndexBlockSize = indexBlockSize
+  def getIndexCacheSize = indexCacheSize
+  def getIndexCompression = indexCompression
+  def getIndexFactory = db.client.factory.getClass.getName
+  def getIndexMaxOpenFiles = indexMaxOpenFiles
+  def getIndexWriteBufferSize = indexWriteBufferSize
+  def getLogSize = logSize
+  def getParanoidChecks = paranoidChecks
+  def getSync = sync
+  def getVerifyChecksums = verifyChecksums
+
+  def getUowClosedCounter = db.uowClosedCounter
+  def getUowCanceledCounter = db.uowCanceledCounter
+  def getUowStoringCounter = db.uowStoringCounter
+  def getUowStoredCounter = db.uowStoredCounter
+
+  def getUowMaxCompleteLatency = db.uow_complete_latency.get
+  def getMaxIndexWriteLatency = db.client.max_index_write_latency.get
+  def getMaxLogWriteLatency = db.client.log.max_log_write_latency.get
+  def getMaxLogFlushLatency = db.client.log.max_log_flush_latency.get
+  def getMaxLogRotateLatency = db.client.log.max_log_rotate_latency.get
+
+  def resetUowMaxCompleteLatency = db.uow_complete_latency.reset
+  def resetMaxIndexWriteLatency = db.client.max_index_write_latency.reset
+  def resetMaxLogWriteLatency = db.client.log.max_log_write_latency.reset
+  def resetMaxLogFlushLatency = db.client.log.max_log_flush_latency.reset
+  def resetMaxLogRotateLatency = db.client.log.max_log_rotate_latency.reset
+
+  def getIndexStats = db.client.index.getProperty("leveldb.stats")
+}
+
 class LevelDBStore extends ServiceSupport with BrokerServiceAware with PersistenceAdapter with TransactionStore {
   import LevelDBStore._
 
@@ -80,6 +117,9 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
   @BeanProperty
   var directory: File = null
+  @BeanProperty
+  var logDirectory: File = null
+  
   @BeanProperty
   var logSize: Long = 1024 * 1024 * 100
   @BeanProperty
@@ -120,8 +160,28 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     return "LevelDB:[" + directory.getAbsolutePath + "]"
   }
 
+  def objectName = {
+    var brokerON = brokerService.getBrokerObjectName
+    val broker_name = brokerON.getKeyPropertyList().get("BrokerName")
+    new ObjectName(brokerON.getDomain() + ":" +
+            "BrokerName="+JMXSupport.encodeObjectNamePart(broker_name)+ "," +
+            "Type=LevelDBStore");
+  }
+
   def doStart: Unit = {
     debug("starting")
+
+    // Expose a JMX bean to expose the status of the store.
+    if(brokerService!=null){
+      try {
+        AnnotatedMBean.registerMBean(brokerService.getManagementContext, new LevelDBStoreView(this), objectName)
+      } catch {
+        case e: Throwable => {
+          warn(e, "LevelDB Store could not be registered in JMX: " + e.getMessage)
+        }
+      }
+    }
+
     db.start
     if (purgeOnStatup) {
       purgeOnStatup = false
@@ -134,6 +194,9 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
   def doStop(stopper: ServiceStopper): Unit = {
     db.stop
+    if(brokerService!=null){
+      brokerService.getManagementContext().unregisterMBean(objectName);
+    }
     info("Stopped "+this)
   }
 
@@ -419,8 +482,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     def gcPosition:Option[(Long, Long)] = {
       var pos = lastSeq.get()
       subscriptions.synchronized {
-        import collection.JavaConversions._
-        subscriptions.values().foreach { sub =>
+        subscriptions.values.foreach { sub =>
           if( sub.lastAckPosition < pos ) {
             pos = sub.lastAckPosition
           }
@@ -446,8 +508,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     }
     
     def getAllSubscriptions: Array[SubscriptionInfo] = subscriptions.synchronized {
-      import collection.JavaConversions._
-      subscriptions.values().map(_.info).toArray
+      subscriptions.values.map(_.info).toArray
     }
 
     def lookupSubscription(clientId: String, subscriptionName: String): SubscriptionInfo = subscriptions.synchronized {
