@@ -145,7 +145,7 @@ case class RecordLog(directory: File, logSuffix:String) {
     /**
      * returns the offset position of the data record.
      */
-    def append(id:Byte, data: Buffer) = { // this.synchronized {
+    def append(id:Byte, data: Buffer) = this.synchronized {
       val record_position = append_position
       val data_length = data.length
       val total_length = LOG_HEADER_SIZE + data_length
@@ -189,28 +189,24 @@ case class RecordLog(directory: File, logSuffix:String) {
       (record_position, info)
     }
 
-    def flush = {
-      max_log_flush_latency {
-        if( write_buffer.position() > 0 ) {
-          val buffer = write_buffer.toBuffer.toByteBuffer
-          val pos = append_offset-buffer.remaining
-          flushed_offset.addAndGet(buffer.remaining)
-          channel.write(buffer, pos)
-          if( buffer.hasRemaining ) {
-            throw new IOException("Short write")
-          }
-          write_buffer.reset()
+    def flush = max_log_flush_latency { this.synchronized {
+      if( write_buffer.position() > 0 ) {
+        val buffer = write_buffer.toBuffer.toByteBuffer
+        val pos = append_offset-buffer.remaining
+        flushed_offset.addAndGet(buffer.remaining)
+        channel.write(buffer, pos)
+        if( buffer.hasRemaining ) {
+          throw new IOException("Short write")
         }
-      }
+        write_buffer.reset()
+      } }
     }
 
-//    override def check_read_flush(end_offset:Long) = {
-//      if( flushed_offset.get() < end_offset )  {
-//        this.synchronized {
-//          flush
-//        }
-//      }
-//    }
+    override def check_read_flush(end_offset:Long) = {
+      if( flushed_offset.get() < end_offset )  {
+        flush
+      }
+    }
 
   }
 
