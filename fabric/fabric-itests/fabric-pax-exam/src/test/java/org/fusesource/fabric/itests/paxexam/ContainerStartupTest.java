@@ -18,6 +18,7 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -47,10 +48,8 @@ public class ContainerStartupTest extends FabricCommandsTestSupport {
         executeCommand("fabric:ensemble-create --clean root");
 
         //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
-
-        Thread.sleep(DEFAULT_WAIT);
-
+        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
+        zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
         Container[] containers = fabricService.getContainers();
 
         assertNotNull(containers);

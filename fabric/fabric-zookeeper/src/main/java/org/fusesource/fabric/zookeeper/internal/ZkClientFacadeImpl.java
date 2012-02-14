@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class ZkClientFacadeImpl implements ZkClientFacade, ZooKeeperAware, LifecycleListener {
 
@@ -101,10 +102,6 @@ public class ZkClientFacadeImpl implements ZkClientFacade, ZooKeeperAware, Lifec
      * @return
      */
     public IZKClient getZookeeper(Long timeout) {
-        if (!isZooKeeperConfigured()) {
-            return null;
-        }
-
         for (int t = 0; t <= timeout; t += retryInterval)   {
             try {
 
@@ -142,6 +139,12 @@ public class ZkClientFacadeImpl implements ZkClientFacade, ZooKeeperAware, Lifec
 
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    public void update(Map properties) {
+        if (properties.containsKey("zookeeper.url")) {
+            this.zookeeprUrl = (String) properties.get("zookeeper.url");
+        }
     }
 
     @Override

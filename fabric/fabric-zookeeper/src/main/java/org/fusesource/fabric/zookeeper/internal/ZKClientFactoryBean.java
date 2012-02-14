@@ -18,6 +18,7 @@ package org.fusesource.fabric.zookeeper.internal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.zookeeper.Watcher;
 import org.linkedin.util.clock.Timespan;
@@ -119,6 +120,25 @@ public class ZKClientFactoryBean {
             if (zkClient != null) {
                 zkClient.removeListener(listener);
             }
+        }
+    }
+
+    public void update(Map properties) throws Exception {
+        String connectStringProperty = "";
+        String connectTimeTextProperty = "";
+        if (properties.containsKey("zookeeper.url")) {
+            connectStringProperty = (String) properties.get("zookeeper.url");
+        }
+
+        if (properties.containsKey("timeoutText")) {
+            connectTimeTextProperty = (String) properties.get("timeoutText");
+        }
+
+        if (!(connectString.equals(connectStringProperty) && (connectTimeoutText.equals(connectTimeTextProperty)))) {
+            connectString = connectStringProperty;
+            connectTimeoutText = connectTimeTextProperty;
+            destroy();
+            getObject();
         }
     }
 

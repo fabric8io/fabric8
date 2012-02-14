@@ -24,7 +24,7 @@
         </ext:default-properties>
     </ext:property-placeholder>
 
-    <cm:property-placeholder persistent-id="org.fusesource.fabric.zookeeper" update-strategy="reload">
+    <cm:property-placeholder persistent-id="org.fusesource.fabric.zookeeper">
         <cm:default-properties>
             <cm:property name="zookeeper.url" value="\$[zookeeper.url]"/>
             <cm:property name="zookeeper.timeout" value="10s"/>
@@ -32,6 +32,7 @@
     </cm:property-placeholder>
 
     <bean id="zkClientFactory" class="org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean" destroy-method="destroy" depends-on="zkServerFactory">
+        <cm:managed-properties persistent-id="org.fusesource.fabric.zookeeper" update-method="update" update-strategy="component-managed"/>
         <property name="connectString" value="${zookeeper.url}"/>
         <property name="timeoutText" value="${zookeeper.timeout}"/>
         <property name="listeners">
@@ -66,7 +67,7 @@
     </bean>
 
     <bean id="facade" class="org.fusesource.fabric.zookeeper.internal.ZkClientFacadeImpl">
-        <property name="zookeeprUrl" value="${zookeeper.url}"/>
+        <cm:managed-properties persistent-id="org.fusesource.fabric.zookeeper" update-method="update" update-strategy="component-managed" />
     </bean>
 
     <service ref="zkServerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">

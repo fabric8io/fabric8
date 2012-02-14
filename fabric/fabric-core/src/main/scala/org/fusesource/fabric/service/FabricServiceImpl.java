@@ -17,14 +17,31 @@
 package org.fusesource.fabric.service;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerBasicMetadata;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.internal.ProfileImpl;
@@ -38,15 +55,11 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
-public class FabricServiceImpl implements FabricService, FabricServiceImplMBean {
-    private transient Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
+public class FabricServiceImpl implements FabricService {
+
+    private static final Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
     private IZKClient zooKeeper;
     private Map<String, ContainerProvider> providers;
@@ -207,94 +220,41 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
         return parent;
     }
 
-    public Container[] createContainers(final CreateContainerOptions options) {
-
-        Container[] containers = new Container[options.getNumber()];
+    public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
         if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
             options.setZookeeperUrl(getZookeeperUrl());
         }
-
         if (options.getProxyUri() == null) {
             options.setProxyUri(getMavenRepoURI());
         }
-
         try {
-
             ContainerProvider provider = getProvider(options.getProviderType());
             if (provider == null) {
-                throw new FabricException("Unable to find an container provider type '" + options.getProviderType() + "'");
+                throw new FabricException("Unable to find a container provider supporting '" + options.getProviderType() + "'");
             }
 
-            Set<? extends CreateContainerMetadata> createMetadata = new LinkedHashSet<CreateContainerMetadata>();
+            Container parent = options.getParent() != null ? getContainer(options.getParent()) : null;
+            Set<? extends CreateContainerMetadata>  metadatas = provider.create(options);
 
-            String parent = options.getParent() != null ? options.getParent() : "";
-            Container parentContainer = null;
-            String currentID = getCurrentContainerId();
-            if (provider instanceof ChildContainerProvider && !Objects.equal(getCurrentContainerId(), parent)) {
-                createMetadata = createChildContainer(options);
-            } else {
-                createMetadata = provider.create(options);
-            }
-
-            containers = new Container[createMetadata.size()];
-            int container = 0;
-            for(CreateContainerMetadata metadata : createMetadata) {
-                //An ensemble server can be created without an existing ensemble.
-                //In this case container config will be created by the newly created container.
-                if (!options.isEnsembleServer()) {
-                    createContainerConfig(parent, metadata.getContainerName());
+            for (CreateContainerMetadata metadata : metadatas) {
+                if (metadata.isSuccess()) {
+                    //An ensemble server can be created without an existing ensemble.
+                    //In this case container config will be created by the newly created container.
+                    if (!options.isEnsembleServer()) {
+                        createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
+                    }
+                    ((CreateContainerBasicMetadata) metadata).setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
+                    logger.info("The container " + metadata.getContainerName() + " has been successfully created");
+                } else {
+                    logger.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
                 }
-                containers[container] = new ContainerImpl(parentContainer, metadata.getContainerName(), FabricServiceImpl.this);
-                containers[container++].setCreateContainerMetadata(metadata);
             }
+            return metadatas.toArray(new CreateContainerMetadata[metadatas.size()]);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
             throw new FabricException(e);
         }
-        return containers;
-    }
-
-    private String getCurrentContainerId() {
-        String currentID = "";
-        Container currentContainer = getCurrentContainer();
-        if (currentContainer != null) {
-            currentID = currentContainer.getId();
-        }
-        return currentID;
-    }
-
-    private Set<CreateContainerMetadata> createChildContainer(final CreateContainerOptions options) throws Exception {
-        Set<CreateContainerMetadata> result = new LinkedHashSet<CreateContainerMetadata>();
-        String parent = getParentFromURI(options.getProviderURI());
-        Container parentContainer = getContainer(parent);
-        if (!Objects.equal(getCurrentContainerId(), parent)) {
-            ContainerTemplate containerTemplate = getContainerTemplate(parentContainer);
-            result = containerTemplate.execute(new ContainerTemplate.FabricServiceCallback<Set<CreateContainerMetadata>>() {
-                public Set<CreateContainerMetadata> doWithFabricService(FabricServiceImplMBean fabricService) throws Exception {
-                    return (Set<CreateContainerMetadata>) fabricService.createRemoteContainer(options);
-                }
-            });
-        } else {
-            result = getProvider("child").create(options);
-        }
-        return result;
-    }
-
-    @Override
-    public Set<CreateContainerMetadata> createRemoteContainer(CreateContainerOptions args) {
-        Set<CreateContainerMetadata> result = new LinkedHashSet<CreateContainerMetadata>();
-        try {
-            Container[] containers = createContainers(args);
-            for (Container container: containers) {
-                 result.add(container.getCreateContainerMetadata());
-            }
-        } catch (FabricException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-        return result;
     }
 
     public ContainerProvider getProvider(final String scheme) {
@@ -307,9 +267,8 @@ public class FabricServiceImpl implements FabricService, FabricServiceImplMBean 
 
     @Override
     public URI getMavenRepoURI() {
-        URI uri = null;
+        URI uri = URI.create(DEFAULT_REPO_URI);
         try {
-            uri = new URI(DEFAULT_REPO_URI);
             if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_REPO.getPath()) != null) {
                 String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_REPO.getPath());
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {

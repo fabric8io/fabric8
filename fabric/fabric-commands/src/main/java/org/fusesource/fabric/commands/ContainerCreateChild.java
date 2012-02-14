@@ -18,9 +18,9 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers")
@@ -49,9 +49,11 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .number(number)
                 .zookeeperUrl(fabricService.getZookeeperUrl());
 
-        Container[] containers = fabricService.createContainers(options);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
+        // display containers
+        displayContainers(metadatas);
         // and set its profiles and versions after creation
-        postCreateContainer(containers);
+        postCreateContainers(metadatas);
         return null;
     }
 

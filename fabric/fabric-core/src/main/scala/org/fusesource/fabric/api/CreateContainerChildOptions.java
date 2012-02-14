@@ -18,4 +18,8 @@
 package org.fusesource.fabric.api;
 
 public class CreateContainerChildOptions extends CreateContainerBasicOptions<CreateContainerChildOptions> {
+
+    public CreateContainerChildOptions() {
+        this.providerType = "child";
+    }
 }

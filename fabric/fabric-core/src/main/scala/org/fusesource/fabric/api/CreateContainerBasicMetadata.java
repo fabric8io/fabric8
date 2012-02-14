@@ -19,9 +19,21 @@ package org.fusesource.fabric.api;
 
 public class CreateContainerBasicMetadata implements CreateContainerMetadata {
 
-    private static final long serialVersionUID = 5331911342234445444L;
-
     private String containerName;
+    private Throwable failure;
+    private Container container;
+
+    public boolean isSuccess() {
+        return failure == null;
+    }
+
+    public Throwable getFailure() {
+        return failure;
+    }
+
+    public void setFailure(Throwable failure) {
+        this.failure = failure;
+    }
 
     public String getContainerName() {
         return containerName;
@@ -29,5 +41,13 @@ public class CreateContainerBasicMetadata implements CreateContainerMetadata {
 
     public void setContainerName(String containerName) {
         this.containerName = containerName;
+    }
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public void setContainer(Container container) {
+        this.container = container;
     }
 }

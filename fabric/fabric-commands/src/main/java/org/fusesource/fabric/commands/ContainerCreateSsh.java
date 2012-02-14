@@ -16,14 +16,16 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH")
@@ -68,9 +70,11 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl());
 
-        Container[] containers = fabricService.createContainers(args);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+        // display containers
+        displayContainers(metadatas);
         // and set its profiles and versions after creation
-        postCreateContainer(containers);
+        postCreateContainers(metadatas);
         return null;
     }
 
@@ -83,5 +87,21 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
             throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
         }
 
+        // Check if the specified host is local
+        try {
+            InetAddress[] localIps = InetAddress.getAllByName(InetAddress.getLocalHost().getCanonicalHostName());
+            for (InetAddress address : InetAddress.getAllByName(host)) {
+                if (address.isAnyLocalAddress() || address.isLoopbackAddress()) {
+                    throw new IllegalArgumentException("Container creation not permitted locally");
+                }
+                for (InetAddress local : localIps) {
+                    if (local.equals(address)) {
+                        throw new IllegalArgumentException("Container creation not permitted locally");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to find host address: " + host, e);
+        }
     }
 }

@@ -21,13 +21,19 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
@@ -38,7 +44,6 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.rest.RestContextFactory;
-
 
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartupScript;
 
@@ -140,18 +145,24 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 if(options.getNumber() > 1) {
                     containerName+=suffix++;
                 }
-                String script = buildStartupScript(options.name(containerName));
-                if (credentials != null) {
-                    computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
-                } else {
-                    computeService.runScriptOnNode(id, script);
-                }
 
                 CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
                 jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
                 jCloudsContainerMetadata.setContainerName(containerName);
                 jCloudsContainerMetadata.setPublicAddresses(nodeMetadata.getPublicAddresses());
                 jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
+
+                try {
+                    String script = buildStartupScript(options.name(containerName));
+                    if (credentials != null) {
+                        computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                    } else {
+                        computeService.runScriptOnNode(id, script);
+                    }
+                } catch (Throwable t) {
+                    jCloudsContainerMetadata.setFailure(t);
+                }
+
                 result.add(jCloudsContainerMetadata);
             }
         }

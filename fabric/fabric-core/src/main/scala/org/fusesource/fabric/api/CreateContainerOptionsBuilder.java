@@ -37,13 +37,13 @@ public class CreateContainerOptionsBuilder {
 
     public static CreateContainerBasicOptions type(String type) {
         if ("child".equals(type)) {
-            return new CreateContainerChildOptions();
+            return child();
         } else if ("ssh".equals(type)) {
-            return new CreateSshContainerOptions();
+            return ssh();
         } else if ("jclouds".equals(type)) {
-            return new CreateJCloudsContainerOptions();
+            return jclouds();
         } else {
-            return new CreateContainerBasicOptions();
+            return basic();
         }
     }
 }
