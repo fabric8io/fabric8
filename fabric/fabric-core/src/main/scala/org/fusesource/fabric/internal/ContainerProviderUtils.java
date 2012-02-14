@@ -96,6 +96,8 @@ public class ContainerProviderUtils {
         String directory =  groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/";
         String artifactParentUri = proxy.resolve(directory).toString();
         String artifactUri = proxy.resolve(directory+file).toString();
+        //TODO: There may be cases where this is not good enough
+        String installationFolder = artifactId + "-" + version;
 
         //To cover the case of SNAPSHOT dependencies where URL can't be determined we are querying for the available versions first
         if(version.contains("SNAPSHOT")) {
@@ -106,5 +108,7 @@ public class ContainerProviderUtils {
         sb.append("if [[  \"$DISTRO_URL\" == \"\" ]] ;  then export DISTRO_URL=").append(artifactUri).append("; fi\n");
         sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append("$DISTRO_URL").append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
+        //Add the proxyURI to the list of repositories
+        //appendToLineInFile(sb,installationFolder+"/etc/org.ops4j.pax.url.mvn.cfg","org.ops4j.pax.url.mvn.repositories=",proxy.toString()+",");
     }
 }

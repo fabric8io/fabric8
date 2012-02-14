@@ -89,7 +89,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     }
 
     public String getProviderType() {
-        return providerURI != null ? providerURI.getScheme() : providerType;
+        return providerType != null ? providerType : (providerURI != null ? providerURI.getScheme() : null);
     }
 
     public void setProviderType(String providerType) {
