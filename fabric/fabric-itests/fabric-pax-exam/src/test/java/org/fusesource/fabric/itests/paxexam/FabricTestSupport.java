@@ -25,6 +25,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import javax.inject.Inject;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricService;
@@ -68,7 +69,7 @@ public class FabricTestSupport {
      * @param name The name of the child {@ling Agent}.
      * @return
      */
-    protected Container createChildAgent(String name) throws InterruptedException {
+    protected Container createChildAgent(String name) throws Exception {
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
@@ -85,8 +86,11 @@ public class FabricTestSupport {
         assertEquals("Expected to find the root container", "root", parent.getId());
 
         CreateContainerOptions args = CreateContainerOptionsBuilder.basic().name("chlid1").parent(parent.getId());
-        Container child = fabricService.createContainers(args)[0];
-        return child;
+        CreateContainerMetadata[] metadata = fabricService.createContainers(args);
+        if (metadata.length > 0) {
+            return metadata[0].getContainer();
+        }
+        throw new Exception("Cohild container not created");
     }
 
     protected void destroyChildAgent(String name) throws InterruptedException {
