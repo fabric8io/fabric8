@@ -80,6 +80,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
      * @param containers the created containers
      */
     protected void postCreateContainer(Container[] containers) {
+        if (!isEnsembleServer) {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         List<String> names = getProfileNames();
@@ -97,6 +98,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
 
         if (log.isDebugEnabled()) {
             log.debug("postCreateContainer completed for " + Arrays.asList(containers) + " containers.");
+        }
         }
     }
 

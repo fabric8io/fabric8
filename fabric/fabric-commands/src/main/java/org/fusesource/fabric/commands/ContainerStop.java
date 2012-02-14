@@ -28,6 +28,7 @@ public class ContainerStop extends FabricCommand {
     private String container = null;
 
     protected Object doExecute() throws Exception {
+        getZooKeeper().checkConnected(0L);
         Container found = getContainer(container);
         if (found == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");

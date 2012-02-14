@@ -40,6 +40,7 @@ public class ContainerConnect extends FabricCommand {
     private List<String> command;
 
     protected Object doExecute() throws Exception {
+        getZooKeeper().checkConnected(0L);
         String cmdStr = "";
         if (command != null) {
             StringBuilder sb = new StringBuilder();

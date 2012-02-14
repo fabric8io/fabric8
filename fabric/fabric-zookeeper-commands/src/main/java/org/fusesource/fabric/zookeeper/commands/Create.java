@@ -56,6 +56,8 @@ public class Create extends ZooKeeperCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkZooKeeperConnected();
+
         List<ACL> acls = acl == null ? ZooDefs.Ids.OPEN_ACL_UNSAFE : parseACLs(acl);
         CreateMode mode;
         if (ephemeral && sequential) {

@@ -46,6 +46,7 @@ public class ContainerList extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        getZooKeeper().checkConnected(0L);
         Container[] containers = fabricService.getContainers();
         // we want the list to be sorted
         containers = sortContainers(containers);

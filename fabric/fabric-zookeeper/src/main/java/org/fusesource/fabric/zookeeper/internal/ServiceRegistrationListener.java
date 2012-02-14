@@ -63,6 +63,7 @@ public class ServiceRegistrationListener implements LifecycleListener, ZooKeeper
     public synchronized void onConnected() {
         Properties props = new Properties();
         props.put("url", zooKeeperUrl);
+        props.put("direct", "true");
         clientRegistration = bundleContext.registerService(IZKClient.class.getName(), zooKeeper, props);
         props = new Properties();
         props.put("url", zooKeeperUrl);

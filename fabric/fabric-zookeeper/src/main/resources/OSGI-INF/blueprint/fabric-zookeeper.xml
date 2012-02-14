@@ -38,6 +38,7 @@
             <list>
                 <ref component-id="karafContainerRegistration"/>
                 <ref component-id="serviceRegistrationListener"/>
+                <ref component-id="facade"/>
             </list>
         </property>
     </bean>
@@ -63,10 +64,22 @@
     <bean id="zkServerFactory" class="org.fusesource.fabric.zookeeper.internal.ZKServerFactoryBean" destroy-method="destroy">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
+
+    <bean id="facade" class="org.fusesource.fabric.zookeeper.internal.ZkClientFacadeImpl">
+        <property name="zookeeprUrl" value="${zookeeper.url}"/>
+    </bean>
+
     <service ref="zkServerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
             <entry key="service.pid" value="org.fusesource.fabric.zookeeper.server"/>
         </service-properties>
+    </service>
+
+    <service ref="facade" ranking="10">
+        <interfaces>
+            <value>org.linkedin.zookeeper.client.IZKClient</value>
+            <value>org.fusesource.fabric.zookeeper.ZkClientFacade</value>
+        </interfaces>
     </service>
 
     <reference-list interface="org.linkedin.zookeeper.client.LifecycleListener" availability="optional">

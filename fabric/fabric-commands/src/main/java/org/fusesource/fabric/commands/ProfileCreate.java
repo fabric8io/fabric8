@@ -39,6 +39,7 @@ public class ProfileCreate extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        getZooKeeper().checkConnected(0L);
         Profile[] parents = getProfiles(version, this.parents);
         Profile profile = fabricService.getVersion(version).createProfile(name);
         profile.setParents(parents);

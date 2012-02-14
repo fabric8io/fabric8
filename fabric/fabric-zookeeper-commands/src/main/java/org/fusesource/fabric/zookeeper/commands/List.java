@@ -36,6 +36,7 @@ public class List extends ZooKeeperCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkZooKeeperConnected();
         display(path);
         return null;
     }

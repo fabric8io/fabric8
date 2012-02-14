@@ -45,6 +45,7 @@ public class ProfileDisplay extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        getZooKeeper().checkConnected(0L);
         Version version = fabricService.getVersion(this.version);
 
         for (Profile profile : version.getProfiles()) {

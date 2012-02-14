@@ -69,6 +69,8 @@ public class Import extends ZooKeeperCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkZooKeeperConnected();
+
         if (ignore.exists() && ignore.isFile()) {
             nregex = merge(ignore, nregex);
         }

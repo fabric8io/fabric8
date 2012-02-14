@@ -36,7 +36,7 @@ public class Set extends ZooKeeperCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-
+       checkZooKeeperConnected();
         String nodeData = data;
 
         if (importUrl) {

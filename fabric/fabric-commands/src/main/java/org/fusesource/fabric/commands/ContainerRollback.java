@@ -39,6 +39,7 @@ public class ContainerRollback extends ContainerUpgradeSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        getZooKeeper().checkConnected(0L);
         // check and validate version
         Version version = fabricService.getVersion(this.version);
 
