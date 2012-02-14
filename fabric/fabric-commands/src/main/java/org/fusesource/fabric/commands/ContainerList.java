@@ -23,11 +23,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
+
+import static org.fusesource.fabric.commands.support.CommandUtils.filterContainers;
+import static org.fusesource.fabric.commands.support.CommandUtils.matchVersion;
+import static org.fusesource.fabric.commands.support.CommandUtils.sortContainers;
+import static org.fusesource.fabric.commands.support.CommandUtils.status;
 
 @Command(name = "container-list", scope = "fabric", description = "List existing containers")
 public class ContainerList extends FabricCommand {
@@ -44,19 +50,28 @@ public class ContainerList extends FabricCommand {
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
 
+    @Argument(index = 0, name = "filter", description = "Filter by id or profiles", required = false, multiValued = false)
+    private String filter = null;
+
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         Container[] containers = fabricService.getContainers();
+
+        // filter unwanted containers, and split list into parent/child,
+        // so we can sort the list as we want it 
+        containers = filterContainers(containers, filter);
+
         // we want the list to be sorted
         containers = sortContainers(containers);
-        
+
         Version ver = null;
         if (version != null) {
             // limit containers to only with same version
             ver = fabricService.getVersion(version);
         }
-        
-         if (verbose) {
+       
+        if (verbose) {
             printContainersVerbose(containers, ver, System.out);
         } else {
             printContainers(containers, ver, System.out);
@@ -67,17 +82,9 @@ public class ContainerList extends FabricCommand {
     protected void printContainers(Container[] containers, Version version, PrintStream out) {
         out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
-            if (container.isRoot()) {
-                if (matchVersion(container, version)) {
-                    out.println(String.format(FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
-                }
-                for (Container child : containers) {
-                    if (child.getParent() == container) {
-                        if (matchVersion(child, version)) {
-                            out.println(String.format(FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), status(child)));
-                        }
-                    }
-                }
+            if (matchVersion(container, version)) {
+                String indent = container.isRoot() ? "" : "  ";
+                out.println(String.format(FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
             }
         }
     }
@@ -103,17 +110,9 @@ public class ContainerList extends FabricCommand {
     protected void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
         out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
         for (Container container : containers) {
-            if (container.isRoot()) {
-                if (matchVersion(container, version)) {
-                    out.println(String.format(VERBOSE_FORMAT, container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
-                }
-                for (Container child : containers) {
-                    if (child.getParent() == container) {
-                        if (matchVersion(child, version)) {
-                            out.println(String.format(VERBOSE_FORMAT, "  " + child.getId(), child.getVersion().getName(), child.isAlive(), toString(child.getProfiles()), child.getSshUrl(), child.getJmxUrl(), status(child)));
-                        }
-                    }
-                }
+            if (matchVersion(container, version)) {
+                String indent = container.isRoot() ? "" : "  ";
+                out.println(String.format(VERBOSE_FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
             }
         }
     }

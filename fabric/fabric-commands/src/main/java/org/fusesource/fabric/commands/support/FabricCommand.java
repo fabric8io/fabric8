@@ -25,6 +25,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.ServiceReference;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
@@ -51,6 +52,13 @@ public abstract class FabricCommand extends OsgiCommandSupport {
 
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    protected void checkFabricAvailable() {
+        ServiceReference sr = getBundleContext().getServiceReference(IZKClient.class.getName());
+        if (sr == null) {
+            throw new IllegalStateException("No Fabric available, please create one using fabric:create or fabric:join.");
+        }
     }
 
     protected String toString(Profile[] profiles) {
