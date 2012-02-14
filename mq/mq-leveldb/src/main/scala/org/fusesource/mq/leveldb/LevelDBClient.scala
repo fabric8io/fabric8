@@ -54,6 +54,7 @@ object LevelDBClient extends Log {
 
   final val DIRTY_INDEX_KEY = bytes(":dirty")
   final val LOG_REF_INDEX_KEY = bytes(":log-refs")
+  final val COLLECCTION_SIZES_INDEX_KEY = bytes(":collection-sizes")
   final val TRUE = bytes("true")
   final val FALSE = bytes("false")
   final val ACK_POSITION = new AsciiBuffer("p")
@@ -410,6 +411,7 @@ class LevelDBClient(store: LevelDBStore) {
 
   var factory:DBFactory = _
   val logRefs = HashMap[Long, LongCounter]()
+  val collectionSizes = HashMap[Long, LongCounter]()
 
   def dirtyIndexFile = directory / ("dirty"+INDEX_SUFFIX)
   def tempIndexFile = directory / ("temp"+INDEX_SUFFIX)
@@ -507,7 +509,7 @@ class LevelDBClient(store: LevelDBStore) {
 
       index = new RichDB(factory.open(dirtyIndexFile, indexOptions));
       try {
-        loadLogRefs
+        loadCounters
         index.put(DIRTY_INDEX_KEY, TRUE)
         // Update the index /w what was stored on the logs..
         var pos = lastIndexSnapshotPos;
@@ -520,6 +522,7 @@ class LevelDBClient(store: LevelDBStore) {
                   case LOG_ADD_COLLECTION =>
                     val record= decodeCollectionRecord(data)
                     index.put(encodeLongKey(COLLECTION_PREFIX, record.getKey), data)
+                    collectionSizes.put(record.getKey, new LongCounter)
                     
                   case LOG_REMOVE_COLLECTION =>
                     val record = decodeCollectionKeyRecord(data)
@@ -536,6 +539,7 @@ class LevelDBClient(store: LevelDBStore) {
                       true
                     }
                     index.delete(data)
+                    collectionSizes.remove(record.getKey)
 
                   case LOG_ADD_ENTRY =>
                     val record = decodeEntryRecord(data)
@@ -550,15 +554,18 @@ class LevelDBClient(store: LevelDBStore) {
                     if ( record.hasValueLocation ) {
                       logRefIncrement(record.getValueLocation)
                     }
+                    collectionIncrementSize(record.getCollectionKey)
 
                   case LOG_REMOVE_ENTRY =>
                     index.get(data, new ReadOptions).foreach { value=>
+                      val (_, collectionKey, _) = decodeEntryKey(value)
                       val record = decodeEntryRecord(value)
                       // Figure out which log file this message reference is pointing at..
                       if ( record.hasValueLocation ) {
                         logRefDecrement(record.getValueLocation)
                       }
                       index.delete(data)
+                      collectionDecrementSize(collectionKey)
                     }
 
                   case _ => // Skip other records, they don't modify the index.
@@ -598,21 +605,38 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
-  private def storeLogRefs = {
-    val map = new java.util.HashMap[Long, Long]
-    logRefs.foreach{ case (k,v)=> map.put(k,v.get()) }
-    index.put(LOG_REF_INDEX_KEY, objectEncode(map))
+  private def collectionDecrementSize(key: Long) {
+    collectionSizes.get(key).foreach(_.decrementAndGet())
+  }
+  private def collectionIncrementSize(key: Long) {
+    collectionSizes.get(key).foreach(_.incrementAndGet())
+  }
+
+  private def storeCounters = {
+    def storeMap(key:Array[Byte], map:HashMap[Long, LongCounter]) {
+      var log_map = new java.util.HashMap[Long, Long]
+      map.foreach {
+        case (k, v) => log_map.put(k, v.get())
+      }
+      index.put(key, objectEncode(log_map))
+    }
+    storeMap(LOG_REF_INDEX_KEY, logRefs)
+    storeMap(COLLECCTION_SIZES_INDEX_KEY, collectionSizes)
   }
 
 
-  private def loadLogRefs = {
-    logRefs.clear()
-    index.get(LOG_REF_INDEX_KEY, new ReadOptions).foreach { value=>
-      val javamap = objectDecode(value).asInstanceOf[java.util.Map[Long, Long]]
-      collection.JavaConversions.mapAsScalaMap(javamap).foreach { case (k,v)=>
-        logRefs.put(k, new LongCounter(v))
+  private def loadCounters = {
+    def loadMap(key:Array[Byte], map:HashMap[Long, LongCounter]) {
+      map.clear()
+      index.get(key, new ReadOptions).foreach { value=>
+        val javamap = objectDecode(value).asInstanceOf[java.util.Map[Long, Long]]
+        collection.JavaConversions.mapAsScalaMap(javamap).foreach { case (k,v)=>
+          map.put(k, new LongCounter(v))
+        }
       }
     }
+    loadMap(LOG_REF_INDEX_KEY, logRefs)
+    loadMap(COLLECCTION_SIZES_INDEX_KEY, collectionSizes)
   }
   
   def stop() = {
@@ -655,7 +679,7 @@ class LevelDBClient(store: LevelDBStore) {
     snapshotRwLock.writeLock().lock()
 
     // Close the index so that it's files are not changed async on us.
-    storeLogRefs
+    storeCounters
     index.put(DIRTY_INDEX_KEY, FALSE, new WriteOptions().sync(true))
     index.close
   }
@@ -786,6 +810,7 @@ class LevelDBClient(store: LevelDBStore) {
         index.put(key, value.toByteArray)
       }
     }
+    collectionSizes.put(record.getKey, new LongCounter)
   }
 
   def getLogAppendPosition = log.appender_limit
@@ -808,6 +833,7 @@ class LevelDBClient(store: LevelDBStore) {
     val key = encodeLongKey(COLLECTION_PREFIX, collectionKey)
     val value = encodeVLong(collectionKey)
     val entryKeyPrefix = encodeLongKey(ENTRY_PREFIX, collectionKey)
+    collectionSizes.remove(collectionKey)
     retryUsingIndex {
       log.appender { appender =>
         appender.append(LOG_REMOVE_COLLECTION, new Buffer(value))
@@ -836,6 +862,7 @@ class LevelDBClient(store: LevelDBStore) {
     val value = encodeVLong(collectionKey)
     val entryKeyPrefix = encodeLongKey(ENTRY_PREFIX, collectionKey)
 
+    collectionSizes.getOrElseUpdate(collectionKey, new LongCounter()).set(0)
     retryUsingIndex {
       index.get(key).foreach { collectionData =>
         log.appender { appender =>
@@ -859,10 +886,6 @@ class LevelDBClient(store: LevelDBStore) {
         }
       }
     }
-  }
-
-  def queueSizeFrom(collectionKey: Long, seq:Long) = {
-    collectionSizeFrom(collectionKey, encodeLong(seq))
   }
 
   def queueCursor(collectionKey: Long, seq:Long)(func: (Message)=>Boolean) = {
@@ -917,34 +940,7 @@ class LevelDBClient(store: LevelDBStore) {
   }
 
   def collectionSize(collectionKey: Long) = {
-    val entryKeyPrefix = encodeLongKey(ENTRY_PREFIX, collectionKey)
-    var count = 0
-    retryUsingIndex {
-      val ro = new ReadOptions
-      ro.fillCache(false)
-      ro.verifyChecksums(verifyChecksums)
-      index.cursorKeysPrefixed(entryKeyPrefix, ro) { key =>
-        count += 1
-        true
-      }
-    }
-    count
-  }
-
-  def collectionSizeFrom(collectionKey: Long,  cursorPosition:Buffer) = {
-    var count = 0
-    retryUsingIndex {
-      val ro = new ReadOptions
-      ro.fillCache(false)
-      ro.verifyChecksums(verifyChecksums)
-      val start = encodeEntryKey(ENTRY_PREFIX, collectionKey, cursorPosition)
-      val end = encodeLongKey(ENTRY_PREFIX, collectionKey+1)
-      index.cursorRangeKeys(start, end, ro) { key =>
-        count += 1
-        true
-      }
-    }
-    count
+    collectionSizes.get(collectionKey).map(_.get()).getOrElse(0L)
   }
 
   def collectionIsEmpty(collectionKey: Long) = {
@@ -1000,6 +996,7 @@ class LevelDBClient(store: LevelDBStore) {
                 appender.append(LOG_REMOVE_ENTRY, new Buffer(key))
                 batch.delete(key)
                 logRefDecrement(dataLocator._1)
+                collectionDecrementSize(entry.queueKey)
               }
 
               action.enqueues.foreach { entry =>
@@ -1021,6 +1018,7 @@ class LevelDBClient(store: LevelDBStore) {
                 batch.put(key,  encodeEntryRecord(index_record.freeze()).toByteArray)
 
                 logRefIncrement(dataLocator._1)
+                collectionIncrementSize(entry.queueKey)
               }
 
             }

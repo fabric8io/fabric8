@@ -568,8 +568,6 @@ class DBManager(val parent:LevelDBStore) {
     nextPos
   }
 
-  def queueSizeFrom(key:Long, pos:Long) = client.queueSizeFrom(key, pos)
-
   def queuePosition(id: MessageId):Long = {
     id.getEntryLocator.asInstanceOf[(Long, Long)]._2
   }
