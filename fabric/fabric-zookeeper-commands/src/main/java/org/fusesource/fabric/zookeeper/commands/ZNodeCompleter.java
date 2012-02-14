@@ -20,30 +20,23 @@ import java.util.List;
 
 import org.apache.karaf.shell.console.Completer;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 public class ZNodeCompleter implements Completer {
-    private BundleContext bundleContext;
+    private ZkClientFacade zk;
 
     public ZNodeCompleter() {
+        this.zk = zk;
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+    public void setZooKeeper(ZkClientFacade zk) {
+        this.zk = zk;
     }
 
     @SuppressWarnings("unchecked")
     public int complete(String buffer, int cursor, List candidates) {
-        ServiceReference sr = bundleContext.getServiceReference(IZKClient.class.getName());
-        if (sr == null) {
-            return 0;
-        }
-        IZKClient zk = (IZKClient) bundleContext.getService(sr);
-        if (zk == null) {
-            return 0;
-        }
+        if (zk.isZooKeeperConnected()) {
         try {
             // Guarantee that the final token is the one we're expanding
             if (buffer == null) {
@@ -56,7 +49,6 @@ public class ZNodeCompleter implements Completer {
             String path = buffer;
             int idx = path.lastIndexOf("/") + 1;
             String prefix = path.substring(idx);
-            try {
                 // Only the root path can end in a /, so strip it off every other prefix
                 String dir = idx == 1 ? "/" : path.substring(0, idx - 1);
                 List<String> children = zk.getChildren(dir, false);
@@ -65,14 +57,12 @@ public class ZNodeCompleter implements Completer {
                         candidates.add(child);
                     }
                 }
-            } catch (InterruptedException e) {
-                return 0;
-            } catch (KeeperException e) {
-                return 0;
-            }
-            return candidates.size() == 0 ? buffer.length() : buffer.lastIndexOf("/") + 1;
-        } finally {
-            bundleContext.ungetService(sr);
+        } catch (InterruptedException e) {
+            return 0;
+        } catch (KeeperException e) {
+            return 0;
         }
+        return candidates.size() == 0 ? buffer.length() : buffer.lastIndexOf("/") + 1;
+        } else return 0;
     }
 }

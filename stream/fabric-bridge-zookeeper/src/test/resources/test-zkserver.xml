@@ -29,12 +29,18 @@
 
   <bean id="zkServerSetup" class="org.fusesource.fabric.bridge.zk.internal.ZkServerSetupBean" lazy-init="false">
     <property name="fabricService" ref="fabricservice"/>
+    <property name="zookeeper" ref="zkClientFacade"/>
   </bean>
 
   <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
+
+    <bean id="zkClientFacade" class="org.fusesource.fabric.zookeeper.internal.ZkClientFacadeImpl">
+        <property name="zooKeeper" ref="zkClient"/>
+        <property name="zookeeprUrl" value="localhost:2181"/>
+    </bean>
 
   <bean id="fabricservice" class="org.fusesource.fabric.service.FabricServiceImpl">
     <property name="zooKeeper" ref="zkClient"/>

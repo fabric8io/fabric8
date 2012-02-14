@@ -224,12 +224,4 @@ public class LevelDBFastEnqueueTest {
         connectionFactory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri() + options);
     }
 
-    @Test
-    public void testRollover() throws Exception {
-        byte flip = 0x1;
-        for (long i=0; i<Short.MAX_VALUE; i++) {
-            assertEquals("0 @:" + i, 0, flip ^= 1);
-            assertEquals("1 @:" + i, 1, flip ^= 1);
-        }
-    }
 }

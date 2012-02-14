@@ -26,29 +26,24 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.ServiceReference;
 
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 
-    private IZKClient zooKeeper;
+    private ZkClientFacade zooKeeper;
     private long maximumConnectionTimeout = 10 * 1000L;
     private long connectionRetryTime = 100L;
-
+    
     @Override
     protected Object doExecute() throws Exception {
-        ServiceReference sr = getBundleContext().getServiceReference(IZKClient.class.getName());
-        if (sr == null) {
-            throw new Exception("ZooKeeper client not available");
-        }
-        IZKClient zk = getService(IZKClient.class, sr);
-        checkZooKeeperConnected(zk);
-        doExecute(zk);
+        checkZooKeeperConnected();
+        doExecute(zooKeeper);
         return null;
     }
-
+    
     protected abstract void doExecute(IZKClient zk) throws Exception;
-
+    
     protected static String getPermString(int perms) {
         StringBuilder p = new StringBuilder();
         if ((perms & ZooDefs.Perms.CREATE) != 0) {
@@ -134,22 +129,8 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
      * while for the connection to be established, so we keep checking up to the {@link #getMaximumConnectionTimeout()}
      * until we throw the exception
      */
-    protected void checkZooKeeperConnected(IZKClient zkClient) throws Exception {
-        long start = System.currentTimeMillis();
-        do {
-            if (zkClient.isConnected()) {
-                return;
-            }
-            try {
-                Thread.sleep(getConnectionRetryTime());
-            } catch (InterruptedException e) {
-                // ignore
-            }
-        } while (System.currentTimeMillis() < start + getMaximumConnectionTimeout());
-
-        if (!zkClient.isConnected()) {
-            throw new Exception("Could not connect to ZooKeeper " + zkClient + " at " + zkClient.getConnectString());
-        }
+    protected void checkZooKeeperConnected() throws Exception {
+        zooKeeper.checkConnected(getMaximumConnectionTimeout());
     }
 
     public long getConnectionRetryTime() {
@@ -166,5 +147,13 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 
     public void setMaximumConnectionTimeout(long maximumConnectionTimeout) {
         this.maximumConnectionTimeout = maximumConnectionTimeout;
+    }
+    
+    public ZkClientFacade getZooKeeper() {
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(ZkClientFacade zooKeeper) {
+        this.zooKeeper = zooKeeper;
     }
 }

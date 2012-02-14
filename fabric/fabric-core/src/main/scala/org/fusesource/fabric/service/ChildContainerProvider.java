@@ -42,11 +42,13 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         ContainerTemplate containerTemplate = service.getContainerTemplate(parent);
 
         //Retrieve the credentials from the URI if available.
-        String ui = options.getProviderURI().getUserInfo();
-        String[] uip = ui != null ? ui.split(":") : null;
-        if (uip != null) {
-            containerTemplate.setLogin(uip[0]);
-            containerTemplate.setPassword(uip[1]);
+        if (options.getProviderURI() != null && options.getProviderURI().getUserInfo() != null) {
+            String ui = options.getProviderURI().getUserInfo();
+            String[] uip = ui != null ? ui.split(":") : null;
+            if (uip != null) {
+                containerTemplate.setLogin(uip[0]);
+                containerTemplate.setPassword(uip[1]);
+            }
         }
 
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {

@@ -21,6 +21,7 @@ import org.apache.karaf.shell.console.completer.StringsCompleter;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.List;
@@ -28,14 +29,7 @@ import java.util.List;
 public class ProfileCompleter implements Completer {
 
     protected FabricService fabricService;
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
+    protected ZkClientFacade zooKeeper;
 
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
@@ -53,6 +47,22 @@ public class ProfileCompleter implements Completer {
             delegate.getStrings().add(profile.getId());
         }
         return delegate.complete(buffer, cursor, candidates);
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public ZkClientFacade getZooKeeper() {
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(ZkClientFacade zooKeeper) {
+        this.zooKeeper = zooKeeper;
     }
 
 }

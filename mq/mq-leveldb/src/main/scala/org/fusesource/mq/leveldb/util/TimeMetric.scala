@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
@@ -14,12 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.fusesource.mq.leveldb.util
 
-package org.fusesource.fabric.api;
+case class TimeMetric() {
+  var max = 0L
 
-public class CreateContainerChildOptions extends CreateContainerBasicOptions<CreateContainerChildOptions> {
+  def add(duration:Long) = this.synchronized {
+    max = max.max(duration)
+  }
 
-    public CreateContainerChildOptions() {
-        this.providerType = "child";
+  def get = {
+    this.synchronized {
+      max
+    } / 1000000.0
+  }
+  def reset = {
+    this.synchronized {
+      val rc = max
+      max  = 0
+      rc
+    } / 1000000.0
+  }
+
+  def apply[T](func: =>T):T = {
+    val start = System.nanoTime()
+    try {
+      func
+    } finally {
+      add(System.nanoTime() - start)
     }
+  }
+
 }
+

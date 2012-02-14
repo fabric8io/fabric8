@@ -24,16 +24,17 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.ServiceReference;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
-    private IZKClient zooKeeper;
+    private ZkClientFacade zooKeeper;
     protected FabricService fabricService;
 
     protected static String AGENT_PID = "org.fusesource.fabric.agent";
-
+    protected static Long ZOOKEEPER_MAX_WAIT = 10000L;
+    
     public FabricService getFabricService() {
         return fabricService;
     }
@@ -42,23 +43,16 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         this.fabricService = fabricService;
     }
 
-    public IZKClient getZooKeeper() {
-        if (zooKeeper == null && fabricService instanceof FabricServiceImpl) {
-            FabricServiceImpl impl = (FabricServiceImpl) fabricService;
-            zooKeeper =  impl.getZooKeeper();
-        }
+    public ZkClientFacade getZooKeeper() {
         return zooKeeper;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
+    public void setZooKeeper(ZkClientFacade zooKeeper) {
         this.zooKeeper = zooKeeper;
     }
 
-    protected void checkFabricAvailable() {
-        ServiceReference sr = getBundleContext().getServiceReference(IZKClient.class.getName());
-        if (sr == null) {
-            throw new IllegalStateException("No Fabric available, please create one using fabric:create or fabric:join.");
-        }
+    protected void checkFabricAvailable() throws Exception {
+       zooKeeper.checkConnected(ZOOKEEPER_MAX_WAIT);
     }
 
     protected String toString(Profile[] profiles) {

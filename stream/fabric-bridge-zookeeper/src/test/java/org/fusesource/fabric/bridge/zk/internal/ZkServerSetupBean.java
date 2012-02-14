@@ -19,6 +19,7 @@ package org.fusesource.fabric.bridge.zk.internal;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class ZkServerSetupBean implements SmartLifecycle {
 
     private static final String FABRIC_ROOT_PATH = "/fabric";
     private FabricService fabricService;
+    private ZkClientFacade zookeeper;
     private volatile boolean running;
     private static final Logger LOG = LoggerFactory.getLogger(ZkServerSetupBean.class);
 
@@ -65,6 +67,7 @@ public class ZkServerSetupBean implements SmartLifecycle {
         TestImport testImport = new TestImport();
         testImport.setSource("target/test-classes/zkexport");
         testImport.setNRegEx(new String[] {"dummy"});
+        testImport.setZooKeeper(zookeeper);
         try {
             testImport.doExecute(client);
         } catch (Exception e) {

@@ -18,9 +18,11 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +36,10 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
@@ -75,19 +79,35 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
     }
 
     @Test
-    public void testSshContainerProvider() throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
-        assertNotNull(fabricService);
-        System.err.println(executeCommand("fabric:create"));
+    public void testSshContainerProvider() throws Throwable {
+        if (isReady()) {
+            FabricService fabricService = getOsgiService(FabricService.class);
+            assertNotNull(fabricService);
+            System.err.println(executeCommand("fabric:create"));
 
-        //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
-
-        CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1").proxyUri("ssh://"+username+":"+password+"@"+host+":"+port);
-        Thread.sleep(5*DEFAULT_TIMEOUT);
-        System.err.println(executeCommand("fabric:container-list"));
-        Container container = fabricService.getContainer("ssh1");
-        assertTrue(container.isAlive());
+            //Wait for zookeeper service to become available.
+            ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
+            zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
+            CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
+                    .host(host)
+                    .port(Integer.parseInt(port))
+                    .username(username)
+                    .password(password)
+                    .providerUri("ssh://" + username + ":" + password + "@" + host + ":" + port);
+            CreateContainerMetadata[] metadata = fabricService.createContainers(options);
+            assertNotNull(metadata);
+            assertEquals(1, metadata.length);
+            if (metadata[0].getFailure() != null) {
+                throw metadata[0].getFailure();
+            }
+            assertTrue("Expected succesful creation of remote ssh container",metadata[0].isSuccess());
+            assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
+            waitForProvisionSuccess(metadata[0].getContainer(), PROVISION_TIMEOUT);
+            System.err.println(executeCommand("fabric:container-list"));
+            Container container = fabricService.getContainer("ssh1");
+            assertTrue(container.isAlive());
+            createAndAssetChildContainer("ssh2","ssh1");
+        }
     }
 
     @Configuration

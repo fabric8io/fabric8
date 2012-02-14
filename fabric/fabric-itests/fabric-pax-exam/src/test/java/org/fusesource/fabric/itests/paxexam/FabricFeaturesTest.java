@@ -18,18 +18,16 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 
@@ -45,7 +43,7 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
-       destroyChildAgent("child1");
+       destroyChildContainer("child1");
     }
 
     @Test
@@ -55,15 +53,16 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
 
         System.err.println(executeCommand("fabric:create"));
          //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
+        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
+        zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
 
-        Thread.sleep(DEFAULT_WAIT);
         System.err.println(executeCommand("fabric:profile-list"));
         System.err.println(executeCommand("fabric:profile-display camel"));
         System.err.println(executeCommand("fabric:container-create --parent root --profile camel child1"));
-        Thread.sleep(3 * DEFAULT_WAIT);
-        System.err.println(executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list -t 0"));
-        String camelBundleCount = executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list -t 0| grep -c -i camel");
+        waitForProvisionSuccess(fabricService.getContainer("child1"), PROVISION_TIMEOUT);
+        System.err.println(executeCommand("fabric:container-list"));
+        System.err.println(executeCommand("fabric:container-connect child1 osgi:list -t 0"));
+        String camelBundleCount = executeCommand("fabric:container-connect child1 osgi:list -t 0| grep -c -i camel");
         int count = Integer.parseInt(camelBundleCount.trim());
         assertTrue("At least one camel bundle is expected", count >= 1);
     }

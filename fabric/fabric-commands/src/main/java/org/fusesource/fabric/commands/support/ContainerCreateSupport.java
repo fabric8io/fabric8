@@ -55,6 +55,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
      * @throws IllegalArgumentException is thrown if input is invalid
      */
     protected void preCreateContainer(String name) throws IllegalArgumentException {
+        if (!isEnsembleServer) {
         ServiceReference sr = getBundleContext().getServiceReference(ZooKeeperClusterService.class.getName());
         ZooKeeperClusterService zkcs = sr != null ? getService(ZooKeeperClusterService.class, sr) : null;
         if (zkcs == null) {
@@ -72,23 +73,24 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             throw new IllegalArgumentException("A container with name " + name + " already exists.");
         }
 
-        // get the profiles for the given version
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-        Profile[] profiles = ver.getProfiles();
+            // get the profiles for the given version
+            Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+            Profile[] profiles = ver.getProfiles();
 
-        // validate profiles exists before creating a new container
-        List<String> names = getProfileNames();
-        for (String profile : names) {
-            if (!hasProfile(profiles, profile, ver)) {
-                throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
+            // validate profiles exists before creating a new container
+            List<String> names = getProfileNames();
+            for (String profile : names) {
+                if (!hasProfile(profiles, profile, ver)) {
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
+                }
             }
         }
-
 
         if (!isEnsembleServer && fabricService.getZookeeperUrl() == null) {
             throw new IllegalArgumentException("Either start a zookeeper ensemble or use --ensemble-server.");
         }
     }
+
     /**
      * Post logic after the containers have been created.
      *

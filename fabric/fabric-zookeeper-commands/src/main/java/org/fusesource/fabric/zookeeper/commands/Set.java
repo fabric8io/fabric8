@@ -16,12 +16,12 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
-import java.net.URL;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.linkedin.zookeeper.client.IZKClient;
+
+import java.net.URL;
 
 @Command(name = "set", scope = "zk", description = "Set a node's data")
 public class Set extends ZooKeeperCommandSupport {
@@ -43,7 +43,7 @@ public class Set extends ZooKeeperCommandSupport {
         if (importUrl) {
             nodeData = loadUrl(new URL(data));
         }
-
+        
         zk.setData(path, nodeData);
     }
 }

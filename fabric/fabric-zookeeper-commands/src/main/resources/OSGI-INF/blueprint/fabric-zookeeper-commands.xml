@@ -18,9 +18,12 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
+    <reference id="zkClient" interface="org.fusesource.fabric.zookeeper.ZkClientFacade" />
+
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="zk/create">
             <action class="org.fusesource.fabric.zookeeper.commands.Create">
+                <property name="zooKeeper" ref="zkClient"/>
             </action>
             <completers>
                 <ref component-id="znodeCompleter"/>
@@ -29,6 +32,7 @@
         </command>
         <command name="zk/delete">
             <action class="org.fusesource.fabric.zookeeper.commands.Delete">
+                <property name="zooKeeper" ref="zkClient"/>
             </action>
             <completers>
                 <ref component-id="znodeCompleter"/>
@@ -37,6 +41,7 @@
         </command>
         <command name="zk/list">
             <action class="org.fusesource.fabric.zookeeper.commands.List">
+                <property name="zooKeeper" ref="zkClient"/>
             </action>
             <completers>
                 <ref component-id="znodeCompleter"/>
@@ -45,6 +50,7 @@
         </command>
         <command name="zk/get">
             <action class="org.fusesource.fabric.zookeeper.commands.Get">
+                <property name="zooKeeper" ref="zkClient"/>
             </action>
             <completers>
                 <ref component-id="znodeCompleter"/>
@@ -53,6 +59,7 @@
         </command>
         <command name="zk/set">
             <action class="org.fusesource.fabric.zookeeper.commands.Set">
+                <property name="zooKeeper" ref="zkClient"/>
             </action>
             <completers>
                 <ref component-id="znodeCompleter"/>
@@ -61,16 +68,18 @@
         </command>
         <command name="zk/import">
             <action class="org.fusesource.fabric.zookeeper.commands.Import">
+                <property name="zooKeeper" ref="zkClient"/>
             </action>
         </command>
         <command name="zk/export">
             <action class="org.fusesource.fabric.zookeeper.commands.Export">
+                <property name="zooKeeper" ref="zkClient"/>
             </action>
         </command>
     </command-bundle>
 
     <bean id="znodeCompleter" class="org.fusesource.fabric.zookeeper.commands.ZNodeCompleter">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="zooKeeper" ref="zkClient"/>
     </bean>
 
 </blueprint>
