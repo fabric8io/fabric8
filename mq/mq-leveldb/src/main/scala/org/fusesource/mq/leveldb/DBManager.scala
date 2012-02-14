@@ -167,7 +167,7 @@ class DBManager(val parent:LevelDBStore) {
     def syncNeeded = actions.find( _._2.syncNeeded ).isDefined
     def size = actions.foldLeft(0L){ case (sum, entry) => 
       sum + entry._2.size 
-    }
+    } + (subAcks.size * 50)
 
     class MessageAction {
       var id:MessageId = _
