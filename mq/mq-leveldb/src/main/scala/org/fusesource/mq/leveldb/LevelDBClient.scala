@@ -180,9 +180,6 @@ object LevelDBClient extends Log {
     (in.readByte(), in.readLong(), in.readBuffer(in.available()))
   }
 
-  val max_write_build_ns = TimeMetric()
-  val max_write_latency = TimeMetric()
-
   final class RichDB(val db: DB) {
 
     val isPureJavaVersion = db.getClass.getName == "org.iq80.leveldb.impl.DbImpl"
@@ -205,12 +202,10 @@ object LevelDBClient extends Log {
       db.put(key, value, wo)
     }
     
-    def write[T](wo:WriteOptions=new WriteOptions)(func: WriteBatch=>T):T = {
+    def write[T](wo:WriteOptions=new WriteOptions, max_write_latency:TimeMetric = TimeMetric())(func: WriteBatch=>T):T = {
       val updates = db.createWriteBatch()
       try {
-        val rc=Some(max_write_build_ns{
-          func(updates)
-        })
+        val rc=Some(func(updates))
         max_write_latency {
           db.write(updates, wo)
         }
@@ -394,6 +389,7 @@ class LevelDBClient(store: LevelDBStore) {
   /////////////////////////////////////////////////////////////////////
 
   def directory = store.directory
+  def logDirectory = Option(store.logDirectory).getOrElse(store.directory)
 
   /////////////////////////////////////////////////////////////////////
   //
@@ -420,7 +416,7 @@ class LevelDBClient(store: LevelDBStore) {
   def snapshotIndexFile(id:Long) = create_sequence_file(directory,id, INDEX_SUFFIX)
 
   def createLog: RecordLog = {
-    new RecordLog(directory, LOG_SUFFIX)
+    new RecordLog(logDirectory, LOG_SUFFIX)
   }
 
   var writeExecutor:ExecutorService = _
@@ -547,7 +543,7 @@ class LevelDBClient(store: LevelDBStore) {
                     val index_record = new EntryRecord.Bean()
                     index_record.setValueLocation(record.getValueLocation)
                     index_record.setValueLength(record.getValueLength)
-                    val index_value = encodeEntryRecord(index_record.freeze()).toByteArray
+                    val    index_value = encodeEntryRecord(index_record.freeze()).toByteArray
 
                     index.put(encodeEntryKey(ENTRY_PREFIX, record.getCollectionKey, record.getEntryKey), index_value)
 
@@ -607,6 +603,7 @@ class LevelDBClient(store: LevelDBStore) {
     logRefs.foreach{ case (k,v)=> map.put(k,v.get()) }
     index.put(LOG_REF_INDEX_KEY, objectEncode(map))
   }
+
 
   private def loadLogRefs = {
     logRefs.clear()
@@ -762,7 +759,16 @@ class LevelDBClient(store: LevelDBStore) {
     suspend()
     try{
       log.close
-      directory.listFiles.foreach(_.recursiveDelete)
+      logDirectory.listFiles.foreach { x =>
+        if(x.getName.endsWith(".log")) {
+          x.delete()
+        }
+      }
+      directory.listFiles.foreach { x =>
+        if(x.getName.endsWith(".index")) {
+          x.recursiveDelete
+        }
+      }
     } finally {
       retry {
         log.open
@@ -956,12 +962,14 @@ class LevelDBClient(store: LevelDBStore) {
     empty
   }
 
+  val max_index_write_latency = TimeMetric()
+
   def store(uows: Seq[DBManager#DelayableUOW]) {
     retryUsingIndex {
       log.appender { appender =>
 
         var syncNeeded = false
-        index.write() { batch =>
+        index.write(new WriteOptions, max_index_write_latency) { batch =>
 
           uows.foreach { uow =>
 
@@ -1086,7 +1094,7 @@ class LevelDBClient(store: LevelDBStore) {
     // Delete message refs for topics who's consumers have advanced..
     if( !topicPositions.isEmpty ) {
       retryUsingIndex {
-        index.write() { batch =>
+        index.write(new WriteOptions, max_index_write_latency) { batch =>
           for( (topic, first) <- topicPositions ) {
             val ro = new ReadOptions
             ro.fillCache(true)

@@ -23,6 +23,11 @@ case class TimeMetric() {
     max = max.max(duration)
   }
 
+  def get = {
+    this.synchronized {
+      max
+    } / 1000000.0
+  }
   def reset = {
     this.synchronized {
       val rc = max

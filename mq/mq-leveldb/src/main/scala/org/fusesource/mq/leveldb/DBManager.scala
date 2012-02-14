@@ -509,11 +509,11 @@ class DBManager(val parent:LevelDBStore) {
       println(("committed: %d, canceled: %d, storing: %d, stored: %d, " +
         "uow complete: %,.3f ms, " +
         "index write: %,.3f ms, " +
-        "low uow write: %,.3f ms, log uow flush: %,.3f ms, log rotate: %,.3f ms").format(
+        "log write: %,.3f ms, log flush: %,.3f ms, log rotate: %,.3f ms").format(
           uowClosedCounter, uowCanceledCounter, uowStoringCounter, uowStoredCounter,
           uow_complete_latency.reset,
-          LevelDBClient.max_write_latency.reset,
-          client.log.max_uow_write_latency.reset, client.log.max_uow_flush_latency.reset, client.log.max_append_rotate_latency.reset
+        client.max_index_write_latency.reset,
+          client.log.max_log_write_latency.reset, client.log.max_log_flush_latency.reset, client.log.max_log_rotate_latency.reset
       ))
       uowClosedCounter = 0
       uowCanceledCounter = 0

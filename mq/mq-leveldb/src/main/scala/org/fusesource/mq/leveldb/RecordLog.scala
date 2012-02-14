@@ -384,9 +384,9 @@ case class RecordLog(directory: File, logSuffix:String) {
     }
   }
 
-  val max_uow_write_latency = TimeMetric()
-  val max_uow_flush_latency = TimeMetric()
-  val max_append_rotate_latency = TimeMetric()
+  val max_log_write_latency = TimeMetric()
+  val max_log_flush_latency = TimeMetric()
+  val max_log_rotate_latency = TimeMetric()
 
   def open = {
     log_mutex.synchronized {
@@ -431,7 +431,7 @@ case class RecordLog(directory: File, logSuffix:String) {
   def appender[T](func: (LogAppender)=>T):T= {
     val intial_position = current_appender.append_position
     try {
-      max_uow_write_latency {
+      max_log_write_latency {
         val rc = func(current_appender)
         if( current_appender.append_position != intial_position ) {
           // Record a UOW_END_RECORD so that on recovery we only replay full units of work.
@@ -440,10 +440,10 @@ case class RecordLog(directory: File, logSuffix:String) {
         rc
       }
     } finally {
-      max_uow_flush_latency {
+      max_log_flush_latency {
         current_appender.flush
       }
-      max_append_rotate_latency {
+      max_log_rotate_latency {
         log_mutex.synchronized {
           if ( current_appender.append_offset >= logSize ) {
             current_appender.release()
