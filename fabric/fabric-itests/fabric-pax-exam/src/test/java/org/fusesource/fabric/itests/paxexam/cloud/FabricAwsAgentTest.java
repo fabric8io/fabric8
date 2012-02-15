@@ -205,7 +205,6 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
                 copySystemProperty("fabricitest.aws.location"),
                 copySystemProperty("fabricitest.aws.user"),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
-                debugConfiguration("5005",true),
                 scanFeatures("jclouds","jclouds-compute").start()
         };
     }

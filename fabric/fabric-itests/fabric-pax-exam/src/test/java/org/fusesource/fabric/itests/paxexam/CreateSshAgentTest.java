@@ -39,7 +39,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
@@ -103,7 +102,7 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
             assertTrue("Expected succesful creation of remote ssh container",metadata[0].isSuccess());
             assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
             waitForProvisionSuccess(metadata[0].getContainer(), 3 * PROVISION_TIMEOUT);
-            System.err.println(executeCommand("fabric:container-list"));
+            System.out.println(executeCommand("fabric:container-list -v"));
             Container container = fabricService.getContainer("ssh1");
             assertTrue(container.isAlive());
             createAndAssetChildContainer("ssh2","ssh1");
@@ -118,7 +117,6 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
                 copySystemProperty("fabricitest.ssh.password"),
                 copySystemProperty("fabricitest.ssh.host"),
                 copySystemProperty("fabricitest.ssh.port"),
-                debugConfiguration("5005",true),
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }
