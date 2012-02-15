@@ -116,14 +116,14 @@ public class FabricTestSupport {
      * @throws Exception
      */
     public void waitForProvisionSuccess(Container container, Long timeout) throws Exception {
-        for (long t = 0; (!(container.isAlive() && container.isProvisioningComplete()) && t < timeout); t += 1000L) {
+        for (long t = 0; (!(container.isAlive() && container.isProvisioningComplete() && container.getProvisionStatus().equals("success")) && t < timeout); t += 2000L) {
             if (container.getProvisionException() != null) {
                 throw new Exception(container.getProvisionException());
             }
-            Thread.sleep(1000L);
+            Thread.sleep(2000L);
         }
-        if (!container.isAlive() || container.isProvisioningComplete()) {
-            throw new Exception("Could not providion " + container.getId() + " after " + timeout + " seconds.");
+        if (!container.isAlive() || !container.isProvisioningComplete()) {
+            throw new Exception("Could not provision " + container.getId() + " after " + timeout + " seconds.");
         }
     }
 

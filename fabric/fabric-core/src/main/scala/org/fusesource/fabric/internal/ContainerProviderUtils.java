@@ -60,6 +60,8 @@ public class ContainerProviderUtils {
            sb.append("run export KARAF_DEBUG=true").append("\n");
         }
         appendToLineInFile(sb,"etc/org.apache.karaf.features.cfg","featuresBoot=","fabric-agent,");
+        //Add the proxyURI to the list of repositories
+        appendToLineInFile(sb,"etc/org.ops4j.pax.url.mvn.cfg","repositories=",options.getProxyUri().toString()+",");
         sb.append("run nohup bin/start").append("\n");
         return sb.toString();
     }
@@ -77,7 +79,7 @@ public class ContainerProviderUtils {
     }
 
     private static void appendToLineInFile(StringBuilder sb, String path, String pattern, String line) {
-        sb.append(String.format(LINE_APPEND,pattern,line,path,path+".tmp")).append("\n");
+        sb.append(String.format(LINE_APPEND,pattern.replaceAll("/","\\\\/"),line.replaceAll("/","\\\\/"),path,path+".tmp")).append("\n");
         sb.append("mv "+path+".tmp "+path).append("\n");
     }
 
@@ -108,7 +110,5 @@ public class ContainerProviderUtils {
         sb.append("if [[  \"$DISTRO_URL\" == \"\" ]] ;  then export DISTRO_URL=").append(artifactUri).append("; fi\n");
         sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append("$DISTRO_URL").append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
-        //Add the proxyURI to the list of repositories
-        //appendToLineInFile(sb,installationFolder+"/etc/org.ops4j.pax.url.mvn.cfg","org.ops4j.pax.url.mvn.repositories=",proxy.toString()+",");
     }
 }

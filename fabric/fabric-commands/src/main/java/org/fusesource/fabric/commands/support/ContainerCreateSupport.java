@@ -97,6 +97,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
      * @param metadatas the created containers
      */
     protected void postCreateContainers(CreateContainerMetadata[] metadatas) {
+        if (!isEnsembleServer) {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         List<String> names = getProfileNames();
@@ -113,6 +114,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             }
         } catch (Exception ex) {
             log.warn("Error during postCreateContainers. This exception will be ignored.", ex);
+        }
         }
 
         if (log.isDebugEnabled()) {

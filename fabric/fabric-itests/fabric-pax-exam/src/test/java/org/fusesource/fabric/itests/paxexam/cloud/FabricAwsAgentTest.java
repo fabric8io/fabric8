@@ -118,7 +118,7 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
                 "config:propset jclouds.regions eu-west-1,us-west-1,us-east-1",
                 "config:update");
 
-        ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
+        ComputeService computeService = getOsgiService(ComputeService.class, 3 * DEFAULT_TIMEOUT);
 
         setUpSecurityGroup(computeService, 2181);
 
