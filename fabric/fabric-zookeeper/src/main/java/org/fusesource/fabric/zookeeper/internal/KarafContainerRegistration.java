@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.*;
 
-public class KarafContainerRegistration implements LifecycleListener, ZooKeeperAware, NotificationListener {
+public class KarafContainerRegistration implements LifecycleListener, NotificationListener {
 
     private transient Logger logger = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
