@@ -326,7 +326,7 @@
             <plugin>
                  <groupId>org.fusesource.mvnplugins</groupId>
                  <artifactId>maven-notices-plugin</artifactId>
-                 <version>1.21</version>
+                 <version>1.22</version>
                  <executions>
                      <execution>
                          <id>merge-notices-in-repository</id>
