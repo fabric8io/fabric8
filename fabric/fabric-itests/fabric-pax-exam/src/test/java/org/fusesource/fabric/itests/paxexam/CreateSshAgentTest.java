@@ -102,7 +102,7 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
             }
             assertTrue("Expected succesful creation of remote ssh container",metadata[0].isSuccess());
             assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
-            waitForProvisionSuccess(metadata[0].getContainer(), PROVISION_TIMEOUT);
+            waitForProvisionSuccess(metadata[0].getContainer(), 3 * PROVISION_TIMEOUT);
             System.err.println(executeCommand("fabric:container-list"));
             Container container = fabricService.getContainer("ssh1");
             assertTrue(container.isAlive());
@@ -118,7 +118,7 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
                 copySystemProperty("fabricitest.ssh.password"),
                 copySystemProperty("fabricitest.ssh.host"),
                 copySystemProperty("fabricitest.ssh.port"),
-
+                debugConfiguration("5005",true),
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

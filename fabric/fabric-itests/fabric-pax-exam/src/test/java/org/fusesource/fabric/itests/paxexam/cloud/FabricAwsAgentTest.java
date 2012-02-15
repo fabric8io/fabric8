@@ -118,7 +118,7 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
                 "config:propset jclouds.regions eu-west-1,us-west-1,us-east-1",
                 "config:update");
 
-        ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
+        ComputeService computeService = getOsgiService(ComputeService.class, 3 * DEFAULT_TIMEOUT);
 
         setUpSecurityGroup(computeService, 2181);
 
@@ -205,6 +205,7 @@ public class FabricAwsAgentTest extends FabricCommandsTestSupport {
                 copySystemProperty("fabricitest.aws.location"),
                 copySystemProperty("fabricitest.aws.user"),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
+                debugConfiguration("5005",true),
                 scanFeatures("jclouds","jclouds-compute").start()
         };
     }
