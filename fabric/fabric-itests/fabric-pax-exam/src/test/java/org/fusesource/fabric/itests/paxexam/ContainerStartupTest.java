@@ -18,10 +18,8 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
@@ -29,10 +27,8 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
@@ -48,8 +44,6 @@ public class ContainerStartupTest extends FabricCommandsTestSupport {
         executeCommand("fabric:ensemble-create --clean root");
 
         //Wait for zookeeper service to become available.
-        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
-        zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
         Container[] containers = fabricService.getContainers();
 
         assertNotNull(containers);

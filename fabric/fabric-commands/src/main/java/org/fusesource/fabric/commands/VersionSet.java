@@ -19,6 +19,7 @@ package org.fusesource.fabric.commands;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
@@ -37,7 +38,6 @@ public class VersionSet extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
         if (containerNames == null || containerNames.isEmpty()) {
             containerNames = Arrays.asList(fabricService.getCurrentContainer().getId());
         }

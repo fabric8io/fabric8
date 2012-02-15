@@ -513,6 +513,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     private static String getLocalHostAddress() throws UnknownHostException {
-        return InetAddress.getByName(InetAddress.getLocalHost().getCanonicalHostName()).getHostAddress();
+        return InetAddress.getLocalHost().getHostName();
     }
+
 }

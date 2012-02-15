@@ -18,16 +18,17 @@
 package org.fusesource.fabric.commands.support;
 
 import java.util.List;
+
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
+import org.linkedin.zookeeper.client.IZKClient;
 
 public class VersionCompleter implements Completer {
 
     protected FabricService fabricService;
-    protected ZkClientFacade zooKeeper;
+    protected IZKClient zooKeeper;
 
 
     @Override
@@ -48,11 +49,11 @@ public class VersionCompleter implements Completer {
         this.fabricService = fabricService;
     }
 
-    public ZkClientFacade getZooKeeper() {
+    public IZKClient getZooKeeper() {
         return zooKeeper;
     }
 
-    public void setZooKeeper(ZkClientFacade zooKeeper) {
+    public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
     }
 }

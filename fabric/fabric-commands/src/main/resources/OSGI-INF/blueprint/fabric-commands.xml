@@ -20,7 +20,7 @@
 
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.ZkClientFacade" availability="optional"/>
+    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient" />
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
     <bean id="Create" class="org.fusesource.fabric.commands.Create">

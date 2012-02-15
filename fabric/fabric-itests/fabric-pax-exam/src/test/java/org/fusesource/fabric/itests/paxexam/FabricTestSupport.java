@@ -24,12 +24,12 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import javax.inject.Inject;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -43,11 +43,10 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class FabricTestSupport {
@@ -74,10 +73,6 @@ public class FabricTestSupport {
      * @return
      */
     protected Container createChildContainer(String name, String parent) throws Exception {
-        //Wait for zookeeper service to become available.
-        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
-        assertNotNull(zooKeeper.getZookeeper(DEFAULT_TIMEOUT));
-
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
@@ -134,10 +129,6 @@ public class FabricTestSupport {
 
 
     public void createAndAssetChildContainer(String name, String parent) throws Exception {
-        //Wait for zookeeper service to become available.
-        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
-        zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
-
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 

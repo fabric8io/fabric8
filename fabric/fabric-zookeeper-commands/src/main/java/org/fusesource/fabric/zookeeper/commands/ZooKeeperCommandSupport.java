@@ -26,18 +26,15 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.linkedin.zookeeper.client.IZKClient;
 
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 
-    private ZkClientFacade zooKeeper;
-    private long maximumConnectionTimeout = 10 * 1000L;
+    private IZKClient zooKeeper;
     private long connectionRetryTime = 100L;
     
     @Override
     protected Object doExecute() throws Exception {
-        checkZooKeeperConnected();
         doExecute(zooKeeper);
         return null;
     }
@@ -123,16 +120,6 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
         return content.toString();
     }
 
-    /**
-     * Lets check if we are connected and throw an exception if we are not.
-     * Note that if start() has just been called on IZKClient then it will take a little
-     * while for the connection to be established, so we keep checking up to the {@link #getMaximumConnectionTimeout()}
-     * until we throw the exception
-     */
-    protected void checkZooKeeperConnected() throws Exception {
-        zooKeeper.checkConnected(getMaximumConnectionTimeout());
-    }
-
     public long getConnectionRetryTime() {
         return connectionRetryTime;
     }
@@ -141,19 +128,11 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
         this.connectionRetryTime = connectionRetryTime;
     }
 
-    public long getMaximumConnectionTimeout() {
-        return maximumConnectionTimeout;
-    }
-
-    public void setMaximumConnectionTimeout(long maximumConnectionTimeout) {
-        this.maximumConnectionTimeout = maximumConnectionTimeout;
-    }
-    
-    public ZkClientFacade getZooKeeper() {
+    public IZKClient getZooKeeper() {
         return zooKeeper;
     }
 
-    public void setZooKeeper(ZkClientFacade zooKeeper) {
+    public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
     }
 }

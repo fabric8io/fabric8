@@ -22,16 +22,16 @@ import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
+import org.linkedin.zookeeper.client.IZKClient;
 
 public class ContainerCompleter implements Completer {
 
     protected FabricService fabricService;
-    protected ZkClientFacade zooKeeper;
+    protected IZKClient zooKeeper;
 
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
-        if (zooKeeper.isZooKeeperConnected()) {
+        if (zooKeeper.isConnected()) {
             StringsCompleter delegate = new StringsCompleter();
             for (Container container : fabricService.getContainers()) {
                 if (apply(container)) {
@@ -56,11 +56,11 @@ public class ContainerCompleter implements Completer {
         this.fabricService = fabricService;
     }
 
-    public ZkClientFacade getZooKeeper() {
+    public IZKClient getZooKeeper() {
         return zooKeeper;
     }
 
-    public void setZooKeeper(ZkClientFacade zooKeeper) {
+    public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
     }
 }

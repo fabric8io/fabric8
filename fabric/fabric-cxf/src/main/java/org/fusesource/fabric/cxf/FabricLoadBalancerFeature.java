@@ -16,24 +16,22 @@
  */
 package org.fusesource.fabric.cxf;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
-import org.apache.cxf.endpoint.Client;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean;
 import org.linkedin.zookeeper.client.IZKClient;
-
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 public class FabricLoadBalancerFeature extends AbstractFeature implements InitializingBean, DisposableBean {
     private static final transient Log LOG = LogFactory.getLog(FabricLoadBalancerFeature.class);
@@ -63,12 +61,6 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
         }
     }
 
-    protected void checkZkConnected() throws Exception {
-        if (!zkClient.isConnected()) {
-            throw new Exception("Could not connect to ZooKeeper " + zkClient);
-        }
-    }
-
     protected LoadBalanceStrategy getDefaultLoadBalanceStrategy() {
         return new RandomLoadBalanceStrategy();
     }
@@ -78,10 +70,6 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (zkClient == null) {
-            zkClient = new ZKClientFactoryBean().getObject();
-        }
-        checkZkConnected();
         group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath, accessControlList);
         if (loadBalanceStrategy == null) {
             loadBalanceStrategy = getDefaultLoadBalanceStrategy();

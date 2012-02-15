@@ -20,7 +20,6 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -32,10 +31,8 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
@@ -47,8 +44,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
     @Test
     public void testLocalFabricCluster() throws Exception {
         //Wait for zookeeper service to become available.
-        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
-        assertNotNull(zooKeeper.getZookeeper(DEFAULT_TIMEOUT));
+        IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
