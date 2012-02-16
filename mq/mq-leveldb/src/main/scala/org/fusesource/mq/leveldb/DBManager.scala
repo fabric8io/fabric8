@@ -167,7 +167,7 @@ class DBManager(val parent:LevelDBStore) {
     def syncNeeded = actions.find( _._2.syncNeeded ).isDefined
     def size = actions.foldLeft(0L){ case (sum, entry) => 
       sum + entry._2.size 
-    }
+    } + (subAcks.size * 50)
 
     class MessageAction {
       var id:MessageId = _
@@ -509,11 +509,14 @@ class DBManager(val parent:LevelDBStore) {
       println(("committed: %d, canceled: %d, storing: %d, stored: %d, " +
         "uow complete: %,.3f ms, " +
         "index write: %,.3f ms, " +
-        "log write: %,.3f ms, log flush: %,.3f ms, log rotate: %,.3f ms").format(
+        "log write: %,.3f ms, log flush: %,.3f ms, log rotate: %,.3f ms"+
+        "add msg: %,.3f ms, add enqueue: %,.3f ms, "
+        ).format(
           uowClosedCounter, uowCanceledCounter, uowStoringCounter, uowStoredCounter,
           uow_complete_latency.reset,
         client.max_index_write_latency.reset,
-          client.log.max_log_write_latency.reset, client.log.max_log_flush_latency.reset, client.log.max_log_rotate_latency.reset
+          client.log.max_log_write_latency.reset, client.log.max_log_flush_latency.reset, client.log.max_log_rotate_latency.reset,
+        client.max_write_message_latency.reset, client.max_write_enqueue_latency.reset
       ))
       uowClosedCounter = 0
       uowCanceledCounter = 0
@@ -567,8 +570,6 @@ class DBManager(val parent:LevelDBStore) {
     }
     nextPos
   }
-
-  def queueSizeFrom(key:Long, pos:Long) = client.queueSizeFrom(key, pos)
 
   def queuePosition(id: MessageId):Long = {
     id.getEntryLocator.asInstanceOf[(Long, Long)]._2

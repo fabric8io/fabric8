@@ -20,7 +20,6 @@ package org.fusesource.fabric.apollo.broker.store.haleveldb
 import dto.HALevelDBStoreDTO
 import org.apache.activemq.apollo.util._
 import org.apache.activemq.apollo.broker.store.leveldb.LevelDBStore
-import org.apache.activemq.apollo.broker.store.leveldb.dto._
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.conf.Configuration
 import org.fusesource.hawtdispatch._

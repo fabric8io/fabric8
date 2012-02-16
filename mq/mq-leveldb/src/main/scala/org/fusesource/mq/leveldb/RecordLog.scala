@@ -21,7 +21,6 @@ import java.{util=>ju}
 
 import java.util.zip.CRC32
 import java.util.Map.Entry
-import collection.immutable.TreeMap
 import java.util.concurrent.atomic.AtomicLong
 import java.io._
 import org.fusesource.hawtbuf.{DataByteArrayInputStream, DataByteArrayOutputStream, Buffer}
@@ -30,6 +29,7 @@ import org.fusesource.mq.leveldb.util.FileSupport._
 import org.apache.activemq.util.LRUCache
 import util.TimeMetric._
 import util.{TimeMetric, Log}
+import java.util.TreeMap
 
 object RecordLog extends Log {
 
@@ -77,17 +77,17 @@ case class RecordLog(directory: File, logSuffix:String) {
   var verify_checksums = false
   var sync = false
 
+  val log_infos = new TreeMap[Long, LogInfo]()
 
-  var log_infos = TreeMap[Long, LogInfo]()
   object log_mutex
 
   def delete(id:Long) = {
     log_mutex.synchronized {
       // We can't delete the current appender.
       if( current_appender.position != id ) {
-        log_infos.get(id).foreach { info =>
+        Option(log_infos.get(id)).foreach { info =>
           onDelete(info.file)
-          log_infos = log_infos.filterNot(_._1 == id)
+          log_infos.remove(id)
         }
       }
     }
@@ -104,6 +104,8 @@ case class RecordLog(directory: File, logSuffix:String) {
   }
 
   class LogAppender(file:File, position:Long) extends LogReader(file, position) {
+
+    val info = new LogInfo(file, position, 0)
 
     override def open = new RandomAccessFile(file, "rw")
 
@@ -133,15 +135,17 @@ case class RecordLog(directory: File, logSuffix:String) {
     def force = {
       flush
       if(sync) {
-        // only need to update the file metadata if the file size changes..
-        channel.force(append_offset > logSize)
+        max_log_flush_latency {
+          // only need to update the file metadata if the file size changes..
+          channel.force(append_offset > logSize)
+        }
       }
     }
 
     /**
      * returns the offset position of the data record.
      */
-    def append(id:Byte, data: Buffer): Long = this.synchronized {
+    def append(id:Byte, data: Buffer) = this.synchronized {
       val record_position = append_position
       val data_length = data.length
       val total_length = LOG_HEADER_SIZE + data_length
@@ -182,10 +186,10 @@ case class RecordLog(directory: File, logSuffix:String) {
         write_buffer.write(data.data, data.offset, data_length)
         append_offset += total_length
       }
-      record_position
+      (record_position, info)
     }
 
-    def flush = this.synchronized {
+    def flush = max_log_flush_latency { this.synchronized {
       if( write_buffer.position() > 0 ) {
         val buffer = write_buffer.toBuffer.toByteBuffer
         val pos = append_offset-buffer.remaining
@@ -195,14 +199,12 @@ case class RecordLog(directory: File, logSuffix:String) {
           throw new IOException("Short write")
         }
         write_buffer.reset()
-      }
+      } }
     }
 
     override def check_read_flush(end_offset:Long) = {
       if( flushed_offset.get() < end_offset )  {
-        this.synchronized {
-          flush
-        }
+        flush
       }
     }
 
@@ -377,10 +379,10 @@ case class RecordLog(directory: File, logSuffix:String) {
   def create_appender(position: Long): Any = {
     log_mutex.synchronized {
       if(current_appender!=null) {
-        log_infos += position -> new LogInfo(current_appender.file, current_appender.position, current_appender.append_offset)
+        log_infos.put (position, new LogInfo(current_appender.file, current_appender.position, current_appender.append_offset))
       }
       current_appender = create_log_appender(position)
-      log_infos += position -> new LogInfo(current_appender.file, position, 0)
+      log_infos.put(position, new LogInfo(current_appender.file, position, 0))
     }
   }
 
@@ -390,19 +392,20 @@ case class RecordLog(directory: File, logSuffix:String) {
 
   def open = {
     log_mutex.synchronized {
-      log_infos = LevelDBClient.find_sequence_files(directory, logSuffix).map { case (position,file) =>
-        position -> LogInfo(file, position, file.length())
+      log_infos.clear()
+      LevelDBClient.find_sequence_files(directory, logSuffix).foreach { case (position,file) =>
+        log_infos.put(position, LogInfo(file, position, file.length()))
       }
 
       val appendPos = if( log_infos.isEmpty ) {
         0L
       } else {
-        val (_, file) = log_infos.last
+        val file = log_infos.lastEntry().getValue
         val r = LogReader(file.file, file.position)
         try {
           val actualLength = r.verifyAndGetEndPosition
           val updated = file.copy(length = actualLength - file.position)
-          log_infos = log_infos + (updated.position->updated)
+          log_infos.put(updated.position, updated)
           if( updated.file.length != file.length ) {
             // we need to truncate.
             using(new RandomAccessFile(file.file, "rw")) ( _.setLength(updated.length))
@@ -440,9 +443,7 @@ case class RecordLog(directory: File, logSuffix:String) {
         rc
       }
     } finally {
-      max_log_flush_latency {
-        current_appender.flush
-      }
+      current_appender.flush
       max_log_rotate_latency {
         log_mutex.synchronized {
           if ( current_appender.append_offset >= logSize ) {
@@ -463,7 +464,7 @@ case class RecordLog(directory: File, logSuffix:String) {
     }
   }
 
-  def log_info(pos:Long) = log_mutex.synchronized(log_infos.range(0L, pos+1).lastOption.map(_._2))
+  def log_info(pos:Long) = log_mutex.synchronized { Option(log_infos.floorEntry(pos)).map(_.getValue) }
 
   private def get_reader[T](record_position:Long)(func: (LogReader)=>T) = {
 

@@ -135,7 +135,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   @BeanProperty
   var paranoidChecks: Boolean = false
   @BeanProperty
-  var indexWriteBufferSize: Int = 4 << 20
+  var indexWriteBufferSize: Int = 1024*1024*6
   @BeanProperty
   var indexBlockSize: Int = 4 * 1024
   @BeanProperty
@@ -411,7 +411,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     }
 
     def getMessageCount: Int = {
-      return db.collectionSize(key)
+      return db.collectionSize(key).toInt
     }
 
     override def isEmpty: Boolean = {
@@ -564,7 +564,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     
     def getMessageCount(clientId: String, subscriptionName: String): Int = {
       lookup(clientId, subscriptionName) match {
-        case Some(sub) => db.queueSizeFrom(key, sub.lastAckPosition+1)
+        case Some(sub) => (lastSeq.get - sub.lastAckPosition).toInt
         case None => 0
       }
     }
