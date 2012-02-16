@@ -78,21 +78,21 @@ sort_info: 10
       | esb                            mq, nmr, camel
       | hadoop-datanode                
       | hadoop                         
-      | example-mq                    examples
+      | example-mq                     examples
       | camel                          karaf
       | default                        
       | nmr                            karaf
       | karaf                          default
-      | zk-server-0000-1               zk-server-0000
-      | zk-server-0000
+      | fabric-ensembler-0000-1        fabric-ensemble-0000
+      | fabric-ensemble-0000
 
     :&markdown
       Or list the available containers via **container-list**
 
     pre
       | FuseFabric:admin@root> container-list
-      | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
-      | root                           true       default, zk-server-0000-1      success                                                                                             
+      | [id]                           [alive]    [profiles]                       [provision status]
+      | root                           true       default, fabric-ensemble-0000-1  success
 
 .row
   .span4
@@ -113,7 +113,7 @@ sort_info: 10
     pre
       | FuseFabric:admin@root> fabric:container-list
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
-      | root                           true       default, zk-server-0000-1
+      | root                           true       default, fabric-ensemble-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
 
     :&markdown
@@ -163,7 +163,7 @@ sort_info: 10
     pre
       | FuseFabric:admin@root> container-list
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
-      | root                           true       default, zk-server-0000-1
+      | root                           true       default, fabric-ensemble-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
       | &nbsp;&nbsp;camel1                       true       example-camel           success
   
