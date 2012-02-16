@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.apache.zookeeper.CreateMode;
@@ -48,6 +46,8 @@ import org.linkedin.zookeeper.tracker.ZKStringDataReader;
 import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, LifecycleListener {
 
@@ -57,7 +57,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
 
     public static final String FILEINSTALL = "felix.fileinstall.filename";
 
-    private static final Logger LOGGER = Logger.getLogger(ZooKeeperConfigAdminBridge.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperConfigAdminBridge.class);
 
     private IZKClient zooKeeper;
     private ConfigurationAdmin configAdmin;
@@ -65,7 +65,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     private String version;
     private String node;
     private Map<String, ZooKeeperTreeTracker<String>> trees = new ConcurrentHashMap<String, ZooKeeperTreeTracker<String>>();
-    private boolean tracking = false;
+    private volatile boolean tracking = false;
 
 
     public void init() throws Exception {
@@ -98,7 +98,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             }
             onEvents(null);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Exception when tracking configurations", e);
+            LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
         }
     }
 
@@ -160,7 +160,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                         try {
                             return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
                         } catch (Exception e) {
-                            LOGGER.log(Level.WARNING, "Could not load zk value: "+key, e);
+                            LOGGER.warn("Could not load zk value: {}. This exception will be ignored.", key, e);
                         }
                     }
                     return null;
@@ -239,7 +239,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     }
 
     public void onEvents(Collection<NodeEvent<String>> nodeEvents) {
-        LOGGER.entering(getClass().getName(), "onEvents", nodeEvents);
+        LOGGER.trace("onEvents", nodeEvents);
         try {
             if (!tracking) {
                 final Set<String> pids = getPids();
@@ -262,24 +262,24 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                         old.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
                     }
                     if (!c.equals(old)) {
-                        LOGGER.info("Updating configuration " + config.getPid());
+                        LOGGER.info("Updating configuration {}", config.getPid());
                         c.put(FABRIC_ZOOKEEPER_PID, pid);
                         if (config.getBundleLocation() != null) {
                             config.setBundleLocation(null);
                         }
                         config.update(c);
                     } else {
-                        LOGGER.info("Ignoring configuration " + config.getPid() + " (no changes)");
+                        LOGGER.info("Ignoring configuration {} (no changes)", config.getPid());
                     }
                 }
                 for (Configuration config : configs) {
-                    LOGGER.info("Deleting configuration " + config.getPid());
+                    LOGGER.info("Deleting configuration {}", config.getPid());
                     config.delete();
                 }
             }
-            LOGGER.exiting(getClass().getName(), "onEvents");
+            LOGGER.trace("onEvents done");
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Exception when tracking configurations", e);
+            LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
         }
     }
 
@@ -296,20 +296,13 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         if (n > 0) {
             String factoryPid = pid.substring(n + 1);
             pid = pid.substring(0, n);
-            return new String[]
-                    {
-                            pid, factoryPid
-                    };
+            return new String[]{pid, factoryPid};
         } else {
-            return new String[]
-                    {
-                            pid, null
-                    };
+            return new String[]{pid, null};
         }
     }
 
-    Configuration getConfiguration(String zooKeeperPid, String pid, String factoryPid)
-            throws Exception {
+    Configuration getConfiguration(String zooKeeperPid, String pid, String factoryPid) throws Exception {
         String filter = "(" + FABRIC_ZOOKEEPER_PID + "=" + zooKeeperPid + ")";
         Configuration[] oldConfiguration = getConfigAdmin().listConfigurations(filter);
         if (oldConfiguration != null && oldConfiguration.length > 0) {
