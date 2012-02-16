@@ -75,19 +75,19 @@
     <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni-osx</artifactId>
-      <version>1.1</version>
+      <version>1.2-SNAPSHOT</version>
       <!-- <scope>provided</scope> -->
     </dependency>
     <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni-linux32</artifactId>
-      <version>1.1</version>
+      <version>1.2-SNAPSHOT</version>
       <!-- <scope>provided</scope> -->
     </dependency>
     <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni-linux64</artifactId>
-      <version>1.1</version>
+      <version>1.2-SNAPSHOT</version>
       <!-- <scope>provided</scope> -->
     </dependency>
 
