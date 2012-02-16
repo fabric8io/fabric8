@@ -55,12 +55,8 @@ public interface Container {
 
     List<String> getJmxDomains();
 
-    @Deprecated()
-    BundleInfo[] getBundles();
-    @Deprecated
-    ServiceInfo[] getServices();
-
     BundleInfo[] getBundles(ContainerTemplate template);
+
     ServiceInfo[] getServices(ContainerTemplate template);
 
     /**

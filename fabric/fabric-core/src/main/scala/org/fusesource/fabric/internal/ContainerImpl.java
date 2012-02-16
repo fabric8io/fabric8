@@ -209,27 +209,6 @@ public class ContainerImpl implements Container {
         }
     }
 
-    //
-    // TODO: remove these deprecated methods in the next release.
-    //
-    @Deprecated
-    private ContainerTemplate containerTemplate;
-    @Deprecated
-    public ContainerTemplate getContainerTemplate() {
-        if( containerTemplate ==null ) {
-            containerTemplate = new ContainerTemplate(this, false);
-        }
-        return containerTemplate;
-    }
-    @Deprecated
-    public ServiceInfo[] getServices() {
-        return getServices(getContainerTemplate());
-    }
-    @Deprecated
-    public BundleInfo[] getBundles() {
-        return getBundles(containerTemplate);
-    }
-
     public BundleInfo[] getBundles(ContainerTemplate containerTemplate) {
         try {
             return containerTemplate.execute(new ContainerTemplate.BundleStateCallback<BundleInfo[]>() {
