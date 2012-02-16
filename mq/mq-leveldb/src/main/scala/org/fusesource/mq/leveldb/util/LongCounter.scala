@@ -22,7 +22,7 @@ package org.fusesource.mq.leveldb.util
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class LongCounter(private var value:Long = 0) {
+class LongCounter(private var value:Long = 0) extends Serializable {
 
   def clear() = value=0
   def get() = value

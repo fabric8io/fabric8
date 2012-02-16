@@ -35,7 +35,7 @@
   <description>LevelDB based message storage for ActiveMQ</description>
 
   <properties>
-    <activemq-version>5.5.1-fuse-SNAPSHOT</activemq-version>
+    <activemq-version>5.5.1-fuse-02-02</activemq-version>
   </properties>
 
   <dependencies>
@@ -69,7 +69,7 @@
     <dependency>
       <groupId>org.iq80.leveldb</groupId>
       <artifactId>leveldb</artifactId>
-      <version>0.1</version>
+      <version>0.3-SNAPSHOT</version>
       <!-- <scope>provided</scope> -->
     </dependency>
     <dependency>
