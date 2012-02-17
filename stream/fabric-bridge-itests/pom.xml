@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.fusesource.fabric.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
   </parent>
 
   <artifactId>fabric-bridge-itests</artifactId>
@@ -132,6 +132,12 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <artifactId>standard</artifactId>
       <version>${karaf-version}</version>
       <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-zookeeper</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
