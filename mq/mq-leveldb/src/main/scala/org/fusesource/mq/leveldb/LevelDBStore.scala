@@ -135,7 +135,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   @BeanProperty
   var paranoidChecks: Boolean = false
   @BeanProperty
-  var indexWriteBufferSize: Int = 4 << 20
+  var indexWriteBufferSize: Int = 1024*1024*6
   @BeanProperty
   var indexBlockSize: Int = 4 * 1024
   @BeanProperty
