@@ -683,10 +683,10 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
 
     if(!producerRoutes.isEmpty) {
       import collection.JavaConversions._
-      val routes = producerRoutes.toArray
+      val routes = producerRoutes.values.toSeq.toArray
       host.dispatch_queue {
-        routes.foreach { case (dest, route)=>
-          host.router.disconnect(Array(dest), route)
+        routes.foreach { route=>
+          host.router.disconnect(Array(route.address), route)
         }
       }
       producerRoutes.clear
@@ -845,9 +845,17 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
   // Bits that deal with processing PUBLISH messages
   //
   /////////////////////////////////////////////////////////////////////
-  var producerRoutes = new LRUCache[ConnectAddress, DeliveryProducerRoute](10) {
-    override def onCacheEviction(eldest: Entry[ConnectAddress, DeliveryProducerRoute]) = {
-      host.router.disconnect(Array(eldest.getKey), eldest.getValue)
+  var producerRoutes = new LRUCache[UTF8Buffer, MqttProducerRoute](10) {
+    override def onCacheEviction(eldest: Entry[UTF8Buffer, MqttProducerRoute]) = {
+      host.router.disconnect(Array(eldest.getValue.address), eldest.getValue)
+    }
+  }
+  case class MqttProducerRoute(address:SimpleAddress, handler:MqttProtocolHandler) extends DeliveryProducerRoute(host.router) {
+    override def send_buffer_size = handler.codec.getReadBufferSize
+    override def connection = Some(handler.connection)
+    override def dispatch_queue = queue
+    refiller = ^{
+      handler.resume_read
     }
   }
 
@@ -863,30 +871,22 @@ case class MqttSession(host_state:HostState, client_id:UTF8Buffer, session_state
     handler.get.messages_received += 1
 
     queue.assertExecuting()
-    val h = handler.get
-    val destination = decode_destination(publish.topicName())
-    producerRoutes.get(destination) match {
+    producerRoutes.get(publish.topicName()) match {
       case null =>
         // create the producer route...
 
-        val route = new DeliveryProducerRoute(host.router) {
-          override def send_buffer_size = h.codec.getReadBufferSize
-          override def connection = Some(h.connection)
-          override def dispatch_queue = queue
-          refiller = ^{
-            h.resume_read
-          }
-        }
+        val destination = decode_destination(publish.topicName())
+        val route = MqttProducerRoute(destination, handler.get)
 
         // don't process commands until producer is connected...
-        h.suspend_read("route publish lookup")
+        route.handler.suspend_read("route publish lookup")
         host.dispatch_queue {
           host.router.connect(Array(destination), route, security_context)
           queue {
             // We don't care if we are not allowed to send..
-            if (!h.connection.stopped) {
-              h.resume_read
-              producerRoutes.put(destination, route)
+            if (!route.handler.connection.stopped) {
+              route.handler.resume_read
+              producerRoutes.put(publish.topicName(), route)
               send_via_route(route, publish)
             }
           }
