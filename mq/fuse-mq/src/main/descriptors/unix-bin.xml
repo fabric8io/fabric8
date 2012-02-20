@@ -28,6 +28,7 @@
             <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
+                <exclude>system/**</exclude>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/**</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
@@ -39,6 +40,12 @@
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>karaf-manual*</exclude>
             </excludes>
+        </fileSet>
+
+        <!-- System repo -->
+        <fileSet>
+            <directory>taret/features-repo</directory>
+            <outputDirectory>/system/</outputDirectory>
         </fileSet>
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->

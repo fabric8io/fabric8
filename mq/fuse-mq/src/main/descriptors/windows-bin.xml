@@ -28,6 +28,7 @@
             <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
+                <exclude>system/**</exclude>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/create</exclude>
                 <exclude>bin/fabric</exclude>
@@ -40,6 +41,12 @@
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>karaf-manual*</exclude>
             </excludes>
+        </fileSet>
+
+        <!-- System repo -->
+        <fileSet>
+            <directory>taret/features-repo</directory>
+            <outputDirectory>/system/</outputDirectory>
         </fileSet>
 
         <fileSet>

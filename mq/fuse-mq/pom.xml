@@ -40,6 +40,11 @@
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
                <version>${project.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fuse-fabric</artifactId>
+               <version>${project.version}</version>
                <type>tar.gz</type>
            </dependency>
            <dependency>
@@ -53,7 +58,7 @@
            <dependency>
                <groupId>org.fusesource.mq</groupId>
                <artifactId>org.fusesource.mq.karaf.branding</artifactId>
-			         <version>${project.version}</version>
+			    <version>${project.version}</version>
            </dependency>
 
            <!-- Scala support -->
@@ -125,6 +130,72 @@
                                </descriptors>
                                <finalName>${project.artifactId}-${project.version}</finalName>
                                <appendAssemblyId>false</appendAssemblyId>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                   <groupId>org.apache.karaf.tooling</groupId>
+                   <artifactId>features-maven-plugin</artifactId>
+                   <version>${karaf-version}</version>
+                   <executions>
+                       <execution>
+                           <id>add-features-to-repo</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>add-features-to-repo</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
+                               </descriptors>
+                               <features>
+                                   <feature>obr</feature>
+                                   <feature>config</feature>
+                                   <feature>fabric-agent</feature>
+                                   <feature>fabric-commands</feature>
+                                   <feature>fabric-camel</feature>
+                                   <feature>fabric-dosgi</feature>
+                                   <feature>fabric-bundle</feature>
+                                   <feature>fabric-monitor</feature>
+                                   <feature>fabric-zeroconf</feature>
+                                   <feature>mq-fabric</feature>
+                                   <feature>patch</feature>
+                               </features>
+                               <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                               <repository>target/features-repo</repository>
+                           </configuration>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-resources-plugin</artifactId>
+                   <executions>
+                       <execution>
+                           <id>filter</id>
+                           <phase>generate-resources</phase>
+                           <goals>
+                               <goal>resources</goal>
+                           </goals>
+                       </execution>
+                       <execution>
+                           <id>copy-system-folder</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>copy-resources</goal>
+                           </goals>
+                           <configuration>
+                               <outputDirectory>target/features-repo</outputDirectory>
+                               <resources>
+                                   <resource>
+                                       <directory>target/dependencies/unix/fuse-fabric-${project.version}/system</directory>
+                                   </resource>
+                               </resources>
                            </configuration>
                        </execution>
                    </executions>
