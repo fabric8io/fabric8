@@ -64,7 +64,7 @@ public interface FabricService {
     /**
      * Finds the {@link Version} with the specified name.
      * @param name  The name of the {@link Version}.
-     * @return      The {@link Version} that mathces the name.
+     * @return      The {@link Version} that matches the name.
      */
     Version getVersion(String name);
 

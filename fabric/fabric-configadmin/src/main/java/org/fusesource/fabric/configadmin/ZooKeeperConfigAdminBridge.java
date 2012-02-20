@@ -80,18 +80,23 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
 
     public void onConnected() {
         try {
-            // Find our root node
-            version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
-            if (version == null) {
-                throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
-            }
-            node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
-            if (zooKeeper.exists(node) == null) {
-                zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            }
             trees = new ConcurrentHashMap<String, ZooKeeperTreeTracker<String>>();
             tracking = true;
             try {
+                // Find our root node
+                String versionNode = ZkPath.CONFIG_CONTAINER.getPath(name);
+                if (zooKeeper.exists(versionNode) == null) {
+                    throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
+                }
+                version = zooKeeper.getStringData(versionNode);
+                if (version == null) {
+                    throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
+                }
+                track(versionNode);
+                node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
+                if (zooKeeper.exists(node) == null) {
+                    zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
                 track(node);
             } finally {
                 tracking = false;
@@ -242,6 +247,12 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         LOGGER.trace("onEvents", nodeEvents);
         try {
             if (!tracking) {
+                String version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
+                if (!this.version.equals(version)) {
+                    this.version = version;
+                    node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
+                    track(node);
+                }
                 final Set<String> pids = getPids();
                 List<Configuration> configs = asList(getConfigAdmin().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
                 for (String pid : pids) {

@@ -164,6 +164,7 @@
             <property name="zooKeeper" ref="zooKeeper"/>
         </action>
         <completers>
+          <ref component-id="versionCompleter"/>
           <ref component-id="containerCompleter"/>
         </completers>
       </command>
@@ -173,6 +174,7 @@
           <property name="zooKeeper" ref="zooKeeper"/>
         </action>
         <completers>
+          <ref component-id="versionCompleter"/>
           <ref component-id="containerCompleter"/>
         </completers>
       </command>
@@ -253,20 +255,19 @@
           </action>
         </command>
         <command name="fabric/version-list">
-          <action class="org.fusesource.fabric.commands.VersionList">
-            <property name="fabricService" ref="fabricService"/>
-            <property name="zooKeeper" ref="zooKeeper"/>
-          </action>
+            <action class="org.fusesource.fabric.commands.VersionList">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
         </command>
-        <command name="fabric/version-set">
-          <action class="org.fusesource.fabric.commands.VersionSet">
-            <property name="fabricService" ref="fabricService"/>
-            <property name="zooKeeper" ref="zooKeeper"/>
-          </action>
+        <command name="fabric/version-delete">
+            <action class="org.fusesource.fabric.commands.VersionDelete">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
             <completers>
-              <ref component-id="versionCompleter"/>
-              <ref component-id="containerCompleter"/>
-          </completers>
+                <ref component-id="versionCompleter"/>
+            </completers>
         </command>
     </command-bundle>
 

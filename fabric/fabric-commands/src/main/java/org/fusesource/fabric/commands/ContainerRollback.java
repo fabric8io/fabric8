@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
@@ -31,10 +30,10 @@ import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
 @Command(name = "container-rollback", scope = "fabric", description = "Rollback containers to an older version")
 public class ContainerRollback extends ContainerUpgradeSupport {
 
-    @Option(name = "--version", description = "The version to rollback", required = true)
+    @Argument(index = 0, name = "version", description = "The version to upgrade", required = true)
     private String version;
 
-    @Argument(index = 0, name = "container", description = "The list of containers to rollback. Empty list assumes current container only.", required = false, multiValued = true)
+    @Argument(index = 1, name = "container", description = "The list of containers to rollback. Empty list assumes current container only.", required = false, multiValued = true)
     private List<String> containerIds;
 
     @Override
