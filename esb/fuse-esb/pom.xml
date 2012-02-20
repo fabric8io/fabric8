@@ -152,6 +152,7 @@
                                 <descriptor>file:${basedir}/target/classes/features.xml</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
+                                <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
@@ -172,7 +173,7 @@
 
                                 <!-- FuseSource only : Fabric -->
                                 <feature>fabric-bundle</feature>
-                                <feature>fuse-patch</feature>
+                                <feature>patch</feature>
                             </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
