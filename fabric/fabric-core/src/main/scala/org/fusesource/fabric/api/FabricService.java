@@ -121,7 +121,9 @@ public interface FabricService {
     /**
      * Deletes the specified {@link Profile}.
      * @param profile
+     * @deprecated Use Profile#delete() instead
      */
+    @Deprecated
     void deleteProfile(Profile profile);
 
     /**
