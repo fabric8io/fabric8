@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
@@ -29,6 +30,9 @@ import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
 @Command(name = "container-upgrade", scope = "fabric", description = "Upgrade containers to a new version")
 public class ContainerUpgrade extends ContainerUpgradeSupport {
 
+    @Option(name = "--all", description = "Upgrade all containers")
+    private boolean all;
+    
     @Argument(index = 0, name = "version", description = "The version to upgrade", required = true)
     private String version;
 
@@ -42,7 +46,18 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
         Version version = fabricService.getVersion(this.version);
 
         if (containerIds == null || containerIds.isEmpty()) {
-            containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
+            if (all) {
+                containerIds = new ArrayList<String>();
+                for (Container container : fabricService.getContainers()) {
+                    containerIds.add(container.getId());
+                }
+            } else {
+                containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
+            }
+        } else {
+            if (all) {
+                throw new IllegalArgumentException("Can not use --all with a list of containers simultaneously");
+            }
         }
 
         List<Container> toUpgrade = new ArrayList<Container>();
@@ -81,5 +96,5 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
 
         return null;
     }
-    
+
 }
