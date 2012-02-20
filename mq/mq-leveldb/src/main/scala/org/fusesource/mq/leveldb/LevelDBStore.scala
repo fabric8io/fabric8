@@ -223,28 +223,28 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   val transactions = collection.mutable.HashMap[TransactionId, Transaction]()
   
   trait TransactionAction {
-    def apply(uow:DBManager#DelayableUOW):Unit
+    def apply(uow:DelayableUOW):Unit
   }
   
   case class Transaction(id:TransactionId) {
     val commitActions = ListBuffer[TransactionAction]() 
     def add(store:LevelDBMessageStore, message: Message) = {
       commitActions += new TransactionAction() {
-        def apply(uow:DBManager#DelayableUOW) = {
+        def apply(uow:DelayableUOW) = {
           store.doAdd(uow, message)
         }
       }
     }
     def remove(store:LevelDBMessageStore, msgid:MessageId) = {
       commitActions += new TransactionAction() {
-        def apply(uow:DBManager#DelayableUOW) = {
+        def apply(uow:DelayableUOW) = {
           store.doRemove(uow, msgid)
         }
       }
     }
     def updateAckPosition(store:LevelDBTopicMessageStore, sub: DurableSubscription, position: Long) = {
       commitActions += new TransactionAction() {
-        def apply(uow:DBManager#DelayableUOW) = {
+        def apply(uow:DelayableUOW) = {
           store.doUpdateAckPosition(uow, sub, position)
         }
       }
@@ -257,11 +257,12 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
     transactions.remove(txid) match {
       case None=> throw new IOException("The transaction does not exist")
       case Some(tx)=>
-        withUow { uow =>
+        waitOn(withUow { uow =>
           for( action <- tx.commitActions ) {
             action(uow)
           }
-        }
+          uow.countDownFuture
+        })
     }
   }
 
@@ -339,7 +340,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
   def checkpoint(sync: Boolean): Unit = db.checkpoint(sync)
 
-  def withUow[T](func:(DBManager#DelayableUOW)=>T):T = {
+  def withUow[T](func:(DelayableUOW)=>T):T = {
     val uow = db.createUow
     try {
       func(uow)
@@ -359,7 +360,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
 
     lastSeq.set(db.getLastQueueEntrySeq(key))
 
-    def doAdd(uow: DBManager#DelayableUOW, message: Message): CountDownFuture = {
+    def doAdd(uow: DelayableUOW, message: Message): CountDownFuture = {
       uow.enqueue(key, lastSeq.incrementAndGet, message)
     }
 
@@ -378,7 +379,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
       waitOn(asyncAddQueueMessage(context, message))
     }
 
-    def doRemove(uow: DBManager#DelayableUOW, id: MessageId): CountDownFuture = {
+    def doRemove(uow: DelayableUOW, id: MessageId): CountDownFuture = {
       uow.dequeue(key, id)
     }
 
@@ -502,9 +503,10 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
         subscriptions.put((info.getClientId, info.getSubcriptionName), sub)
       }
       sub.lastAckPosition = if (retroactive) 0 else lastSeq.get()
-      withUow{ uow=>
+      waitOn(withUow{ uow=>
         uow.updateAckPosition(sub)
-      }
+        uow.countDownFuture
+      })
     }
     
     def getAllSubscriptions: Array[SubscriptionInfo] = subscriptions.synchronized {
@@ -525,7 +527,7 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
       subscriptions.get((clientId, subscriptionName))
     }
 
-    def doUpdateAckPosition(uow: DBManager#DelayableUOW, sub: DurableSubscription, position: Long) = {
+    def doUpdateAckPosition(uow: DelayableUOW, sub: DurableSubscription, position: Long) = {
       sub.lastAckPosition = position
       uow.updateAckPosition(sub)
     }
@@ -537,9 +539,10 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
           transaction(ack.getTransactionId).updateAckPosition(this, sub, position)
           DONE
         } else {
-          withUow{ uow=>
+          waitOn(withUow{ uow=>
             doUpdateAckPosition(uow, sub, position)
-          }
+            uow.countDownFuture
+          })
         }
 
       }

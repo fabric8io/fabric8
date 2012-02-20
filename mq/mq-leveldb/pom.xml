@@ -172,11 +172,13 @@
                   <include>org.fusesource.hawtbuf:hawtbuf-proto</include>
                   
                   <include>org.iq80.leveldb:leveldb-api</include>
-                  
+
+                  <!--
                   <include>org.iq80.leveldb:leveldb</include>
                   <include>org.xerial.snappy:snappy-java</include>
                   <include>com.google.guava:guava</include>
-                  
+                  -->
+
                   <include>org.fusesource.leveldbjni:leveldbjni</include>
                   <include>org.fusesource.leveldbjni:leveldbjni-osx</include>
                   <include>org.fusesource.leveldbjni:leveldbjni-linux32</include>

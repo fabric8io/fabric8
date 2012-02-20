@@ -16,21 +16,20 @@
  */
 package org.fusesource.mq.leveldb
 
-import collection.mutable.ListBuffer
-import java.util.HashMap
 import org.fusesource.hawtdispatch._
-import org.fusesource.hawtdispatch.{BaseRetained, ListEventAggregator}
+import org.fusesource.hawtdispatch.BaseRetained
 import java.util.concurrent._
 import atomic._
 import org.fusesource.hawtbuf.Buffer
-import org.apache.activemq.util.ByteSequence
 import org.apache.activemq.store.MessageRecoveryListener
 import java.lang.ref.WeakReference
 import scala.Option._
 import org.fusesource.hawtbuf.Buffer._
 import org.apache.activemq.command._
-import org.fusesource.mq.leveldb.record.{EntryRecord, SubscriptionRecord, CollectionRecord}
+import org.fusesource.mq.leveldb.record.{SubscriptionRecord, CollectionRecord}
 import util.TimeMetric
+import java.util.HashMap
+import collection.mutable.ListBuffer
 
 case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
   var locator:(Long, Int) = _
@@ -114,6 +113,183 @@ object UowManagerConstants {
   val TOPIC_COLLECTION_TYPE = 2
   val TRANSACTION_COLLECTION_TYPE = 3
   val SUBSCRIPTION_COLLECTION_TYPE = 4
+
+  case class QueueEntryKey(queue:Long, seq:Long)
+  def key(x:QueueEntryRecord) = QueueEntryKey(x.queueKey, x.queueSeq)
+}
+
+import UowManagerConstants._
+
+class DelayableUOW(val manager:DBManager) extends BaseRetained {
+  val countDownFuture = CountDownFuture()
+  var canceled = false;
+
+  val uowId:Int = manager.lastUowId.incrementAndGet()
+  var actions = Map[MessageId, MessageAction]()
+  var subAcks = ListBuffer[SubAckRecord]()
+  var completed = false
+  var disableDelay = false
+  var delayableActions = 0
+
+  private var _state:UowState = UowOpen
+
+  def state = this._state
+  def state_=(next:UowState) {
+    assert(this._state.stage < next.stage)
+    this._state = next
+  }
+
+  def syncNeeded = actions.find( _._2.syncNeeded ).isDefined
+  def size = 100+actions.foldLeft(0L){ case (sum, entry) =>
+    sum + (entry._2.size+100)
+  } + (subAcks.size * 100)
+
+  class MessageAction {
+    var id:MessageId = _
+    var messageRecord: MessageRecord = null
+    var enqueues = ListBuffer[QueueEntryRecord]()
+    var dequeues = ListBuffer[QueueEntryRecord]()
+
+    def uow = DelayableUOW.this
+    def isEmpty() = messageRecord==null && enqueues==Nil && dequeues==Nil
+
+    def cancel() = {
+      uow.rm(id)
+    }
+
+    def syncNeeded = messageRecord!=null && messageRecord.syncNeeded
+    def size = (if(messageRecord!=null) messageRecord.data.length+20 else 0) + ((enqueues.size+dequeues.size)*50)
+  }
+
+  def completeAsap() = this.synchronized { disableDelay=true }
+  def delayable = !disableDelay && delayableActions>0 && manager.flushDelay>=0
+
+  def rm(msg:MessageId) = {
+    actions -= msg
+    if( actions.isEmpty && state.stage < UowFlushing.stage ) {
+      cancel
+    }
+  }
+
+  def cancel = {
+    manager.dispatchQueue.assertExecuting()
+    manager.uowCanceledCounter += 1
+    canceled = true
+    manager.flush_queue.remove(uowId)
+    onCompleted
+  }
+
+  def action(id:MessageId) = {
+    actions.get(id) match {
+      case Some(x) => x
+      case None =>
+        val x = new MessageAction
+        x.id = id
+        actions += id->x
+        x
+    }
+  }
+
+  def store(record: MessageRecord) = {
+    val action = new MessageAction
+    action.id = record.id
+    action.messageRecord = record
+    this.synchronized {
+      actions += record.id -> action
+    }
+    manager.dispatchQueue {
+//    manager.aggregator {
+      manager.pendingStores.put(record.id, action)
+    }
+    delayableActions += 1
+  }
+
+  def updateAckPosition(sub:DurableSubscription) = {
+    subAcks += SubAckRecord(sub.subKey, sub.lastAckPosition)
+  }
+
+  def enqueue(queueKey:Long, queueSeq:Long, message:Message)  = {
+
+    val id = message.getMessageId
+    if( id.getDataLocator==null ) {
+      var packet = manager.parent.wireFormat.marshal(message)
+      val record = MessageRecord(id, new Buffer(packet.data, packet.offset, packet.length), message.isResponseRequired)
+      id.setDataLocator(record)
+      store(record)
+    }
+
+    val entry = QueueEntryRecord(id, queueKey, queueSeq)
+    assert(id.getEntryLocator == null)
+    id.setEntryLocator((queueKey, queueSeq))
+
+    val a = this.synchronized {
+      // Need to figure out a better way for the the broker to hint when
+      // a store should be delayed or not.
+      disableDelay = true // message.isResponseRequired
+
+      val a = action(entry.id)
+      a.enqueues += entry
+      delayableActions += 1
+      a
+    }
+
+    manager.dispatchQueue {
+//    manager.aggregator {
+      manager.cancelable_enqueue_actions.put(key(entry), a)
+      manager.pendingStores.put(id, a)
+    }
+    countDownFuture
+  }
+
+  def dequeue(queueKey:Long, id:MessageId) = {
+    val (queueKey, queueSeq) = id.getEntryLocator.asInstanceOf[(Long, Long)];
+    val entry = QueueEntryRecord(id, queueKey, queueSeq)
+    this.synchronized {
+      action(id).dequeues += entry
+    }
+    countDownFuture
+  }
+
+  def complete_asap = this.synchronized {
+    disableDelay=true
+    if( state eq UowDelayed ) {
+      manager.enqueueFlush(this)
+    }
+  }
+
+  var asyncCapacityUsed = 0L
+  var disposed_at = 0L
+
+  override def dispose = this.synchronized {
+    state = UowClosed
+    disposed_at = System.nanoTime()
+    if( !syncNeeded ) {
+      val s = size
+      if( manager.asyncCapacityRemaining.addAndGet(-s) > 0 ) {
+        asyncCapacityUsed = s
+        countDownFuture.countDown
+      } else {
+        manager.asyncCapacityRemaining.addAndGet(s)
+      }
+    }
+    //      closeSource.merge(this)
+    manager.dispatchQueue {
+      manager.processClosed(this)
+    }
+  }
+
+  def onCompleted() = this.synchronized {
+    if ( state.stage < UowCompleted.stage ) {
+      if( asyncCapacityUsed != 0 ) {
+        manager.asyncCapacityRemaining.addAndGet(asyncCapacityUsed)
+        asyncCapacityUsed = 0
+      } else {
+        manager.uow_complete_latency.add(System.nanoTime() - disposed_at)
+        countDownFuture.countDown
+      }
+      super.dispose
+    }
+  }
 }
 
 /**
@@ -123,7 +299,6 @@ object UowManagerConstants {
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 class DBManager(val parent:LevelDBStore) {
-  import UowManagerConstants._
 
   var lastCollectionKey = new AtomicLong(0)
   val client = new LevelDBClient(parent);
@@ -132,11 +307,11 @@ class DBManager(val parent:LevelDBStore) {
   def flushDelay = parent.flushDelay
 
   val dispatchQueue = createQueue(toString)
-  val aggregator = new AggregatingExecutor(dispatchQueue)
+//  val aggregator = new AggregatingExecutor(dispatchQueue)
 
   val asyncCapacityRemaining = new AtomicLong(0L)
 
-  def createUow() = new DelayableUOW
+  def createUow() = new DelayableUOW(this)
 
   var uowClosedCounter = 0L
   var uowCanceledCounter = 0L
@@ -144,263 +319,93 @@ class DBManager(val parent:LevelDBStore) {
   var uowStoredCounter = 0L
 
   val uow_complete_latency = TimeMetric() 
-  
-  class DelayableUOW extends BaseRetained {
-    val countDownFuture = CountDownFuture()
-    var canceled = false;
 
-    val uowId:Int = lastUowId.incrementAndGet()
-    var actions = Map[MessageId, MessageAction]()
-    var subAcks = ListBuffer[SubAckRecord]()
-    var completed = false
-    var disableDelay = false
-    var delayableActions = 0
-
-    private var _state:UowState = UowOpen
-
-    def state = this._state
-    def state_=(next:UowState) {
-      assert(this._state.stage < next.stage)
-      this._state = next
-    }
-
-    def syncNeeded = actions.find( _._2.syncNeeded ).isDefined
-    def size = actions.foldLeft(0L){ case (sum, entry) => 
-      sum + entry._2.size 
-    } + (subAcks.size * 50)
-
-    class MessageAction {
-      var id:MessageId = _
-      var messageRecord: MessageRecord = null
-      var enqueues = ListBuffer[QueueEntryRecord]()
-      var dequeues = ListBuffer[QueueEntryRecord]()
-
-      def uow = DelayableUOW.this
-      def isEmpty() = messageRecord==null && enqueues==Nil && dequeues==Nil
-
-      def cancel() = {
-        uow.rm(id)
-      }
-
-      def syncNeeded = messageRecord!=null && messageRecord.syncNeeded
-      def size = (if(messageRecord!=null) messageRecord.data.length+20 else 0) + ((enqueues.size+dequeues.size)*50)  
-    }
-
-    def completeAsap() = this.synchronized { disableDelay=true }
-    def delayable = !disableDelay && delayableActions>0 && flushDelay>=0
-
-    def rm(msg:MessageId) = {
-      actions -= msg
-      if( actions.isEmpty && state.stage < UowFlushing.stage ) {
-        cancel
-      }
-    }
-
-    def cancel = {
-      dispatchQueue.assertExecuting()
-      uowCanceledCounter += 1
-      canceled = true
-      onCompleted
-    }
-
-    def action(id:MessageId) = {
-      actions.get(id) match {
-        case Some(x) => x
-        case None =>
-          val x = new MessageAction
-          x.id = id
-          actions += id->x
-          x
-      }
-    }
-
-    def store(record: MessageRecord) = {
-      val action = new MessageAction
-      action.id = record.id
-      action.messageRecord = record
-      this.synchronized {
-        actions += record.id -> action
-      }
-      aggregator {
-        pendingStores.put(record.id, action)
-      }
-      delayableActions += 1
-    }
-
-    def updateAckPosition(sub:DurableSubscription) = {
-      subAcks += SubAckRecord(sub.subKey, sub.lastAckPosition)
-    }
-
-    def enqueue(queueKey:Long, queueSeq:Long, message:Message)  = {
-
-      val id = message.getMessageId
-      if( id.getDataLocator==null ) {
-        var packet = parent.wireFormat.marshal(message)
-        val record = MessageRecord(id, new Buffer(packet.data, packet.offset, packet.length), message.isResponseRequired)
-        id.setDataLocator(record)
-        store(record)
-      }
-
-      val entry = QueueEntryRecord(id, queueKey, queueSeq)
-      assert(id.getEntryLocator == null)
-      id.setEntryLocator((queueKey, queueSeq))
-
-      val a = this.synchronized {
-        // Need to figure out a better way for the the broker to hint when
-        // a store should be delayed or not.
-        disableDelay = true // message.isResponseRequired
-
-        val a = action(entry.id)
-        a.enqueues += entry
-        delayableActions += 1
-        a
-      }
-
-      aggregator {
-        cancelable_enqueue_actions.put(key(entry), a)
-        pendingStores.put(id, a)
-      }
-      countDownFuture
-    }
-
-    def dequeue(queueKey:Long, id:MessageId) = {
-      val (queueKey, queueSeq) = id.getEntryLocator.asInstanceOf[(Long, Long)];
-      val entry = QueueEntryRecord(id, queueKey, queueSeq)
-      this.synchronized {
-        action(id).dequeues += entry
-      }
-      countDownFuture
-    }
-
-    def complete_asap = this.synchronized {
-      disableDelay=true
-      if( state eq UowDelayed ) {
-        enqueueFlush(this)
-      }
-    }
-
-    var asyncCapacityUsed = 0L
-    var disposed_at = 0L
-    
-    override def dispose = this.synchronized {
-      state = UowClosed
-      disposed_at = System.nanoTime()
-      if( !syncNeeded ) {
-        val s = size
-        if( asyncCapacityRemaining.addAndGet(-s) > 0 ) {
-          asyncCapacityUsed = s
-          countDownFuture.countDown
-        } else {
-          asyncCapacityRemaining.addAndGet(s)
-        }
-      }
-      closeSource.merge(this)
-    }
-
-    def onCompleted() = this.synchronized {
-      if ( state.stage < UowCompleted.stage ) {
-        if( asyncCapacityUsed != 0 ) {
-          asyncCapacityRemaining.addAndGet(asyncCapacityUsed)
-          asyncCapacityUsed = 0
-        } else {
-          uow_complete_latency.add(System.nanoTime() - disposed_at)
-          countDownFuture.countDown
-        }
-        super.dispose
-      }
-    }
-  }
-
-  def key(x:QueueEntryRecord) = (x.queueKey, x.queueSeq)
-
-  val closeSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
-  closeSource.setEventHandler(^{processClosed});
-  closeSource.resume
+//  val closeSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
+//  closeSource.setEventHandler(^{
+//    closeSource.getData.foreach { uow =>
+//      processClosed(uow)
+//    }
+//  });
+//  closeSource.resume
 
   var pendingStores = new ConcurrentHashMap[MessageId, DelayableUOW#MessageAction]()
-  var cancelable_enqueue_actions = new HashMap[(Long,Long), DelayableUOW#MessageAction]()
+  var cancelable_enqueue_actions = new HashMap[QueueEntryKey, DelayableUOW#MessageAction]()
 
   val lastUowId = new AtomicInteger(1)
 
-  def processClosed = {
+  def processClosed(uow:DelayableUOW) = {
     dispatchQueue.assertExecuting()
-    val uows = closeSource.getData
-    uowClosedCounter += uows.size
-    
-    val now = System.nanoTime()
-    uows.foreach { uow =>
+    uowClosedCounter += 1
 
-      // Broker could issue a flush_message call before
-      // this stage runs.. which make the stage jump over UowDelayed
-      if( uow.state.stage < UowDelayed.stage ) {
-        uow.state = UowDelayed
-      }
-      if( uow.state.stage < UowFlushing.stage ) {
-        uow.actions.foreach { case (id, action) =>
+    // Broker could issue a flush_message call before
+    // this stage runs.. which make the stage jump over UowDelayed
+    if( uow.state.stage < UowDelayed.stage ) {
+      uow.state = UowDelayed
+    }
+    if( uow.state.stage < UowFlushing.stage ) {
+      uow.actions.foreach { case (id, action) =>
 
-          // The UoW may have been canceled.
-          if( action.messageRecord!=null && action.enqueues.isEmpty ) {
-            pendingStores.remove(id)
-            action.messageRecord = null
-            uow.delayableActions -= 1
-          }
-          if( action.isEmpty ) {
-            action.cancel()
-          }
+        // The UoW may have been canceled.
+        if( action.messageRecord!=null && action.enqueues.isEmpty ) {
+          pendingStores.remove(id)
+          action.messageRecord = null
+          uow.delayableActions -= 1
+        }
+        if( action.isEmpty ) {
+          action.cancel()
+        }
 
-          // dequeues can cancel out previous enqueues
-          action.dequeues.foreach { entry=>
-            val entry_key = key(entry)
-            val prev_action:DelayableUOW#MessageAction = cancelable_enqueue_actions.remove(entry_key)
+        // dequeues can cancel out previous enqueues
+        action.dequeues.foreach { entry=>
+          val entry_key = key(entry)
+          val prev_action:DelayableUOW#MessageAction = cancelable_enqueue_actions.remove(entry_key)
 
-            if( prev_action!=null ) {
-              val prev_uow = prev_action.uow
-              prev_uow.synchronized {
-                if( !prev_uow.canceled ) {
+          if( prev_action!=null ) {
+            val prev_uow = prev_action.uow
+            prev_uow.synchronized {
+              if( !prev_uow.canceled ) {
 
-                  prev_uow.delayableActions -= 1
+                prev_uow.delayableActions -= 1
 
-                  // yay we can cancel out a previous enqueue
-                  prev_action.enqueues = prev_action.enqueues.filterNot( x=> key(x) == entry_key )
-                  if( prev_uow.state.stage >= UowDelayed.stage ) {
+                // yay we can cancel out a previous enqueue
+                prev_action.enqueues = prev_action.enqueues.filterNot( x=> key(x) == entry_key )
+                if( prev_uow.state.stage >= UowDelayed.stage ) {
 
-                    // if the message is not in any queues.. we can gc it..
-                    if( prev_action.enqueues == Nil && prev_action.messageRecord !=null ) {
-                      pendingStores.remove(id)
-                      prev_action.messageRecord = null
-                      prev_uow.delayableActions -= 1
-                    }
+                  // if the message is not in any queues.. we can gc it..
+                  if( prev_action.enqueues == Nil && prev_action.messageRecord !=null ) {
+                    pendingStores.remove(id)
+                    prev_action.messageRecord = null
+                    prev_uow.delayableActions -= 1
+                  }
 
-                    // Cancel the action if it's now empty
-                    if( prev_action.isEmpty ) {
-                      prev_action.cancel()
-                    } else if( !prev_uow.delayable ) {
-                      // flush it if there is no point in delaying anymore
-                      prev_uow.complete_asap
-                    }
+                  // Cancel the action if it's now empty
+                  if( prev_action.isEmpty ) {
+                    prev_action.cancel()
+                  } else if( !prev_uow.delayable ) {
+                    // flush it if there is no point in delaying anymore
+                    prev_uow.complete_asap
                   }
                 }
               }
-              // since we canceled out the previous enqueue.. now cancel out the action
-              action.dequeues = action.dequeues.filterNot( _ == entry)
-              if( action.isEmpty ) {
-                action.cancel()
-              }
+            }
+            // since we canceled out the previous enqueue.. now cancel out the action
+            action.dequeues = action.dequeues.filterNot( _ == entry)
+            if( action.isEmpty ) {
+              action.cancel()
             }
           }
         }
       }
+    }
 
-      if( !uow.canceled && uow.state.stage < UowFlushQueued.stage ) {
-        if( uow.delayable ) {
-          // Let the uow get GCed if its' canceled during the delay window..
-          val ref = new WeakReference[DelayableUOW](uow)
-          scheduleFlush(ref)
-        } else {
-          enqueueFlush(uow)
-        }
+    if( !uow.canceled && uow.state.stage < UowFlushQueued.stage ) {
+      if( uow.delayable ) {
+        // Let the uow get GCed if its' canceled during the delay window..
+        val ref = new WeakReference[DelayableUOW](uow)
+        scheduleFlush(ref)
+      } else {
+        enqueueFlush(uow)
       }
-
     }
   }
 
@@ -413,14 +418,18 @@ class DBManager(val parent:LevelDBStore) {
     })
   }
 
-  private def enqueueFlush(uow:DelayableUOW) = {
+  val flush_queue = new java.util.LinkedHashMap[Long,  DelayableUOW]()
+
+  def enqueueFlush(uow:DelayableUOW) = {
+    dispatchQueue.assertExecuting()
     if( uow!=null && !uow.canceled && uow.state.stage < UowFlushQueued.stage ) {
       uow.state = UowFlushQueued
-      flushSource.merge(uow)
+      flush_queue.put (uow.uowId, uow)
+      flushSource.merge(1)
     }
   }
 
-  val flushSource = createSource(new ListEventAggregator[DelayableUOW](), dispatchQueue)
+  val flushSource = createSource(EventAggregators.INTEGER_ADD, dispatchQueue)
   flushSource.setEventHandler(^{drainFlushes});
   flushSource.resume
 
@@ -431,7 +440,11 @@ class DBManager(val parent:LevelDBStore) {
     }
 
     // Some UOWs may have been canceled.
-    val uows = flushSource.getData.flatMap { uow=>
+    import collection.JavaConversions._
+    val values = flush_queue.values().toSeq.toArray
+    flush_queue.clear()
+
+    val uows = values.flatMap { uow=>
       if( uow.canceled ) {
         None
       } else {
