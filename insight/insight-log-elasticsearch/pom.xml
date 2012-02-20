@@ -37,22 +37,18 @@
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.core</artifactId>
-          <version>4.2.0</version>
       </dependency>
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.compendium</artifactId>
-          <version>4.2.0</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
           <artifactId>pax-logging-api</artifactId>
-          <version>1.5.3</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
           <artifactId>pax-logging-service</artifactId>
-          <version>1.5.3</version>
       </dependency>
       <dependency>
           <groupId>org.fusesource.insight</groupId>
@@ -62,7 +58,6 @@
       <dependency>
           <groupId>org.apache.felix</groupId>
           <artifactId>org.apache.felix.eventadmin</artifactId>
-          <version>1.2.6</version>
       </dependency>
 
   </dependencies>
