@@ -16,15 +16,20 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.internal.RepositoryImpl;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 /**
  *
@@ -32,24 +37,36 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 @Command(name = "profile-edit", scope = "fabric", description = "Edit a profile")
 public class ProfileEdit extends FabricCommand {
 
-    @Option(name = "--version")
-    private String version;
-    @Option(name = "--profile", description = "The target profile to edit", required = true)
-    private String target;
+    static final String FEATURE_PREFIX = "feature.";
+    static final String REPOSITORY_PREFIX = "repository.";
+    static final String BUNDLE_PREFIX = "bundle.";
+    static final String DELIMETER = ",";
+
     @Option(name = "--pid", description = "Target PID to edit")
     private String pid = null;
-    @Option(name = "--repositories", description = "Edit repositories")
-    private boolean repositories = false;
-    @Option(name = "--features", description = "Edit features")
-    private boolean features = false;
-    @Option(name = "--bundles", description = "Edit bundles")
-    private boolean bundles = false;
+
+    @Option(name = "-r", aliases = {"--repositories"}, description = "Edit repositories", required = false, multiValued = false)
+    private String repositoryUriList;
+
+    @Option(name = "-f",aliases = {"--features"} ,description = "Edit features", required = false, multiValued = false)
+    private String featuresList;
+
+    @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles", required = false, multiValued = false)
+    private String bundlesList;
+
     @Option(name = "--set", description = "Set or create value(s)")
     private boolean set = true;
+
     @Option(name = "--delete", description = "Delete value(s)")
     private boolean delete = false;
-    @Argument(index = 0, multiValued = true)
-    private String arguments[];
+
+    @Argument(index = 0, name = "profile", description = "The target profile to edit", required = true, multiValued = false)
+    private String profileName;
+
+    @Argument(index = 1,name = "version",  description = "The version of the profile to edit", required = false, multiValued = false)
+    private String versionName = ZkDefs.DEFAULT_VERSION;
+
+    private FeaturesService featuresService;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -57,10 +74,10 @@ public class ProfileEdit extends FabricCommand {
         if (delete) {
             set = false;
         }
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Version version = versionName != null ? fabricService.getVersion(versionName) : fabricService.getDefaultVersion();
 
-        for (Profile profile : ver.getProfiles()) {
-            if (target.equals(profile.getId())) {
+        for (Profile profile : version.getProfiles()) {
+            if (profileName.equals(profile.getId())) {
                 editProfile(profile);
             }
         }
@@ -76,43 +93,35 @@ public class ProfileEdit extends FabricCommand {
             pidConfig = new HashMap<String, String>();
         }
 
-        String prefix = "";
-        if (repositories) {
-            prefix = "repository.";
-        } else if (features) {
-            prefix = "feature.";
-        } else if (bundles) {
-            prefix = "bundle.";
+        if (featuresList != null && !featuresList.isEmpty()) {
+            String[] features = featuresList.split(DELIMETER);
+            for (String feature : features) {
+                updateConfig(pidConfig, FEATURE_PREFIX + feature.replace('/', '_'), feature, set, delete);
+            }
         }
-
-        if (arguments != null) {
-            for (String arg : arguments) {
-                if (set) {
-                    String[] nameValue = arg.split("=",2);
-                    if (nameValue.length != 2) {
-                        if (repositories || features || bundles) {
-                            nameValue = new String[]{nameValue[0].replace('/', '_'), nameValue[0]};
-                        } else {
-                            throw new IllegalArgumentException(String.format("Argument \"%s\" is invalid, arguments need to be in the form of \"name=value\""));
-                        }
-                    }
-                    pidConfig.put(prefix + nameValue[0], nameValue[1]);
-                } else if (delete) {
-                    if (repositories || features || bundles) {
-                        for (Map.Entry<String, String> entry : new HashMap<String,String>(pidConfig).entrySet()) {
-                            if(arg.equals(entry.getValue())) {
-                                pidConfig.remove(entry.getKey());
-                            }
-                        }
-                    } else {
-                        pidConfig.remove(prefix + arg);
-                    }
-                }
+        if (repositoryUriList != null && !repositoryUriList.isEmpty()) {
+            String[] repositoryURIs = repositoryUriList.split(DELIMETER);
+            for (String repopsitoryURI : repositoryURIs) {
+                updateConfig(pidConfig, REPOSITORY_PREFIX + repopsitoryURI.replace('/', '_'), repopsitoryURI, set, delete);
+            }
+        }
+        if (bundlesList != null && !bundlesList.isEmpty()) {
+            String[] bundles = bundlesList.split(DELIMETER);
+            for (String bundlesLocation : bundles) {
+                updateConfig(pidConfig, BUNDLE_PREFIX + bundlesLocation.replace('/', '_'), bundlesLocation, set, delete);
             }
         }
 
         config.put(pid, pidConfig);
         profile.setConfigurations(config);
+    }
+
+    public void updateConfig(Map<String,String> map, String key, String value, boolean set, boolean delete) {
+      if (set) {
+          map.put(key,value);
+      } else if (delete)  {
+          map.remove(key);
+      }
     }
 
     private String getPid() {
