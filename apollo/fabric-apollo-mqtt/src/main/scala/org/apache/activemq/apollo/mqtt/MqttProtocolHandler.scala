@@ -128,6 +128,7 @@ class MqttProtocolHandler extends ProtocolHandler {
     }
     security_context.local_address = connection.transport.getLocalAddress
     security_context.remote_address = connection.transport.getRemoteAddress
+    security_context.connector_id = connection.connector.id
 
     connection_log = connection.connector.broker.connection_log
     sink_manager = new SinkMux[Request]( connection.transport_sink.map { request=>
