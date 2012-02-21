@@ -259,6 +259,7 @@
             <action class="org.fusesource.fabric.commands.ProfileEdit">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="configurationAdmin" ref="configurationAdmin"/>
             </action>
             <completers>
                 <ref component-id="profileCompleter"/>
@@ -269,7 +270,7 @@
                 <entry key="-f" value-ref="allFeatureCompleter"/>
                 <entry key="-r" value-ref="featureUrlCompleter"/>
                 <entry key="-b" value-ref="bundleCompleter"/>
-                <entry key="--pid" value-ref="configCompleter"/>
+                <entry key="-p" value-ref="delimitedConfigWithKeysCompleter"/>
             </optional-completers>
         </command>
 
@@ -351,6 +352,14 @@
         <argument index="0">
             <bean class="org.fusesource.fabric.commands.support.BundleCompleter">
                 <property name="featuresService" ref="featuresService"/>
+            </bean>
+        </argument>
+    </bean>
+
+    <bean id="delimitedConfigWithKeysCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
+        <argument index="0">
+            <bean class="org.fusesource.fabric.commands.support.ConfigWithKeyCompleter" init-method="init">
+                <property name="admin" ref="configurationAdmin"/>
             </bean>
         </argument>
     </bean>
