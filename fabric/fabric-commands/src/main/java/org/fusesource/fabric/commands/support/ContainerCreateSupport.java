@@ -27,12 +27,11 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.framework.ServiceReference;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
-    protected String version = ZkDefs.DEFAULT_VERSION;
+    protected String version;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s)")
     protected List<String> profiles;
     @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")
@@ -102,7 +101,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
 
             List<String> names = getProfileNames();
             try {
-                Profile[] profiles = getProfiles(version, names);
+                Profile[] profiles = getProfiles(ver.getName(), names);
                 for (CreateContainerMetadata metadata : metadatas) {
                     if (metadata.isSuccess()) {
                         Container child = metadata.getContainer();

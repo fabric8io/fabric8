@@ -25,7 +25,6 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 
 /**
  *
@@ -34,7 +33,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 public class ProfileEdit extends FabricCommand {
 
     @Option(name = "-v", aliases = { "--version"}, description = "The version of the profile to edit")
-    private String version = ZkDefs.DEFAULT_VERSION;
+    private String version;
 
     @Option(name = "-p", aliases = "--profile", description = "The target profile to edit")
     private String target = "default";
@@ -66,9 +65,9 @@ public class ProfileEdit extends FabricCommand {
         if (delete) {
             set = false;
         }
-        Version version = fabricService.getVersion(this.version);
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        for (Profile profile : version.getProfiles()) {
+        for (Profile profile : ver.getProfiles()) {
             if (target.equals(profile.getId())) {
                 editProfile(profile);
             }

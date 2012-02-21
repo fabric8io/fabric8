@@ -16,6 +16,10 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.io.PrintStream;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
@@ -24,17 +28,12 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Map;
 
 @Command(name = "profile-display", scope = "fabric", description = "Displays profile information")
 public class ProfileDisplay extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = ZkDefs.DEFAULT_VERSION;
+    private String version;
 
     @Option(name = "--overlay", aliases = "-o")
     private Boolean overlay = false;
@@ -46,9 +45,9 @@ public class ProfileDisplay extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        Version version = fabricService.getVersion(this.version);
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        for (Profile profile : version.getProfiles()) {
+        for (Profile profile : ver.getProfiles()) {
             if (name.equals(profile.getId())) {
                 displayProfile(profile);
             }
