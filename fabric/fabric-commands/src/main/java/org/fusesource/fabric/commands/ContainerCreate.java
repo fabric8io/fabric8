@@ -30,12 +30,12 @@ import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 public class ContainerCreate extends ContainerCreateSupport {
 
     @Option(name = "--parent", multiValued = false, required = false, description = "Parent container ID")
-    private String parent;
+    protected String parent;
 
     @Option(name = "--url", multiValued = false, required = false, description = "The URL")
-    private String url;
+    protected String url;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
-    private URI proxyUri;
+    protected URI proxyUri;
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
