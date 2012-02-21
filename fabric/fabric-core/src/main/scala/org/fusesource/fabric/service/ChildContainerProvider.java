@@ -69,6 +69,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                         containerName += i;
                     }
                     CreateContainerChildMetadata metadata = new CreateContainerChildMetadata();
+                    metadata.setCreateOptions(options);
                     metadata.setContainerName(containerName);
                     try {
                         adminService.createInstance(containerName, 0, 0, 0, null, javaOpts, features, featuresUrls);
@@ -82,5 +83,49 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
             }
         });
         return result;
+    }
+
+    @Override
+    public void start(final Container container) {
+        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                adminService.startInstance(container.getId(), null);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void stop(final Container container) {
+        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                adminService.stopInstance(container.getId());
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void destroy(final Container container) {
+        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                try {
+                    if (container.isAlive()) {
+                        adminService.stopInstance(container.getId());
+                    }
+                } catch (Exception e) {
+                    // Ignore if the container is stopped
+                    if (container.isAlive()) {
+                        throw e;
+                    }
+                }
+                adminService.destroyInstance(container.getId());
+                return null;
+            }
+        });
+    }
+
+    protected ContainerTemplate getContainerTemplate(Container container) {
+        return new ContainerTemplate(container, false, service.getUserName(), service.getPassword());
     }
 }

@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.internal;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +27,7 @@ import javax.management.openmbean.TabularData;
 
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
@@ -49,6 +52,7 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricServiceImpl service;
+    private CreateContainerMetadata<?> metadata;
 
     public ContainerImpl(Container parent, String id, FabricServiceImpl service) {
         this.parent = parent;
@@ -266,7 +270,7 @@ public class ContainerImpl implements Container {
 
     @Override
     public void destroy() {
-        service.destroy(this);
+        service.destroyContainer(this);
     }
 
     public Container[] getChildren() {
@@ -285,5 +289,24 @@ public class ContainerImpl implements Container {
     @Override
     public String getProvisionException() {
         return getZkData(ZkPath.CONTAINER_PROVISION_EXCEPTION);
+    }
+
+    @Override
+    public CreateContainerMetadata<?> getMetadata() {
+        try {                                        
+            if (metadata == null) {
+                byte[] data = service.getZooKeeper().getData(ZkPath.CONTAINER_METADATA.getPath(id));
+                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+                metadata = (CreateContainerMetadata) ois.readObject();
+            }
+            return metadata;
+        } catch (Exception e) {
+            logger.warn("Error while retrieving services. This exception will be ignored.", e);
+            return null;
+        }
+    }
+
+    public void setMetadata(CreateContainerMetadata<?> metadata) {
+        this.metadata = metadata;
     }
 }

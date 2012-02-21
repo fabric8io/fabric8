@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -188,27 +189,48 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void startContainer(final Container container) {
-        if (container.isRoot()) {
-            throw new IllegalArgumentException("Cannot start root containers");
+        logger.info("Starting container {}", container.getId());
+        ContainerProvider provider = getProvider(container);
+        if (!container.isAlive()) {
+            provider.start(container);
         }
-        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.startInstance(container.getId(), null);
-                return null;
-            }
-        });
     }
 
     public void stopContainer(final Container container) {
-        if (container.isRoot()) {
-            throw new IllegalArgumentException("Cannot stop root containers");
+        logger.info("Stopping container {}", container.getId());
+        ContainerProvider provider = getProvider(container);
+        if (container.isAlive()) {
+            provider.stop(container);
         }
-        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.stopInstance(container.getId());
-                return null;
-            }
-        });
+    }
+
+    public void destroyContainer(Container container) {
+        logger.info("Destroying container {}", container.getId());
+        ContainerProvider provider = getProvider(container);
+        try {
+            provider.destroy(container);
+        } catch (Exception e) {
+        }
+        try {
+            zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(container.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER.getPath(container.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_DOMAINS.getPath(container.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_PROVISION.getPath(container.getId()));
+        } catch (Exception e) {
+        }
+    }
+    
+    protected ContainerProvider getProvider(Container container) {
+        CreateContainerMetadata metadata = container.getMetadata();
+        String type = metadata != null ? metadata.getCreateOptions().getProviderType() : null;
+        if (type == null) {
+            throw new UnsupportedOperationException("Container has not been created using Fabric");
+        }
+        ContainerProvider provider = getProvider(type);
+        if (provider == null) {
+            throw new UnsupportedOperationException("Container provider " + type + " not supported");
+        }
+        return provider;
     }
 
     public static String getParentFromURI(URI uri) {
@@ -241,8 +263,15 @@ public class FabricServiceImpl implements FabricService {
                     //In this case container config will be created by the newly created container.
                     if (!options.isEnsembleServer()) {
                         createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
+                        // Store metadata
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);
+                        oos.writeObject(metadata);
+                        oos.close();
+                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), baos.toByteArray());
                     }
                     ((CreateContainerBasicMetadata) metadata).setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
+                    ((ContainerImpl) metadata.getContainer()).setMetadata(metadata);
                     logger.info("The container " + metadata.getContainerName() + " has been successfully created");
                 } else {
                     logger.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
@@ -320,25 +349,6 @@ public class FabricServiceImpl implements FabricService {
         }
     }
 
-
-    public void destroy(Container container) {
-        if (container.getParent() != null) {
-            destroyChild(container.getParent(), container.getId());
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private void destroyChild(final Container parent, final String name) {
-        getContainerTemplate(parent).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.stopInstance(name);
-                adminService.destroyInstance(name);
-                zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(name));
-                return null;
-            }
-        });
-    }
 
     public String getZookeeperUrl() {
         String zooKeeperUrl = null;

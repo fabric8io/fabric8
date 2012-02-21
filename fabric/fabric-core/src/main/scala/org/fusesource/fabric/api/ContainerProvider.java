@@ -34,4 +34,26 @@ public interface ContainerProvider<O extends CreateContainerOptions, M extends C
      * @throws Exception
      */
     Set<M> create(O options) throws Exception;
+
+    /**
+     * Start the container
+     * @param container
+     * @throws Exception
+     */
+    void start(Container container);
+
+    /**
+     * Stop the container
+     * @param container
+     * @throws Exception
+     */
+    void stop(Container container);
+
+    /**
+     * Destroy the container
+     * @param container
+     * @throws Exception
+     */
+    void destroy(Container container);
+
 }

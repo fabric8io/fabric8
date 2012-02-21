@@ -70,4 +70,6 @@ public interface Container {
     
     String getProvisionStatus();
 
+    CreateContainerMetadata<?> getMetadata();
+
 }

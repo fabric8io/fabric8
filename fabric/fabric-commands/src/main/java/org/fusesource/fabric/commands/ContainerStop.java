@@ -33,7 +33,11 @@ public class ContainerStop extends FabricCommand {
         if (found == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        found.stop();
+        if (found.isAlive()) {
+            found.stop();
+        } else {
+            System.err.println("Container " + container + " is already stopped");
+        }
         return null;
     }
 

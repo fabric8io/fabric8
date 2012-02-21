@@ -61,7 +61,8 @@ public enum ZkPath {
     CONTAINER_PARENT               ("/fabric/registry/containers/config/{container}/parent"),
     CONTAINER_JMX                  ("/fabric/registry/containers/config/{container}/jmx"),
     CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
-    CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc");
+    CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc"),
+    CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata");
 
     /**
      * Path template.
