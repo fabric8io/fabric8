@@ -33,7 +33,11 @@ public class ContainerStart extends FabricCommand {
         if (found == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        found.start();
+        if (!found.isAlive()) {
+            found.start();
+        } else {
+            System.err.println("Container " + container + " is already started");
+        }
         return null;
     }
 

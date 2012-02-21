@@ -278,6 +278,12 @@
             <ref component-id="versionCompleter"/>
           </completers>
         </command>
+        <command name="fabric/mq-create">
+            <action class="org.fusesource.fabric.commands.MQCreate">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+        </command>
     </command-bundle>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.commands.support.ContainerCompleter">

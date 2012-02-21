@@ -14,8 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.fabric.api;
 
-public class CreateContainerChildMetadata extends CreateContainerBasicMetadata<CreateContainerChildOptions> {
+import java.util.Map;
+
+public interface MQService {
+    
+    public Profile createMQProfile(String version, String brokerName, Map<String, String> configs);
+    
+    public String getConfig(String version, String config);
+    
 }

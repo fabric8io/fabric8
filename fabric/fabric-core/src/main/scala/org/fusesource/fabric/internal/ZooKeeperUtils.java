@@ -102,6 +102,18 @@ public class ZooKeeperUtils {
         zooKeeper.createOrSetWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
+    public static void set(IZKClient zooKeeper, String path, byte[] value) throws InterruptedException, KeeperException {
+        if(zooKeeper.exists(path) != null) {
+            zooKeeper.setByteData(path, value);
+        }
+        try {
+            zooKeeper.createBytesNodeWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } catch(KeeperException.NodeExistsException e) {
+            // this should not happen very often (race condition)
+            zooKeeper.setByteData(path, value);
+        }
+    }
+
     public static void create(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
         zooKeeper.createWithParents(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }

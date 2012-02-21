@@ -17,11 +17,12 @@
 
 package org.fusesource.fabric.api;
 
-public class CreateContainerBasicMetadata implements CreateContainerMetadata {
+public class CreateContainerBasicMetadata<O extends CreateContainerOptions> implements CreateContainerMetadata<O> {
 
     private String containerName;
-    private Throwable failure;
-    private Container container;
+    private O createOptions;
+    private transient Throwable failure;
+    private transient Container container;
 
     public boolean isSuccess() {
         return failure == null;
@@ -49,5 +50,13 @@ public class CreateContainerBasicMetadata implements CreateContainerMetadata {
 
     public void setContainer(Container container) {
         this.container = container;
+    }
+
+    public O getCreateOptions() {
+        return createOptions;
+    }
+
+    public void setCreateOptions(O createOptions) {
+        this.createOptions = createOptions;
     }
 }

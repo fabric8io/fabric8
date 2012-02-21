@@ -20,7 +20,7 @@ package org.fusesource.fabric.api;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata {
+public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata<CreateJCloudsContainerOptions> {
 
     private String nodeId;
     private String hostname;

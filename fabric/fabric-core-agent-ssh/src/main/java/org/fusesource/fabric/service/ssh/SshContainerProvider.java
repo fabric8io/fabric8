@@ -23,6 +23,7 @@ import java.util.Set;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateSshContainerMetadata;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
@@ -71,6 +72,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                     containerName += i + 1;
                 }
                 CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
+                metadata.setCreateOptions(options);
                 metadata.setContainerName(containerName);
                 String script = buildStartupScript(options.name(containerName));
                 logger.debug("Running script on host {}:\n{}", host, script);
@@ -87,6 +89,21 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             throw new FabricException(e);
         }
         return result;
+    }
+
+    @Override
+    public void start(Container container) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void stop(Container container) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void destroy(Container container) {
+        throw new UnsupportedOperationException();
     }
 
     protected void runScriptOnHost(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
