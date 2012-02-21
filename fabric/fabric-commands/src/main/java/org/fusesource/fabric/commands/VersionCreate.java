@@ -28,6 +28,9 @@ public class VersionCreate extends FabricCommand {
     @Option(name = "--parent", description = "The parent version (will default use latest version as parent)")
     private String parentVersion;
 
+    @Option(name = "--default", description = "Set the created version as the new default version.")
+    private Boolean defaultVersion;
+
     @Argument(index = 0, description = "Version number. If left blank Fabric will use next minor version.",  required = false)
     private String name;
 
@@ -60,13 +63,20 @@ public class VersionCreate extends FabricCommand {
                 throw new IllegalArgumentException("Cannot find parent version: " + parentVersion);
             }
         }
+        
+        Version created;
         if (parent != null) {
-            fabricService.createVersion(parent, name);
+            created = fabricService.createVersion(parent, name);
             System.out.println("Created version: " + name + " as copy of: " + parent.getName());
         } else {
-            fabricService.createVersion(name);
+            created = fabricService.createVersion(name);
             System.out.println("Created version: " + name);
         }
+        
+        if (defaultVersion != null && defaultVersion == true) {
+            fabricService.setDefaultVersion(created);
+        }
+        
         return null;
     }
 }

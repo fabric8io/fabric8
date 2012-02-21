@@ -269,6 +269,15 @@
                 <ref component-id="versionCompleter"/>
             </completers>
         </command>
+        <command name="fabric/version-set-default">
+          <action class="org.fusesource.fabric.commands.VersionSetDefault">
+            <property name="fabricService" ref="fabricService"/>
+            <property name="zooKeeper" ref="zooKeeper"/>
+          </action>
+          <completers>
+            <ref component-id="versionCompleter"/>
+          </completers>
+        </command>
     </command-bundle>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.commands.support.ContainerCompleter">
