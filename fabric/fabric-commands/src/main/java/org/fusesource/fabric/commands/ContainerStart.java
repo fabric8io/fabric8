@@ -24,7 +24,7 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 @Command(name = "container-start", scope = "fabric", description = "Start an existing container")
 public class ContainerStart extends FabricCommand {
 
-    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container = null;
 
     protected Object doExecute() throws Exception {

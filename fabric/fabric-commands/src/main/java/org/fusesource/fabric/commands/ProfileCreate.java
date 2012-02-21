@@ -30,10 +30,8 @@ public class ProfileCreate extends FabricCommand {
 
     @Option(name = "--version")
     private String version;
-
     @Option(name = "--parents", multiValued = true, required = false)
     private List<String> parents;
-
     @Argument(index = 0)
     private String name;
 

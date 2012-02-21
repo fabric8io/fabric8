@@ -34,10 +34,8 @@ public class ProfileDisplay extends FabricCommand {
 
     @Option(name = "--version")
     private String version;
-
     @Option(name = "--overlay", aliases = "-o")
     private Boolean overlay = false;
-
     @Argument(index = 0, required = true, name = "profile")
     @CompleterValues(index = 0)
     private String name;

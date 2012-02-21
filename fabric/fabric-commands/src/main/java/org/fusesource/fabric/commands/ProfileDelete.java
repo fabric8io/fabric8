@@ -29,7 +29,6 @@ public class ProfileDelete extends FabricCommand {
 
     @Option(name = "--version")
     private String version;
-
     @Argument(index = 0, required = true, name = "profile")
     @CompleterValues(index = 0)
     private String name;

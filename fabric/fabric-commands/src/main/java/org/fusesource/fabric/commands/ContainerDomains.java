@@ -26,7 +26,7 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 @Command(name = "container-domains", scope = "fabric", description = "Lists the JMX domains an container has")
 public class ContainerDomains extends FabricCommand {
 
-    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container = null;
 
     protected Object doExecute() throws Exception {

@@ -27,10 +27,8 @@ public class VersionCreate extends FabricCommand {
 
     @Option(name = "--parent", description = "The parent version (will default use latest version as parent)")
     private String parentVersion;
-
     @Option(name = "--default", description = "Set the created version as the new default version.")
     private Boolean defaultVersion;
-
     @Argument(index = 0, description = "Version number. If left blank Fabric will use next minor version.",  required = false)
     private String name;
 

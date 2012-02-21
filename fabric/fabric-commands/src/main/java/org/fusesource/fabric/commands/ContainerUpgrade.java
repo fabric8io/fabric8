@@ -32,10 +32,8 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
 
     @Option(name = "--all", description = "Upgrade all containers")
     private boolean all;
-    
     @Argument(index = 0, name = "version", description = "The version to upgrade", required = true)
     private String version;
-
     @Argument(index = 1, name = "container", description = "The list of containers to upgrade. Empty list assumes current container only.", required = false, multiValued = true)
     private List<String> containerIds;
 

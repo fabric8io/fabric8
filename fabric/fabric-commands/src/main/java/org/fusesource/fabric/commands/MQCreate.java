@@ -24,32 +24,35 @@ import org.fusesource.fabric.service.MQServiceImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 @Command(name = "mq-create", scope = "fabric", description = "Create a new broker")
 public class MQCreate extends ContainerCreate {
 
     @Option(name = "--broker-name", description = "Broker name to use")
-    protected String brokerName = null;
-
+    protected String brokerName;
     @Option(name = "--config", description = "Configuration to use")
-    protected String config = null;
+    protected String config;
 
     @Override
     protected Object doExecute() throws Exception {
         MQService service = new MQServiceImpl(fabricService);
-        HashMap<String, String> configuration = new HashMap<String, String>();
+
+        Map<String, String> configuration = new HashMap<String, String>();
         configuration.put("data", bundleContext.getDataFile(brokerName).getAbsolutePath());
         if (config != null) {
             configuration.put("config", service.getConfig(version, config));
         }
+
         Profile profile = service.createMQProfile(version, brokerName, configuration);
         if (profiles == null) {
             profiles = new ArrayList<String>();
         }
         profiles.add(profile.getId());
-      if (parent == null && url == null) {
-          url = "child://root";
-      }
-      return super.doExecute();
+
+        if (parent == null && url == null) {
+            url = "child://root";
+        }
+        return super.doExecute();
     }
 }

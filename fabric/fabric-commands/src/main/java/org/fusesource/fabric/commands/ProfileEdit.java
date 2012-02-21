@@ -32,32 +32,24 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 @Command(name = "profile-edit", scope = "fabric", description = "Edit a profile")
 public class ProfileEdit extends FabricCommand {
 
-    @Option(name = "-v", aliases = { "--version"}, description = "The version of the profile to edit")
+    @Option(name = "--version")
     private String version;
-
-    @Option(name = "-p", aliases = "--profile", description = "The target profile to edit")
-    private String target = "default";
-
-    @Argument(index = 0, multiValued = true)
-    private String arguments[];
-
+    @Option(name = "--profile", description = "The target profile to edit", required = true)
+    private String target;
     @Option(name = "--pid", description = "Target PID to edit")
     private String pid = null;
-
     @Option(name = "--repositories", description = "Edit repositories")
     private boolean repositories = false;
-
     @Option(name = "--features", description = "Edit features")
     private boolean features = false;
-
     @Option(name = "--bundles", description = "Edit bundles")
     private boolean bundles = false;
-
     @Option(name = "--set", description = "Set or create value(s)")
     private boolean set = true;
-
     @Option(name = "--delete", description = "Delete value(s)")
     private boolean delete = false;
+    @Argument(index = 0, multiValued = true)
+    private String arguments[];
 
     @Override
     protected Object doExecute() throws Exception {
