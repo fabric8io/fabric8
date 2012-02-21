@@ -58,4 +58,8 @@ public class MQServiceImpl implements MQService {
         return result;
     }
 
+    @Override
+    public String getConfig(String version, String config) {
+        return "zk:/fabric/configs/versions/" + version + "/profiles/mq/" + config;
+    }
 }

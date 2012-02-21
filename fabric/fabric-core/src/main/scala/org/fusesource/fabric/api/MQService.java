@@ -22,4 +22,6 @@ public interface MQService {
     
     public Profile createMQProfile(String version, String brokerName, Map<String, String> configs);
     
+    public String getConfig(String version, String config);
+    
 }

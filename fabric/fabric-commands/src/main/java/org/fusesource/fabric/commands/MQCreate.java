@@ -29,14 +29,20 @@ import java.util.HashMap;
 public class MQCreate extends ContainerCreate {
 
     @Option(name = "--broker-name", description = "Broker name to use")
-    private String brokerName = null;
+    protected String brokerName = null;
+
+    @Option(name = "--config", description = "Configuration to use")
+    protected String config = null;
 
     @Override
     protected Object doExecute() throws Exception {
         MQService service = new MQServiceImpl(fabricService);
-        HashMap<String, String> config = new HashMap<String, String>();
-        config.put("data", bundleContext.getDataFile(brokerName).getAbsolutePath());
-        Profile profile = service.createMQProfile(version, brokerName, config);
+        HashMap<String, String> configuration = new HashMap<String, String>();
+        configuration.put("data", bundleContext.getDataFile(brokerName).getAbsolutePath());
+        if (config != null) {
+            configuration.put("config", service.getConfig(version, config));
+        }
+        Profile profile = service.createMQProfile(version, brokerName, configuration);
         if (profiles == null) {
             profiles = new ArrayList<String>();
         }
