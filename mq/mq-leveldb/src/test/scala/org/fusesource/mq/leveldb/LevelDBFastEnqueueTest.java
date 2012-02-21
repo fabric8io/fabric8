@@ -39,15 +39,15 @@ import static junit.framework.Assert.*;
 
 public class LevelDBFastEnqueueTest {
     
-    private static final Logger LOG = LoggerFactory.getLogger(LevelDBFastEnqueueTest.class);
-    private BrokerService broker;
-    private ActiveMQConnectionFactory connectionFactory;
+    static final Logger LOG = LoggerFactory.getLogger(LevelDBFastEnqueueTest.class);
+    BrokerService broker;
+    ActiveMQConnectionFactory connectionFactory;
     LevelDBStore store;
-    private Destination destination = new ActiveMQQueue("Test");
-    private String payloadString = new String(new byte[6*1024]);
-    private boolean useBytesMessage= true;
-    private final int parallelProducer = 20;
-    private Vector<Exception> exceptions = new Vector<Exception>();
+    Destination destination = new ActiveMQQueue("Test");
+    String payloadString = new String(new byte[6*1024]);
+    boolean useBytesMessage= true;
+    final int parallelProducer = 20;
+    Vector<Exception> exceptions = new Vector<Exception>();
     long toSend = 100000;
 
     // use with:
@@ -199,29 +199,18 @@ public class LevelDBFastEnqueueTest {
     public void startBroker(boolean deleteAllMessages, int checkPointPeriod) throws Exception {
         broker = new BrokerService();
         broker.setDeleteAllMessagesOnStartup(deleteAllMessages);
-        store = new LevelDBStore();
-        store.setDirectory(new File("target/activemq-data/leveldb"));
-
-//        store.setEnableJournalDiskSyncs(false);
-//        // defer checkpoints which require a sync
-//        store.setCleanupInterval(checkPointPeriod);
-//        store.setCheckpointInterval(checkPointPeriod);
-//
-//        // optimise for disk best batch rate
-//        store.setJournalMaxWriteBatchSize(24 * 1024 * 1024); //4mb default
-//        store.setJournalMaxFileLength(128 * 1024 * 1024); // 32mb default
-//        // keep index in memory
-//        store.setIndexCacheSize(500000);
-//        store.setIndexWriteBatchSize(500000);
-//        store.setEnableIndexRecoveryFile(false);
-//        store.setEnableIndexDiskSyncs(false);
-
+        store = createStore();
         broker.setPersistenceAdapter(store);
         broker.addConnector("tcp://0.0.0.0:0");
         broker.start();
-
         String options = "?jms.watchTopicAdvisories=false&jms.useAsyncSend=true&jms.alwaysSessionAsync=false&jms.dispatchAsync=false&socketBufferSize=131072&ioBufferSize=16384&wireFormat.tightEncodingEnabled=false&wireFormat.cacheSize=8192";
         connectionFactory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri() + options);
+    }
+
+    protected LevelDBStore createStore() {
+        LevelDBStore store = new LevelDBStore();
+        store.setDirectory(new File("target/activemq-data/leveldb"));
+        return store;
     }
 
 }

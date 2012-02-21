@@ -301,7 +301,7 @@ class DelayableUOW(val manager:DBManager) extends BaseRetained {
 class DBManager(val parent:LevelDBStore) {
 
   var lastCollectionKey = new AtomicLong(0)
-  val client = new LevelDBClient(parent);
+  val client:LevelDBClient = parent.createClient
 
   def writeExecutor = client.writeExecutor
   def flushDelay = parent.flushDelay

@@ -109,8 +109,9 @@ class LevelDBStoreView(val store:LevelDBStore) extends LevelDBStoreViewMBean {
   def getIndexStats = db.client.index.getProperty("leveldb.stats")
 }
 
+import LevelDBStore._
+
 class LevelDBStore extends ServiceSupport with BrokerServiceAware with PersistenceAdapter with TransactionStore {
-  import LevelDBStore._
 
   final val wireFormat = new OpenWireFormat
   final val db = new DBManager(this)
@@ -581,4 +582,6 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   def beginTransaction(context: ConnectionContext): Unit = {}
   def commitTransaction(context: ConnectionContext): Unit = {}
   def rollbackTransaction(context: ConnectionContext): Unit = {}
+
+  def createClient = new LevelDBClient(this);
 }
