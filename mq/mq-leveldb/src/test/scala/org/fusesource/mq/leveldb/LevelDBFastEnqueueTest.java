@@ -144,7 +144,7 @@ public class LevelDBFastEnqueueTest {
         assertNull("none left over", consumer.receive(2000));
     }
 
-    private void restartBroker(int restartDelay, int checkpoint) throws Exception {
+    protected void restartBroker(int restartDelay, int checkpoint) throws Exception {
         stopBroker();
         TimeUnit.MILLISECONDS.sleep(restartDelay);
         startBroker(false, checkpoint);

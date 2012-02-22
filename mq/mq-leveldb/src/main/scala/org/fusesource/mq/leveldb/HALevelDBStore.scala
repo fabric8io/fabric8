@@ -18,8 +18,9 @@ package org.fusesource.mq.leveldb
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.activemq.util.ServiceStopper
+import org.apache.hadoop.fs.FileSystem
 import scala.reflect.BeanProperty
-import org.apache.hadoop.fs.{Path, FileSystem}
+import java.net.InetAddress
 
 /**
  * <p>
@@ -36,9 +37,11 @@ class HALevelDBStore extends LevelDBStore {
   @BeanProperty
   var dfsDirectory:String = _
   @BeanProperty
-  var dfsBlockSize = 0L
+  var dfsBlockSize = 1024*1024*50L
   @BeanProperty
   var dfsReplication = 1
+  @BeanProperty
+  var containerId:String = _
 
   var dfs:FileSystem = _
 
@@ -53,11 +56,14 @@ class HALevelDBStore extends LevelDBStore {
       dfsUrl = config.get("fs.default.name")
       dfs = FileSystem.get(config)
     }
+    if ( containerId==null ) {
+      containerId = InetAddress.getLocalHost.getHostName
+    }
     super.doStart
   }
 
   override def doStop(stopper: ServiceStopper): Unit = {
-    db.stop
+    super.doStop(stopper)
     if(dfs!=null){
       dfs.close()
     }
