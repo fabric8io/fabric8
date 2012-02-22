@@ -103,13 +103,13 @@
         <dependency>
             <groupId>org.openengsb.labs.paxexam.karaf</groupId>
             <artifactId>paxexam-karaf-container</artifactId>
-            <version>0.4.1</version>
+            <version>0.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-junit4</artifactId>
-            <version>2.3.0.M1</version>
+            <version>2.3.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
