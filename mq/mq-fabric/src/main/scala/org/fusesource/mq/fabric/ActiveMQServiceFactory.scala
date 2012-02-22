@@ -86,9 +86,11 @@ object ActiveMQServiceFactory {
       val broker = names.flatMap{ name=> Option(ctx.getBean(name).asInstanceOf[BrokerService]) }.headOption.getOrElse(arg_error("Configuration did not contain a BrokerService"))
       val networks = Option(properties.getProperty("network")).getOrElse("").split(",")
       networks.foreach {name =>
+        if (!name.isEmpty) {
           LOG.info("Adding network connector " + name)
           val nc = broker.addNetworkConnector("fabric:" + name);
           nc.setName("fabric-" + name);
+        }
       }
       (ctx, broker)
     } finally {
