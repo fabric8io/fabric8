@@ -1,46 +1,46 @@
 echo Create dummy karaf profile
 fabric:profile-create --parents default karaf
-fabric:profile-edit -p karaf --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features
-fabric:profile-edit -p karaf --repositories mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features
-fabric:profile-edit -p karaf --repositories mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features
+fabric:profile-edit --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features karaf
+fabric:profile-edit --repositories mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features karaf
+fabric:profile-edit --repositories mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features karaf
 
 echo Create activemq ${activemq-version} profile
 fabric:profile-create --parents karaf activemq
-fabric:profile-edit -p activemq --features mq-fabric/${project.version}
+fabric:profile-edit --features mq-fabric/${project.version} activemq
 zk:create -i -o -r /fabric/configs/versions/base/profiles/activemq/activemq.xml mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/activemq
-fabric:profile-edit -p activemq --pid org.fusesource.mq.fabric.server-broker1 name=broker1 config=zk:/fabric/configs/versions/base/profiles/activemq/activemq.xml data=/tmp/broker1 connectors=openwire group=default standby.pool=default
+fabric:profile-edit --pid org.fusesource.mq.fabric.server-broker1.name=broker1 org.fusesource.mq.fabric.server-broker1.config=zk:/fabric/configs/versions/base/profiles/activemq/activemq.xml,org.fusesource.mq.fabric.server-broker1.data=/tmp/broker1,org.fusesource.mq.fabric.server-broker1.connectors=openwire,org.fusesource.mq.fabric.server-broker1.group=default,org.fusesource.mq.fabric.server-broker1.standby.pool=default activemq
 
 echo Create camel ${camel-version} profile
 fabric:profile-create --parents karaf camel
-fabric:profile-edit -p camel --repositories mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
-fabric:profile-edit -p camel --features camel-core/${camel-version}
-fabric:profile-edit -p camel --features camel-blueprint/${camel-version}
+fabric:profile-edit --repositories mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features camel
+fabric:profile-edit --features camel-core/${camel-version} camel
+fabric:profile-edit --features camel-blueprint/${camel-version} camel
 
 echo Create nmr 1.4.0 profile
 fabric:profile-create --parents karaf nmr
-fabric:profile-edit -p nmr --repositories mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/1.4.0/xml/features
-fabric:profile-edit -p nmr --features nmr/1.4.0
+fabric:profile-edit --repositories mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/1.4.0/xml/features nmr
+fabric:profile-edit --features nmr/1.4.0 nmr
 
 echo Create ServiceMix 4.3.0 profile
 fabric:profile-create --parents activemq --parents nmr --parents camel servicemix
-fabric:profile-edit -p servicemix --repositories mvn:org.apache.servicemix/apache-servicemix/4.3.0/xml/features
+fabric:profile-edit --repositories mvn:org.apache.servicemix/apache-servicemix/4.3.0/xml/features servicemix
 
 echo Create Apache Ode profile
 fabric:profile-create --parents servicemix ode
-fabric:profile-edit -p ode --repositories mvn:org.apache.ode/ode-jbi-karaf/1.3.5/xml/features
+fabric:profile-edit --repositories mvn:org.apache.ode/ode-jbi-karaf/1.3.5/xml/features ode
 
 echo Create Hadoop profiles
 fabric:profile-create hadoop
-fabric:profile-edit -p hadoop --features fabric-hadoop/${project.version}
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop fs.default.name=hdfs://localhost:9000
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.replication=1
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.name.dir=${karaf.data}/hadoop/dfs/name
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.name.edits.dir=${karaf.data}/hadoop/dfs/name
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.http.address=localhost:9002
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop dfs.data.dir=${karaf.data}/hadoop/dfs/data
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop mapred.job.tracker=localhost:9001
-fabric:profile-edit -p hadoop --pid org.fusesource.fabric.hadoop
+fabric:profile-edit --features fabric-hadoop/${project.version}
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.fs.default.name=hdfs://localhost:9000 hadoop
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.dfs.replication=1 hadoop
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.dfs.name.dir=${karaf.data}/hadoop/dfs/name hadoop
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.dfs.name.edits.dir=${karaf.data}/hadoop/dfs/name hadoop
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.dfs.http.address=localhost:9002 hadoop
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.dfs.data.dir=${karaf.data}/hadoop/dfs/data hadoop
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.mapred.job.tracker=localhost:9001 hadoop
+fabric:profile-edit --pid org.fusesource.fabric.hadoop hadoop
 fabric:profile-create --parents hadoop hadoop-namenode
-fabric:profile-edit -p hadoop-namenode --pid org.fusesource.fabric.hadoop nameNode=true
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.nameNode=true hadoop-namenode
 fabric:profile-create --parents hadoop hadoop-datanode
-fabric:profile-edit -p hadoop-datanode --pid org.fusesource.fabric.hadoop dataNode=true
+fabric:profile-edit --pid org.fusesource.fabric.hadoop.dataNode=true hadoop-datanode
