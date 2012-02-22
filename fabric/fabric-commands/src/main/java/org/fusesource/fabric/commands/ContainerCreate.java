@@ -31,7 +31,6 @@ public class ContainerCreate extends ContainerCreateSupport {
 
     @Option(name = "--parent", multiValued = false, required = false, description = "Parent container ID")
     protected String parent;
-
     @Option(name = "--url", multiValued = false, required = false, description = "The URL")
     protected String url;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")

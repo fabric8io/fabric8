@@ -16,16 +16,22 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.features.FeaturesService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.osgi.service.cm.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -33,26 +39,36 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 @Command(name = "profile-edit", scope = "fabric", description = "Edit a profile")
 public class ProfileEdit extends FabricCommand {
 
-    @Option(name = "-v", aliases = { "--version"}, description = "The version of the profile to edit")
-    private String version = ZkDefs.DEFAULT_VERSION;
+     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileEdit.class);
 
-    @Option(name = "-p", aliases = "--profile", description = "The target profile to edit")
-    private String target = "default";
+    static final String FEATURE_PREFIX = "feature.";
+    static final String REPOSITORY_PREFIX = "repository.";
+    static final String BUNDLE_PREFIX = "bundle.";
+    static final String CONFIG_PREFIX = "config.";
+    static final String SYSTEM_PREFIX = "system.";
+    static final String DELIMETER = ",";
 
-    @Argument(index = 0, multiValued = true)
-    private String arguments[];
 
-    @Option(name = "--pid", description = "Target PID to edit")
-    private String pid = null;
+    @Option(name = "-r", aliases = {"--repositories"}, description = "Edit repositories", required = false, multiValued = false)
+    private String repositoryUriList;
 
-    @Option(name = "--repositories", description = "Edit repositories")
-    private boolean repositories = false;
+    @Option(name = "-f",aliases = {"--features"} ,description = "Edit features", required = false, multiValued = false)
+    private String featuresList;
 
-    @Option(name = "--features", description = "Edit features")
-    private boolean features = false;
+    @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles", required = false, multiValued = false)
+    private String bundlesList;
 
-    @Option(name = "--bundles", description = "Edit bundles")
-    private boolean bundles = false;
+    @Option(name = "-p", aliases = {"--pid"}, description = "Edit configuration pid", required = false, multiValued = false)
+    private String configAdminConfigList;
+
+    @Option(name = "-s", aliases = {"--system"}, description = "Edit system properties", required = false, multiValued = false)
+    private String systemPropertyList;
+
+    @Option(name = "-c", aliases = {"--config"}, description = "Edit system properties", required = false, multiValued = false)
+    private String configPropertyList;
+
+    @Option(name = "-i", aliases = {"--import-pid"}, description = "Imports the pids that are edited, from local config admin", required = false, multiValued = false)
+    private boolean importPid = false;
 
     @Option(name = "--set", description = "Set or create value(s)")
     private boolean set = true;
@@ -60,16 +76,24 @@ public class ProfileEdit extends FabricCommand {
     @Option(name = "--delete", description = "Delete value(s)")
     private boolean delete = false;
 
+    @Argument(index = 0, name = "profile", description = "The target profile to edit", required = true, multiValued = false)
+    private String profileName;
+
+    @Argument(index = 1,name = "version",  description = "The version of the profile to edit", required = false, multiValued = false)
+    private String versionName = ZkDefs.DEFAULT_VERSION;
+
+    private FeaturesService featuresService;
+
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         if (delete) {
             set = false;
         }
-        Version version = fabricService.getVersion(this.version);
+        Version version = versionName != null ? fabricService.getVersion(versionName) : fabricService.getDefaultVersion();
 
         for (Profile profile : version.getProfiles()) {
-            if (target.equals(profile.getId())) {
+            if (profileName.equals(profile.getId())) {
                 editProfile(profile);
             }
         }
@@ -77,58 +101,138 @@ public class ProfileEdit extends FabricCommand {
     }
 
     private void editProfile(Profile profile) throws Exception {
-        String pid = getPid();
 
         Map<String, Map<String, String>> config = profile.getConfigurations();
-        Map<String, String> pidConfig = config.get(pid);
+        Map<String, String> pidConfig = config.get(AGENT_PID);
         if (pidConfig == null) {
             pidConfig = new HashMap<String, String>();
         }
 
-        String prefix = "";
-        if (repositories) {
-            prefix = "repository.";
-        } else if (features) {
-            prefix = "feature.";
-        } else if (bundles) {
-            prefix = "bundle.";
+        if (featuresList != null && !featuresList.isEmpty()) {
+            String[] features = featuresList.split(DELIMETER);
+            for (String feature : features) {
+                updateConfig(pidConfig, FEATURE_PREFIX + feature.replace('/', '_'), feature, set, delete);
+            }
+        }
+        if (repositoryUriList != null && !repositoryUriList.isEmpty()) {
+            String[] repositoryURIs = repositoryUriList.split(DELIMETER);
+            for (String repopsitoryURI : repositoryURIs) {
+                updateConfig(pidConfig, REPOSITORY_PREFIX + repopsitoryURI.replace('/', '_'), repopsitoryURI, set, delete);
+            }
+        }
+        if (bundlesList != null && !bundlesList.isEmpty()) {
+            String[] bundles = bundlesList.split(DELIMETER);
+            for (String bundlesLocation : bundles) {
+                updateConfig(pidConfig, BUNDLE_PREFIX + bundlesLocation.replace('/', '_'), bundlesLocation, set, delete);
+            }
         }
 
-        if (arguments != null) {
-            for (String arg : arguments) {
-                if (set) {
-                    String[] nameValue = arg.split("=",2);
-                    if (nameValue.length != 2) {
-                        if (repositories || features || bundles) {
-                            nameValue = new String[]{nameValue[0].replace('/', '_'), nameValue[0]};
-                        } else {
-                            throw new IllegalArgumentException(String.format("Argument \"%s\" is invalid, arguments need to be in the form of \"name=value\""));
-                        }
+        if (configAdminConfigList != null && !configAdminConfigList.isEmpty()) {
+            Map<String, String> configMap = extractConfigs(configAdminConfigList);
+            for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
+                String key = configEntries.getKey();
+                if (key.contains(".")) {
+                    String pid = key.substring(0, key.lastIndexOf("."));
+                    key = key.substring(key.lastIndexOf(".") + 1);
+                    String value = configEntries.getValue();
+                    Map<String,String> cfg = config.get(pid);
+                    if (cfg == null) {
+                        cfg = new HashMap<String,String>();
                     }
-                    pidConfig.put(prefix + nameValue[0], nameValue[1]);
-                } else if (delete) {
-                    if (repositories || features || bundles) {
-                        for (Map.Entry<String, String> entry : new HashMap<String,String>(pidConfig).entrySet()) {
-                            if(arg.equals(entry.getValue())) {
-                                pidConfig.remove(entry.getKey());
-                            }
-                        }
-                    } else {
-                        pidConfig.remove(prefix + arg);
+                    if (importPid) {
+                        importPidFromLocalConfigAdmin(pid, cfg);
                     }
+                    updateConfig(cfg,key,value,set,delete);
+                    config.put(pid,cfg);
                 }
             }
         }
 
-        config.put(pid, pidConfig);
+        if (systemPropertyList != null && !systemPropertyList.isEmpty()) {
+            String[] keyValues = systemPropertyList.split("=");
+            Map<String, String> configMap = extractConfigs(systemPropertyList);
+            for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
+                String key = configEntries.getKey();
+                String value = configEntries.getValue();
+                updateConfig(pidConfig, SYSTEM_PREFIX + key, value, set, delete);
+            }
+        }
+
+        if (configPropertyList != null && !configPropertyList.isEmpty()) {
+            String[] keyValues = configPropertyList.split("=");
+            Map<String, String> configMap = extractConfigs(configPropertyList);
+            for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
+                String key = configEntries.getKey();
+                String value = configEntries.getValue();
+                updateConfig(pidConfig, CONFIG_PREFIX + key, value, set, delete);
+            }
+        }
+
+        config.put(AGENT_PID, pidConfig);
         profile.setConfigurations(config);
     }
 
-    private String getPid() {
-        if (pid != null) {
-            return pid;
-        } else {
-            return AGENT_PID;
+    public void updateConfig(Map<String,String> map, String key, String value, boolean set, boolean delete) {
+      if (set) {
+          map.put(key,value);
+      } else if (delete)  {
+          map.remove(key);
+      }
+    }
+
+    /**
+     * Imports the pid to the target Map.
+     * @param pid
+     * @param target
+     */
+    private void importPidFromLocalConfigAdmin(String pid, Map<String, String> target) {
+        try {
+            Configuration configuration = configurationAdmin.getConfiguration(pid);
+            Dictionary dictionary = configuration.getProperties();
+            Enumeration keyEnumeration = dictionary.keys();
+            while (keyEnumeration.hasMoreElements()) {
+                String key = String.valueOf(keyEnumeration.nextElement());
+                String value = String.valueOf(dictionary.get(key));
+                target.put(key,value);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Error while importing configuration {} to profile.",pid);
         }
     }
+
+    /**
+     * Extracts Key value pairs from a delimited string of key value pairs.
+     * Note: The value may contain commas.
+     * @param configs
+     * @return
+     */
+    private Map<String, String> extractConfigs(String configs) {
+        Map<String, String> configMap = new HashMap<String, String>();
+        //If contains key values.
+        if (configs.contains("=")) {
+            String[] keyValues = configs.split("=");
+            int index = 0;
+            String prefix = "";
+            while (index + 1 < keyValues.length) {
+                String key = !prefix.isEmpty() ? prefix : keyValues[index];
+                String value = keyValues[index + 1];
+                if (value.contains(DELIMETER) && index + 2 != keyValues.length) {
+                    prefix = value.substring(value.lastIndexOf(DELIMETER) + 1);
+                    value = value.substring(0, value.lastIndexOf(DELIMETER));
+                } else {
+                    prefix = "";
+                }
+                configMap.put(key, value);
+                index += 1;
+            }
+        } else {
+          String[] keys = configs.split(",");
+          for (String key:keys) {
+              configMap.put(key,"");
+          }
+        }
+        return configMap;
+    }
+
+
 }

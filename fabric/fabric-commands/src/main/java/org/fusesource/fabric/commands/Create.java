@@ -30,19 +30,14 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
-
     @Option(name = "--no-import", description = "Disable the import of the sample registry data from ")
     private boolean noImport;
-
     @Option(name = "--import-dir", description = "Directory of files to import into the newly created ensemble")
     private String importDir = getDefaultImportDir();
-
     @Option(name = "-v", aliases = {"--verbose"}, description = "Verbose output of files being imported")
     boolean verbose = false;
-
     @Option(name = "-t", aliases = {"--time"}, description = "The amount of time to wait for the ensemble to startup before trying to import the default data")
     long ensembleStartupTime = 2000L;
-
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
     private List<String> containers;
 

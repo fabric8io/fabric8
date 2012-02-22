@@ -60,8 +60,8 @@ public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
         System.err.println(executeCommand("shell:source mvn:org.fusesource.fabric/fuse-fabric/"+System.getProperty("fabric.version")+"/karaf/dosgi"));
-        waitForProvisionSuccess(fabricService.getContainer("dosgi-camel"), PROVISION_TIMEOUT);
         waitForProvisionSuccess(fabricService.getContainer("dosgi-provider"), PROVISION_TIMEOUT);
+        waitForProvisionSuccess(fabricService.getContainer("dosgi-camel"), PROVISION_TIMEOUT);
         String response = executeCommand("fabric:container-connect dosgi-camel log:display | grep \"Message from distributed service to\"");
         System.err.println(executeCommand("fabric:container-connect dosgi-camel camel:route-info fabric-client"));
         assertNotNull(response);

@@ -39,9 +39,9 @@ public class MQCreate extends FabricCommand {
 
     @Argument(index=0, required = true, description = "Broker name")
     protected String name = null;
-
+    
     @Option(name = "--config", description = "Configuration to use")
-    protected String config = null;
+    protected String config;
 
     @Option(name = "--version", description = "The version id in the registry")
     protected String version = ZkDefs.DEFAULT_VERSION;
@@ -58,8 +58,10 @@ public class MQCreate extends FabricCommand {
         // create profile
 
         MQService service = new MQServiceImpl(fabricService);
+
         HashMap<String, String> configuration = new HashMap<String, String>();
         configuration.put("data", bundleContext.getDataFile(name).getAbsolutePath());
+
         if (config != null) {
             configuration.put("config", service.getConfig(version, config));
         }

@@ -35,6 +35,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.d
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -56,7 +57,7 @@ public class FabricFeaturesTest extends FabricCommandsTestSupport {
         System.err.println(executeCommand("fabric:profile-display camel"));
         System.err.println(executeCommand("fabric:container-create --parent root --profile camel child1"));
         waitForProvisionSuccess(fabricService.getContainer("child1"), PROVISION_TIMEOUT);
-        System.err.println(executeCommand("fabric:container-list"));
+        System.err.println(executeCommand("fabric:container-list -v"));
         System.err.println(executeCommand("fabric:container-connect child1 osgi:list -t 0"));
         String camelBundleCount = executeCommand("fabric:container-connect child1 osgi:list -t 0| grep -c -i camel");
         int count = Integer.parseInt(camelBundleCount.trim());

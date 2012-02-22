@@ -24,11 +24,13 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
     private IZKClient zooKeeper;
     protected FabricService fabricService;
+    protected ConfigurationAdmin configurationAdmin;
 
     protected static String AGENT_PID = "org.fusesource.fabric.agent";
 
@@ -46,6 +48,14 @@ public abstract class FabricCommand extends OsgiCommandSupport {
 
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    public ConfigurationAdmin getConfigurationAdmin() {
+        return configurationAdmin;
+    }
+
+    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
     }
 
     protected void checkFabricAvailable() throws Exception {

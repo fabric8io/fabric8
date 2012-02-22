@@ -998,7 +998,7 @@ class LevelDBClient(store: LevelDBStore) {
 
   val max_index_write_latency = TimeMetric()
 
-  def store(uows: Seq[DBManager#DelayableUOW]) {
+  def store(uows: Array[DelayableUOW]) {
     retryUsingIndex {
       log.appender { appender =>
 

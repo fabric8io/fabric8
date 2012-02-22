@@ -33,6 +33,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -48,12 +49,14 @@ import static junit.framework.Assert.assertNotNull;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 public class FabricTestSupport {
 
     public static final Long DEFAULT_TIMEOUT = 10000L;
+    public static final Long SYSTEM_TIMEOUT = 30000L;
     public static final Long DEFAULT_WAIT = 10000L;
-    public static final Long PROVISION_TIMEOUT = 120000L;
+    public static final Long PROVISION_TIMEOUT = 240000L;
 
     static final String GROUP_ID = "org.fusesource.fabric";
     static final String ARTIFACT_ID = "fuse-fabric";
@@ -116,14 +119,14 @@ public class FabricTestSupport {
      * @throws Exception
      */
     public void waitForProvisionSuccess(Container container, Long timeout) throws Exception {
-        for (long t = 0; (!(container.isAlive() && container.isProvisioningComplete() && container.getProvisionStatus().equals("success")) && t < timeout); t += 2000L) {
+        for (long t = 0; (!(container.isAlive() && container.getProvisionStatus().equals("success") && container.getSshUrl() != null) && t < timeout); t += 2000L) {
             if (container.getProvisionException() != null) {
                 throw new Exception(container.getProvisionException());
             }
             Thread.sleep(2000L);
         }
-        if (!container.isAlive() || !container.isProvisioningComplete()) {
-            throw new Exception("Could not provision " + container.getId() + " after " + timeout + " seconds.");
+        if (!container.isAlive() || !container.getProvisionStatus().equals("success") ||  container.getSshUrl() == null) {
+            throw new Exception("Could not provision " + container.getId() + " after " + timeout + " seconds. Alive:"+ container.isAlive()+" Status:"+container.getProvisionStatus()+" Ssh URL:"+container.getSshUrl());
         }
     }
 

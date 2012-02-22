@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
@@ -147,6 +148,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 }
 
                 CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
+                jCloudsContainerMetadata.setCreateOptions(options);
                 jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
                 jCloudsContainerMetadata.setContainerName(containerName);
                 jCloudsContainerMetadata.setPublicAddresses(nodeMetadata.getPublicAddresses());
@@ -168,6 +170,21 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         }
 
         return result;
+    }
+
+    @Override
+    public void start(Container container) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void stop(Container container) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void destroy(Container container) {
+        throw new UnsupportedOperationException();
     }
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {

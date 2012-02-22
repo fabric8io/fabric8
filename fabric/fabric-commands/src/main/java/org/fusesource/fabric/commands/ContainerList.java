@@ -41,10 +41,8 @@ public class ContainerList extends FabricCommand {
 
     @Option(name = "--version", description = "Optional version to use as filter")
     private String version;
-
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
-
     @Argument(index = 0, name = "filter", description = "Filter by id or profiles", required = false, multiValued = false)
     private String filter = null;
 

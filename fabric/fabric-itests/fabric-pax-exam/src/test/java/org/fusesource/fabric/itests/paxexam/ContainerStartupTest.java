@@ -31,6 +31,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -49,14 +50,13 @@ public class ContainerStartupTest extends FabricCommandsTestSupport {
         assertNotNull(containers);
         assertEquals("Expected to find 1 container",1, containers.length);
         assertEquals("Expected to find the root container","root", containers[0].getId());
-
-
     }
+
 
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder()
-                ,logLevel(LogLevelOption.LogLevel.ERROR)};
+                fabricDistributionConfiguration(), keepRuntimeFolder(),
+                logLevel(LogLevelOption.LogLevel.ERROR)};
     }
 }

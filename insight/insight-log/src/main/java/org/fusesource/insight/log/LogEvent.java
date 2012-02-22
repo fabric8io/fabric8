@@ -37,6 +37,7 @@ public class LogEvent implements Comparable<LogEvent> {
     private String className;
     private String fileName;
     private String methodName;
+    private String containerName;
     private String lineNumber;
 
     public static LogEvent toLogEvent(Object element) {
@@ -46,6 +47,10 @@ public class LogEvent implements Comparable<LogEvent> {
 		return null;
 	}
 
+    public LogEvent() {
+        this.containerName = System.getProperty("karaf.name");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,6 +59,7 @@ public class LogEvent implements Comparable<LogEvent> {
         LogEvent logEvent = (LogEvent) o;
 
         if (host != null ? !host.equals(logEvent.host) : logEvent.host != null) return false;
+        if (containerName != null ? !containerName.equals(logEvent.containerName) : logEvent.containerName != null) return false;
         if (logger != null ? !logger.equals(logEvent.logger) : logEvent.logger != null) return false;
         if (message != null ? !message.equals(logEvent.message) : logEvent.message != null) return false;
         if (seq != null ? !seq.equals(logEvent.seq) : logEvent.seq != null) return false;
@@ -72,11 +78,14 @@ public class LogEvent implements Comparable<LogEvent> {
             if (answer == 0) {
                 answer = Objects.compare(this.host, that.host);
                 if (answer == 0) {
-                    answer = Objects.compare(this.thread, that.thread);
+                    answer = Objects.compare(this.containerName, that.containerName);
                     if (answer == 0) {
-                        answer = Objects.compare(this.logger, that.logger);
+                        answer = Objects.compare(this.thread, that.thread);
                         if (answer == 0) {
-                            answer = Objects.compare(this.message, that.message);
+                            answer = Objects.compare(this.logger, that.logger);
+                            if (answer == 0) {
+                                answer = Objects.compare(this.message, that.message);
+                            }
                         }
                     }
                 }
@@ -88,6 +97,7 @@ public class LogEvent implements Comparable<LogEvent> {
     @Override
     public int hashCode() {
         int result = host != null ? host.hashCode() : 0;
+        result = 31 * result + (containerName != null ? containerName.hashCode() : 0);
         result = 31 * result + (seq != null ? seq.hashCode() : 0);
         result = 31 * result + (timestamp != null ? timestamp.hashCode() : 0);
         result = 31 * result + (logger != null ? logger.hashCode() : 0);
@@ -104,7 +114,15 @@ public class LogEvent implements Comparable<LogEvent> {
 		this.host = host;
 	}
 
-	public Long getSeq() {
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
+
+    public Long getSeq() {
 		return seq;
 	}
 

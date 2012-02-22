@@ -788,8 +788,18 @@
                 <version>${karaf-version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.config</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.karaf.features</groupId>
                 <artifactId>org.apache.karaf.features.core</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.features</groupId>
+                <artifactId>org.apache.karaf.features.command</artifactId>
                 <version>${karaf-version}</version>
             </dependency>
             <dependency>

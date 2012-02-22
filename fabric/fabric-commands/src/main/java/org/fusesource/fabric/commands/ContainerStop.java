@@ -24,7 +24,7 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 @Command(name = "container-stop", scope = "fabric", description = "Stop an existing container")
 public class ContainerStop extends FabricCommand {
 
-    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container = null;
 
     protected Object doExecute() throws Exception {
@@ -33,7 +33,11 @@ public class ContainerStop extends FabricCommand {
         if (found == null) {
             throw new IllegalArgumentException("Container " + container + " does not exist.");
         }
-        found.stop();
+        if (found.isAlive()) {
+            found.stop();
+        } else {
+            System.err.println("Container " + container + " is already stopped");
+        }
         return null;
     }
 

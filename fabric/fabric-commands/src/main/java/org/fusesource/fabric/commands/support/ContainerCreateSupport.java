@@ -27,12 +27,11 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.framework.ServiceReference;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
-    protected String version = ZkDefs.DEFAULT_VERSION;
+    protected String version;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s)")
     protected List<String> profiles;
     @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")
@@ -56,22 +55,22 @@ public abstract class ContainerCreateSupport extends FabricCommand {
      */
     protected void preCreateContainer(String name) throws IllegalArgumentException {
         if (!isEnsembleServer) {
-        ServiceReference sr = getBundleContext().getServiceReference(ZooKeeperClusterService.class.getName());
-        ZooKeeperClusterService zkcs = sr != null ? getService(ZooKeeperClusterService.class, sr) : null;
-        if (zkcs == null) {
-            throw new IllegalStateException("Unable to find ZooKeeperClusterService service");
-        }
-        if (zkcs.getClusterContainers().isEmpty()) {
-            if (!isEnsembleServer) {
-                throw new IllegalStateException("The use of the --ensemble-server option is mandatory when creating an initial container");
+            ServiceReference sr = getBundleContext().getServiceReference(ZooKeeperClusterService.class.getName());
+            ZooKeeperClusterService zkcs = sr != null ? getService(ZooKeeperClusterService.class, sr) : null;
+            if (zkcs == null) {
+                throw new IllegalStateException("Unable to find ZooKeeperClusterService service");
             }
-            return;
-        }
+            if (zkcs.getClusterContainers().isEmpty()) {
+                if (!isEnsembleServer) {
+                    throw new IllegalStateException("The use of the --ensemble-server option is mandatory when creating an initial container");
+                }
+                return;
+            }
 
-        Container existing = getContainer(name);
-        if (existing != null) {
-            throw new IllegalArgumentException("A container with name " + name + " already exists.");
-        }
+            Container existing = getContainer(name);
+            if (existing != null) {
+                throw new IllegalArgumentException("A container with name " + name + " already exists.");
+            }
 
             // get the profiles for the given version
             Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
@@ -98,23 +97,23 @@ public abstract class ContainerCreateSupport extends FabricCommand {
      */
     protected void postCreateContainers(CreateContainerMetadata[] metadatas) {
         if (!isEnsembleServer) {
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+            Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        List<String> names = getProfileNames();
-        try {
-            Profile[] profiles = getProfiles(version, names);
-            for (CreateContainerMetadata metadata : metadatas) {
-                if (metadata.isSuccess()) {
-                    Container child = metadata.getContainer();
-                    log.trace("Setting version " + ver.getName() + " on container " + child.getId());
-                    child.setVersion(ver);
-                    log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
-                    child.setProfiles(profiles);
+            List<String> names = getProfileNames();
+            try {
+                Profile[] profiles = getProfiles(ver.getName(), names);
+                for (CreateContainerMetadata metadata : metadatas) {
+                    if (metadata.isSuccess()) {
+                        Container child = metadata.getContainer();
+                        log.trace("Setting version " + ver.getName() + " on container " + child.getId());
+                        child.setVersion(ver);
+                        log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
+                        child.setProfiles(profiles);
+                    }
                 }
+            } catch (Exception ex) {
+                log.warn("Error during postCreateContainers. This exception will be ignored.", ex);
             }
-        } catch (Exception ex) {
-            log.warn("Error during postCreateContainers. This exception will be ignored.", ex);
-        }
         }
 
         if (log.isDebugEnabled()) {

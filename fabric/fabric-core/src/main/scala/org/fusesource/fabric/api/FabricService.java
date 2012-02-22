@@ -53,7 +53,7 @@ public interface FabricService {
      * Sets the default {@link Version}.
      * @param version
      */
-    void setDefaultVersion( Version version );
+    void setDefaultVersion(Version version);
 
     /**
      * Returns all {@link Version}s.

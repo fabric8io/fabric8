@@ -23,14 +23,12 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 
 @Command(name = "profile-delete", scope = "fabric", description = "Delete an existing profile")
 public class ProfileDelete extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = ZkDefs.DEFAULT_VERSION;
-
+    private String version;
     @Argument(index = 0, required = true, name = "profile")
     @CompleterValues(index = 0)
     private String name;
@@ -38,9 +36,9 @@ public class ProfileDelete extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        Version version = fabricService.getVersion(this.version);
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        for (Profile profile : version.getProfiles()) {
+        for (Profile profile : ver.getProfiles()) {
             if (name.equals(profile.getId())) {
                 profile.delete();
             }

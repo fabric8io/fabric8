@@ -22,26 +22,27 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 
 @Command(name = "profile-create", scope = "fabric", description = "Create a new profile")
 public class ProfileCreate extends FabricCommand {
 
     @Option(name = "--version")
-    private String version = ZkDefs.DEFAULT_VERSION;
-
+    private String version;
     @Option(name = "--parents", multiValued = true, required = false)
     private List<String> parents;
-
     @Argument(index = 0)
     private String name;
 
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        Profile[] parents = getProfiles(version, this.parents);
-        Profile profile = fabricService.getVersion(version).createProfile(name);
+
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        
+        Profile[] parents = getProfiles(ver.getName(), this.parents);
+        Profile profile = fabricService.getVersion(ver.getName()).createProfile(name);
         profile.setParents(parents);
         return null;
     }

@@ -17,5 +17,5 @@
 
 package org.fusesource.fabric.api;
 
-public class CreateContainerChildMetadata extends CreateContainerBasicMetadata {
+public class CreateContainerChildMetadata extends CreateContainerBasicMetadata<CreateContainerChildOptions> {
 }

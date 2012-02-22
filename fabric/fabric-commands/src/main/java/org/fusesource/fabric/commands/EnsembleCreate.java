@@ -28,7 +28,6 @@ public class EnsembleCreate extends EnsembleCommandSupport {
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
-
     @Argument(required = true, multiValued = true, description = "List of containers")
     private List<String> containers;
 
