@@ -50,6 +50,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.e
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 
 public class FabricTestSupport {
 
@@ -157,9 +158,12 @@ public class FabricTestSupport {
      * @return
      */
     protected Option fabricDistributionConfiguration() {
-        return karafDistributionConfiguration().frameworkUrl(
-                maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
-                .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/"));
+        return new DefaultCompositeOption(
+                new Option[]{karafDistributionConfiguration().frameworkUrl(
+                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
+                        .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
+                      useOwnExamBundlesStartLevel(1)
+                });
     }
 
     protected Bundle installBundle(String groupId, String artifactId) throws Exception {
