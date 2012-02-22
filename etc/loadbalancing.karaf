@@ -1,18 +1,18 @@
 fabric:profile-create --parents camel camel-cluster
-fabric:profile-edit -p camel-cluster --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
-fabric:profile-edit -p camel-cluster --features fusesource-fabric-camel
+fabric:profile-edit --profile camel-cluster --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
+fabric:profile-edit --profile camel-cluster --features fusesource-fabric-camel
 
 fabric:profile-create --parents camel-cluster camel-client
-fabric:profile-edit -p camel-client --features camel-client
+fabric:profile-edit --profile camel-client --features camel-client
 
 fabric:profile-create --parents camel-cluster camel-server
-fabric:profile-edit -p camel-server --features camel-server
+fabric:profile-edit --profile camel-server --features camel-server
 
 fabric:profile-create --parents camel-server server-9090
-fabric:profile-edit -p server-9090 --pid fabricCamel portNumber=9090
+fabric:profile-edit --profile server-9090 --pid fabricCamel portNumber=9090
 
 fabric:profile-create --parents camel-server server-9191
-fabric:profile-edit -p server-9191 --pid fabricCamel portNumber=9191
+fabric:profile-edit --profile server-9191 --pid fabricCamel portNumber=9191
 
 shell:echo Creating containers
 
