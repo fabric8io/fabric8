@@ -219,6 +219,7 @@
         <module>mq</module>
         <module>eca</module>
         <module>stream</module>
+        <module>examples</module>
         <module>esb</module>
     </modules>
 
