@@ -31,7 +31,7 @@ sort_info: 10
     :&markdown
       Fuse Fabric will present itself on the console as shown below
     pre
-      | fuse-fabric-1.1$ bin/fusefabric 
+      | fuse-fabric-1.2$ bin/fusefabric 
       | ______                  ______      _            _       
       | |  ___|                 |  ___|    | |          (_)      
       | | |_  _   _  ___   ___  | |_  __ _ | |__   _ __  _   ___ 
