@@ -146,7 +146,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     public DependencyTree(DependencyId dependencyId, Dependency dependency, List<DependencyTree> children) {
-        this(dependencyId, dependency.getArtifact().getVersion(), children);
+        this(dependencyId, dependency.getArtifact().getBaseVersion(), children);
         this.scope = dependency.getScope();
         this.optional = dependency.isOptional();
         init(children);
