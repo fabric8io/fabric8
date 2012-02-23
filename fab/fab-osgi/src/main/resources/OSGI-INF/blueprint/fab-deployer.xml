@@ -40,6 +40,7 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
+  <!-- TODO: remove this one (activator already does the same thing with a Pax URL ConnectionFactory) -->
   <service id="fabUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
     <service-properties>
       <entry key="url.handler.protocol" value="fab"/>

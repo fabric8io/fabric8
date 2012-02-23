@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.Arrays;
 
 public class FabURLHandler extends AbstractURLStreamHandlerService {
+
     private static String SYNTAX = "fab: fab-jar-uri";
     private static final Logger logger = LoggerFactory.getLogger(FabURLHandler.class);
 

@@ -30,11 +30,16 @@ import java.net.URLConnection;
  * {@link ConnectionFactory} for the "fab" protocol
  */
 public class FabConnectionFactory implements ConnectionFactory<Configuration> {
-
+    
     public URLConnection createConection(BundleContext bundleContext, URL url, Configuration config) throws MalformedURLException {
         String protocol = url.getProtocol();
         if (ServiceConstants.PROTOCOL_FAB.equals(protocol)) {
-            return new FabConnection(url, config, bundleContext);
+            if (url.getPath() == null || url.getPath().trim().length() == 0) {
+                throw new MalformedURLException("Path can not be null or empty. Syntax: fab:<fab-jar-uri>" );
+            }
+
+            URL jar = new URL(url.getPath());
+            return new FabConnection(jar, config, bundleContext);
         }
         throw new MalformedURLException("Unsupported protocol: " + protocol);
     }
