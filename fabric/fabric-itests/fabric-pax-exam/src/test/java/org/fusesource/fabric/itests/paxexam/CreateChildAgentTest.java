@@ -17,6 +17,8 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.concurrent.TimeUnit;
+import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,8 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
@@ -43,7 +47,7 @@ public class CreateChildAgentTest extends FabricCommandsTestSupport {
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create"));
-         createAndAssetChildContainer("child1","root");
+         createAndAssetChildContainer("child1","root", "default");
     }
 
     @Configuration

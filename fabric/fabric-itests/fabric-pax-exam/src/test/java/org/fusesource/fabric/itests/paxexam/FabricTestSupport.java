@@ -30,6 +30,8 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -57,7 +59,7 @@ public class FabricTestSupport {
     public static final Long DEFAULT_TIMEOUT = 10000L;
     public static final Long SYSTEM_TIMEOUT = 30000L;
     public static final Long DEFAULT_WAIT = 10000L;
-    public static final Long PROVISION_TIMEOUT = 240000L;
+    public static final Long PROVISION_TIMEOUT = 120000L;
 
     static final String GROUP_ID = "org.fusesource.fabric";
     static final String ARTIFACT_ID = "fuse-fabric";
@@ -76,7 +78,7 @@ public class FabricTestSupport {
      * @param parent
      * @return
      */
-    protected Container createChildContainer(String name, String parent) throws Exception {
+    protected Container createChildContainer(String name, String parent, String profileName) throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
@@ -89,7 +91,13 @@ public class FabricTestSupport {
         CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent);
         CreateContainerMetadata[] metadata = fabricService.createContainers(args);
         if (metadata.length > 0) {
+            if (metadata[0].getFailure() != null) {
+                throw new Exception("Error creating child container:"+name, metadata[0].getFailure());
+            }
             Container container =  metadata[0].getContainer();
+            Version version = fabricService.getDefaultVersion();
+            Profile profile  = fabricService.getProfile(version.getName(),profileName);
+            container.setProfiles(new Profile[]{profile});
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
             return container;
         }
@@ -120,11 +128,13 @@ public class FabricTestSupport {
      * @throws Exception
      */
     public void waitForProvisionSuccess(Container container, Long timeout) throws Exception {
+        System.err.println("Waiting for container: " + container.getId() + " to succesfully provision");
         for (long t = 0; (!(container.isAlive() && container.getProvisionStatus().equals("success") && container.getSshUrl() != null) && t < timeout); t += 2000L) {
             if (container.getProvisionException() != null) {
                 throw new Exception(container.getProvisionException());
             }
             Thread.sleep(2000L);
+            System.err.println("Alive:"+container.isAlive()+" Status:"+ container.getProvisionStatus()+" SSH URL:" + container.getSshUrl());
         }
         if (!container.isAlive() || !container.getProvisionStatus().equals("success") ||  container.getSshUrl() == null) {
             throw new Exception("Could not provision " + container.getId() + " after " + timeout + " seconds. Alive:"+ container.isAlive()+" Status:"+container.getProvisionStatus()+" Ssh URL:"+container.getSshUrl());
@@ -132,11 +142,11 @@ public class FabricTestSupport {
     }
 
 
-    public void createAndAssetChildContainer(String name, String parent) throws Exception {
+    public void createAndAssetChildContainer(String name, String parent, String profile) throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        Container child1 = createChildContainer(name, parent);
+        Container child1 = createChildContainer(name, parent, profile);
         Container result = fabricService.getContainer(name);
         assertEquals("Containers should have the same id", child1.getId(), result.getId());
     }
@@ -149,7 +159,7 @@ public class FabricTestSupport {
     protected String getKarafVersion() {
         //TODO: This is a hack because pax-exam-karaf will not work with non numeric characters in the version.
         //We will need to change it once pax-exam-karaf get fixed (version 0.4.0 +).
-        return "2.2.2";
+        return "2.2.5";
     }
 
     /**
@@ -162,7 +172,7 @@ public class FabricTestSupport {
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
                         maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                      useOwnExamBundlesStartLevel(1)
+                      useOwnExamBundlesStartLevel(0)
                 });
     }
 
