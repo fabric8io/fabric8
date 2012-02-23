@@ -29,7 +29,7 @@ import org.apache.activemq.command._
 import org.fusesource.mq.leveldb.record.{SubscriptionRecord, CollectionRecord}
 import util.TimeMetric
 import java.util.HashMap
-import collection.mutable.ListBuffer
+import collection.mutable.{HashSet, ListBuffer}
 
 case class MessageRecord(id:MessageId, data:Buffer, syncNeeded:Boolean=false) {
   var locator:(Long, Int) = _
@@ -159,6 +159,27 @@ class DelayableUOW(val manager:DBManager) extends BaseRetained {
 
     def syncNeeded = messageRecord!=null && messageRecord.syncNeeded
     def size = (if(messageRecord!=null) messageRecord.data.length+20 else 0) + ((enqueues.size+dequeues.size)*50)
+    
+    def addToPendingStore() = {
+      manager.dispatchQueue.assertExecuting()
+      var set = manager.pendingStores.get(id)
+      if(set==null) {
+        set = HashSet()
+        manager.pendingStores.put(id, set)
+      }
+      set.add(this)
+    }
+
+    def removeFromPendingStore() = {
+      var set = manager.pendingStores.get(id)
+      if(set!=null) {
+        set.remove(this)
+        if(set.isEmpty) {
+          manager.pendingStores.remove(id)
+        }
+      }
+    }
+    
   }
 
   def completeAsap() = this.synchronized { disableDelay=true }
@@ -179,7 +200,7 @@ class DelayableUOW(val manager:DBManager) extends BaseRetained {
     onCompleted
   }
 
-  def action(id:MessageId) = {
+  def getAction(id:MessageId) = {
     actions.get(id) match {
       case Some(x) => x
       case None =>
@@ -190,20 +211,6 @@ class DelayableUOW(val manager:DBManager) extends BaseRetained {
     }
   }
 
-  def store(record: MessageRecord) = {
-    val action = new MessageAction
-    action.id = record.id
-    action.messageRecord = record
-    this.synchronized {
-      actions += record.id -> action
-    }
-    manager.dispatchQueue {
-//    manager.aggregator {
-      manager.pendingStores.put(record.id, action)
-    }
-    delayableActions += 1
-  }
-
   def updateAckPosition(sub:DurableSubscription) = {
     subAcks += SubAckRecord(sub.subKey, sub.lastAckPosition)
   }
@@ -211,11 +218,17 @@ class DelayableUOW(val manager:DBManager) extends BaseRetained {
   def enqueue(queueKey:Long, queueSeq:Long, message:Message)  = {
 
     val id = message.getMessageId
-    if( id.getDataLocator==null ) {
-      var packet = manager.parent.wireFormat.marshal(message)
-      val record = MessageRecord(id, new Buffer(packet.data, packet.offset, packet.length), message.isResponseRequired)
-      id.setDataLocator(record)
-      store(record)
+
+    val messageRecord = id.getDataLocator match {
+      case null =>
+        var packet = manager.parent.wireFormat.marshal(message)
+        val record = MessageRecord(id, new Buffer(packet.data, packet.offset, packet.length), message.isResponseRequired)
+        id.setDataLocator(record)
+        record
+      case record:MessageRecord =>
+        record
+      case x:(Long, Int) =>
+        null
     }
 
     val entry = QueueEntryRecord(id, queueKey, queueSeq)
@@ -227,16 +240,16 @@ class DelayableUOW(val manager:DBManager) extends BaseRetained {
       // a store should be delayed or not.
       disableDelay = true // message.isResponseRequired
 
-      val a = action(entry.id)
-      a.enqueues += entry
+      val action = getAction(entry.id)
+      action.messageRecord = messageRecord
+      action.enqueues += entry
       delayableActions += 1
-      a
+      action
     }
 
     manager.dispatchQueue {
-//    manager.aggregator {
       manager.cancelable_enqueue_actions.put(key(entry), a)
-      manager.pendingStores.put(id, a)
+      a.addToPendingStore()
     }
     countDownFuture
   }
@@ -245,7 +258,7 @@ class DelayableUOW(val manager:DBManager) extends BaseRetained {
     val (queueKey, queueSeq) = id.getEntryLocator.asInstanceOf[(Long, Long)];
     val entry = QueueEntryRecord(id, queueKey, queueSeq)
     this.synchronized {
-      action(id).dequeues += entry
+      getAction(id).dequeues += entry
     }
     countDownFuture
   }
@@ -328,7 +341,8 @@ class DBManager(val parent:LevelDBStore) {
 //  });
 //  closeSource.resume
 
-  var pendingStores = new ConcurrentHashMap[MessageId, DelayableUOW#MessageAction]()
+  var pendingStores = new ConcurrentHashMap[MessageId, HashSet[DelayableUOW#MessageAction]]()
+  
   var cancelable_enqueue_actions = new HashMap[QueueEntryKey, DelayableUOW#MessageAction]()
 
   val lastUowId = new AtomicInteger(1)
@@ -347,7 +361,7 @@ class DBManager(val parent:LevelDBStore) {
 
         // The UoW may have been canceled.
         if( action.messageRecord!=null && action.enqueues.isEmpty ) {
-          pendingStores.remove(id)
+          action.removeFromPendingStore() 
           action.messageRecord = null
           uow.delayableActions -= 1
         }
@@ -373,7 +387,7 @@ class DBManager(val parent:LevelDBStore) {
 
                   // if the message is not in any queues.. we can gc it..
                   if( prev_action.enqueues == Nil && prev_action.messageRecord !=null ) {
-                    pendingStores.remove(id)
+                    prev_action.removeFromPendingStore()
                     prev_action.messageRecord = null
                     prev_uow.delayableActions -= 1
                   }
@@ -472,7 +486,7 @@ class DBManager(val parent:LevelDBStore) {
             uow.onCompleted
             uow.actions.foreach { case (id, action) =>
               if( action.messageRecord !=null ) {
-                pendingStores.remove(id)
+                action.removeFromPendingStore()
               }
               action.enqueues.foreach { queueEntry=>
                 cancelable_enqueue_actions.remove(key(queueEntry))
@@ -682,7 +696,7 @@ class DBManager(val parent:LevelDBStore) {
 
 
   def getMessage(x: MessageId):Message = {
-    val id = Option(pendingStores.get(x)).map(_.id).getOrElse(x)
+    val id = Option(pendingStores.get(x)).flatMap(_.headOption).map(_.id).getOrElse(x)
     val locator = id.getDataLocator()
     val msg = client.getMessage(locator)
     msg.setMessageId(id)

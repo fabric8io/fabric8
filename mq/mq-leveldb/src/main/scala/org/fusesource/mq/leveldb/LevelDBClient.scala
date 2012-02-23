@@ -1026,7 +1026,7 @@ class LevelDBClient(store: LevelDBStore) {
               var pos = -1L
               var dataLocator:(Long, Int) = null
 
-              if (messageRecord != null) {
+              if (messageRecord != null && messageRecord.locator==null) {
                 val start = System.nanoTime()
                 val p = appender.append(LOG_DATA, messageRecord.data)
                 pos = p._1
@@ -1061,6 +1061,16 @@ class LevelDBClient(store: LevelDBStore) {
               }
 
               action.enqueues.foreach { entry =>
+                
+                if(dataLocator ==null ) {
+                  dataLocator = entry.id.getDataLocator match {
+                    case x:(Long, Int) => x
+                    case x:MessageRecord => x.locator
+                    case _ =>
+                      throw new RuntimeException("Unexpected locator type")
+                  }
+                }
+
                 val start = System.nanoTime()
 
                 val key = encodeEntryKey(ENTRY_PREFIX, entry.queueKey, entry.queueSeq)
