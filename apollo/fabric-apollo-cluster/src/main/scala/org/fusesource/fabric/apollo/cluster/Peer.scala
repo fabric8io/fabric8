@@ -556,7 +556,6 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
       seq.foreach(bean.setSeq(_))
       bean.setProtocol(record.protocol)
       bean.setData(record.buffer)
-      bean.setSize(record.size)
       next_ack_seq.foreach{x=>
         bean.setAckSeq(x)
         next_ack_seq = None
@@ -697,11 +696,9 @@ class Peer(cluster_connector:ClusterConnector, val id:String) extends Dispatched
       val message_record = new MessageRecord
       message_record.buffer = value.getData
       message_record.protocol = value.getProtocol
-      message_record.size = value.getSize
 
       val delivery = new Delivery
       delivery.message = ProtocolFactory.get(value.getProtocol.toString).get.decode(message_record)
-      delivery.size = message_record.size
       delivery.ack = if( value.hasSeq ) {
         (x, uow)=> {
           // message was acked.. now we need to post it back.

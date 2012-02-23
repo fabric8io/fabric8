@@ -5,32 +5,32 @@ fabric.version=${project.version}
 camel.version=${camel-version}
 
 fabric:profile-create jre15
-fabric:profile-edit -p jre15 system.java.specification.version=1.5
-fabric:profile-edit -p jre15 --bundles mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/1.8.0
-fabric:profile-edit -p jre15 --bundles mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/1.8.0
-fabric:profile-edit -p jre15 --bundles mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/2.2.1.1_1
-fabric:profile-edit -p jre15 --bundles mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/1.8.0
-fabric:profile-edit -p jre15 --bundles mvn:org.codehaus.woodstox/woodstox-core-asl/4.1.1
-fabric:profile-edit -p jre15 --bundles mvn:org.codehaus.woodstox/stax2-api/3.1.1
+fabric:profile-edit --profile jre15 system.java.specification.version=1.5
+fabric:profile-edit --profile jre15 --bundles mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/1.8.0
+fabric:profile-edit --profile jre15 --bundles mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/1.8.0
+fabric:profile-edit --profile jre15 --bundles mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/2.2.1.1_1
+fabric:profile-edit --profile jre15 --bundles mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/1.8.0
+fabric:profile-edit --profile jre15 --bundles mvn:org.codehaus.woodstox/woodstox-core-asl/4.1.1
+fabric:profile-edit --profile jre15 --bundles mvn:org.codehaus.woodstox/stax2-api/3.1.1
 
 fabric:profile-create --parents default karaf
-fabric:profile-edit -p karaf --repositories mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features
-fabric:profile-edit -p karaf --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features
-fabric:profile-edit -p karaf --repositories mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features
-fabric:profile-edit -p karaf --repositories mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features
+fabric:profile-edit --profile karaf --repositories mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features
+fabric:profile-edit --profile karaf --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features
+fabric:profile-edit --profile karaf --repositories mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features
+fabric:profile-edit --profile karaf --repositories mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features
 
 fabric:profile-create --parents karaf --parents jre15 dosgi
-fabric:profile-edit -p dosgi --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
-fabric:profile-edit -p dosgi --features fabric-dosgi
-fabric:profile-edit -p dosgi --pid org.fusesource.fabric.dosgi port=0
+fabric:profile-edit --profile dosgi --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
+fabric:profile-edit --profile dosgi --features fabric-dosgi
+fabric:profile-edit --profile dosgi --pid org.fusesource.fabric.dosgi port=0
 
 fabric:profile-create --parents dosgi dosgi-provider
-fabric:profile-edit -p dosgi-provider --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
-fabric:profile-edit -p dosgi-provider --features fabric-example-dosgi
+fabric:profile-edit --profile dosgi-provider --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
+fabric:profile-edit --profile dosgi-provider --features fabric-example-dosgi
 
 fabric:profile-create --parents dosgi dosgi-camel
-fabric:profile-edit -p dosgi-camel --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
-fabric:profile-edit -p dosgi-camel --features fabric-example-camel-dosgi
+fabric:profile-edit --profile dosgi-camel --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/${fabric.version}/xml/features
+fabric:profile-edit --profile dosgi-camel --features fabric-example-camel-dosgi
 
 shell:echo Creating containers
 

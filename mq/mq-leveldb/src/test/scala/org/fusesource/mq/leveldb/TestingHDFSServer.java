@@ -14,29 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.mq.leveldb
+package org.fusesource.mq.leveldb;
 
-import org.apache.activemq.store.PersistenceAdapter
-import org.apache.activemq.store.PersistenceAdapterTestSupport
-import java.io.File
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
+
+import java.io.IOException;
 
 /**
+ * <p>
+ * </p>
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class LevelDBStoreTest extends PersistenceAdapterTestSupport {
+public class TestingHDFSServer {
 
-  // TODO: The LevelDB store does not maintain a unique index of messageIds so
-  // so it will never be able to detect duplicate messages.
-  override def testStoreCanHandleDupMessages() {
-  }
+    static MiniDFSCluster cluster = null;
+    static FileSystem fs = null;
 
-  protected def createPersistenceAdapter(delete: Boolean): PersistenceAdapter = {
-    var store: LevelDBStore = new LevelDBStore
-    store.setDirectory(new File("target/activemq-data/leveldb"))
-    if (delete) {
-      store.deleteAllMessages
+    static void start() throws IOException {
+        Configuration conf = new Configuration();
+        cluster = new MiniDFSCluster(conf, 1, true, null);
+        cluster.waitActive();
+        fs = cluster.getFileSystem();
     }
-    return store
-  }
+
+    static void stop() {
+        try {
+            cluster.shutdown();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
 }
