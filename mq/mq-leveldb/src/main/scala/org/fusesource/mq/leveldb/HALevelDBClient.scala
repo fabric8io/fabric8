@@ -18,15 +18,14 @@ package org.fusesource.mq.leveldb
 
 import org.fusesource.mq.leveldb.util._
 
-import collection.immutable.TreeMap
-
-import org.apache.hadoop.fs.{FileSystem, Path}
-import collection.mutable.HashMap
 import org.fusesource.leveldbjni.internal.Util
 import FileSupport._
 import org.codehaus.jackson.map.ObjectMapper
-import org.fusesource.hawtbuf.{ByteArrayOutputStream, Buffer}
 import java.io._
+import scala.collection.mutable._
+import scala.collection.immutable.TreeMap
+import org.fusesource.hawtbuf.{ByteArrayOutputStream, Buffer}
+import org.apache.hadoop.fs.{FileSystem, Path}
 
 /**
  *
@@ -105,9 +104,14 @@ object HALevelDBClient extends Log {
 class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
   import HALevelDBClient._
 
-  case class SnapshotRef(files:Set[String], counter:LongCounter=new LongCounter)
-  var fileRefs = HashMap[String, LongCounter]()
-  var snapshotRefs = HashMap[Long, SnapshotRef]()
+  case class Snapshot(current_manifest:String, files:Set[String])
+  var snapshots = TreeMap[Long, Snapshot]()
+
+  // Eventually we will allow warm standby slaves to add references to old
+  // snapshots so that we don't delete them while they are in the process
+  // of downloading the snapshot.
+  var snapshotRefCounters = HashMap[Long, LongCounter]()
+  var indexFileRefCounters = HashMap[String, LongCounter]()
 
   def dfs = store.dfs
   def dfsDirectory = new Path(store.dfsDirectory)
@@ -124,6 +128,12 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
       downloadIndexFiles
     }
     super.start()
+    storeTrace("Master takeover by: "+store.containerId, true)
+  }
+
+  override def locked_purge = {
+    super.locked_purge
+    dfs.delete(dfsDirectory, true)
   }
 
   override def snapshotIndex(sync: Boolean) = {
@@ -131,7 +141,13 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
     super.snapshotIndex(sync)
     // upload the snapshot to the dfs
     uploadIndexFiles(lastIndexSnapshotPos)
-    snapshotRefs.get(previous_snapshot).foreach(_.counter.decrementAndGet())
+
+    // Drop the previous snapshot reference..
+    for( counter <- snapshotRefCounters.get(previous_snapshot)) {
+      if( counter.decrementAndGet() <= 0 ) {
+        snapshotRefCounters.remove(previous_snapshot)
+      }
+    }
     gcSnapshotRefs
   }
 
@@ -150,12 +166,12 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
     })
     if( !downloads.isEmpty ) {
       val total_size = downloads.foldLeft(0L)((a,x)=> a+x._2.getLen)
-      info("Downloading %s in log files", total_size)
       downloads.foreach {
         case (id, status) =>
           val target = LevelDBClient.create_sequence_file(directory, id, LOG_SUFFIX)
           // is it missing or does the size not match?
           if (!target.exists() || target.length() != status.getLen) {
+            info("Downloading log file: "+status.getPath.getName)
             using(dfs.open(status.getPath, 32*1024)) { is=>
               using(new FileOutputStream(target)) { os=>
                 copy(is, os)
@@ -169,80 +185,74 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
   // See if there is a more recent index that can be downloaded.
   def downloadIndexFiles {
 
-    var manifests = HashMap[Long, IndexManifestDTO]()
+    snapshots = TreeMap()
     dfs.listStatus(remoteIndexPath).foreach { status =>
       val name = status.getPath.getName
+      indexFileRefCounters.put(name, new LongCounter())
       if( name endsWith MANIFEST_SUFFIX ) {
+        info("Getting index snapshot manifest: "+status.getPath.getName)
         val mf = using(dfs.open(status.getPath)) { is =>
           JsonCodec.decode(is, classOf[IndexManifestDTO])
         }
-        manifests += (mf.snapshot_id -> mf)
-      } else {
-        fileRefs += (name-> new LongCounter())
+        import collection.JavaConversions._
+        snapshots += mf.snapshot_id -> Snapshot(mf.current_manifest, Set(mf.files.toSeq:_*))
       }
     }
 
-    import collection.JavaConversions._
-
-    // Remove invalid manifests..
-    manifests = manifests.filter { case (_, mf)=>
-      val files:Set[String] = asScalaSet(mf.files).toSet
-      if( (fileRefs.keySet & files).isEmpty ) {
-        dfs.delete(create_sequence_path(remoteIndexPath, mf.snapshot_id, MANIFEST_SUFFIX), true)
-        false
-      } else {
-        true
+    // Check for invalid snapshots..
+    for( (snapshotid, snapshot) <- snapshots) {
+      val matches = indexFileRefCounters.keySet & snapshot.files
+      if( matches.size != snapshot.files.size ) {
+        var path = create_sequence_path(remoteIndexPath, snapshotid, MANIFEST_SUFFIX)
+        warn("Deleting inconsistent snapshot manifest: "+path.getName)
+        dfs.delete(path, true)
+        snapshots -= snapshotid
       }
     }
 
-    // Increment file reference counters.
-    manifests.foreach { case (_, mf)=>
-      mf.files.foreach { file =>
-        fileRefs.get(file) match {
-          case Some(file) => file.incrementAndGet()
-          case None =>
-            println("Not Referenced.")
-        }
+    // Add a ref to the last snapshot..
+    for( (snapshotid, _) <- snapshots.lastOption ) {
+      snapshotRefCounters.getOrElseUpdate(snapshotid, new LongCounter()).incrementAndGet()
+    }
+    
+    // Increment index file refs..
+    for( key <- snapshotRefCounters.keys; snapshot <- snapshots.get(key); file <- snapshot.files ) {
+      indexFileRefCounters.getOrElseUpdate(file, new LongCounter()).incrementAndGet()
+    }
+
+    // Remove un-referenced index files.
+    for( (name, counter) <- indexFileRefCounters ) {
+      if( counter.get() <= 0 ) {
+        var path = new Path(remoteIndexPath, name)
+        info("Deleting unreferenced index file: "+path.getName)
+        dfs.delete(path, true)
+        indexFileRefCounters.remove(name)
       }
     }
 
-    // Remove un-referenced files.
-    fileRefs = fileRefs.filter { case (name, counter)=>
-      if( counter.get()==0 ) {
-        dfs.delete(new Path(remoteIndexPath, name), true)
-        false
-      } else {
-        true
-      }
-    }
+    val local_snapshots = Map(LevelDBClient.find_sequence_files(directory, INDEX_SUFFIX).values.flatten { dir =>
+      if( dir.isDirectory ) dir.listFiles() else Array[File]()
+    }.map(x=> (x.getName, x)).toSeq:_*)
 
-    snapshotRefs.clear
-    for( (key, value) <- manifests) {
-      snapshotRefs.put(key, SnapshotRef(asScalaSet(value.files).toSet))
-    }
-
-    val local_snapshots = LevelDBClient.find_sequence_files(directory, INDEX_SUFFIX)
-
-    // Lets download the last index snapshot..
-    // TODO: don't download files that exist in the previous snapshot.
-    manifests.lastOption.foreach { case (id, mf)=>
+    for( (id, snapshot) <- snapshots.lastOption ) {
 
       // increment the ref..
-      snapshotRefs.get(id).get.counter.incrementAndGet()
       tempIndexFile.recursiveDelete
       tempIndexFile.mkdirs
 
-      mf.files.foreach { file =>
+      for( file <- snapshot.files ; if !file.endsWith(MANIFEST_SUFFIX) ) {
         val target = tempIndexFile / file
 
         // The file might be in a local snapshot already..
-        local_snapshots.values.find(_.getName == file) match {
+        local_snapshots.get(file) match {
           case Some(f) =>
             // had it locally.. link it.
             Util.link(f, target)
           case None =>
             // download..
-            using(dfs.open(new Path(remoteIndexPath, file), 32*1024)) { is=>
+            var path = new Path(remoteIndexPath, file)
+            info("Downloading index file: "+path)
+            using(dfs.open(path, 32*1024)) { is=>
               using(new FileOutputStream(target)) { os=>
                 copy(is, os)
               }
@@ -251,25 +261,27 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
       }
 
       val current = tempIndexFile / "CURRENT"
-      current.writeText(mf.current_manifest)
+      current.writeText(snapshot.current_manifest)
 
       // We got everything ok, now rename.
-      tempIndexFile.renameTo(LevelDBClient.create_sequence_file(directory, mf.snapshot_id, INDEX_SUFFIX))
+      tempIndexFile.renameTo(LevelDBClient.create_sequence_file(directory, id, INDEX_SUFFIX))
     }
 
     gcSnapshotRefs
   }
 
   def gcSnapshotRefs = {
-    snapshotRefs = snapshotRefs.filter { case (id, ref)=>
-      if (ref.counter.get()>0) {
+    snapshots = snapshots.filter { case (id, snapshot)=>
+      if (snapshotRefCounters.get(id).isDefined) {
         true
       } else {
-        ref.files.foreach { file =>
-          fileRefs.get(file).foreach { ref=>
-            if( ref.decrementAndGet() == 0 ) {
-              dfs.delete(new Path(remoteIndexPath, file), true)
-              fileRefs.remove(file)
+        for( file <- snapshot.files ) {
+          for( counter <- indexFileRefCounters.get(file) ) {
+            if( counter.decrementAndGet() <= 0 ) {
+              var path = new Path(remoteIndexPath, file)
+              info("Deleteing unreferenced index file: %s", path.getName)
+              dfs.delete(path, true)
+              indexFileRefCounters.remove(file)
             }
           }
         }
@@ -296,7 +308,7 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
 
       import collection.JavaConversions._
       mf.files.foreach { file =>
-        val refs = fileRefs.getOrElseUpdate(file, new LongCounter())
+        val refs = indexFileRefCounters.getOrElseUpdate(file, new LongCounter())
         if(refs.get()==0) {
           // Upload if not not yet on the remote.
           val target = new Path(remoteIndexPath, file)
@@ -310,13 +322,15 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
       }
 
       val target = create_sequence_path(remoteIndexPath, mf.snapshot_id, MANIFEST_SUFFIX)
+      mf.files.add(target.getName)
+
+      indexFileRefCounters.getOrElseUpdate(target.getName, new LongCounter()).incrementAndGet()
       using(dfs.create(target, true, 1024*32, dfsReplication.toShort, dfsBlockSize)) { os=>
         JsonCodec.mapper.writeValue(os, mf)
       }
 
-      val ref = SnapshotRef(asScalaSet(mf.files).toSet)
-      ref.counter.incrementAndGet()
-      snapshotRefs.put(snapshot_id, ref)
+      snapshots += snapshot_id -> Snapshot(mf.current_manifest, Set(mf.files.toSeq:_*))
+      snapshotRefCounters.getOrElseUpdate(snapshot_id, new LongCounter()).incrementAndGet()
 
     } catch {
       case e: Exception =>
@@ -341,7 +355,9 @@ class HALevelDBClient(val store:HALevelDBStore) extends LevelDBClient(store) {
       new LogAppender(next_log(position), position) {
 
         val dfs_path = new Path(dfsDirectory, file.getName)
+        debug("Opening DFS log file for append: "+dfs_path.getName)
         val dfs_os = dfs.create(dfs_path, true, RecordLog.BUFFER_SIZE, dfsReplication.toShort, dfsBlockSize )
+        debug("Opened")
 
         override def flush = this.synchronized {
           if( write_buffer.position() > 0 ) {

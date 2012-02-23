@@ -100,7 +100,7 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
             System.out.println(executeCommand("fabric:container-list -v"));
             Container container = fabricService.getContainer("ssh1");
             assertTrue(container.isAlive());
-            createAndAssetChildContainer("ssh2","ssh1");
+            createAndAssetChildContainer("ssh2","ssh1", "default");
         }
     }
 

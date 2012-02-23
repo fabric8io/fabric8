@@ -16,10 +16,13 @@
  */
 package org.fusesource.mq.leveldb;
 
+import org.apache.hadoop.fs.FileUtil;
+import org.fusesource.mq.leveldb.util.FileSupport;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -41,9 +44,24 @@ public class HALevelDBFastEnqueueTest extends LevelDBFastEnqueueTest {
 
     protected LevelDBStore createStore() {
         HALevelDBStore store = new HALevelDBStore();
-        store.setDirectory(new File("target/activemq-data/leveldb"));
+        store.setDirectory(dataDirectory());
         store.setDfsDirectory("localhost");
         return store;
+    }
+
+    private File dataDirectory() {
+        return new File("target/activemq-data/leveldb");
+    }
+
+    /**
+     * On restart we will also delete the local file system store, so that we test restoring from
+     * HDFS.
+     */
+    protected void restartBroker(int restartDelay, int checkpoint) throws Exception {
+        stopBroker();
+        FileUtil.fullyDelete(dataDirectory());
+        TimeUnit.MILLISECONDS.sleep(restartDelay);
+        startBroker(false, checkpoint);
     }
 
 }
