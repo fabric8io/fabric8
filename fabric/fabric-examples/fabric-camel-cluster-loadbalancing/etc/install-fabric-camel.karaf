@@ -1,7 +1,7 @@
 shell:echo Install Fabric-camel example
 shell:echo Add fabric features repository
 features:addurl mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features
---profile 
+
 shell:echo Install fabric commands
 features:install fabric-commands
 
