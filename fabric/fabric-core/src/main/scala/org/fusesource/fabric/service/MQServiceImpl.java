@@ -27,7 +27,7 @@ public class MQServiceImpl implements MQService {
     private FabricService fabricService;
     
     private static final String DEFAULT_MQ_PROFILE = "mq";
-    private static final String DEFAULT_MQ_PID = "org.fusesource.mq.fabric.";
+    private static final String DEFAULT_MQ_PID = "org.fusesource.mq.fabric.server-broker";
 
     public MQServiceImpl(FabricService fabricService) {
         this.fabricService = fabricService;
@@ -44,13 +44,13 @@ public class MQServiceImpl implements MQService {
                 result = fabricService.createProfile(version, brokerName);
                 result.setParents(new Profile[]{parentProfile});               
             }
-            Map config = parentProfile.getConfigurations().get(DEFAULT_MQ_PID + "template");
+            Map config = parentProfile.getConfigurations().get(DEFAULT_MQ_PID);
             config.put("broker-name", brokerName);
             if (configs != null) {
                 config.putAll(configs);
             }
             Map<String, Map<String,String>> newConfigs = result.getConfigurations();
-            newConfigs.put(DEFAULT_MQ_PID + "server-" + brokerName, config);
+            newConfigs.put(DEFAULT_MQ_PID, config);
             result.setConfigurations(newConfigs);
         }
         
