@@ -192,7 +192,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
           if(started.compareAndSet(true, false)) {
             return_pool(ClusteredConfiguration.this)
             info("Broker %s is now a slave, stopping the broker.", name)
-            stop
+            stop()
           }          
         }
       }
@@ -230,9 +230,10 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     def close = this.synchronized {
       if( pool_enabled ) {
         discoveryAgent.stop()
+        return_pool(ClusteredConfiguration.this)
       }
       if(started.compareAndSet(true, false)) {
-        stop
+        stop(false)
       }
     }
 
@@ -279,39 +280,46 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       }
       trystartup
     }
-    
-    def stop = {
-      info("Broker %s is being stoped.", name)
-      new Thread("Startup for ActiveMQ Broker: "+name) {
-        override def run() {
-          var t = start_thread // working with a volatile
-          while(t!=null) {
-            t.interrupt()
-            t.join()
-            t = start_thread // when the start up thread gives up trying to start this gets set to null.
-          }
 
-          val s = server // working with a volatile
-          if( s!=null ) {
-            try {
-              s._2.stop()
-            } catch {
-              case e:Throwable => e.printStackTrace()
-            }
-            try {
-              s._1.close()
-            } catch {
-              case e:Throwable => e.printStackTrace()
-            }
-            try {
-              discoveryAgent.stop()
-            } catch {
-              case e:Throwable => e.printStackTrace()
-            }
-            server = null
-          }
+    val stop_runnable = new Runnable {
+      override def run() {
+        var t = start_thread // working with a volatile
+        while(t!=null) {
+          t.interrupt()
+          t.join()
+          t = start_thread // when the start up thread gives up trying to start this gets set to null.
         }
-      }.start
+
+        val s = server // working with a volatile
+        if( s!=null ) {
+          try {
+            s._2.stop()
+            s._2.waitUntilStopped()
+          } catch {
+            case e:Throwable => e.printStackTrace()
+          }
+          try {
+            s._1.close()
+          } catch {
+            case e:Throwable => e.printStackTrace()
+          }
+          try {
+            discoveryAgent.stop()
+          } catch {
+            case e:Throwable => e.printStackTrace()
+          }
+          server = null
+        }
+      }
+    }
+    
+    def stop(async: Boolean = true) = {
+      info("Broker %s is being stoped.", name)
+      if (async) {
+        new Thread(stop_runnable, "Startup for ActiveMQ Broker: "+name).start
+      } else {
+        stop_runnable.run()
+      }
     }
   }
 
