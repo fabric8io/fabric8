@@ -37,6 +37,7 @@ import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
 import org.fusesource.fabric.groups.ChangeListener
 import java.lang.{Thread, ThreadLocal}
+import org.apache.activemq.util.IntrospectionSupport
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -88,7 +89,8 @@ object ActiveMQServiceFactory {
       networks.foreach {name =>
         if (!name.isEmpty) {
           LOG.info("Adding network connector " + name)
-          val nc = broker.addNetworkConnector("fabric:" + name);
+          val nc = broker.addNetworkConnector("fabric:" + name)
+          IntrospectionSupport.setProperties(nc, properties.asInstanceOf[java.util.Map[String, String]], "network-")
           nc.setName("fabric-" + name);
         }
       }
