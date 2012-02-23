@@ -82,6 +82,22 @@
             <outputDirectory>system</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>mq_license.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/licenses</directory>
+            <outputDirectory>/licenses/</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
     </fileSets>
     
     <files>
@@ -90,6 +106,20 @@
             <outputDirectory>/bin/</outputDirectory>
             <destName>fusemq</destName>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/META-INF/NOTICE</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>mq_notices.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>mq_dependencies.txt</destName>
+            <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
         <!--
