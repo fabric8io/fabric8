@@ -27,19 +27,23 @@ import org.iq80.leveldb._
 import org.fusesource.hawtdispatch._
 import record.{CollectionKey, EntryKey, EntryRecord, CollectionRecord}
 import util._
-import java.util.Collections
 import java.util.concurrent._
 import org.fusesource.hawtbuf._
 import java.io.{ObjectInputStream, ObjectOutputStream, File}
 import scala.Option._
-import org.apache.activemq.command.{Message, MessageId}
+import org.apache.activemq.command.Message
 import org.apache.activemq.util.ByteSequence
 import org.fusesource.mq.leveldb.RecordLog.LogInfo
+import java.text.SimpleDateFormat
+import java.util.{Date, Collections}
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 object LevelDBClient extends Log {
+
+  final val STORE_SCHEMA_PREFIX = "activemq_leveldb_store:"
+  final val STORE_SCHEMA_VERSION = 1
 
   final val THREAD_POOL_STACK_SIZE = System.getProperty("leveldb.thread.stack.size", "" + 1024 * 512).toLong
   final val THREAD_POOL: ThreadPoolExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10, TimeUnit.SECONDS, new SynchronousQueue[Runnable], new ThreadFactory {
@@ -419,7 +423,40 @@ class LevelDBClient(store: LevelDBStore) {
 
   var writeExecutor:ExecutorService = _
 
+  def storeTrace(ascii:String, force:Boolean=false) = {
+    val time = new SimpleDateFormat("dd/MMM/yyyy:HH:mm::ss Z").format(new Date)
+    log.appender { appender =>
+      appender.append(LOG_TRACE, new AsciiBuffer("%s: %s".format(time, ascii)))
+      if( force ) {
+        appender.force
+      }
+    }
+  }
+
+  def retry[T](func : =>T):T = RetrySupport.retry(LevelDBClient, store.isStarted, func _)
+
   def start() = {
+
+    // Lets check store compatibility...
+    directory.mkdirs()
+    val version_file = directory / "store-version.txt"
+    if (version_file.exists()) {
+      val ver = try {
+        var tmp: String = version_file.readText().trim()
+        if (tmp.startsWith(STORE_SCHEMA_PREFIX)) {
+          tmp.stripPrefix(STORE_SCHEMA_PREFIX).toInt
+        } else {
+          -1
+        }
+      } catch {
+        case e => throw new Exception("Unexpected version file format: " + version_file)
+      }
+      ver match {
+        case STORE_SCHEMA_VERSION => // All is good.
+        case _ => throw new Exception("Cannot open the store.  It's schema version is not supported.")
+      }
+    }
+    version_file.writeText(STORE_SCHEMA_PREFIX + STORE_SCHEMA_VERSION)
 
     writeExecutor = Executors.newFixedThreadPool(1, new ThreadFactory() {
       def newThread(r: Runnable) = {
@@ -434,9 +471,11 @@ class LevelDBClient(store: LevelDBStore) {
       try {
         Some(this.getClass.getClassLoader.loadClass(name).newInstance().asInstanceOf[DBFactory])
       } catch {
-        case x:Throwable => None
+        case e:Throwable =>
+          debug(e, "Could not load factory: "+name+" due to: "+e)
+          None
       }
-    }.headOption.getOrElse(throw new Exception("Could not load any of the index factory classes: "+factoryNames.mkString(",")))
+    }.headOption.getOrElse(throw new Exception("Could not load any of the index factory classes: "+factoryNames))
 
     if( factory.getClass.getName == "org.iq80.leveldb.impl.Iq80DBFactory") {
       warn("Using the pure java LevelDB implementation which is still experimental.  Production users should use the JNI based LevelDB implementation instead.")
@@ -459,7 +498,7 @@ class LevelDBClient(store: LevelDBStore) {
     indexOptions.cacheSize(store.indexCacheSize)
     indexOptions.logger(new Logger() {
       val LOG = Log(factory.getClass.getName)
-      def log(msg: String) = LOG.debug(msg)
+      def log(msg: String) = LOG.debug("index: "+msg.stripSuffix("\n"))
     })
 
     log = createLog
@@ -777,59 +816,29 @@ class LevelDBClient(store: LevelDBStore) {
     }
   }
 
-  def retry[T](func: => T): T = {
-    var error:Throwable = null
-    var rc:Option[T] = None
-
-    // We will loop until the tx succeeds.  Perhaps it's
-    // failing due to a temporary condition like low disk space.
-    while(!rc.isDefined) {
-
-      try {
-        rc = Some(func)
-      } catch {
-        case e:Throwable =>
-          e.printStackTrace()
-          if( error==null ) {
-            warn(e, "DB operation failed. (entering recovery mode)")
-          }
-          error = e
-      }
-
-      if (!rc.isDefined) {
-        // We may need to give up if the store is being stopped.
-        if ( !store.isStarted ) {
-          throw error
-        }
-        Thread.sleep(1000)
-      }
-    }
-
-    if( error!=null ) {
-      info("DB recovered from failure.")
-    }
-    rc.get
-  }
-
   def purge() = {
     suspend()
     try{
       log.close
-      logDirectory.listFiles.foreach { x =>
-        if(x.getName.endsWith(".log")) {
-          x.delete()
-        }
-      }
-      directory.listFiles.foreach { x =>
-        if(x.getName.endsWith(".index")) {
-          x.recursiveDelete
-        }
-      }
+      locked_purge
     } finally {
       retry {
         log.open
       }
       resume()
+    }
+  }
+
+  def locked_purge {
+    logDirectory.listFiles.foreach {x =>
+      if (x.getName.endsWith(".log")) {
+        x.delete()
+      }
+    }
+    directory.listFiles.foreach {x =>
+      if (x.getName.endsWith(".index")) {
+        x.recursiveDelete
+      }
     }
   }
 

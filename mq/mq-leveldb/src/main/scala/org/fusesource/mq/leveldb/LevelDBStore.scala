@@ -27,7 +27,6 @@ import java.io.IOException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicLong
-import util.Log
 import reflect.BeanProperty
 import org.apache.activemq.store._
 import java.util._
@@ -35,6 +34,8 @@ import scala.collection.mutable.ListBuffer
 import javax.management.ObjectName
 import org.apache.activemq.broker.jmx.AnnotatedMBean
 import org.apache.activemq.util._
+import org.apache.kahadb.util.LockFile
+import org.fusesource.mq.leveldb.util.{RetrySupport, FileSupport, Log}
 
 object LevelDBStore extends Log {
   
@@ -149,6 +150,8 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
   var asyncBufferSize = 1024*1024*4
   @BeanProperty
   var monitorStats = false
+  @BeanProperty
+  var failIfLocked = false
 
   var purgeOnStatup: Boolean = false
   var brokerService: BrokerService = null
@@ -169,8 +172,17 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
             "Type=LevelDBStore");
   }
 
+  def retry[T](func : =>T):T = RetrySupport.retry(LevelDBStore, isStarted, func _)
+
+  var lock_file: LockFile = _
+
   def doStart: Unit = {
+    import FileSupport._
+
     debug("starting")
+    if ( lock_file==null ) {
+      lock_file = new LockFile(directory / "lock", true)
+    }
 
     // Expose a JMX bean to expose the status of the store.
     if(brokerService!=null){
@@ -183,18 +195,28 @@ class LevelDBStore extends ServiceSupport with BrokerServiceAware with Persisten
       }
     }
 
-    db.start
+    if (failIfLocked) {
+      lock_file.lock()
+    } else {
+      retry {
+        lock_file.lock()
+      }
+    }
+
     if (purgeOnStatup) {
       purgeOnStatup = false
-      db.purge
+      db.client.locked_purge
       info("Purged: "+this)
     }
+
+    db.start
     db.loadCollections
     debug("started")
   }
 
   def doStop(stopper: ServiceStopper): Unit = {
     db.stop
+    lock_file.unlock()
     if(brokerService!=null){
       brokerService.getManagementContext().unregisterMBean(objectName);
     }
