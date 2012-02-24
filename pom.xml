@@ -95,7 +95,7 @@
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
         <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
-        <activemq-version>5.6-fuse-SNAPSHOT</activemq-version>
+        <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
         <apollo-version>1.1-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
@@ -1082,7 +1082,7 @@
       <id>perfectus</id>
       <properties>
         <perfectus-run>04</perfectus-run>
-        <activemq-version>5.6.0-fuse-00-${perfectus-run}</activemq-version>
+        <activemq-version>5.5.1.fuse-00-${perfectus-run}</activemq-version>
         <cxf-version>2.5.0-fuse-00-${perfectus-run}</cxf-version>
         <camel-version>2.9.0-fuse-00-${perfectus-run}</camel-version>
         <karaf-version>2.2.4-fuse-00-${perfectus-run}</karaf-version>
