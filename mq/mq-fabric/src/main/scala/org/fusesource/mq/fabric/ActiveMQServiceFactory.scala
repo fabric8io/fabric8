@@ -26,7 +26,6 @@ import org.linkedin.zookeeper.client.IZKClient
 import java.util.{Properties, Dictionary}
 import collection.mutable.HashMap
 import java.util.concurrent.atomic.AtomicBoolean
-import org.apache.activemq.broker.BrokerService
 import org.springframework.core.io.Resource
 import org.apache.activemq.spring.Utils
 import org.apache.xbean.spring.context.ResourceXmlApplicationContext
@@ -37,6 +36,8 @@ import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
 import org.fusesource.fabric.groups.ChangeListener
 import java.lang.{Thread, ThreadLocal}
+import org.apache.activemq.broker.{TransportConnector, BrokerService}
+import scala.collection.JavaConversions._
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -45,7 +46,6 @@ object ActiveMQServiceFactory {
   PropertyEditorManager.registerEditor(classOf[URI], classOf[URIEditor])
 
   def info(str: String, args: AnyRef*) = if (LOG.isInfoEnabled) {
-    println(String.format(str, args:_*))
     LOG.info(String.format(str, args:_*))
   }
 
@@ -159,42 +159,11 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val group = Option(properties.getProperty("group")).getOrElse("default")
     val pool = Option(properties.getProperty("standby.pool")).getOrElse(null)
     val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
+    val standalone:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("standalone")).getOrElse("false"))
 
     val started = new AtomicBoolean
-    info("Broker %s is waiting to become the master", name)
 
-    val discoveryAgent = new FabricDiscoveryAgent
-    discoveryAgent.setAgent(System.getProperty("karaf.name"))
-    discoveryAgent.setId(name)
-    discoveryAgent.setGroupName(group)
-    discoveryAgent.setZkClient(zooKeeper)
-    discoveryAgent.singleton.add(new ChangeListener(){
-      def changed {
-        if( discoveryAgent.singleton.isMaster ) {
-          if(started.compareAndSet(false, true)) {
-            if( take_pool(ClusteredConfiguration.this) ) {
-              info("Broker %s is now the master, starting the broker.", name)
-              start
-            } else {
-              update_pool_state
-              started.set(false)
-            }
-          }
-        } else {
-          if(started.compareAndSet(true, false)) {
-            return_pool(ClusteredConfiguration.this)
-            info("Broker %s is now a slave, stopping the broker.", name)
-            stop
-          }          
-        }
-      }
-      def connected = changed
-      def disconnected = changed
-    })
-    
     var pool_enabled = false
-    update_pool_state
-    
     def update_pool_state = this.synchronized {
       val value = can_own_pool(this)
       if( pool_enabled != value) {
@@ -212,12 +181,60 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
         }
       }
     }
-    
-
+    var discoveryAgent:FabricDiscoveryAgent = null
     @volatile
     var start_thread:Thread = _
     @volatile
     var server:(ResourceXmlApplicationContext, BrokerService) = _
+
+    def ensure_broker_name_is_set = {
+      if (!properties.containsKey("broker-name")) {
+        properties.setProperty("broker-name", name)
+      }
+    }
+
+    if (standalone) {
+      if (started.compareAndSet(false, true)) {
+        ensure_broker_name_is_set
+        info("Standalone broker %s is starting.", name)
+        start
+      }
+    } else {
+      info("Broker %s is waiting to become the master", name)
+
+      discoveryAgent = new FabricDiscoveryAgent
+      discoveryAgent.setAgent(System.getProperty("karaf.name"))
+      discoveryAgent.setId(name)
+      discoveryAgent.setGroupName(group)
+      discoveryAgent.setZkClient(zooKeeper)
+      discoveryAgent.singleton.add(new ChangeListener() {
+        def changed {
+          if (discoveryAgent.singleton.isMaster) {
+            if (started.compareAndSet(false, true)) {
+              if (take_pool(ClusteredConfiguration.this)) {
+                info("Broker %s is now the master, starting the broker.", name)
+                start
+              } else {
+                update_pool_state
+                started.set(false)
+              }
+            }
+          } else {
+            if (started.compareAndSet(true, false)) {
+              return_pool(ClusteredConfiguration.this)
+              info("Broker %s is now a slave, stopping the broker.", name)
+              stop
+            }
+          }
+        }
+
+        def connected = changed
+
+        def disconnected = changed
+      })
+      update_pool_state
+
+    }
 
     def close = this.synchronized {
       if( pool_enabled ) {
@@ -232,16 +249,32 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       // Startup async so that we do not block the ZK event thread.
       def trystartup:Unit = {
         start_thread = new Thread("Startup for ActiveMQ Broker: "+name) {
+
+          def configure_ports(service: BrokerService, properties: Properties) = {
+            service.getTransportConnectors.foreach {
+              t => {
+                val portKey = t.getName() + "-port"
+                if (properties.containsKey(portKey)) {
+                  val template = t.getUri;
+                  t.setUri(new URI(template.getScheme, template.getUserInfo, template.getHost,
+                    Integer.valueOf("" + properties.get(portKey)),
+                    template.getPath, template.getQuery, template.getFragment))
+                }
+              }
+            }
+          }
+
           override def run() {
             var start_failure:Throwable = null
             try {
               // ok boot up the server..
               server = createBroker(config, properties)
+              configure_ports(server._2, properties)
               server._2.start()
               info("Broker %s has started.", name)
 
               // Update the advertised endpoint URIs that clients can use.
-              discoveryAgent.setServices( connectors.flatMap { name=>
+              if (!standalone) discoveryAgent.setServices( connectors.flatMap { name=>
                 val connector = server._2.getConnectorByName(name)
                 if ( connector==null ) {
                   warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name)
@@ -296,7 +329,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
               case e:Throwable => e.printStackTrace()
             }
             try {
-              discoveryAgent.stop()
+              if ( pool_enabled ) discoveryAgent.stop()
             } catch {
               case e:Throwable => e.printStackTrace()
             }
