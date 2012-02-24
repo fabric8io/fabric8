@@ -213,6 +213,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             running.set(true);
 
             if (zkClient == null) {
+                LOG.info("Using local ZKClient");
                 managedZkClient = true;
                 ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
                 client.start();

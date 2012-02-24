@@ -99,20 +99,6 @@
 
            <plugins>
                <plugin>
-                   <groupId>org.apache.maven.plugins</groupId>
-                   <artifactId>maven-resources-plugin</artifactId>
-                   <version>2.4.3</version>
-                   <executions>
-                       <execution>
-                           <id>filter</id>
-                           <phase>process-resources</phase>
-                           <goals>
-                               <goal>resources</goal>
-                           </goals>
-                       </execution>
-                   </executions>
-               </plugin>
-               <plugin>
                    <groupId>org.apache.karaf.tooling</groupId>
                    <artifactId>features-maven-plugin</artifactId>
                    <version>${karaf-version}</version>
@@ -279,33 +265,32 @@
                    </executions>
                </plugin>
 
-              <!--
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-antrun-plugin</artifactId>
                    <executions>
                        <execution>
                            <id>update-properties</id>
-                           <phase>generate-resources</phase>
+                           <phase>process-resources</phase>
                            <goals>
                                <goal>run</goal>
                            </goals>
                            <configuration>
                                <target name="update-properties">
-                                   <echo message="Updating etc/config.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   <echo message="Updating etc/system.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
-                                   <echo message="Updating etc/custom.properties in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                   <echo message="Updating etc/system.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
                                </target>
                            </configuration>
                        </execution>
                    </executions>
                </plugin>
-               -->
+
            </plugins>
            <pluginManagement>
            	<plugins>

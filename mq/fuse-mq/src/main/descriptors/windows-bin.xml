@@ -45,7 +45,7 @@
 
         <!-- System repo -->
         <fileSet>
-            <directory>taret/features-repo</directory>
+            <directory>target/features-repo</directory>
             <outputDirectory>/system/</outputDirectory>
         </fileSet>
 
