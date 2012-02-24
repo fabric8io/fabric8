@@ -128,7 +128,9 @@ public class MavenProxyImpl implements MavenProxy {
             repos = repos.trim();
 
             serverSocket = new ServerSocket(port);
-            new Acceptor(serverSocket).start();
+            Acceptor acceptor = new Acceptor(serverSocket);
+            acceptor.setName("MavenProxyAcceptor");
+            acceptor.start();
             LOGGER.log(Level.INFO, String.format("Maven proxy started at address : %s with configured repositories : %s", getAddress(), repos));
         }
     }
@@ -158,7 +160,9 @@ public class MavenProxyImpl implements MavenProxy {
             try {
                 while (!serverSocket.isClosed()) {
                     Socket sock = serverSocket.accept();
-                    new Worker(sock).start();
+                    Worker worker = new Worker(sock);
+                    worker.setName("MavenProxyWorker");
+                    worker.start();
                 }
             } catch (IOException e) {
                 if (!serverSocket.isClosed()) {
