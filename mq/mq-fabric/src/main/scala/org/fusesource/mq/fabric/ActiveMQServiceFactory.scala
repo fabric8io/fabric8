@@ -167,7 +167,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val name = Option(properties.getProperty("broker-name")).getOrElse(System.getProperty("karaf.name"))
     val config = Option(properties.getProperty("config")).getOrElse(arg_error("config property must be set"))
     val group = Option(properties.getProperty("group")).getOrElse("default")
-    val pool = Option(properties.getProperty("standby.pool")).getOrElse(null)
+    val pool = Option(properties.getProperty("standby.pool")).getOrElse("default")
     val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
 
     val started = new AtomicBoolean

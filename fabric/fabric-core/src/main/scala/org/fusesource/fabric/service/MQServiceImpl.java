@@ -25,9 +25,7 @@ import java.util.Map;
 public class MQServiceImpl implements MQService {
 
     private FabricService fabricService;
-    
-    private static final String DEFAULT_MQ_PROFILE = "mq";
-    private static final String DEFAULT_MQ_PID = "org.fusesource.mq.fabric.server-broker";
+
 
     public MQServiceImpl(FabricService fabricService) {
         this.fabricService = fabricService;
@@ -35,22 +33,22 @@ public class MQServiceImpl implements MQService {
 
     @Override
     public Profile createMQProfile(String version, String brokerName, Map<String, String> configs) {
-        Profile parentProfile = fabricService.getProfile(version, DEFAULT_MQ_PROFILE);
+        Profile parentProfile = fabricService.getProfile(version, MQ_PROFILE_BASE);
         Profile result = parentProfile;
         if (brokerName != null) {
             result = fabricService.getProfile(version, brokerName);
             // create a profile if it doesn't exist
             if (result == null) {
                 result = fabricService.createProfile(version, brokerName);
-                result.setParents(new Profile[]{parentProfile});               
+                result.setParents(new Profile[]{parentProfile});
             }
-            Map config = parentProfile.getConfigurations().get(DEFAULT_MQ_PID);
+            Map config = parentProfile.getConfigurations().get(MQ_PID_TEMPLATE);
             config.put("broker-name", brokerName);
             if (configs != null) {
                 config.putAll(configs);
             }
             Map<String, Map<String,String>> newConfigs = result.getConfigurations();
-            newConfigs.put(DEFAULT_MQ_PID, config);
+            newConfigs.put("org.fusesource.mq.fabric.server-" + brokerName, config);
             result.setConfigurations(newConfigs);
         }
         
@@ -59,6 +57,6 @@ public class MQServiceImpl implements MQService {
 
     @Override
     public String getConfig(String version, String config) {
-        return "zk:/fabric/configs/versions/" + version + "/profiles/mq/" + config;
+        return "zk:/fabric/configs/versions/" + version + "/profiles/mq-base/" + config;
     }
 }

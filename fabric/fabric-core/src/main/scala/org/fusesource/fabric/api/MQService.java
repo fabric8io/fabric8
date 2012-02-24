@@ -19,6 +19,10 @@ package org.fusesource.fabric.api;
 import java.util.Map;
 
 public interface MQService {
+
+    public static final String MQ_PROFILE_BASE = "mq-base";
+
+    public static final String MQ_PID_TEMPLATE = "org.fusesource.mq.fabric.template";
     
     public Profile createMQProfile(String version, String brokerName, Map<String, String> configs);
     
