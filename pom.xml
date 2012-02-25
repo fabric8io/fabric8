@@ -97,7 +97,6 @@
 <!--
 <activemq-version>5.5-fuse-SNAPSHOT</activemq-version>
 -->
-        <apollo-version>1.1-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <commons-codec-version>1.3_4</commons-codec-version>
@@ -915,15 +914,7 @@
     </dependencyManagement>
 
   <profiles>
-    
-    <profile>
-      <id>apollo</id>
 
-      <modules>
-        <module>apollo</module>
-      </modules>
-    </profile>
-        
     <profile>
       <id>distro</id>
 
