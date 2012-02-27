@@ -21,6 +21,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.server.ServerStats;
 import org.junit.After;
 import org.junit.Before;
@@ -93,7 +94,7 @@ public class OsgiZkClientTest {
         assertFalse(client.isConnected());
         try {
             client.getChildren("/");
-        } catch (IllegalStateException e) {
+        } catch (KeeperException.OperationTimeoutException e) {
             // expected, as no zookeeper configured
         }
 

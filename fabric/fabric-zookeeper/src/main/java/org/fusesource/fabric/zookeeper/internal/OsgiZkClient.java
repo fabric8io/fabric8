@@ -6,13 +6,18 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Stat;
 import org.linkedin.util.clock.Clock;
 import org.linkedin.util.clock.SystemClock;
 import org.linkedin.util.clock.Timespan;
@@ -22,6 +27,8 @@ import org.linkedin.zookeeper.client.ChrootedZKClient;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.IZooKeeper;
 import org.linkedin.zookeeper.client.LifecycleListener;
+import org.linkedin.zookeeper.client.ZKChildren;
+import org.linkedin.zookeeper.client.ZKData;
 import org.linkedin.zookeeper.client.ZooKeeperFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -63,6 +70,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     private Timespan _reconnectTimeout = Timespan.parse("20s");
 
     private ExpiredSessionRecovery _expiredSessionRecovery = null;
+
+    private int maximumRetries = 3;
+    private long retryInterval = 1000L;
 
 
     private class StateChangeDispatcher extends Thread {
@@ -392,4 +402,403 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         return _factory.getConnectString();
     }
 
+
+    @Override
+    public Stat exists(final String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.exists(path);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    @Override
+    public List<String> getChildren(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getChildren(path);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    /**
+     * @return both children and stat in one object
+     */
+    @Override
+    public ZKChildren getZKChildren(String path, Watcher watcher) throws KeeperException, InterruptedException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getZKChildren(path, watcher);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    /**
+     * Returns all the children (recursively) of the provided path. Note that like {@link #getChildren(String)}
+     * the result is relative to <code>path</code>.
+     */
+    @Override
+    public List<String> getAllChildren(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getAllChildren(path);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    @Override
+    public void create(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                //We want on the first attempt to propagate an Exception, but ignore if its actually a retry.
+                if (r == 0 || super.exists(path) == null) {
+                    super.create(path, data, acl, createMode);
+                }
+                return;
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        if (recoverableException != null) {
+            throw recoverableException;
+        }
+    }
+
+    @Override
+    public void createBytesNode(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                super.createBytesNode(path, data, acl, createMode);
+                return;
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        if (recoverableException != null) {
+            throw recoverableException;
+        }
+    }
+
+    /**
+     * Creates the parents if they don't exist
+     */
+    @Override
+    public void createWithParents(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                super.createWithParents(path, data, acl, createMode);
+                return;
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        if (recoverableException != null) {
+            throw recoverableException;
+        }
+    }
+
+    /**
+     * Creates the parents if they don't exist
+     */
+    @Override
+    public void createBytesNodeWithParents(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                super.createBytesNodeWithParents(path, data, acl, createMode);
+                return;
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        if (recoverableException != null) {
+            throw recoverableException;
+        }
+    }
+
+    @Override
+    public byte[] getData(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getData(path);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    @Override
+    public String getStringData(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getStringData(path);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    /**
+     * Returns both the data as a string as well as the stat
+     */
+    @Override
+    public ZKData<String> getZKStringData(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getZKStringData(path);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    /**
+     * Returns both the data as a string as well as the stat (and sets a watcher if not null)
+     */
+    @Override
+    public ZKData<String> getZKStringData(String path, Watcher watcher) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getZKStringData(path, watcher);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    /**
+     * Returns both the data as a byte[] as well as the stat
+     */
+    @Override
+    public ZKData<byte[]> getZKByteData(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getZKByteData(path);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    /**
+     * Returns both the data as a byte[] as well as the stat (and sets a watcher if not null)
+     */
+    @Override
+    public ZKData<byte[]> getZKByteData(String path, Watcher watcher) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.getZKByteData(path, watcher);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    @Override
+    public Stat setData(String path, String data) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.setData(path, data);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    @Override
+    public Stat setByteData(String path, byte[] data) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.setByteData(path, data);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    /**
+     * Tries to create first and if the node exists, then does a setData.
+     *
+     * @return <code>null</code> if create worked, otherwise the result of setData
+     */
+    @Override
+    public Stat createOrSetWithParents(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                return super.createOrSetWithParents(path, data, acl, createMode);
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        throw recoverableException;
+    }
+
+    @Override
+    public void delete(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                //We want on the first attempt to propagate an Exception, but ignore if its actually a retry.
+                if (r == 0 || super.exists(path) != null ) {
+                    super.delete(path);
+                }
+                return;
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        if (recoverableException != null) {
+            throw recoverableException;
+        }
+    }
+
+    /**
+     * delete all the children if they exist
+     */
+    @Override
+    public void deleteWithChildren(String path) throws InterruptedException, KeeperException {
+        KeeperException recoverableException = null;
+
+        for (int r = 0; r < maximumRetries; r++) {
+            recoverableException = null;
+            try {
+                waitForConnected(new Timespan(retryInterval));
+                super.deleteWithChildren(path);
+                return;
+            } catch (KeeperException.ConnectionLossException ex) {
+                recoverableException = ex;
+            } catch (TimeoutException e) {
+                recoverableException = new KeeperException.OperationTimeoutException();
+            }
+        }
+        if (recoverableException != null) {
+            throw recoverableException;
+        }
+    }
 }
