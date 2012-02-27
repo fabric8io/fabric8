@@ -24,7 +24,6 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
 
@@ -86,16 +85,8 @@ public class ContainerRollback extends ContainerUpgradeSupport {
         // report and do rollbacks
         for (Container container : toRollback) {
             Version oldVersion = container.getVersion();
-            Profile[] oldProfiles = container.getProfiles();
-
-            // create list of new profiles
-            Profile[] newProfiles = getProfilesForUpgradeOrRollback(oldProfiles, version);
-
             // rollback version first
             container.setVersion(version);
-            // then set new profiles, which triggers container to update bundles and whatnot
-            container.setProfiles(newProfiles);
-
             log.debug("Rolled back container {} from {} to {}", new Object[]{container, oldVersion, version});
             System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion + " to " + version);
         }
