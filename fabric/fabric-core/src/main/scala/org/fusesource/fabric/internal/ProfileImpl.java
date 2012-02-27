@@ -16,20 +16,22 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.apache.zookeeper.CreateMode;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.*;
 
 public class ProfileImpl implements Profile {
 
@@ -272,11 +274,7 @@ public class ProfileImpl implements Profile {
                             continue;
                         }
                         String newPath = configPath + "/" + name_value[0].trim();
-                        try {
-                            zooKeeper.createWithParents(newPath, name_value[1].trim(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                        } catch (KeeperException.NodeExistsException nee) {
-                            zooKeeper.setData(newPath, name_value[1].trim());
-                        }
+                        ZooKeeperUtils.set(zooKeeper, newPath, name_value[1].trim());
                         saved.add(name_value[0].trim());
                     }
                     for ( String kid : kids ) {
@@ -285,11 +283,7 @@ public class ProfileImpl implements Profile {
                         }
                     }
                 } else {
-                    try {
-                        zooKeeper.createBytesNodeWithParents(configPath, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    } catch (KeeperException.NodeExistsException nee) {
-                        zooKeeper.setByteData(configPath, newCfg);
-                    }
+                    ZooKeeperUtils.set(zooKeeper, configPath, newCfg);
                 }
             }
             for (String pid : oldCfgs.keySet()) {
@@ -382,11 +376,7 @@ public class ProfileImpl implements Profile {
                 oldCfgs.remove(pid);
                 byte[] data = toBytes(toProperties(configurations.get(pid)));
                 String p =  path + "/" + pid + ".properties";
-                if (zooKeeper.exists(p) == null) {
-                    zooKeeper.createBytesNodeWithParents(p, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                } else {
-                    zooKeeper.setByteData(p, data);
-                }
+                ZooKeeperUtils.set(zooKeeper, p, data);
             }
             for (String key : oldCfgs.keySet()) {
                 zooKeeper.deleteWithChildren(path + "/" + key +".properties");
