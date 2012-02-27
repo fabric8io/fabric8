@@ -1,0 +1,136 @@
+<!--
+    
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<title>ServiceMix 4 CXF-OSGi Example</title>
+<script type="text/javascript">
+var urlToOpen = "http://localhost:8181/cxf/HelloWorld"; //default URL to open
+
+function getHTTPObject() {
+  var xmlhttp = false;
+
+  /* Compilation conditionnelle d'IE */
+  /* Check if we are using IE */
+  /*@cc_on
+  @if (@_jscript_version >= 5)
+     try {
+        xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+     } catch (e) {
+        try {
+           xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        } catch (E) {
+           xmlhttp = false;
+        }
+     }
+  @else
+     xmlhttp = false;
+  @end @*/
+
+  /* on essaie de cr�er l'objet si ce n'est pas d�j� fait */
+  /* Create the xmlhttp object if it is not yet defined */
+  if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
+     try {
+        xmlhttp = new XMLHttpRequest();
+     } catch (e) {
+        xmlhttp = false;
+     }
+  }
+
+  if (xmlhttp) {
+     /* on d�finit ce qui doit se passer quand la page r�pondra */
+     /* Define the callback function for the response */
+     xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState == 4) { /* 4 : �tat "complete" */
+           var response = document.getElementById("response");
+           var responseStatus = "";
+           try {
+             responseStatus = xmlhttp.status + "";
+           } catch (e) {
+             responseStatus = "ERROR WHILE RETRIEVING STATUS; MAYBE UNABLE TO CONNECT.";
+           }
+           response.value = "STATUS: " + responseStatus + "\n" + xmlhttp.responseText;
+        }
+     }
+  }
+  return xmlhttp;
+}
+
+function send() {
+  if ((document.getElementById("urlToOpen").value != urlToOpen) && (document.getElementById("urlToOpen").value != "")) {
+    // use user entry if it is not the empty string
+    urlToOpen = document.getElementById("urlToOpen").value;
+  }  
+  var xmlhttp = getHTTPObject();
+  if (!xmlhttp) {
+    alert('cound not create XMLHttpRequest object');
+    return;
+  }
+  var request = document.getElementById("request");
+  var response = document.getElementById("response");
+  try {
+    netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead UniversalBrowserWrite");
+  } catch (e) {
+  }
+  try {
+    xmlhttp.open("POST", urlToOpen, true);
+  } catch (e) {
+    alert('error opening');
+  }
+  xmlhttp.send(request.value);
+}
+
+</script>
+</head>
+
+<body>
+
+<h1>ServiceMix 4 CXF-OSGi Example</h1>
+
+<p>Welcome to the CXF-OSGi example for ServiceMix 4</p>
+
+<p>Perform a POST into the HTTP binding. This requires JavaScript.</p> 
+<p>Target: <input type="text" size="50" id="urlToOpen" value=""><script type="text/javascript">document.getElementById("urlToOpen").value = urlToOpen;</script>.</p>
+  
+<table>
+  <tr>
+    <td>
+  <textarea id="request" style="width:600px;height:400px"><?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ns2:sayHi xmlns:ns2="http://cxf.examples.servicemix.apache.org/">
+      <arg0>John Doe</arg0>
+    </ns2:sayHi>
+  </soap:Body>
+</soap:Envelope>
+
+  </textarea>
+    </td>
+    <td>
+  <textarea id="response" style="width:600px;height:400px">
+  </textarea>
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2>
+  <input type="button" value="Send" onClick="send();"/>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
