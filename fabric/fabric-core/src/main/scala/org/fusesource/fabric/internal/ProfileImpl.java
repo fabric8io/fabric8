@@ -36,6 +36,7 @@ import org.linkedin.zookeeper.client.IZKClient;
 public class ProfileImpl implements Profile {
 
     public final static String AGENT_PID = "org.fusesource.fabric.agent";
+;
 
     private final String id;
     private final String version;
@@ -57,6 +58,12 @@ public class ProfileImpl implements Profile {
 
     public FabricServiceImpl getService() {
         return service;
+    }
+
+    //In some cases we need to sort profiles by Id.
+    @Override
+    public int compareTo(Profile profile) {
+        return id.compareTo(profile.getId());
     }
 
     public enum ConfigListType {
@@ -388,6 +395,26 @@ public class ProfileImpl implements Profile {
 
     public void delete() {
         service.deleteProfile(this);
+    }
+
+    public boolean configurationEquals(Profile other) {
+         Profile[] parents = getParents();
+         Profile[] otherParents = other.getParents();
+         Arrays.sort(parents);
+         Arrays.sort(otherParents);
+         if (!getConfigurations().equals(other.getConfigurations())) {
+             return false;
+         }
+         if (parents.length != otherParents.length) {
+             return false;
+         }
+
+         for (int i = 0; i < parents.length; i++) {
+             if (!parents[i].configurationEquals(otherParents[i])) {
+                 return false;
+             }
+         }
+         return true;
     }
 
     @Override

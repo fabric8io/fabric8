@@ -107,6 +107,11 @@ public class ProfileOverlayImpl implements Profile {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 
+    @Override
+    public boolean configurationEquals(Profile other) {
+        return self.configurationEquals(other);
+    }
+
     public void delete() {
         throw new UnsupportedOperationException("Can not delete an overlay profile");
     }
@@ -119,6 +124,11 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public boolean isOverlay() {
         return true;
+    }
+
+    @Override
+    public int compareTo(Profile profile) {
+        return self.compareTo(profile);
     }
 
     static private class SupplementControl {
