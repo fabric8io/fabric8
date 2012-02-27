@@ -71,9 +71,6 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
 
     private ExpiredSessionRecovery _expiredSessionRecovery = null;
 
-    private int maximumRetries = 3;
-    private long retryInterval = 1000L;
-
 
     private class StateChangeDispatcher extends Thread {
         private final AtomicBoolean _running = new AtomicBoolean(true);
@@ -407,36 +404,31 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public Stat exists(final String path) throws InterruptedException, KeeperException {
         KeeperException recoverableException = null;
 
-        for (int r = 0; r < maximumRetries; r++) {
+       while(true) {
             recoverableException = null;
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.exists(path);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     @Override
     public List<String> getChildren(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getChildren(path);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Rerty
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     /**
@@ -444,20 +436,16 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public ZKChildren getZKChildren(String path, Watcher watcher) throws KeeperException, InterruptedException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+       while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getZKChildren(path, watcher);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     /**
@@ -466,64 +454,52 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public List<String> getAllChildren(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getAllChildren(path);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
+
     }
 
     @Override
     public void create(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        boolean retry = false;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 //We want on the first attempt to propagate an Exception, but ignore if its actually a retry.
-                if (r == 0 || super.exists(path) == null) {
+                if (!retry || super.exists(path) == null) {
                     super.create(path, data, acl, createMode);
                 }
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
+                retry = true;
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
+                retry = true;
             }
-        }
-        if (recoverableException != null) {
-            throw recoverableException;
         }
     }
 
     @Override
     public void createBytesNode(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 super.createBytesNode(path, data, acl, createMode);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
-        }
-        if (recoverableException != null) {
-            throw recoverableException;
         }
     }
 
@@ -532,22 +508,16 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public void createWithParents(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 super.createWithParents(path, data, acl, createMode);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
-        }
-        if (recoverableException != null) {
-            throw recoverableException;
         }
     }
 
@@ -556,59 +526,45 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public void createBytesNodeWithParents(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 super.createBytesNodeWithParents(path, data, acl, createMode);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
-        }
-        if (recoverableException != null) {
-            throw recoverableException;
         }
     }
 
     @Override
     public byte[] getData(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getData(path);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     @Override
     public String getStringData(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getStringData(path);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     /**
@@ -616,20 +572,16 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public ZKData<String> getZKStringData(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getZKStringData(path);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     /**
@@ -637,20 +589,16 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public ZKData<String> getZKStringData(String path, Watcher watcher) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getZKStringData(path, watcher);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     /**
@@ -658,20 +606,16 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public ZKData<byte[]> getZKByteData(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getZKByteData(path);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     /**
@@ -679,56 +623,44 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public ZKData<byte[]> getZKByteData(String path, Watcher watcher) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.getZKByteData(path, watcher);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     @Override
     public Stat setData(String path, String data) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.setData(path, data);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     @Override
     public Stat setByteData(String path, byte[] data) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.setByteData(path, data);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     /**
@@ -738,43 +670,36 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public Stat createOrSetWithParents(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 return super.createOrSetWithParents(path, data, acl, createMode);
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
         }
-        throw recoverableException;
     }
 
     @Override
     public void delete(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        boolean retry = false;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 //We want on the first attempt to propagate an Exception, but ignore if its actually a retry.
-                if (r == 0 || super.exists(path) != null ) {
+                if (!retry || super.exists(path) != null ) {
                     super.delete(path);
                 }
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
+                retry = true;
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
+                retry = true;
             }
-        }
-        if (recoverableException != null) {
-            throw recoverableException;
         }
     }
 
@@ -783,22 +708,16 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
      */
     @Override
     public void deleteWithChildren(String path) throws InterruptedException, KeeperException {
-        KeeperException recoverableException = null;
-
-        for (int r = 0; r < maximumRetries; r++) {
-            recoverableException = null;
+        while (true) {
             try {
-                waitForConnected(new Timespan(retryInterval));
+                waitForConnected();
                 super.deleteWithChildren(path);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
-                recoverableException = ex;
+                // Retry
             } catch (TimeoutException e) {
-                recoverableException = new KeeperException.OperationTimeoutException();
+                 // Not reachable
             }
-        }
-        if (recoverableException != null) {
-            throw recoverableException;
         }
     }
 }
