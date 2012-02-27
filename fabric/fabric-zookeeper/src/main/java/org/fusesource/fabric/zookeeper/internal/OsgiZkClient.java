@@ -407,12 +407,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
        while(true) {
             recoverableException = null;
             try {
-                waitForConnected();
                 return super.exists(path);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                // Not reachable
             }
         }
     }
@@ -421,12 +418,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public List<String> getChildren(String path) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getChildren(path);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Rerty
-            } catch (TimeoutException e) {
-                // Not reachable
             }
         }
     }
@@ -456,12 +450,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public List<String> getAllChildren(String path) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getAllChildren(path);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
 
@@ -472,7 +463,6 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         boolean retry = false;
         while (true) {
             try {
-                waitForConnected();
                 //We want on the first attempt to propagate an Exception, but ignore if its actually a retry.
                 if (!retry || super.exists(path) == null) {
                     super.create(path, data, acl, createMode);
@@ -480,9 +470,6 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-                retry = true;
-            } catch (TimeoutException e) {
-                 // Not reachable
                 retry = true;
             }
         }
@@ -492,13 +479,10 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void createBytesNode(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 super.createBytesNode(path, data, acl, createMode);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -510,13 +494,10 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void createWithParents(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 super.createWithParents(path, data, acl, createMode);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -528,13 +509,10 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void createBytesNodeWithParents(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 super.createBytesNodeWithParents(path, data, acl, createMode);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -543,12 +521,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public byte[] getData(String path) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getData(path);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -557,12 +532,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public String getStringData(String path) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getStringData(path);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -574,12 +546,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public ZKData<String> getZKStringData(String path) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getZKStringData(path);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -591,12 +560,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public ZKData<String> getZKStringData(String path, Watcher watcher) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getZKStringData(path, watcher);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -608,12 +574,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public ZKData<byte[]> getZKByteData(String path) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getZKByteData(path);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -625,12 +588,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public ZKData<byte[]> getZKByteData(String path, Watcher watcher) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.getZKByteData(path, watcher);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -639,12 +599,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public Stat setData(String path, String data) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.setData(path, data);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -653,12 +610,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public Stat setByteData(String path, byte[] data) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.setByteData(path, data);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -672,12 +626,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public Stat createOrSetWithParents(String path, String data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 return super.createOrSetWithParents(path, data, acl, createMode);
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }
@@ -687,7 +638,6 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         boolean retry = false;
         while (true) {
             try {
-                waitForConnected();
                 //We want on the first attempt to propagate an Exception, but ignore if its actually a retry.
                 if (!retry || super.exists(path) != null ) {
                     super.delete(path);
@@ -695,9 +645,6 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-                retry = true;
-            } catch (TimeoutException e) {
-                 // Not reachable
                 retry = true;
             }
         }
@@ -710,13 +657,10 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void deleteWithChildren(String path) throws InterruptedException, KeeperException {
         while (true) {
             try {
-                waitForConnected();
                 super.deleteWithChildren(path);
                 return;
             } catch (KeeperException.ConnectionLossException ex) {
                 // Retry
-            } catch (TimeoutException e) {
-                 // Not reachable
             }
         }
     }

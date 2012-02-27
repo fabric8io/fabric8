@@ -94,7 +94,7 @@ public class OsgiZkClientTest {
         assertFalse(client.isConnected());
         try {
             client.getChildren("/");
-        } catch (KeeperException.OperationTimeoutException e) {
+        } catch (IllegalStateException e) {
             // expected, as no zookeeper configured
         }
 
