@@ -39,6 +39,8 @@
 
     <modules>
         <module>cbr</module>
+        <module>cxf-jaxws</module>
+        <module>cxf-jaxrs</module>
     </modules>
     
 
