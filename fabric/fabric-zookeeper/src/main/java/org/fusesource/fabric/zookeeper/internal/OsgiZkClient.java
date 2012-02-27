@@ -18,13 +18,13 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.linkedin.util.clock.Clock;
 import org.linkedin.util.clock.SystemClock;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.util.concurrent.ConcurrentUtils;
 import org.linkedin.zookeeper.client.AbstractZKClient;
 import org.linkedin.zookeeper.client.ChrootedZKClient;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.IZooKeeper;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.client.ZKChildren;
@@ -39,7 +39,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 
-public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedService {
+public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedService, IZKClient {
 
     public static final String PID = "org.fusesource.fabric.zookeeper";
     
@@ -183,7 +183,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         _stateChangeDispatcher.start();
 
         Hashtable ht = new Hashtable();
-        zkClientRegistration = bundleContext.registerService(IZKClient.class.getName(), this, ht);
+        zkClientRegistration = bundleContext.registerService(
+                new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() },
+                this, ht);
         ht = new Hashtable();
         ht.put(Constants.SERVICE_PID, PID);
         managedServiceRegistration = bundleContext.registerService(ManagedService.class.getName(), this, ht);
@@ -381,7 +383,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     }
 
     @Override
-    public IZKClient chroot(String path) {
+    public org.linkedin.zookeeper.client.IZKClient chroot(String path) {
         return new ChrootedZKClient(this, adjustPath(path));
     }
 
@@ -398,7 +400,6 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public String getConnectString() {
         return _factory.getConnectString();
     }
-
 
     @Override
     public Stat exists(final String path) throws InterruptedException, KeeperException {
@@ -664,4 +665,25 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
             }
         }
     }
+
+    @Override
+    public Stat createOrSetByteWithParents(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
+        while (true) {
+            try {
+                if (exists(path) != null) {
+                    return setByteData(path, data);
+                }
+                try {
+                    createBytesNodeWithParents(path, data, acl, createMode);
+                    return null;
+                } catch(KeeperException.NodeExistsException e) {
+                    // this should not happen very often (race condition)
+                    return setByteData(path, data);
+                }
+            } catch (KeeperException.ConnectionLossException ex) {
+                // Retry
+            }
+        }
+    }
+
 }
