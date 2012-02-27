@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.fusesource.insight</groupId>
     <artifactId>insight-project</artifactId>
-    <version>7.0-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 

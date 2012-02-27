@@ -20,13 +20,13 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-project</artifactId>
-    <version>7.0-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
     <groupId>org.fusesource.fabric.itests</groupId>
     <artifactId>fabric-itests</artifactId>
-    <version>7.0-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <name>Fuse Fabric :: Integration Tests</name>
     <description>Fabric Integration tests</description>
     <packaging>pom</packaging>

@@ -27,7 +27,7 @@
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
     <packaging>pom</packaging>
-    <version>7.0-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
     <description>Fuse Fabric</description>
@@ -234,6 +234,11 @@
 
         <pluginManagement>
             <plugins>
+               <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
