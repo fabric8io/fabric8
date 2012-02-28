@@ -16,18 +16,20 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.server.ServerStats;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.linkedin.util.clock.Timespan;
+import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ManagedService;
@@ -128,8 +130,59 @@ public class OsgiZkClientTest {
 
         assertTrue(client.isConfigured());
         assertTrue(client.isConnected());
+
+        client.registerListener(new LifecycleListener() {
+            @Override
+            public void onConnected() {
+                System.err.println("\nConnected\n");
+            }
+
+            @Override
+            public void onDisconnected() {
+                System.err.println("\nDisconnected\n");
+            }
+        });
+
+        Object clientCnxnSocket  = getField(client, "_zk", "_zk", "cnxn", "sendThread", "clientCnxnSocket");
+        callMethod(clientCnxnSocket, "testableCloseSocket");
+
+        client.waitForState(OsgiZkClient.State.RECONNECTING, Timespan.parse("10s"));
+        client.waitForState(OsgiZkClient.State.CONNECTED, Timespan.parse("10s"));
     }
 
+    protected Object getField(Object obj, String... names) throws Exception {
+        for (String name : names) {
+            obj = getField(obj, name);
+        }
+        return obj;
+    }
+    
+    protected Object getField(Object obj, String name) throws Exception {
+        Class clazz = obj.getClass();
+        while (clazz != null) {
+            for (Field f : clazz.getDeclaredFields()) {
+                if (f.getName().equals(name)) {
+                    f.setAccessible(true);
+                    return f.get(obj);
+                }
+            }
+        }
+        throw new NoSuchFieldError(name);
+    }
+    
+    protected Object callMethod(Object obj, String name, Object... args) throws Exception {
+        Class clazz = obj.getClass();
+        while (clazz != null) {
+            for (Method m : clazz.getDeclaredMethods()) {
+                if (m.getName().equals(name)) {
+                    m.setAccessible(true);
+                    return m.invoke(obj, args);
+                }
+            }
+        }
+        throw new NoSuchMethodError(name);
+    }
+    
     protected void createServer() throws Exception {
         reset(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
         expect(bundleContext.registerService(eq(ServerStats.Provider.class.getName()), anyObject(), (Dictionary) anyObject())).andReturn(serverStatsRegistration);
