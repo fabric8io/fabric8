@@ -17,19 +17,6 @@
     <repository>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix.nmr.version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
 
-    <!-- override saaj-impl feature to avoid typo in CXF 2.4.2 descriptor - delete this as soon as we move to CXF 2.4.3 -->
-    <feature name="saaj-impl" version="1.3.2" resolver="(obr)">
-      <bundle start-level="25">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${saaj-impl.bundle.version}</bundle>
-      <bundle start-level="25">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxp-ri/${jaxp-ri.bundle.version}</bundle>
-    </feature>
-
-    <!-- override cxf specs to not install jaxb and others that are provided by the system bundle -->
-    <feature name="cxf-specs" version="${cxf.version}" resolver='(obr)'>
-        <bundle start-level='10'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/1.9.0</bundle>
-        <bundle start-level='10'>mvn:javax.mail/mail/1.4.4</bundle>
-        <bundle start-level='10'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr311-api-1.1.1/1.9.0</bundle>
-    </feature>
-
     <feature name="connector" version="${smx.features.version}" resolver="(obr)" start-level='50'>
         <feature version="${aries.version}">transaction</feature>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-connector_1.5_spec/${geronimo-j2ee-connector.version}</bundle>

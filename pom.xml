@@ -94,9 +94,9 @@
         <perfectus-build>20</perfectus-build>
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
+        <aries.util.version>0.3.1-fuse-SNAPSHOT</aries.util.version>
         <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
         <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
-        <apollo-version>1.1-SNAPSHOT</apollo-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <commons-codec-version>1.3_4</commons-codec-version>
@@ -1007,19 +1007,16 @@
                 <artifactId>org.apache.aries.blueprint</artifactId>
                 <version>${aries.blueprint.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>org.apache.aries.util</artifactId>
+                <version>${aries.util.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
   <profiles>
-    
-    <profile>
-      <id>apollo</id>
 
-      <modules>
-        <module>apollo</module>
-      </modules>
-    </profile>
-        
     <profile>
       <id>distro</id>
 

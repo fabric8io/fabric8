@@ -17,20 +17,31 @@
 
 package org.fusesource.fabric.itests;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
 import de.kalpatec.pojosr.framework.launch.BundleDescriptor;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class EmbeddedFabricService {
     private static final Logger log = LoggerFactory.getLogger("Test Registry");
@@ -87,9 +98,7 @@ public class EmbeddedFabricService {
         createZooKeeperCluster();
 
         IZKClient client = getZooKeeperClient();
-        if (!client.isConnected()) {
-            throw new RuntimeException ("Not connected to ZK...");
-        }
+        ((OsgiZkClient) client).waitForConnected();
         getFabricService();
 
         dumpBundles();
@@ -168,15 +177,9 @@ public class EmbeddedFabricService {
     }
 
     public static <T> T getService(Class<T> type, final PojoServiceRegistry registry) {
-        ServiceTracker tracker = null;
-        ServiceReference ref = registry.getServiceReference(type.getName());
-        if ( ref == null ) {
-            tracker = new ServiceTracker(registry.getBundleContext(), type.getName(), null);
-        } else {
-            tracker = new ServiceTracker(registry.getBundleContext(), ref, null);
-        }
+        ServiceTracker tracker = new ServiceTracker(registry.getBundleContext(), type.getName(), null);
         tracker.open(true);
-        Object rc = null;
+        Object rc;
         try {
             rc = tracker.waitForService(60000);
         } catch (InterruptedException e) {
@@ -199,10 +202,8 @@ public class EmbeddedFabricService {
 
     public void createZooKeeperCluster() throws Exception {
         ZooKeeperClusterService clusterService = getZooKeeperClusterService();
-
-        List<String> containers = new ArrayList<String>();
-        containers.add("root");
-        clusterService.createCluster(containers);
+        clusterService.clean();
+        clusterService.createCluster(Arrays.asList("root"));
     }
 
     public FabricService getFabricService() throws Exception {

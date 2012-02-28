@@ -16,10 +16,11 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-public interface Profile {
+public interface Profile extends Comparable<Profile> {
 
     /**
      * Key indicating a deletion.
@@ -90,4 +91,6 @@ public interface Profile {
     void setFeatures(List<String> values);
 
     void setRepositories(List<String> values);
+
+    boolean configurationEquals(Profile other);
 }

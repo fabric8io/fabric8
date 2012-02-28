@@ -67,7 +67,8 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
                     public String call() {
                         try {
                             if (!silent) {
-                                System.err.println(command);
+                                System.out.println(command);
+                                System.out.flush();
                             }
                             commandSession.execute(command);
                         } catch (Exception e) {
@@ -110,7 +111,7 @@ public class FabricCommandsTestSupport extends FabricTestSupport {
                     public String call() {
                         try {
                             for(String command:commands) {
-                             System.err.println(command);
+                             System.out.println(command);
                              commandSession.execute(command);
                             }
                         } catch (Exception e) {

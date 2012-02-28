@@ -134,6 +134,15 @@ public class ContainerImpl implements Container {
     @Override
     public void setVersion(Version version) {
         try {
+            Version curretVersion = getVersion();
+
+            if (requiresUpgrade(version) && !"not provisioned".equals(getProvisionResult())) {
+                if (version.compareTo(curretVersion) > 0) {
+                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "upgrading");
+                } else {
+                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "downgrading");
+                }
+            }
             ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -308,5 +317,28 @@ public class ContainerImpl implements Container {
 
     public void setMetadata(CreateContainerMetadata<?> metadata) {
         this.metadata = metadata;
+    }
+
+    /**
+     * Checks if container requires upgrade/rollback operation.
+     * @param version
+     * @return
+     */
+    private boolean requiresUpgrade(Version version) {
+        Boolean requiresUpgrade = false;
+        Profile[] oldProfiles = getProfiles();
+
+        if (version.compareTo(getVersion()) == 0) {
+            return false;
+        }
+
+        for (int i = 0; i < oldProfiles.length; i++) {
+            // get new profile
+            Profile newProfile = version.getProfile(oldProfiles[i].getId());
+            if (!oldProfiles[i].configurationEquals(newProfile)) {
+                requiresUpgrade = true;
+            }
+        }
+        return requiresUpgrade;
     }
 }

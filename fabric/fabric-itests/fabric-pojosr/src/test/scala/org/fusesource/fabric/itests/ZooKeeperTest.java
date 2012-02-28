@@ -17,24 +17,36 @@
 
 package org.fusesource.fabric.itests;
 
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
 import org.apache.zookeeper.server.ServerStats;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.util.tracker.ServiceTracker;
-
-import java.util.*;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -63,7 +75,6 @@ public class ZooKeeperTest {
         bundleContext.getBundle().stop();
     }
 
-    @Ignore
     @Test
     public void testZooKeeper() throws Exception {
 
@@ -103,9 +114,10 @@ public class ZooKeeperTest {
         IZKClient client = getOsgiService(IZKClient.class);
         assertNotNull(client);
 
-        Thread.sleep(100);
+        client.waitForConnected();
+        Thread.sleep(500);
 
-        assertNotNull(client.exists(ZkPath.AGENT_ALIVE.getPath(System.getProperty("karaf.name"))));
+        assertNotNull(client.exists(ZkPath.CONTAINER_ALIVE.getPath(System.getProperty("karaf.name"))));
     }
 
 

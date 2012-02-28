@@ -49,7 +49,7 @@ public class ContainerCreate extends ContainerCreateSupport {
         if (url == null && parent != null) {
             url = "child://" + parent;
             type = "child";
-        } else if (parent == null && url != null) {
+        } else if (url != null) {
             URI uri = new URI(url);
             type = uri.getScheme();
             if ("child".equals(type)) {

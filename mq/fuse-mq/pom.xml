@@ -121,6 +121,7 @@
                                    <feature>obr</feature>
                                    <feature>config</feature>
                                    <feature>fabric-agent</feature>
+                                   <feature>fabric-bundle</feature>
                                    <feature>fabric-commands</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>

@@ -16,9 +16,17 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.apache.zookeeper.CreateMode;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
@@ -26,14 +34,10 @@ import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.*;
-
 public class ProfileImpl implements Profile {
 
     public final static String AGENT_PID = "org.fusesource.fabric.agent";
+;
 
     private final String id;
     private final String version;
@@ -55,6 +59,12 @@ public class ProfileImpl implements Profile {
 
     public FabricServiceImpl getService() {
         return service;
+    }
+
+    //In some cases we need to sort profiles by Id.
+    @Override
+    public int compareTo(Profile profile) {
+        return id.compareTo(profile.getId());
     }
 
     public enum ConfigListType {
@@ -272,11 +282,7 @@ public class ProfileImpl implements Profile {
                             continue;
                         }
                         String newPath = configPath + "/" + name_value[0].trim();
-                        try {
-                            zooKeeper.createWithParents(newPath, name_value[1].trim(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                        } catch (KeeperException.NodeExistsException nee) {
-                            zooKeeper.setData(newPath, name_value[1].trim());
-                        }
+                        ZooKeeperUtils.set(zooKeeper, newPath, name_value[1].trim());
                         saved.add(name_value[0].trim());
                     }
                     for ( String kid : kids ) {
@@ -285,11 +291,7 @@ public class ProfileImpl implements Profile {
                         }
                     }
                 } else {
-                    try {
-                        zooKeeper.createBytesNodeWithParents(configPath, newCfg, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    } catch (KeeperException.NodeExistsException nee) {
-                        zooKeeper.setByteData(configPath, newCfg);
-                    }
+                    ZooKeeperUtils.set(zooKeeper, configPath, newCfg);
                 }
             }
             for (String pid : oldCfgs.keySet()) {
@@ -382,11 +384,7 @@ public class ProfileImpl implements Profile {
                 oldCfgs.remove(pid);
                 byte[] data = toBytes(toProperties(configurations.get(pid)));
                 String p =  path + "/" + pid + ".properties";
-                if (zooKeeper.exists(p) == null) {
-                    zooKeeper.createBytesNodeWithParents(p, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                } else {
-                    zooKeeper.setByteData(p, data);
-                }
+                ZooKeeperUtils.set(zooKeeper, p, data);
             }
             for (String key : oldCfgs.keySet()) {
                 zooKeeper.deleteWithChildren(path + "/" + key +".properties");
@@ -398,6 +396,26 @@ public class ProfileImpl implements Profile {
 
     public void delete() {
         service.deleteProfile(this);
+    }
+
+    public boolean configurationEquals(Profile other) {
+         Profile[] parents = getParents();
+         Profile[] otherParents = other.getParents();
+         Arrays.sort(parents);
+         Arrays.sort(otherParents);
+         if (!getConfigurations().equals(other.getConfigurations())) {
+             return false;
+         }
+         if (parents.length != otherParents.length) {
+             return false;
+         }
+
+         for (int i = 0; i < parents.length; i++) {
+             if (!parents[i].configurationEquals(otherParents[i])) {
+                 return false;
+             }
+         }
+         return true;
     }
 
     @Override

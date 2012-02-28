@@ -204,6 +204,9 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     public void onThreadPoolAdd(CamelContext camelContext, ThreadPoolExecutor threadPoolExecutor, String s, String s1, String s2, String s3) {
     }
 
+    public void onThreadPoolRemove(CamelContext camelContext, ThreadPoolExecutor threadPoolExecutor) {
+    }
+
     ///////////////////////////////////////////////////////////////////
     // Getters/Setters for IOC injection.
     ///////////////////////////////////////////////////////////////////

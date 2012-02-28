@@ -23,6 +23,8 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.BundleStartLevelOption;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.io.File;
@@ -52,9 +54,12 @@ public class MQDistroTest {
     }
 
     protected Option mqDistributionConfiguration() {
-        return karafDistributionConfiguration().frameworkUrl(
+        return new DefaultCompositeOption(
+                new Option[]{karafDistributionConfiguration().frameworkUrl(
                 maven().groupId(MQ_GROUP_ID).artifactId(MQ_ARTIFACT_ID).versionAsInProject().type("tar.gz"))
-                .karafVersion("2.2.2").name("Fabric MQ Distro").unpackDirectory(new File("target/paxexam/unpack/"));
+                .karafVersion("2.2.2").name("Fabric MQ Distro").unpackDirectory(new File("target/paxexam/unpack/")),
+                      useOwnExamBundlesStartLevel(60),
+                      editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "35")});
     }
 
 }
