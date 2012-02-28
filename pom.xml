@@ -94,6 +94,7 @@
         <perfectus-build>20</perfectus-build>
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
+        <aries.util.version>0.3.1-fuse-SNAPSHOT</aries.util.version>
         <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
         <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
         <antlr-version>3.3</antlr-version>
@@ -1005,6 +1006,11 @@
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
                 <version>${aries.blueprint.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>org.apache.aries.util</artifactId>
+                <version>${aries.util.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
