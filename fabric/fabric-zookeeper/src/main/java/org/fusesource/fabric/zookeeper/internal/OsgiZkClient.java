@@ -1,5 +1,7 @@
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.IdentityHashMap;
@@ -26,8 +28,6 @@ import org.linkedin.zookeeper.client.AbstractZKClient;
 import org.linkedin.zookeeper.client.ChrootedZKClient;
 import org.linkedin.zookeeper.client.IZooKeeper;
 import org.linkedin.zookeeper.client.LifecycleListener;
-import org.linkedin.zookeeper.client.ZKChildren;
-import org.linkedin.zookeeper.client.ZKData;
 import org.linkedin.zookeeper.client.ZooKeeperFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -216,12 +216,69 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 try {
                     changeState(State.NONE);
                     _zk.close();
+                    // We try to avoid a NPE when shutting down fabric:
+                    // java.lang.NullPointerException
+                    //     at org.apache.felix.framework.BundleWiringImpl.findClassOrResourceByDelegation(BundleWiringImpl.java:1433)
+                    //     at org.apache.felix.framework.BundleWiringImpl.access$400(BundleWiringImpl.java:73)
+                    //     at org.apache.felix.framework.BundleWiringImpl$BundleClassLoader.loadClass(BundleWiringImpl.java:1844)
+                    //     at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+                    //     at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1089)
+                    Thread th = getSendThread();
+                    if (th != null) {
+                        th.join(1000);
+                    }
                     _zk = null;
                 } catch(Exception e) {
                     log.debug("ignored exception", e);
                 }
             }
         }
+    }
+    
+    protected Thread getSendThread() {
+        try {
+            return (Thread) getField(_zk, "_zk", "cnxn", "sendThread");
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+    
+    public void testGenerateConnectionLoss() throws Exception {
+        Object clientCnxnSocket  = getField(_zk, "_zk", "cnxn", "sendThread", "clientCnxnSocket");
+        callMethod(clientCnxnSocket, "testableCloseSocket");
+    }
+
+    protected Object getField(Object obj, String... names) throws Exception {
+        for (String name : names) {
+            obj = getField(obj, name);
+        }
+        return obj;
+    }
+
+    protected Object getField(Object obj, String name) throws Exception {
+        Class clazz = obj.getClass();
+        while (clazz != null) {
+            for (Field f : clazz.getDeclaredFields()) {
+                if (f.getName().equals(name)) {
+                    f.setAccessible(true);
+                    return f.get(obj);
+                }
+            }
+        }
+        throw new NoSuchFieldError(name);
+    }
+
+    protected Object callMethod(Object obj, String name, Object... args) throws Exception {
+        Class clazz = obj.getClass();
+        while (clazz != null) {
+            for (Method m : clazz.getDeclaredMethods()) {
+                if (m.getName().equals(name)) {
+                    m.setAccessible(true);
+                    return m.invoke(obj, args);
+                }
+            }
+        }
+        throw new NoSuchMethodError(name);
     }
 
     public void updated(Dictionary properties) throws ConfigurationException {
