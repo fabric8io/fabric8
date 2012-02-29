@@ -133,6 +133,14 @@
         <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
         <bundle>mvn:org.apache.servicemix.examples/cxf-ws-security-osgi/${smx.features.version}</bundle>
     </feature>
+    <feature name="examples-cxf-ws-security-blueprint" version="${smx.features.version}" resolver="(obr)">
+        <feature>cxf-osgi</feature>
+        <feature version="${saaj-impl.bundle.version}">saaj</feature>
+        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jbi-api-1.0/${servicemix.specs.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-utils/${servicemix.utils.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.examples/cxf-ws-security-blueprint/${smx.features.version}</bundle>
+    </feature>
+
 
     <feature name="jpa-hibernate" version="${smx.features.version}">
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.java-persistence-api-1.1.1/${servicemix.specs.version}</bundle>
