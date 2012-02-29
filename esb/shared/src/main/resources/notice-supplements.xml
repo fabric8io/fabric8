@@ -499,6 +499,168 @@
     </supplement>
     <supplement>
         <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <name>Spring Aspects</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-instrument</artifactId>
+            <name>Spring Instrument</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+            <name>Spring OXM</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-struts</artifactId>
+            <name>Spring Struts</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <name>Spring Test</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc-portlet</artifactId>
+            <name>Spring webmvc portlet</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-core</artifactId>
+            <name>Spring WS Core</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-support</artifactId>
+            <name>Spring WS Support</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-xml</artifactId>
+            <name>Spring XML</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
             <groupId>isorelax</groupId>
             <artifactId>isorelax</artifactId>
             <name>ISO Relax</name>
@@ -702,4 +864,47 @@
             </licenses>
         </project>
     </supplement>
+    <supplement>
+        <project>
+            <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
+            <artifactId>scala-library</artifactId>
+            <name>Scala</name>
+            <licenses>
+                <license>
+                    <name>The Scala License</name>
+                    <url>http://www.scala-lang.org/node/146</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>net.sf.dozer</groupId>
+            <artifactId>dozer-osgi</artifactId>
+            <name>Dozer</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>com.springsource.org.hsqldb</artifactId>
+            <name>HSQLDB</name>
+            <licenses>
+                <license>
+                    <name>HSQLDB License</name>
+                    <url>http://hsqldb.org/web/hsqlLicense.html</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+
 </supplementalDataModels>
