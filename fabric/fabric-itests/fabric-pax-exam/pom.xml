@@ -58,6 +58,15 @@
             <type>tar.gz</type>
         </dependency>
 
+        <!-- Internal Dependencies -->
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-monitor</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
         <!-- Jclouds Dependencies -->
         <dependency>
             <groupId>org.jclouds.provider</groupId>
@@ -243,6 +252,9 @@
                         <include>**/*Test.*</include>
                     </includes>
                     <excludes>
+                        <exclude>**/*LongTest.*</exclude>
+                    </excludes>
+                    <excludes>
                     </excludes>
                     <systemPropertyVariables>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
@@ -267,6 +279,31 @@
         </plugins>
     </build>
 
+
+    <profiles>
+        <!-- modifies the plugin config inherited from oss-parent -->
+        <profile>
+            <id>long</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-version}</version>
+                        <configuration>
+                            <forkMode>pertest</forkMode>
+                            <useSystemClassLoader>true</useSystemClassLoader>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
+                            <failIfNoTests>false</failIfNoTests>
+                            <includes>
+                                <include>**/*LongTest.*</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
   <!--
     <repositories>
         <repository>
