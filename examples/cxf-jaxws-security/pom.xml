@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource.examples</groupId>
+        <artifactId>project</artifactId>
+        <version>7.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>cxf-jaxws-security</artifactId>
+    <packaging>bundle</packaging>
+    <name>FuseSource :: Examples :: CXF JAXWS Security </name>
+    <description>CXF example using JAXWS with WS-Security</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-bundle</artifactId>
+            <version>${cxf-version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Import-Package>
+                            javax.jws,
+                            javax.xml.bind.annotation,
+                            javax.wsdl,
+                            org.osgi.service.blueprint,
+                            org.apache.cxf.ws.security.wss4j,
+                            javax.security.auth.callback,
+                            org.apache.ws.security,
+                            org.apache.ws.security.processor,
+                            org.apache.cxf.interceptor.security,
+                            org.apache.cxf, 
+                            org.apache.cxf.endpoint,
+                            org.apache.cxf.frontend,
+                            org.apache.cxf.interceptor,
+                            org.apache.cxf.jaxws,
+                            org.apache.cxf.message,
+                            org.apache.cxf.phase
+                        </Import-Package>
+                        <Export-Package>org.fusesource.examples.cxf.jaxws.security</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.fusesource.examples.cxf.jaxws.security.client.Client</mainClass>
+                    <includePluginDependencies>false</includePluginDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
