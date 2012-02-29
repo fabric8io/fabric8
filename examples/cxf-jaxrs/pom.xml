@@ -43,7 +43,6 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
             <version>3.1_5</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
