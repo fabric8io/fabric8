@@ -47,6 +47,7 @@
     TODO we cannot yet start bundles which are not shared
     <module>fab-sample-camel-osgi-noshare</module>
 -->
+    <module>fab-itests</module>
   </modules>
 
   <profiles>
