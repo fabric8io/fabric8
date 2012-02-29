@@ -43,6 +43,9 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--config", description = "Configuration to use")
     protected String config;
 
+    @Option(name = "--group", description = "Broker group")
+    protected String group;    
+
     @Option(name = "--version", description = "The version id in the registry")
     protected String version = ZkDefs.DEFAULT_VERSION;
 
@@ -64,6 +67,10 @@ public class MQCreate extends FabricCommand {
 
         if (config != null) {
             configuration.put("config", service.getConfig(version, config));
+        }
+        
+        if (group != null) {
+            configuration.put("group", group);
         }
 
         Profile profile = service.createMQProfile(version, name, configuration);

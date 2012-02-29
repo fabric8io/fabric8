@@ -32,8 +32,9 @@
   </service>
 
 
-  <bean id="jmsService" class="org.fusesource.mq.fabric.FabricActiveMQService"/>
-  <service ref="jmsService" interface="org.fusesource.mq.fabric.JMSService"/>
+<!--  <bean id="jmsService" class="org.fusesource.mq.fabric.FabricActiveMQService"/>
+
+  <service ref="jmsService" interface="org.fusesource.mq.fabric.JMSService"/>-->
 
 
 </blueprint>
