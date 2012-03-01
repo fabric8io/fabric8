@@ -47,7 +47,8 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .ensembleServer(isEnsembleServer)
                 .debugContainer(debugContainer)
                 .number(number)
-                .zookeeperUrl(fabricService.getZookeeperUrl());
+                .zookeeperUrl(fabricService.getZookeeperUrl())
+                .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
         // display containers

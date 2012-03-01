@@ -30,6 +30,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected Integer number = 1;
     protected URI proxyUri;
     protected String zookeeperUrl;
+    protected String jvmOpts;
 
 
     public T ensembleServer(final boolean ensembleServer) {
@@ -85,6 +86,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public T proxyUri(final String proxyUri) throws URISyntaxException {
         this.proxyUri = new URI(proxyUri);
+        return (T) this;
+    }
+
+    public T jvmOpts(final String jvmOpts) {
+        this.jvmOpts = jvmOpts;
         return (T) this;
     }
 
@@ -158,5 +164,13 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public void setZookeeperUrl(String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
+    }
+
+    public String getJvmOpts() {
+        return jvmOpts;
+    }
+
+    public void setJvmOpts(String jvmOpts) {
+        this.jvmOpts = jvmOpts;
     }
 }

@@ -78,7 +78,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .providerName(providerName)
         .user(user)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-        .zookeeperUrl(fabricService.getZookeeperUrl());
+        .zookeeperUrl(fabricService.getZookeeperUrl())
+        .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
         // display containers

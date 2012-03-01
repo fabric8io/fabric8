@@ -98,7 +98,7 @@ public class FabricTestSupport {
         assertNotNull(parentContainer);
 
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent);
+        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).jvmOpts("-Xms1024m -Xmx1024m");
         CreateContainerMetadata[] metadata = fabricService.createContainers(args);
         if (metadata.length > 0) {
             if (metadata[0].getFailure() != null) {

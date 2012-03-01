@@ -68,7 +68,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .sshRetries(sshRetries)
         .password(password)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-        .zookeeperUrl(fabricService.getZookeeperUrl());
+        .zookeeperUrl(fabricService.getZookeeperUrl())
+        .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
         // display containers

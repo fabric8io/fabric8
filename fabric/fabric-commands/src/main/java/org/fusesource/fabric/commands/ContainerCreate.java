@@ -65,7 +65,8 @@ public class ContainerCreate extends ContainerCreateSupport {
                 .ensembleServer(isEnsembleServer)
                 .providerUri(url)
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-                .zookeeperUrl(fabricService.getZookeeperUrl());
+                .zookeeperUrl(fabricService.getZookeeperUrl())
+                .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
         // display containers

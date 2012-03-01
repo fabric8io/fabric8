@@ -49,4 +49,7 @@ public interface CreateContainerOptions extends Serializable {
 
     public String getZookeeperUrl();
     public void setZookeeperUrl(String zookeeperUrl);
+
+    public String getJvmOpts();
+    public void setJvmOpts(String jvmOpts);
 }

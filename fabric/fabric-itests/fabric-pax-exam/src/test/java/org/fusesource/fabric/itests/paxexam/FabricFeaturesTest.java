@@ -17,6 +17,9 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,19 +68,21 @@ public abstract class FabricFeaturesTest extends FabricCommandsTestSupport {
         Container container = fabricService.getContainer(containerName);
         Version version = container.getVersion();
         Profile targetProfile = fabricService.getProfile(version.getName(), profileName);
-        List<String> features = targetProfile.getFeatures();
-        features.add(featureName);
-        targetProfile.setFeatures(features);
+        List<String> originalFeatures = targetProfile.getFeatures();
+        List<String> testFeatures = new ArrayList(originalFeatures.size());
+        Collections.copy(originalFeatures,testFeatures);
+        testFeatures.add(featureName);
+
+        targetProfile.setFeatures(testFeatures);
         //Test the modified profile.
         containerSetProfile(containerName, profileName);
-        String bundles = executeCommand("container-connect " + containerName + " osgi:list -s | grep " + expectedSymbolicName);
+        String bundles = executeCommand("container-connect " + containerName + " osgi:list -s -t 0 | grep " + expectedSymbolicName);
         Assert.assertNotNull(bundles);
         Assert.assertTrue(bundles.contains(expectedSymbolicName));
         System.out.println(bundles);
         //We set the container to default to clean up the profile.
         containerSetProfile(containerName, "default");
-        features.remove(featureName);
-        targetProfile.setFeatures(features);
+        targetProfile.setFeatures(originalFeatures);
     }
 
     @Test
@@ -113,6 +118,7 @@ public abstract class FabricFeaturesTest extends FabricCommandsTestSupport {
     public Option[] config() {
         return new Option[]{
                 fabricDistributionConfiguration(), keepRuntimeFolder(),
+                //debugConfiguration("5005",true),
                 copySystemProperty("feature"),
                 logLevel(LogLevelOption.LogLevel.ERROR)};
     }
