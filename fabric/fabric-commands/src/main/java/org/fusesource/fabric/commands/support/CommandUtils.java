@@ -19,7 +19,6 @@ package org.fusesource.fabric.commands.support;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -170,9 +169,7 @@ public final class CommandUtils {
      */
     public static String status(Container container) {
         String status = container.getProvisionStatus();
-        if (container.isRoot()) 
-            status = ZkDefs.SUCCESS;
-        if (status == null) {
+        if (status == null || container.isRoot()) {
             return "";
         }
         status = status.trim();
