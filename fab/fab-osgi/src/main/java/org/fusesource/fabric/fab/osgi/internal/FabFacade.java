@@ -54,4 +54,14 @@ public interface FabFacade {
      * Lets convert the version to a version range depending on the default or FAB specific version range value
      */
     String toVersionRange(String version);
+
+    /**
+     * Check if a given dependency tree item is already installed in the facade's context
+     *
+     * @param tree the dependency tree
+     * @return <code>true</code> is the dependency is already installed
+     */
+    boolean isInstalled(DependencyTree tree);
+
+
 }

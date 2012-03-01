@@ -444,4 +444,8 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         }
         return Versions.toVersionRange(version, digits);
     }
+
+    public boolean isInstalled(DependencyTree tree) {
+        return FabFacadeSupport.isInstalled(getBundleContext(), tree);
+    }
 }

@@ -26,8 +26,7 @@
   <artifactId>fab-sample-camel-velocity-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Bundles :: Sample :: Camel Velocity NoShare</description>
+  <name>Fuse Archive Bundles :: Tests :: Camel Velocity NoShare</name>
 
   <dependencies>
     <dependency>
