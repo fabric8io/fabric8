@@ -28,6 +28,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -76,6 +78,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -460,16 +463,33 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         Set<Bundle> toRefresh = new HashSet<Bundle>();
 
         // Execute
+        LOGGER.info("Stopping bundles:");
+        List<Bundle> toStop = new ArrayList<Bundle>();
+        toStop.addAll(toUpdate.keySet());
+        toStop.addAll(toDelete);
+        while (!toStop.isEmpty()) {
+            List<Bundle> bs = getBundlesToDestroy(toStop);
+            for (Bundle bundle : bs) {
+                String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+                if (hostHeader == null && (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING)) {
+                    LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
+                    bundle.stop(Bundle.STOP_TRANSIENT);
+                }
+                toStop.remove(bundle);
+            }
+        }
         LOGGER.info("Uninstalling bundles:");
         for (Bundle bundle : toDelete) {
             LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
             bundle.uninstall();
             toRefresh.add(bundle);
         }
+        LOGGER.info("Updating bundles:");
         for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
             Bundle bundle = entry.getKey();
             Resource resource = entry.getValue();
             InputStream is;
+            LOGGER.info("  " + resource.getURI());
             File file = downloads.get(resource.getURI());
             if (file != null) {
                 is = new FileInputStream(file);
@@ -477,12 +497,13 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
                 is = new URL(resource.getURI()).openStream();
             }
-            bundle.stop(Bundle.STOP_TRANSIENT);
             bundle.update(is);
             toRefresh.add(bundle);
         }
+        LOGGER.info("Installing bundles:");
         for (Resource resource : toInstall) {
             InputStream is;
+            LOGGER.info("  " + resource.getURI());
             File file = downloads.get(resource.getURI());
             if (file != null) {
                 is = new FileInputStream(file);
@@ -532,6 +553,53 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
 
         LOGGER.info("Done.");
+    }
+
+    private List<Bundle> getBundlesToDestroy(List<Bundle> bundles) {
+        List<Bundle> bundlesToDestroy = new ArrayList<Bundle>();
+        for (Bundle bundle : bundles) {
+            ServiceReference[] references = bundle.getRegisteredServices();
+            int usage = 0;
+            if (references != null) {
+                for (ServiceReference reference : references) {
+                    usage += getServiceUsage(reference);
+                }
+            }
+            LOGGER.debug("Usage for bundle {} is {}", bundle, usage);
+            if (usage == 0) {
+                bundlesToDestroy.add(bundle);
+            }
+        }
+        if (!bundlesToDestroy.isEmpty()) {
+            Collections.sort(bundlesToDestroy, new Comparator<Bundle>() {
+                public int compare(Bundle b1, Bundle b2) {
+                    return (int) (b2.getLastModified() - b1.getLastModified());
+                }
+            });
+            LOGGER.debug("Selected bundles {} for destroy (no services in use)", bundlesToDestroy);
+        } else {
+            ServiceReference ref = null;
+            for (Bundle bundle : bundles) {
+                ServiceReference[] references = bundle.getRegisteredServices();
+                for (ServiceReference reference : references) {
+                    if (getServiceUsage(reference) == 0) {
+                        continue;
+                    }
+                    if (ref == null || reference.compareTo(ref) < 0) {
+                        LOGGER.debug("Currently selecting bundle {} for destroy (with reference {})", bundle, reference);
+                        ref = reference;
+                    }
+                }
+            }
+            bundlesToDestroy.add(ref.getBundle());
+            LOGGER.debug("Selected bundle {} for destroy (lowest ranking service)", bundlesToDestroy);
+        }
+        return bundlesToDestroy;
+    }
+
+    private static int getServiceUsage(ServiceReference ref) {
+        Bundle[] usingBundles = ref.getUsingBundles();
+        return (usingBundles != null) ? usingBundles.length : 0;
     }
 
     private VersionRange getMicroVersionRange(Version version) {
@@ -681,16 +749,16 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
         for (final String location : locations) {
             manager.download(location).addListener(new FutureListener<DownloadFuture>() {
-            public void operationComplete(DownloadFuture future) {
-                try {
-                    downloads.put(location, future.getFile());
-                } catch (IOException e) {
-                    errors.add(e);
-                } finally {
-                    latch.countDown();
+                public void operationComplete(DownloadFuture future) {
+                    try {
+                        downloads.put(location, future.getFile());
+                    } catch (IOException e) {
+                        errors.add(e);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
-            }
-        });
+            });
         }
         latch.await();
         if (!errors.isEmpty()) {
