@@ -30,24 +30,24 @@ class FabSampleCamelBlueprintShareTest {
     felix(),
     equinox(),
 
-    mavenBundle("org.ops4j.pax.url", "pax-url-mvn", "1.3.5"),
+    mavenBundle("org.ops4j.pax.url", "pax-url-mvn").versionAsInProject(),
 
-    mavenBundle("org.apache.felix", "org.apache.felix.fileinstall", "3.1.10"),
-    mavenBundle("org.apache.felix", "org.apache.felix.configadmin", "1.2.8"),
+    mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").versionAsInProject(),
+    mavenBundle("org.apache.felix", "org.apache.felix.configadmin").versionAsInProject(),
 
-    mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.boot", "2.2.5-fuse-SNAPSHOT"),
-    mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.config", "2.2.5-fuse-SNAPSHOT"),
-    mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.modules", "2.2.5-fuse-SNAPSHOT"),
+    mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.boot").versionAsInProject(),
+    mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.config").versionAsInProject(),
+    mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.modules").versionAsInProject(),
 
-    mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.asm", "3.3_2"),
-    mavenBundle("org.apache.aries", "org.apache.aries.util", "0.3"),
-    mavenBundle("org.apache.aries.proxy", "org.apache.aries.proxy", "0.3"),
-    mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.api", "0.3.1"),
-    mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.core", "0.3.1"),
-    mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console", "2.2.5-fuse-SNAPSHOT"),
+    mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.asm").versionAsInProject(),
+    mavenBundle("org.apache.aries", "org.apache.aries.util").versionAsInProject(),
+    mavenBundle("org.apache.aries.proxy", "org.apache.aries.proxy").versionAsInProject(),
+    mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.api").versionAsInProject(),
+    mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.core").versionAsInProject(),
+    mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console").versionAsInProject(),
 
-    mavenBundle("org.apache.camel", "camel-core", "2.9.x-fuse-SNAPSHOT"),
-    mavenBundle("org.apache.camel", "camel-blueprint", "2.9.x-fuse-SNAPSHOT"),
+    mavenBundle("org.apache.camel", "camel-core").versionAsInProject(),
+    mavenBundle("org.apache.camel", "camel-blueprint").versionAsInProject(),
 
     // and then add a few extra bundles to it to enable Scala- and FAB-support
     mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.scala-library").versionAsInProject(),

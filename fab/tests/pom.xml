@@ -27,7 +27,8 @@
   <groupId>org.fusesource.fabric.fab.tests</groupId>
   <artifactId>tests-project</artifactId>
   <packaging>pom</packaging>
-  <description>Fuse Bundles :: Tests</description>
+
+  <name>Fuse Archive Bundles :: Tests</name>
 
   <modules>
     <module>fab-sample-camel-activemq-share</module>

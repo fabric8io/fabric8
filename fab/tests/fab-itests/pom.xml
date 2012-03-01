@@ -18,58 +18,51 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
     <groupId>org.fusesource.fabric.fab.tests</groupId>
+    <artifactId>tests-project</artifactId>
     <version>7.0-SNAPSHOT</version>
+  </parent>
 
-  <artifactId>fabric-itests</artifactId>
+  <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Archive Bundles :: Integration Tests</description>
-
-  <properties>
-    <karaf-version>2.2.2</karaf-version>
-    <pax-logging.version>1.6.2</pax-logging.version>
-    <slf4j.version>1.6.1</slf4j.version>
-    <paxexamversion>2.3.1</paxexamversion>
-    <paxrunnerversion>1.7.6</paxrunnerversion>
-  </properties>
+  <name>Fuse Archive Bundles :: Tests :: Integration Tests</name>
 
   <dependencies>
-      <!-- Pax Exam Dependencies -->
+      <!-- Set up Pax Exam with Pax Runner and @Inject support -->
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-junit4</artifactId>
-          <version>2.3.1</version>
+          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-container-paxrunner</artifactId>
-          <version>2.3.1</version>
+          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-link-assembly</artifactId>
-          <version>2.3.1</version>
+          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
-      <!-- For sane logging -->
       <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-          <version>1.6.1</version>
+          <groupId>org.ops4j.pax.exam</groupId>
+          <artifactId>pax-exam-inject</artifactId>
+          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.runner</groupId>
           <artifactId>pax-runner-no-jcl</artifactId>
-          <version>1.7.6</version>
+          <version>${pax-runner-version}</version>
           <scope>test</scope>
       </dependency>
 
@@ -77,23 +70,25 @@
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-atinject_1.0_spec</artifactId>
           <version>1.0</version>
-          <scope>test</scope>
       </dependency>
 
+      <!-- For sane logging -->
       <dependency>
-          <groupId>org.apache.servicemix.bundles</groupId>
-          <artifactId>org.apache.servicemix.bundles.scala-library</artifactId>
-          <version>2.9.1_1</version>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <version>${slf4j-version}</version>
           <scope>test</scope>
       </dependency>
 
+      <!-- Scala -->
       <dependency>
           <groupId>org.scala-lang</groupId>
           <artifactId>scala-library</artifactId>
-          <version>2.9.1</version>
+          <version>${scala-version}</version>
           <scope>compile</scope>
       </dependency>
 
+      <!-- We might need FAB itself too ;) -->
       <dependency>
           <groupId>org.fusesource.fabric.fab</groupId>
           <artifactId>fab-osgi</artifactId>
@@ -101,6 +96,69 @@
           <scope>test</scope>
       </dependency>
 
+      <!-- Other bundles used for testing -->
+      <dependency>
+          <groupId>org.apache.aries</groupId>
+          <artifactId>org.apache.aries.util</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.aries.proxy</groupId>
+          <artifactId>org.apache.aries.proxy</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.aries.blueprint</groupId>
+          <artifactId>org.apache.aries.blueprint.api</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.aries.blueprint</groupId>
+          <artifactId>org.apache.aries.blueprint.core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>camel-core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>camel-blueprint</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.configadmin</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.fileinstall</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.jaas</groupId>
+          <artifactId>org.apache.karaf.jaas.boot</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.jaas</groupId>
+          <artifactId>org.apache.karaf.jaas.config</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.jaas</groupId>
+          <artifactId>org.apache.karaf.jaas.modules</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.shell</groupId>
+          <artifactId>org.apache.karaf.shell.console</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.asm</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.scala-library</artifactId>
+          <version>2.9.1_1</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.url</groupId>
+          <artifactId>pax-url-mvn</artifactId>
+      </dependency>
   </dependencies>
 
   <build>
@@ -124,7 +182,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
+          <useSystemClassLoader>true</useSystemClassLoader>
         </configuration>
       </plugin>
 
