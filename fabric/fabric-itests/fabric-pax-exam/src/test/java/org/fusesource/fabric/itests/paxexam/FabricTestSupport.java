@@ -18,6 +18,7 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +33,10 @@ import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.ZKClient;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
@@ -56,6 +60,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.k
 import static org.ops4j.pax.exam.CoreOptions.bundleStartLevel;
 import static org.ops4j.pax.exam.CoreOptions.excludeDefaultRepositories;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.profile;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 
@@ -102,6 +107,7 @@ public class FabricTestSupport {
             Container container =  metadata[0].getContainer();
             Version version = fabricService.getDefaultVersion();
             Profile profile  = fabricService.getProfile(version.getName(),profileName);
+            assertNotNull("Expected to find profile with name:" + profileName,profile);
             container.setProfiles(new Profile[]{profile});
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
             return container;
@@ -147,6 +153,13 @@ public class FabricTestSupport {
     }
 
 
+    /**
+     * Creates a child container, waits for succesfull provisioning and asserts, its asigned the right profile.
+     * @param name
+     * @param parent
+     * @param profile
+     * @throws Exception
+     */
     public void createAndAssetChildContainer(String name, String parent, String profile) throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
@@ -155,6 +168,50 @@ public class FabricTestSupport {
         Container result = fabricService.getContainer(name);
         assertEquals("Containers should have the same id", child1.getId(), result.getId());
     }
+
+    /**
+     * Cleans a containers profile by switching to default profile and reseting the profile.
+     * @param containerName
+     * @param profileName
+     * @throws Exception
+     */
+    public boolean containerSetProfile(String containerName, String profileName) throws Exception {
+        System.out.println("Switching profile: "+profileName+" on container:"+containerName);
+        FabricService fabricService = getOsgiService(FabricService.class);
+        assertNotNull(fabricService);
+
+        IZKClient zookeeper = getOsgiService(IZKClient.class);
+        assertNotNull(zookeeper);
+
+        Container container = fabricService.getContainer(containerName);
+        Version version = container.getVersion();
+        Profile[] profiles = new Profile[]{fabricService.getProfile(version.getName(),profileName)};
+        Profile[] currentProfiles = container.getProfiles();
+
+        Arrays.sort(profiles);
+        Arrays.sort(currentProfiles);
+
+        boolean same = true;
+        if (profiles.length != currentProfiles.length) {
+            same = false;
+        } else {
+            for (int i = 0; i < currentProfiles.length; i++) {
+                if (!currentProfiles[i].configurationEquals(profiles[i])) {
+                    same = false;
+                }
+            }
+        }
+
+        if (!same) {
+            //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
+            ZooKeeperUtils.set(zookeeper, ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
+            container.setProfiles(profiles);
+            waitForProvisionSuccess(container, PROVISION_TIMEOUT);
+        }
+        return same;
+    }
+
+
 
     /**
      * Returns the Version of Karaf to be used.

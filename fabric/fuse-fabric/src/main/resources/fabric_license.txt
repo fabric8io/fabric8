@@ -1,4 +1,4 @@
-﻿Fuse MQ v. 7.0.0 License Agreement 
+﻿Fuse Fabric v. 7.0.0 License Agreement 
 [Based on the Apache License Version 2.0, January 2004]
 
 TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
@@ -7,9 +7,9 @@ INSTALLING THIS WORK.  BY INSTALLING THE WORK OR USING THE DOCUMENTATION
 PROVIDED WITH THE WORK, YOU ARE ACCEPTING AND AGREEING TO THE TERMS OF THIS
 AGREEMENT. IF YOU ARE NOT WILLING TO BE BOUND BY THE TERMS OF THIS AGREEMENT,
 YOU SHOULD CLICK ON THE “DECLINE” BUTTON BELOW.
-This Fuse MQ v. 7.0.0 License Agreement is made by and between YOU and Progress
+This Fuse Fabric v. 7.0.0 License Agreement is made by and between YOU and Progress
 Software Corporation and consists of the Apache License version 2.0 modified to
-be specific to Fuse MQ v. 7.0.0, with the Additional Terms in Section 10.  The
+be specific to Fuse Fabric v. 7.0.0, with the Additional Terms in Section 10.  The
 original Apache License version 2.0 can be found at
 http://www.apache.org/licenses/.
 1.	Definitions.
@@ -141,12 +141,12 @@ indemnify, defend, and hold each Contributor harmless for any liability incurred
 by, or claims asserted against, such Contributor by reason of your accepting any
 such warranty or additional liability. 
 10.	Additional Terms and Conditions.  The terms and conditions of this
-License Agreement shall apply to Fuse MQ version 7.0.0 only.  The Work may
+License Agreement shall apply to Fuse Fabric version 7.0.0 only.  The Work may
 contain or be accompanied by third party software or components created and
 separately licensed to You by said third parties.  Some of these third-party
 software components are identified in, and subject to, special license notices,
-terms and/or conditions set for in a “mq_notices.txt” and/or
-“mq_dependencies.txt” file and/or license directory accompanying the Work.  In
+terms and/or conditions set for in a “fabric_notices.txt” and/or
+“fabric_dependencies.txt” file and/or license directory accompanying the Work.  In
 the event of a conflict between such additional terms and conditions and
 Agreement, such additional terms and conditions will take precedence (but solely
 with respect to the third party component(s) to which the additional terms and

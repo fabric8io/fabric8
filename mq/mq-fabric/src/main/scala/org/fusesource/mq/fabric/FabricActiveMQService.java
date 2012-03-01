@@ -23,7 +23,6 @@ import javax.jms.*;
 
 public class FabricActiveMQService implements JMSService {
 
-    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("discovery:(fabric:default)");
     Connection defaultConnection;
     Session defaultSession;
     boolean transacted = false;
@@ -31,8 +30,11 @@ public class FabricActiveMQService implements JMSService {
 
     boolean started = false;  //TODO use atomic boolean
 
+    private ActiveMQConnectionFactory connectionFactory;
 
-    public FabricActiveMQService() {
+
+    public FabricActiveMQService(String brokerUrl) {
+        connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
     }
 
     public ConnectionFactory getConnectionFactory() {
