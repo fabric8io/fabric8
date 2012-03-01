@@ -94,10 +94,10 @@
         <perfectus-build>20</perfectus-build>
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
-        <aries.util.version>0.3.1-fuse-SNAPSHOT</aries.util.version>
-        <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
+        <aries.util.version>0.3.1.fuse-7-032</aries.util.version>
+        <aries.blueprint.version>0.3.1.fuse-7-032</aries.blueprint.version>
         <aries.proxy.version>0.3</aries.proxy.version>
-        <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
+        <activemq-version>5.5.1-fuse-02-02</activemq-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <commons-codec-version>1.3_4</commons-codec-version>
@@ -105,13 +105,13 @@
         <commons-lang-version>2.4_5</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
-        <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
-        <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
+        <cxf-version>2.5.0.fuse-7-032</cxf-version>
+        <camel-version>2.9.0.fuse-7-032</camel-version>
         <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
-        <felix.framework.version>4.1.0-fuse-SNAPSHOT</felix.framework.version>
-        <felix.configadmin.version>1.3.0-fuse-SNAPSHOT</felix.configadmin.version>
-        <felix.eventadmin.version>1.2.15-fuse-SNAPSHOT</felix.eventadmin.version>
-        <felix.fileinstall.version>3.1.11-fuse-SNAPSHOT</felix.fileinstall.version>
+        <felix.framework.version>4.0.3.fuse-7-032</felix.framework.version>
+        <felix.configadmin.version>1.3.0.fuse-7-032</felix.configadmin.version>
+        <felix.eventadmin.version>1.2.15.fuse-7-032</felix.eventadmin.version>
+        <felix.fileinstall.version>3.3.11.fuse-7-032</felix.fileinstall.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
         <hawtdispatch-version>1.8</hawtdispatch-version>
@@ -129,7 +129,7 @@
         <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
-        <karaf-version>2.2.5-fuse-SNAPSHOT</karaf-version>
+        <karaf-version>2.2.5.fuse-7-032</karaf-version>
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
@@ -160,7 +160,10 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
-        <servicemix.nmr.version>1.6.0-fuse-SNAPSHOT</servicemix.nmr.version>
+        <servicemix-nmr-version>1.6.0.fuse-7-032</servicemix-nmr-version>
+        <servicemix-components-version>2012.01.0.fuse-7-032</servicemix-components-version>
+        <smx-features-version>4.5.0.fuse-7-032</smx-features-version>
+        <servicemix-utils-version>1.5.1.fuse-7-032</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.1</slf4j-api-version>
@@ -177,7 +180,6 @@
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.2</zookeeper-version>
     </properties>
-
 
     <distributionManagement>
         <repository>
@@ -446,6 +448,17 @@
             </releases>
         </repository>
         <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
             <id>fusesource.m2-snapshot</id>
             <name>FuseSource Community Snapshot Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
@@ -544,6 +557,18 @@
             <id>fusesource.m2</id>
             <name>FuseSource Community Release Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+
+         <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -1136,6 +1161,26 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>snapshots</id>
+      <properties>
+        <smx.features.version>4.5.0-fuse-SNAPSHOT</smx.features.version>
+        <servicemix.utils.version>1.5.1-fuse-SNAPSHOT</servicemix.utils.version>
+        <servicemix.components.version>2012.01.0-fuse-SNAPSHOT</servicemix.components.version>
+        <aries.util.version>0.3.1-fuse-SNAPSHOT</aries.util.version>
+        <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
+        <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
+        <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
+        <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
+        <felix.framework.version>4.1.0-fuse-SNAPSHOT</felix.framework.version>
+        <felix.configadmin.version>1.3.0-fuse-SNAPSHOT</felix.configadmin.version>
+        <felix.eventadmin.version>1.2.15-fuse-SNAPSHOT</felix.eventadmin.version>
+        <felix.fileinstall.version>3.1.11-fuse-SNAPSHOT</felix.fileinstall.version>
+        <karaf-version>2.2.5-fuse-SNAPSHOT</karaf-version>
+        <servicemix.nmr.version>1.6.0-fuse-SNAPSHOT</servicemix.nmr.version>
+      </properties>
     </profile>
 
     <!-- switches to use the latest perfectus build versions -->
