@@ -42,6 +42,7 @@
         <module>cxf-jaxws</module>
         <module>cxf-jaxrs</module>
         <module>cxf-jaxws-security</module>
+        <module>cxf-jaxrs-security</module>
     </modules>
     
 
