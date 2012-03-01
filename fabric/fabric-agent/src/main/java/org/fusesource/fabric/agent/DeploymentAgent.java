@@ -773,6 +773,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 refreshLock.notifyAll();
             }
         }
+        if (event.getType() == FrameworkEvent.ERROR) {
+            LOGGER.error("Framework error", event.getThrowable());
+            synchronized (refreshLock) {
+                refreshLock.notifyAll();
+            }
+        }
     }
 
     protected void refreshPackages(Bundle[] bundles) throws InterruptedException {
