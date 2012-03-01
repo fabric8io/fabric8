@@ -17,8 +17,11 @@
 
 package org.fusesource.fabric.fab.osgi.internal;
 
+import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.io.IOException;
  * Base class for implementing FabFacade
  */
 public abstract class FabFacadeSupport implements FabFacade {
+    
     private PomDetails pomDetails;
     private MavenResolver resolver = new MavenResolver();
     private boolean includeSharedResources = true;
@@ -74,6 +78,13 @@ public abstract class FabFacadeSupport implements FabFacade {
 
     public void setResolver(MavenResolver resolver) {
         this.resolver = resolver;
+    }
+    
+    protected static boolean isInstalled(BundleContext context, DependencyTree tree) {
+        if (context != null && tree.getVersion() != null && tree.getBundleSymbolicName() != null) {
+            return Bundles.findBundle(context, tree.getBundleSymbolicName(), tree.getVersion()) != null;
+        }
+        return false;
     }
 }
 

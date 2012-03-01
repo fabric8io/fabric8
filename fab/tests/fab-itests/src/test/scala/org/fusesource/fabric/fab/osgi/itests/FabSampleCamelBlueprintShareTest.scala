@@ -46,6 +46,9 @@ class FabSampleCamelBlueprintShareTest {
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.core", "0.3.1"),
     mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console", "2.2.5-fuse-SNAPSHOT"),
 
+    mavenBundle("org.apache.camel", "camel-core", "2.9.x-fuse-SNAPSHOT"),
+    mavenBundle("org.apache.camel", "camel-blueprint", "2.9.x-fuse-SNAPSHOT"),
+
     // and then add a few extra bundles to it to enable Scala- and FAB-support
     mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.scala-library").versionAsInProject(),
     mavenBundle("org.fusesource.fabric.fab", "fab-osgi").versionAsInProject()
@@ -53,14 +56,14 @@ class FabSampleCamelBlueprintShareTest {
 
   @Test
   def test = {
+    val url: String = "fab:mvn:org.fusesource.fabric.fab.tests/fab-sample-camel-blueprint-share/7.0-SNAPSHOT"
+
     val change = bundlesChanged(context) {
-      context.installBundle("fab:mvn:org.fusesource.fabric.fab.tests/fab-sample-camel-blueprint-share/7.0-SNAPSHOT")
+      context.installBundle(url)
     }
 
-    assertEquals("Expected 3 bundle to be added", 3, change.size)
-    for (bundle <- change) {
-      System.out.println(bundle);
-    }
+    assertEquals("Expected only the FAB itself to be added", 1, change.size)
+    assertEquals("Expected only the FAB itself to be added", url, change.head.getLocation)
   }
 
   /**
