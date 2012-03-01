@@ -254,8 +254,6 @@
                     <excludes>
                         <exclude>**/*LongTest.*</exclude>
                     </excludes>
-                    <excludes>
-                    </excludes>
                     <systemPropertyVariables>
                         <feature>${feature}</feature>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
