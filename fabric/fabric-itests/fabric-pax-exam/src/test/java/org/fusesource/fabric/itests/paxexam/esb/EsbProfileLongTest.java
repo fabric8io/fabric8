@@ -17,7 +17,7 @@ public class EsbProfileLongTest extends FabricFeaturesTest {
         System.err.println(executeCommand("fabric:create"));
         createAndAssetChildContainer("esb1", "root", "esb");
         prepareFeaturesForTesting("esb1", "connector", "esb", "geronimo-connector");
-        prepareFeaturesForTesting("esb1", "saaj", "esb", "saaj-api");
+        prepareFeaturesForTesting("esb1", "saaj", "esb", "saaj-impl");
         prepareFeaturesForTesting("esb1", "cxf-osgi", "esb", "org.apache.cxf.bundle");
         prepareFeaturesForTesting("esb1", "cxf-jaxrs", "esb", "jettison");
         prepareFeaturesForTesting("esb1", "cxf-nmr", "esb", "org.apache.servicemix.cxf.binding.nmr");
