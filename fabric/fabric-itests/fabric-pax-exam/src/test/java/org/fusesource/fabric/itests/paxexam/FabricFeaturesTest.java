@@ -17,18 +17,33 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import com.sun.jersey.core.util.StringIgnoreCaseKeyComparator;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Test;
+import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.Configuration;
+
+
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
 /**
  * Tests various Fabric Features.
  */
 public abstract class FabricFeaturesTest extends FabricCommandsTestSupport {
+
+    private Map<String, String[]> featureArguments = new LinkedHashMap<String, String[]>();
 
     @After
     public void tearDown() throws InterruptedException {
@@ -65,4 +80,40 @@ public abstract class FabricFeaturesTest extends FabricCommandsTestSupport {
         targetProfile.setFeatures(features);
     }
 
+    @Test
+    public void testFeatures() throws Exception {
+        String feature = System.getProperty("feature");
+        if (feature != null && !feature.isEmpty() && featureArguments.containsKey(feature)) {
+            String[] arguments = featureArguments.get(feature);
+            Assert.assertEquals("Feature "+feature+" should have been prepared with 4 arguments", 4, arguments.length);
+            assertProvisionedFeature(arguments[0],arguments[1],arguments[2],arguments[3]);
+        } else {
+            for (Map.Entry<String,String[]> entry : featureArguments.entrySet())  {
+                feature = entry.getKey();
+                String[] arguments = entry.getValue();
+                Assert.assertEquals("Feature "+feature+" should have been prepared with 4 arguments", 4, arguments.length);
+                assertProvisionedFeature(arguments[0],arguments[1],arguments[2],arguments[3]);
+            }
+        }
+    }
+
+    /**
+     * Adds a feature to the profile and tests it on the container.
+     * <p>Note:</p> Before and after the test the container moves to default profile.
+     *
+     * @param featureName
+     * @param profileName
+     * @param expectedSymbolicName
+     */
+    public void prepareFeaturesForTesting(String containerName, String featureName, String profileName, String expectedSymbolicName)  {
+        featureArguments.put(featureName, new String[] {containerName,featureName,profileName,expectedSymbolicName});
+    }
+
+    @Configuration
+    public Option[] config() {
+        return new Option[]{
+                fabricDistributionConfiguration(), keepRuntimeFolder(),
+                copySystemProperty("feature"),
+                logLevel(LogLevelOption.LogLevel.ERROR)};
+    }
 }
