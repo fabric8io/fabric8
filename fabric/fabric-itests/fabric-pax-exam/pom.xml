@@ -257,6 +257,7 @@
                     <excludes>
                     </excludes>
                     <systemPropertyVariables>
+                        <feature>${feature}</feature>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
                         <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
                         <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
@@ -298,6 +299,9 @@
                             <includes>
                                 <include>**/*LongTest.*</include>
                             </includes>
+                            <systemPropertyVariables>
+                                <feature>${feature}</feature>
+                            </systemPropertyVariables>
                         </configuration>
                     </plugin>
                 </plugins>
