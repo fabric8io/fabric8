@@ -460,7 +460,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         Set<Bundle> toRefresh = new HashSet<Bundle>();
 
         // Execute
+        LOGGER.info("Uninstalling bundles:");
         for (Bundle bundle : toDelete) {
+            LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
             bundle.uninstall();
             toRefresh.add(bundle);
         }

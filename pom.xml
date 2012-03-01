@@ -494,13 +494,15 @@
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
+<!--
         <repository>
           <id>glassfish-repo-archive</id>
           <url>http://maven.glassfish.org/content/groups/glassfish</url>
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
-        
+-->
+
         <!-- for the bdb je dependency -->
         <repository>
           <id>oracleReleases</id>
