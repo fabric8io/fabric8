@@ -31,7 +31,7 @@
        <description>Fuse MQ :: Binary Distribution</description>
 
        <prerequisites>
-           <maven>2.0.9</maven>
+           <maven>3.0.2</maven>
        </prerequisites>
 
        <dependencies>
@@ -269,6 +269,7 @@
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-antrun-plugin</artifactId>
+                   <version>1.7</version>
                    <executions>
                        <execution>
                            <id>update-properties</id>
