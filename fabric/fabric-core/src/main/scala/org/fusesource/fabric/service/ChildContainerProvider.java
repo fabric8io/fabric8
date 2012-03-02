@@ -59,7 +59,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                         .append(options.getJvmOpts()).append(" ")
                         .append(options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "");
 
-                if (!options.getJvmOpts().contains("-Xmx")) {
+                if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
                     jvmOptsBuilder.append("-Xmx512m");
                 }
 
