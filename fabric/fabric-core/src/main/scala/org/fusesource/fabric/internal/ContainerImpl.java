@@ -84,8 +84,8 @@ public class ContainerImpl implements Container {
 
     @Override
     public boolean isProvisioningComplete() {
-        // for some reason isRoot() means we don't seem to get a provision result / exception
-        return getProvisionResult() != null || getProvisionException() != null || isRoot();
+        String result = getProvisionResult();
+        return ZkDefs.SUCCESS.equals(result) || ZkDefs.ERROR.equals(result);
     }
 
     @Override
