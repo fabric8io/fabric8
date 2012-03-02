@@ -153,7 +153,7 @@ public class ContainerImpl implements Container {
         try {
             Version curretVersion = getVersion();
 
-            if (requiresUpgrade(version) && !"not provisioned".equals(getProvisionResult())) {
+            if (requiresUpgrade(version) && !"".equals(getProvisionResult())) {
                 if (version.compareTo(curretVersion) > 0) {
                     ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "upgrading");
                 } else {
