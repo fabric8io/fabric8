@@ -56,11 +56,12 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                 StringBuilder jvmOptsBuilder = new StringBuilder();
 
                 jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote ")
-                        .append(options.getJvmOpts()).append(" ")
                         .append(options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "");
 
                 if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
-                    jvmOptsBuilder.append("-Xmx512m");
+                    jvmOptsBuilder.append(" -Xmx512m");
+                } else if (options.getJvmOpts() != null) {
+                    jvmOptsBuilder.append(" ").append(options.getJvmOpts());
                 }
 
                 if (options.isDebugContainer()) {
