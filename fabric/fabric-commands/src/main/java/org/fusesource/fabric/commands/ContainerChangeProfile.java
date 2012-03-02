@@ -21,22 +21,24 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "container-domains", scope = "fabric", description = "Lists the JMX domains an container has")
-public class ContainerDomains extends FabricCommand {
+@Command(name = "container-change-profile", scope = "fabric", description = "Change profiles associated to an existing container")
+public class ContainerChangeProfile extends FabricCommand {
 
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
-    private String container = null;
+    private String container;
+    
+    @Argument(index = 1, name = "profiles", description = "The profiles", required = true, multiValued = true)
+    private List<String> profiles;
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        Container found = getContainer(container);
 
-        List<String> domains = found.getJmxDomains();
-        for (String domain : domains) {
-            System.out.println(domain);
-        }
+        Container cont = getContainer(container);
+        Profile[] profs = getProfiles(cont.getVersion(), this.profiles);
+        cont.setProfiles(profs);
         return null;
     }
 

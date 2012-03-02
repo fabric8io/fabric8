@@ -31,9 +31,6 @@ public class ContainerDelete extends FabricCommand {
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         Container found = getContainer(name);
-        if (found == null) {
-            throw new IllegalArgumentException("Container " + name + " does not exist.");
-        }
         found.destroy();
         return null;
     }

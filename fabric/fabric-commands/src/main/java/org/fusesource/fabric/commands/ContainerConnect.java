@@ -55,9 +55,6 @@ public class ContainerConnect extends FabricCommand {
         }
 
         Container found = getContainer(container);
-        if (found == null) {
-            throw new IllegalArgumentException("Container " + container + " does not exist.");
-        }
         String sshUrl = found.getSshUrl();
         if (sshUrl == null) {
             throw new IllegalArgumentException("Container " + container + " has no SSH URL.");

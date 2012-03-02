@@ -202,6 +202,16 @@
                 <null/>
             </completers>
         </command>
+        <command name="fabric/container-change-profile">
+            <action class="org.fusesource.fabric.commands.ContainerChangeProfile">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="containerCompleter"/>
+                <ref component-id="profileCompleter"/>
+                <null/>
+            </completers>
+        </command>
 
         <command name="fabric/cluster-list">
             <action class="org.fusesource.fabric.commands.ClusterList">
@@ -271,6 +281,20 @@
                 <entry key="-r" value-ref="featureUrlCompleter"/>
                 <entry key="-b" value-ref="bundleCompleter"/>
                 <entry key="-p" value-ref="delimitedConfigWithKeysCompleter"/>
+            </optional-completers>
+        </command>
+        <command name="fabric/profile-change-parents">
+            <action class="org.fusesource.fabric.commands.ProfileChangeParents">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="configurationAdmin" ref="configurationAdmin"/>
+            </action>
+            <completers>
+                <ref component-id="profileCompleter"/>
+                <ref component-id="profileCompleter"/>
+            </completers>
+            <optional-completers>
+                <entry key="--version" value-ref="versionCompleter"/>
             </optional-completers>
         </command>
 

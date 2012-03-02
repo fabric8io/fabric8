@@ -20,23 +20,30 @@ import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.Container;
+import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "container-domains", scope = "fabric", description = "Lists the JMX domains an container has")
-public class ContainerDomains extends FabricCommand {
+@Command(name = "profile-change-parents", scope = "fabric", description = "Delete an existing profile")
+public class ProfileChangeParents extends FabricCommand {
 
-    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
-    private String container = null;
+    @Option(name = "--version")
+    private String version;
+    @Argument(index = 0, required = true, name = "profile")
+    private String name;
+    @Argument(index = 1, name = "parents", description = "The parent profiles", required = true, multiValued = true)
+    private List<String> parents;
 
+    @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        Container found = getContainer(container);
 
-        List<String> domains = found.getJmxDomains();
-        for (String domain : domains) {
-            System.out.println(domain);
-        }
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+
+        Profile prof = getProfile(ver, name);
+        Profile[] profs = getProfiles(ver, parents);
+        prof.setParents(profs);
         return null;
     }
 

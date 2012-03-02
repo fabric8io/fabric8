@@ -67,8 +67,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
                 return;
             }
 
-            Container existing = getContainer(name);
-            if (existing != null) {
+            if (doesContainerExist(name)) {
                 throw new IllegalArgumentException("A container with name " + name + " already exists.");
             }
 
