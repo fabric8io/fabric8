@@ -32,6 +32,8 @@ public interface Container {
 
     boolean isAlive();
 
+    boolean isEnsembleServer();
+
     // Runtime informations
     boolean isRoot();
     String getSshUrl();

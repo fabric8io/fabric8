@@ -83,6 +83,23 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public boolean isEnsembleServer() {
+        try {
+            String version = getVersion().getName();
+            String clusterId = service.getZooKeeper().getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble");
+            String containers = service.getZooKeeper().getStringData( "/fabric/configs/versions/" + version + "/general/fabric-ensemble/" + clusterId );
+            for (String name : containers.split(",")) {
+                if (id.equals(name)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
     public boolean isProvisioningComplete() {
         String result = getProvisionResult();
         return ZkDefs.SUCCESS.equals(result) || ZkDefs.ERROR.equals(result);
