@@ -177,8 +177,12 @@
     <feature name="servicemix-shared" version="${servicemix.components.version}" resolver="(obr)" start-level='50'>
         <feature version="${servicemix.nmr.version}">jbi</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${wsdl4j.bundle.version}</bundle>
-        <bundle>mvn:org.apache.xbean/xbean-spring/${xbean.version}</bundle>
+        <bundle>mvn:org.apache.xbean/xbean-blueprint/${xbean.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-jexl/${commons-jexl.version}</bundle>
+        <bundle>mvn:org.apache.xbean/xbean-blueprint/${xbean.version}</bundle>
+        <bundle>mvn:org.apache.servicemix/servicemix-soap/${servicemix.components.version}</bundle>
+        <bundle>mvn:org.apache.servicemix/servicemix-soap2/${servicemix.components.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix/servicemix-utils/${servicemix.utils.version}</bundle>
         <bundle>mvn:org.apache.servicemix/servicemix-common/${servicemix.components.version}</bundle>
     </feature>
@@ -188,7 +192,6 @@
         <feature>jetty</feature>
         <bundle dependency="true">mvn:org.springframework/spring-tx/${spring-version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-soap2/${servicemix.components.version}</bundle>
         <bundle>mvn:org.apache.servicemix/servicemix-cxf-bc/${servicemix.components.version}</bundle>
     </feature>
     <feature name="servicemix-file" version="${servicemix.components.version}" resolver="(obr)" start-level='50'>
@@ -211,8 +214,6 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlsec/${xmlsec.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.ws.security/wss4j/${wss4j.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jetty/${jetty6.bundle.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-soap/${servicemix.components.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-soap2/${servicemix.components.version}</bundle>
         <bundle>mvn:org.apache.servicemix/servicemix-http/${servicemix.components.version}</bundle>
     </feature>
     <feature name="servicemix-jms" version="${servicemix.components.version}" resolver="(obr)" start-level='50'>
@@ -220,8 +221,6 @@
         <bundle dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${xmlschema.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlsec/${xmlsec.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.ws.security/wss4j/${wss4j.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-soap/${servicemix.components.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-soap2/${servicemix.components.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-connector_1.5_spec/${geronimo-j2ee-connector.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms.version}</bundle>
         <bundle dependency="true">mvn:org.springframework/spring-jms/${spring-version}</bundle>
