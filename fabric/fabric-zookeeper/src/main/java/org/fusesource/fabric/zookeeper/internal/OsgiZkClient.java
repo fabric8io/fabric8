@@ -284,7 +284,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void updated(Dictionary properties) throws ConfigurationException {
         synchronized (_lock) {
             String url = System.getProperty("zookeeper.url");
-            Timespan timeout = new Timespan(10, Timespan.TimeUnit.SECOND);
+            Timespan timeout = new Timespan(30, Timespan.TimeUnit.SECOND);
             if (properties != null) {
                 if (properties.get("zookeeper.url") != null) {
                     url = (String) properties.get("zookeeper.url");
