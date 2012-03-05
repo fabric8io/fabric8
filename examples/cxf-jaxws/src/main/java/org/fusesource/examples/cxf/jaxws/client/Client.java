@@ -38,7 +38,7 @@ public class Client{
         connection.setDoOutput(true);
         OutputStream os = connection.getOutputStream();
         // Post the request file.
-        InputStream fis = getClass().getClassLoader().getResourceAsStream("org/apache/servicemix/samples/cxf_osgi/request.xml");
+        InputStream fis = getClass().getClassLoader().getResourceAsStream("org/fusesource/examples/cxf/jaxws/client/request.xml");
         copyInputStream(fis, os);
         // Read the response.
         InputStream is = connection.getInputStream();

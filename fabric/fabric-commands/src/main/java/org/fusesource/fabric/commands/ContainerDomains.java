@@ -32,9 +32,6 @@ public class ContainerDomains extends FabricCommand {
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         Container found = getContainer(container);
-        if (found == null) {
-            throw new IllegalArgumentException("Container " + container + " does not exist.");
-        }
 
         List<String> domains = found.getJmxDomains();
         for (String domain : domains) {

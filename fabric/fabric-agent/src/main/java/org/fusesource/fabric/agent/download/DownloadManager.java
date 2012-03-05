@@ -16,19 +16,19 @@
  */
 package org.fusesource.fabric.agent.download;
 
+import org.fusesource.fabric.agent.mvn.MavenConfiguration;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
+
 import java.net.MalformedURLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import org.fusesource.fabric.agent.mvn.MavenConfiguration;
-import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 
 public class DownloadManager {
 
     /**
      * Thread pool for downloads
      */
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
     /**
      * Service configuration.

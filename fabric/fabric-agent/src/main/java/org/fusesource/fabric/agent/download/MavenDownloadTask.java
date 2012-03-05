@@ -16,6 +16,21 @@
  */
 package org.fusesource.fabric.agent.download;
 
+import org.fusesource.fabric.agent.mvn.DownloadableArtifact;
+import org.fusesource.fabric.agent.mvn.MavenConfiguration;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
+import org.fusesource.fabric.agent.mvn.Parser;
+import org.fusesource.fabric.agent.mvn.Version;
+import org.fusesource.fabric.agent.mvn.VersionRange;
+import org.fusesource.fabric.agent.utils.URLUtils;
+import org.fusesource.fabric.agent.utils.XmlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,26 +46,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.fusesource.fabric.agent.mvn.DownloadableArtifact;
-import org.fusesource.fabric.agent.mvn.MavenConfiguration;
-import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
-import org.fusesource.fabric.agent.mvn.Parser;
-import org.fusesource.fabric.agent.mvn.Version;
-import org.fusesource.fabric.agent.mvn.VersionRange;
-import org.fusesource.fabric.agent.utils.URLUtils;
-import org.fusesource.fabric.agent.utils.XmlUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 public class MavenDownloadTask extends AbstractDownloadTask implements Runnable {
 
     /**
      * Logger.
      */
-    private static final Log LOG = new Log();
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDownloadTask.class);
     /**
      * 2 spacess indent;
      */
@@ -133,7 +135,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
         final List<MavenRepositoryURL> repositories = new ArrayList<MavenRepositoryURL>();
         repositories.addAll(configuration.getRepositories());
         repositories.add(system);
-        repositories.add(configuration.getLocalRepository());
+        repositories.add(configuration.getLocalRepository());        
         // if the url contains a prefered repository add that repository as the first repository to be searched
         if (parser.getRepositoryURL() != null) {
             repositories.add(
@@ -475,18 +477,5 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             return result;
         }
 
-    }
-
-    public static class Log {
-
-        public void debug(String msg) {
-        }
-
-        public void trace(String msg) {
-        }
-
-        public boolean isTraceEnabled() {
-            return false;
-        }
     }
 }

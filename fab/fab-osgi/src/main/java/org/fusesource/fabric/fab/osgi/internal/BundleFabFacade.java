@@ -150,4 +150,9 @@ public class BundleFabFacade extends FabFacadeSupport {
         return Versions.toVersionRange(version, digits);
 
     }
+
+    @Override
+    public boolean isInstalled(DependencyTree tree) {
+        return isInstalled(bundle.getBundleContext(), tree);
+    }
 }

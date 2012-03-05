@@ -120,7 +120,6 @@
             <artifactId>org.linkedin.util-core</artifactId>
             <scope>provided</scope>
         </dependency>
--->
 
         <dependency>
             <groupId>org.sonatype.aether</groupId>
@@ -148,7 +147,7 @@
             <version>1.0-beta-7</version>
         </dependency>
 
-
+-->
 
     </dependencies>
 

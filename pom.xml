@@ -94,8 +94,10 @@
         <perfectus-build>20</perfectus-build>
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
-        <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
-        <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
+        <aries.util.version>0.3.1.fuse-7-032</aries.util.version>
+        <aries.blueprint.version>0.3.1.fuse-7-032</aries.blueprint.version>
+        <aries.proxy.version>0.3</aries.proxy.version>
+        <activemq-version>5.5.1-fuse-02-02</activemq-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
         <commons-codec-version>1.3_4</commons-codec-version>
@@ -103,13 +105,13 @@
         <commons-lang-version>2.4_5</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
-        <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
-        <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
+        <cxf-version>2.5.0.fuse-7-032</cxf-version>
+        <camel-version>2.9.0.fuse-7-032</camel-version>
         <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
-        <felix.framework.version>4.1.0-fuse-SNAPSHOT</felix.framework.version>
-        <felix.configadmin.version>1.3.0-fuse-SNAPSHOT</felix.configadmin.version>
-        <felix.eventadmin.version>1.2.15-fuse-SNAPSHOT</felix.eventadmin.version>
-        <felix.fileinstall.version>3.1.11-fuse-SNAPSHOT</felix.fileinstall.version>
+        <felix.framework.version>4.0.3.fuse-7-032</felix.framework.version>
+        <felix.configadmin.version>1.3.0.fuse-7-032</felix.configadmin.version>
+        <felix.eventadmin.version>1.2.15.fuse-7-032</felix.eventadmin.version>
+        <felix.fileinstall.version>3.3.11.fuse-7-032</felix.fileinstall.version>
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.8</hawtbuf-version>
         <hawtdispatch-version>1.8</hawtdispatch-version>
@@ -127,7 +129,7 @@
         <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.8.1</junit-version>
-        <karaf-version>2.2.5-fuse-SNAPSHOT</karaf-version>
+        <karaf-version>2.2.5.fuse-7-032</karaf-version>
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
@@ -144,7 +146,9 @@
         <ops4j-pax-swissbox-property.version>1.2.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-swissbox-optional-jcl.version>1.3.1</ops4j-pax-swissbox-optional-jcl.version>
         <osgi-version>4.2.0</osgi-version>
+        <pax-exam-version>2.3.1</pax-exam-version>
         <pax.logging.version>1.6.5</pax.logging.version>
+        <pax-runner-version>1.7.6</pax-runner-version>
         <pax.url.version>1.2.8</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.mvn.commons.version>1.3.4</pax.url.mvn.commons.version>
@@ -156,7 +160,10 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
-        <servicemix.nmr.version>1.6.0-fuse-SNAPSHOT</servicemix.nmr.version>
+        <servicemix-nmr-version>1.6.0.fuse-7-032</servicemix-nmr-version>
+        <servicemix-components-version>2012.01.0.fuse-7-032</servicemix-components-version>
+        <smx-features-version>4.5.0.fuse-7-032</smx-features-version>
+        <servicemix-utils-version>1.5.1.fuse-7-032</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.1</slf4j-api-version>
@@ -173,7 +180,6 @@
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.2</zookeeper-version>
     </properties>
-
 
     <distributionManagement>
         <repository>
@@ -423,8 +429,11 @@
                 </executions>
             </plugin>
 
-
-
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-antrun-plugin</artifactId>
+               <version>1.7</version>
+           </plugin>
 
         </plugins>
     </build>
@@ -439,6 +448,17 @@
             <id>fusesource.m2</id>
             <name>FuseSource Community Release Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -498,13 +518,15 @@
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
+<!--
         <repository>
           <id>glassfish-repo-archive</id>
           <url>http://maven.glassfish.org/content/groups/glassfish</url>
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
-        
+-->
+
         <!-- for the bdb je dependency -->
         <repository>
           <id>oracleReleases</id>
@@ -543,6 +565,18 @@
             <id>fusesource.m2</id>
             <name>FuseSource Community Release Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+
+         <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -717,6 +751,17 @@
                 <version>${osgi-version}</version>
                 <scope>provided</scope>
             </dependency>
+            <!-- Camel -->
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-blueprint</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-core</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
             <!-- LogBack -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -777,6 +822,21 @@
                 <version>1.1</version>
             </dependency>
             <!-- Karaf version -->
+            <dependency>
+                <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.boot</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.config</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.modules</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.karaf.shell</groupId>
                 <artifactId>org.apache.karaf.shell.console</artifactId>
@@ -1011,6 +1071,33 @@
                 <artifactId>org.apache.aries.blueprint</artifactId>
                 <version>${aries.blueprint.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint.api</artifactId>
+                <version>${aries.blueprint.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint.core</artifactId>
+                <version>${aries.blueprint.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>org.apache.aries.util</artifactId>
+                <version>${aries.util.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries.proxy</groupId>
+                <artifactId>org.apache.aries.proxy</artifactId>
+                <version>${aries.proxy.version}</version>
+            </dependency>
+
+            <!-- ServiceMix bundles -->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.asm</artifactId>
+                <version>${asm.bundle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1082,6 +1169,26 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>snapshots</id>
+      <properties>
+        <smx.features.version>4.5.0-fuse-SNAPSHOT</smx.features.version>
+        <servicemix.utils.version>1.5.1-fuse-SNAPSHOT</servicemix.utils.version>
+        <servicemix.components.version>2012.01.0-fuse-SNAPSHOT</servicemix.components.version>
+        <aries.util.version>0.3.1-fuse-SNAPSHOT</aries.util.version>
+        <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
+        <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
+        <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
+        <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
+        <felix.framework.version>4.1.0-fuse-SNAPSHOT</felix.framework.version>
+        <felix.configadmin.version>1.3.0-fuse-SNAPSHOT</felix.configadmin.version>
+        <felix.eventadmin.version>1.2.15-fuse-SNAPSHOT</felix.eventadmin.version>
+        <felix.fileinstall.version>3.1.11-fuse-SNAPSHOT</felix.fileinstall.version>
+        <karaf-version>2.2.5-fuse-SNAPSHOT</karaf-version>
+        <servicemix.nmr.version>1.6.0-fuse-SNAPSHOT</servicemix.nmr.version>
+      </properties>
     </profile>
 
     <!-- switches to use the latest perfectus build versions -->

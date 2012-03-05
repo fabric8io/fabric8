@@ -25,108 +25,145 @@
     <relativePath>..</relativePath>
   </parent>
 
-  <artifactId>fabric-itests</artifactId>
+  <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Archive Bundles :: Integration Tests</description>
-
-  <properties>
-    <karaf-version>2.2.2</karaf-version>
-    <pax-logging.version>1.6.2</pax-logging.version>
-    <slf4j.version>1.6.1</slf4j.version>
-  </properties>
+  <name>Fuse Archive Bundles :: Tests :: Integration Tests</name>
 
   <dependencies>
-    <!-- 
-        The SLF4j logging bundles are required for the PAX Exam logging.
-        This instance is what reads the log4j.properties file and renders
-        anything called for the test instance and the configuration.
-     -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <!-- This is required to be first so that pax-exam classloader is not messed up with a newer version of felix
-which would lead to java.lang.NoSuchMethodError: org.apache.felix.framework.Logger.<init>(I)V -->
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.framework</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <!-- This is required to be first so that pax-exam classloader is not messed up with a newer version of felix
-which would lead to java.lang.RuntimeException: Could not create [service.obr] -->
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.bundlerepository</artifactId>
-      <version>1.2.1</version>
-    </dependency>
-    <!-- 
-        Eliminated all other classes that introduce SLF4j libraries.  These
-        transitive dependencies are picked up by the SLF4j instance that
-        is created when running the unit test PAX Exam causing multiple 
-        instance warnings and a lack of control (depending on which library
-        is used first).
-     -->
-    <dependency>
-      <groupId>org.apache.karaf.tooling</groupId>
-      <artifactId>org.apache.karaf.tooling.testing</artifactId>
-      <version>${karaf-version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.ops4j.pax.logging</groupId>
-          <artifactId>pax-logging-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.ops4j.pax.logging</groupId>
-          <artifactId>pax-logging-service</artifactId>
-        </exclusion>
-        <exclusion>
+      <!-- Set up Pax Exam with Pax Runner and @Inject support -->
+      <dependency>
+          <groupId>org.ops4j.pax.exam</groupId>
+          <artifactId>pax-exam-junit4</artifactId>
+          <version>${pax-exam-version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.ops4j.pax.exam</groupId>
+          <artifactId>pax-exam-container-paxrunner</artifactId>
+          <version>${pax-exam-version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.ops4j.pax.exam</groupId>
+          <artifactId>pax-exam-link-assembly</artifactId>
+          <version>${pax-exam-version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.ops4j.pax.exam</groupId>
+          <artifactId>pax-exam-inject</artifactId>
+          <version>${pax-exam-version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.ops4j.pax.runner</groupId>
+          <artifactId>pax-runner-no-jcl</artifactId>
+          <version>${pax-runner-version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-atinject_1.0_spec</artifactId>
+          <version>1.0</version>
+      </dependency>
+
+      <!-- For sane logging -->
+      <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-simple</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.karaf</groupId>
-          <artifactId>org.apache.karaf.client</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.karaf.features</groupId>
-      <artifactId>org.apache.karaf.features.command</artifactId>
-      <version>${karaf-version}</version>
-      <scope>test</scope>
-    </dependency>
+          <version>${slf4j-version}</version>
+          <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fuse-fabric</artifactId>
-      <version>${project.version}</version>
-      <type>pom</type>
-      <scope>test</scope>
-    </dependency>
+      <!-- Scala -->
+      <dependency>
+          <groupId>org.scala-lang</groupId>
+          <artifactId>scala-library</artifactId>
+          <version>${scala-version}</version>
+          <scope>compile</scope>
+      </dependency>
 
-    <!-- for spring-dm support -->
-    <dependency>
-      <groupId>org.apache.karaf.assemblies.features</groupId>
-      <artifactId>standard</artifactId>
-      <version>${karaf-version}</version>
-      <type>pom</type>
-      <scope>test</scope>
-    </dependency>
+      <!-- We might need FAB itself too ;) -->
+      <dependency>
+          <groupId>org.fusesource.fabric.fab</groupId>
+          <artifactId>fab-osgi</artifactId>
+          <version>${project.version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <!-- Other bundles used for testing -->
+      <dependency>
+          <groupId>org.apache.aries</groupId>
+          <artifactId>org.apache.aries.util</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.aries.proxy</groupId>
+          <artifactId>org.apache.aries.proxy</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.aries.blueprint</groupId>
+          <artifactId>org.apache.aries.blueprint.api</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.aries.blueprint</groupId>
+          <artifactId>org.apache.aries.blueprint.core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>camel-core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>camel-blueprint</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.configadmin</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.fileinstall</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.jaas</groupId>
+          <artifactId>org.apache.karaf.jaas.boot</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.jaas</groupId>
+          <artifactId>org.apache.karaf.jaas.config</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.jaas</groupId>
+          <artifactId>org.apache.karaf.jaas.modules</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.shell</groupId>
+          <artifactId>org.apache.karaf.shell.console</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.asm</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.scala-library</artifactId>
+          <version>2.9.1_1</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.url</groupId>
+          <artifactId>pax-url-mvn</artifactId>
+      </dependency>
   </dependencies>
 
   <build>
+      <testSourceDirectory>src/test/scala</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.apache.servicemix.tooling</groupId>
@@ -146,50 +183,23 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <excludes>
-            <!-- TODO fix ASAP !!!
-            <exclude>**/IntegrationTest.*</exclude>
-            -->
-          </excludes>
+          <useSystemClassLoader>true</useSystemClassLoader>
         </configuration>
       </plugin>
+
+        <plugin>
+            <groupId>org.scala-tools</groupId>
+            <artifactId>maven-scala-plugin</artifactId>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>compile</goal>
+                        <goal>testCompile</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
-    <pluginManagement>
-    	<plugins>
-    		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-    		<plugin>
-    			<groupId>org.eclipse.m2e</groupId>
-    			<artifactId>lifecycle-mapping</artifactId>
-    			<version>1.0.0</version>
-    			<configuration>
-    				<lifecycleMappingMetadata>
-    					<pluginExecutions>
-    						<pluginExecution>
-    							<pluginExecutionFilter>
-    								<groupId>
-    									org.apache.servicemix.tooling
-    								</groupId>
-    								<artifactId>
-    									depends-maven-plugin
-    								</artifactId>
-    								<versionRange>[1.2,)</versionRange>
-    								<goals>
-    									<goal>
-    										generate-depends-file
-    									</goal>
-    								</goals>
-    							</pluginExecutionFilter>
-    							<action>
-    								<ignore></ignore>
-    							</action>
-    						</pluginExecution>
-    					</pluginExecutions>
-    				</lifecycleMappingMetadata>
-    			</configuration>
-    		</plugin>
-    	</plugins>
-    </pluginManagement>
   </build>
 
 </project>

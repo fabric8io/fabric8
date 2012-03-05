@@ -35,6 +35,9 @@
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
                 <exclude>lib/*-version.jar</exclude>
+                <exclude>fabric_license.txt</exclude>
+                <exclude>fabric_notices.txt</exclude>
+                <exclude>fabric_dependencies.txt</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>

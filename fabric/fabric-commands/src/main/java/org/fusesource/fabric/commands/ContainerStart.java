@@ -30,9 +30,6 @@ public class ContainerStart extends FabricCommand {
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         Container found = getContainer(container);
-        if (found == null) {
-            throw new IllegalArgumentException("Container " + container + " does not exist.");
-        }
         if (!found.isAlive()) {
             found.start();
         } else {

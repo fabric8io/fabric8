@@ -59,6 +59,9 @@ public class ContainerProviderUtils {
         if(options.isDebugContainer()) {
            sb.append("run export KARAF_DEBUG=true").append("\n");
         }
+        if(options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
+           sb.append("run export JAVA_OPTS=").append(options.getJvmOpts()).append("\n");
+        }
         appendToLineInFile(sb,"etc/org.apache.karaf.features.cfg","featuresBoot=","fabric-agent,");
         //Add the proxyURI to the list of repositories
         appendToLineInFile(sb,"etc/org.ops4j.pax.url.mvn.cfg","repositories=",options.getProxyUri().toString()+",");

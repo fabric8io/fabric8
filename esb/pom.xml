@@ -39,9 +39,10 @@
         <cxf.version>${cxf-version}</cxf.version>
         <fabric.version>${project.version}</fabric.version>
         <karaf.version>${karaf-version}</karaf.version>
-        <smx.features.version>4.5.0-fuse-SNAPSHOT</smx.features.version>
-        <servicemix.utils.version>1.5.1-fuse-SNAPSHOT</servicemix.utils.version>
+        <smx.features.version>${smx-features-version}</smx.features.version>
+        <servicemix.utils.version>${servicemix-utils-version}</servicemix.utils.version>
         <maven-assembly-plugin.version>${maven-assembly-plugin-version}</maven-assembly-plugin.version>
+        <servicemix.nmr.version>${servicemix-nmr-version}</servicemix.nmr.version>
 
         <felix.prefs.version>1.0.4</felix.prefs.version>
 
@@ -159,7 +160,7 @@
         <xmlschema.version>2.0</xmlschema.version>
 
         <servicemix.specs.version>1.9.0</servicemix.specs.version>
-        <servicemix.components.version>2012.01.0-fuse-SNAPSHOT</servicemix.components.version>
+        <servicemix.components.version>${servicemix-components-version}</servicemix.components.version>
     </properties>
 
     <build>

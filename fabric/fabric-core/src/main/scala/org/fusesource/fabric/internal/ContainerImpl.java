@@ -83,9 +83,26 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public boolean isEnsembleServer() {
+        try {
+            String version = getVersion().getName();
+            String clusterId = service.getZooKeeper().getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble");
+            String containers = service.getZooKeeper().getStringData( "/fabric/configs/versions/" + version + "/general/fabric-ensemble/" + clusterId );
+            for (String name : containers.split(",")) {
+                if (id.equals(name)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
     public boolean isProvisioningComplete() {
-        // for some reason isRoot() means we don't seem to get a provision result / exception
-        return getProvisionResult() != null || getProvisionException() != null || isRoot();
+        String result = getProvisionResult();
+        return ZkDefs.SUCCESS.equals(result) || ZkDefs.ERROR.equals(result);
     }
 
     @Override
@@ -134,6 +151,15 @@ public class ContainerImpl implements Container {
     @Override
     public void setVersion(Version version) {
         try {
+            Version curretVersion = getVersion();
+
+            if (requiresUpgrade(version) && !"".equals(getProvisionResult())) {
+                if (version.compareTo(curretVersion) > 0) {
+                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "upgrading");
+                } else {
+                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "downgrading");
+                }
+            }
             ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -308,5 +334,28 @@ public class ContainerImpl implements Container {
 
     public void setMetadata(CreateContainerMetadata<?> metadata) {
         this.metadata = metadata;
+    }
+
+    /**
+     * Checks if container requires upgrade/rollback operation.
+     * @param version
+     * @return
+     */
+    private boolean requiresUpgrade(Version version) {
+        Boolean requiresUpgrade = false;
+        Profile[] oldProfiles = getProfiles();
+
+        if (version.compareTo(getVersion()) == 0) {
+            return false;
+        }
+
+        for (int i = 0; i < oldProfiles.length; i++) {
+            // get new profile
+            Profile newProfile = version.getProfile(oldProfiles[i].getId());
+            if (!oldProfiles[i].configurationEquals(newProfile)) {
+                requiresUpgrade = true;
+            }
+        }
+        return requiresUpgrade;
     }
 }

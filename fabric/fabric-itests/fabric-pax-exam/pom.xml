@@ -28,6 +28,9 @@
     <artifactId>fabric-pax-exam</artifactId>
     <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
 
+    <properties>
+        <pax-exam-version>2.3.1</pax-exam-version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
@@ -54,6 +57,15 @@
             <version>${project.version}</version>
             <type>tar.gz</type>
         </dependency>
+
+        <!-- Internal Dependencies -->
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-monitor</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <!-- Jclouds Dependencies -->
         <dependency>
@@ -105,11 +117,100 @@
             <artifactId>paxexam-karaf-container</artifactId>
             <version>0.5.1</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam-spi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam-container-rbc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam-container-rbc-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam-container-remote</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam-invoker-junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ops4j.pax.exam</groupId>
+                    <artifactId>pax-exam</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-spi</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-rbc</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-rbc-client</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-remote</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-extender-service</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-inject</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-invoker-junit</artifactId>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-junit4</artifactId>
-            <version>2.3.0</version>
+            <version>${pax-exam-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-junit4</artifactId>
+            <version>${pax-exam-version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -151,8 +252,10 @@
                         <include>**/*Test.*</include>
                     </includes>
                     <excludes>
+                        <exclude>**/*LongTest.*</exclude>
                     </excludes>
                     <systemPropertyVariables>
+                        <feature>${feature}</feature>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
                         <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
                         <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
@@ -175,6 +278,34 @@
         </plugins>
     </build>
 
+
+    <profiles>
+        <!-- modifies the plugin config inherited from oss-parent -->
+        <profile>
+            <id>long</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-version}</version>
+                        <configuration>
+                            <forkMode>pertest</forkMode>
+                            <useSystemClassLoader>true</useSystemClassLoader>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
+                            <failIfNoTests>false</failIfNoTests>
+                            <includes>
+                                <include>**/*LongTest.*</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <feature>${feature}</feature>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
   <!--
     <repositories>
         <repository>

@@ -536,6 +536,10 @@ public class FabClassPathResolver {
     }
 
     protected void addSharedDependency(DependencyTree tree) throws IOException {
+        if (!isInstallProvidedBundleDependencies() && connection.isInstalled(tree)) {
+            LOG.debug("Skipping %s since it is already installed", tree.getDependencyId());
+            return;
+        }
         LOG.debug("Added shared dependency: " + tree.getDependencyId());
         sharedDependencies.add(tree);
         boolean importExports = false;
@@ -659,5 +663,14 @@ public class FabClassPathResolver {
 
     public List<DependencyTree> getOptionalDependencies() {
         return optionalDependencies;
+    }
+
+    /**
+     * Get the value of the {@link ServiceConstants#INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES}
+     *
+     * @return <code>true</code> if the MANIFEST.MF header has been set to true
+     */
+    protected boolean isInstallProvidedBundleDependencies() {
+        return Boolean.valueOf(getManifestProperty(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES));
     }
 }

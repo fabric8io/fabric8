@@ -23,6 +23,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -80,7 +81,11 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     }
 
     protected Profile[] getProfiles(String version, List<String> names) {
-        Profile[] allProfiles = fabricService.getVersion(version).getProfiles();
+        return getProfiles(fabricService.getVersion(version), names);
+    }
+
+    protected Profile[] getProfiles(Version version, List<String> names) {
+        Profile[] allProfiles = version.getProfiles();
         List<Profile> profiles = new ArrayList<Profile>();
         if (names == null) {
             return new Profile[0];
@@ -100,6 +105,14 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }
+    
+    protected Profile getProfile(Version ver, String name) {
+        Profile p = ver.getProfile(name);
+        if (p == null) {
+            throw new IllegalArgumentException("Profile " + name + " does not exist.");
+        }
+        return p;
+    }
 
     /**
      * Gets the container by the given name
@@ -114,7 +127,17 @@ public abstract class FabricCommand extends OsgiCommandSupport {
                 return container;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Container " + name + " does not exist.");
+    }
+    
+    protected boolean doesContainerExist(String name) {
+        Container[] containers = fabricService.getContainers();
+        for (Container container : containers) {
+            if (container.getId().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

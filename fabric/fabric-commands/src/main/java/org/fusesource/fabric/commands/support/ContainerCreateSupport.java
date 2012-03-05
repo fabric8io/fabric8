@@ -38,6 +38,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected Boolean debugContainer = Boolean.FALSE;
     @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the container should be a new ZooKeeper ensemble server")
     protected Boolean isEnsembleServer = Boolean.FALSE;
+    @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Jvm Options for the container")
+    protected String jvmOpts;
 
     public List<String> getProfileNames() {
         List<String> names = this.profiles;
@@ -67,8 +69,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
                 return;
             }
 
-            Container existing = getContainer(name);
-            if (existing != null) {
+            if (doesContainerExist(name)) {
                 throw new IllegalArgumentException("A container with name " + name + " already exists.");
             }
 

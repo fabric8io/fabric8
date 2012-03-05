@@ -43,7 +43,6 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
             <version>3.1_5</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -52,7 +51,7 @@
             <plugin>
                 <groupId>org.fusesource.mvnplugins</groupId>
                 <artifactId>maven-fab-plugin</artifactId>
-                <version>1.19</version>
+                <version>${maven-fab-plugin-version}</version>
                 <configuration>
                     <descriptor>
                         <Long-Description />

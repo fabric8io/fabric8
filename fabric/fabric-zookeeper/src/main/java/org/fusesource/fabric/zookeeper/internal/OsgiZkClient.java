@@ -1,5 +1,7 @@
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.IdentityHashMap;
@@ -11,15 +13,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.linkedin.util.clock.Clock;
 import org.linkedin.util.clock.SystemClock;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.util.concurrent.ConcurrentUtils;
 import org.linkedin.zookeeper.client.AbstractZKClient;
 import org.linkedin.zookeeper.client.ChrootedZKClient;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.IZooKeeper;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.client.ZooKeeperFactory;
@@ -32,7 +38,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 
-public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedService {
+public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedService, IZKClient {
 
     public static final String PID = "org.fusesource.fabric.zookeeper";
     
@@ -176,7 +182,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         _stateChangeDispatcher.start();
 
         Hashtable ht = new Hashtable();
-        zkClientRegistration = bundleContext.registerService(IZKClient.class.getName(), this, ht);
+        zkClientRegistration = bundleContext.registerService(
+                new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() },
+                this, ht);
         ht = new Hashtable();
         ht.put(Constants.SERVICE_PID, PID);
         managedServiceRegistration = bundleContext.registerService(ManagedService.class.getName(), this, ht);
@@ -208,6 +216,17 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 try {
                     changeState(State.NONE);
                     _zk.close();
+                    // We try to avoid a NPE when shutting down fabric:
+                    // java.lang.NullPointerException
+                    //     at org.apache.felix.framework.BundleWiringImpl.findClassOrResourceByDelegation(BundleWiringImpl.java:1433)
+                    //     at org.apache.felix.framework.BundleWiringImpl.access$400(BundleWiringImpl.java:73)
+                    //     at org.apache.felix.framework.BundleWiringImpl$BundleClassLoader.loadClass(BundleWiringImpl.java:1844)
+                    //     at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+                    //     at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1089)
+                    Thread th = getSendThread();
+                    if (th != null) {
+                        th.join(1000);
+                    }
                     _zk = null;
                 } catch(Exception e) {
                     log.debug("ignored exception", e);
@@ -215,11 +234,57 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
             }
         }
     }
+    
+    protected Thread getSendThread() {
+        try {
+            return (Thread) getField(_zk, "_zk", "cnxn", "sendThread");
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+    
+    public void testGenerateConnectionLoss() throws Exception {
+        Object clientCnxnSocket  = getField(_zk, "_zk", "cnxn", "sendThread", "clientCnxnSocket");
+        callMethod(clientCnxnSocket, "testableCloseSocket");
+    }
+
+    protected Object getField(Object obj, String... names) throws Exception {
+        for (String name : names) {
+            obj = getField(obj, name);
+        }
+        return obj;
+    }
+
+    protected Object getField(Object obj, String name) throws Exception {
+        Class clazz = obj.getClass();
+        while (clazz != null) {
+            for (Field f : clazz.getDeclaredFields()) {
+                if (f.getName().equals(name)) {
+                    f.setAccessible(true);
+                    return f.get(obj);
+                }
+            }
+        }
+        throw new NoSuchFieldError(name);
+    }
+
+    protected Object callMethod(Object obj, String name, Object... args) throws Exception {
+        Class clazz = obj.getClass();
+        while (clazz != null) {
+            for (Method m : clazz.getDeclaredMethods()) {
+                if (m.getName().equals(name)) {
+                    m.setAccessible(true);
+                    return m.invoke(obj, args);
+                }
+            }
+        }
+        throw new NoSuchMethodError(name);
+    }
 
     public void updated(Dictionary properties) throws ConfigurationException {
         synchronized (_lock) {
             String url = System.getProperty("zookeeper.url");
-            Timespan timeout = new Timespan(10, Timespan.TimeUnit.SECOND);
+            Timespan timeout = new Timespan(30, Timespan.TimeUnit.SECOND);
             if (properties != null) {
                 if (properties.get("zookeeper.url") != null) {
                     url = (String) properties.get("zookeeper.url");
@@ -374,7 +439,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     }
 
     @Override
-    public IZKClient chroot(String path) {
+    public org.linkedin.zookeeper.client.IZKClient chroot(String path) {
         return new ChrootedZKClient(this, adjustPath(path));
     }
 
@@ -390,6 +455,20 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     @Override
     public String getConnectString() {
         return _factory.getConnectString();
+    }
+
+    @Override
+    public Stat createOrSetByteWithParents(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws InterruptedException, KeeperException {
+        if (exists(path) != null) {
+            return setByteData(path, data);
+        }
+        try {
+            createBytesNodeWithParents(path, data, acl, createMode);
+            return null;
+        } catch(KeeperException.NodeExistsException e) {
+            // this should not happen very often (race condition)
+            return setByteData(path, data);
+        }
     }
 
 }

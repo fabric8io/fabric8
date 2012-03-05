@@ -16,6 +16,22 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
+import org.linkedin.util.clock.Timespan;
+import org.linkedin.zookeeper.client.ZKClient;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -30,22 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
-import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.util.tracker.ServiceTracker;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     
@@ -138,6 +138,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 throw new IllegalStateException("Timeout waiting for ZooKeeper client to be registered");
             }
             tracker.close();
+            client.waitForConnected();
 
             // Import data into zookeeper
             String autoImportFrom = System.getProperty(PROFILES_AUTOIMPORT_PATH);
@@ -165,18 +166,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             ZooKeeperUtils.set(client, "/fabric/configs/versions/" + version + "/general/fabric-ensemble", "0000");
             ZooKeeperUtils.set(client, "/fabric/configs/versions/" + version + "/general/fabric-ensemble/0000", karafName);
-
-            p = getProperties(client, defaultProfile + "/org.fusesource.fabric.agent.properties", new Properties());
-            p.put("org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots");
-            p.put("org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/repositories/releases,http://scala-tools.org/repo-releases");
-            p.put("repository.fabric", "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features");
-            p.put("feature.karaf", "karaf");
-            p.put("feature.fabric-agent", "fabric-agent");
-            p.put("feature.fabric-core", "fabric-core");
-            p.put("feature.fabric-jaas", "fabric-jaas");
-            //p.put("framework", FRAMEWORK_VERSION);
-
-            ZooKeeperUtils.set(client, defaultProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
             String fabricProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric");
             ZooKeeperUtils.createDefault(client, fabricProfile, "default");
@@ -447,7 +436,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         return rc;
     }
 
-    static public Properties getProperties(IZKClient client, String file, Properties defaultValue) throws InterruptedException, KeeperException, IOException {
+    static public Properties getProperties(org.linkedin.zookeeper.client.IZKClient client, String file, Properties defaultValue) throws InterruptedException, KeeperException, IOException {
         try {
             String v = ZooKeeperUtils.get(client, file);
             if( v!=null ) {
@@ -460,7 +449,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    static public void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
+    static public void setConfigProperty(org.linkedin.zookeeper.client.IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
         Properties p = getProperties(client, file, new Properties());
         p.setProperty(prop, value);
         ZooKeeperUtils.set(client, file, toString(p));

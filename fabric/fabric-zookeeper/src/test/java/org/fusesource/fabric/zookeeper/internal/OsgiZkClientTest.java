@@ -22,11 +22,12 @@ import java.util.Hashtable;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.zookeeper.server.ServerStats;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ManagedService;
@@ -82,7 +83,7 @@ public class OsgiZkClientTest {
     @Test
     public void testZk() throws Exception {
         reset(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
-        expect(bundleContext.registerService(eq(IZKClient.class.getName()), same(client), (Dictionary) anyObject())).andReturn(zkClientRegistration);
+        expect(bundleContext.registerService(aryEq(new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() }), same(client), (Dictionary) anyObject())).andReturn(zkClientRegistration);
         expect(bundleContext.registerService(eq(ManagedService.class.getName()), same(client), (Dictionary) anyObject())).andReturn(managedServiceRegistration);
 
         replay(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
@@ -127,6 +128,23 @@ public class OsgiZkClientTest {
 
         assertTrue(client.isConfigured());
         assertTrue(client.isConnected());
+
+        client.registerListener(new LifecycleListener() {
+            @Override
+            public void onConnected() {
+                System.err.println("\nConnected\n");
+            }
+
+            @Override
+            public void onDisconnected() {
+                System.err.println("\nDisconnected\n");
+            }
+        });
+
+        client.testGenerateConnectionLoss();
+
+        client.waitForState(OsgiZkClient.State.RECONNECTING, Timespan.parse("10s"));
+        client.waitForState(OsgiZkClient.State.CONNECTED, Timespan.parse("10s"));
     }
 
     protected void createServer() throws Exception {

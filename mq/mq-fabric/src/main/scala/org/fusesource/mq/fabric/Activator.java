@@ -29,11 +29,11 @@ public class Activator implements BundleActivator {
 
     public static final AtomicReference<BundleContext> BUNDLE_CONTEXT = new AtomicReference<BundleContext>();
 
-    private JMSService service = new FabricActiveMQService();
+    private JMSService service = new FabricActiveMQService("discovery:(fabric:default)");
     private ServiceRegistration registration;
 
 	public void start(BundleContext ctx) throws Exception {
-        registration = ctx.registerService(JMSService.class.getName(), new FabricActiveMQService(), null);
+        registration = ctx.registerService(JMSService.class.getName(), new FabricActiveMQService("discovery:(fabric:default)"), null);
         BUNDLE_CONTEXT.set(ctx);
 	}
 

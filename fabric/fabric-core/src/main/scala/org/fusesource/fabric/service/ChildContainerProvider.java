@@ -53,12 +53,22 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                String javaOpts = options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\" -Xmx512M -server" : "";
+                StringBuilder jvmOptsBuilder = new StringBuilder();
+
+                jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote ")
+                        .append(options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "");
+
+                if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
+                    jvmOptsBuilder.append(" -Xmx512m");
+                } else if (options.getJvmOpts() != null) {
+                    jvmOptsBuilder.append(" ").append(options.getJvmOpts());
+                }
+
                 if (options.isDebugContainer()) {
-                    javaOpts += DEBUG_CONTAINER;
+                    jvmOptsBuilder.append(" ").append(DEBUG_CONTAINER);
                 }
                 if (options.isEnsembleServer()) {
-                    javaOpts += ENSEMBLE_SERVER_CONTAINER;
+                    jvmOptsBuilder.append(" ").append(ENSEMBLE_SERVER_CONTAINER);
                 }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
@@ -72,7 +82,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     metadata.setCreateOptions(options);
                     metadata.setContainerName(containerName);
                     try {
-                        adminService.createInstance(containerName, 0, 0, 0, null, javaOpts, features, featuresUrls);
+                        adminService.createInstance(containerName, 0, 0, 0, null, jvmOptsBuilder.toString(), features, featuresUrls);
                         adminService.startInstance(containerName, null);
                     } catch (Throwable t) {
                         metadata.setFailure(t);
