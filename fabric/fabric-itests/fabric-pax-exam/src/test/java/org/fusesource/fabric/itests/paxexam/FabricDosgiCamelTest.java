@@ -40,7 +40,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
+public class FabricDosgiCamelTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {

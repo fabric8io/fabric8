@@ -20,7 +20,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class ContainerUpgradeAndRollbackTest extends FabricCommandsTestSupport {
+public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
@@ -37,15 +37,16 @@ public class ContainerUpgradeAndRollbackTest extends FabricCommandsTestSupport {
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
-        System.out.println(executeCommand("fabric:container-list"));
         waitForProvisionSuccess(fabricService.getContainer("camel1"), PROVISION_TIMEOUT);
-        String bundles = executeCommand("container-connect camel1 osgi:list -s | grep org.apache.camel.camel-hazelcast");
+        String bundles = executeCommand("container-connect camel1 osgi:list -s | grep camel-hazelcast");
+        System.out.println(executeCommand("fabric:container-list"));
         assertNotNull(bundles);
         System.out.println(bundles);
         assertFalse("Expected camel-hazelcast installed.", bundles.isEmpty());
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
         waitForProvisionSuccess(fabricService.getContainer("camel1"), PROVISION_TIMEOUT);
-        bundles = executeCommand("container-connect camel1 osgi:list -s | grep org.apache.camel.camel-hazelcast");
+        System.out.println(executeCommand("fabric:container-list"));
+        bundles = executeCommand("container-connect camel1 osgi:list -s | grep camel-hazelcast");
         assertNotNull(bundles);
         System.out.println(bundles);
         assertTrue("Expected no camel-hazelcast installed.", bundles.isEmpty());

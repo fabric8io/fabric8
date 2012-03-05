@@ -96,6 +96,7 @@
         <asm.bundle.version>3.3_2</asm.bundle.version>
         <aries.util.version>0.3.1.fuse-7-032</aries.util.version>
         <aries.blueprint.version>0.3.1.fuse-7-032</aries.blueprint.version>
+        <aries.version>0.3</aries.version>
         <aries.proxy.version>0.3</aries.proxy.version>
         <activemq-version>5.5.1-fuse-02-02</activemq-version>
         <antlr-version>3.3</antlr-version>
@@ -217,6 +218,7 @@
     </dependencies>
 
     <modules>
+        <module>tooling</module>
         <module>patch</module>
         <module>fabric</module>
         <module>fab</module>

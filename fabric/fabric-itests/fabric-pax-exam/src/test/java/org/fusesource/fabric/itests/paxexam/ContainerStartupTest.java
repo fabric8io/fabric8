@@ -35,7 +35,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class ContainerStartupTest extends FabricCommandsTestSupport {
+public class ContainerStartupTest extends FabricTestSupport {
 
     @Test
     public void testLocalFabricCluster() throws Exception {

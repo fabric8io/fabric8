@@ -1,8 +1,6 @@
 package org.fusesource.fabric.itests.paxexam.camel;
 
 
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
 import org.fusesource.fabric.itests.paxexam.FabricFeaturesTest;
 import org.junit.After;
 import org.junit.Test;
@@ -15,7 +13,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 
-import static org.junit.Assert.*;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 

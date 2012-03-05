@@ -36,7 +36,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricCreateTest extends FabricCommandsTestSupport {
+public class FabricCreateTest extends FabricTestSupport {
 
 
     @Test

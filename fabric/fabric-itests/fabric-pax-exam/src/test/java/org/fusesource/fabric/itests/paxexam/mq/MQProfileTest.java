@@ -1,6 +1,6 @@
 package org.fusesource.fabric.itests.paxexam.mq;
 
-import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
+import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class MQProfileTest extends FabricCommandsTestSupport {
+public class MQProfileTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
