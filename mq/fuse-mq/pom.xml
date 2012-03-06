@@ -54,7 +54,7 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>mq-fabric</artifactId>
+               <artifactId>fuse-fabric</artifactId>
                <version>${project.version}</version>
                <type>zip</type>
            </dependency>
@@ -63,6 +63,8 @@
            <dependency>
                <groupId>org.apache.activemq</groupId>
                <artifactId>activemq-web-console</artifactId>
+               <version>${activemq-version}</version>
+               <type>war</type>
            </dependency>
 
            <dependency>
@@ -139,6 +141,10 @@
                                    <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
                                    <feature>mq-fabric</feature>
+                                   <feature>activemq-spring</feature>
+                                   <!-- needs sp3, feature>activemq-camel</feature -->
+                                   <feature>war</feature>
+                                   <feature>activemq-web-console</feature>
                                    <feature>patch</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
