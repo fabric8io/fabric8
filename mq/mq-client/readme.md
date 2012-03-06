@@ -4,8 +4,8 @@ The `mq-client` is simple producer or consumer for an ActiveMQ broker that can b
 
 Usage:
 
-    java -jar mq-client-1.1-SNAPSHOT.jar producer
-
-    java -jar mq-client-1.1-SNAPSHOT.jar consumer
+    java -jar lib/mq-client.jar producer
+or
+    java -jar lib/mq-client.jar consumer
 
 

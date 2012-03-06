@@ -18,16 +18,22 @@ package org.fusesource.mq;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import javax.jms.JMSException;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class Main {
-
+    final static String loggingLevelProperty = "org.ops4j.pax.logging.DefaultServiceLog.level";
     String action;
     String destination = "queue://TEST";
     String brokerUrl = ActiveMQConnectionFactory.DEFAULT_BROKER_URL;
     int count = 100;
 
     public static void main(String[] args) throws Exception {
+
+        if (System.getProperty(loggingLevelProperty) == null) {
+            System.setProperty(loggingLevelProperty, "INFO");
+        }
+
         Main main = new Main();
 
         // Process the arguments
@@ -57,26 +63,39 @@ public class Main {
     }
 
     private void execute() {
-        ActiveMQService fabricActiveMQService = new ActiveMQService(brokerUrl);
+        ActiveMQService activeMQService = new ActiveMQService(brokerUrl);
         System.out.println("Using destination: " + destination + ", on broker: " + brokerUrl);
+        try {
 
-        if ("producer".equals(action)) {
+            if ("producer".equals(action)) {
 
-            ProducerThread producerThread = new ProducerThread(fabricActiveMQService, destination);
-            producerThread.setMessageCount(count);
-            producerThread.run();
-            System.out.println("Produced: " + producerThread.getSentCount());
+                activeMQService.start();
 
-        } else if ("consumer".equals(action)) {
+                ProducerThread producerThread = new ProducerThread(activeMQService, destination);
+                producerThread.setMessageCount(count);
+                producerThread.run();
+                System.out.println("Produced: " + producerThread.getSentCount());
 
-            ConsumerThread consumerThread = new ConsumerThread(fabricActiveMQService, destination);
-            consumerThread.setMessageCount(count);
-            System.out.println("Waiting for: " + count + " messages");
-            consumerThread.run();
-            System.out.println("Consumed: " + consumerThread.getReceived() + " messages");
+            } else if ("consumer".equals(action)) {
 
-        } else {
-            displayHelpAndExit(1);
+                activeMQService.start();
+
+                ConsumerThread consumerThread = new ConsumerThread(activeMQService, destination);
+                consumerThread.setMessageCount(count);
+                System.out.println("Waiting for: " + count + " messages");
+                consumerThread.run();
+                System.out.println("Consumed: " + consumerThread.getReceived() + " messages");
+
+            } else {
+                displayHelpAndExit(1);
+            }
+
+        } catch (JMSException error) {
+            System.err.println("Execution failed with: " + error);
+            error.printStackTrace(System.err);
+            System.exit(2);
+        } finally {
+            activeMQService.stop();
         }
     }
 
@@ -89,8 +108,8 @@ public class Main {
     }
 
     private static void displayHelpAndExit(int exitCode) {
-        System.out.println(" Usage   : (producer|consumer) [OPTIONS]");
-        System.out.println(" Options : [--destination (queue://..|topic://..)");
+        System.out.println(" usage   : (producer|consumer) [OPTIONS]");
+        System.out.println(" options : [--destination (queue://..|topic://..)");
         System.out.println("           [--count N]");
         System.out.println("           [--brokerUrl URL]\n");
 

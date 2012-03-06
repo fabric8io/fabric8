@@ -49,10 +49,6 @@
                 <artifactId>activemq-protobuf</artifactId>
             </exclusion>
             <exclusion>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-            </exclusion>
-            <exclusion>
                 <groupId>org.jasypt</groupId>
                 <artifactId>jasypt</artifactId>
             </exclusion>
@@ -87,10 +83,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
+          <groupId>org.ops4j.pax.logging</groupId>
+          <artifactId>pax-logging-api</artifactId>
       </dependency>
-
     </dependencies>
 
     <build>
@@ -103,7 +98,7 @@
               <manifest>
                 <mainClass>org.fusesource.mq.Main</mainClass>
                 <addClasspath>true</addClasspath>
-                <classpathPrefix>system/</classpathPrefix>
+                <classpathPrefix>../system/</classpathPrefix>
                 <classpathLayoutType>repository</classpathLayoutType>
               </manifest>
             </archive>

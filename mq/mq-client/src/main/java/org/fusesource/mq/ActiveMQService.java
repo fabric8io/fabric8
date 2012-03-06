@@ -20,7 +20,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
 
 import javax.jms.*;
-import org.fusesource.mq.JMSService;
 
 public class ActiveMQService implements JMSService {
 
@@ -71,10 +70,13 @@ public class ActiveMQService implements JMSService {
         started = true;
     }
 
-    public void stop() throws JMSException {
+    public void stop() {
         if (started) {
             if (defaultConnection != null) {
-                defaultConnection.stop();
+                try {
+                    defaultConnection.stop();
+                } catch (JMSException ignored) {
+                }
             }
         }
         started = false;

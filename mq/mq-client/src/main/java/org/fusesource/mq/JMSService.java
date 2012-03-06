@@ -34,6 +34,6 @@ public interface JMSService {
 
     public void start() throws JMSException;
 
-    public void stop() throws JMSException;
+    public void stop();
 
 }
