@@ -66,7 +66,7 @@
       <xs:extension base="tns:identifiedType">
         <xs:sequence>
           <xs:element ref="tns:dispatch-policy" minOccurs="0"/>
-          <xs:element ref="tns:destination" maxOccurs="unbounded" minOccurs="0"/>
+          <xs:element ref="tns:destination" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="dispatchPolicyRef" type="xs:string"/>
         <xs:attribute name="destinationTypeHeader" type="xs:string"/>
@@ -123,7 +123,7 @@
           <xs:element name="local-broker" type="tns:brokerConfig"/>
           <xs:element name="inbound-destinations" type="tns:bridgeDestinationsConfig" minOccurs="0"/>
           <xs:element name="outbound-destinations" type="tns:bridgeDestinationsConfig" minOccurs="0"/>
-          <xs:element ref="tns:remote-bridge" maxOccurs="unbounded" minOccurs="0"/>
+          <xs:element ref="tns:remote-bridge" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="outboundDestinationsRef" type="xs:string"/>
         <xs:attribute name="inboundDestinationsRef" type="xs:string"/>

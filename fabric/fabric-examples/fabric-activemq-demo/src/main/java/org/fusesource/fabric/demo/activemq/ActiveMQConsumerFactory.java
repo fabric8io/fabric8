@@ -42,10 +42,10 @@ public class ActiveMQConsumerFactory implements ManagedServiceFactory {
             if (brokerUrl == null) {
                 brokerUrl = "discover:(fabric:default)";
             }
-            ActiveMQService producerService = new ActiveMQService(brokerUrl);
-            producerService.start();
+            ActiveMQService consumerService = new ActiveMQService(brokerUrl);
+            consumerService.start();
             String destination = (String) properties.get("destination");
-            ConsumerThread consumer = new ConsumerThread(producerService, destination);
+            ConsumerThread consumer = new ConsumerThread(consumerService, destination);
             consumer.start();
             LOG.info("Consumer " + pid + " started");
         } catch (JMSException e) {

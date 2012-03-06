@@ -54,12 +54,17 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fuse-fabric</artifactId>
+               <artifactId>mq-fabric</artifactId>
                <version>${project.version}</version>
                <type>zip</type>
            </dependency>
 
            <!-- MQ Dependencies -->
+           <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>activemq-web-console</artifactId>
+           </dependency>
+
            <dependency>
                <groupId>org.fusesource.mq</groupId>
                <artifactId>org.fusesource.mq.karaf.branding</artifactId>
