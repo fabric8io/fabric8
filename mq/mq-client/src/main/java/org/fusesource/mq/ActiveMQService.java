@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.mq.fabric;
+package org.fusesource.mq;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
 
 import javax.jms.*;
+import org.fusesource.mq.JMSService;
 
-public class FabricActiveMQService implements JMSService {
+public class ActiveMQService implements JMSService {
 
     Connection defaultConnection;
     Session defaultSession;
@@ -33,7 +34,7 @@ public class FabricActiveMQService implements JMSService {
     private ActiveMQConnectionFactory connectionFactory;
 
 
-    public FabricActiveMQService(String brokerUrl) {
+    public ActiveMQService(String brokerUrl) {
         connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
     }
 

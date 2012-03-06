@@ -16,7 +16,8 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
-import org.fusesource.mq.fabric.FabricActiveMQService;
+import org.fusesource.mq.ActiveMQService;
+import org.fusesource.mq.ProducerThread;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
             if (brokerUrl == null) {
                 brokerUrl = "discover:(fabric:default)";
             }
-            FabricActiveMQService producerService = new FabricActiveMQService(brokerUrl);
+            ActiveMQService producerService = new ActiveMQService(brokerUrl);
             producerService.start();
             String destination = (String) properties.get("destination");
             ProducerThread producer = new ProducerThread(producerService, destination);
