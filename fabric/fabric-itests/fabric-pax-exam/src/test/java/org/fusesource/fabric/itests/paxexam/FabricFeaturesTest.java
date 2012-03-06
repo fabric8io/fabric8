@@ -44,7 +44,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 /**
  * Tests various Fabric Features.
  */
-public abstract class FabricFeaturesTest extends FabricCommandsTestSupport {
+public abstract class FabricFeaturesTest extends FabricTestSupport {
 
     private Map<String, String[]> featureArguments = new LinkedHashMap<String, String[]>();
 

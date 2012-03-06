@@ -37,7 +37,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class CreateChildAgentTest extends FabricCommandsTestSupport {
+public class CreateChildAgentTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {

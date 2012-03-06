@@ -204,6 +204,7 @@
         <module>fuse-esb-minimal</module>
         <module>fuse-esb-medium</module>
         <module>fuse-esb-full</module>
+        <module>esb-itests</module>
     </modules>
 
     <repositories>

@@ -41,7 +41,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class JaasRealmTest extends FabricCommandsTestSupport {
+public class JaasRealmTest extends FabricTestSupport {
 
     //TODO: This test needs rewrite as significant changes has been done.
     @Test
