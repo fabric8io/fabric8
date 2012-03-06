@@ -169,7 +169,7 @@ public final class CommandUtils {
      */
     public static String status(Container container) {
         String status = container.getProvisionStatus();
-        if (status == null || container.isRoot()) {
+        if (status == null || container.isEnsembleServer()) {
             return "";
         }
         status = status.trim();

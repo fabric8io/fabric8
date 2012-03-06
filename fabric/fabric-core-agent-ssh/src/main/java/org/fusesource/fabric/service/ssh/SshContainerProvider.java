@@ -25,13 +25,19 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateSshContainerMetadata;
+import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.api.CreateSshContainerMetadata;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartupScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildInstallAndStartScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildUninstallScript;
 
 /**
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that builds Containers via ssh.
@@ -74,7 +80,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
                 metadata.setCreateOptions(options);
                 metadata.setContainerName(containerName);
-                String script = buildStartupScript(options.name(containerName));
+                String script = buildInstallAndStartScript(options.name(containerName));
                 logger.debug("Running script on host {}:\n{}", host, script);
                 try {
                     runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
@@ -93,17 +99,71 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
 
     @Override
     public void start(Container container) {
-        throw new UnsupportedOperationException();
+        CreateContainerMetadata metadata = container.getMetadata();
+        if (!(metadata instanceof CreateSshContainerMetadata)) {
+            throw new IllegalStateException("Container doesn't have valid create container metadata type");
+        } else {
+            CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
+            CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
+            try {
+                String host = options.getHost();
+                int port = options.getPort();
+                String username = options.getUsername();
+                String password = options.getPassword();
+                int sshRetries = options.getSshRetries();
+                int retryDelay = 1;
+                String script = buildStartScript(options.name(container.getId()));
+                runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+            } catch (Throwable t) {
+                logger.error("Failed to start container: "+container.getId(),t);
+            }
+        }
     }
 
     @Override
     public void stop(Container container) {
-        throw new UnsupportedOperationException();
+        CreateContainerMetadata metadata = container.getMetadata();
+        if (!(metadata instanceof CreateSshContainerMetadata)) {
+            throw new IllegalStateException("Container doesn't have valid create container metadata type");
+        } else {
+            CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
+            CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
+            try {
+                String host = options.getHost();
+                int port = options.getPort();
+                String username = options.getUsername();
+                String password = options.getPassword();
+                int sshRetries = options.getSshRetries();
+                int retryDelay = 1;
+                String script = buildStopScript(options.name(container.getId()));
+                runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+            } catch (Throwable t) {
+                logger.error("Failed to stop container: " + container.getId(), t);
+            }
+        }
     }
 
     @Override
     public void destroy(Container container) {
-        throw new UnsupportedOperationException();
+        CreateContainerMetadata metadata = container.getMetadata();
+        if (!(metadata instanceof CreateSshContainerMetadata)) {
+            throw new IllegalStateException("Container doesn't have valid create container metadata type");
+        } else {
+            CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
+            CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
+            try {
+                String host = options.getHost();
+                int port = options.getPort();
+                String username = options.getUsername();
+                String password = options.getPassword();
+                int sshRetries = options.getSshRetries();
+                int retryDelay = 1;
+                String script = buildUninstallScript(options.name(container.getId()));
+                runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+            } catch (Throwable t) {
+                logger.error("Failed to stop container: "+container.getId(),t);
+            }
+        }
     }
 
     protected void runScriptOnHost(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {

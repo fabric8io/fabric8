@@ -34,6 +34,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
@@ -71,7 +72,10 @@ public class CreateSshAgentTest extends FabricTestSupport {
     @After
     public void tearDown() {
         if (isReady()) {
-            executeCommand("fabric:container-connect ssh1 osgi:stop --force 0");
+            executeCommand("fabric:container-stop ssh2");
+            executeCommand("fabric:container-stop ssh1");
+            executeCommand("fabric:container-delete ssh2");
+            executeCommand("fabric:container-delete ssh1");
         }
     }
 
@@ -101,6 +105,23 @@ public class CreateSshAgentTest extends FabricTestSupport {
             Container container = fabricService.getContainer("ssh1");
             assertTrue(container.isAlive());
             createAndAssetChildContainer("ssh2","ssh1", "default");
+            //Try stopping and starting the remote container.
+            container.stop();
+            assertFalse(container.isAlive());
+            System.out.println(executeCommand("fabric:container-list -v"));
+            container.start();
+            waitForProvisionSuccess(container,PROVISION_TIMEOUT);
+            System.out.println(executeCommand("fabric:container-list -v"));
+            assertTrue(container.isAlive());
+
+            //Attempt to destroy the container.
+            boolean error = false;
+            try {
+                container.destroy();
+            }catch (IllegalStateException ex) {
+                error = true;
+            }
+            assertTrue("Should receive error when trying to destroy a container with alive children.",error);
         }
     }
 

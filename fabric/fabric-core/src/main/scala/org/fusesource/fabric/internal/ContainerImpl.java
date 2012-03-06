@@ -296,11 +296,21 @@ public class ContainerImpl implements Container {
 
     @Override
     public void destroy() {
-        service.destroyContainer(this);
+        if (!hasAliveChildren()) {
+            service.destroyContainer(this);
+        } else {
+            throw new IllegalStateException("Container "+ id + " has one or more child containers alive and cannot be destroyed.");
+        }
     }
 
     public Container[] getChildren() {
-        return new Container[0];
+        List<Container> children = new ArrayList<Container>();
+        for (Container container : service.getContainers()) {
+            if (container.getParent() != null && getId().equals(container.getParent().getId())) {
+                children.add(container);
+            }
+        }
+        return children.toArray(new Container[0]);
     }
 
     public String getType() {
@@ -357,5 +367,18 @@ public class ContainerImpl implements Container {
             }
         }
         return requiresUpgrade;
+    }
+
+    /**
+     * Checks if Container is root and has alive children.
+     * @return
+     */
+    public boolean hasAliveChildren() {
+        for (Container child : getChildren()) {
+            if (child.isAlive()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

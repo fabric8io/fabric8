@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.jclouds.compute.ComputeService;
@@ -46,7 +47,9 @@ import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.rest.RestContextFactory;
 
-import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartupScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildInstallAndStartScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScript;
 
 /**
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that creates {@link org.fusesource.fabric.api.Container}s via jclouds {@link ComputeService}.
@@ -80,23 +83,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
        final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
 
-        ComputeService computeService = computeServiceMap.get(options.getProviderName());
-        if (computeService == null) {
-
-            Iterable<? extends Module> modules = ImmutableSet.of();
-
-            Properties props = new Properties();
-            props.put("provider", options.getProviderName());
-            props.put("identity", options.getIdentity());
-            props.put("credential", options.getCredential());
-            if (!Strings.isNullOrEmpty(options.getOwner()) && options.getProviderName().equals("aws-ec2")) {
-                props.put("jclouds.ec2.ami-owners", options.getOwner());
-            }
-
-            RestContextFactory restFactory = new RestContextFactory();
-            ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(options.getProviderName(), options.getIdentity(), options.getCredential(), modules, props);
-            computeService = context.getComputeService();
-        }
+        ComputeService computeService = getOrCreateComputeService(options);
 
         TemplateBuilder builder = computeService.templateBuilder();
         builder.any();
@@ -153,9 +140,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 jCloudsContainerMetadata.setContainerName(containerName);
                 jCloudsContainerMetadata.setPublicAddresses(nodeMetadata.getPublicAddresses());
                 jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
+                jCloudsContainerMetadata.setIdentity(credentials.identity);
+                jCloudsContainerMetadata.setCredential(credentials.credential);
 
                 try {
-                    String script = buildStartupScript(options.name(containerName));
+                    String script = buildInstallAndStartScript(options.name(containerName));
                     if (credentials != null) {
                         computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                     } else {
@@ -168,23 +157,69 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 result.add(jCloudsContainerMetadata);
             }
         }
-
         return result;
     }
 
     @Override
     public void start(Container container) {
-        throw new UnsupportedOperationException();
+        CreateContainerMetadata metadata = container.getMetadata();
+        if (!(metadata instanceof CreateJCloudsContainerMetadata)) {
+            throw new IllegalStateException("Container doesn't have valid create container metadata type");
+        } else {
+            CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
+            CreateJCloudsContainerOptions options = jCloudsContainerMetadata.getCreateOptions();
+            try {
+                Credentials credentials = new Credentials(jCloudsContainerMetadata.getIdentity(), jCloudsContainerMetadata.getCredential());
+                String nodeId = jCloudsContainerMetadata.getNodeId();
+                ComputeService computeService = getOrCreateComputeService(options);
+                String script = buildStartScript(options.name(container.getId()));
+                if (credentials != null) {
+                    computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                } else {
+                    computeService.runScriptOnNode(nodeId, script);
+                }
+            } catch (Throwable t) {
+                jCloudsContainerMetadata.setFailure(t);
+            }
+        }
     }
 
     @Override
     public void stop(Container container) {
-        throw new UnsupportedOperationException();
+        CreateContainerMetadata metadata = container.getMetadata();
+        if (!(metadata instanceof CreateJCloudsContainerMetadata)) {
+            throw new IllegalStateException("Container doesn't have valid create container metadata type");
+        } else {
+            CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
+            CreateJCloudsContainerOptions options =  jCloudsContainerMetadata.getCreateOptions();
+            try {
+                Credentials credentials = new Credentials(jCloudsContainerMetadata.getIdentity(),jCloudsContainerMetadata.getCredential());
+                String nodeId = jCloudsContainerMetadata.getNodeId();
+                ComputeService computeService = getOrCreateComputeService(options);
+                String script = buildStopScript(options.name(container.getId()));
+                if (credentials != null) {
+                    computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                } else {
+                    computeService.runScriptOnNode(nodeId, script);
+                }
+            } catch (Throwable t) {
+                jCloudsContainerMetadata.setFailure(t);
+            }
+        }
     }
 
     @Override
     public void destroy(Container container) {
-        throw new UnsupportedOperationException();
+        CreateContainerMetadata metadata = container.getMetadata();
+        if (!(metadata instanceof CreateJCloudsContainerMetadata)) {
+            throw new IllegalStateException("Container doesn't have valid create container metadata type");
+        } else {
+            CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata)metadata;
+            CreateJCloudsContainerOptions options =  jCloudsContainerMetadata.getCreateOptions();
+            String nodeId = jCloudsContainerMetadata.getNodeId();
+            ComputeService computeService = getOrCreateComputeService(options);
+            computeService.destroyNode(nodeId);
+        }
     }
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {
@@ -208,5 +243,36 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         } catch (UnsupportedEncodingException e) {
             throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
         }
+    }
+
+    /**
+     * Gets an existing {@link ComputeService} that matches configuration or creates a new one.
+     * @param options
+     * @return
+     */
+    private ComputeService getOrCreateComputeService(CreateJCloudsContainerOptions options) {
+        ComputeService computeService = null;
+        if (options != null) {
+            computeService = computeServiceMap.get(options.getProviderName());
+            if (computeService == null) {
+
+                Iterable<? extends Module> modules = ImmutableSet.of();
+
+                Properties props = new Properties();
+                props.put("provider", options.getProviderName());
+                props.put("identity", options.getIdentity());
+                props.put("credential", options.getCredential());
+                if (!Strings.isNullOrEmpty(options.getOwner()) && options.getProviderName().equals("aws-ec2")) {
+                    props.put("jclouds.ec2.ami-owners", options.getOwner());
+                }
+
+                RestContextFactory restFactory = new RestContextFactory();
+                ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(options.getProviderName(), options.getIdentity(), options.getCredential(), modules, props);
+                computeService = context.getComputeService();
+                computeServiceMap.put(options.getProviderName(),computeService);
+            }
+
+        }
+        return computeService;
     }
 }

@@ -20,11 +20,15 @@ package org.fusesource.fabric.api;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+
 public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata<CreateJCloudsContainerOptions> {
 
     private String nodeId;
     private String hostname;
     private Set<String> publicAddresses = new LinkedHashSet<String>();
+    //Note: The identity/credential properties below refer to the user account and not to the provider account.
+    private String identity;
+    private String credential;
 
     public String getNodeId() {
         return nodeId;
@@ -48,5 +52,21 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
 
     public void setPublicAddresses(Set<String> publicAddresses) {
         this.publicAddresses = publicAddresses;
+    }
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public String getCredential() {
+        return credential;
+    }
+
+    public void setCredential(String credential) {
+        this.credential = credential;
     }
 }

@@ -18,6 +18,7 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
@@ -26,11 +27,20 @@ public class ContainerDelete extends FabricCommand {
 
     @Argument(index = 0, description = "The name of the container", multiValued = false, required = true)
     private String name;
+    @Option(name = "-r", aliases = {"--recursive"}, multiValued = false, required = false, description = "Recursively stops/deletes child containers")
+    protected Boolean recursive = Boolean.FALSE;
 
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         Container found = getContainer(name);
+        if (recursive) {
+            for (Container child : found.getChildren()) {
+                child.stop();
+                child.destroy();
+            }
+        }
+        found.stop();
         found.destroy();
         return null;
     }
