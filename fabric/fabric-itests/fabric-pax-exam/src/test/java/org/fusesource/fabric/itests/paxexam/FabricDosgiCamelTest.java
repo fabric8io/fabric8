@@ -53,16 +53,24 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        System.err.println(executeCommand("echo $APPLICATION"));
-        System.err.println(executeCommand("fabric:ensemble-create root"));
+        System.err.println(executeCommand("fabric:create root"));
         Thread.sleep(DEFAULT_WAIT);
 
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
-        System.err.println(executeCommand("shell:source mvn:org.fusesource.fabric/fuse-fabric/"+System.getProperty("fabric.version")+"/karaf/dosgi"));
-        waitForProvisionSuccess(fabricService.getContainer("dosgi-provider"), PROVISION_TIMEOUT);
-        waitForProvisionSuccess(fabricService.getContainer("dosgi-camel"), PROVISION_TIMEOUT);
+        executeCommand("fabric:profile-create --parents dosgi dosgi-provider");
+        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-provider");
+        executeCommand("fabric:profile-edit --features fabric-example-dosgi dosgi-provider");
+
+
+        executeCommand("fabric:profile-create --parents dosgi dosgi-camel");
+        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-camel");
+        executeCommand("fabric:profile-edit --features fabric-example-camel-dosgi dosgi-camel");
+
+        createAndAssetChildContainer("dosgi-provider","root","dosgi-provider");
+        createAndAssetChildContainer("dosgi-camel","root","dosgi-camel");
+
         String response = executeCommand("fabric:container-connect dosgi-camel log:display | grep \"Message from distributed service to\"");
         System.err.println(executeCommand("fabric:container-connect dosgi-camel camel:route-info fabric-client"));
         assertNotNull(response);
