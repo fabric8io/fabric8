@@ -11,24 +11,29 @@ import org.ops4j.pax.exam.CoreOptions._;
 import org.junit.runner.RunWith
 import org.ops4j.pax.exam.junit.{ExamReactorStrategy, JUnit4TestRunner, Configuration}
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory
-import org.osgi.util.tracker.ServiceTracker
+import org.fusesource.fabric.fab.osgi.internal.Bundles
 ;
 
 /**
  *
  */
-@RunWith (classOf[JUnit4TestRunner] )
-@ExamReactorStrategy (Array (classOf[AllConfinedStagedReactorFactory] ) )
-class FabSampleCamelBlueprintShareTest {
+@RunWith(classOf[JUnit4TestRunner])
+@ExamReactorStrategy(Array(classOf[AllConfinedStagedReactorFactory]))
+class FabSamplesWithoutCamelPreinstalledTest {
+
+  lazy val VERSION = System.getProperty("project.version")
 
   @Inject
   var context: BundleContext = null;
 
   @Configuration
-  def config : Array[Option] = Array(
+  def config: Array[Option] = Array(
     junitBundles(),
     felix(),
     equinox(),
+
+    //vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" ),
+    systemProperty("project.version").value(VERSION),
 
     mavenBundle("org.ops4j.pax.url", "pax-url-mvn").versionAsInProject(),
 
@@ -46,24 +51,31 @@ class FabSampleCamelBlueprintShareTest {
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.core").versionAsInProject(),
     mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console").versionAsInProject(),
 
-    mavenBundle("org.apache.camel", "camel-core").versionAsInProject(),
-    mavenBundle("org.apache.camel", "camel-blueprint").versionAsInProject(),
-
     // and then add a few extra bundles to it to enable Scala- and FAB-support
     mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.scala-library").versionAsInProject(),
     mavenBundle("org.fusesource.fabric.fab", "fab-osgi").versionAsInProject()
   )
 
-  @Test
-  def test = {
-    val url: String = "fab:mvn:org.fusesource.fabric.fab.tests/fab-sample-camel-blueprint-share/7.0-SNAPSHOT"
+  /**
+   * Get the fab: url for a given example
+   *
+   * @param groupId the artifact's group id
+   * @param artifactId the artifact id
+   * @return a fab: url
+   */
+  def fab(groupId: String, artifactId: String) = "fab:mvn:%s/%s/%s".format(groupId, artifactId, VERSION)
 
-    val change = bundlesChanged(context) {
+  @Test
+  def testCamelBlueprintShare = {
+    val url = fab("org.fusesource.fabric.fab.tests", "fab-sample-camel-blueprint-share")
+
+    val (change, _) = bundlesChanged(context) {
       context.installBundle(url)
     }
 
-    assertEquals("Expected only the FAB itself to be added", 1, change.size)
-    assertEquals("Expected only the FAB itself to be added", url, change.head.getLocation)
+    assertTrue("Expected FAB itself to be added", change.map(_.getLocation).contains(url))
+    assertTrue("Expected camel-core to be added", change.map(_.getSymbolicName).contains("org.apache.camel.camel-core"))
+    assertTrue("Expected camel-blueprint to be added", change.map(_.getSymbolicName).contains("org.apache.camel.camel-core"))
   }
 
   /**
@@ -71,11 +83,11 @@ class FabSampleCamelBlueprintShareTest {
    *
    * @param context the bundle context
    * @param block the block of code to be executed
-   * @return a set of bundles that have been added
+   * @return a set of bundles that have been added, together with the result of the code block
    */
-  def bundlesChanged(context: BundleContext)(block: => Unit) : Set[Bundle] = {
+  def bundlesChanged[R](context: BundleContext)(block: => R): (Set[Bundle], R) = {
     val start = context.getBundles
-    block
-    context.getBundles.toSet -- start
+    val result = block
+    (context.getBundles.toSet -- start, result)
   }
 }

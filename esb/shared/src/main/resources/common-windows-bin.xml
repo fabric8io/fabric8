@@ -23,6 +23,7 @@
           <outputDirectory>/</outputDirectory>
           <excludes>
              <exclude>**/demos/**</exclude>
+             <exclude>bin/fusefabric.bat</exclude>
              <exclude>lib/fabric-version.jar</exclude>
              <exclude>etc/system.properties</exclude>
              <exclude>etc/org.apache.karaf.features.cfg</exclude>
