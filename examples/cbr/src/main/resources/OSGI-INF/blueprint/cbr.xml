@@ -21,10 +21,10 @@
            xmlns:camel="http://camel.apache.org/schema/blueprint"
            xsi:schemaLocation="
        http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/spring/camel-blueprint.xsd">
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint">
-        <route>
+        <route id="cbr-route">
             <from uri="timer:foo?period=5000" />
             <to uri="log:timed" />
         </route>
