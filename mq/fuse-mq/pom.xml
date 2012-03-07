@@ -28,7 +28,7 @@
     <groupId>org.fusesource.mq</groupId>
     <artifactId>fuse-mq</artifactId>
     <name>${project.artifactId}</name>
-       <description>Fuse MQ :: Binary Distribution</description>
+    <description>Fuse MQ :: Binary Distribution</description>
 
        <prerequisites>
            <maven>3.0.2</maven>
@@ -39,6 +39,11 @@
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
+               <version>${project.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.mq</groupId>
+               <artifactId>mq-client</artifactId>
                <version>${project.version}</version>
            </dependency>
            <dependency>
@@ -55,6 +60,13 @@
            </dependency>
 
            <!-- MQ Dependencies -->
+           <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>activemq-web-console</artifactId>
+               <version>${activemq-version}</version>
+               <type>war</type>
+           </dependency>
+
            <dependency>
                <groupId>org.fusesource.mq</groupId>
                <artifactId>org.fusesource.mq.karaf.branding</artifactId>
@@ -129,6 +141,10 @@
                                    <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
                                    <feature>mq-fabric</feature>
+                                   <feature>activemq-spring</feature>
+                                   <!-- needs sp3, feature>activemq-camel</feature -->
+                                   <feature>war</feature>
+                                   <feature>activemq-web-console</feature>
                                    <feature>patch</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
@@ -232,7 +248,7 @@
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-assembly-plugin</artifactId>
-                   <version>2.2.1</version>
+                   <version>${maven-assembly-plugin-version}</version>
                    <executions>
                        <execution>
                            <id>unix-bin</id>
@@ -269,7 +285,6 @@
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-antrun-plugin</artifactId>
-                   <version>1.7</version>
                    <executions>
                        <execution>
                            <id>update-properties</id>

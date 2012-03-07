@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.mq.fabric;
+package org.fusesource.mq;
 
 import javax.jms.*;
 
@@ -34,6 +34,6 @@ public interface JMSService {
 
     public void start() throws JMSException;
 
-    public void stop() throws JMSException;
+    public void stop();
 
 }

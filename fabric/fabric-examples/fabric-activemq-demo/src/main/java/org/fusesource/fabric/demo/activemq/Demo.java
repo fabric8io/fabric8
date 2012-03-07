@@ -16,7 +16,9 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
-import org.fusesource.mq.fabric.JMSService;
+import org.fusesource.mq.ConsumerThread;
+import org.fusesource.mq.JMSService;
+import org.fusesource.mq.ProducerThread;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 

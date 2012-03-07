@@ -37,9 +37,7 @@
 
   <modules>
     <module>mq-fabric</module>
-    <!-- no longer required? 
-    <module>mq-bundle</module>
-    -->
+    <module>mq-client</module>
     <module>mq-branding</module>
     <module>fuse-mq</module>
   </modules>
