@@ -39,6 +39,7 @@
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
+                <exclude>readme.txt</exclude>
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>karaf-manual*</exclude>
             </excludes>
@@ -92,6 +93,16 @@
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>readme.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
         </fileSet>
         <fileSet>
             <directory>target/classes/licenses</directory>
