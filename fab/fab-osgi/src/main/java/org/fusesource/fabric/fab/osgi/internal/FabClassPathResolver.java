@@ -537,7 +537,7 @@ public class FabClassPathResolver {
 
     protected void addSharedDependency(DependencyTree tree) throws IOException {
         if (!isInstallProvidedBundleDependencies() && connection.isInstalled(tree)) {
-            LOG.debug("Skipping %s since it is already installed", tree.getDependencyId());
+            LOG.debug("Skipping {} since it is already installed", tree.getDependencyId());
             return;
         }
         LOG.debug("Added shared dependency: " + tree.getDependencyId());

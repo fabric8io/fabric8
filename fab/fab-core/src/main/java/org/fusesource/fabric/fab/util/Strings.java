@@ -101,5 +101,13 @@ public class Strings {
             return object.toString();
         }
     }
+    
+    public static String unquote(String text) {
+        if (text != null && text.startsWith("\"") && text.endsWith("\"")) {
+            return text.substring(1, text.length() - 1);
+        } else {
+            return text;
+        }
+    }
 
 }

@@ -26,6 +26,8 @@ import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.util.Service;
+import org.fusesource.fabric.fab.osgi.util.Services;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Objects;
@@ -36,6 +38,7 @@ import org.ops4j.net.URLUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
@@ -236,7 +239,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     }
 
 
-    protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException {
+    protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException, InvalidSyntaxException {
         BundleContext bundleContext = getBundleContext();
         if (bundleContext == null) {
             LOG.warn("No BundleContext available so cannot install provided dependencies");
@@ -275,17 +278,15 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     // we may be dependent on the actual service it exposes rather than packages we import...
                     boolean hasNoPendingPackagesOrServices = false;
                     if (missing.isEmpty()) {
-                        String services = dependency.getManifestEntry("Export-Service");
-
-                        // TODO DIRTY HACK!
-                        // we should be comparing the export services statement with the Import-Service
-                        // generated from bnd
-                        if (Strings.notEmpty(services)) {
-                            LOG.info("Bundle non-optional packages already installed for: " + name + " version: " + version + " but it exposes services so will install: " + services);
-                        } else {
+                        Set<Service> services = Services.parseHeader(dependency.getManifestEntry("Export-Service"));
+                        
+                        if (services.isEmpty() || Services.isAvailable(bundleContext, services)) {
                             hasNoPendingPackagesOrServices = true;
+                        } else if (Services.isAvailable(bundleContext, services)) {
+                            LOG.info("Bundle non-optional packages already installed for: " + name + " version: " + version + " but it exposes services that are not currently available so will install: " + services);
                         }
                     }
+
                     if (hasNoPendingPackagesOrServices) {
                         LOG.info("Bundle non-optional packages already installed for: " + name + " version: " + version + " packages: " + p);
                     } else {
