@@ -25,7 +25,7 @@
     <fileSets>
         <!-- Expanded ServiceMix Runtime -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/win/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>system/**</exclude>
@@ -81,6 +81,13 @@
     </fileSets>
 
     <files>
+        <file>
+            <source>${basedir}/target/dependencies/win/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fusemq.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>
