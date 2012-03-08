@@ -20,7 +20,7 @@
 
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
-    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
+    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" availability="optional"/>
 
@@ -33,6 +33,7 @@
     <bean id="Join" class="org.fusesource.fabric.commands.Join">
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
     <service ref="Join" auto-export="interfaces"/>
