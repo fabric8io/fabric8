@@ -95,7 +95,7 @@
             <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
         </file>
-        <file>
+        <!--file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>
             <destName>esb_notices.txt</destName>
@@ -108,7 +108,7 @@
             <destName>esb_dependencies.txt</destName>
             <fileMode>0644</fileMode>
             <lineEnding>dos</lineEnding>
-        </file>    
+        </file-->
       <!--  <file>
             <source>${basedir}/target/maven-shared-archive-resources/META-INF/LICENSE</source>
             <outputDirectory>/</outputDirectory>

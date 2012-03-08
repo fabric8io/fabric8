@@ -355,7 +355,7 @@
                 <executions>
                     <execution>
                         <id>enable-obr</id>
-                        <phase>generate-resources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -371,6 +371,12 @@
                                         append="true" eol="dos">
                                     <fileset file="target/shared/startup-obr.properties" />
                                 </concat>
+                                   <echo message="Fixing start/stop scripts in windows assembly" />
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="fuseesb.bat"/>
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="fuseesb.bat"/>
+                                   <echo message="Fixing start/stop scripts in unix assembly" />
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fuseesb"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fuseesb"/>
                             </target>
                         </configuration>
                     </execution>
