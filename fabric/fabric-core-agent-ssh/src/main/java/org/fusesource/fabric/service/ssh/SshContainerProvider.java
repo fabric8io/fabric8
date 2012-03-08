@@ -71,11 +71,13 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             int sshRetries = options.getSshRetries();
             int retryDelay = 1;
 
-            for (int i = 0; i < options.getNumber(); i++) {
-
-                String containerName = options.getName();
-                if (options.getNumber() != 1) {
-                    containerName += i + 1;
+            String originalName = new String(options.getName());
+            for (int i = 1; i <= options.getNumber(); i++) {
+                String containerName;
+                if (options.getNumber() > 1) {
+                    containerName = originalName + i;
+                } else {
+                    containerName = originalName;
                 }
                 CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
                 metadata.setCreateOptions(options);

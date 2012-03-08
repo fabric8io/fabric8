@@ -118,6 +118,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         StringBuilder buffer = new StringBuilder();
         boolean first = true;
         if (metadatas != null) {
+            String originalName = new String(options.getName());
             for (NodeMetadata nodeMetadata : metadatas) {
                 Credentials credentials = null;
                 //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
@@ -129,9 +130,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 String id = nodeMetadata.getId();
                 Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
 
-                String containerName = options.getName();
-                if(options.getNumber() > 1) {
-                    containerName+=suffix++;
+                String containerName;
+                if (options.getNumber() > 1) {
+                    containerName = originalName + (suffix++);
+                } else {
+                    containerName = originalName;
                 }
 
                 CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
