@@ -224,7 +224,7 @@
             <plugin>
                  <groupId>org.fusesource.mvnplugins</groupId>
                  <artifactId>maven-notices-plugin</artifactId>
-                 <version>1.23</version>
+                 <version>1.24</version>
                  <executions>
                      <execution>
                          <id>merge-notices-in-repository</id>
@@ -263,6 +263,9 @@
                                <finalName>${project.artifactId}-${project.version}</finalName>
                                <tarLongFileMode>gnu</tarLongFileMode>
                                <appendAssemblyId>false</appendAssemblyId>
+                               <filters>
+                                   <filter>src/main/descriptors/unix.properties</filter>
+                               </filters>
                            </configuration>
                        </execution>
                        <execution>
@@ -277,6 +280,9 @@
                                </descriptors>
                                <finalName>${project.artifactId}-${project.version}</finalName>
                                <appendAssemblyId>false</appendAssemblyId>
+                               <filters>
+                                   <filter>src/main/descriptors/windows.properties</filter>
+                               </filters>
                            </configuration>
                        </execution>
                    </executions>

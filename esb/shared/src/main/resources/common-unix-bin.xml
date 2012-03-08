@@ -50,6 +50,9 @@
             <includes>
               <include>bin/*</include>
             </includes>
+            <excludes>
+              <exclude>bin/fusefabric</exclude>
+            </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
 

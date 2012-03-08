@@ -171,7 +171,7 @@
         <slf4j-version>1.6.1</slf4j-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
         <spring-version>3.0.6.RELEASE</spring-version>
-        <surefire-version>2.5</surefire-version>
+        <surefire-version>2.12</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
         <xalan.version>2.7.1</xalan.version>
@@ -508,7 +508,7 @@
             <snapshots><enabled>true</enabled></snapshots>
             <releases><enabled>false</enabled></releases>
         </repository>
-        
+
         <repository>
           <id>java.net.m2</id>
           <url>http://download.java.net/maven/2</url>
@@ -530,7 +530,7 @@
           <url>http://download.oracle.com/maven</url>
           <layout>default</layout>
         </repository>
-            
+
     </repositories>
 
     <pluginRepositories>
@@ -763,6 +763,11 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-core</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-spring</artifactId>
                 <version>${camel-version}</version>
             </dependency>
             <!-- LogBack -->
@@ -1117,9 +1122,9 @@
     <profile>
       <id>release</id>
     </profile>
-    <!-- 
-        Do a license check by running       : mvn -P license license:check  
-        UPdate the license check by running : mvn -P license license:format  
+    <!--
+        Do a license check by running       : mvn -P license license:check
+        UPdate the license check by running : mvn -P license license:format
       -->
     <profile>
       <id>license</id>
@@ -1143,10 +1148,10 @@
                 <exclude>**/LICENSE.txt</exclude>
                 <exclude>**/LICENSE</exclude>
                 <exclude>**/.svn/**</exclude>
-            
+
                 <!-- ignore files produced during a build -->
                 <exclude>**/target/**</exclude>
-            
+
                 <!-- ignore binary files -->
                 <exclude>**/*.jpg</exclude>
                 <exclude>**/*.png</exclude>
@@ -1168,7 +1173,7 @@
                   <goal>check</goal>
                 </goals>
               </execution>
-            </executions>        
+            </executions>
           </plugin>
         </plugins>
       </build>

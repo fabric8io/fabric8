@@ -23,15 +23,16 @@
     </formats>
 
     <fileSets>
-        <!-- Expanded ServiceMix Runtime -->
+        <!-- Expanded fabric Runtime -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/win/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>system/**</exclude>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/create</exclude>
                 <exclude>bin/fabric</exclude>
+                <exclude>bin/fusefabric.bat</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>lib/*-version.jar</exclude>
                 <exclude>fabric_license.txt</exclude>
@@ -40,6 +41,7 @@
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
+                <exclude>readme.txt</exclude>
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>karaf-manual*</exclude>
             </excludes>
@@ -73,6 +75,17 @@
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>readme.txt</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
+        <fileSet>
             <directory>target/classes/licenses</directory>
             <outputDirectory>/licenses/</outputDirectory>
             <lineEnding>dos</lineEnding>
@@ -81,6 +94,13 @@
     </fileSets>
 
     <files>
+        <file>
+            <source>${basedir}/target/dependencies/win/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fusemq.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>
