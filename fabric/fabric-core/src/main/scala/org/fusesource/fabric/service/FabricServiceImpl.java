@@ -297,8 +297,13 @@ public class FabricServiceImpl implements FabricService {
     public URI getMavenRepoURI() {
         URI uri = URI.create(DEFAULT_REPO_URI);
         try {
-            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_REPO.getPath()) != null) {
-                String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_REPO.getPath());
+            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_PROXY.getPath()) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.CONFIGS_MAVEN_PROXY.getPath());
+                if (children != null && !children.isEmpty()) {
+                    Collections.sort(children);
+                }
+
+                String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + children.get(0));
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo+="/";
                 }

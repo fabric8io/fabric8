@@ -31,10 +31,19 @@
         <property name="remoteRepositories" value="${remoteRepositories}"/>
     </bean>
 
+    <bean id="proxyRegistration" class="org.fusesource.fabric.maven.MavenProxyRegistration" destroy-method="destroy">
+        <property name="port" value="${port}" />
+        <property name="zookeeper" ref="zookeeper"/>
+    </bean>
+
     <service ref="mavenProxy" interface="org.fusesource.fabric.maven.MavenProxy">
         <service-properties>
             <entry key="port" value="${port}" />
         </service-properties>
     </service>
+
+    <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+
+    <service ref="proxyRegistration" interface="org.linkedin.zookeeper.client.LifecycleListener"/>
 
 </blueprint>
