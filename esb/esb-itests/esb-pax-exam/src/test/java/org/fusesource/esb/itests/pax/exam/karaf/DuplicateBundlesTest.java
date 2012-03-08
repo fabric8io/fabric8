@@ -59,7 +59,7 @@ public class DuplicateBundlesTest extends EsbTestSupport {
 
         Assert.assertNotNull(features);
         for (Feature feature:features) {
-            System.out.println("Collection bundles from feature:" + feature.getName());
+            System.out.println("Collecting bundles from feature:" + feature.getName());
             populateBundles(feature,bundles);
         }
 
