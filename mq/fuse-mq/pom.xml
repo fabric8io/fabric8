@@ -294,7 +294,7 @@
                    <executions>
                        <execution>
                            <id>update-properties</id>
-                           <phase>process-resources</phase>
+                           <phase>prepare-package</phase>
                            <goals>
                                <goal>run</goal>
                            </goals>
@@ -308,6 +308,12 @@
                                    <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
+                                   <echo message="Fixing start/stop scripts in windows assembly" />
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="fusemq.bat"/>
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="fusemq.bat"/>
+                                   <echo message="Fixing start/stop scripts in unix assembly" />
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fusemq"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fusemq"/>
                                </target>
                            </configuration>
                        </execution>
