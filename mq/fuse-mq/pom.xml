@@ -264,7 +264,7 @@
                                <tarLongFileMode>gnu</tarLongFileMode>
                                <appendAssemblyId>false</appendAssemblyId>
                                <filters>
-                                   <filter>src/main/descriptors/unix.properties</filter>
+                                   <filter>${project.basedir}/src/main/descriptors/unix.properties</filter>
                                </filters>
                            </configuration>
                        </execution>
@@ -281,7 +281,7 @@
                                <finalName>${project.artifactId}-${project.version}</finalName>
                                <appendAssemblyId>false</appendAssemblyId>
                                <filters>
-                                   <filter>src/main/descriptors/windows.properties</filter>
+                                   <filter>${project.basedir}/src/main/descriptors/windows.properties</filter>
                                </filters>
                            </configuration>
                        </execution>
