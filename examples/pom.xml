@@ -39,6 +39,7 @@
 
     <modules>
         <module>cbr</module>
+        <module>eip</module>
         <module>cxf-jaxws</module>
         <module>cxf-jaxrs</module>
         <module>cxf-jaxws-security</module>
