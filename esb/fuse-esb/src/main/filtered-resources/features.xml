@@ -69,79 +69,7 @@
       -  Examples
       -
     -->
-
-    <feature name="examples-cxf-osgi" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${smx.features.version}">cxf-osgi</feature>
-        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jbi-api-1.0/${servicemix.specs.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-utils/${servicemix.utils.version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples/cxf-osgi/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-cxf-jaxrs" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${smx.features.version}">cxf-jaxrs</feature>
-        <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/${commons-httpclient.bundle.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples/cxf-jaxrs/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-cxf-nmr" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${smx.features.version}">cxf-nmr</feature>
-        <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples/cxf-nmr/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-camel-osgi" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${camel.version}">camel</feature>
-        <bundle>mvn:org.apache.servicemix.examples/camel-osgi/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-camel-blueprint" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${camel.version}">camel-blueprint</feature>
-        <bundle>mvn:org.apache.servicemix.examples/camel-blueprint/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-camel-nmr" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${smx.features.version}">camel-nmr</feature>
-        <bundle>mvn:org.apache.servicemix.examples/camel-nmr/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-camel-nmr-blueprint" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${smx.features.version}">camel-nmr</feature>
-        <feature version="${camel.version}">camel-blueprint</feature>
-        <bundle>mvn:org.apache.servicemix.examples/camel-nmr-blueprint/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-cxf-camel-nmr" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${smx.features.version}">camel-nmr</feature>
-        <feature version="${smx.features.version}">cxf-nmr</feature>
-        <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples/cxf-camel-nmr/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-cxf-ws-addressing" version="${smx.features.version}" resolver="(obr)">
-        <feature>cxf-osgi</feature>
-        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jbi-api-1.0/${servicemix.specs.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-utils/${servicemix.utils.version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples/cxf-ws-addressing/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-cxf-wsdl-first-osgi-package" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${servicemix.components.version}">servicemix-cxf-bc</feature>
-        <feature version="${servicemix.components.version}">servicemix-cxf-se</feature>
-        <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples.cxf-wsdl-first-osgi-package/wsdl-first-cxfbc-bundle/${smx.features.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples.cxf-wsdl-first-osgi-package/wsdl-first-cxfse-bundle/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-cxf-ws-security-osgi" version="${smx.features.version}" resolver="(obr)">
-        <feature>cxf-osgi</feature>
-        <feature version="${saaj-impl.bundle.version}">saaj</feature> 
-        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jbi-api-1.0/${servicemix.specs.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-utils/${servicemix.utils.version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples/cxf-ws-security-osgi/${smx.features.version}</bundle>
-    </feature>
-    <feature name="examples-cxf-ws-security-blueprint" version="${smx.features.version}" resolver="(obr)">
-        <feature>cxf-osgi</feature>
-        <feature version="${saaj-impl.bundle.version}">saaj</feature>
-        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jbi-api-1.0/${servicemix.specs.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix/servicemix-utils/${servicemix.utils.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples/cxf-ws-security-blueprint/${smx.features.version}</bundle>
-    </feature>
-
-
+    
     <feature name="jpa-hibernate" version="${smx.features.version}">
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.java-persistence-api-1.1.1/${servicemix.specs.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-dbcp/${commons-dbcp-bundle-version}</bundle>
@@ -157,16 +85,7 @@
         <bundle>mvn:org.hibernate/com.springsource.org.hibernate/${hibernate.springsource.version}</bundle>
         <bundle>mvn:org.springframework/spring-orm/${spring-version}</bundle>
     </feature>
-    <feature name="examples-jpa-osgi" version="${smx.features.version}" resolver="(obr)">
-        <feature version="${smx.features.version}">jpa-hibernate</feature>
-        <bundle dependency="true">mvn:org.hsqldb/com.springsource.org.hsqldb/${hsqldb.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples.jpa-osgi/wsdl-first-cxfbc-bundle/${smx.features.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.examples.jpa-osgi/wsdl-first-cxfse-bundle/${smx.features.version}</bundle>
-    </feature>
 
-    <feature name="examples-cxf-ws-rm" version="${smx.features.version}" resolver="(obr)">
-        <bundle>mvn:org.apache.servicemix.examples/cxf-ws-rm/${smx.features.version}</bundle>
-    </feature>
 
     <!--
       -
