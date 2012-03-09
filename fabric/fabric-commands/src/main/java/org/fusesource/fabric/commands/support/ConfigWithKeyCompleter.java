@@ -89,7 +89,7 @@ public class ConfigWithKeyCompleter implements Completer {
                     Enumeration keyEnumeration = dictionary.keys();
                     while (keyEnumeration.hasMoreElements()) {
                         String key = (String) keyEnumeration.nextElement();
-                        pidWithKeys.add(pid+"."+key);
+                        pidWithKeys.add(pid+"/"+key);
                     }
                 }
             }
