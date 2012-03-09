@@ -86,18 +86,11 @@ To Build the example by opening a command prompt, changing directory to examples
 
 ## Running the Example
 
-You can run the example:
+Install the example by entering the following command in
+the Fuse ESB console:
 
-1. If you have already run the example using the prebuilt version as described above, you must first uninstall the examples-cxf-jaxws-security feature by entering the following command in the ServiceMix console:
+        osgi:install -s fab:mvn:org.fusesource.examples/cxf-jaxws-security/${project.version} 
 
-        features:uninstall examples-cxf-jaxws-security
-
-2. Install the example by entering the following command in
-   the ServiceMix console:
-
-        features:install examples-cxf-jaxws-security
-
-   It makes use of the fuse ESB features facility. For more information about the features facility, see the README.md file in the examples parent directory.
    
 ### Running a client 
 

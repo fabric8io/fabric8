@@ -87,20 +87,15 @@ To Build the example by opening a command prompt, changing directory to examples
 
 You can run the example:
 
-1. If you have already run the example using the prebuilt version as described above, you must first uninstall the examples-cxf-jaxrs feature by entering the following command in the ServiceMix console:
+Install the example by entering the following command in
+the Fuse ESB console:
 
-        features:uninstall examples-cxf-jaxrs-security
+        osgi:install -s fab:mvn:org.fusesource.examples/cxf-jaxrs-security/${project.version}
 
-2. Install the example by entering the following command in
-   the ServiceMix console:
-
-        features:install examples-cxf-jaxrs-security
-
-   It makes use of the ServiceMix features facility. For more information about the features facility, see the README.md file in the examples parent directory.
    
 ### Running a client 
 
-You can browse WSDL at:
+You can browse WADL at:
 
 	http://localhost:8181/cxf/crm/customerservice?_wadl&_type=xml
 
