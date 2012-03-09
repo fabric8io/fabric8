@@ -47,6 +47,7 @@ public class ProfileEdit extends FabricCommand {
     static final String CONFIG_PREFIX = "config.";
     static final String SYSTEM_PREFIX = "system.";
     static final String DELIMETER = ",";
+    static final String PID_KEY_SEPARATOR = "/";
 
 
     @Option(name = "-r", aliases = {"--repositories"}, description = "Edit repositories", required = false, multiValued = false)
@@ -132,8 +133,8 @@ public class ProfileEdit extends FabricCommand {
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
                 String key = configEntries.getKey();
                 if (key.contains(".")) {
-                    String pid = key.substring(0, key.lastIndexOf("."));
-                    key = key.substring(key.lastIndexOf(".") + 1);
+                    String pid = key.substring(0, key.lastIndexOf(PID_KEY_SEPARATOR));
+                    key = key.substring(key.lastIndexOf(PID_KEY_SEPARATOR) + 1);
                     String value = configEntries.getValue();
                     Map<String,String> cfg = config.get(pid);
                     if (cfg == null) {
