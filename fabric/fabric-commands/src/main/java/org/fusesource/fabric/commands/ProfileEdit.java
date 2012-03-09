@@ -187,13 +187,15 @@ public class ProfileEdit extends FabricCommand {
      */
     private void importPidFromLocalConfigAdmin(String pid, Map<String, String> target) {
         try {
-            Configuration configuration = configurationAdmin.getConfiguration(pid);
-            Dictionary dictionary = configuration.getProperties();
-            Enumeration keyEnumeration = dictionary.keys();
-            while (keyEnumeration.hasMoreElements()) {
-                String key = String.valueOf(keyEnumeration.nextElement());
-                String value = String.valueOf(dictionary.get(key));
-                target.put(key,value);
+            Configuration[] configuration = configurationAdmin.listConfigurations("service.pid="+pid+")");
+            if (configuration != null && configuration.length > 0) {
+                Dictionary dictionary = configuration[0].getProperties();
+                Enumeration keyEnumeration = dictionary.keys();
+                while (keyEnumeration.hasMoreElements()) {
+                    String key = String.valueOf(keyEnumeration.nextElement());
+                    String value = String.valueOf(dictionary.get(key));
+                    target.put(key, value);
+                }
             }
         } catch (Exception e) {
             LOGGER.warn("Error while importing configuration {} to profile.",pid);

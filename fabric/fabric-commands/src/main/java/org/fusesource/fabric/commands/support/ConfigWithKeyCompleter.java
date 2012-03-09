@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -81,9 +82,9 @@ public class ConfigWithKeyCompleter implements Completer {
     private Set<String> getPidWithKeys(String pid) {
         Set<String> pidWithKeys = new LinkedHashSet<String>();
         try {
-            Configuration configuration = admin.getConfiguration(pid);
-            if (configuration != null) {
-                Dictionary dictionary = configuration.getProperties();
+            Configuration[] configuration = admin.listConfigurations("(service.pid=" + pid + ")");
+            if (configuration != null && configuration.length > 0) {
+                Dictionary dictionary = configuration[0].getProperties();
                 if (dictionary != null) {
                     Enumeration keyEnumeration = dictionary.keys();
                     while (keyEnumeration.hasMoreElements()) {
@@ -93,6 +94,8 @@ public class ConfigWithKeyCompleter implements Completer {
                 }
             }
         } catch (IOException e) {
+            LOGGER.warn("Could not lookup pid {} from configuration admin.",pid);
+        } catch (InvalidSyntaxException e) {
             LOGGER.warn("Could not lookup pid {} from configuration admin.",pid);
         }
         return pidWithKeys;
