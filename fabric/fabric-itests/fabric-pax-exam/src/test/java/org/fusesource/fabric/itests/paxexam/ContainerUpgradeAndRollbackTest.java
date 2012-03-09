@@ -33,6 +33,8 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
 
         System.out.println(executeCommand("fabric:create"));
 
+        addStagingRepoToDefaultProfile();
+
         createAndAssetChildContainer("camel1", "root", "camel");
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));

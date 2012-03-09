@@ -27,6 +27,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create"));
+         addStagingRepoToDefaultProfile();
          createAndAssetChildContainer("camel1","root", "mq");
     }
 

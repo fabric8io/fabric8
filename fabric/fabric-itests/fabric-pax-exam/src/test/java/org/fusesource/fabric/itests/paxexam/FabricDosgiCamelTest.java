@@ -54,7 +54,8 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         assertNotNull(fabricService);
 
         System.err.println(executeCommand("fabric:create root"));
-        Thread.sleep(DEFAULT_WAIT);
+
+        addStagingRepoToDefaultProfile();
 
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);

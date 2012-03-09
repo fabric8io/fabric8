@@ -86,6 +86,8 @@ public class CreateSshAgentTest extends FabricTestSupport {
             assertNotNull(fabricService);
             System.err.println(executeCommand("fabric:create"));
 
+            addStagingRepoToDefaultProfile();
+
             CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
                     .host(host)
                     .port(Integer.parseInt(port))
