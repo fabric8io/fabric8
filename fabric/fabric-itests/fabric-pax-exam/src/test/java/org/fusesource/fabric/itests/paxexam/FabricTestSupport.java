@@ -218,8 +218,8 @@ public class FabricTestSupport extends FuseTestSupport {
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
                         maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                        useOwnExamBundlesStartLevel(40),
-                      editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "35"),
+                        useOwnExamBundlesStartLevel(50),
+                      editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                       mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing","pax-exam-karaf"))
                 });
     }
