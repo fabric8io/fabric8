@@ -27,6 +27,8 @@
 
     <modules>
         <module>cbr</module>
+        <module>eip</module>
+        <module>errors</module>
     </modules>
 
 </project>
