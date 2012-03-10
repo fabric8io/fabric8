@@ -127,6 +127,6 @@
         </route>
 
 
-            </camelContext>
+    </camelContext>
 
-        </blueprint>
+</blueprint>

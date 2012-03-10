@@ -21,9 +21,6 @@ package org.fusesource.examples.eip;
 import org.apache.camel.language.NamespacePrefix;
 import org.apache.camel.language.XPath;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * This class contains some business logic that will be used within our Camel routes:
  * - determine the region for a country
