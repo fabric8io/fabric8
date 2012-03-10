@@ -21,6 +21,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
 import org.apache.felix.utils.log.Logger;
+import org.fusesource.fabric.api.FabricService;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -39,6 +40,7 @@ public class Activator implements BundleActivator {
     private ServiceTracker packageAdmin;
     private ServiceTracker startLevel;
     private ServiceTracker zkClient;
+    private ServiceTracker fabricService;
     private ServiceRegistration registration;
 
     public void start(BundleContext context) throws Exception {
@@ -48,6 +50,7 @@ public class Activator implements BundleActivator {
         agent.setPackageAdmin(getPackageAdmin(context));
         agent.setStartLevel(getStartLevel(context));
         agent.setZkClient(getZkClient(context));
+        agent.setFabricService(getFabricService(context));
         agent.start();
         Properties props = new Properties();
         props.setProperty(Constants.SERVICE_PID, AGENT_PID);
@@ -75,6 +78,12 @@ public class Activator implements BundleActivator {
         packageAdmin = new ServiceTracker(context, PackageAdmin.class.getName(), null);
         packageAdmin.open();
         return (PackageAdmin) packageAdmin.getService();
+    }
+
+    private FabricService getFabricService(BundleContext context) {
+        fabricService = new ServiceTracker(context, FabricService.class.getName(), null);
+        fabricService.open();
+        return (FabricService) fabricService.getService();
     }
 
     public void stop(BundleContext context) throws Exception {

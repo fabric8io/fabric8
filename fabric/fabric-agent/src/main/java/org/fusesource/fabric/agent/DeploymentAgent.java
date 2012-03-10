@@ -69,6 +69,7 @@ import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.fusesource.fabric.agent.utils.MultiException;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -105,6 +106,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private DownloadManager manager;
+    private FabricService fabricService;
 
     public DeploymentAgent() throws MalformedURLException {
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
@@ -152,6 +154,14 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     public void setZkClient(Callable<IZKClient> zkClient) {
         this.zkClient = zkClient;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
     }
 
     public void start() {
@@ -216,6 +226,19 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         if (props == null) {
             return;
         }
+        //Adding the mavne proxy URL to the list of repositories.
+        if (fabricService != null) {
+            URI mavenRepoURI = fabricService.getMavenRepoURI();
+            if (mavenRepoURI != null) {
+                String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
+                if (existingRepos == null) {
+                    props.put("org.ops4j.pax.url.mvn.repositories", mavenRepoURI.toString()+"@snapshots");
+                } else {
+                    props.put("org.ops4j.pax.url.mvn.repositories", existingRepos + "," + mavenRepoURI.toString()+"@snapshots");
+                }
+            }
+        }
+
         updateStatus("analyzing", null);
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
                 new DictionaryPropertyResolver(props,
