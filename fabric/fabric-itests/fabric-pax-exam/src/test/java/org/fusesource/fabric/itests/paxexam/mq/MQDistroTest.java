@@ -114,8 +114,8 @@ public class MQDistroTest {
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
                 maven().groupId(MQ_GROUP_ID).artifactId(MQ_ARTIFACT_ID).versionAsInProject().type("tar.gz"))
                 .karafVersion("2.2.2").name("Fabric MQ Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                      useOwnExamBundlesStartLevel(60),
-                      editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "35")});
+                      useOwnExamBundlesStartLevel(50),
+                      editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50")});
     }
 
 }
