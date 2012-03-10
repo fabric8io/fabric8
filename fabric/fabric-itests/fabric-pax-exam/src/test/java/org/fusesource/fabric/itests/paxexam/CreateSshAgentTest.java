@@ -73,8 +73,8 @@ public class CreateSshAgentTest extends FabricTestSupport {
     public void tearDown() {
         if (isReady()) {
             executeCommand("fabric:container-stop ssh2");
-            executeCommand("fabric:container-stop ssh1");
             executeCommand("fabric:container-delete ssh2");
+            executeCommand("fabric:container-stop ssh1");
             executeCommand("fabric:container-delete ssh1");
         }
     }
@@ -86,7 +86,8 @@ public class CreateSshAgentTest extends FabricTestSupport {
             assertNotNull(fabricService);
             System.err.println(executeCommand("fabric:create"));
 
-            addStagingRepoToDefaultProfile();
+              executeCommand("fabric:profile-edit -p org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=" +
+                      "http://repo1.maven.org/maven2 default");
 
             CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
                     .host(host)
@@ -104,26 +105,27 @@ public class CreateSshAgentTest extends FabricTestSupport {
             assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
             waitForProvisionSuccess(metadata[0].getContainer(), 3 * PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
-            Container container = fabricService.getContainer("ssh1");
-            assertTrue(container.isAlive());
+            Container ssh1 = fabricService.getContainer("ssh1");
+            assertTrue(ssh1.isAlive());
             createAndAssetChildContainer("ssh2","ssh1", "default");
-            //Try stopping and starting the remote container.
-            container.stop();
-            assertFalse(container.isAlive());
-            System.out.println(executeCommand("fabric:container-list -v"));
-            container.start();
-            waitForProvisionSuccess(container,PROVISION_TIMEOUT);
-            System.out.println(executeCommand("fabric:container-list -v"));
-            assertTrue(container.isAlive());
 
-            //Attempt to destroy the container.
-            boolean error = false;
-            try {
-                container.destroy();
-            }catch (IllegalStateException ex) {
-                error = true;
-            }
-            assertTrue("Should receive error when trying to destroy a container with alive children.",error);
+            //Stop & Start Remote Child
+            Container ssh2 = fabricService.getContainer("ssh2");
+            ssh2.stop();
+            assertFalse(ssh2.isAlive());
+            ssh2.start();
+            waitForProvisionSuccess(ssh2,PROVISION_TIMEOUT);
+            assertTrue(ssh2.isAlive());
+            ssh2.stop();
+
+            //Try stopping and starting the remote container.
+            ssh1.stop();
+            assertFalse(ssh1.isAlive());
+            System.out.println(executeCommand("fabric:container-list -v"));
+            ssh1.start();
+            waitForProvisionSuccess(ssh1,PROVISION_TIMEOUT);
+            System.out.println(executeCommand("fabric:container-list -v"));
+            assertTrue(ssh1.isAlive());
         }
     }
 
