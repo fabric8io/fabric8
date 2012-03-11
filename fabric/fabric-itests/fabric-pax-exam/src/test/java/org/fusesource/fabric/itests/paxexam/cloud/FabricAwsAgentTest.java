@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -45,6 +46,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
@@ -107,6 +109,12 @@ public class FabricAwsAgentTest extends FabricTestSupport {
         }
 
         System.err.println(executeCommand("features:install jclouds-aws-ec2 fabric-jclouds jclouds-commands"));
+
+        String fabricVersion = System.getProperty("fabric.version");
+        if (fabricVersion != null && fabricVersion.contains("SNAPSHOT")) {
+            System.err.println("Switching to snapshot repository");
+            executeCommands("config:propset --pid org.fusesource.fabric.service defaultRepo http://repo.fusesource.com/nexus/content/groups/public-snapshots/");
+        }
 
         //Filtering out regions because there is a temporary connectivity issue with us-west-2.
         executeCommands("config:edit org.jclouds.compute-ec2",
@@ -202,6 +210,7 @@ public class FabricAwsAgentTest extends FabricTestSupport {
                 copySystemProperty("fabricitest.aws.image"),
                 copySystemProperty("fabricitest.aws.location"),
                 copySystemProperty("fabricitest.aws.user"),
+                editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("org.fusesource.fabric","fuse-fabric")),
                 editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
                 scanFeatures("jclouds","jclouds-compute").start()
         };
