@@ -20,10 +20,7 @@ package org.fusesource.fabric.fab;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Filters;
-import org.fusesource.fabric.fab.util.IOHelpers;
-import org.fusesource.fabric.fab.util.Objects;
+import org.fusesource.fabric.fab.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryEvent;
@@ -41,10 +38,7 @@ import org.sonatype.aether.collection.DependencySelector;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.repository.ArtifactRepository;
-import org.sonatype.aether.repository.LocalRepository;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
+import org.sonatype.aether.repository.*;
 import org.sonatype.aether.resolution.ArtifactDescriptorException;
 import org.sonatype.aether.resolution.ArtifactDescriptorRequest;
 import org.sonatype.aether.resolution.ArtifactDescriptorResult;
@@ -524,6 +518,13 @@ public class MavenResolver {
         List<RemoteRepository> repos = new ArrayList<RemoteRepository>();
         for( int i = 0; i < repositories.length; i++ ) {
             String text = repositories[i].trim();
+            
+            //let's first extract authentication information
+            Authentication authentication = getAuthentication(text);
+            if (authentication != null) {
+                text = text.replaceFirst(String.format("%s:%s@", authentication.getUsername(), authentication.getPassword()), "");
+            }
+            
             boolean snapshot = false;
             while (true) {
                 int idx = text.lastIndexOf('@');
@@ -541,12 +542,34 @@ public class MavenResolver {
                 }
                 text = text.substring(0, idx);
             }
+            
             RemoteRepository repository = new RemoteRepository("repos" + i, "default", text);
             RepositoryPolicy policy = new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_DAILY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
             repository.setPolicy(snapshot, policy);
+            repository.setAuthentication(authentication);
             repos.add(repository);
         }
         return repos;
+    }
+
+    /*
+     * Get the {@link Authentication} instance if the URL contains credentials, otherwise return null
+     */
+    private Authentication getAuthentication(String text) {
+        Authentication authentication = null;
+        try {
+            URL url = new URL(text);
+            String authority = url.getUserInfo();
+            if (Strings.notEmpty(authority)) {
+                String[] parts = authority.split(":");
+                if (parts.length == 2) {
+                    authentication = new Authentication(parts[0], parts[1]);
+                }
+            }
+        } catch (MalformedURLException e) {
+            LOGGER.warn("{} does not look like a valid repository URL");
+        }
+        return authentication;
     }
 
     public PomDetails findPomFile(File jar) throws IOException {
