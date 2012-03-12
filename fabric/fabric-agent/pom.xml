@@ -38,6 +38,7 @@
             !org.osgi.service.obr,
             org.osgi.service.event*;resolution:=optional,
             org.osgi.service.obr*;resolution:=optional,
+            org.apache.felix.framework.monitor;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.export>

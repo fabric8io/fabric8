@@ -20,8 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +30,11 @@ public abstract class AbstractDownloadTask extends DefaultFuture<DownloadFuture>
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDownloadTask.class);
 
     protected final String url;
-
-    protected final ScheduledExecutorService executor;
-
+    protected final ExecutorService executor;
     private long scheduleDelay = 250;
     private int scheduleNbRun = 0;
 
-    public AbstractDownloadTask(String url, ScheduledExecutorService executor) {
+    public AbstractDownloadTask(String url, ExecutorService executor) {
         super(null);
         this.url = url;
         this.executor = executor;
@@ -69,19 +66,24 @@ public abstract class AbstractDownloadTask extends DefaultFuture<DownloadFuture>
     }
 
     public final void run() {
+        boolean done = false;
         try {
-            try {
-                File file = download();
-                setFile(file);
-                return;
-            } catch (IOException e) {
-                if (++scheduleNbRun < 5) {
-                    LOGGER.debug("Error downloading " + url + ": " + e.getMessage() + ". Retrying in approx " + scheduleDelay * 2 + " ms.");
-                    long delay = (long)(scheduleDelay * 3 / 2 + Math.random() * scheduleDelay / 2);
-                    executor.schedule(this, delay, TimeUnit.MILLISECONDS);
-                    scheduleDelay *= 2;
-                } else {
-                    setException(initIOException("Error downloading " + url, e));
+            while (!done) {
+                try {
+                    File file = download();
+                    setFile(file);
+                    done = true;
+                    return;
+                } catch (IOException e) {
+                    if (++scheduleNbRun < 5) {
+                        long delay = (long)(scheduleDelay * 3 / 2 + Math.random() * scheduleDelay / 2);
+                        LOGGER.debug("Error downloading " + url + ": " + e.getMessage() + ". Retrying in approx " + delay + " ms.");
+                        Thread.sleep(delay);
+                        scheduleDelay *= 2;
+                    } else {
+                        setException(initIOException("Error downloading " + url, e));
+                        done = true;
+                    }
                 }
             }
         } catch (Throwable e) {
@@ -106,10 +108,6 @@ public abstract class AbstractDownloadTask extends DefaultFuture<DownloadFuture>
 
     /**
      * Copy the input stream to the output
-     *
-     * @param inputStream
-     * @param outputStream
-     * @throws IOException
      */
     static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
         try {

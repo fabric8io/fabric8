@@ -49,6 +49,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.felix.bundlerepository.Resource;
+import org.apache.felix.framework.monitor.MonitoringService;
 import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Parser;
 import org.apache.felix.utils.properties.Properties;
@@ -104,9 +105,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private final Object refreshLock = new Object();
     private long refreshTimeout = 5000;
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService downloadExecutor;
+    private volatile boolean shutdownDownloadExecutor;
     private DownloadManager manager;
     private FabricService fabricService;
+    private ExecutorServiceFinder executorServiceFinder;
 
     public DeploymentAgent() throws MalformedURLException {
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
@@ -165,23 +169,31 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     public void start() {
+        LOGGER.info("Starting DeploymentAgent");
         loadState();
         bundleContext.addFrameworkListener(this);
     }
 
     public void stop() throws InterruptedException {
+        LOGGER.info("Stopping DeploymentAgent");
+        saveState();
         executor.shutdown();
-        executor.awaitTermination(30,TimeUnit.SECONDS);
+        executor.awaitTermination(30, TimeUnit.SECONDS);
+        if (shutdownDownloadExecutor && downloadExecutor != null) {
+            downloadExecutor.shutdown();
+            downloadExecutor.awaitTermination(30, TimeUnit.SECONDS);
+            downloadExecutor = null;
+        }
         bundleContext.removeFrameworkListener(this);
         manager.shutdown();
     }
 
     public void loadState() {
-
+        // noop
     }
 
     public void saveState() {
-
+        // noop
     }
 
     public void updated(final Dictionary props) throws ConfigurationException {
@@ -246,9 +258,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 "org.ops4j.pax.url.mvn"
         );
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-        manager = new DownloadManager(config);
+        manager = new DownloadManager(config, getDownloadExecutor());
         Map<String, String> properties = new HashMap<String, String>();
-        for (Enumeration e = props.keys(); e.hasMoreElements();) {
+        for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
             Object key = e.nextElement();
             Object val = props.get(key);
             if (!"service.pid".equals(key) && !FABRIC_ZOOKEEPER_PID.equals(key)) {
@@ -540,7 +552,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
 
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
-        findBundlesWithFramentsToRefresh(toRefresh);
+        findBundlesWithFragmentsToRefresh(toRefresh);
 
         updateStatus("finalizing", null);
         LOGGER.info("Refreshing bundles:");
@@ -614,7 +626,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     }
                 }
             }
-            bundlesToDestroy.add(ref.getBundle());
+            if (ref != null) {
+                bundlesToDestroy.add(ref.getBundle());
+            }
             LOGGER.debug("Selected bundle {} for destroy (lowest ranking service)", bundlesToDestroy);
         }
         return bundlesToDestroy;
@@ -632,7 +646,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
 
-    protected void findBundlesWithFramentsToRefresh(Set<Bundle> toRefresh) {
+    protected void findBundlesWithFragmentsToRefresh(Set<Bundle> toRefresh) {
         for (Bundle b : toRefresh) {
             if (b.getState() != Bundle.UNINSTALLED) {
                 String hostHeader = (String) b.getHeaders().get(Constants.FRAGMENT_HOST);
@@ -668,7 +682,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
         // Second pass: for each bundle, check if there is any unresolved optional package that could be resolved
         Map<Bundle, List<Clause>> imports = new HashMap<Bundle, List<Clause>>();
-        for (Iterator<Bundle> it = bundles.iterator(); it.hasNext();) {
+        for (Iterator<Bundle> it = bundles.iterator(); it.hasNext(); ) {
             Bundle b = it.next();
             String importsStr = (String) b.getHeaders().get(Constants.IMPORT_PACKAGE);
             List<Clause> importsList = getOptionalImports(importsStr);
@@ -693,10 +707,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
             }
         }
-        for (Iterator<Bundle> it = bundles.iterator(); it.hasNext();) {
+        for (Iterator<Bundle> it = bundles.iterator(); it.hasNext(); ) {
             Bundle b = it.next();
             List<Clause> importsList = imports.get(b);
-            for (Iterator<Clause> itpi = importsList.iterator(); itpi.hasNext();) {
+            for (Iterator<Clause> itpi = importsList.iterator(); itpi.hasNext(); ) {
                 Clause pi = itpi.next();
                 boolean matching = false;
                 for (Clause pe : exports) {
@@ -810,6 +824,50 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 getPackageAdmin().refreshPackages(bundles);
                 refreshLock.wait(refreshTimeout);
             }
+        }
+    }
+
+    protected synchronized ExecutorService getDownloadExecutor() {
+        if (downloadExecutor == null) {
+            if (executorServiceFinder == null) {
+                try {
+                    executorServiceFinder = new FelixExecutorServiceFinder();
+                    downloadExecutor = executorServiceFinder.find(bundleContext.getBundle());
+                } catch (Throwable t) {
+                    LOGGER.warn("Cannot find reference to MonitoringService. This exception will be ignored.", t);
+                }
+            }
+            
+            if (downloadExecutor == null) {
+                LOGGER.info("Creating a new fixed thread pool for download manager.");
+                downloadExecutor = Executors.newFixedThreadPool(5);
+                // we created our own thread pool, so we should shutdown when stopping
+                shutdownDownloadExecutor = true;
+            } else {
+                LOGGER.info("Using Felix thread pool for download manager.");
+                // we re-use existing thread pool, so we should not shutdown
+                shutdownDownloadExecutor = false;
+            }
+        }
+        return downloadExecutor;
+    }
+
+    interface ExecutorServiceFinder {
+        public ExecutorService find(Bundle bundle);
+    }
+
+    class FelixExecutorServiceFinder implements ExecutorServiceFinder {
+        ServiceReference sr;
+
+        FelixExecutorServiceFinder() {
+            sr = bundleContext.getServiceReference(MonitoringService.class.getName());
+            if (sr == null) {
+                throw new UnsupportedOperationException();
+            }
+        }
+
+        public ExecutorService find(Bundle bundle) {
+            return ((MonitoringService) bundleContext.getService(sr)).getExecutor(bundle);
         }
     }
 

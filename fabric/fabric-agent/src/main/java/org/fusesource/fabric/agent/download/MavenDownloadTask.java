@@ -45,7 +45,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 public class MavenDownloadTask extends AbstractDownloadTask implements Runnable {
 
@@ -54,18 +54,18 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
      */
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDownloadTask.class);
     /**
-     * 2 spacess indent;
+     * 2 spaces indent;
      */
     private static final String Ix2 = "  ";
     /**
-     * 4 spacess indent;
+     * 4 spaces indent;
      */
     private static final String Ix4 = "    ";
 
     private final MavenRepositoryURL system;
     private final MavenConfiguration configuration;
 
-    public MavenDownloadTask(String url, MavenRepositoryURL system, MavenConfiguration configuration, ScheduledExecutorService executor) {
+    public MavenDownloadTask(String url, MavenRepositoryURL system, MavenConfiguration configuration, ExecutorService executor) {
         super(url, executor);
         this.system = system;
         this.configuration = configuration;
@@ -117,9 +117,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             }
         }
         // no artifact found
-        throw new IOException(
-                "URL [" + url + "] could not be resolved."
-        );
+        throw new IOException("URL [" + url + "] could not be resolved.");
     }
 
     /**
