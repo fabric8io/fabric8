@@ -17,7 +17,7 @@
 -->
 <!--
    This file is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
-   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is being installed.
+   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
 
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
    and the Camel namespaces.
@@ -29,10 +29,10 @@
              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
     <!--
-      The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'.  Additionally,
-      we can also define namespace prefixes we want to use in the XPath expressions in our CBR here.
+      The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'. Additionally,
+      we can also define namespace prefixes we want to use them in the XPath expressions in our CBR.
 
-      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is usually a good idea
+      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
       to set those for runtime management purposes (logging, JMX MBeans, ...)
     -->
     <camelContext xmlns="http://camel.apache.org/schema/blueprint"
@@ -40,16 +40,16 @@
                   id="cbr-example-context">
 
         <!--
-          When this route is being started, it will automatically create the work/cbr/input directory when you can drop the
+          When this route is started, it will automatically create the work/cbr/input directory where you can drop the
           file that need to be processed.
 
-          The <log/> elements are used to add human-friendly business logging statements so it is easier to see what the
+          The <log/> elements are used to add human-friendly business logging statements. They make it easier to see what the
           route is doing.
 
-          Within the <choice/> element, there are two <when/> clauses, using XPath to define the criteria for entering that
-          part of the route.  When the country in the XML message is set to UK or US, the file will be moved to a specific
-          directory for that country.  The <otherwise/> element ensures that any file that does not meet the requirements
-          for any of the two <when/>s will be move to the work/cbr/output/others directory instead.
+          The <choice/> element contains the content based router. The two <when/> clauses use XPath to define the criteria 
+          for entering that part of the route. When the country in the XML message is set to UK or US, the file will be 
+          moved to a directory for that country. The <otherwise/> element ensures that any file that does not meet the 
+          requirements for either of the <when/> elements will be moved to the work/cbr/output/others directory.
         -->
         <route id="cbr-route">
             <from uri="file:work/cbr/input" />

@@ -17,7 +17,7 @@
 -->
 <!--
    This file is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
-   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is being installed.
+   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
 
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
    and the Camel namespaces.
@@ -31,16 +31,18 @@
 
     <!--
       We are using the OSGi Blueprint XML syntax to define a bean that we will later use in our Camel route to determine
-      the geographical region.
+      the geographical region. The code for this bean can be found in src/main/java/org/fusesource/examples/eip/RegionSupport.java
     -->
     <bean id="MyRegionSupport" class="org.fusesource.examples.eip.RegionSupport" />
 
     <!--
-      The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'.  Additionally,
-      we can also define namespace prefixes we want to use in the XPath expressions in our CBR here.
+      The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'. We can also define 
+      namespace prefixes we want to use in the XPath expressions in our CBR here.
+      
+      We defined the namespace prefix order so that we use the namespace from the order messages in the XPath expressions.
 
-      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is usually a good idea
-      to set those for runtime management purposes (logging, JMX MBeans, ...)
+      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
+      to set them for runtime management purposes (logging, JMX MBeans, ...)
     -->
     <camelContext xmlns="http://camel.apache.org/schema/blueprint"
                   xmlns:order="http://fusesource.com/examples/order/v7"
@@ -74,15 +76,15 @@
 
         <!--
           This route starts with the direct:splitter endpoint we used in our main route.  In this route, we will split a file
-          containing multiple <order/> elements into separate message, so we can afterwards store the orders in a separate
+          containing multiple <order/> elements into separate messages, so we can store the orders in a separate
           directory for every geographical region.
         -->
         <route id="splitterRoute">
             <from uri="direct:splitter"/>
             <split>
                 <!--
-                  We are using XPath to split the message body.  The namespace used in the XPath expression was defined on
-                  the camelContext element.
+                  We are using XPath to split the message body. The namespace prefix, order, used in the XPath expression was 
+                  defined on the camelContext element.
                 -->
                 <xpath>//order:order</xpath>
                 <!--
@@ -104,8 +106,7 @@
                 <!--
                   A recipient list can be used to dynamically determine the next hops for a message.  In this case, we dynamically
                   generate the file: endpoint uri using the two headers we defined earlier.  We will also send the message to the
-                  direct:filter endpoint to see if the order needs attention from our strategic account management team. A , is
-                  used as the separator character between target endpoints
+                  direct:filter endpoint to see if the order needs attention from our strategic account management team.
                 -->
                 <recipientList>
                     <simple>file:work/eip/output/${header.region}?fileName=${header.orderId}.xml,direct:filter</simple>
@@ -114,7 +115,7 @@
         </route>
 
         <!--
-          This route starts with the direct:splitter endpoint we used in the <recipientList> in our splitter route.
+          This route starts with the direct:filter endpoint we used in the <recipientList> in our splitter route.
           It will use a Filter EIP to filter out the order messages that contain more than 100 animals in a single order.
           For all messages that meet the XPath filter expression,  an extra message will appear in the logs.
         -->

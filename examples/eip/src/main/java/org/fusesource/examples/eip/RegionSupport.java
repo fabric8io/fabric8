@@ -22,8 +22,8 @@ import org.apache.camel.language.NamespacePrefix;
 import org.apache.camel.language.XPath;
 
 /**
- * This class contains some business logic that will be used within our Camel routes:
- * - determine the region for a country
+ * This class contains business logic that determines the region for a country. It is used by the 
+ * Camel route in this example.
  */
 public class RegionSupport {
 
@@ -34,9 +34,10 @@ public class RegionSupport {
     /**
      * Get the region code that corresponds to the given country code.
      *
-     * This method can be used as a plain Java method, but when it is used inside a Camel route, the @XPath annotation will kick in,
-     * evaluating the XPath expression and using the result as the method parameter.  In this case, it will fetch the country code
-     * from the order XML message, so the method will determine the region code for the country that is in the XML message.
+     * This method can be used as a plain Java method. However, when it is used inside a Camel 
+     * route, the @XPath annotation will evaluate the XPath expression and use the result as the
+     * method parameter. In this case, it will fetch the country code from the order XML message.
+     * So, the method will determine the region code for the country that is in the XML message.
      *
      * @param country the country code
      * @return the region code
