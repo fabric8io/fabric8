@@ -16,19 +16,19 @@
  */
 package org.fusesource.fabric.agent.download;
 
+import java.net.MalformedURLException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.fusesource.fabric.agent.mvn.MavenConfiguration;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
-
-import java.net.MalformedURLException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class DownloadManager {
 
     /**
      * Thread pool for downloads
      */
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
+    private ExecutorService executor;
 
     /**
      * Service configuration.
@@ -38,13 +38,18 @@ public class DownloadManager {
     private final MavenRepositoryURL system;
 
     public DownloadManager(MavenConfiguration configuration) throws MalformedURLException {
+        this(configuration, null);
+    }
+
+    public DownloadManager(MavenConfiguration configuration, ExecutorService executor) throws MalformedURLException {
         this.configuration = configuration;
+        this.executor = executor;
         String systemRepo = "file:" + System.getProperty("karaf.home") + "/" + System.getProperty("karaf.default.repository") + "@snapshots";
         system = new MavenRepositoryURL(systemRepo);
     }
 
     public void shutdown() {
-        executor.shutdown();
+        // noop
     }
 
     public DownloadFuture download(String url) throws MalformedURLException {

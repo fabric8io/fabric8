@@ -82,12 +82,14 @@ public class MavenProxyImplTest {
         proxy.start();
         status = getArtifact(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE);
         assertEquals("Expected http status OK", HttpStatus.SC_OK, status);
-        //In order to prove that the file DOES get retrieved from the local repo, let's delete it and see what happens.
-        file.delete();
-        status = getArtifact(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE);
-        assertEquals("Expected http status OK", HttpStatus.SC_NOT_FOUND, status);
+        // In order to prove that the file DOES get retrieved from the local repo, let's delete it and see what
+        // happens.  This can fail though on windows due to open file handles so lets not treat as an error in
+        // that case.
+        if (file.delete()) {
+        	status = getArtifact(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE);
+        	assertEquals("Expected http status OK", HttpStatus.SC_NOT_FOUND, status);
+        }
     }
-
 
     protected String getArtifactPath(String groupId, String artifactId, String version, String type) {
         return groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "." + type;
