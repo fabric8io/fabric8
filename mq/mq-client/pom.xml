@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>mq-client</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Fuse MQ :: Client</description>
 
@@ -89,22 +89,36 @@
     </dependencies>
 
     <build>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <configuration>
-            <archive>
-              <manifest>
-                <mainClass>org.fusesource.mq.Main</mainClass>
-                <addClasspath>true</addClasspath>
-                <classpathPrefix>../system/</classpathPrefix>
-                <classpathLayoutType>repository</classpathLayoutType>
-              </manifest>
-            </archive>
-          </configuration>
-        </plugin>
-      </plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <manifest>
+                            <mainClass>org.fusesource.mq.Main</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>../system/</classpathPrefix>
+                            <classpathLayoutType>repository</classpathLayoutType>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
