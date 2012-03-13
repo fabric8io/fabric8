@@ -20,7 +20,7 @@
 
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
-    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
+    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" availability="optional"/>
 
@@ -33,6 +33,7 @@
     <bean id="Join" class="org.fusesource.fabric.commands.Join">
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
     <service ref="Join" auto-export="interfaces"/>
@@ -158,7 +159,7 @@
               <property name="zooKeeper" ref="zooKeeper"/>
           </action>
           <completers>
-              <ref component-id="containerCompleter" />
+              <ref component-id="stoppedContainerCompleter" />
               <null/>
           </completers>
       </command>
@@ -168,7 +169,7 @@
               <property name="zooKeeper" ref="zooKeeper"/>
           </action>
           <completers>
-              <ref component-id="containerCompleter" />
+              <ref component-id="startedContainerCompleter" />
               <null/>
           </completers>
       </command>
@@ -303,6 +304,9 @@
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
             </action>
+            <optional-completers>
+                <entry key="--parent" value-ref="versionCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/version-list">
             <action class="org.fusesource.fabric.commands.VersionList">
@@ -340,10 +344,22 @@
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
+
     <bean id="rootContainerCompleter" class="org.fusesource.fabric.commands.support.RootContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
+
+    <bean id="startedContainerCompleter" class="org.fusesource.fabric.commands.support.StartedContainerCompleter">
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+    <bean id="stoppedContainerCompleter" class="org.fusesource.fabric.commands.support.StoppedContainerCompleter">
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
     <bean id="clusterCompleter" class="org.fusesource.fabric.commands.support.ClusterCompleter">
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>

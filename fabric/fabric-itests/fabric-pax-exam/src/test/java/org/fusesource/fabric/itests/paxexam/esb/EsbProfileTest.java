@@ -1,6 +1,6 @@
 package org.fusesource.fabric.itests.paxexam.esb;
 
-import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
+import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class EsbProfileTest extends FabricCommandsTestSupport {
+public class EsbProfileTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
@@ -27,6 +27,7 @@ public class EsbProfileTest extends FabricCommandsTestSupport {
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create"));
+         addStagingRepoToDefaultProfile();
          createAndAssetChildContainer("esb1","root", "esb");
     }
 

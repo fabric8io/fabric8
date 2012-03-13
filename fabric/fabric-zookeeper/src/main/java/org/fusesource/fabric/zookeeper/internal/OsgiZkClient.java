@@ -426,7 +426,8 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
 
         }
         if (_state == State.CONNECTED) {
-            _stateChangeDispatcher.addEvent(null, State.CONNECTED);
+            listener.onConnected();
+            //_stateChangeDispatcher.addEvent(null, State.CONNECTED);
         }
     }
 

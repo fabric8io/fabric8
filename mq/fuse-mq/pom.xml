@@ -28,7 +28,7 @@
     <groupId>org.fusesource.mq</groupId>
     <artifactId>fuse-mq</artifactId>
     <name>${project.artifactId}</name>
-       <description>Fuse MQ :: Binary Distribution</description>
+    <description>Fuse MQ :: Binary Distribution</description>
 
        <prerequisites>
            <maven>3.0.2</maven>
@@ -39,6 +39,11 @@
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
+               <version>${project.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.mq</groupId>
+               <artifactId>mq-client</artifactId>
                <version>${project.version}</version>
            </dependency>
            <dependency>
@@ -55,6 +60,13 @@
            </dependency>
 
            <!-- MQ Dependencies -->
+           <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>activemq-web-console</artifactId>
+               <version>${activemq-version}</version>
+               <type>war</type>
+           </dependency>
+
            <dependency>
                <groupId>org.fusesource.mq</groupId>
                <artifactId>org.fusesource.mq.karaf.branding</artifactId>
@@ -129,6 +141,10 @@
                                    <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
                                    <feature>mq-fabric</feature>
+                                   <feature>activemq-spring</feature>
+                                   <!-- needs sp3, feature>activemq-camel</feature -->
+                                   <feature>war</feature>
+                                   <feature>activemq-web-console</feature>
                                    <feature>patch</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
@@ -208,11 +224,11 @@
             <plugin>
                  <groupId>org.fusesource.mvnplugins</groupId>
                  <artifactId>maven-notices-plugin</artifactId>
-                 <version>1.23</version>
+                 <version>1.25</version>
                  <executions>
                      <execution>
                          <id>merge-notices-in-repository</id>
-                         <phase>package</phase>
+                         <phase>prepare-package</phase>
                          <goals>
                              <goal>merge-notices-in-repository</goal>
                          </goals>
@@ -232,7 +248,7 @@
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-assembly-plugin</artifactId>
-                   <version>2.2.1</version>
+                   <version>${maven-assembly-plugin-version}</version>
                    <executions>
                        <execution>
                            <id>unix-bin</id>
@@ -247,6 +263,9 @@
                                <finalName>${project.artifactId}-${project.version}</finalName>
                                <tarLongFileMode>gnu</tarLongFileMode>
                                <appendAssemblyId>false</appendAssemblyId>
+                               <filters>
+                                   <filter>${project.basedir}/src/main/descriptors/unix.properties</filter>
+                               </filters>
                            </configuration>
                        </execution>
                        <execution>
@@ -261,6 +280,9 @@
                                </descriptors>
                                <finalName>${project.artifactId}-${project.version}</finalName>
                                <appendAssemblyId>false</appendAssemblyId>
+                               <filters>
+                                   <filter>${project.basedir}/src/main/descriptors/windows.properties</filter>
+                               </filters>
                            </configuration>
                        </execution>
                    </executions>
@@ -269,11 +291,10 @@
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-antrun-plugin</artifactId>
-                   <version>1.7</version>
                    <executions>
                        <execution>
                            <id>update-properties</id>
-                           <phase>process-resources</phase>
+                           <phase>prepare-package</phase>
                            <goals>
                                <goal>run</goal>
                            </goals>
@@ -287,6 +308,12 @@
                                    <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/etc/system.properties" />
                                    </concat>
+                                   <echo message="Fixing start/stop scripts in windows assembly" />
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="fusemq.bat"/>
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="fusemq.bat"/>
+                                   <echo message="Fixing start/stop scripts in unix assembly" />
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fusemq"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fusemq"/>
                                </target>
                            </configuration>
                        </execution>

@@ -22,7 +22,6 @@
     xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
     xmlns:cxf="http://cxf.apache.org/blueprint/core"
     xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
 http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd">
 

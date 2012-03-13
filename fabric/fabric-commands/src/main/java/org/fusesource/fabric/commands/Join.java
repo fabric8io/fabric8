@@ -19,11 +19,17 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.IZKClient;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 import java.util.Properties;
 
@@ -33,6 +39,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.co
     ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private String version = ZkDefs.DEFAULT_VERSION;
+    private BundleContext bundleContext;
 
     @Argument(required = true, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
@@ -45,14 +52,33 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.co
         config.setBundleLocation(null);
         config.update(properties);
 
-        Thread.sleep(2000); //TODO wait for zk client
+            // Wait for the client to be available
+            ServiceTracker tracker = new ServiceTracker(bundleContext, org.fusesource.fabric.zookeeper.IZKClient.class.getName(), null);
+            tracker.open();
+            zooKeeper = (org.fusesource.fabric.zookeeper.IZKClient) tracker.waitForService(5000);
+            if (zooKeeper == null) {
+                throw new IllegalStateException("Timeout waiting for ZooKeeper client to be registered");
+            }
+            tracker.close();
+            zooKeeper.waitForConnected();
 
         String karafName = System.getProperty("karaf.name");
 
         ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
         ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default");
-
+        Bundle bundleFabricJaas = findOrInstallBundle("org.fusesource.fabric.fabric-jaas",
+                "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
+        bundleFabricJaas.start();
         return null;
+    }
+
+    private Bundle findOrInstallBundle(String bsn, String url) throws BundleException {
+        for (Bundle b : bundleContext.getBundles()) {
+            if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
+                return b;
+            }
+        }
+        return bundleContext.installBundle(url);
     }
 
     @Override
@@ -88,5 +114,13 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.co
     @Override
     public void setZookeeperUrl(String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }

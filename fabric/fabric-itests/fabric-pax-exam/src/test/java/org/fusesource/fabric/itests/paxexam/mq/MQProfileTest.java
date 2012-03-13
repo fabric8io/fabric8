@@ -1,6 +1,6 @@
 package org.fusesource.fabric.itests.paxexam.mq;
 
-import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
+import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class MQProfileTest extends FabricCommandsTestSupport {
+public class MQProfileTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
@@ -27,6 +27,7 @@ public class MQProfileTest extends FabricCommandsTestSupport {
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create"));
+         addStagingRepoToDefaultProfile();
          createAndAssetChildContainer("camel1","root", "mq");
     }
 

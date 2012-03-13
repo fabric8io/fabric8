@@ -21,11 +21,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 public class SimpleDownloadTask extends AbstractDownloadTask {
 
-    public SimpleDownloadTask(String url, ScheduledExecutorService executor) {
+    public SimpleDownloadTask(String url, ExecutorService executor) {
         super(url, executor);
     }
 

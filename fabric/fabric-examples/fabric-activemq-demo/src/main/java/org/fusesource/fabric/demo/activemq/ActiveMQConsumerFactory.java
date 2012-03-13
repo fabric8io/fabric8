@@ -16,7 +16,8 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
-import org.fusesource.mq.fabric.FabricActiveMQService;
+import org.fusesource.mq.ConsumerThread;
+import org.fusesource.mq.ActiveMQService;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
@@ -41,10 +42,11 @@ public class ActiveMQConsumerFactory implements ManagedServiceFactory {
             if (brokerUrl == null) {
                 brokerUrl = "discover:(fabric:default)";
             }
-            FabricActiveMQService producerService = new FabricActiveMQService(brokerUrl);
-            producerService.start();
+            ActiveMQService consumerService = new ActiveMQService(brokerUrl);
+            consumerService.setMaxAttempts(10);
+            consumerService.start();
             String destination = (String) properties.get("destination");
-            ConsumerThread consumer = new ConsumerThread(producerService, destination);
+            ConsumerThread consumer = new ConsumerThread(consumerService, destination);
             consumer.start();
             LOG.info("Consumer " + pid + " started");
         } catch (JMSException e) {

@@ -68,6 +68,7 @@ public class FabricServiceImpl implements FabricService {
     private ObjectName mbeanName;
     private String userName = "admin";
     private String password = "admin";
+    private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
 
     public FabricServiceImpl() {
         providers = new ConcurrentHashMap<String, ContainerProvider>();
@@ -96,6 +97,14 @@ public class FabricServiceImpl implements FabricService {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getDefaultRepo() {
+        return defaultRepo;
+    }
+
+    public void setDefaultRepo(String defaultRepo) {
+        this.defaultRepo = defaultRepo;
     }
 
     @Override
@@ -295,10 +304,15 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public URI getMavenRepoURI() {
-        URI uri = URI.create(DEFAULT_REPO_URI);
+        URI uri = URI.create(defaultRepo);
         try {
-            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_REPO.getPath()) != null) {
-                String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_REPO.getPath());
+            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_PROXY.getPath()) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.CONFIGS_MAVEN_PROXY.getPath());
+                if (children != null && !children.isEmpty()) {
+                    Collections.sort(children);
+                }
+
+                String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + children.get(0));
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo+="/";
                 }

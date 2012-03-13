@@ -72,11 +72,13 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                 }
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
-
+                String originalName = new String(options.getName());
                 for (int i = 1; i <= options.getNumber(); i++) {
-                    String containerName = options.getName();
+                    String containerName;
                     if (options.getNumber() > 1) {
-                        containerName += i;
+                        containerName = originalName + i;
+                    } else {
+                        containerName = originalName;
                     }
                     CreateContainerChildMetadata metadata = new CreateContainerChildMetadata();
                     metadata.setCreateOptions(options);

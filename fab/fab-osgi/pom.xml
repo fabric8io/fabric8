@@ -223,7 +223,13 @@
       <artifactId>plexus-utils</artifactId>
       <version>1.5.9</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+    </dependency>
   </dependencies>
+
   <build>
     <plugins>
 

@@ -20,10 +20,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!--
-      Don't depend on any of the plugins/dependencies/... defined in the parent POM
-      It will be replaced by a POM that does not have this section in the actual distribution
-
-      You should only depend on properties because those will be filtered for all examples POMs
+      The parent POM does not contain any information required to build this example, it's only here
+      for organisational purposes so feel free to remove/replace this.
     -->
     <parent>
         <groupId>org.fusesource.examples</groupId>
@@ -42,6 +40,11 @@
     </properties>
 
     <dependencies>
+        <!--
+          For this example, we will be using the OSGi Blueprint XML syntax for Apache Camel.
+          The camel-blueprint bundle is installed in Fuse ESB Enterprise by default,
+          so we are setting the dependency's scope to 'provided'.
+        -->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-blueprint</artifactId>
@@ -49,44 +52,5 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-
-    <build>
-        <plugins>
-<!--            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <index>true</index>
-                        <manifestEntries>
-                            <FAB-Provided-Dependency />
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin> -->
-            <plugin>
-                <groupId>org.fusesource.mvnplugins</groupId>
-                <artifactId>maven-fab-plugin</artifactId>
-                <version>${maven-fab-plugin-version}</version>
-                <configuration>
-                    <descriptor>
-                        <Long-Description />
-                        <!-- <Endorsed-Extensions>
-                         ${project.groupId}:artifact:${project.version}
-                       </Endorsed-Extensions>
-                       <Default-Extensions>name</Default-Extensions> -->
-                    </descriptor>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

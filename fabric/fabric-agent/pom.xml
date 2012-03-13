@@ -38,6 +38,7 @@
             !org.osgi.service.obr,
             org.osgi.service.event*;resolution:=optional,
             org.osgi.service.obr*;resolution:=optional,
+            org.apache.felix.framework.monitor;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.export>
@@ -57,6 +58,11 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>

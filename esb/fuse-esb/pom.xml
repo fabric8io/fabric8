@@ -55,20 +55,6 @@
             <type>tar.gz</type>
         </dependency>
 
-        <!-- Fuse Distro of ServiMix: Is used to get the examples -->
-        <dependency>
-            <groupId>org.apache.servicemix</groupId>
-            <artifactId>apache-servicemix-minimal</artifactId>
-            <version>${smx.features.version}</version>
-            <type>tar.gz</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix</groupId>
-            <artifactId>apache-servicemix-minimal</artifactId>
-            <version>${smx.features.version}</version>
-            <type>tar.gz</type>
-        </dependency>
-
         <!--Xerces jar to be included in lib/endorsed -->
         <dependency>
             <groupId>org.apache.xerces</groupId>
@@ -286,52 +272,16 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>unpack-examples-unix</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.servicemix</groupId>
-                                    <artifactId>apache-servicemix-minimal</artifactId>
-                                    <version>${smx.features.version}</version>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>target/dependencies/servicemix/unix/</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-examples/win</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.servicemix</groupId>
-                                    <artifactId>apache-servicemix-minimal</artifactId>
-                                    <version>${smx.features.version}</version>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>target/dependencies/servicemix/win/</outputDirectory>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
                  <groupId>org.fusesource.mvnplugins</groupId>
                  <artifactId>maven-notices-plugin</artifactId>
-                 <version>1.23</version>
+                 <version>1.25</version>
                  <executions>
                      <execution>
                          <id>merge-notices-in-repository</id>
-                         <phase>package</phase>
+                         <phase>prepare-package</phase>
                          <goals>
                              <goal>merge-notices-in-repository</goal>
                          </goals>
@@ -355,7 +305,7 @@
                 <executions>
                     <execution>
                         <id>enable-obr</id>
-                        <phase>generate-resources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -371,6 +321,12 @@
                                         append="true" eol="dos">
                                     <fileset file="target/shared/startup-obr.properties" />
                                 </concat>
+                                   <echo message="Fixing start/stop scripts in windows assembly" />
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="fuseesb.bat"/>
+                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="fuseesb.bat"/>
+                                   <echo message="Fixing start/stop scripts in unix assembly" />
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fuseesb"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fuseesb"/>
                             </target>
                         </configuration>
                     </execution>

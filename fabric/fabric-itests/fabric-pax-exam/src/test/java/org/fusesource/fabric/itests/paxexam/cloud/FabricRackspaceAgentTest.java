@@ -23,13 +23,11 @@ import java.net.URL;
 import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
 import org.apache.commons.io.IOUtils;
-import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
+import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeState;
-import org.jclouds.ec2.EC2Client;
-import org.jclouds.ec2.domain.IpProtocol;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,17 +42,15 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
-import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
+public class FabricRackspaceAgentTest extends FabricTestSupport {
 
     private String identity;
     private String credential;

@@ -34,6 +34,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
@@ -42,7 +43,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class CreateSshAgentTest extends FabricCommandsTestSupport {
+public class CreateSshAgentTest extends FabricTestSupport {
 
     private String host;
     private String port;
@@ -71,7 +72,10 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
     @After
     public void tearDown() {
         if (isReady()) {
-            executeCommand("fabric:container-connect ssh1 osgi:stop --force 0");
+            executeCommand("fabric:container-stop ssh2");
+            executeCommand("fabric:container-delete ssh2");
+            executeCommand("fabric:container-stop ssh1");
+            executeCommand("fabric:container-delete ssh1");
         }
     }
 
@@ -81,6 +85,9 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
             FabricService fabricService = getOsgiService(FabricService.class);
             assertNotNull(fabricService);
             System.err.println(executeCommand("fabric:create"));
+
+              executeCommand("fabric:profile-edit -p org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=" +
+                      "http://repo1.maven.org/maven2 default");
 
             CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
                     .host(host)
@@ -98,9 +105,27 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
             assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
             waitForProvisionSuccess(metadata[0].getContainer(), 3 * PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
-            Container container = fabricService.getContainer("ssh1");
-            assertTrue(container.isAlive());
+            Container ssh1 = fabricService.getContainer("ssh1");
+            assertTrue(ssh1.isAlive());
             createAndAssetChildContainer("ssh2","ssh1", "default");
+
+            //Stop & Start Remote Child
+            Container ssh2 = fabricService.getContainer("ssh2");
+            ssh2.stop();
+            assertFalse(ssh2.isAlive());
+            ssh2.start();
+            waitForProvisionSuccess(ssh2,PROVISION_TIMEOUT);
+            assertTrue(ssh2.isAlive());
+            ssh2.stop();
+
+            //Try stopping and starting the remote container.
+            ssh1.stop();
+            assertFalse(ssh1.isAlive());
+            System.out.println(executeCommand("fabric:container-list -v"));
+            ssh1.start();
+            waitForProvisionSuccess(ssh1,PROVISION_TIMEOUT);
+            System.out.println(executeCommand("fabric:container-list -v"));
+            assertTrue(ssh1.isAlive());
         }
     }
 

@@ -23,15 +23,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MavenResolverTest extends DependencyTestSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(MavenResolverTest.class);
@@ -72,6 +71,27 @@ public class MavenResolverTest extends DependencyTestSupport {
         }
         
         assertTrue("Should have child dependencies!", children.size() > 0);
+    }
+
+    @Test
+    public void testGetRemoteRepositories() {
+        MavenResolver resolver = new MavenResolver();
+        resolver.setRepositories(new String[] { "http://user:password@host1/path/to/repo" , "http://host2/path/to/repo@snapshots"});
+        
+        List<RemoteRepository> repositories = resolver.getRemoteRepositories();        
+        assertEquals(2, repositories.size());
+        
+        // first repository is http://user:password@somehost/path/to/repo 
+        RemoteRepository repo = repositories.get(0);
+        assertEquals("host1", repo.getHost());
+        assertEquals("user", repo.getAuthentication().getUsername());
+        assertEquals("password", repo.getAuthentication().getPassword());
+
+        // second repository is http://host2/path/to/repo@snapshots
+        repo = repositories.get(1);
+        assertEquals("host2", repo.getHost());
+        assertNull(repo.getAuthentication());
+        assertTrue("@snapshots enables snapshots", repo.getPolicy(true).isEnabled());
     }
 
 }

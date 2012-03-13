@@ -22,13 +22,13 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
 import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -44,7 +44,15 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.zookeeper.ZkPath.*;
+
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
 
 public class KarafContainerRegistration implements LifecycleListener, NotificationListener {
 
@@ -56,7 +64,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
     private volatile MBeanServer mbeanServer;
 
-    private Semaphore semaphore = new Semaphore(1);
+    private ReentrantLock lock = new ReentrantLock();
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -77,7 +85,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     public void onConnected() {
         logger.trace("onConnected");
         try {
-            semaphore.acquire();
+            lock.tryLock(10,TimeUnit.SECONDS);
             String name = System.getProperty("karaf.name");
             String nodeAlive = CONTAINER_ALIVE.getPath(name);
             Stat stat = zooKeeper.exists(nodeAlive);
@@ -124,7 +132,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         } catch (Exception e) {
             logger.warn("Error updating Fabric Container information. This exception will be ignored.", e);
         } finally {
-            semaphore.release();
+            lock.unlock();
         }
     }
 
@@ -183,7 +191,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     public void registerMBeanServer(ServiceReference ref) {
         try {
-            semaphore.acquire();
+            lock.lock();
             String name = System.getProperty("karaf.name");
             mbeanServer = (MBeanServer) bundleContext.getService(ref);
             if (mbeanServer != null) {
@@ -193,20 +201,20 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         } catch (Exception e) {
             logger.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
         }  finally {
-            semaphore.release();
+            lock.unlock();
         }
     }
 
     public void unregisterMBeanServer(ServiceReference ref) {
         if (mbeanServer != null) {
             try {
-                semaphore.acquire();
+                lock.lock();
                 mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
                 unregisterDomains();
             } catch (Exception e) {
                 logger.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
             } finally {
-                semaphore.release();
+                lock.unlock();
             }
         }
         mbeanServer = null;
@@ -246,7 +254,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             String domain = notification.getMBeanName().getDomain();
             String path = CONTAINER_DOMAIN.getPath((String) o, domain);
             try {
-                semaphore.acquire();
+                lock.lock();
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     if (domains.add(domain) && zooKeeper.exists(path) == null) {
                         zooKeeper.createOrSetWithParents(path, "", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -265,7 +273,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             } catch (Exception e) {
                 logger.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
             } finally {
-                semaphore.release();
+                lock.unlock();
             }
         }
     }

@@ -17,7 +17,7 @@
   -->
 <component>
   <dependencySets>
-  <dependencySet>
+    <dependencySet>
       <outputDirectory>/lib</outputDirectory>
       <outputFileNameMapping>mq-version.jar</outputFileNameMapping>
       <fileMode>0644</fileMode>
@@ -26,5 +26,14 @@
       </includes>
       <useTransitiveDependencies>false</useTransitiveDependencies>
   </dependencySet>
+    <dependencySet>
+      <outputDirectory>/lib</outputDirectory>
+       <outputFileNameMapping>mq-client.jar</outputFileNameMapping>
+        <fileMode>0644</fileMode>
+        <includes>
+          <include>org.fusesource.mq:mq-client</include>
+        </includes>
+        <useTransitiveDependencies>false</useTransitiveDependencies>
+    </dependencySet>
   </dependencySets>
 </component>

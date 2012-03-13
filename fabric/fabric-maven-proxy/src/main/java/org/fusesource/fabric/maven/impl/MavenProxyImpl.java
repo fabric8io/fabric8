@@ -41,6 +41,7 @@ import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
 import org.fusesource.fabric.maven.MavenProxy;
+import org.fusesource.fabric.maven.MavenProxyUtils;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
@@ -92,7 +93,7 @@ public class MavenProxyImpl implements MavenProxy {
 
     public synchronized URI getAddress() {
         if (serverSocket != null) {
-            return URI.create("http://" + getLocalHostName() + ":" + serverSocket.getLocalPort() + "/");
+            return URI.create(MavenProxyUtils.getMavenProxyUrl(port));
         } else {
             return null;
         }
@@ -357,13 +358,4 @@ public class MavenProxyImpl implements MavenProxy {
             return null;
         }
     }
-
-    private static String getLocalHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to get address", e);
-        }
-    }
-
 }

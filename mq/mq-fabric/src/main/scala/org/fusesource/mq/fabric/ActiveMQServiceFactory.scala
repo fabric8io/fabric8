@@ -349,7 +349,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     def stop(async: Boolean = true) = {
       info("Broker %s is being stopped.", name)
       if (async) {
-        new Thread(stop_runnable, "Startup for ActiveMQ Broker: "+name).start
+        new Thread(stop_runnable, "Stop for ActiveMQ Broker: "+name).start
       } else {
         stop_runnable.run()
       }

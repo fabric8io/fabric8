@@ -30,6 +30,7 @@ public class ContainerProviderUtils {
 
     private static final String REPLACE_FORMAT = "sed -i  \"s/%s/%s/g\" %s";
     private static final String LINE_APPEND = "sed  's/%s/&%s/' %s > %s";
+    private static final String FIRST_FABRIC_DIRECTORY = "ls -l | grep fuse-fabric | grep ^d | awk '{ print $NF }' | sort -n | head -1";
 
     public static final int DEFAULT_SSH_PORT = 8101;
 
@@ -37,7 +38,13 @@ public class ContainerProviderUtils {
         //Utility Class
     }
 
-    public static String buildStartupScript(CreateContainerOptions options) throws MalformedURLException {
+    /**
+     * Creates a shell script for installing and starting up a container.
+     * @param options
+     * @return
+     * @throws MalformedURLException
+     */
+    public static String buildInstallAndStartScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
         sb.append("run mkdir -p ~/containers/ ").append("\n");
@@ -45,7 +52,7 @@ public class ContainerProviderUtils {
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         extractTargzIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
-        sb.append("run cd ").append("fuse-fabric-" + FabricConstants.FABRIC_VERSION).append("\n");
+        sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         List<String> lines = new ArrayList<String>();
         appendFile(sb, "etc/startup.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name = " +options.getName());
@@ -66,6 +73,53 @@ public class ContainerProviderUtils {
         //Add the proxyURI to the list of repositories
         appendToLineInFile(sb,"etc/org.ops4j.pax.url.mvn.cfg","repositories=",options.getProxyUri().toString()+",");
         sb.append("run nohup bin/start").append("\n");
+        return sb.toString();
+    }
+
+
+    /**
+     * Creates a shell script for starting an existing remote container.
+     * @param options
+     * @return
+     * @throws MalformedURLException
+     */
+    public static String buildStartScript(CreateContainerOptions options) throws MalformedURLException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
+        sb.append("run cd ~/containers/ ").append("\n");
+        sb.append("run cd ").append(options.getName()).append("\n");
+        sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
+        sb.append("run nohup bin/start").append("\n");
+        return sb.toString();
+    }
+
+    /**
+     * Creates a shell script for stopping a container.
+     * @param options
+     * @return
+     * @throws MalformedURLException
+     */
+    public static String buildStopScript(CreateContainerOptions options) throws MalformedURLException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
+        sb.append("run cd ~/containers/ ").append("\n");
+        sb.append("run cd ").append(options.getName()).append("\n");
+        sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
+        sb.append("run bin/stop").append("\n");
+        return sb.toString();
+    }
+
+    /**
+     * Creates a shell script for uninstalling a container.
+     * @param options
+     * @return
+     * @throws MalformedURLException
+     */
+    public static String buildUninstallScript(CreateContainerOptions options) throws MalformedURLException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
+        sb.append("run cd ~/containers/ ").append("\n");
+        sb.append("run rm -rf ").append(options.getName()).append("\n");
         return sb.toString();
     }
 

@@ -41,7 +41,7 @@
             !org.codehaus.classworlds*,
             !org.apache.xbean*,
             !org.apache.commons.logging,
-            !org.slf4j,
+            org.slf4j*,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
@@ -57,6 +57,24 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-linkedin-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>

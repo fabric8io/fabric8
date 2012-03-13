@@ -64,7 +64,7 @@ public class FailOverClientServerTest extends AbstractJUnit4SpringContextTests {
         clientFactory.setServiceClass(Hello.class);
         // The address is not the actual address that the client will access
         clientFactory.setAddress("http://someotherplace");
-        clientFactory.setBus(bus);
+
         List<AbstractFeature> features = new ArrayList<AbstractFeature>();
         features.add(feature);
         // we need to setup the feature on the clientfactory

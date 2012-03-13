@@ -35,16 +35,21 @@ public class ProfileCompleter implements Completer {
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
         String versionName = null;
-        Version defaultVersion = fabricService.getDefaultVersion();
-        if (defaultVersion != null) {
-            versionName = defaultVersion.getName();
-        }
-        if (versionName == null) {
-            versionName = ZkDefs.DEFAULT_VERSION;
-        }
-        Profile[] profiles = fabricService.getProfiles(versionName);
-        for (Profile profile : profiles) {
-            delegate.getStrings().add(profile.getId());
+        try {
+            Version defaultVersion = fabricService.getDefaultVersion();
+            if (defaultVersion != null) {
+                versionName = defaultVersion.getName();
+            }
+            if (versionName == null) {
+                versionName = ZkDefs.DEFAULT_VERSION;
+            }
+
+            Profile[] profiles = fabricService.getProfiles(versionName);
+            for (Profile profile : profiles) {
+                delegate.getStrings().add(profile.getId());
+            }
+        } catch (Exception ex) {
+            //Ignore Exceptions
         }
         return delegate.complete(buffer, cursor, candidates);
     }

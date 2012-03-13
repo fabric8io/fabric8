@@ -15,6 +15,9 @@ public class EsbProfileLongTest extends FabricFeaturesTest {
     @Before
     public void setUp() throws Exception {
         System.err.println(executeCommand("fabric:create"));
+
+        addStagingRepoToDefaultProfile();
+
         createAndAssetChildContainer("esb1", "root", "esb");
         prepareFeaturesForTesting("esb1", "connector", "esb", "geronimo-connector");
         prepareFeaturesForTesting("esb1", "saaj", "esb", "saaj-impl");

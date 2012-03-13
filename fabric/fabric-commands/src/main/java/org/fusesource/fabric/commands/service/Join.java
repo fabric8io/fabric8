@@ -1,6 +1,7 @@
 package org.fusesource.fabric.commands.service;
 
-import org.linkedin.zookeeper.client.IZKClient;
+
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 /**

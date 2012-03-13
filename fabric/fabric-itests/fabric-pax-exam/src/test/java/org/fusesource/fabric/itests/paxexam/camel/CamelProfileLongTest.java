@@ -16,6 +16,10 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
     @Before
     public void setUp() throws Exception {
         System.err.println(executeCommand("fabric:create"));
+
+        addStagingRepoToDefaultProfile();
+
+
         createAndAssetChildContainer("camel1", "root", "camel");
         prepareFeaturesForTesting("camel1", "camel-blueprint", "camel", "camel-blueprint");
         prepareFeaturesForTesting("camel1", "camel-jms", "camel", "camel-jms");
