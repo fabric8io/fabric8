@@ -131,7 +131,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         if (success.size() > 0) {
             System.out.println("The following containers have been created successfully:");
             for (CreateContainerMetadata m : success) {
-                System.out.println("\t" + m.getContainerName());
+                System.out.println("\t" + m.toString());
             }
         }
         if (failures.size() > 0) {

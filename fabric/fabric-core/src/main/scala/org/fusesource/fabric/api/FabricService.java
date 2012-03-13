@@ -21,7 +21,7 @@ import java.net.URI;
 
 public interface FabricService {
 
-    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public-snapshots/";
+    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public/";
 
     /**
      * Gets the existing {@link Container}s.

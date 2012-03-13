@@ -59,4 +59,9 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
     public void setCreateOptions(O createOptions) {
         this.createOptions = createOptions;
     }
+
+    @Override
+    public String toString() {
+        return  containerName;
+    }
 }

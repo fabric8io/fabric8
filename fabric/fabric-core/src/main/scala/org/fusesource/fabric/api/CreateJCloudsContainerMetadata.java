@@ -69,4 +69,17 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
     public void setCredential(String credential) {
         this.credential = credential;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getContainerName()).append("[")
+                .append(", public ip=[ ");
+        for (String ip : publicAddresses) {
+            builder.append(ip).append(" ");
+        }
+        builder.append("]]");
+
+        return builder.toString();
+    }
 }
