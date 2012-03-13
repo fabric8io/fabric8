@@ -16,11 +16,8 @@
  */
 package org.fusesource.mq.fabric;
 
-import org.fusesource.mq.ActiveMQService;
-import org.fusesource.mq.JMSService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,17 +28,11 @@ public class Activator implements BundleActivator {
 
     public static final AtomicReference<BundleContext> BUNDLE_CONTEXT = new AtomicReference<BundleContext>();
 
-    private JMSService service = new ActiveMQService("discovery:(fabric:default)");
-    private ServiceRegistration registration;
-
 	public void start(BundleContext ctx) throws Exception {
-        registration = ctx.registerService(JMSService.class.getName(), new ActiveMQService("discovery:(fabric:default)"), null);
         BUNDLE_CONTEXT.set(ctx);
 	}
 
     public void stop(BundleContext ctx) throws Exception {
-        registration.unregister();
-        service.stop();
         BUNDLE_CONTEXT.set(null);
     }
 

@@ -43,6 +43,7 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
                 brokerUrl = "discover:(fabric:default)";
             }
             ActiveMQService producerService = new ActiveMQService(brokerUrl);
+            producerService.setMaxAttempts(10);
             producerService.start();
             String destination = (String) properties.get("destination");
             ProducerThread producer = new ProducerThread(producerService, destination);

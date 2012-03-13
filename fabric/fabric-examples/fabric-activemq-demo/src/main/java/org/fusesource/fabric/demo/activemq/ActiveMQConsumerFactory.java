@@ -43,6 +43,7 @@ public class ActiveMQConsumerFactory implements ManagedServiceFactory {
                 brokerUrl = "discover:(fabric:default)";
             }
             ActiveMQService consumerService = new ActiveMQService(brokerUrl);
+            consumerService.setMaxAttempts(10);
             consumerService.start();
             String destination = (String) properties.get("destination");
             ConsumerThread consumer = new ConsumerThread(consumerService, destination);

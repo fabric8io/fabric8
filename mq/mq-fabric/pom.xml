@@ -35,11 +35,6 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.fusesource.mq</groupId>
-      <artifactId>mq-client</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
       <version>${activemq-version}</version>

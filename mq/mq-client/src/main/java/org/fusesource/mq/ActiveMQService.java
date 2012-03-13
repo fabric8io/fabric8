@@ -18,15 +18,20 @@ package org.fusesource.mq;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.jms.*;
 
 public class ActiveMQService implements JMSService {
 
+    private static final Log LOG = LogFactory.getLog(ActiveMQService.class);
+
     Connection defaultConnection;
     Session defaultSession;
     boolean transacted = false;
     int ackMode = Session.AUTO_ACKNOWLEDGE;
+    int maxAttempts = 1;
 
     boolean started = false;  //TODO use atomic boolean
 
@@ -62,12 +67,26 @@ public class ActiveMQService implements JMSService {
     }
 
     public void start() throws JMSException {
-        if (!started) {
-            defaultConnection = connectionFactory.createConnection();
-            defaultConnection.start();
-            defaultSession = defaultConnection.createSession(transacted, ackMode);
+        int attempts = 0;
+        JMSException lastException = null;
+        while (!started && attempts++ < maxAttempts) {
+            try {
+                defaultConnection = connectionFactory.createConnection();
+                defaultConnection.start();
+                defaultSession = defaultConnection.createSession(transacted, ackMode);
+                started = true;
+            } catch (JMSException e) {
+                lastException = e;
+                LOG.warn("Could not start a connection", e);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignore) {}
+            }
         }
-        started = true;
+        
+        if (!started) {
+            throw lastException;
+        }
     }
 
     public void stop() {
@@ -80,5 +99,13 @@ public class ActiveMQService implements JMSService {
             }
         }
         started = false;
+    }
+
+    public int getMaxAttempts() {
+        return maxAttempts;
+    }
+
+    public void setMaxAttempts(int maxAttempts) {
+        this.maxAttempts = maxAttempts;
     }
 }
