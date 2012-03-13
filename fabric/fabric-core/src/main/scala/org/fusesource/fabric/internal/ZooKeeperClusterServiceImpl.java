@@ -402,8 +402,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 try {
                     src.start();
                     dst.start();
-                    src.waitForStart(new Timespan(5, Timespan.TimeUnit.SECOND));
-                    dst.waitForStart(new Timespan(5, Timespan.TimeUnit.SECOND));
+                    src.waitForStart(new Timespan(30, Timespan.TimeUnit.SECOND));
+                    dst.waitForStart(new Timespan(30, Timespan.TimeUnit.SECOND));
 
                     ZooKeeperUtils.copy(src, dst, "/fabric/authentication");
                     ZooKeeperUtils.copy(src, dst, "/fabric/configs");
