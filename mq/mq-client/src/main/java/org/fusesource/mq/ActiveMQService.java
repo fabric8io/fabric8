@@ -93,7 +93,7 @@ public class ActiveMQService implements JMSService {
         if (started) {
             if (defaultConnection != null) {
                 try {
-                    defaultConnection.stop();
+                    defaultConnection.close();
                 } catch (JMSException ignored) {
                 }
             }
