@@ -199,6 +199,8 @@
                     </includes>
                     <excludes>
                         <exclude>**/*LongTest.*</exclude>
+                        <!-- disable until we get features for teh new examples -->
+                        <exclude>**/*EsbExampleFeaturesTest.*</exclude>
                     </excludes>
                     <systemPropertyVariables>
                         <feature>${feature}</feature>
