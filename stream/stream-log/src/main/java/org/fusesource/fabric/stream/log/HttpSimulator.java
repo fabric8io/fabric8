@@ -3,8 +3,6 @@
  */
 package org.fusesource.fabric.stream.log;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import java.io.PipedInputStream;
@@ -21,6 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.fusesource.fabric.stream.log.Support.*;
+
 /**
  * <p>
  *     This class is used to simulate the logging load
@@ -41,7 +41,7 @@ public class HttpSimulator {
     };
 
     private static void displayHelpAndExit(int exitCode) {
-        Main.displayResourceFile("http-simulator-usage.txt");
+        displayResourceFile("http-simulator-usage.txt");
         System.exit(exitCode);
     }
 
@@ -189,7 +189,7 @@ public class HttpSimulator {
         }
 
         public void run() {
-            CamelContext context = new DefaultCamelContext();
+            LogStreamer streamer=null;
             try {
 
                 // we will be feeding the camel route via this pipe..
@@ -197,7 +197,7 @@ public class HttpSimulator {
                 out = new PrintStream(new PipedOutputStream(in));
 
                 // Configure the camel route..
-                LogStreamProducer p = new LogStreamProducer();
+                Producer p = new Producer();
                 p.setBatchSize(batchSize);
                 p.setBatchTimeout(batchTimeout);
                 p.setCompress(compress);
@@ -206,8 +206,9 @@ public class HttpSimulator {
                 String destination = destinations.get(id % destinations.size());
                 p.setDestination(destination);
                 p.setIs(in);
-                p.configure(context);
-                context.start();
+
+                streamer = p.configure();
+                streamer.start();
 
                 System.out.println(format("Started HTTP log event simulator #"+id+" generating %,.2f events/sec", randomEntriesPerSec));
                 startedLatch.countDown();
@@ -230,9 +231,8 @@ public class HttpSimulator {
                 e.printStackTrace();
             } finally {
                 try {
-                    // try to clean up...
-                    context.stop();
-                } catch (Exception e) {
+                    streamer.stop();
+                } catch (Throwable e) {
                 }
             }
         }

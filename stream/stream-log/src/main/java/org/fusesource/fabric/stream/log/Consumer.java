@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fusesource.fabric.stream.log;
 
 import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.CamelContext;
-import org.apache.camel.Endpoint;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.model.RouteDefinition;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
+
+import static org.fusesource.fabric.stream.log.Support.displayResourceFile;
 
 /**
  * <p>
@@ -34,16 +34,15 @@ import java.util.LinkedList;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public class Main {
+public class Consumer {
     
     String broker;
     String destination;
-    int batchSize = 1024*64;
-    long batchTimeout = 1000*5;
-    boolean compress = false;
+    String target;
+    boolean uncompress = false;
     
     public static void main(String[] args) throws Exception {
-        Main main = new Main();
+        Consumer consumer = new Consumer();
         
         // Process the arguments
         LinkedList<String> argl = new LinkedList<String>(Arrays.asList(args));
@@ -53,15 +52,13 @@ public class Main {
                 if( "--help".equals(arg) ) {
                     displayHelpAndExit(0);
                 } else if( "--broker".equals(arg) ) {
-                    main.broker = shift(argl);
+                    consumer.broker = shift(argl);
                 } else if( "--destination".equals(arg) ) {
-                    main.destination = shift(argl);
-                } else if( "--batch-size".equals(arg) ) {
-                    main.batchSize = Integer.parseInt(shift(argl));
-                } else if( "--batch-timeout".equals(arg) ) {
-                    main.batchTimeout =  Long.parseLong(shift(argl));
-                } else if( "--compress".equals(arg) ) {
-                    main.compress = Boolean.parseBoolean(shift(argl));
+                    consumer.destination = shift(argl);
+                } else if( "--target".equals(arg) ) {
+                    consumer.target = shift(argl);
+                } else if( "--uncompress".equals(arg) ) {
+                    consumer.uncompress = Boolean.parseBoolean(shift(argl));
                 } else {
                     System.err.println("Invalid usage: unknown option: "+arg);
                     displayHelpAndExit(1);
@@ -71,16 +68,16 @@ public class Main {
                 displayHelpAndExit(1);
             }
         }
-        if( main.broker==null ) {
+        if( consumer.broker==null ) {
             System.err.println("Invalid usage: --broker option not specified.");
             displayHelpAndExit(1);
         }
-        if( main.destination==null ) {
+        if( consumer.destination ==null ) {
             System.err.println("Invalid usage: --destination option not specified.");
             displayHelpAndExit(1);
         }
 
-        main.execute();
+        consumer.execute();
         System.exit(0);
     }
 
@@ -93,7 +90,7 @@ public class Main {
     }
 
     private static void displayHelpAndExit(int exitCode) {
-        Main.displayResourceFile("main-usage.txt");
+        displayResourceFile("consumer-usage.txt");
         System.exit(exitCode);
     }
 
@@ -103,20 +100,13 @@ public class Main {
         context.disableJMX();
         context.addComponent("activemq", ActiveMQComponent.activeMQComponent(broker));
         
-        final InputBatcher batcher = new InputBatcher();
-        batcher.setBatchSize(batchSize);
-        batcher.setBatchTimeout(batchTimeout);
-        
-        context.addComponent("batcher", batcher);
-
         context.addRoutes(new RouteBuilder() {
             public void configure() throws Exception {
-                Endpoint source = batcher.createEndpoint("stdin");
-                RouteDefinition route = from(source);
-                if(compress) {
-                    route = route.process(new SnappyCompressor());
+                RouteDefinition route = from("activemq:"+ destination);
+                if(uncompress) {
+                    route = route.process(new SnappyDecompressor());
                 }
-                route.to("activemq:"+destination);
+                route.to(target);
             }
         });
         context.start();
@@ -125,23 +115,6 @@ public class Main {
         synchronized (this) {
             while(true) {
                 this.wait();
-            }
-        }
-    }
-
-    public static void displayResourceFile(String name) {
-        InputStream is = HttpSimulator.class.getResourceAsStream(name);
-        try {
-            int c;
-            while((c=is.read())>=0) {
-                System.out.write(c);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
             }
         }
     }

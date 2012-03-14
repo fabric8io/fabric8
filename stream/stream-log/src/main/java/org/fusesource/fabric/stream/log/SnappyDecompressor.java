@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.iq80.snappy.Snappy;
+import static org.fusesource.fabric.stream.log.Support.*;
 
 /**
  * <p>

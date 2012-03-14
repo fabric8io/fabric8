@@ -31,29 +31,10 @@
   <name>${project.artifactId}</name>
   <description>An executable jar that streams log data received via stdin to ActiveMQ. (powered by Camel)</description>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.fusesource.mvnplugins</groupId>
-        <artifactId>maven-uberize-plugin</artifactId>
-        <version>1.15</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals><goal>uberize</goal></goals>
-          </execution>
-        </executions>
-        <configuration>
-          <transformers>
-            <transformer implementation="org.fusesource.mvnplugins.uberize.transformer.ManifestEditor">
-              <Main-Class>org.fusesource.fabric.stream.log.Main</Main-Class>
-            </transformer>
-          </transformers>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  
+  <properties>
+    <activemq-version>5.6-SNAPSHOT</activemq-version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -104,4 +85,27 @@
   </dependencies>
 
   
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.fusesource.mvnplugins</groupId>
+        <artifactId>maven-uberize-plugin</artifactId>
+        <version>1.15</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>uberize</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <transformers>
+            <transformer implementation="org.fusesource.mvnplugins.uberize.transformer.ManifestEditor">
+              <Main-Class>org.fusesource.fabric.stream.log.Main</Main-Class>
+            </transformer>
+          </transformers>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
