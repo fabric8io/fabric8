@@ -1,0 +1,127 @@
+---
+title: Fabric MQ
+in_menu: false
+sort_info: 10
+---
+{:toc}
+
+## MQ Profiles
+
+In Fabric, everything is defined through profiles. The main profile for ActiveMQ brokers is called **mq-base** and it defines basic options for the broker instances.
+It's an abstract profile, so you shouldn't ever try to create a child instance using this profile, as it will not give you the expected effect.
+For basic broker creation you can use **mq** profile which inherits most of its properties from **mq-base**.
+
+## Creating new broker instances
+
+For creating new brokers in Fabric environment, you should use **mq-create** command. However, you can use general-purpose **mq** profile to to create a simple broker instances like
+
+    FuseFabric:karaf@root> container-create-child --profile mq root broker1
+    The following containers have been created successfully:
+	    broker1
+
+This will create a new container called **broker1** and with broker (of the same name) running on it.
+
+You can achieve the same with the following
+
+    FuseFabric:karaf@root> mq-create --create-container broker1 broker1
+    MQ profile broker1 ready
+    Successfully created container broker1
+
+Just like the basic **container-create-child** command this one will create container called **broker1** and run a broker on it.
+One difference is that it will not use **mq** profile, but it will create a new one (called **broker1**) which will of course inherit most of the stuff from **mq-base** profile.
+
+
+## Starting broker on existing instances
+
+The first thing where **mq-create** command show its power is that you can use it to start brokers on existing containers. Let's take a look at the following example
+
+    FuseFabric:karaf@root> container-create-child --profile karaf  root broker1
+    The following containers have been created successfully:
+	    broker1
+
+    FuseFabric:karaf@root> mq-create --assign-container broker1 broker1
+    MQ profile broker1 ready
+    Profile successfully assigned to broker1
+
+
+Here, we first create an "empty" child container and later started **broker1** on it with **assign-container** option.
+Of course, instead of local child container we can assign broker to ssh and cloud containers.
+
+## Connecting to the broker
+
+So far we discussed how we can start brokers in Fabric environment. Now let's discuss for a bit how Fabric discovery works and how clients can connect to the broker.
+Every broker started in fabric has its group. If nothing is specified it's **default**.
+This means that when the broker starts, it will register itself to the fabric registry under the defined group.
+All the client needs to do then is to use connection url like
+
+    discovery:(fabric:default)
+
+where default in this case is the group name we want use. The connection factory will then find available brokers in the group and connect the client to the one of them.
+You can test the brokers started with the previously described methods by creating a container with **example-mq** profile
+
+    container-create-child --profile example-mq  root example
+
+After the container is successfully provisioned, you check its logs and verify the flow of messages.
+
+## Topologies
+
+### Clusters
+
+So far, we've seen how to start and connect to one broker. The basic "cluster" of brokers means that you can start multiple brokers in the same group.
+Those are all by default non-connected brokers, so clients will naturally load balanced across them.
+This type of setup could be ideal for load balancing non-persistent messages and provide high-availability for that case.
+
+### Master-Slave
+
+Master-Slave topologies are also very easy to set. All you need to do is to start multiple brokers with same name (in the same group) and Fabric registry will do the rest for you.
+So if you do something like
+
+    mq-create --create-container broker1,broker2,broker3 hq-broker
+
+it will create two container instances (broker1, broker2 and broker3) and try to start broker named **hq-broker** in the group **default** on all of them.
+The first broker that starts will become the master, while the others will be the slave.
+You can run the same example as before and test what happens when you stop the master (one of the slaves should take over and client should reconnect).
+If brokers are persistent you need to ensure that all use the same store, which is the case by default on child instances.
+When running instances on separate machines and using shared storage it will require some additional setup. We'll cover further customization later on.
+
+The benefit of this kind of master-slave setup is that you don't depend on locking strategies of shared storage (and can even use it with non-persistent brokers).
+Also the clients can use Fabric discovery mechanism to connect to brokers.
+
+One more feature of Fabric Master-Slave setups is that you can share same containers between multiple master-slave tuples.
+Take for example the scenario that aside **hq-broker** described above you need another one in the same data center. You can do the following
+
+    mq-create --assign-container broker1,broker2,broker3 web-broker
+
+This will assign new web-broker profile to the same instances already running hq-broker.
+The internal Fabric mechanism will prevent two masters to run on the same instance, so the master will be elected by one of the two instances running the slave for the **hq-broker**.
+The other brokers will run slaves for the **web-broker**. In this scenario we have two masters running and two slaves waiting. This is just a simple example, but it shows how it can help better utilize the resources.
+
+### Networks
+
+If you want your broker to establish network connections to other brokers from a specific group, you can specify it with the **networks** option to the **mq-create** command. Examine the following scenario
+
+    mq-create --group us-east --networks us-west --create-container us-east1,us-east2 us-east
+
+We created a **us-east** broker (master-slave pair) in the **us-east** group on two container instances in a data center.
+We also defined we want to network this broker with the broker in **us-west** group. Let's now create that brokers
+
+    mq-create --group us-west --networks us-east --create-container us-west1,us-west2 us-west
+
+Now we have two master-slave pair of brokers mutually networked. There's also an example profile that demo this topology. You can run
+
+    container-create-child --profile example-mq-cluster  root example
+
+and see a producer sending messages to east coast cluster, using
+
+    discovery:(fabric:us-east)
+
+url and consumer consuming messages from west coast cluster using
+
+    discovery:(fabric:us-west)
+
+url
+
+## Customizations
+
+TODO
+
