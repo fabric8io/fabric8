@@ -22,6 +22,8 @@
             <cm:property name="port" value="8040"/>
             <cm:property name="localRepository" value="" />
             <cm:property name="remoteRepositories" value="http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/groups/public"/>
+            <cm:property name="updatePolicy" value="never"/>
+            <cm:property name="checksumPolicy" value="fail"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -29,6 +31,8 @@
         <property name="port" value="${port}" />
         <property name="localRepository" value="${localRepository}"/>
         <property name="remoteRepositories" value="${remoteRepositories}"/>
+        <property name="updatePolicy" value="${updatePolicy}"/>
+        <property name="checksumPolicy" value="${checksumPolicy}"/>
     </bean>
 
     <bean id="proxyRegistration" class="org.fusesource.fabric.maven.MavenProxyRegistration" destroy-method="destroy">
