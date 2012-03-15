@@ -39,6 +39,9 @@ public interface Container {
     String getSshUrl();
     String getJmxUrl();
 
+    boolean isManaged();
+    void setManaged(boolean managed);
+
     Version getVersion();
     void setVersion(Version version);
 

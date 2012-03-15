@@ -60,7 +60,8 @@ public class ContainerProviderUtils {
         appendFile(sb, "etc/system.properties",Arrays.asList("\n"));
         if(options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"));
-        } else {
+        }
+        if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
         }
         if(options.isDebugContainer()) {

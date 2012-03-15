@@ -51,6 +51,7 @@ public class Activator implements BundleActivator {
         agent.setStartLevel(getStartLevel(context));
         agent.setZkClient(getZkClient(context));
         agent.setFabricService(getFabricService(context));
+        agent.getFabricService().getCurrentContainer().setManaged(true);
         agent.start();
         Properties props = new Properties();
         props.setProperty(Constants.SERVICE_PID, AGENT_PID);
@@ -89,6 +90,7 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext context) throws Exception {
         registration.unregister();
         context.removeFrameworkListener(agent);
+        agent.getFabricService().getCurrentContainer().setManaged(false);
         agent.stop();
         packageAdmin.close();
         startLevel.close();
