@@ -20,6 +20,8 @@ import java.io.IOException;
 import javax.management.remote.JMXConnector;
 
 import org.fusesource.fabric.api.FabricException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This implementation closes the connector down after each operation; so only really intended for web applications.
@@ -28,8 +30,13 @@ import org.fusesource.fabric.api.FabricException;
  */
 public abstract class NonCachingJmxTemplate extends JmxTemplateSupport {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NonCachingJmxTemplate.class);
+
     public <T> T execute(JmxConnectorCallback<T> callback) {
         JMXConnector connector = createConnector();
+        if (connector == null) {
+            throw new IllegalStateException("JMX connector can not be created");
+        }
         try {
             return callback.doWithJmxConnector(connector);
         } catch (FabricException e) {

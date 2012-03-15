@@ -40,8 +40,7 @@ public class JmxTemplate extends JmxTemplateSupport {
     public <T> T execute(JmxTemplateSupport.JmxConnectorCallback<T> callback) {
         JMXConnector connector = getConnector();
         if (connector == null) {
-            LOGGER.warn("No JMX Connector yet " + this);
-            return null;
+            throw new IllegalStateException("JMX connector can not be created");
         }
         try {
             return callback.doWithJmxConnector(connector);
