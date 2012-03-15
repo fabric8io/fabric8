@@ -34,21 +34,31 @@ public class MQServiceImpl implements MQService {
     @Override
     public Profile createMQProfile(String version, String brokerName, Map<String, String> configs) {
         Profile parentProfile = fabricService.getProfile(version, MQ_PROFILE_BASE);
+        String pidName = "org.fusesource.mq.fabric.server-" + brokerName;
         Profile result = parentProfile;
         if (brokerName != null) {
             result = fabricService.getProfile(version, brokerName);
             // create a profile if it doesn't exist
+            Map config = null;
+
             if (result == null) {
                 result = fabricService.createProfile(version, brokerName);
                 result.setParents(new Profile[]{parentProfile});
+            } else {
+                config = result.getConfigurations().get(pidName);
             }
-            Map config = parentProfile.getConfigurations().get(MQ_PID_TEMPLATE);
+            
+            if (config == null) {
+                config = parentProfile.getConfigurations().get(MQ_PID_TEMPLATE);
+            }
+
             config.put("broker-name", brokerName);
             if (configs != null) {
                 config.putAll(configs);
             }
+
             Map<String, Map<String,String>> newConfigs = result.getConfigurations();
-            newConfigs.put("org.fusesource.mq.fabric.server-" + brokerName, config);
+            newConfigs.put(pidName, config);
             result.setConfigurations(newConfigs);
         }
         
