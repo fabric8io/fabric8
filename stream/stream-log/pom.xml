@@ -100,7 +100,7 @@
         <configuration>
           <transformers>
             <transformer implementation="org.fusesource.mvnplugins.uberize.transformer.ManifestEditor">
-              <Main-Class>org.fusesource.fabric.stream.log.Main</Main-Class>
+              <Main-Class>org.fusesource.fabric.stream.log.Producer</Main-Class>
             </transformer>
           </transformers>
         </configuration>
