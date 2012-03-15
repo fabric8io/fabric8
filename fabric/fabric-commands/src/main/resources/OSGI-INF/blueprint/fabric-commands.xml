@@ -63,7 +63,6 @@
             </action>
             <completers>
                 <ref component-id="containerCompleter"/>
-                <null/>
             </completers>
         </command>
         <command name="fabric/ensemble-remove">
@@ -72,7 +71,6 @@
             </action>
             <completers>
                 <ref component-id="containerCompleter"/>
-                <null/>
             </completers>
         </command>
         <command name="fabric/ensemble-list">
@@ -210,7 +208,6 @@
             <completers>
                 <ref component-id="containerCompleter"/>
                 <ref component-id="profileCompleter"/>
-                <null/>
             </completers>
         </command>
 
