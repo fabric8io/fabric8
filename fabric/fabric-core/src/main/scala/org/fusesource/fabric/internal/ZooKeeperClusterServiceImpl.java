@@ -17,6 +17,7 @@
 package org.fusesource.fabric.internal;
 
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.zookeeper.IZKClient;
@@ -397,26 +398,32 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.set(zooKeeper, profileNode, toString(profileNodeProperties));
 
             if (oldClusterId != null) {
-                ZKClient src = new ZKClient(zooKeeperUrl, Timespan.ONE_MINUTE, null);
                 ZKClient dst = new ZKClient(realConnectionUrl, Timespan.ONE_MINUTE, null);
                 try {
-                    src.start();
                     dst.start();
-                    src.waitForStart(new Timespan(30, Timespan.TimeUnit.SECOND));
                     dst.waitForStart(new Timespan(30, Timespan.TimeUnit.SECOND));
 
-                    ZooKeeperUtils.copy(src, dst, "/fabric/authentication");
-                    ZooKeeperUtils.copy(src, dst, "/fabric/configs");
+                    ZooKeeperUtils.copy(zooKeeper, dst, "/fabric/registry");
+                    ZooKeeperUtils.copy(zooKeeper, dst, "/fabric/authentication");
+                    ZooKeeperUtils.copy(zooKeeper, dst, "/fabric/configs");
+
+                    //Make sure that the alive zndoe is deleted for each container.
+                    for (String container : containers) {
+                        String alivePath = "/fabric/registry/containers/alive/" + container;
+                        if (dst.exists(alivePath) != null) {
+                            dst.deleteWithChildren(alivePath);
+                        }
+                    }
+
                     ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/fabric-ensemble", newClusterId);
                     ZooKeeperUtils.set(dst, "/fabric/configs/versions/" + version + "/general/fabric-ensemble/" + newClusterId, containerList);
                     for (String container : dst.getChildren("/fabric/configs/versions/" + version + "/containers")) {
                         ZooKeeperUtils.remove(dst, "/fabric/configs/versions/" + version + "/containers/" + container, "fabric-ensemble-" + oldClusterId + "-.*");
                     }
                     setConfigProperty(dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
-                    setConfigProperty(src, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
+                    setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
 
                 } finally {
-                    src.destroy();
                     dst.destroy();
                 }
             } else {
