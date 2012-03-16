@@ -175,7 +175,76 @@ to the properties making it reconfigure.
 
 ### Config
 
+As you could see in the previous example, a default XML configuration template for the brokers is taken from the ZooKeeper path
+
+   /fabric/configs/versions/1.0/profiles/mq-base/broker.xml
+
+and it looks like
+
+{pygmentize:: xml}
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <!-- Allows us to use system properties and fabric as variables in this configuration file -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties">
+            <bean class="org.fusesource.mq.fabric.ConfigurationProperties"/>
+        </property>
+    </bean>
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${broker-name}" dataDirectory="${data}" start="false">
+
+        <destinationPolicy>
+            <policyMap>
+              <policyEntries>
+                <policyEntry topic=">" producerFlowControl="true" memoryLimit="1mb">
+                  <pendingSubscriberPolicy>
+                    <vmCursor />
+                  </pendingSubscriberPolicy>
+                </policyEntry>
+                <policyEntry queue=">" producerFlowControl="true" memoryLimit="1mb">
+                </policyEntry>
+              </policyEntries>
+            </policyMap>
+        </destinationPolicy>
+
+        <managementContext>
+            <managementContext createConnector="false"/>
+        </managementContext>
+
+        <persistenceAdapter>
+            <kahaDB directory="${data}/kahadb"/>
+        </persistenceAdapter>
+
+        <transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:0"/>
+        </transportConnectors>
+    </broker>
+
+</beans>
+{pygmentize}
+
+Note that some of the properties from the configuration are used in this template (like **broker-name** and **data**)
+and it's important that you reuse them properly. You can edit this configuration with some of our tools like IDE or FMC
+but also you might want to use the XML template from some other place. For that you can import the config in the ZooKeeper registry like
+
+    zk:import -v -t /fabric/configs/versions/1.0/profiles/mq-base/mybroker.xml /workspace/export/mybroker.xml
+
+Now you can create a broker with **data** argument specified and use this customized configuration template, like
+
+    mq-create --config mybroker.xml broker1
+
+Note that **config** option will assume that configuration is stored in the current version of **mq-base** profile.
+
+
+
 TODO
+
+
 
 ### Data
 
