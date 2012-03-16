@@ -123,5 +123,66 @@ url
 
 ## Customizations
 
+So far we've seen how to run and connect to the brokers in Fabric environment. But we never discussed where there configuration is and how we can customize
+broker behavior. As with the standalone brokers, the most of the behavior is configured through XML configuration and tweaked using properties.
+The difference, when you're setting up things in Fabric is that your XML configuration is stored in ZooKeeper registry and properties are kept in
+appropriate configuration pids in broker's profile.
+
+For starters let's see what can you do wit properties. If you take a look at the example of creating a networked broker with **mq-create** command, like
+
+    mq-create --create-container broker1 --networks default broker1
+
+You can expect new Fabric profile to be created (called **broker1**) and assigned to a newly created container of the same name.
+To understand better how broker is configured, let's take a look at the profile
+
+    FuseFabric:karaf@root> profile-display broker1
+    Profile id: broker1
+    Version   : 1.0
+    Parents   : mq-base
+    Associated Containers :
+
+    Container settings
+    ----------------------------
+
+    Configuration details
+    ----------------------------
+    PID: org.fusesource.mq.fabric.server-broker1
+    standby.pool default
+    connectors openwire
+    broker-name broker1
+    data /Users/dejanb/workspace/forge/fuseenterprise/fabric/fuse-fabric/target/fuse-fabric-7.0-SNAPSHOT/data/cache/bundle53/data/broker1
+    config zk:/fabric/configs/versions/1.0/profiles/mq-base/broker.xml
+    group default
+    network default
+
+You can see that under the configuration details we have a bunch of properties that defines broker behavior. Some of those, like **network** or **group**
+we were explicitly setting using **mq-create** in previous example. you probably won't touch basic things once you created your broker profile but you can
+add more properties there to further tune it.
+
+### Networks
+
+For example, one of the differences is how networks are created. As network connectors in this case uses Fabric discovery to find brokers it'll connect to,
+they are configured using properties. You can additionally configure network connectors by setting properties prefixed with **network.**. For example
+
+    profile-edit -p org.fusesource.mq.fabric.server-broker1/network.bridgeTempDestinations=false broker1
+
+
+will add
+
+    network.bridgeTempDestinations=false
+
+to the properties making it reconfigure.
+
+### Config
+
 TODO
+
+### Data
+
+TODO
+
+
+
+
+
 
