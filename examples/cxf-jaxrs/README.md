@@ -162,7 +162,3 @@ change it in a couple of ways
 
 
 
-## More information
-For more information see:
-* link to ref 1
-* link to ref 2

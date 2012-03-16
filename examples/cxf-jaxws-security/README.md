@@ -153,10 +153,3 @@ change it in a couple of ways
         config:propset org.apache.cxf.servlet.context /super
      
         config:update
-
-
-
-## More information
-For more information see:
-* link to ref 1
-* link to ref 2
