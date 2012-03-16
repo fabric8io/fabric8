@@ -18,6 +18,8 @@ package org.fusesource.fabric.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
 
@@ -32,6 +34,23 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected String zookeeperUrl;
     protected String jvmOpts;
 
+    /**
+     * Converts provider URI Query to a Map.
+     *
+     * @return
+     */
+    protected Map<String, String> getParameters() {
+        Map<String, String> map = new HashMap<String, String>();
+        if (providerURI != null && providerURI.getQuery() != null) {
+            String[] params = providerURI.getQuery().split("&");
+            for (String param : params) {
+                String name = param.split("=")[0];
+                String value = param.split("=")[1];
+                map.put(name, value);
+            }
+        }
+        return map;
+    }
 
     public T ensembleServer(final boolean ensembleServer) {
         this.ensembleServer = ensembleServer;

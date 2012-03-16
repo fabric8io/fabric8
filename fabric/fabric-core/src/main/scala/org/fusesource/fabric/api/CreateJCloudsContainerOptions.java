@@ -42,23 +42,6 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.providerType = "jclouds";
     }
 
-    /**
-     * Converts provider URI Query to a Map.
-     * @return
-     */
-    private  Map<String, String> getParameters()
-    {
-        String[] params = providerURI.getQuery().split("&");
-        Map<String, String> map = new HashMap<String, String>();
-        for (String param : params)
-        {
-            String name = param.split("=")[0];
-            String value = param.split("=")[1];
-            map.put(name, value);
-        }
-        return map;
-    }
-
     @Override
     public String toString() {
         return "CreateJCloudsContainerArguments{" +

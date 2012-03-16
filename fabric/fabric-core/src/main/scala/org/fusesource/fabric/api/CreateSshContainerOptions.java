@@ -16,12 +16,16 @@
  */
 package org.fusesource.fabric.api;
 
+import java.io.File;
+
 /**
  * Arguments for creating a new container via SSH
  */
 public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> {
 
     private static final long serialVersionUID = -1171578973712670970L;
+
+    public static final String DEFAULT_PRIVATE_KEY_FILE = System.getProperty("user.home") + File.separatorChar + ".ssh" + File.separatorChar + "id_rsa";
 
     static final Integer DEFAULT_SSH_RETRIES = 5;
     static final Integer DEFAULT_SSH_PORT = 22;
@@ -33,6 +37,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     private String path = "/usr/local/fusesource/container";
     private Integer sshRetries = DEFAULT_SSH_RETRIES;
     private Integer retryDelay = 1;
+    private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
 
     public CreateSshContainerOptions() {
         this.providerType = "ssh";
@@ -79,6 +84,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         return this;
     }
 
+    public CreateSshContainerOptions privateKeyFile(final String privateKeyFile) {
+        this.privateKeyFile = privateKeyFile;
+        return this;
+    }
+
     public String getUsername() {
         try {
             return username != null && !username.isEmpty() ? username : getProviderURI().getUserInfo().split(":")[0];
@@ -92,10 +102,12 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     }
 
     public String getPassword() {
-        try {
-        return password != null && !password.isEmpty() ? password : getProviderURI().getUserInfo().split(":")[1];
-        }catch (Exception ex) {
-            throw new IllegalStateException("Password should be part of the url or explicitly specified");
+        if (password != null && !password.isEmpty()) {
+            return password;
+        } else if (getProviderURI() != null && getProviderURI().getUserInfo() != null && getProviderURI().getUserInfo().contains(":")) {
+            return getProviderURI().getUserInfo().split(":")[1];
+        } else {
+            return null;
         }
     }
 
@@ -142,5 +154,14 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public void setRetryDelay(Integer retryDelay) {
         this.retryDelay = retryDelay;
+    }
+
+    public String getPrivateKeyFile() {
+        //We check for a parameter first as the privateKeyFile has a default value assigned.
+        return getParameters().get("privateKeyFile") != null ? getParameters().get("privateKeyFile") : privateKeyFile;
+    }
+
+    public void setPrivateKeyFile(String privateKeyFile) {
+        this.privateKeyFile = privateKeyFile;
     }
 }

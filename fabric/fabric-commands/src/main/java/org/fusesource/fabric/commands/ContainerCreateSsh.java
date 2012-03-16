@@ -19,13 +19,12 @@ package org.fusesource.fabric.commands;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH")
@@ -45,6 +44,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     private Integer sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
+    @Option(name = "--private-key", description = "The path to the private key")
+    private String privateKeyFile;
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
@@ -55,7 +56,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         // validate input before creating containers
         preCreateContainer(name);
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.ssh()
+        CreateSshContainerOptions options = CreateContainerOptionsBuilder.ssh()
         .name(name)
         .ensembleServer(isEnsembleServer)
         .debugContainer(debugContainer)
@@ -63,6 +64,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .host(host)
         .username(user)
         .password(password)
+        .privateKeyFile(privateKeyFile != null ? privateKeyFile : CreateSshContainerOptions.DEFAULT_PRIVATE_KEY_FILE)
         .path(path)
         .port(port)
         .sshRetries(sshRetries)
@@ -71,7 +73,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .jvmOpts(jvmOpts);
 
-        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
         // display containers
         displayContainers(metadatas);
         // and set its profiles and versions after creation
