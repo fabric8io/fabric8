@@ -17,6 +17,7 @@
   -->
 <features name="fabric-${project.version}">
 
+    <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
     <repository>mvn:org.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
@@ -164,6 +165,12 @@
         <feature version="[2.7,3.0)">camel</feature>
         <feature>fabric-groups</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-camel/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-cxf" version="${project.version}" resolver="(obr)">
+        <feature version="[2.4,3.0)">cxf</feature>
+        <feature>fabric-groups</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-cxf/${project.version}</bundle>
     </feature>
 
     <feature name="mq-fabric" version="${project.version}" resolver="(obr)">
