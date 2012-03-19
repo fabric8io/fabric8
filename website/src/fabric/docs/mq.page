@@ -2,8 +2,8 @@
 title: Fabric MQ
 in_menu: false
 sort_info: 10
----
-{:toc}
+--- pipeline:markdown
+{:toc} 
 
 ## MQ Profiles
 
@@ -226,7 +226,7 @@ and it looks like
             </property>
         </bean>
 
-        <broker xmlns="http://activemq.apache.org/schema/core" brokerName="$&#x007B;broker-name}" dataDirectory="$&#x007B;data}" start="false">
+        <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${broker-name}" dataDirectory="${data}" start="false">
 
             <destinationPolicy>
                 <policyMap>
@@ -247,7 +247,7 @@ and it looks like
             </managementContext>
 
             <persistenceAdapter>
-                <kahaDB directory="$&#x007B;data}/kahadb"/>
+                <kahaDB directory="${data}/kahadb"/>
             </persistenceAdapter>
 
             <transportConnectors>
