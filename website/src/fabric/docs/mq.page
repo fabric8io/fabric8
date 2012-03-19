@@ -195,7 +195,7 @@ will add
 
 to the properties making it reconfigure.
 
-### Config
+### Configuration
 
 As you could see in the previous example, a default XML configuration template for the brokers is taken from the ZooKeeper path
 
