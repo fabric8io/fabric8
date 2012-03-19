@@ -14,7 +14,7 @@ For basic broker creation you can use the **mq** profile which inherits most of 
 ## Creating new broker instances
 
 A Fabric broker is an Karaf container instance running a message broker profile. The profile defines the broker dependencies (through features) and configuration for the broker.
-The simplest option is to use the pre-canned **mq** profile. You can see the display the contents of the mq profile and it parent mq-base, using the command:
+The simplest option is to use the pre-canned **mq** profile. You can see the display the contents of the **mq** profile and it parent **mq-base**, using the command:
 
     FuseFabric:karaf@root> profile-display mq
     ...
@@ -41,9 +41,9 @@ To create a new broker instance called **broker1** with **mq-create**, use the c
 
 Just like the basic **container-create** command, **mq-create** will create a container called **broker1** and run a broker on it.
 There are some differences:
- * The new broker1 container has its parent automatically assigned to the current container
- * The new broker has its own new **broker1** profile which is based on the **mq-base** template
-It is possible to further modify the **broker1** profile to adjust the configuration of this new broker.
+* The new **broker1** container has its parent automatically assigned to the current container
+* The new broker has its own new **broker1** profile which is based on the **mq-base** template
+It is possible to further modify the **broker1** profile to adjust the configuration of this new broker as we will see shortly.
 
 
 ## Starting broker on existing container instances
@@ -74,17 +74,24 @@ All the client needs to do then is to use connection url like
 where default in this case is the group name we want use. The connection factory will then find available brokers in the group and connect the client to the one of them.
 You can test the brokers started with the previously described methods by creating a container with the **example-mq** profile
 
-    container-create --parent root --profile example-mq example
+    FuseFabric:karaf@root> container-create --parent root --profile example-mq example
 
-After the example container is successfully provisioned (container-list command), you can check its logs and verify the flow of messages. (container-connect example-mq; log:display)
+After the example container is successfully provisioned
+
+    FuseFabric:karaf@root> command-watch container-list
+
+you can connect to it and check its logs to verify the flow of messages, like
+
+    FuseFabric:karaf@root> container-connect example
+    FuseFabric:karaf@root> log:display
 
 ## Topologies
 
 ### Broker clusters
 
 The basic "cluster" of brokers means that you can start multiple unconnected brokers, identified by unique names, in the same group. Each broker will register with that group
-and clients using **discovery:(fabric:<group name>)** will naturally load balanced across them.
-This type of setup is ideal for load balancing non-persistent messages across brokers and provides high-availability.
+and clients using **discovery:(fabric:&lt;group name&gt;)** will naturally load balanced across them.
+This type of setup is ideal for load balancing non-persistent messages across brokers and provide high-availability.
 
 ### Master-Slave
 
@@ -93,19 +100,19 @@ Only **one** master can exist at a given time, the rest resume as slaves. When t
 the remaining brokers (slaves) contest to become the new master. When the broker containers
 span machines or data centres, the result is a highly available broker.
 
-Master-Slave topologies are simple to setup in Fabric. All you need to do is to start multiple brokers with **same** name in a group. The Fabric registry will do the rest for you.
+Master-Slave topologies are simple to setup in Fabric. All you need to do is start multiple brokers with **same** name in a group. The Fabric registry will do the rest for you.
 So if you do something like:
 
     mq-create --create-container broker1,broker2,broker3 hq-broker
 
 This will create three container instances (broker1, broker2 and broker3) and try to start a broker named **hq-broker** in the group **default** on each of them.
 The first broker that starts will become the master, while the others will be the slaves.
-You can run the same example as before and test what happens when you stop the master (one of the slaves will take over and client will reconnect).
+You can run the same example as before and test what happens when you stop the master (one of the slaves will take over and clients will reconnect).
 If brokers are persistent you need to ensure that all use the same store, which is the case by default because they share the value from the mq-base profile.
-When running instances on separate machines and using shared storage it will require some additional setup. We'll cover further customization later on.
+When running instances on separate machines and using shared storage it will require some additional setup. We'll cover that topic later on.
 
 The benefit of this kind of master-slave setup is that you don't depend on locking strategies of shared storage so it can even be used with non-persistent brokers.
-The fabric group manages a shared distributed lock that controls ownership of the master status.
+The fabric group uses ZooKeeper to manage a shared distributed lock that controls ownership of the master status.
 
 One more feature of Fabric Master-Slave setups is that you can share the same containers between multiple master-slave instances.
 Given the three containers running the **hq-broker** above, it is possible to reuse the same containers for another highly available broker, **web-broker**.
@@ -113,7 +120,7 @@ Given the three containers running the **hq-broker** above, it is possible to re
 
     mq-create --assign-container broker1,broker2,broker3 web-broker
 
-This will assign the new web-broker profile to the same instances already running hq-broker.
+This will assign the new **web-broker** profile to the same instances already running **hq-broker**.
 The internal Fabric mechanism will prevent two masters to run on the same instance, so the master will be elected by one of the two instances running the slave for the **hq-broker**.
 The other brokers will run slaves for the **web-broker**. In this scenario we have two masters running and two slaves waiting.
 This is just a simple example, but it shows how it can help better utilize the resources.
@@ -124,7 +131,7 @@ If you want your broker to establish network connections to other brokers from a
 
     mq-create --group us-east --networks us-west --create-container us-east1,us-east2 us-east
 
-We created a **us-east** broker (master-slave pair) in the **us-east** group on two container instances in a data center (some where on the east coast!).
+We created a **us-east** broker (master-slave pair) in the **us-east** group on two container instances in a data center (somewhere on the east coast!).
 We also defined we want to network this broker with the broker in **us-west** group. Let's now create that brokers
 
     mq-create --group us-west --networks us-east --create-container us-west1,us-west2 us-west
@@ -133,24 +140,23 @@ Now we have two master-slave pair of brokers mutually networked. There's also an
 
     container-create-child --profile example-mq-cluster  root example
 
-and see a producer sending messages to east coast cluster, using the
+and see a producer sending messages to east coast cluster, using
 
     discovery:(fabric:us-east)
 
-url and consumer consuming messages from west coast cluster using the
+and consumer consuming messages from west coast cluster using
 
     discovery:(fabric:us-west)
 
-url
 
 ## Customizations
 
-So far we've seen how to run and connect to the brokers in Fabric environment. But we never discussed where there configuration is and how we can customize
-broker behavior. As with the standalone brokers, the most of the behavior is configured through XML configuration and tweaked using properties.
+So far we've seen how to run and connect to the brokers in Fabric environment. But we never discussed where the configuration is and how we can customize
+broker behavior. As with standalone brokers, the most of the behavior is configured through XML configuration and tweaked using properties.
 The difference, when you're setting up things in Fabric is that your XML configuration is stored in ZooKeeper registry and properties are kept in
 appropriate configuration pids in broker's profile.
 
-For starters let's see what can you do wit properties. If you take a look at the example of creating a networked broker with **mq-create** command, like
+For starters let's see what can you do with properties. If you take a look at the example of creating a networked broker with **mq-create** command, like
 
     mq-create --create-container broker1 --networks default broker1
 
@@ -178,13 +184,15 @@ To understand better how broker is configured, let's take a look at the profile
     network default
 
 You can see that under the configuration details we have a bunch of properties that defines broker behavior. Some of those, like **network** or **group**
-we were explicitly setting using **mq-create** in previous example. you probably won't touch basic things once you created your broker profile but you can
+we were explicitly setting using **mq-create** in previous example. You probably won't touch basic things once you created your broker profile but you can
 add more properties there to further tune it.
 
 ### Networks
 
-For example, one of the differences is how networks are created. As network connectors in this case uses Fabric discovery to find brokers it'll connect to,
-they are configured using properties. You can additionally configure network connectors by setting properties prefixed with **network.**. For example
+For example, one of the differences between Fabric and standalone setup is how networks are created.
+As network connectors in this case uses Fabric discovery to find brokers it'll connect to,
+they are configured using properties. You can additionally configure network connectors by adding properties prefixed with **network.** to the configuration pid.
+For example
 
     profile-edit -p org.fusesource.mq.fabric.server-broker1/network.bridgeTempDestinations=false broker1
 
@@ -193,13 +201,13 @@ will add
 
     network.bridgeTempDestinations=false
 
-to the properties making it reconfigure.
+to the properties and making the broker reconfigure the network connector.
 
 ### Configuration
 
 As you could see in the previous example, a default XML configuration template for the brokers is taken from the ZooKeeper path
 
-   /fabric/configs/versions/1.0/profiles/mq-base/broker.xml
+    /fabric/configs/versions/1.0/profiles/mq-base/broker.xml
 
 and it looks like
 
@@ -254,13 +262,13 @@ Note that some of the properties from the configuration are used in this templat
 and it's important that you reuse them properly. You can edit this configuration with some of our tools like IDE or FMC
 but also you might want to use the XML template from some other place. For that you can import the config in the ZooKeeper registry like
 
-    zk:import -v -t /fabric/configs/versions/1.0/profiles/mq-base/mybroker.xml /workspace/export/mybroker.xml
+    zk:import -v -t /fabric/configs/versions/1.0/profiles/mq-base/mybroker.xml /workspace/configs/mybroker.xml
 
 Now you can create a broker with **data** argument specified and use this customized configuration template, like
 
     mq-create --config mybroker.xml broker1
 
-Note that **config** option will assume that configuration is stored in the current version of **mq-base** profile.
+Note that **config** option will assume that configuration is stored in the current version of the **mq-base** profile, so you need to specify only file name without path.
 
 
 ### Data
