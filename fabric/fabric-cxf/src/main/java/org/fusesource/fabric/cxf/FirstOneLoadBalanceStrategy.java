@@ -17,6 +17,8 @@
 
 package org.fusesource.fabric.cxf;
 
+import org.fusesource.fabric.groups.Group;
+
 /**
  * Always return the first physical address from the locator
  */

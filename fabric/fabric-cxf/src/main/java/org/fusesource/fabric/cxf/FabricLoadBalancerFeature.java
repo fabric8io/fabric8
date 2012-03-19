@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
+import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
@@ -28,36 +29,46 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.linkedin.zookeeper.client.ZKClient;
 
-public class FabricLoadBalancerFeature extends AbstractFeature implements InitializingBean, DisposableBean {
+
+public class FabricLoadBalancerFeature extends AbstractFeature implements BusLifeCycleListener {
     private static final transient Log LOG = LogFactory.getLog(FabricLoadBalancerFeature.class);
-    @Autowired
-    private IZKClient zkClient;
+    private volatile IZKClient zkClient;
     private String zkRoot = "/fabric/cxf/endpoints/";
     private String fabricPath;
-    private Group group;
+    private boolean shouldCloseZkClient = false;
+    private long maximumConnectionTimeout = 10 * 1000L;
+    private long connectionRetryTime = 100L;
+    private volatile Group group;
     private LoadBalanceStrategy loadBalanceStrategy;
     private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
     public void initialize(Client client, Bus bus) {
         LoadBalanceTargetSelector selector = getDefaultLoadBalanceTargetSelector();
         selector.setEndpoint(client.getEndpoint());
-        selector.setLoadBalanceStrategy(getLoadBalanceStrategy());
-        client.setConduitSelector(selector);
+        try {
+            selector.setLoadBalanceStrategy(getLoadBalanceStrategy());
+            client.setConduitSelector(selector);
+        } catch (Exception e) {
+            LOG.error("Cannot setup the LoadBalanceStrategy due to " + e);
+        }
     }
 
     public void initialize(Bus bus) {
-        FabricServerListener lister = new FabricServerListener(group);
-        // register the listener itself
-        ServerLifeCycleManager mgr = bus.getExtension(ServerLifeCycleManager.class);
-        if (mgr != null) {
-            mgr.registerListener(lister);
-        } else {
-            LOG.warn("Cannot find the ServerLifeCycleManager ");
+        try {
+            FabricServerListener lister = new FabricServerListener(getGroup());
+            // register the listener itself
+            ServerLifeCycleManager mgr = bus.getExtension(ServerLifeCycleManager.class);
+            if (mgr != null) {
+                mgr.registerListener(lister);
+            } else {
+                LOG.warn("Cannot find the ServerLifeCycleManager ");
+            }
+        } catch (Exception ex) {
+
         }
     }
 
@@ -68,17 +79,16 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
     protected LoadBalanceTargetSelector getDefaultLoadBalanceTargetSelector() {
         return new LoadBalanceTargetSelector();
     }
-
-    public void afterPropertiesSet() throws Exception {
-        group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath, accessControlList);
-        if (loadBalanceStrategy == null) {
-            loadBalanceStrategy = getDefaultLoadBalanceStrategy();
-        }
-        loadBalanceStrategy.setGroup(group);
+    
+    public Group getGroup() throws Exception {
+         if (group == null) {
+             group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath, accessControlList);
+         }
+        return group;
     }
 
     public void destroy() throws Exception {
-        if (zkClient != null) {
+        if (zkClient != null && isShouldCloseZkClient()) {
             zkClient.close();
         }
     }
@@ -99,7 +109,23 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
         this.accessControlList = accessControlList;
     }
 
-    public IZKClient getZkClient() {
+    public synchronized IZKClient getZkClient() throws Exception {
+        if (zkClient == null) {
+            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
+            ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
+            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
+            zkClient = client;
+            setShouldCloseZkClient(true);
+        }
+
+        // ensure we are started
+        if (zkClient instanceof ZKClient) {
+            if (!zkClient.isConnected()) {
+                LOG.debug("Staring IZKClient " + zkClient);
+                ((ZKClient) zkClient).start();
+            }
+        }
+        checkZkConnected();
         return zkClient;
     }
 
@@ -107,12 +133,85 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements Initia
         this.zkClient = zkClient;
     }
 
-    public LoadBalanceStrategy getLoadBalanceStrategy() {
+    public LoadBalanceStrategy getLoadBalanceStrategy() throws Exception {
+        if (loadBalanceStrategy == null) {
+            loadBalanceStrategy = getDefaultLoadBalanceStrategy();
+        }
+        if (loadBalanceStrategy.getGroup() == null) {
+            loadBalanceStrategy.setGroup(getGroup());
+        }
         return loadBalanceStrategy;
     }
 
     public void setLoadBalanceStrategy(LoadBalanceStrategy strategy) {
         this.loadBalanceStrategy = strategy;
     }
+    
+    public void setShouldCloseZkClient(boolean closeZkClient) {
+         this.shouldCloseZkClient = closeZkClient;
+    }
 
+    public boolean isShouldCloseZkClient() {
+        return shouldCloseZkClient;
+    }
+
+    public long getMaximumConnectionTimeout() {
+        return maximumConnectionTimeout;
+    }
+
+    public void setMaximumConnectionTimeout(long maximumConnectionTimeout) {
+        this.maximumConnectionTimeout = maximumConnectionTimeout;
+    }
+
+    public long getConnectionRetryTime() {
+        return connectionRetryTime;
+    }
+
+    public void setConnectionRetryTime(long connectionRetryTime) {
+        this.connectionRetryTime = connectionRetryTime;
+    }
+
+    /**
+     * Lets check if we are connected and throw an exception if we are not.
+     * Note that if start() has just been called on IZKClient then it will take a little
+     * while for the connection to be established, so we keep checking up to the {@link #getMaximumConnectionTimeout()}
+     * until we throw the exception
+     */
+    protected void checkZkConnected() throws Exception {
+        long start = System.currentTimeMillis();
+        do {
+            if (zkClient.isConnected()) {
+                return;
+            }
+            try {
+                Thread.sleep(getConnectionRetryTime());
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        } while (System.currentTimeMillis() < start + getMaximumConnectionTimeout());
+
+        if (!zkClient.isConnected()) {
+            throw new Exception("Could not connect to ZooKeeper " + zkClient + " at " + zkClient.getConnectString());
+        }
+    }
+
+    @Override
+    public void initComplete() {
+        // Do nothing here
+    }
+
+    @Override
+    public void preShutdown() {
+        // Do nothing here
+    }
+
+    @Override
+    public void postShutdown() {
+        // just try to close the zkClient
+        try {
+            destroy();
+        } catch (Exception e) {
+            LOG.error("Cannot shut down the zkClient due to " + e);
+        }
+    }
 }

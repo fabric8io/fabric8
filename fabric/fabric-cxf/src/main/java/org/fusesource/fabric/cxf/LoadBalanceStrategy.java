@@ -22,6 +22,7 @@ import java.util.List;
 
 public interface LoadBalanceStrategy {
     void setGroup(Group group);
+    Group getGroup();
     List<String> getAlternateAddressList();
     String getNextAlternateAddress();
 }

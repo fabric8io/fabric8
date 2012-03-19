@@ -59,6 +59,10 @@ public abstract class FabricLoadBalanceStrategySupport implements LoadBalanceStr
             }
         });
     }
+    
+    public Group getGroup() {
+        return group;
+    }
 
     public List<String> getAlternateAddressList() {
         return new ArrayList(alternateAddressList);
