@@ -106,6 +106,16 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public boolean isProvisioningPending() {
+        String result = getProvisionResult();
+        if (result == null) {
+            return false;
+        } else {
+            return !isProvisioningComplete();
+        }
+    }
+
+    @Override
     public String getProvisionStatus() {
         String provisioned = getProvisionResult();
         String provisionException = getProvisionException();
