@@ -172,7 +172,7 @@ To understand better how broker is configured, let's take a look at the profile
     standby.pool default
     connectors openwire
     broker-name broker1
-    data /Users/dejanb/workspace/forge/fuseenterprise/fabric/fuse-fabric/target/fuse-fabric-7.0-SNAPSHOT/data/cache/bundle53/data/broker1
+    data /opt/fuse-fabric/data/broker1
     config zk:/fabric/configs/versions/1.0/profiles/mq-base/broker.xml
     group default
     network default
@@ -263,14 +263,15 @@ Now you can create a broker with **data** argument specified and use this custom
 Note that **config** option will assume that configuration is stored in the current version of **mq-base** profile.
 
 
-
-TODO
-
-
-
 ### Data
 
-TODO
+One more important thing when you run master slave configurations with persistent brokers is where your store is located.
+That's why it's important that you can define data directory for your broker with **mq-create** command. The example
+
+mq-create --create-container broker1 --data /var/activemq/broker1 broker1
+
+will create **broker1** broker and use **/var/activemq/broker1** directory for the data (and store) location. Then you can mount some shared storage to this path
+and share storage among brokers in the master slave setup.
 
 
 
