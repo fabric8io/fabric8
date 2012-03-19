@@ -70,6 +70,11 @@ public interface Container {
      */
     boolean isProvisioningComplete();
 
+    /**
+     * Returns true if the container is being provisioned and it is not yet complete (i.e. its not succeeded or failed)
+     */
+    boolean isProvisioningPending();
+
     String getProvisionResult();
     String getProvisionException();
     
