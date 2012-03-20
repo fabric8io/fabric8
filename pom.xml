@@ -101,7 +101,7 @@
         <activemq-version>5.5.1.fuse-7-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
         <bndlib-version>1.43.0</bndlib-version>
-        <commons-codec-version>1.3_4</commons-codec-version>
+        <commons-codec-version>1.6</commons-codec-version>
         <commons-io-version>1.4_2</commons-io-version>
         <commons-lang-version>2.4_5</commons-lang-version>
         <common-math-version>2.2</common-math-version>
