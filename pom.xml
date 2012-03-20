@@ -169,7 +169,7 @@
         <slf4j-api-version>1.6.1</slf4j-api-version>
         <slf4j-version>1.6.1</slf4j-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
-        <spring-version>3.0.6.RELEASE</spring-version>
+        <spring-version>3.0.7.RELEASE</spring-version>
         <surefire-version>2.12</surefire-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
