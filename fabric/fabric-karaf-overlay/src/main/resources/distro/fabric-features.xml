@@ -52,8 +52,8 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
 
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.sshd/sshd-core/0.5.0</bundle>
-        <bundle dependency="true">mvn:org.apache.mina/mina-core/2.0.1</bundle>
+        <bundle dependency="true">mvn:org.apache.sshd/sshd-core/{$sshd-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.mina/mina-core/${mina-version}</bundle>
 
         <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.config/${karaf-version}</bundle>
