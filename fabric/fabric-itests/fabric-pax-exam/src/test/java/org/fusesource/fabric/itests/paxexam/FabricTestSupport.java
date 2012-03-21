@@ -17,8 +17,6 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import java.io.File;
-import java.util.Arrays;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -34,12 +32,12 @@ import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
+import java.io.File;
+import java.util.Arrays;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.*;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class FabricTestSupport extends FuseTestSupport {
@@ -59,8 +57,7 @@ public class FabricTestSupport extends FuseTestSupport {
      * @return
      */
     protected Container createChildContainer(String name, String parent, String profileName) throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
-        assertNotNull(fabricService);
+        FabricService fabricService = getFabricService();
 
         Thread.sleep(DEFAULT_WAIT);
 
@@ -131,8 +128,7 @@ public class FabricTestSupport extends FuseTestSupport {
      * @throws Exception
      */
     public void createAndAssetChildContainer(String name, String parent, String profile) throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
-        assertNotNull(fabricService);
+        FabricService fabricService = getFabricService();
 
         Container child1 = createChildContainer(name, parent, profile);
         Container result = fabricService.getContainer(name);
@@ -147,8 +143,7 @@ public class FabricTestSupport extends FuseTestSupport {
      */
     public boolean containerSetProfile(String containerName, String profileName) throws Exception {
         System.out.println("Switching profile: "+profileName+" on container:"+containerName);
-        FabricService fabricService = getOsgiService(FabricService.class);
-        assertNotNull(fabricService);
+        FabricService fabricService = getFabricService();
 
         IZKClient zookeeper = getOsgiService(IZKClient.class);
         assertNotNull(zookeeper);
@@ -193,6 +188,12 @@ public class FabricTestSupport extends FuseTestSupport {
                 "http://scala-tools.org/repo-releases," +
                 "http://repo.fusesource.com/nexus/content/repositories/ea" +
                 " default");
+    }
+    
+    public FabricService getFabricService() {
+        FabricService fabricService = getOsgiService(FabricService.class);
+        assertNotNull(fabricService);
+        return fabricService;
     }
 
 
