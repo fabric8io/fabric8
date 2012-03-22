@@ -63,7 +63,7 @@
       mechanism (e.g. an <onException/> or <doTry/>) will be handled by this default error handler.
     -->
     <camelContext xmlns="http://camel.apache.org/schema/blueprint"
-                  id="eip-example-context"
+                  id="errors-example-context"
                   errorHandlerRef="myDeadLetterErrorHandler">
 
         <!--
