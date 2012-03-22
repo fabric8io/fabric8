@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -395,7 +396,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     }
 
     public void waitForState(State state, Timespan timeout) throws TimeoutException, InterruptedException {
-        long endTime = timeout == null ? 0 : timeout.futureTimeMillis(_clock);
+        long endTime = (timeout == null ? new Timespan(5, Timespan.TimeUnit.MINUTE) : timeout).futureTimeMillis(_clock);
         if (_state != state) {
             synchronized (_lock) {
                 while (_state != state) {

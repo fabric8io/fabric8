@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
-import org.fusesource.fabric.fab.osgi.internal.Bundles;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,8 +37,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
-import org.osgi.framework.launch.Framework;
-
 
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
@@ -99,6 +97,6 @@ public class DuplicateBundlesTest extends EsbTestSupport {
         return new Option[]{
                 esbDistributionConfiguration(), keepRuntimeFolder(),
                 editConfigurationFilePut("etc/system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+                logLevel(LogLevelOption.LogLevel.INFO)};
     }
 }

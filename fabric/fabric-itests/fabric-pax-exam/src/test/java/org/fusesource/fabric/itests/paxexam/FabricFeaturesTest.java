@@ -18,13 +18,11 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import com.sun.jersey.core.util.StringIgnoreCaseKeyComparator;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -32,14 +30,9 @@ import org.fusesource.fabric.api.Version;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
-
-
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 /**
  * Tests various Fabric Features.
@@ -117,9 +110,9 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(),
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
                 //debugConfiguration("5005",true),
-                copySystemProperty("feature"),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+                copySystemProperty("feature")
+        };
     }
 }

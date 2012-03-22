@@ -17,6 +17,9 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import java.io.File;
+import java.util.Arrays;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -25,15 +28,14 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.service.ChildContainerProvider;
+import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
-
-import java.io.File;
-import java.util.Arrays;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -92,9 +94,10 @@ public class FabricTestSupport extends FuseTestSupport {
 
             Thread.sleep(DEFAULT_WAIT);
             Container container = fabricService.getContainer(name);
-            container.destroy();
+            //container.destroy();
+            new ChildContainerProvider((FabricServiceImpl) fabricService).destroy(container);
         } catch (Exception ex) {
-            System.err.println(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -127,7 +130,7 @@ public class FabricTestSupport extends FuseTestSupport {
      * @param profile
      * @throws Exception
      */
-    public void createAndAssetChildContainer(String name, String parent, String profile) throws Exception {
+    public void createAndAssertChildContainer(String name, String parent, String profile) throws Exception {
         FabricService fabricService = getFabricService();
 
         Container child1 = createChildContainer(name, parent, profile);
@@ -214,15 +217,17 @@ public class FabricTestSupport extends FuseTestSupport {
      *
      * @return
      */
-    protected Option fabricDistributionConfiguration() {
-        return new DefaultCompositeOption(
-                new Option[]{karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
+    protected Option[] fabricDistributionConfiguration() {
+        return new Option[] {
+                    karafDistributionConfiguration().frameworkUrl(
+                            maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                        useOwnExamBundlesStartLevel(50),
-                      editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-                      mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing","pax-exam-karaf"))
-                });
+                    useOwnExamBundlesStartLevel(50),
+                    editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                    mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing","pax-exam-karaf")),
+                    logLevel(LogLevelOption.LogLevel.ERROR),
+                    keepRuntimeFolder(),
+                };
     }
 }
 

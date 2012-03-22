@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.annotation.Nullable;
+
 import com.google.common.base.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
@@ -32,19 +33,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 
@@ -96,7 +94,7 @@ public class FabricRackspaceAgentTest extends FabricTestSupport {
     public void testRackspaceAgentCreation() throws InterruptedException, IOException {
         if (!isReady()) {
             System.err.println("Rackspace is not setup correctly. This test will not run.");
-            System.err.println("To prpoerly run this test, you need to setup with maven the following properties:");
+            System.err.println("To properly run this test, you need to setup with maven the following properties:");
             System.err.println("fabricitest.rackspace.identity \t The rackspace access id");
             System.err.println("fabricitest.rackspace.credential \t The rackspace access key");
             System.err.println("fabricitest.rackspace.image  \t The rackspace (java ready) image");
@@ -164,7 +162,7 @@ public class FabricRackspaceAgentTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
                 copySystemProperty("fabricitest.rackspace.identity"),
                 copySystemProperty("fabricitest.rackspace.credential"),
                 copySystemProperty("fabricitest.rackspace.image"),
