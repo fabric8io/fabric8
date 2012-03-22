@@ -14,34 +14,33 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import javax.management.JMX;
-import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.ArrayList;
 
 import static junit.framework.Assert.assertEquals;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class MQProfileTest extends FabricTestSupport {
+    
+    ArrayList<Container> containers = new ArrayList<Container>();
 
     @After
     public void tearDown() throws InterruptedException {
-       destroyChildContainer("mq1");
-       destroyChildContainer("example");
+       for (Container container : containers) {
+           System.out.println("destroying " + container.getId());
+           destroyChildContainer(container.getId());
+       }
     }
 
     @Test
     public void testLocalChildCreation() throws Exception {
         System.err.println(executeCommand("fabric:create"));
         addStagingRepoToDefaultProfile();
-        createAndAssertChildContainer("mq1", "root", "mq");
+        containers.add(createAndAssertChildContainer("mq1", "root", "mq"));
 
-        createAndAssertChildContainer("example", "root", "example-mq");
+        containers.add(createAndAssertChildContainer("example", "root", "example-mq"));
 
 
         // give it a bit time
@@ -49,18 +48,30 @@ public class MQProfileTest extends FabricTestSupport {
 
         // check jmx stats
         Container container = getFabricService().getContainer("mq1");
-        System.out.println(container.getJmxUrl());
-
-        JMXServiceURL url = new JMXServiceURL(container.getJmxUrl());
-        Map env = new HashMap();
-        String[] creds = {"admin", "admin"};
-        env.put(JMXConnector.CREDENTIALS, creds);
-        JMXConnector jmxc = JMXConnectorFactory.connect(url, env);
-        MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
         //TODO investigate why the broker is named karaf.name in this case
-        ObjectName mbeanName = new ObjectName("org.apache.activemq:Type=Broker,BrokerName=karaf.name");
-        BrokerViewMBean bean = JMX.newMBeanProxy(mbsc, mbeanName,
-                BrokerViewMBean.class, true);
+        BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=karaf.name"), BrokerViewMBean.class);
+        assertEquals("Producer not present", 1, bean.getTotalProducerCount());
+        assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
+    }
+    
+    @Test
+    public void testMQCreateBasic() throws Exception {
+        System.err.println(executeCommand("fabric:create"));
+        addStagingRepoToDefaultProfile();
+
+        executeCommand("mq-create --create-container mq1 mq1");
+        Container container = getFabricService().getContainer("mq1");
+        containers.add(container);
+        waitForProvisionSuccess(container, PROVISION_TIMEOUT);
+
+
+        containers.add(createAndAssertChildContainer("example", "root", "example-mq"));
+
+        // give it a bit time
+        Thread.sleep(3000);
+
+        // check jmx stats
+        BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=mq1"), BrokerViewMBean.class);
         assertEquals("Producer not present", 1, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }

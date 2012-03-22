@@ -34,8 +34,16 @@ import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 
+import javax.management.JMX;
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -76,7 +84,7 @@ public class FabricTestSupport extends FuseTestSupport {
             Container container =  metadata[0].getContainer();
             Version version = fabricService.getDefaultVersion();
             Profile profile  = fabricService.getProfile(version.getName(),profileName);
-            assertNotNull("Expected to find profile with name:" + profileName,profile);
+            assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[]{profile});
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
             return container;
@@ -130,12 +138,13 @@ public class FabricTestSupport extends FuseTestSupport {
      * @param profile
      * @throws Exception
      */
-    public void createAndAssertChildContainer(String name, String parent, String profile) throws Exception {
+    public Container createAndAssertChildContainer(String name, String parent, String profile) throws Exception {
         FabricService fabricService = getFabricService();
 
         Container child1 = createChildContainer(name, parent, profile);
         Container result = fabricService.getContainer(name);
         assertEquals("Containers should have the same id", child1.getId(), result.getId());
+        return result;
     }
 
     /**
@@ -228,6 +237,16 @@ public class FabricTestSupport extends FuseTestSupport {
                     logLevel(LogLevelOption.LogLevel.ERROR),
                     keepRuntimeFolder()
                 };
+    }
+
+    public Object getMBean(Container container, ObjectName mbeanName, Class clazz) throws Exception {
+        JMXServiceURL url = new JMXServiceURL(container.getJmxUrl());
+        Map env = new HashMap();
+        String[] creds = {"admin", "admin"};
+        env.put(JMXConnector.CREDENTIALS, creds);
+        JMXConnector jmxc = JMXConnectorFactory.connect(url, env);
+        MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
+        return JMX.newMBeanProxy(mbsc, mbeanName, clazz, true);
     }
 }
 
