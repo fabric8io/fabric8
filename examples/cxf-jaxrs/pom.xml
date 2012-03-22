@@ -29,7 +29,7 @@
 
     <artifactId>cxf-jaxrs</artifactId>
     <packaging>jar</packaging>
-    <name>FuseSource :: Examples :: CXF JAX-RS </name>
+    <name>Fuse ESB :: Examples :: CXF JAX-RS </name>
     <description>CXF Example using JAX-RS with Fuse ESB</description>
 
     <dependencies>
