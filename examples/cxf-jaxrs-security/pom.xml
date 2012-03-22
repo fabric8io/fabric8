@@ -29,7 +29,7 @@
 
     <artifactId>cxf-jaxrs-security</artifactId>
     <packaging>bundle</packaging>
-    <name>FuseSource :: Examples :: CXF JAX-RS Security </name>
+    <name>Fuse ESB :: Examples :: CXF JAX-RS Security </name>
     <description>CXF Example using JAX-RS Security with Fuse ESB</description>
 
     <dependencies>
