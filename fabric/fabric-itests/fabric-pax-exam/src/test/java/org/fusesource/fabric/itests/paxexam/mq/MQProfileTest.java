@@ -15,7 +15,6 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import javax.management.ObjectName;
-
 import java.util.ArrayList;
 
 import static junit.framework.Assert.assertEquals;
@@ -74,6 +73,34 @@ public class MQProfileTest extends FabricTestSupport {
         BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=mq1"), BrokerViewMBean.class);
         assertEquals("Producer not present", 1, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
+    }
+
+    @Test
+    public void testMQCreateMS() throws Exception {
+        System.err.println(executeCommand("fabric:create"));
+        addStagingRepoToDefaultProfile();
+
+        executeCommand("mq-create --create-container broker1,broker2 ms-broker");
+        Container container1 = getFabricService().getContainer("broker1");
+        containers.add(container1);
+        waitForProvisionSuccess(container1, PROVISION_TIMEOUT);
+
+        Container container2 = getFabricService().getContainer("broker2");
+        containers.add(container2);
+        waitForProvisionSuccess(container2, PROVISION_TIMEOUT);
+
+        BrokerViewMBean broker1 = (BrokerViewMBean)getMBean(container1, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=ms-broker"), BrokerViewMBean.class);
+
+        assertEquals("ms-broker", broker1.getBrokerName());
+        destroyChildContainer("broker1");
+        containers.remove(container1);
+        Thread.sleep(10000); // TODO implement wait for condition with timeout
+
+        BrokerViewMBean broker2 = (BrokerViewMBean)getMBean(container2, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=ms-broker"), BrokerViewMBean.class);
+        assertEquals("ms-broker", broker2.getBrokerName());
+
+        //TODO add example to verify failover
+
     }
 
     @Configuration
