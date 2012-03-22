@@ -35,6 +35,7 @@
             <excludes>
                 <exclude>pom.xml</exclude>
                 <exclude>**/pom.xml</exclude>
+                <exclude>**/README.md</exclude>
                 <exclude>**/target/</exclude>
                 <exclude>**/target/*</exclude>
             </excludes>
@@ -48,6 +49,7 @@
             <outputDirectory>/examples</outputDirectory>
             <includes>
                 <include>**/pom.xml</include>
+                <include>**/README.md</include>
             </includes>
             <filtered>true</filtered>
             <lineEnding>unix</lineEnding>
