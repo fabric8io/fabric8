@@ -6,10 +6,12 @@ import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import javax.management.JMX;
@@ -21,8 +23,6 @@ import javax.management.remote.JMXServiceURL;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 import static junit.framework.Assert.assertEquals;
 
 @RunWith(JUnit4TestRunner.class)
@@ -67,6 +67,7 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Configuration
     public Option[] config() {
-        return fabricDistributionConfiguration();
+        return new Option[] {new DefaultCompositeOption(fabricDistributionConfiguration()),
+               mavenBundle("org.apache.activemq", "activemq-all", MavenUtils.getArtifactVersion("org.apache.activemq", "activemq-core"))};
     }
 }

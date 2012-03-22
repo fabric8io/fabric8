@@ -17,9 +17,6 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import java.io.File;
-import java.util.Arrays;
-
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -36,6 +33,9 @@ import org.linkedin.zookeeper.client.IZKClient;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
+
+import java.io.File;
+import java.util.Arrays;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -226,7 +226,7 @@ public class FabricTestSupport extends FuseTestSupport {
                     editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                     mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing","pax-exam-karaf")),
                     logLevel(LogLevelOption.LogLevel.ERROR),
-                    keepRuntimeFolder(),
+                    keepRuntimeFolder()
                 };
     }
 }
