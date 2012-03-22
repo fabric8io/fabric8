@@ -70,6 +70,7 @@
                         <Export-Package>
                             org.fusesource.examples.cxf.jaxrs.security
                         </Export-Package>
+                        <Private-Package>!*</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>
