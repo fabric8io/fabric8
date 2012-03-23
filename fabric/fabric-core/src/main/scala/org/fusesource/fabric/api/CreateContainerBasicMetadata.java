@@ -17,12 +17,16 @@
 
 package org.fusesource.fabric.api;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CreateContainerBasicMetadata<O extends CreateContainerOptions> implements CreateContainerMetadata<O> {
 
     private String containerName;
     private O createOptions;
     private transient Throwable failure;
     private transient Container container;
+    private final Map<String,String> containerConfguration = new HashMap<String, String>();
 
     public boolean isSuccess() {
         return failure == null;
@@ -58,6 +62,11 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
 
     public void setCreateOptions(O createOptions) {
         this.createOptions = createOptions;
+    }
+
+    @Override
+    public Map<String, String> getContainerConfguration() {
+        return containerConfguration;
     }
 
     @Override

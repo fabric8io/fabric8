@@ -131,11 +131,19 @@ public class ContainerImpl implements Container {
     }
 
     public String getSshUrl() {
-        return getZkData(ZkPath.CONTAINER_SSH);
+        try {
+            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_SSH.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     public String getJmxUrl() {
-        return getZkData(ZkPath.CONTAINER_JMX);
+        try {
+            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_JMX.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     private String getZkData(ZkPath path) {

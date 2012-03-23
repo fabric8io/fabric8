@@ -47,6 +47,9 @@
                 <ref component-id="containerCompleter"/>
                 <null/>
             </completers>
+            <optional-completers>
+                <entry key="--resolver" value-ref="resolverCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/ensemble-create">
             <action class="org.fusesource.fabric.commands.EnsembleCreate">
@@ -56,6 +59,9 @@
                 <ref component-id="containerCompleter"/>
                 <null/>
             </completers>
+            <optional-completers>
+                <entry key="--resolver" value-ref="resolverCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/ensemble-add">
             <action class="org.fusesource.fabric.commands.EnsembleAdd">
@@ -94,6 +100,7 @@
             <optional-completers>
                 <entry key="--profile" value-ref="profileCompleter"/>
                 <entry key="--parent" value-ref="rootContainerCompleter"/>
+                <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
         </command>
 
@@ -107,6 +114,7 @@
             </completers>
             <optional-completers>
                 <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
         </command>
         <command name="fabric/container-create-cloud">
@@ -115,6 +123,7 @@
             </action>
             <optional-completers>
                 <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
         </command>
         <command name="fabric/container-create-ssh">
@@ -140,6 +149,28 @@
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
             </action>
+        </command>
+        <command name="fabric/container-resolver-list">
+            <action class="org.fusesource.fabric.commands.ContainerResolverList">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+            <completers>
+                <ref component-id="containerCompleter"/>
+            </completers>
+        </command>
+        <command name="fabric/container-resolver-set">
+            <action class="org.fusesource.fabric.commands.ContainerResolverSet">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+            <completers>
+                <ref component-id="resolverCompleter"/>
+                <null/>
+            </completers>
+            <optional-completers>
+                <entry key="--container" value-ref="containerCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/container-connect">
             <action class="org.fusesource.fabric.commands.ContainerConnect">
@@ -405,4 +436,5 @@
         <property name="admin" ref="configurationAdmin"/>
     </bean>
 
+    <bean id="resolverCompleter" class="org.fusesource.fabric.commands.support.ResolverCompleter"/>
 </blueprint>

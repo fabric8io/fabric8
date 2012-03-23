@@ -19,12 +19,14 @@ package org.fusesource.fabric.internal;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKData;
 
@@ -154,6 +156,26 @@ public class ZooKeeperUtils {
             properties.store(writer, null);
             zooKeeper.setData(path, writer.toString());
         } catch (IOException e) {}
+    }
+
+    public static String getSubstitutedData(final IZKClient zooKeeper,String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+        String data = new String(ZkPath.loadURL(zooKeeper, path), "UTF-8");
+        Map<String,String> props = new HashMap<String,String>();
+        props.put("data", data);
+        InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
+                @Override
+                public String getValue(String key) {
+                    if (key.startsWith("zk:")) {
+                        try {
+                            return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return null;
+                }
+            });
+        return props.get("data");
     }
 
 }

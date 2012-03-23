@@ -41,6 +41,9 @@ public interface CreateContainerOptions extends Serializable {
     public boolean isDebugContainer();
     public void setDebugContainer(boolean debugContainer);
 
+    public String getResolver();
+    public void setResolver(String resolver);
+
     public Integer getNumber();
     public void setNumber(Integer number);
 

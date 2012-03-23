@@ -60,6 +60,7 @@ public class ContainerCreate extends ContainerCreateSupport {
         CreateContainerOptions args = CreateContainerOptionsBuilder.type(type)
                 .name(name)
                 .parent(parent)
+                .resolver(resolver)
                 .number(number)
                 .debugContainer(debugContainer)
                 .ensembleServer(isEnsembleServer)
