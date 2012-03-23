@@ -14,29 +14,27 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fabric-project</artifactId>
+        <artifactId>fabric-examples</artifactId>
         <version>7.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>fabric-examples</artifactId>
+    <groupId>org.fusesource.fabric.fabric-examples</groupId>
+    <artifactId>fabric-cxf-demo</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse Fabric :: Examples</name>
-    <description>Fuse Fabric :: Examples</description>
-    
+    <description>Fuse Fabric :: Simple Fabric CXF Demo</description>
+
     <modules>
-      <module>fabric-camel-cluster-loadbalancing</module>
-      <module>fabric-camel-dosgi</module>
-      <module>fabric-activemq-demo</module>
-      <module>fabric-camel-eca</module>
-      <module>fabric-camel-demo</module>
-      <module>fabric-cxf-demo</module>
-    </modules>  
+        <module>cxf-client</module>
+        <module>cxf-server</module>
+    </modules>
+
 
 </project>
