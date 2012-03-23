@@ -16,9 +16,11 @@
  */
 package org.fusesource.fabric.itests.paxexam.mq;
 
+import java.io.File;
 import javax.jms.Connection;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.commons.httpclient.HttpClient;
@@ -33,9 +35,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.io.File;
-
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -105,7 +104,7 @@ public class MQDistroTest {
         return new Option[]{
                 mqDistributionConfiguration(), keepRuntimeFolder(),
                 mavenBundle("commons-httpclient", "commons-httpclient").versionAsInProject().type("jar"),
-                logLevel(LogLevelOption.LogLevel.ERROR)
+                logLevel(LogLevelOption.LogLevel.INFO)
         };
     }
 

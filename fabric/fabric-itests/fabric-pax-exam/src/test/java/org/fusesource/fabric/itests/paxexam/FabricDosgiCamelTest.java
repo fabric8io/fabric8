@@ -22,21 +22,17 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -69,8 +65,8 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-camel");
         executeCommand("fabric:profile-edit --features fabric-example-camel-dosgi dosgi-camel");
 
-        createAndAssetChildContainer("dosgi-provider","root","dosgi-provider");
-        createAndAssetChildContainer("dosgi-camel","root","dosgi-camel");
+        createAndAssertChildContainer("dosgi-provider", "root", "dosgi-provider");
+        createAndAssertChildContainer("dosgi-camel", "root", "dosgi-camel");
 
         String response = executeCommand("fabric:container-connect dosgi-camel log:display | grep \"Message from distributed service to\"");
         System.err.println(executeCommand("fabric:container-connect dosgi-camel camel:route-info fabric-client"));
@@ -83,9 +79,9 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(),
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
                 //debugConfiguration("5005",true),
-                editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID,ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+                editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID,ARTIFACT_ID))
+        };
     }
 }

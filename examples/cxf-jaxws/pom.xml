@@ -29,7 +29,7 @@
 
     <artifactId>cxf-jaxws</artifactId>
     <packaging>jar</packaging>
-    <name>FuseSource :: Examples :: CXF JAXWS</name>
+    <name>Fuse ESB :: Examples :: CXF JAXWS</name>
     <description>CXF example using JAXWS</description>
 
     <dependencies>

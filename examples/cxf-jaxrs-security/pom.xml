@@ -29,7 +29,7 @@
 
     <artifactId>cxf-jaxrs-security</artifactId>
     <packaging>bundle</packaging>
-    <name>FuseSource :: Examples :: CXF JAX-RS Security </name>
+    <name>Fuse ESB :: Examples :: CXF JAX-RS Security </name>
     <description>CXF Example using JAX-RS Security with Fuse ESB</description>
 
     <dependencies>
@@ -51,6 +51,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
@@ -69,6 +70,7 @@
                         <Export-Package>
                             org.fusesource.examples.cxf.jaxrs.security
                         </Export-Package>
+                        <Private-Package>!*</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

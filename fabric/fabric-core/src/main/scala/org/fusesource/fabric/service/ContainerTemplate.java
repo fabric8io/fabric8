@@ -156,7 +156,7 @@ public class ContainerTemplate {
     public JMXConnector createConnector() {
         String rootUrl = container.getJmxUrl();
         if (rootUrl == null) {
-            return null;
+            throw new IllegalStateException("The jmx url for container '" + container.getId() + "' is not specified");
         }
         JMXConnector connector;
         try {

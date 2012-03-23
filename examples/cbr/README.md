@@ -36,7 +36,7 @@ To run the example:
 1. As soon as the Camel route has been started, you will see a directory `work/cbr/input` in your Fuse ESB installation
 1. Copy the files you find in this example's `src/test/data` directory to the newly created `work/cbr/input` directory
 1. Wait a few moment and you will find the same files organized by country under `work/cbr/output`
-** `order1.xml` in `work/cbr/output/orders`
+** `order1.xml` in `work/cbr/output/others`
 ** `order2.xml` and `order4.xml` in `work/cbr/output/uk`
 ** `order3.xml` and `order5.xml` in `work/cbr/output/us`
 1. Use `log:display` to check out the business logging

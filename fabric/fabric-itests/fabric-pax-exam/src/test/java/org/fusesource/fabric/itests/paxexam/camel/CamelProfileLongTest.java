@@ -20,7 +20,7 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
         addStagingRepoToDefaultProfile();
 
 
-        createAndAssetChildContainer("camel1", "root", "camel");
+        createAndAssertChildContainer("camel1", "root", "camel");
         prepareFeaturesForTesting("camel1", "camel-blueprint", "camel", "camel-blueprint");
         prepareFeaturesForTesting("camel1", "camel-jms", "camel", "camel-jms");
         prepareFeaturesForTesting("camel1", "camel-http", "camel", "camel-http");

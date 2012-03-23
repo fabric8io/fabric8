@@ -233,7 +233,7 @@ public class FabricServiceImpl implements FabricService {
         CreateContainerMetadata metadata = container.getMetadata();
         String type = metadata != null ? metadata.getCreateOptions().getProviderType() : null;
         if (type == null) {
-            throw new UnsupportedOperationException("Container has not been created using Fabric");
+            throw new UnsupportedOperationException("Container " + container.getId() + " has not been created using Fabric");
         }
         ContainerProvider provider = getProvider(type);
         if (provider == null) {

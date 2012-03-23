@@ -35,7 +35,7 @@ public class ZooKeeperUtils {
             child = path + "/" + child;
             if (dest.exists(child) == null) {
                 byte[] data  = source.getData(child);
-                dest.createBytesNodeWithParents(child, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                set(dest, child, data);
                 copy(source, dest, child);
             }
         }
@@ -47,7 +47,7 @@ public class ZooKeeperUtils {
             String toChild = to + "/" + child;
             if (zk.exists(toChild) == null) {
                 byte[] data  = zk.getData(fromChild);
-                zk.createBytesNodeWithParents(toChild, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                set(zk, toChild, data);
                 copy(zk, fromChild, toChild);
             }
         }

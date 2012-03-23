@@ -29,7 +29,7 @@
 
     <artifactId>cxf-jaxws-security</artifactId>
     <packaging>bundle</packaging>
-    <name>FuseSource :: Examples :: CXF JAXWS Security </name>
+    <name>Fuse ESB :: Examples :: CXF JAXWS Security </name>
     <description>CXF example using JAXWS with WS-Security</description>
     <dependencies>
         <dependency>
@@ -44,6 +44,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
