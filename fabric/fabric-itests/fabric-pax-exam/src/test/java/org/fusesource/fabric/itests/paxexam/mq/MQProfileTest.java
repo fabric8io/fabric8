@@ -17,7 +17,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import javax.management.ObjectName;
 import java.util.ArrayList;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.*;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -100,6 +100,40 @@ public class MQProfileTest extends FabricTestSupport {
         assertEquals("ms-broker", broker2.getBrokerName());
 
         //TODO add example to verify failover
+
+    }
+    
+    @Test
+    public void testMQCreateNetwork() throws Exception {
+        System.err.println(executeCommand("fabric:create"));
+        addStagingRepoToDefaultProfile();
+
+        executeCommand("mq-create --group east --networks west --create-container east east");
+        Container container1 = getFabricService().getContainer("east");
+        containers.add(container1);
+        waitForProvisionSuccess(container1, PROVISION_TIMEOUT);
+
+
+        executeCommand("mq-create --group west --networks east --create-container west west");
+        Container container2 = getFabricService().getContainer("west");
+        containers.add(container2);
+        waitForProvisionSuccess(container2, PROVISION_TIMEOUT);
+
+        containers.add(createAndAssertChildContainer("example", "root", "example-mq-cluster"));
+
+        // give it a bit time
+        Thread.sleep(10000);
+
+        BrokerViewMBean brokerEast = (BrokerViewMBean)getMBean(container1, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=east"), BrokerViewMBean.class);
+        BrokerViewMBean brokerWest = (BrokerViewMBean)getMBean(container2, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=west"), BrokerViewMBean.class);
+
+        assertFalse("Messages not sent", brokerEast.getTotalEnqueueCount() == 0);
+
+        assertFalse("Messages not received", brokerWest.getTotalDequeueCount() == 0);
+
+
+
+
 
     }
 
