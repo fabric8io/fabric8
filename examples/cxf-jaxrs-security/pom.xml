@@ -21,6 +21,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!--
+        The parent POM does not contain any information required to build this example, it's only here
+        for organisational purposes so feel free to remove/replace this.
+    -->
     <parent>
         <groupId>org.fusesource.examples</groupId>
         <artifactId>project</artifactId>
@@ -33,12 +37,20 @@
     <description>CXF Example using JAX-RS Security with Fuse ESB</description>
 
     <dependencies>
+        <!--
+            For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
+            standard annotations and API
+        -->
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
             <version>1.9.0</version>
             <scope>provided</scope>
         </dependency>
+        <!--
+            We are also building a small Java client application that we can use to test our web web services.
+            For performing the HTTP requests, we are using Apache Commons HttpClient.
+        -->
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
@@ -48,11 +60,26 @@
 
     <build>
         <plugins>
+            <!--
+                In this example, we will use a normal OSGi bundle instead of FAB because it allows for very fine-grained
+                control over the bundle manifest.
+
+                We are defining the maven-bundle-plugin with <extensions>true</extensions> because it provides
+                the additional packaging type ('bundle') we need.
+            -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
+                    <!--
+                        Additional instructions defined here are used for generating the OSGi MANIFEST.MF file.
+                        In this case, we explicitly define a bundle symbolic name and description.  We also specify
+                        the lists of package to be exported and imported by the bundle.
+
+                        With this Export-Package configuration, we will only add the web service itself to the bundle.
+                        There's no need to deploy the client code inside the container as well.
+                    -->
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Description>${project.description}</Bundle-Description>
@@ -63,17 +90,19 @@
                             javax.ws.rs,
                             javax.ws.rs.core,
                             org.osgi.service.blueprint,
-                            org.apache.commons.httpclient,
-                            org.apache.commons.httpclient.methods,
                             org.apache.cxf.interceptor.security
                         </Import-Package>
                         <Export-Package>
-                            org.fusesource.examples.cxf.jaxrs.security
+                            org.fusesource.examples.cxf.jaxrs.security,
+                            !org.fusesource.examples.cxf.jaxrs.security.client
                         </Export-Package>
                         <Private-Package>!*</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>
+            <!--
+                The exec-maven-plugin allows us to run our Java client client application with a 'mvn exec:java'.
+            -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

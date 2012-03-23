@@ -17,26 +17,53 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
-    xsi:schemaLocation="
-http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+<!--
+   This file is the OSGi Blueprint XML file defining the CXF JAX-RS beans.  Because the file is in the
+   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
 
+   The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
+   and the CXF JAX-RS namespaces.
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xsi:schemaLocation="
+      http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+      http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+
+    <!--
+      The <jaxrs:server/> element is used to set up our JAX-RS services.  It defines:
+      - the server's address, '/crm', relative to the default CXF servlet URI
+        with the default settings, the server will be running on 'http://localhost:8181/cxf/crm'
+      - a list of service beans
+        in this example, we refer to another bean defined in this Blueprint XML file with a <ref/> element
+      - a list of interceptors that are being applied to the inbound request
+        in this example, we refer to another bean defined in this Blueprint XML file with a <ref/> element
+    -->
     <jaxrs:server id="customerService" address="/crm">
         <jaxrs:serviceBeans>
             <ref component-id="customerSvc"/>
         </jaxrs:serviceBeans>
         <jaxrs:inInterceptors>
-           <ref component-id="authenticationInterceptor"/>
+            <ref component-id="authenticationInterceptor"/>
         </jaxrs:inInterceptors>
     </jaxrs:server>
 
+    <!--
+       We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-RS server setup before.
+       This bean carries a set of JAX-RS annotations that allow its methods to be mapped to incoming requests.
+    -->
     <bean id="customerSvc" class="org.fusesource.examples.cxf.jaxrs.security.CustomerService"/>
-    
+
+    <!--
+       We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-RS server setup before.
+       This bean is a CXF interceptor that ensures that a request has been authenticated before allowing it to pass. For
+       performing the authentication, this interceptor will delegate to JAAS, using the realm name 'karaf'.  This will allow
+       it to reuse the same authentication mechanism that is being used to secure other ESB facilities, such as the remote
+       SSH shell and the webconsole.
+    -->
     <bean id="authenticationInterceptor" class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
-       <property name="contextName" value="karaf"/>
+        <property name="contextName" value="karaf"/>
     </bean>
 
 </blueprint>

@@ -20,6 +20,18 @@ package org.fusesource.examples.cxf.jaxrs.security;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * The Product class is just a plain old java object, with a few properties and getters and setters.
+ *
+ * By adding the @XmlRootElement annotation, we make it possible for JAXB to unmarshal this object into a XML document and
+ * to marshal it back from the same XML document.
+ *
+ * The XML representation of a Product will look like this:
+ * <Product>
+ *     <id>10010</id>
+ *     <description>Armadillo</description>
+ * </Product>
+ */
 @XmlRootElement(name = "Product")
 public class Product {
     private long id;

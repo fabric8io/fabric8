@@ -29,28 +29,46 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 
+/**
+ * The client class has a main method that accesses a few of the resources defined in our JAX-RS example using
+ * the Apache Commons HttpClient classes.
+ */
 public final class Client {
 
     private Client() {
     }
 
     public static void main(String args[]) throws Exception {
-        // Sent HTTP GET request to query all customer info
 
-        // Sent HTTP GET request to query customer info
+        /**
+         * HTTP GET http://localhost:8181/cxf/crm/customerservice/customers/123
+         * returns the XML document representing customer 123
+         *
+         * On the server side, it matches the CustomerService's getCustomer() method
+         */
         System.out.println("Sent HTTP GET request to query customer info");
         URL url = new URL("http://localhost:8181/cxf/crm/customerservice/customers/123");
         InputStream in = url.openStream();
         System.out.println(getStringFromInputStream(in));
 
-        // Sent HTTP GET request to query sub resource product info
+        /**
+         * HTTP GET http://localhost:8181/cxf/crm/customerservice/orders/223/products/323
+         * returns the XML document representing product 323 in order 223
+         *
+         * On the server side, it matches the Order's getProduct() method
+         */
         System.out.println("\n");
         System.out.println("Sent HTTP GET request to query sub resource product info");
         url = new URL("http://localhost:8181/cxf/crm/customerservice/orders/223/products/323");
         in = url.openStream();
         System.out.println(getStringFromInputStream(in));
 
-        // Sent HTTP PUT request to update customer info
+        /**
+         * HTTP PUT http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
+         * the update_customer.xml file to update the customer information for customer 123.
+         *
+         * On the server side, it matches the CustomerService's updateCustomer() method
+         */
         System.out.println("\n");
         System.out.println("Sent HTTP PUT request to update customer info");
         Client client = new Client();
@@ -72,7 +90,12 @@ public final class Client {
             put.releaseConnection();
         }
 
-        // Sent HTTP POST request to add customer
+        /**
+         * HTTP POST http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
+         * the add_customer.xml file to add a new customer to the system.
+         *
+         * On the server side, it matches the CustomerService's addCustomer() method
+         */
         System.out.println("\n");
         System.out.println("Sent HTTP POST request to add customer");
         inputFile = client.getClass().getResource("add_customer.xml").getFile();
@@ -98,6 +121,9 @@ public final class Client {
         System.exit(0);
     }
 
+    /*
+     * Just a simple helper method to read bytes from an InputStream and return the String representation.
+     */
     private static String getStringFromInputStream(InputStream in) throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int c = 0;

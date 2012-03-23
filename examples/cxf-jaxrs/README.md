@@ -1,130 +1,93 @@
-# CXF JAX-RS EXAMPLE
+# RESTful web services with CXF
 
 ## Overview
-This example demonstrates how to create a RESTful JAX-RS web service using CXF and expose it with the OSGi HTTP Service.
+This example demonstrates how to create a RESTful (JAX-RS) web service using CXF and expose it with the OSGi HTTP Service.
 
 ## What You Will Learn
 In studying this example you will learn:
 
-* Configure the JAX-RS web services by using the blueprint configuration file.
-
-  The web service is implemented in the CustomerService.java file, which is
-located in the src/main/java/org/fusesource/examples/cxf/jaxrs directory of this example. It contains annotations indicating what URIs and HTTP methods to use when accessing the resource. For information on how to write RESTful web services, please refer to the Apache CXF
-documentation.
-
-  The blueprint file, located in the src/main/resources/OSGi-INF/blueprint/blueprint.xml
- directory:
-
-  1. Imports the configuration files needed to enable CXF to support
-   JAX-RS and to use the OSGi HTTP service.
-
-   2. Configures the web service, as follows:
-
-        <jaxrs:server id="customerService" address="/crm">
-            <jaxrs:serviceBeans>
-                <ref component-id="customerSvc"/>
-            </jaxrs:serviceBeans>
-        </jaxrs:server>
-
-        <bean id="customerSvc" class="org.fusesource.examples.cxf.jaxrs.CustomerService"/>
-
-
-
-* Generating the FAB file by configuring the FAB plugin like this 
-
-        <plugin>
-            <groupId>org.fusesource.mvnplugins</groupId>
-            <artifactId>maven-fab-plugin</artifactId>
-            <version>${maven-fab-plugin-version}</version>
-            <configuration>
-                <descriptor>
-                    <Long-Description />
-                </descriptor>
-            </configuration>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>generate</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-
+* how to configure the JAX-RS web services by using the blueprint configuration file.
+* how to use JAX-RS annotations to map methods and classes to URIs
+* how to use JAXB annotations to define beans and output XML responses
+* how to use the JAX-RS API to create HTTP responses
 
 ## Prerequisites
 Before building and running this example you need:
 
-1.You must have the following installed on your machine:
-
-* JDK 1.6 or higher
-* Maven 2.2.1 or higher
-
-2.Start Fuse ESB by running the following command:
-
-* <esb_home>/bin/fuseesb          (on UNIX) 
-* <esb_home>\bin\fuseesb          (on Windows)
+* Maven 3.0.3 or higher
+* JDK 1.6
+* Fuse ESB Enterprise 7
 
 ## Building the Example
-To Build the example by opening a command prompt, changing directory to examples/cxf-jaxrs (this example) and entering the following Maven command:
+To build the example:
 
-        mvn install
-
-   If all of the required OSGi bundles are available in your local Maven repository, the example will build very quickly. Otherwise it may take some time for Maven to download everything it needs.
-   
-   The mvn install command builds the example deployment bundle and copies it to your local Maven repository and to the target directory of this example.
+1. Change your working directory to the `examples/cxf-jaxrs` directory
+1. Run `mvn clean install` to build the example
 
 ## Running the Example
+To run the example:
 
-You can run the example:
+1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
+1. In the Fuse ESB console, enter the following command:
+        osgi:install -s fab:mvn:org.fusesource.examples/cxf-jaxrs/${project.version}
 
-Install the example by entering the following command in
-the Fuse ESB console:
+There are several ways you can interact with the running RESTful web services: you can browse the web service metadata,
+but you can also invoke the web services in a few different ways.
 
-         osgi:install -s fab:mvn:org.fusesource.examples/cxf-jaxrs/${project.version}
-   
-### Running a client 
+### Browsing web service metadata
 
-You can browse WADL at:
+A full listing of all CXF web services is available at
+
+    http://localhost:8181/cxf
+
+After you deployed this example, you will see the following endpoint address appear in the 'Available RESTful services' section:
+
+    http://localhost:8181/cxf/crm
+
+Just below it, you'll find a link to the WADL describing all the root resources:
+
+    http://localhost:8181/cxf/crm?_wadl
+
+You can also look at the more specific WADL, the only that only lists information about 'customerservice' itself:
 
 	http://localhost:8181/cxf/crm/customerservice?_wadl&_type=xml
 
-or
+### Access services using a web browser
 
-	http://localhost:8181/cxf/crm?_wadl&_type=xml
+You can use any browser to perform a HTTP GET.  This allows you to very easily test a few of the RESTful services we defined:
 
-The latter URI can be used to see the desription of multiple root resource classes.
-
-You can see the services listing at http://localhost:8181/cxf.
-
-You can make invocations on the web service in several ways, including using a web client, using a Java client and using a command-line utility such a curl or Wget. See below for more details.
-
-#### To run a web client:
-Open a browser and go to the following URL:
+Use this URL to display the XML representation for customer 123:
 
     http://localhost:8181/cxf/crm/customerservice/customers/123
 
-It should display an XML representation for customer 123.
+You can also access the XML representation for order 223 ...
 
-Note, if you use Safari, right click the window and select 'Show Source'.
+    http://localhost:8181/cxf/crm/customerservice/orders/223
 
-#### To run a Java client:
-1. Change to the <esb_home>/examples/cxf-jaxrs
-  directory.
+... or the XML representation of product 323 in order 223 with
 
+    http://localhost:8181/cxf/crm/customerservice/orders/223/products/323
+
+Note: if you use Safari, you will only see the text elements but not the XML tags - you can view the entire document with 'View Source'
+
+### To run a Java client:
+
+In this cxf-jaxrs example project, we also developed a Java client which can perform a few HTTP requests to test our web services. We
+configured the exec-java-plugin in Maven to allow us to run the Java client code with a simple Maven command:
+
+1. Change to the <esb_home>/examples/cxf-jaxrsdirectory.
 2. Run the following command:
 
         mvn compile exec:java
         
-   It makes a sequence of RESTful invocations and displays the results.
+The client makes a sequence of RESTful invocations and displays the results.
 
-#### To run a command-line utility:
+### To run a command-line utility:
 
-You can use a command-line utility, such as curl or Wget, to make the invocations. For example, try using curl as follows:
+You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample
+XML representations in src/main/resources/org/fusesource/examples/cxf/jaxrs/client, so we will use those for testing our services.
 
-1. Open a command prompt and change directory to
-  
-        <esb_home>/examples/cxf-jaxrs.
-
+1. Open a command prompt and change directory to <esb_home>/examples/cxf-jaxrs.
 2. Run the following curl commands:
     
     * Create a customer
@@ -143,10 +106,11 @@ You can use a command-line utility, such as curl or Wget, to make the invocation
   
              curl -X DELETE http://localhost:8181/cxf/crm/customerservice/customers/123
 
+## Additional configuration options
+
 ### Changing /cxf servlet alias
 
-By default CXF Servlet is assigned a '/cxf' alias. You can
-change it in a couple of ways
+By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple of ways
 
 1. Add org.apache.cxf.osgi.cfg to the /etc directory and set the 'org.apache.cxf.servlet.context' property, for example:
 
@@ -156,9 +120,12 @@ change it in a couple of ways
 
         config:edit org.apache.cxf.osgi
      
-        config:propset org.apache.cxf.servlet.context /super
+        config:propset org.apache.cxf.servlet.context /custom
      
         config:update
+
+## More information
+For more information see:
 
 
 

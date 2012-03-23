@@ -21,6 +21,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!--
+        The parent POM does not contain any information required to build this example, it's only here
+        for organisational purposes so feel free to remove/replace this.
+    -->
     <parent>
         <groupId>org.fusesource.examples</groupId>
         <artifactId>project</artifactId>
@@ -33,12 +37,20 @@
     <description>CXF Example using JAX-RS with Fuse ESB</description>
 
     <dependencies>
+        <!--
+            For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
+            standard annotations and API
+        -->
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
             <version>1.9.0</version>
             <scope>provided</scope>
         </dependency>
+        <!--
+            We are also building a small Java client application that we can use to test our web web services.
+            For performing the HTTP requests, we are using Apache Commons HttpClient.
+        -->
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
@@ -48,23 +60,9 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.fusesource.mvnplugins</groupId>
-                <artifactId>maven-fab-plugin</artifactId>
-                <version>${maven-fab-plugin-version}</version>
-                <configuration>
-                    <descriptor>
-                        <Long-Description />
-                    </descriptor>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--
+                The exec-maven-plugin allows us to run our Java client client application with a 'mvn exec:java'.
+            -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

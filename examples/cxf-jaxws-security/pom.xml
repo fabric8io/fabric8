@@ -21,6 +21,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!--
+        The parent POM does not contain any information required to build this example, it's only here
+        for organisational purposes so feel free to remove/replace this.
+    -->
     <parent>
         <groupId>org.fusesource.examples</groupId>
         <artifactId>project</artifactId>
@@ -31,6 +35,7 @@
     <packaging>bundle</packaging>
     <name>Fuse ESB :: Examples :: CXF JAXWS Security </name>
     <description>CXF example using JAXWS with WS-Security</description>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -41,11 +46,23 @@
 
     <build>
         <plugins>
+            <!--
+                In this example, we will use a normal OSGi bundle instead of FAB because it allows for very fine-grained
+                control over the bundle manifest.
+
+                We are defining the maven-bundle-plugin with <extensions>true</extensions> because it provides
+                the additional packaging type ('bundle') we need.
+            -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
+                    <!--
+                        Additional instructions defined here are used for generating the OSGi MANIFEST.MF file.
+                        In this case, we explicitly define a bundle symbolic name and description.  We also specify
+                        the lists of package to be exported and imported by the bundle.
+                    -->
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Description>${project.description}</Bundle-Description>
@@ -71,6 +88,9 @@
                     </instructions>
                 </configuration>
             </plugin>
+            <!--
+                The exec-maven-plugin allows us to run our Java client client application with a 'mvn exec:java'.
+            -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

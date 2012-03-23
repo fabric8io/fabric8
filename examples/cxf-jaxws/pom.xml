@@ -21,6 +21,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!--
+        The parent POM does not contain any information required to build this example, it's only here
+        for organisational purposes so feel free to remove/replace this.
+    -->
     <parent>
         <groupId>org.fusesource.examples</groupId>
         <artifactId>project</artifactId>
@@ -33,6 +37,10 @@
     <description>CXF example using JAXWS</description>
 
     <dependencies>
+        <!--
+            For coding the example, we don't actually depend on any CXF classes - we only use the JAX-WS
+            standard annotations
+        -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
@@ -43,23 +51,9 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.fusesource.mvnplugins</groupId>
-                <artifactId>maven-fab-plugin</artifactId>
-                <version>${maven-fab-plugin-version}</version>
-                <configuration>
-                    <descriptor>
-                        <Long-Description />
-                    </descriptor>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--
+                The exec-maven-plugin allows us to run our Java client client application with a 'mvn exec:java'.
+            -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

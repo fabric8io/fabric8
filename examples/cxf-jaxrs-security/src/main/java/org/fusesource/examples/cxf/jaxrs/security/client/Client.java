@@ -41,13 +41,18 @@ public final class Client {
         HttpClient httpClient = new HttpClient();
         httpClient.getState().setCredentials(
                   AuthScope.ANY,
-                  new UsernamePasswordCredentials("joe", "password")
+                  new UsernamePasswordCredentials("smx", "smx")
         );
         // Use basic authentication
         AuthScheme scheme = new BasicScheme();
-       
-        
-        // Sent HTTP GET request to query customer info
+
+
+        /**
+         * HTTP GET http://localhost:8181/cxf/crm/customerservice/customers/123
+         * returns the XML document representing customer 123
+         *
+         * On the server side, it matches the CustomerService's getCustomer() method
+         */
         System.out.println("Sent HTTP GET request to query customer info with basic authentication info.");
         GetMethod get = new GetMethod("http://localhost:8181/cxf/crm/customerservice/customers/123");
         get.getHostAuthState().setAuthScheme(scheme);
@@ -57,8 +62,11 @@ public final class Client {
         } finally {
             get.releaseConnection();
         }
-        
-        // Sent HTTP GET request without user and password
+
+        /**
+         * HTTP GET http://localhost:8181/cxf/crm/customerservice/customers/123
+         * without passing along authentication credentials - this will result in a security exception in the response.
+         */
         System.out.println("\n");
         System.out.println("Sent HTTP GET request to query customer info without basic authentication info.");
         get = new GetMethod("http://localhost:8181/cxf/crm/customerservice/customers/123");
@@ -69,9 +77,13 @@ public final class Client {
         } finally {
             get.releaseConnection();
         }
-        
 
-        // Sent HTTP GET request to query sub resource product info
+        /**
+         * HTTP GET http://localhost:8181/cxf/crm/customerservice/orders/223/products/323
+         * returns the XML document representing product 323 in order 223
+         *
+         * On the server side, it matches the Order's getProduct() method
+         */
         System.out.println("\n");
         System.out.println("Sent HTTP GET request to query sub resource product info");
         get = new GetMethod("http://localhost:8181/cxf/crm/customerservice/orders/223/products/323");
@@ -83,7 +95,12 @@ public final class Client {
             get.releaseConnection();
         }
 
-        // Sent HTTP PUT request to update customer info
+        /**
+         * HTTP PUT http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
+         * the update_customer.xml file to update the customer information for customer 123.
+         *
+         * On the server side, it matches the CustomerService's updateCustomer() method
+         */
         System.out.println("\n");
         System.out.println("Sent HTTP PUT request to update customer info");
         
@@ -106,7 +123,12 @@ public final class Client {
             put.releaseConnection();
         }
 
-        // Sent HTTP POST request to add customer
+        /**
+         * HTTP POST http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
+         * the add_customer.xml file to add a new customer to the system.
+         *
+         * On the server side, it matches the CustomerService's addCustomer() method
+         */
         System.out.println("\n");
         System.out.println("Sent HTTP POST request to add customer");
         inputFile = Client.class.getResource("add_customer.xml").getFile();
