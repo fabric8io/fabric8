@@ -58,6 +58,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
 
         CreateSshContainerOptions options = CreateContainerOptionsBuilder.ssh()
         .name(name)
+        .resolver(resolver)
         .ensembleServer(isEnsembleServer)
         .debugContainer(debugContainer)
         .number(number)

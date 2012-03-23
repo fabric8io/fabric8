@@ -18,6 +18,7 @@
 package org.fusesource.fabric.api;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public interface CreateContainerMetadata<O extends CreateContainerOptions> extends Serializable {
 
@@ -28,6 +29,8 @@ public interface CreateContainerMetadata<O extends CreateContainerOptions> exten
     Container getContainer();
 
     String getContainerName();
+
+    Map<String, String> getContainerConfguration();
 
     O getCreateOptions();
 

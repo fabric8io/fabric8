@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public class ContainerProviderUtils {
 
@@ -54,6 +55,7 @@ public class ContainerProviderUtils {
         extractTargzIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         List<String> lines = new ArrayList<String>();
+        lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + options.getResolver());
         appendFile(sb, "etc/startup.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name = " +options.getName());
         replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+DEFAULT_SSH_PORT);

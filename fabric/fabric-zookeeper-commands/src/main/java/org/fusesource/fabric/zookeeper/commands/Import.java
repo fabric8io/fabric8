@@ -26,7 +26,7 @@ import org.linkedin.zookeeper.client.IZKClient;
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
-@Command(name = "import", scope = "zk", description = "Import data into zookeeper")
+@Command(name = "import", scope = "zk", description = "Import data into zookeeper", detailedDescription = "classpath:import.txt")
 public class Import extends ZooKeeperCommandSupport {
 
     @Argument(description = "Location of the file or filesystem to load")

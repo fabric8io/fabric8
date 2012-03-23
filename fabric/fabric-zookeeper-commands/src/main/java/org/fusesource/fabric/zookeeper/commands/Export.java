@@ -36,7 +36,7 @@ import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
-@Command(name = "export", scope = "zk", description = "Export data from zookeeper")
+@Command(name = "export", scope = "zk", description = "Export data from zookeeper", detailedDescription = "classpath:export.txt")
 public class Export extends ZooKeeperCommandSupport {
 
     @Argument(description="path of the directory to export to")

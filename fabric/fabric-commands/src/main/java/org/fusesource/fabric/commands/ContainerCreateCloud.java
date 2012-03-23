@@ -64,6 +64,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
 
         CreateContainerOptions args = CreateContainerOptionsBuilder.jclouds()
         .name(name)
+        .resolver(resolver)
         .ensembleServer(isEnsembleServer)
         .credential(credential)
         .debugContainer(debugContainer)

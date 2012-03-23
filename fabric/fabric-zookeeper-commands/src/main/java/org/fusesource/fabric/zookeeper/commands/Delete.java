@@ -21,7 +21,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "delete", scope = "zk", description = "Delete a node")
+@Command(name = "delete", scope = "zk", description = "Delete a node", detailedDescription = "classpath:delete.txt")
 public class Delete extends ZooKeeperCommandSupport {
 
     @Option(name = "-v", aliases = {"--version "}, description = "Version to delete")

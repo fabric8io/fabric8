@@ -24,4 +24,16 @@ public interface ZkDefs {
 
     String DEFAULT_VERSION = "1.0";
     String DEFAULT_PROFILE = "default";
+
+    String LOCAL_IP = "localip";
+    String LOCAL_HOSTNAME = "localhostname";
+    String PUBLIC_IP = "publicip";
+    String PUBLIC_HOSTNAME = "publichostname";
+    String MANUAL_IP = "manualip";
+    String RESOLVER = "resolver";
+
+    String GLOBAL_RESOLVER_PROPERTY = "global.resolver";
+    String DEFAULT_RESOLVER = LOCAL_HOSTNAME;
+    String[] VALID_RESOLVERS = new String[]{LOCAL_HOSTNAME,LOCAL_IP,PUBLIC_IP,PUBLIC_HOSTNAME, MANUAL_IP};
+
 }
