@@ -44,6 +44,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .name(name)
                 .parent(parent)
                 .providerUri(url)
+                .resolver(resolver)
                 .ensembleServer(isEnsembleServer)
                 .debugContainer(debugContainer)
                 .number(number)

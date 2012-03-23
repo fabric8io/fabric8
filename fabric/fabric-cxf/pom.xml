@@ -31,6 +31,9 @@
     <description>Fuse Fabric :: CXF Component</description>
 
     <properties>
+        <fuse.osgi.export>
+            org.fusesource.fabric.cxf
+        </fuse.osgi.export>
     </properties>
 
     <dependencies>

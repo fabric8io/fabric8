@@ -24,6 +24,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 @Command(name = "create", scope = "fabric", description = "Create a new ZooKeeper ensemble and imports Fabric profiles")
 public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.commands.service.Create {
@@ -36,6 +37,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private String importDir = getDefaultImportDir();
     @Option(name = "-v", aliases = {"--verbose"}, description = "Verbose output of files being imported")
     boolean verbose = false;
+    @Option(name = "-r", aliases = {"--resolver"}, description = "The global resolver to use for resolver containers to addresses")
+    String resolver;
     @Option(name = "-t", aliases = {"--time"}, description = "The amount of time to wait for the ensemble to startup before trying to import the default data")
     long ensembleStartupTime = 2000L;
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
@@ -53,6 +56,10 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
         if (!noImport && importDir != null) {
             System.setProperty("profiles.auto.import.path",importDir);
+        }
+
+        if (resolver != null) {
+            System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY,resolver);
         }
 
         if (containers != null && !containers.isEmpty()) {

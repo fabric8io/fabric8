@@ -26,6 +26,7 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
     private String nodeId;
     private String hostname;
     private Set<String> publicAddresses = new LinkedHashSet<String>();
+    private Set<String> privateAddresses = new LinkedHashSet<String>();
     //Note: The identity/credential properties below refer to the user account and not to the provider account.
     private String identity;
     private String credential;
@@ -44,6 +45,8 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
+        getContainerConfguration().put("localhostname", hostname);
+
     }
 
     public Set<String> getPublicAddresses() {
@@ -52,6 +55,20 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
 
     public void setPublicAddresses(Set<String> publicAddresses) {
         this.publicAddresses = publicAddresses;
+        if (publicAddresses != null && publicAddresses.size() > 0) {
+            getContainerConfguration().put("publicip", publicAddresses.toArray(new String[0])[0]);
+        }
+    }
+
+    public Set<String> getPrivateAddresses() {
+        return privateAddresses;
+    }
+
+    public void setPrivateAddresses(Set<String> privateAddresses) {
+        this.privateAddresses = privateAddresses;
+        if (privateAddresses != null && privateAddresses.size() > 0) {
+            getContainerConfguration().put("localip", privateAddresses.toArray(new String[0])[0]);
+        }
     }
 
     public String getIdentity() {
