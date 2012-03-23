@@ -16,12 +16,11 @@
  */
 package org.fusesource.fabric.cxf;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
@@ -32,6 +31,8 @@ import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
+
+import java.util.List;
 
 
 public class FabricLoadBalancerFeature extends AbstractFeature implements BusLifeCycleListener {
@@ -55,6 +56,9 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         } catch (Exception e) {
             LOG.error("Cannot setup the LoadBalanceStrategy due to " + e);
         }
+        // setup the BusLifeCycleListener
+        BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
+        manager.registerLifeCycleListener(this);
     }
 
     public void initialize(Bus bus) {
@@ -65,11 +69,14 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
             if (mgr != null) {
                 mgr.registerListener(lister);
             } else {
-                LOG.warn("Cannot find the ServerLifeCycleManager ");
+                LOG.error("Cannot find the ServerLifeCycleManager, we cannot publish the service through fabric.");
             }
         } catch (Exception ex) {
-
+            LOG.error("Cannot initialize the bus with FabricLoadBalancerFeature due to " + ex);
         }
+        // setup the BusLifeCycleListener
+        BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
+        manager.registerLifeCycleListener(this);
     }
 
     protected LoadBalanceStrategy getDefaultLoadBalanceStrategy() {
@@ -80,7 +87,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         return new LoadBalanceTargetSelector();
     }
     
-    public Group getGroup() throws Exception {
+    public synchronized Group getGroup() throws Exception {
          if (group == null) {
              group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath, accessControlList);
          }
@@ -113,7 +120,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         if (zkClient == null) {
             String connectString = System.getProperty("zookeeper.url", "localhost:2181");
             ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
-            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
+            LOG.debug("IZKClient not be found in registry, creating new with connection " + connectString);
             zkClient = client;
             setShouldCloseZkClient(true);
         }

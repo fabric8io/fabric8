@@ -17,9 +17,11 @@
 
 package org.fusesource.fabric.cxf;
 
+import java.io.IOException;
+
 public class HelloImpl implements Hello {
 
-    public String sayHello() {
+    public String sayHello() throws IOException {
         return "Hello";
     }
 

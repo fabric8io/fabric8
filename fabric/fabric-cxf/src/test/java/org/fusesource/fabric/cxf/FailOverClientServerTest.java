@@ -18,7 +18,6 @@
 package org.fusesource.fabric.cxf;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -47,7 +46,7 @@ public class FailOverClientServerTest extends AbstractJUnit4SpringContextTests {
         assertNotNull(bus);
         // The bus is load the feature
         ServerFactoryBean factory = new ServerFactoryBean();
-        factory.setServiceBean(new HelloImplFail());
+        factory.setServiceBean(new HelloImpl());
         factory.setAddress("http://localhost:9000/fail/server");
         factory.setBus(bus);
         factory.create();
@@ -76,9 +75,11 @@ public class FailOverClientServerTest extends AbstractJUnit4SpringContextTests {
 
         Hello hello = clientFactory.create(Hello.class);
         String response = hello.sayHello();
-        System.out.println("Get the response here " + response);
+
         assertEquals("Get a wrong response", "Hello", response);
 
+        response = hello.sayHello();
+        assertEquals("Get a wrong response", "Hello", response);
 
     }
 
