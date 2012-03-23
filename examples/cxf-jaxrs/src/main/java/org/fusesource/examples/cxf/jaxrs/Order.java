@@ -54,6 +54,13 @@ public class Order {
     }
 
     @GET
+    @Path("/")
+    @Produces("application/xml")
+    public Order getThisOrder() {
+        return this;
+    }
+
+    @GET
     @Path("products/{productId}/")
     @Produces("application/xml")
     public Product getProduct(@PathParam("productId")int productId) {
