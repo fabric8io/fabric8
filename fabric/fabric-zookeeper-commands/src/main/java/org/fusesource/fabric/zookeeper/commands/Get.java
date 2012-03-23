@@ -20,7 +20,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "get", scope = "zk", description = "Get a node's data")
+@Command(name = "get", scope = "zk", description = "Get a node's data", detailedDescription = "classpath:get.txt")
 public class Get extends ZooKeeperCommandSupport {
 
     @Argument(description = "Path of the node to get")
