@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.fusesource.examples.cxf.jaxws.security.client;
 
 import java.util.HashMap;
@@ -29,26 +28,50 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 
-public class CustomerSecurityInterceptor extends AbstractPhaseInterceptor<Message> {
+/**
+ * CXF Interceptors are a very powerful and flexible mechanism to add custom logic to the default CXF processing,
+ * both when using CXF on the client side and on the server side.
+ *
+ * With this custom security interceptor, we will configure the default WSS4J interceptor in the client to provide the required
+ * credentials to perform our web service invocation.
+ */
+public class CustomSecurityInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public CustomerSecurityInterceptor() {
+    /**
+     * Configuring the interceptor to be used in the 'setup' phase.
+     */
+    public CustomSecurityInterceptor() {
         super(Phase.SETUP);
     }
 
+    /**
+     * This is the actual implementation for our interceptor - we define the necessary properties for doing the authentication
+     * and then iterate over the rest of the interceptor chain to find the WSS4J interceptor and configure it properly.
+     */
     public void handleMessage(Message message) throws Fault {
+        /*
+         * Define the configuration properties
+         */
         Map<String, Object> outProps = new HashMap<String, Object>();
         outProps.put("action", "UsernameToken");
-
         outProps.put("passwordType", "PasswordText");
-        outProps.put("user", "joe");
+
+        /*
+         * The username ('smx') is provided as a literal, the corresponding password will be determined by the client
+         * password callback object.
+         */
+        outProps.put("user", "smx");
         outProps.put("passwordCallbackClass", ClientPasswordCallback.class.getName());
-        for (Interceptor inteceptor : message.getInterceptorChain()) {
+
+        /*
+         * Find the WSS4J interceptor in the interceptor chain and set the configuration properties
+         */
+        for (Interceptor interceptor : message.getInterceptorChain()) {
             //set properties for WSS4JOutInterceptor
-            if (inteceptor.getClass().getName().equals("org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor")) {
-                ((WSS4JOutInterceptor)inteceptor).setProperties(outProps);
+            if (interceptor.getClass().getName().equals("org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor")) {
+                ((WSS4JOutInterceptor) interceptor).setProperties(outProps);
             }
         }
     }
-
  
 }

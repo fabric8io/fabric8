@@ -15,6 +15,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+<!--
+  This is the sample SOAP request message used by the Java client application
+-->
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
     <ns2:sayHi xmlns:ns2="http://jaxws.cxf.examples.fusesource.org/">

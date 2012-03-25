@@ -119,9 +119,7 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
 2. Use shell config commands, for example:
 
         config:edit org.apache.cxf.osgi
-     
         config:propset org.apache.cxf.servlet.context /custom
-     
         config:update
 
 ## More information

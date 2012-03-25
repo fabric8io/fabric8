@@ -21,8 +21,14 @@ package org.fusesource.examples.cxf.jaxws.security;
 
 import javax.jws.WebService;
 
+/**
+ * The HelloWorld interface defines a single method.
+ *
+ * We add the @WebService annotation to mark this interface as the definition for our web service.
+ */
 @WebService
 public interface HelloWorld {
-    String sayHi(String text);
+
+    String sayHi(String name);
+
 }
-// END SNIPPET: service

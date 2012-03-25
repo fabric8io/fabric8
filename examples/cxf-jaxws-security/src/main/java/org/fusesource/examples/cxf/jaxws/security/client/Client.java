@@ -16,7 +16,6 @@
  */
 package org.fusesource.examples.cxf.jaxws.security.client;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,30 +24,48 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.fusesource.examples.cxf.jaxws.security.HelloWorld;
 
-
+/**
+ * A Java client application that uses CXF's JaxWsProxyFactoryBean to create a web service client proxy to invoke
+ * the remote web service.
+ */
 public class Client{
+
     public static void main(String[] args) {
         try {
-        new Client().sendRequest();
+            new Client().sendRequest();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
     public void sendRequest() throws Exception {
+        /*
+         * Set up the JaxWsFactoryBean to access our client:
+         * - the Java interface defining the service
+         * - the HTTP address for the service
+         */
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setServiceClass(HelloWorld.class);
         factory.setAddress("http://localhost:8181/cxf/HelloWorldSecurity");
+
+        /*
+         * Obtain a proxy, implementing the service interface, to access the remote interface.
+         * It will allow you to easily perform the HTTP SOAP request from Java code.
+         */
         HelloWorld client = (HelloWorld) factory.create();
-        
+
+        /*
+         * Add the extra configuration and interceptors required for the authentication
+         */
         Map<String, Object> outProps = new HashMap<String, Object>();
         outProps.put("action", "UsernameToken");
-
-        //add a CustomerSecurityInterceptor for client side to init wss4j staff
-        //retrieve and set user/password,  users can easily add this interceptor
-        //through spring configuration also
-        ClientProxy.getClient(client).getOutInterceptors().add(new CustomerSecurityInterceptor());
+        ClientProxy.getClient(client).getOutInterceptors().add(new CustomSecurityInterceptor());
         ClientProxy.getClient(client).getOutInterceptors().add(new WSS4JOutInterceptor());
+
+        /*
+         * Calling sayHi() on on the client object will actually perform an HTTP SOAP request instead behind the scenes
+         * and returns the resulting response.
+         */
         String ret = client.sayHi("ffang");
         System.out.println(ret);
     }

@@ -17,19 +17,40 @@
     specific language governing permissions and limitations
     under the License.
 -->
+<!--
+   This file is the OSGi Blueprint XML file defining the CXF JAX-WS beans.  Because the file is in the
+   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
+
+   The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for the Blueprint
+   and the CXF Core and JAX-WS namespaces.
+-->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
     xmlns:cxf="http://cxf.apache.org/blueprint/core"
     xsi:schemaLocation="
-http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
-http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd">
+      http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
+      http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd">
 
+    <!--
+      Adding a <cxf:bus/> definition to the Blueprint XML file is optional: it is only required if you want to specify
+      some additional configuration for the CXF Bus instance used by the service endpoints defined in this XML file.
+    -->
     <cxf:bus>
-	<cxf:features>
-		<cxf:logging/>
-  	</cxf:features>
+        <!--
+           In this example, we're enabling the logging feature.  This will ensure that both the inbound and outbound
+           XML message are being logged for every web service invocation.
+        -->
+	      <cxf:features>
+		        <cxf:logging/>
+  	    </cxf:features>
     </cxf:bus>
+
+    <!--
+      Finally, we're configuring the actual JAX-WS endpoint, referring to our web service implementation class and the URI
+      address we want to assign to our service.  The address is relative to the CXF servlet URI, with the default configuration
+      in place, this endpoint will be available at 'http://localhost:8181/cxf/HelloWorld'.
+    -->
     <jaxws:endpoint id="helloWorld"
                     implementor="org.fusesource.examples.cxf.jaxws.HelloWorldImpl"
                     address="/HelloWorld"/>

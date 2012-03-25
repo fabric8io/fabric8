@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.fusesource.examples.cxf.jaxws.security.client;
 
 import java.io.IOException;
@@ -25,14 +24,22 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import org.apache.ws.security.WSPasswordCallback;
 
+/**
+ * This is a JAAS CallbackHandler implementation that will provide the password for our custom security interceptor.
+ */
 public class ClientPasswordCallback implements CallbackHandler {
 
+    /*
+     * Handle the authentication callback by checking the identifier and just hard-coded returning the correct password.
+     */
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-
         WSPasswordCallback pc = (WSPasswordCallback) callbacks[0];
 
-        if (pc.getIdentifier().equals("joe")) {
-            pc.setPassword("password");
+        /*
+         * User is 'smx', password is 'smx'
+         */
+        if (pc.getIdentifier().equals("smx")) {
+            pc.setPassword("smx");
         }
     }
 

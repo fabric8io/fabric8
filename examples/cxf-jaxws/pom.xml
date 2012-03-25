@@ -52,13 +52,13 @@
     <build>
         <plugins>
             <!--
-                The exec-maven-plugin allows us to run our Java client client application with a 'mvn exec:java'.
+                The exec-maven-plugin allows us to run our Java client application with a 'mvn exec:java'.
             -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.fusesource.samples.cxf.jaxws.client.Client</mainClass>
+                    <mainClass>org.fusesource.examples.cxf.jaxws.client.Client</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
                 </configuration>
             </plugin>
