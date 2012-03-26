@@ -62,7 +62,7 @@ to the WSDL file for the web service:
          STATUS: 200
 
          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.
+           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://security.jaxws.cxf.examples.
             fusesource.org/"><return>Hello John Doe</return>
            </ns2:sayHiResponse>
           </soap:Body>
@@ -87,7 +87,7 @@ The client sends the contents of the request.xml sample SOAP request file to the
 
         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           <soap:Body>
-            <ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.fusesource.org/">
+            <ns2:sayHiResponse xmlns:ns2="http://security.jaxws.cxf.examples.fusesource.org/">
               <return>Hello John Doe</return>
             </ns2:sayHiResponse>
           </soap:Body>
