@@ -33,14 +33,14 @@
 
     <!--
       The <jaxrs:server/> element is used to set up our JAX-RS services.  It defines:
-      - the server's address, '/crm', relative to the default CXF servlet URI
-        with the default settings, the server will be running on 'http://localhost:8181/cxf/crm'
+      - the server's address, '/securecrm', relative to the default CXF servlet URI
+        with the default settings, the server will be running on 'http://localhost:8181/cxf/securecrm'
       - a list of service beans
         in this example, we refer to another bean defined in this Blueprint XML file with a <ref/> element
       - a list of interceptors that are being applied to the inbound request
         in this example, we refer to another bean defined in this Blueprint XML file with a <ref/> element
     -->
-    <jaxrs:server id="customerService" address="/crm">
+    <jaxrs:server id="customerService" address="/securecrm">
         <jaxrs:serviceBeans>
             <ref component-id="customerSvc"/>
         </jaxrs:serviceBeans>
