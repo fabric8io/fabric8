@@ -81,8 +81,8 @@
                         There's no need to deploy the client code inside the container as well.
                     -->
                     <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Bundle-SymbolicName>org.fusesource.examples.cxf.jaxrs.security</Bundle-SymbolicName>
+                        <Bundle-Description>CXF Example using JAX-RS Security with Fuse ESB</Bundle-Description>
                         <Import-Package>
                             javax.wsdl,
                             javax.xml.bind,

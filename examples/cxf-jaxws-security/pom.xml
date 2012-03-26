@@ -64,8 +64,8 @@
                         the lists of package to be exported and imported by the bundle.
                     -->
                     <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Bundle-SymbolicName>org.fuse.examples.cxf.jaxws.security</Bundle-SymbolicName>
+                        <Bundle-Description>CXF example using JAXWS with WS-Security</Bundle-Description>
                         <Import-Package>
                             javax.jws,
                             javax.xml.bind.annotation,
