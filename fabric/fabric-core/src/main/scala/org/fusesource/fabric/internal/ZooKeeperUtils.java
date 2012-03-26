@@ -159,10 +159,12 @@ public class ZooKeeperUtils {
     }
 
     public static String getSubstitutedData(final IZKClient zooKeeper,String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
-        String data = new String(ZkPath.loadURL(zooKeeper, path), "UTF-8");
-        Map<String,String> props = new HashMap<String,String>();
-        props.put("data", data);
-        InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
+        Map<String, String> props = new HashMap<String, String>();
+        if (zooKeeper.exists(path) != null) {
+            String data = new String(ZkPath.loadURL(zooKeeper, path), "UTF-8");
+
+            props.put("data", data);
+            InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
                 @Override
                 public String getValue(String key) {
                     if (key.startsWith("zk:")) {
@@ -175,6 +177,7 @@ public class ZooKeeperUtils {
                     return null;
                 }
             });
+        }
         return props.get("data");
     }
 
