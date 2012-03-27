@@ -82,6 +82,7 @@ public class MavenResolver {
     private String[] repositories = {
             "http://repo2.maven.org/maven2",
             "http://repo.fusesource.com/nexus/content/groups/public",
+            "http://repo.fusesource.com/nexus/content/groups/ea",
             "http://repository.springsource.com/maven/bundles/release",
             "http://repository.springsource.com/maven/bundles/external",
             "http://repository.springsource.com/maven/libraries/release",
