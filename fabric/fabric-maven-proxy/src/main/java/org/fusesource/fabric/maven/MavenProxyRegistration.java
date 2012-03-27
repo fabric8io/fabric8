@@ -37,6 +37,7 @@ public class MavenProxyRegistration implements LifecycleListener {
     private int port = 8040;
     private String node = null;
     private IZKClient zookeeper = null;
+    private String name = System.getProperty("karaf.name");
 
     public void destroy() throws InterruptedException, KeeperException {
         if (zookeeper != null && zookeeper.isConnected() && node != null) {
@@ -46,7 +47,7 @@ public class MavenProxyRegistration implements LifecycleListener {
 
     @Override
     public void onConnected() {
-        String mavenProxyUrl = MavenProxyUtils.getMavenProxyUrl(port);
+        String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + port + "/";;
         String parentPath = ZkPath.CONFIGS_MAVEN_PROXY.getPath();
         String path = parentPath + "/p_";
         try {

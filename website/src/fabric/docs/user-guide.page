@@ -68,6 +68,8 @@ When using ActiveMQ you have to configure your ActiveMQ clients with the locatio
 
 However the **ActiveMQ Fabric** lets you avoid this by reusing the Fabric discovery mechanism. ActiveMQ brokers register themselves into the Runtime Registry. Then ActiveMQ clients use the Runtime Registry to discover brokers; plus watch for brokers failing and new brokers starting so there is a real time discovery and load balancing mechanism.
 
+[Here](mq.html) you can find more information on **ActiveMQ Fabric**
+
 ### Camel Fabric
 
 When using [ActiveMQ](http://camel.apache.org/activemq.html) or [JMS](http://camel.apache.org/jms.html) endpoints in Camel you are already _fabric ready_ since message brokers provide true location independence (as well as time independence too, the consumer of a message does not even have to be running at the time you send a message).

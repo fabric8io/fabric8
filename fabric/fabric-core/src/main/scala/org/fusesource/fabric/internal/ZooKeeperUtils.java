@@ -19,12 +19,14 @@ package org.fusesource.fabric.internal;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKData;
 
@@ -35,7 +37,7 @@ public class ZooKeeperUtils {
             child = path + "/" + child;
             if (dest.exists(child) == null) {
                 byte[] data  = source.getData(child);
-                dest.createBytesNodeWithParents(child, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                set(dest, child, data);
                 copy(source, dest, child);
             }
         }
@@ -47,7 +49,7 @@ public class ZooKeeperUtils {
             String toChild = to + "/" + child;
             if (zk.exists(toChild) == null) {
                 byte[] data  = zk.getData(fromChild);
-                zk.createBytesNodeWithParents(toChild, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                set(zk, toChild, data);
                 copy(zk, fromChild, toChild);
             }
         }
@@ -154,6 +156,30 @@ public class ZooKeeperUtils {
             properties.store(writer, null);
             zooKeeper.setData(path, writer.toString());
         } catch (IOException e) {}
+    }
+
+    public static String getSubstitutedData(final IZKClient zooKeeper,String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+        Map<String, String> props = new HashMap<String, String>();
+        String normaledPath = path != null && path.contains("#") ? path.substring(0,path.lastIndexOf("#")) : path;
+        if (normaledPath != null && zooKeeper.exists(normaledPath) != null) {
+            String data = new String(ZkPath.loadURL(zooKeeper, path), "UTF-8");
+
+            props.put("data", data);
+            InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
+                @Override
+                public String getValue(String key) {
+                    if (key.startsWith("zk:")) {
+                        try {
+                            return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return null;
+                }
+            });
+        }
+        return props.get("data");
     }
 
 }

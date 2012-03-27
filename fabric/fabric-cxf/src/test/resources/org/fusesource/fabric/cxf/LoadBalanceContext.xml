@@ -33,7 +33,8 @@
   </bean>
 
   <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
-      <property name="fabricPath" value="simple" />
+      <property name="zkClient" ref="zkClient" />
+      <property name="fabricPath" value="simple/test" />
   </bean>
   <!-- configure the feature on the bus -->
   <cxfcore:bus>

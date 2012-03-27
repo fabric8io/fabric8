@@ -17,6 +17,7 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,28 @@ public class ProfileDisplay extends FabricCommand {
         output.printf("Associated Containers : %s\n", toString(profile.getAssociatedContainers()));
 
         Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
+        Map<String,String> agentConfiguration =  overlay ? profile.getOverlay().getContainerConfiguration() : profile.getContainerConfiguration();
+        List<String> agentProperties = new ArrayList<String>();
+        List<String> systemProperties = new ArrayList<String>();
+        List<String> configProperties = new ArrayList<String>();
+        for (Map.Entry<String, String> entry : agentConfiguration.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value.contains(",")) {
+                value = "\t" + value.replace(",", ",\n\t\t");
+            }
+
+            if (key.startsWith("system.")) {
+                systemProperties.add("  " + key.substring("system.".length()) + " = " + value);
+            }
+            else if (key.startsWith("config.")) {
+                configProperties.add("  " + key.substring("config.".length()) + " = " + value);
+            }
+            else if (!key.startsWith("feature.") && !key.startsWith("repository") && !key.startsWith("bundle.")) {
+
+                agentProperties.add("  " + key + " = " + value);
+            }
+        }
 
         if (configuration.containsKey(AGENT_PID)) {
             output.println("\nContainer settings");
@@ -95,6 +118,19 @@ public class ProfileDisplay extends FabricCommand {
             if (profile.getBundles().size() > 0) {
                 printConfigList("Bundles : ", output, profile.getBundles());
             }
+
+            if (agentProperties.size() > 0) {
+                printConfigList("Agent Properties : ", output, agentProperties);
+            }
+
+            if (systemProperties.size() > 0) {
+                printConfigList("System Properties : ", output, systemProperties);
+            }
+
+            if (configProperties.size() > 0) {
+                printConfigList("Config Properties : ", output, configProperties);
+            }
+
             configuration.remove(AGENT_PID);
         }
 

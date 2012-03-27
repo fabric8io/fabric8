@@ -28,7 +28,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "create", scope = "zk", description = "Create a node")
+@Command(name = "create", scope = "zk", description = "Create a node", detailedDescription = "classpath:create.txt")
 public class Create extends ZooKeeperCommandSupport {
 
     @Option(name = "-e", aliases = {"--ephemeral"}, description = "Create an ephemeral node")

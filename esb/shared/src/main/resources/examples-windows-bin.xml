@@ -28,21 +28,6 @@
           </includes>
       </fileSet>
 
-      <!-- Copy over nmr examples files -->
-      <fileSet>
-           <directory>target/dependencies/win/apache-servicemix-nmr-${servicemix.nmr.version}/examples</directory>
-           <outputDirectory>/examples/</outputDirectory>
-           <excludes>
-               <exclude>pom.xml</exclude>
-               <exclude>**/itests/**</exclude>
-               <exclude>**/target/**</exclude>
-               <exclude>**/.classpath</exclude>
-               <exclude>**/.project</exclude>
-               <exclude>**/.settings/**</exclude>
-           </excludes>
-           <lineEnding>dos</lineEnding>
-      </fileSet>
-
         <!-- Copy over the examples' files (except POM files and READMEs) -->
         <fileSet>
             <directory>../../examples</directory>
@@ -50,7 +35,9 @@
             <excludes>
                 <exclude>pom.xml</exclude>
                 <exclude>**/pom.xml</exclude>
-                <exclude>**/target**</exclude>
+                <exclude>**/README.md</exclude>
+                <exclude>**/target/</exclude>
+                <exclude>**/target/*</exclude>
             </excludes>
             <lineEnding>dos</lineEnding>
         </fileSet>
@@ -62,6 +49,7 @@
             <outputDirectory>/examples</outputDirectory>
             <includes>
                 <include>**/pom.xml</include>
+                <include>**/README.md</include>
             </includes>
             <filtered>true</filtered>
             <lineEnding>dos</lineEnding>

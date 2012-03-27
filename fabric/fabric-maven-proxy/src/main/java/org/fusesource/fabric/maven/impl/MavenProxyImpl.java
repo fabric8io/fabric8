@@ -24,11 +24,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +47,7 @@ import org.sonatype.aether.connector.wagon.WagonProvider;
 import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
@@ -60,7 +59,9 @@ public class MavenProxyImpl implements MavenProxy {
 
     private int port = 8040;
     private String localRepository;
-    private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/public-snapshots";
+    private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/public-snapshots,repo.fusesource.com/nexus/content/groups/ea";
+    private String updatePolicy;
+    private String checksumPolicy;
 
     private List<RemoteRepository> repositories;
     private ServerSocket serverSocket;
@@ -91,6 +92,22 @@ public class MavenProxyImpl implements MavenProxy {
         this.remoteRepositories = remoteRepositories;
     }
 
+    public String getUpdatePolicy() {
+        return updatePolicy;
+    }
+
+    public void setUpdatePolicy(String updatePolicy) {
+        this.updatePolicy = updatePolicy;
+    }
+
+    public String getChecksumPolicy() {
+        return checksumPolicy;
+    }
+
+    public void setChecksumPolicy(String checksumPolicy) {
+        this.checksumPolicy = checksumPolicy;
+    }
+
     public synchronized URI getAddress() {
         if (serverSocket != null) {
             return URI.create(MavenProxyUtils.getMavenProxyUrl(port));
@@ -107,7 +124,8 @@ public class MavenProxyImpl implements MavenProxy {
     public synchronized void start() throws IOException {
         if (port >= 0) {
             if (localRepository.equals("")) {
-                localRepository = "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+                //It doesn't work when using the file:// protocol prefix.
+                localRepository =  System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
             }
             if (system == null) {
                 system = newRepositorySystem();
@@ -119,7 +137,9 @@ public class MavenProxyImpl implements MavenProxy {
             repositories.add(new RemoteRepository("local", "default", localRepository));
             int i = 0;
             for (String rep : remoteRepositories.split(",")) {
-                repositories.add(new RemoteRepository( "repo-" + i++, "default", rep ));
+                RemoteRepository remoteRepository = new RemoteRepository( "repo-" + i++, "default", rep );
+                remoteRepository.setPolicy(true, new RepositoryPolicy(true,updatePolicy,checksumPolicy));
+                repositories.add(remoteRepository);
             }
 
             String repos = "local:" + localRepository + " ";

@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class MavenProxyImplTest {
 
     private static final int PORT = Integer.parseInt(System.getProperty("proxyPort"));
-    private static final String REMOTE_REPOS = "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/groups/public";
+    private static final String REMOTE_REPOS = "http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/groups/public,http://repo.fusesource.com/nexus/content/groups/ea";
     private static final String LOCAL_REPO = "target/testrepo";
 
     private MavenProxyImpl proxy = new MavenProxyImpl();

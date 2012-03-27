@@ -39,20 +39,18 @@ public class FabricFailOverFeature extends FabricLoadBalancerFeature {
 
     public void setExceptions(String exceptions) {
         this.exceptions = exceptions;
-    }
-
-    public void afterPropertiesSet() throws Exception {
         if (exceptions != null) {
             String[] exceptionArray =  exceptions.split(";");
             for (String exception: exceptionArray) {
                 try {
                     Class<?> clazz = ClassLoaderUtils.loadClass(exception, this.getClass());
+                    exceptionList.clear();
                     exceptionList.add(clazz);
                 } catch (ClassNotFoundException ex) {
                     LOG.warn("Can't load the exception " + exception + " for the FabricFailOverFeature.");
                 }
             }
         }
-        super.afterPropertiesSet();
     }
+
 }

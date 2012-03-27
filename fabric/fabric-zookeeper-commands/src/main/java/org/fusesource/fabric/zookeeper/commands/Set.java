@@ -16,14 +16,14 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import java.net.URL;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.linkedin.zookeeper.client.IZKClient;
 
-import java.net.URL;
-
-@Command(name = "set", scope = "zk", description = "Set a node's data")
+@Command(name = "set", scope = "zk", description = "Set a node's data", detailedDescription = "classpath:set.txt")
 public class Set extends ZooKeeperCommandSupport {
 
     @Option(name = "-i", aliases = {"--import"}, description = "Import data from an url")

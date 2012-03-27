@@ -84,7 +84,9 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                 if (myId.exists()) {
                     myId.delete();
                 }
-                myId.getParentFile().mkdirs();
+                if (myId.getParentFile() != null)  {
+                    myId.getParentFile().mkdirs();
+                }
                 FileOutputStream fos = new FileOutputStream(myId);
                 try {
                     fos.write((serverId + "\n").getBytes());

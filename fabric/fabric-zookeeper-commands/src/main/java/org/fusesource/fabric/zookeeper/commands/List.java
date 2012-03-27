@@ -21,7 +21,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "list", scope = "zk", description = "List a node's children")
+@Command(name = "list", scope = "zk", description = "List a node's children", detailedDescription = "classpath:list.txt")
 public class List extends ZooKeeperCommandSupport {
 
     @Argument(description = "Path of the node to list")

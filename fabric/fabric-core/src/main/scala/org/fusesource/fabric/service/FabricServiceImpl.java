@@ -233,7 +233,7 @@ public class FabricServiceImpl implements FabricService {
         CreateContainerMetadata metadata = container.getMetadata();
         String type = metadata != null ? metadata.getCreateOptions().getProviderType() : null;
         if (type == null) {
-            throw new UnsupportedOperationException("Container has not been created using Fabric");
+            throw new UnsupportedOperationException("Container " + container.getId() + " has not been created using Fabric");
         }
         ContainerProvider provider = getProvider(type);
         if (provider == null) {
@@ -270,6 +270,7 @@ public class FabricServiceImpl implements FabricService {
                 if (metadata.isSuccess()) {
                     //An ensemble server can be created without an existing ensemble.
                     //In this case container config will be created by the newly created container.
+                    //TODO: We need to make sure that this entries are somehow added even to ensemble servers.
                     if (!options.isEnsembleServer()) {
                         createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
                         // Store metadata
@@ -278,6 +279,14 @@ public class FabricServiceImpl implements FabricService {
                         oos.writeObject(metadata);
                         oos.close();
                         ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), baos.toByteArray());
+
+                        Map<String,String> configuration = metadata.getContainerConfguration();
+                        for (Map.Entry<String, String> entry : configuration.entrySet()) {
+                            String key = entry.getKey();
+                            String value = entry.getValue();
+                            ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(),key),value);
+                        }
+                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName()),options.getResolver());
                     }
                     ((CreateContainerBasicMetadata) metadata).setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
                     ((ContainerImpl) metadata.getContainer()).setMetadata(metadata);
@@ -312,7 +321,7 @@ public class FabricServiceImpl implements FabricService {
                     Collections.sort(children);
                 }
 
-                String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + children.get(0));
+                String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + children.get(0));
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo+="/";
                 }

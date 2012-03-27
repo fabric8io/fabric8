@@ -189,17 +189,6 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <configuration>
-                <failOnError>false</failOnError>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -208,7 +197,6 @@
               <workingDirectory>target</workingDirectory>
             </configuration>
           </plugin>
-
         </plugins>
     </build>
 

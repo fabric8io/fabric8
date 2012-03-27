@@ -43,6 +43,9 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--config", description = "Configuration to use")
     protected String config;
 
+    @Option(name = "--data", description = "Data directory for the broker")
+    protected String data;
+
     @Option(name = "--group", description = "Broker group")
     protected String group;
 
@@ -66,7 +69,10 @@ public class MQCreate extends FabricCommand {
         MQService service = new MQServiceImpl(fabricService);
 
         HashMap<String, String> configuration = new HashMap<String, String>();
-        configuration.put("data", bundleContext.getDataFile(name).getAbsolutePath());
+        if (data == null) {
+            data = System.getProperty("karaf.base") + System.getProperty("file.separator")+  "data" + System.getProperty("file.separator") + name;
+        }
+        configuration.put("data", data);
 
         if (config != null) {
             configuration.put("config", service.getConfig(version, config));

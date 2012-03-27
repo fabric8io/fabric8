@@ -34,6 +34,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected String version;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s)")
     protected List<String> profiles;
+    @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver to set to the container(s)")
+    protected String resolver;
     @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")
     protected Boolean debugContainer = Boolean.FALSE;
     @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the container should be a new ZooKeeper ensemble server")
@@ -131,7 +133,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         if (success.size() > 0) {
             System.out.println("The following containers have been created successfully:");
             for (CreateContainerMetadata m : success) {
-                System.out.println("\t" + m.getContainerName());
+                System.out.println("\t" + m.toString());
             }
         }
         if (failures.size() > 0) {

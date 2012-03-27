@@ -18,6 +18,10 @@ package org.fusesource.fabric.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
 
@@ -27,11 +31,34 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected URI providerURI;
     protected boolean ensembleServer;
     protected boolean debugContainer;
+    protected String resolver= ZkDefs.DEFAULT_RESOLVER;
     protected Integer number = 1;
     protected URI proxyUri;
     protected String zookeeperUrl;
     protected String jvmOpts;
 
+    /**
+     * Converts provider URI Query to a Map.
+     *
+     * @return
+     */
+    protected Map<String, String> getParameters() {
+        Map<String, String> map = new HashMap<String, String>();
+        if (providerURI != null && providerURI.getQuery() != null) {
+            String[] params = providerURI.getQuery().split("&");
+            for (String param : params) {
+                String name = param.split("=")[0];
+                String value = param.split("=")[1];
+                map.put(name, value);
+            }
+        }
+        return map;
+    }
+
+    public T resolver(final String resolver) {
+        this.setResolver(resolver);
+        return (T) this;
+    }
 
     public T ensembleServer(final boolean ensembleServer) {
         this.ensembleServer = ensembleServer;
@@ -140,6 +167,18 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public void setDebugContainer(boolean debugContainer) {
         this.debugContainer = debugContainer;
+    }
+
+    public String getResolver() {
+        return getParameters().get("resolver") != null ? getParameters().get("resolver") : resolver;
+    }
+
+    public void setResolver(String resolver) {
+        if (Arrays.asList(ZkDefs.VALID_RESOLVERS).contains(resolver)) {
+            this.resolver = resolver;
+        } else {
+            this.resolver = ZkDefs.DEFAULT_RESOLVER;
+        }
     }
 
     public Integer getNumber() {

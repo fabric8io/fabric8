@@ -216,6 +216,6 @@ public class EsbFeaturesTest extends EsbTestSupport {
         return new Option[]{
                 esbDistributionConfiguration(), keepRuntimeFolder(),
                 editConfigurationFilePut("etc/system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+                logLevel(LogLevelOption.LogLevel.INFO)};
     }
 }

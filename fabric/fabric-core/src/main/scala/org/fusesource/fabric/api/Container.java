@@ -39,6 +39,9 @@ public interface Container {
     String getSshUrl();
     String getJmxUrl();
 
+    boolean isManaged();
+    void setManaged(boolean managed);
+
     Version getVersion();
     void setVersion(Version version);
 
@@ -66,6 +69,11 @@ public interface Container {
      * via SSH / JMX etc (e.g. the ZK ensemble is joined and the security realm is in place).
      */
     boolean isProvisioningComplete();
+
+    /**
+     * Returns true if the container is being provisioned and it is not yet complete (i.e. its not succeeded or failed)
+     */
+    boolean isProvisioningPending();
 
     String getProvisionResult();
     String getProvisionException();

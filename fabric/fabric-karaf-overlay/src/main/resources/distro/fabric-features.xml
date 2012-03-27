@@ -52,8 +52,8 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_1</bundle>
 
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.sshd/sshd-core/0.5.0</bundle>
-        <bundle dependency="true">mvn:org.apache.mina/mina-core/2.0.1</bundle>
+        <bundle dependency="true">mvn:org.apache.sshd/sshd-core/{$sshd-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.mina/mina-core/${mina-version}</bundle>
 
         <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.config/${karaf-version}</bundle>
@@ -115,7 +115,7 @@
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
+        <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
@@ -193,7 +193,7 @@
 
     <feature name="fabric-jaas" version="${project.version}}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_4</bundle>
+        <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-jaas/${project.version}</bundle>

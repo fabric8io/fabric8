@@ -168,8 +168,8 @@ public final class CommandUtils {
      * @return the provisional status
      */
     public static String status(Container container) {
-        String status = container.getProvisionStatus();
-        if (status == null || container.isEnsembleServer()) {
+        String status = container.isManaged() ? container.getProvisionStatus() : "";
+        if (status == null) {
             return "";
         }
         status = status.trim();

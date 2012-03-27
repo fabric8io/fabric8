@@ -106,6 +106,16 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public boolean isProvisioningPending() {
+        String result = getProvisionResult();
+        if (result == null) {
+            return false;
+        } else {
+            return !isProvisioningComplete();
+        }
+    }
+
+    @Override
     public String getProvisionStatus() {
         String provisioned = getProvisionResult();
         String provisionException = getProvisionException();
@@ -121,11 +131,19 @@ public class ContainerImpl implements Container {
     }
 
     public String getSshUrl() {
-        return getZkData(ZkPath.CONTAINER_SSH);
+        try {
+            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_SSH.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     public String getJmxUrl() {
-        return getZkData(ZkPath.CONTAINER_JMX);
+        try {
+            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_JMX.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     private String getZkData(ZkPath path) {
@@ -135,6 +153,25 @@ public class ContainerImpl implements Container {
             return null;
         } catch (Exception e) {
             throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public boolean isManaged() {
+        try {
+            String managed = service.getZooKeeper().getStringData(ZkPath.CONTAINER_MANAGED.getPath(id));
+            return Boolean.parseBoolean(managed);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void setManaged(boolean managed) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_MANAGED.getPath(getId()), String.valueOf(managed));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -153,7 +190,7 @@ public class ContainerImpl implements Container {
         try {
             Version curretVersion = getVersion();
 
-            if (requiresUpgrade(version) && !"".equals(getProvisionResult())) {
+            if (requiresUpgrade(version) && isManaged()) {
                 if (version.compareTo(curretVersion) > 0) {
                     ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "upgrading");
                 } else {

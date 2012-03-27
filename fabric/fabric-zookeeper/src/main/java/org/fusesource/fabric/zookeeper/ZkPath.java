@@ -46,7 +46,6 @@ public enum ZkPath {
     CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
     CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profiles/{profile}"),
     CONFIG_VERSIONS_CONTAINER("/fabric/configs/versions/{version}/containers/{container}"),
-    CONFIGS_MAVEN_REPO      ("/fabric/configs/maven/repository"),
     CONFIGS_MAVEN_PROXY      ("/fabric/configs/maven/proxy"),
 
     // Agent nodes
@@ -58,12 +57,22 @@ public enum ZkPath {
     CONTAINER_PROVISION            ("/fabric/registry/containers/provision/{container}"),
     CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),
     CONTAINER_PROVISION_EXCEPTION  ("/fabric/registry/containers/provision/{container}/exception"),
+    CONTAINER_ENTRY                ("/fabric/registry/containers/config/{container}/{entry}"),
     CONTAINER_IP                   ("/fabric/registry/containers/config/{container}/ip"),
+    CONTAINER_RESOLVER             ("/fabric/registry/containers/config/{container}/resolver"),
+    CONTAINER_LOCAL_IP             ("/fabric/registry/containers/config/{container}/localip"),
+    CONTAINER_LOCAL_HOSTNAME       ("/fabric/registry/containers/config/{container}/localhostname"),
+    CONTAINER_PUBLIC_IP            ("/fabric/registry/containers/config/{container}/publicip"),
+    CONTAINER_PUBLIC_HOSTNAME      ("/fabric/registry/containers/config/{container}/publichostname"),
+    CONTAINER_MANUAL_IP            ("/fabric/registry/containers/config/{container}/maunalip"),
     CONTAINER_PARENT               ("/fabric/registry/containers/config/{container}/parent"),
     CONTAINER_JMX                  ("/fabric/registry/containers/config/{container}/jmx"),
     CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
     CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc"),
-    CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata");
+    CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata"),
+    CONTAINER_MANAGED              ("/fabric/registry/containers/config/{container}/managed"),
+
+    POLICIES                        ("/fabric/registry/policies/{policy}");
 
     /**
      * Path template.
@@ -147,5 +156,7 @@ public enum ZkPath {
         }
         return rc;
     }
+
+
 
 }

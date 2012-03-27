@@ -18,13 +18,17 @@
 package org.fusesource.fabric.fab.osgi.internal;
 
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.ops4j.pax.swissbox.property.BundleContextPropertyResolver;
 import org.ops4j.pax.url.commons.handler.ConnectionFactory;
+import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.ops4j.util.property.PropertyResolver;
 import org.osgi.framework.BundleContext;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+
+import static org.fusesource.fabric.fab.osgi.util.ConfigurationAdminHelper.getProperties;
 
 /**
  * {@link ConnectionFactory} for the "fab" protocol
@@ -44,7 +48,20 @@ public class FabConnectionFactory implements ConnectionFactory<Configuration> {
         throw new MalformedURLException("Unsupported protocol: " + protocol);
     }
 
+    /**
+     * Build a new configuration object based on properties available in:
+     * - the org.fusesource.fabric.fab.osgi.url ConfigurationAdmin PID
+     * - the org.ops4j.pax.url.mvn ConfigurationAdmin PID
+     * - the system properties
+     */
     public Configuration createConfiguration(PropertyResolver propertyResolver) {
-        return new Configuration(propertyResolver);
+        // we are not going to use the property resolver that we're being provided with, but we will build our own instead
+        BundleContext context = Activator.getInstanceBundleContext();
+        PropertyResolver resolver =
+                new DictionaryPropertyResolver(getProperties(context, ServiceConstants.PID),
+                        new DictionaryPropertyResolver(getProperties(context, "org.ops4j.pax.url.mvn"),
+                                new BundleContextPropertyResolver(context)));
+
+        return new Configuration(resolver);
     }
 }

@@ -31,6 +31,7 @@
                 <exclude>system/**</exclude>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/**</exclude>
+                <exclude>etc/custom.properties</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>lib/*-version.jar</exclude>
                 <exclude>fabric_license.txt</exclude>

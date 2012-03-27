@@ -17,9 +17,11 @@
 package org.fusesource.fabric.service.ssh;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -27,12 +29,11 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateSshContainerMetadata;
-import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
-import org.fusesource.fabric.api.CreateSshContainerMetadata;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildInstallAndStartScript;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
@@ -66,10 +67,6 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             if (port == -1) {
                 port = 22;
             }
-            String username = options.getUsername();
-            String password = options.getPassword();
-            int sshRetries = options.getSshRetries();
-            int retryDelay = 1;
 
             String originalName = new String(options.getName());
             for (int i = 1; i <= options.getNumber(); i++) {
@@ -85,7 +82,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 String script = buildInstallAndStartScript(options.name(containerName));
                 logger.debug("Running script on host {}:\n{}", host, script);
                 try {
-                    runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+                    runScriptOnHost(options,script);
                 } catch (Throwable ex) {
                     metadata.setFailure(ex);
                 }
@@ -108,14 +105,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
             try {
-                String host = options.getHost();
-                int port = options.getPort();
-                String username = options.getUsername();
-                String password = options.getPassword();
-                int sshRetries = options.getSshRetries();
-                int retryDelay = 1;
                 String script = buildStartScript(options.name(container.getId()));
-                runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+                runScriptOnHost(options,script);
             } catch (Throwable t) {
                 logger.error("Failed to start container: "+container.getId(),t);
             }
@@ -131,14 +122,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
             try {
-                String host = options.getHost();
-                int port = options.getPort();
-                String username = options.getUsername();
-                String password = options.getPassword();
-                int sshRetries = options.getSshRetries();
-                int retryDelay = 1;
                 String script = buildStopScript(options.name(container.getId()));
-                runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+                runScriptOnHost(options,script);
             } catch (Throwable t) {
                 logger.error("Failed to stop container: " + container.getId(), t);
             }
@@ -154,32 +139,33 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
             try {
-                String host = options.getHost();
-                int port = options.getPort();
-                String username = options.getUsername();
-                String password = options.getPassword();
-                int sshRetries = options.getSshRetries();
-                int retryDelay = 1;
                 String script = buildUninstallScript(options.name(container.getId()));
-                runScriptOnHost(host, port, username, password, script, sshRetries, retryDelay);
+                runScriptOnHost(options, script);
             } catch (Throwable t) {
                 logger.error("Failed to stop container: "+container.getId(),t);
             }
         }
     }
 
-    protected void runScriptOnHost(String host, int port, String username, String password, String script, int sshRetries, long retryDelay) throws Exception {
+    protected void runScriptOnHost(CreateSshContainerOptions options, String script) throws Exception {
         Session session = null;
         Exception connectException = null;
-        for (int i = 0; i <= sshRetries; i++) {
+        for (int i = 0; i <= options.getSshRetries(); i++) {
             if (i > 0) {
                 long delayMs = (long) (200L * Math.pow(i, 2));
                 Thread.sleep(delayMs);
             }
             try {
-                session = new JSch().getSession(username, host, port);
+                JSch jsch = new JSch();
+                byte[] privateKey = readFile(options.getPrivateKeyFile());
+                if (privateKey != null && options.getPassword() == null) {
+                    jsch.addIdentity(options.getUsername(),privateKey,null,null);
+                    session = jsch.getSession(options.getUsername(), options.getHost(), options.getPort());
+                } else {
+                    session = jsch.getSession(options.getUsername(), options.getHost(), options.getPort());
+                    session.setPassword(options.getPassword());
+                }
                 session.setTimeout(60000);
-                session.setPassword(password);
                 java.util.Properties config = new java.util.Properties();
                 config.put("StrictHostKeyChecking", "no");
                 session.setConfig(config);
@@ -226,8 +212,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             }
 
             if (errorStatus != 0) {
-                throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", username, host,
-                        port, executor.getExitStatus(), script, output.toString(), error.toString()));
+                throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", options.getUsername(), options.getHost(),
+                        options.getPort(), executor.getExitStatus(), script, output.toString(), error.toString()));
             }
         } finally {
             if (executor != null) {
@@ -235,5 +221,26 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             }
             session.disconnect();
         }
+    }
+
+    private byte[] readFile(String path) {
+        byte[] bytes = null;
+        FileInputStream fin = null;
+
+        File file = new File(path);
+        if (path != null && file.exists()) {
+            try {
+                fin = new FileInputStream(file);
+                bytes = new byte[(int)file.length()];
+                fin.read(bytes);
+            } catch (IOException e) {
+                logger.warn("Error reading file {}.",path);
+            } finally {
+                if (fin != null) {
+                    try{fin.close();}catch(Exception ex){}
+                }
+            }
+        }
+        return bytes;
     }
 }

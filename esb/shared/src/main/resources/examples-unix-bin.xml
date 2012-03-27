@@ -28,16 +28,6 @@
             </includes>
         </fileSet>
 
-        <!-- Copy over the examples -->
-        <fileSet>
-            <directory>target/dependencies/servicemix/unix/apache-servicemix-${smx.features.version}/examples</directory>
-            <outputDirectory>/examples/</outputDirectory>
-            <excludes>
-                <exclude>pom.xml</exclude>  <!-- TODO: figure out how to combine this with the new examples' POMs -->
-            </excludes>
-            <lineEnding>unix</lineEnding>
-        </fileSet>
-
         <!-- Copy over the examples' files (except POM files and READMEs) -->
         <fileSet>
             <directory>../../examples</directory>
@@ -45,7 +35,9 @@
             <excludes>
                 <exclude>pom.xml</exclude>
                 <exclude>**/pom.xml</exclude>
-                <exclude>**/target**</exclude>
+                <exclude>**/README.md</exclude>
+                <exclude>**/target/</exclude>
+                <exclude>**/target/*</exclude>
             </excludes>
             <lineEnding>unix</lineEnding>
         </fileSet>
@@ -57,6 +49,7 @@
             <outputDirectory>/examples</outputDirectory>
             <includes>
                 <include>**/pom.xml</include>
+                <include>**/README.md</include>
             </includes>
             <filtered>true</filtered>
             <lineEnding>unix</lineEnding>

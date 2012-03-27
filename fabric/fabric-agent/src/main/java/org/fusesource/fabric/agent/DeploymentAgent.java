@@ -345,8 +345,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private void addRepository(Map<URI, Repository> repositories, URI uri) throws Exception {
         if (!repositories.containsKey(uri)) {
-            manager.download(uri.toString()).getFile();
-            FeatureValidationUtil.validate(uri);
+            File file = manager.download(uri.toString()).await().getFile();
+            FeatureValidationUtil.validate(file.toURI());
             RepositoryImpl repo = new RepositoryImpl(uri);
             repositories.put(uri, repo);
             repo.load();

@@ -64,6 +64,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     private String name;
     private String version;
     private String node;
+    private String resolutionPolicy;
     private Map<String, ZooKeeperTreeTracker<String>> trees = new ConcurrentHashMap<String, ZooKeeperTreeTracker<String>>();
     private volatile boolean tracking = false;
 
@@ -98,6 +99,8 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                     zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 }
                 track(node);
+                resolutionPolicy = ZkPath.CONTAINER_RESOLVER.getPath(name);
+                track(resolutionPolicy);
             } finally {
                 tracking = false;
             }
@@ -164,11 +167,13 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                     if (key.startsWith("zk:")) {
                         try {
                             return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
+                        } catch (KeeperException.ConnectionLossException e) {
+                            throw new RuntimeException(e);
                         } catch (Exception e) {
                             LOGGER.warn("Could not load zk value: {}. This exception will be ignored.", key, e);
                         }
                     }
-                    return null;
+                    return key;
                 }
             });
             return props;
@@ -248,6 +253,11 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         try {
             if (!tracking) {
                 String version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
+                String resolutionPointer = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name));
+                resolutionPolicy = zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(name));
+                if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
+                      zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name),"${zk:"+name+"/"+resolutionPolicy+"}");
+                }
                 if (!this.version.equals(version)) {
                     this.version = version;
                     node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);

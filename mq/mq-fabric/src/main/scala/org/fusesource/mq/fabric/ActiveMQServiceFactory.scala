@@ -90,7 +90,7 @@ object ActiveMQServiceFactory {
         if (!name.isEmpty) {
           LOG.info("Adding network connector " + name)
           val nc = broker.addNetworkConnector("fabric:" + name)
-          IntrospectionSupport.setProperties(nc, properties.asInstanceOf[java.util.Map[String, String]], "network-")
+          IntrospectionSupport.setProperties(nc, properties.asInstanceOf[java.util.Map[String, String]], "network.")
           nc.setName("fabric-" + name);
         }
       }

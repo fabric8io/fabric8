@@ -32,8 +32,7 @@
     <broker xmlns="http://activemq.apache.org/schema/core"
             brokerName="${broker-name}"
             dataDirectory="${data}"
-            start="false"
-            destroyApplicationContextOnStop="true">
+            start="false">
               
         <destinationPolicy>
             <policyMap>

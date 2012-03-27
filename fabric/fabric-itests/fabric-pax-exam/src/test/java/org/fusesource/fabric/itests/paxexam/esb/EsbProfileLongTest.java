@@ -18,7 +18,7 @@ public class EsbProfileLongTest extends FabricFeaturesTest {
 
         addStagingRepoToDefaultProfile();
 
-        createAndAssetChildContainer("esb1", "root", "esb");
+        createAndAssertChildContainer("esb1", "root", "esb");
         prepareFeaturesForTesting("esb1", "connector", "esb", "geronimo-connector");
         prepareFeaturesForTesting("esb1", "saaj", "esb", "saaj-impl");
         prepareFeaturesForTesting("esb1", "cxf-osgi", "esb", "org.apache.cxf.bundle");
