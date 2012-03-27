@@ -146,6 +146,9 @@ public class MavenResolver {
         this.localRepo = localRepo;
     }
 
+    public String[] getRepositories() {
+        return repositories;
+    }
 
     public void setRepositories(String[] repositories) {
         this.repositories = repositories;
