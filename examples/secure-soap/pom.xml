@@ -31,10 +31,10 @@
         <version>7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cxf-jaxws-security</artifactId>
+    <artifactId>secure-soap</artifactId>
     <packaging>bundle</packaging>
-    <name>Fuse ESB :: Examples :: CXF JAXWS Security </name>
-    <description>CXF example using JAXWS with WS-Security</description>
+    <name>Fuse ESB :: Examples :: Secure SOAP </name>
+    <description>Secure SOAP example using JAXWS with WS-Security</description>
 
     <dependencies>
         <dependency>
@@ -64,8 +64,8 @@
                         the lists of package to be exported and imported by the bundle.
                     -->
                     <instructions>
-                        <Bundle-SymbolicName>org.fuse.examples.cxf.jaxws.security</Bundle-SymbolicName>
-                        <Bundle-Description>CXF example using JAXWS with WS-Security</Bundle-Description>
+                        <Bundle-SymbolicName>org.fuse.examples.secure.soap</Bundle-SymbolicName>
+                        <Bundle-Description>Secure SOAP example using JAXWS with WS-Security</Bundle-Description>
                         <Import-Package>
                             javax.jws,
                             javax.xml.bind.annotation,

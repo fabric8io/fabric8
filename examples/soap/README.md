@@ -1,7 +1,7 @@
-# CXF JAX-RS EXAMPLE
+# SOAP EXAMPLE
 
 ## Overview
-This example demonstrates how to create a web service with CXF and expose it through the OSGi HTTP Service.
+This example demonstrates how to create a SOAP web service with CXF and expose it through the OSGi HTTP Service.
 
 ## What You Will Learn
 In studying this example you will learn:
@@ -22,7 +22,7 @@ Before building and running this example you need:
 ## Building the Example
 To build the example:
 
-1. Change your working directory to the `examples/cxf-jaxws` directory
+1. Change your working directory to the `examples/soap` directory
 1. Run `mvn clean install` to build the example
 
 
@@ -31,7 +31,7 @@ To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
 1. In the Fuse ESB console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/cxf-jaxws/${project.version}
+        osgi:install -s fab:mvn:org.fusesource.examples/soap/${project.version}
 
 There are several ways you can interact with the running web services: you can browse the web service metadata,
 but you can also invoke the web services in a few different ways.
@@ -75,7 +75,7 @@ Note: If you get Status: 0 in the right-hand panel instead, your browser no long
 In this cxf-jaxws example project, we also developed a Java client which can perform a few HTTP requests to test our web services. We
 configured the exec-java-plugin in Maven to allow us to run the Java client code with a simple Maven command:
 
-1. Change to the <esb_home>/examples/cxf-jaxws directory.
+1. Change to the <esb_home>/examples/soap directory.
 2. Run the following command:
 
         mvn compile exec:java

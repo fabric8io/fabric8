@@ -21,7 +21,7 @@ Before building and running this example you need:
 ## Building the Example
 To build the example:
 
-1. Change your working directory to the `examples/cxf-jaxrs` directory
+1. Change your working directory to the `examples/rest` directory
 1. Run `mvn clean install` to build the example
 
 ## Running the Example

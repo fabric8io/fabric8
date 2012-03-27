@@ -31,10 +31,10 @@
         <version>7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cxf-jaxrs</artifactId>
+    <artifactId>rest</artifactId>
     <packaging>jar</packaging>
-    <name>Fuse ESB :: Examples :: CXF JAX-RS </name>
-    <description>CXF Example using JAX-RS with Fuse ESB</description>
+    <name>Fuse ESB :: Examples :: RESTful WebService </name>
+    <description>RESTful WebService Example using JAX-RS with Fuse ESB</description>
 
     <dependencies>
         <!--

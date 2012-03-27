@@ -31,10 +31,10 @@
         <version>7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cxf-jaxrs-security</artifactId>
+    <artifactId>secure-rest</artifactId>
     <packaging>bundle</packaging>
-    <name>Fuse ESB :: Examples :: CXF JAX-RS Security </name>
-    <description>CXF Example using JAX-RS Security with Fuse ESB</description>
+    <name>Fuse ESB :: Examples :: Secure Restful Web Services </name>
+    <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fuse ESB</description>
 
     <dependencies>
         <!--
@@ -48,7 +48,7 @@
             <scope>provided</scope>
         </dependency>
         <!--
-            We are also building a small Java client application that we can use to test our web web services.
+            We are also building a small Java client application that we can use to test our web services.
             For performing the HTTP requests, we are using Apache Commons HttpClient.
         -->
         <dependency>
@@ -81,8 +81,8 @@
                         There's no need to deploy the client code inside the container as well.
                     -->
                     <instructions>
-                        <Bundle-SymbolicName>org.fusesource.examples.cxf.jaxrs.security</Bundle-SymbolicName>
-                        <Bundle-Description>CXF Example using JAX-RS Security with Fuse ESB</Bundle-Description>
+                        <Bundle-SymbolicName>org.fusesource.examples.secure.rest</Bundle-SymbolicName>
+                        <Bundle-Description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fuse ESB</Bundle-Description>
                         <Import-Package>
                             javax.wsdl,
                             javax.xml.bind,

@@ -21,7 +21,7 @@ Before building and running this example you need:
 ## Building the Example
 To build the example:
 
-1. Change your working directory to the `examples/cxf-jaxrs` directory
+1. Change your working directory to the `examples/secure-rest` directory
 1. Run `mvn clean install` to build the example
 
 ## Running the Example
@@ -29,7 +29,7 @@ To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
 1. In the Fuse ESB console, enter the following command:
-        osgi:install -s mvn:org.fusesource.examples/cxf-jaxrs-security/${project.version}
+        osgi:install -s mvn:org.fusesource.examples/secure-rest/${project.version}
 
 There are several ways you can interact with the running RESTful web services: you can browse the web service metadata,
 but you can also invoke the web services in a few different ways.
@@ -70,7 +70,7 @@ Note: if you use Safari, you will only see the text elements but not the XML tag
 In this cxf-jaxrs example project, we also developed a Java client which can perform a few HTTP requests to test our web services. We
 configured the exec-java-plugin in Maven to allow us to run the Java client code with a simple Maven command:
 
-1. Change to the <esb_home>/examples/cxf-jaxrs-security directory.
+1. Change to the <esb_home>/examples/secure-rest directory.
 2. Run the following command:
 
         mvn compile exec:java
@@ -80,7 +80,7 @@ The client makes a sequence of RESTful invocations and displays the results.
 ### To run a command-line utility:
 
 You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample
-XML representations in src/main/resources/org/fusesource/examples/cxf/jaxrs/client, so we will use those for testing our services.
+XML representations in src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client, so we will use those for testing our services.
 
 1. Open a command prompt and change directory to <esb_home>/examples/cxf-jaxrs-security.
 2. Run the following curl commands:
