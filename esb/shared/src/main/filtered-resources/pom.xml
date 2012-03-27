@@ -29,10 +29,10 @@
         <module>cbr</module>
         <module>eip</module>
         <module>errors</module>
-        <module>cxf-jaxws</module>
-        <module>cxf-jaxrs</module>
-        <module>cxf-jaxws-security</module>
-        <module>cxf-jaxrs-security</module>
+        <module>soap</module>
+        <module>rest</module>
+        <module>secure-soap</module>
+        <module>secure-rest</module>
     </modules>
 
 </project>
