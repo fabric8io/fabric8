@@ -160,7 +160,8 @@ public class ZooKeeperUtils {
 
     public static String getSubstitutedData(final IZKClient zooKeeper,String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
         Map<String, String> props = new HashMap<String, String>();
-        if (zooKeeper.exists(path) != null) {
+        String normaledPath = path != null && path.contains("#") ? path.substring(0,path.lastIndexOf("#")) : path;
+        if (normaledPath != null && zooKeeper.exists(normaledPath) != null) {
             String data = new String(ZkPath.loadURL(zooKeeper, path), "UTF-8");
 
             props.put("data", data);
