@@ -163,7 +163,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
         this.version = version;
         ArrayList<DependencyTree> sortedChildren = new ArrayList<DependencyTree>(children);
         Collections.sort(sortedChildren);
-        this.children = Collections.unmodifiableList(sortedChildren);
+        this.children = sortedChildren;
         this.hashCode = Objects.hashCode(dependencyId, version, this.children);
         init(children);
     }

@@ -44,6 +44,7 @@
         !org.ops4j.pax.swissbox.bnd,
         !org.ops4j.pax.url.commons,
         !aQute.lib.osgi.*,
+        org.osgi.service.event;resolution:=optional,
         *
     </fuse.osgi.import.pkg>
 <!--
@@ -73,6 +74,11 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.karaf.features</groupId>
+      <artifactId>org.apache.karaf.features.core</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>

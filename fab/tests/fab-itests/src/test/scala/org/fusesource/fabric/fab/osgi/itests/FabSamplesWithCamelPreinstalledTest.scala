@@ -50,6 +50,7 @@ class FabSamplesWithCamelPreinstalledTest {
     mavenBundle("org.apache.aries.proxy", "org.apache.aries.proxy").versionAsInProject(),
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.api").versionAsInProject(),
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.core").versionAsInProject(),
+    mavenBundle("org.apache.karaf.features", "org.apache.karaf.features.core").versionAsInProject(),
     mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console").versionAsInProject(),
 
     mavenBundle("org.apache.camel", "camel-core").versionAsInProject(),

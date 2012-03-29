@@ -68,6 +68,9 @@ public class FabClassPathResolver {
     private Map<String, Map<String, String>> importPackages = new HashMap<String, Map<String, String>>();
     private boolean offline = false;
 
+    // filters used for pruning unnecessary nodes from the dependency tree
+    private final List<Filter<DependencyTree>> pruningFilters = new LinkedList<Filter<DependencyTree>>();
+
     HashSet<String> sharedFilterPatterns = new HashSet<String>();
     HashSet<String> requireBundleFilterPatterns = new HashSet<String>();
     HashSet<String> excludeDependencyFilterPatterns = new HashSet<String>();
@@ -129,6 +132,11 @@ public class FabClassPathResolver {
         Filter<Dependency> excludeFilter = DependencyFilters.parseExcludeFilter(join(excludeDependencyFilterPatterns, " "), optionalFilter);
 
         this.rootTree = connection.collectDependencyTree(offline, excludeFilter);
+
+        // let's prune unnecessary items from the tree before continuing
+        for (Filter<DependencyTree> filter : pruningFilters) {
+            DependencyTreeFilters.prune(rootTree, filter);
+        }
 
         String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
         if (name.length() <= 0) {
@@ -663,6 +671,14 @@ public class FabClassPathResolver {
 
     public List<DependencyTree> getOptionalDependencies() {
         return optionalDependencies;
+    }
+
+    /*
+     * Add a pruning filter to this classpath resolver.  These filters will be used after the initial resolution
+     * of the dependencies to prune unnecessary items from the dependency tree.
+     */
+    public void addPruningFilter(Filter<DependencyTree> filter) {
+        pruningFilters.add(filter);
     }
 
     /**

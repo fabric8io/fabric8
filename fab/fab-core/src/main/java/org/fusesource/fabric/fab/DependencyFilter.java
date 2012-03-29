@@ -24,6 +24,7 @@ import org.sonatype.aether.graph.Dependency;
  * Matches a {@link Dependency} using a groupId and artifactId filter
  */
 public class DependencyFilter implements Filter<Dependency> {
+
     private final Filter<String> groupFilter;
     private final Filter<String> artifactFilter;
 

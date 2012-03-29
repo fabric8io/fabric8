@@ -83,7 +83,7 @@ public class Configuration extends PropertyStore {
             String text = propertyResolver.get(ServiceConstants.PROPERTY_LOCAL_MAVEN_REPOSITORY);
             return set(ServiceConstants.PROPERTY_LOCAL_MAVEN_REPOSITORY, text);
         }
-        return get(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES);
+        return get(ServiceConstants.PROPERTY_LOCAL_MAVEN_REPOSITORY);
     }
 
     public String[] getSharedResourcePaths() {

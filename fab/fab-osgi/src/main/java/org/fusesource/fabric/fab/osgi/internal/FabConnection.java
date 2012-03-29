@@ -19,6 +19,8 @@ package org.fusesource.fabric.fab.osgi.internal;
 
 import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
@@ -35,10 +37,8 @@ import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.*;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
@@ -354,8 +354,16 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
      * Strategy method to allow the instructions to be processed by derived classes
      */
     protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException, BundleException {
-        classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
-        classPathResolver.resolve();
+        ServiceReference reference = bundleContext.getServiceReference(FeaturesService.class.getName());
+        try {
+            final FeaturesService service = (FeaturesService) bundleContext.getService(reference);
+
+            classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
+            classPathResolver.addPruningFilter(new CamelFeaturesFilter(service));
+            classPathResolver.resolve();
+        } finally {
+            bundleContext.ungetService(reference);
+        }
     }
 
     @Override
@@ -452,5 +460,44 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
 
     public boolean isInstalled(DependencyTree tree) {
         return FabFacadeSupport.isInstalled(getBundleContext(), tree);
+    }
+
+    /**
+     * Filter implementation that matches Camel dependencies and replaces them with the corresponding camel feature definition
+     */
+    protected static class CamelFeaturesFilter implements Filter<DependencyTree> {
+
+        private final FeaturesService service;
+
+        public CamelFeaturesFilter(FeaturesService service) {
+            this.service = service;
+        }
+
+        @Override
+        public boolean matches(DependencyTree dependencyTree) {
+            boolean result = false;
+            if (dependencyTree.getGroupId().equals("org.apache.camel")) {
+                try {
+                    Feature feature = service.getFeature(dependencyTree.getArtifactId());
+                    if (feature != null) {
+                        if (!service.isInstalled(feature)) {
+                            LOG.info("Installing Camel feature {} for artifact {}/{}/{}",
+                                    new Object[] { feature.getName(), dependencyTree.getGroupId(), dependencyTree.getArtifactId(), dependencyTree.getVersion() });
+                            service.installFeature(feature.getName());
+                        }
+                        result = true;
+                    }
+                } catch (Exception e1) {
+                    LOG.debug("Unable to retrieve information about or unable to install Camel feature {} - installing the artifact instead of the feature", dependencyTree.getArtifactId());
+                }
+            }
+
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "filter<replace camel bundles by features>";
+        }
     }
 }

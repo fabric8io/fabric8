@@ -19,11 +19,13 @@ package org.fusesource.fabric.fab.osgi.commands;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.osgi.FabURLHandler;
 import org.fusesource.fabric.fab.osgi.internal.BundleFabFacade;
 import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;
 import org.fusesource.fabric.fab.osgi.internal.FabConnection;
 import org.fusesource.fabric.fab.osgi.internal.FabFacade;
+import org.fusesource.fabric.fab.util.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -35,13 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public abstract class CommandSupport extends OsgiCommandSupport {
