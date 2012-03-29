@@ -44,6 +44,9 @@ public interface CreateContainerOptions extends Serializable {
     public String getResolver();
     public void setResolver(String resolver);
 
+    public String getPreferredAddress();
+    public void setPreferredAddress(String preferredAddress);
+
     public Integer getNumber();
     public void setNumber(Integer number);
 

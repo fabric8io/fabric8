@@ -16,9 +16,21 @@
  */
 package org.fusesource.fabric.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -32,20 +44,6 @@ import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     
@@ -107,8 +105,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                                                                "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
 
             // Create configuration
-            String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
-            String mavenProxyUrl = "http://" + getLocalHostAddress() + ":" + 8040;
+            String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(port);
 
             Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Properties();
@@ -486,9 +483,4 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             throw new FabricException("Unable to remove containers to fabric ensemble: " + e.getMessage(), e);
         }
     }
-
-    private static String getLocalHostAddress() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostName();
-    }
-
 }

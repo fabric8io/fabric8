@@ -37,7 +37,8 @@
           org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.internal
+            org.fusesource.fabric.internal,
+            org.fusesource.fabric.utils
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -98,6 +99,12 @@
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-linkedin-zookeeper</artifactId>
           <version>${project.version}</version>
+          <scope>provided</scope>
+      </dependency>
+
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-utils</artifactId>
           <scope>provided</scope>
       </dependency>
 

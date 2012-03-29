@@ -71,6 +71,7 @@
         
         <module>fabric-examples</module>
         <module>fabric-itests</module>
+        <module>fabric-utils</module>
     </modules>
 
 </project>

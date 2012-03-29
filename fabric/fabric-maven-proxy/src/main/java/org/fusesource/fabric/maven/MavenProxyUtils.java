@@ -28,7 +28,7 @@ public class MavenProxyUtils {
     }
 
     public static String getMavenProxyUrl(int port){
-        return "http://" + getLocalHostName() + ":" + port + "/";
+        return "http://0.0.0.0:" + port + "/";
     }
 
     private static String getLocalHostName() {

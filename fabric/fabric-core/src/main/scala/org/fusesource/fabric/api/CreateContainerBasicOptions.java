@@ -31,6 +31,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected URI providerURI;
     protected boolean ensembleServer;
     protected boolean debugContainer;
+    protected String preferredAddress;
     protected String resolver= ZkDefs.DEFAULT_RESOLVER;
     protected Integer number = 1;
     protected URI proxyUri;
@@ -53,6 +54,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             }
         }
         return map;
+    }
+
+    public T preferredAddress(final String preferredAddress) {
+        this.setPreferredAddress(preferredAddress);
+        return (T) this;
     }
 
     public T resolver(final String resolver) {
@@ -167,6 +173,15 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public void setDebugContainer(boolean debugContainer) {
         this.debugContainer = debugContainer;
+    }
+
+
+    public String getPreferredAddress() {
+        return preferredAddress;
+    }
+
+    public void setPreferredAddress(String preferredAddress) {
+        this.preferredAddress = preferredAddress;
     }
 
     public String getResolver() {
