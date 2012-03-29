@@ -19,11 +19,16 @@ package org.fusesource.fabric.fab.osgi.internal;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.osgi.util.Services;
 import org.junit.Test;
+
+import java.util.Map;
+import java.util.Properties;
 
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +37,37 @@ import static org.junit.Assert.assertTrue;
  * Test cases for {@link FabConnection.CamelFeaturesFilter}
  */
 public class CamelFeaturesFilterTest {
+
+    @Test
+    public void testIsEnabled() {
+        FeaturesService service = createNiceMock(FeaturesService.class);
+        replay(service);
+
+        FabConnection.CamelFeaturesFilter filter = new FabConnection.CamelFeaturesFilter(service);
+
+        FabClassPathResolver resolver = new FabClassPathResolver(new FabClassPathResolverTest.MockFabFacade(), new Properties(), null);
+        assertTrue("No configuration specified - filter should be enabled", filter.isEnabled(resolver));
+
+        resolver = new FabClassPathResolver(new FabClassPathResolverTest.MockFabFacade(), new Properties(), null) {
+            Map<String, String> properties = Services.createProperties(INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION, "org.apache.cxf");
+
+            @Override
+            public String getManifestProperty(String name) {
+                return properties.get(name);
+            }
+        };
+        assertTrue("Only CXF to be skipped - filter should be enabled", filter.isEnabled(resolver));
+
+        resolver = new FabClassPathResolver(new FabClassPathResolverTest.MockFabFacade(), new Properties(), null) {
+            Map<String, String> properties = Services.createProperties(INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION, "org.apache.camel org.apache.cxf");
+
+            @Override
+            public String getManifestProperty(String name) {
+                return properties.get(name);
+            }
+        };
+        assertFalse("Camel and CXF to be skipped - filter should be disabled", filter.isEnabled(resolver));
+    }
 
     @Test
     public void testNoMatchesForCustomerBundle() throws Exception {

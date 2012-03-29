@@ -29,6 +29,7 @@ import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.osgi.util.PruningFilter;
 import org.fusesource.fabric.fab.osgi.util.Service;
 import org.fusesource.fabric.fab.osgi.util.Services;
 import org.fusesource.fabric.fab.util.*;
@@ -37,7 +38,6 @@ import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
 import org.osgi.framework.*;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
@@ -51,6 +51,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 
+import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
@@ -501,7 +502,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     /**
      * Filter implementation that matches Camel dependencies to features and collects the found features
      */
-    protected static class CamelFeaturesFilter implements Filter<DependencyTree>, FeatureCollector {
+    protected static class CamelFeaturesFilter implements PruningFilter, FeatureCollector {
 
         private final FeaturesService service;
         private final List<String> features = new LinkedList<String>();
@@ -536,6 +537,11 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         @Override
         public Collection<String> getCollection() {
             return features;
+        }
+
+        @Override
+        public boolean isEnabled(FabClassPathResolver resolver) {
+            return !Strings.splitAndTrimAsList(emptyIfNull(resolver.getManifestProperty(ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION)), "\\s+").contains("org.apache.camel");
         }
     }
 }

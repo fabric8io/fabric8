@@ -34,6 +34,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.osgi.util.PruningFilter;
 import org.fusesource.fabric.fab.util.*;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
@@ -66,7 +67,7 @@ public class FabClassPathResolver {
     private boolean offline = false;
 
     // filters used for pruning unnecessary nodes from the dependency tree
-    private final List<Filter<DependencyTree>> pruningFilters = new LinkedList<Filter<DependencyTree>>();
+    private final List<PruningFilter> pruningFilters = new LinkedList<PruningFilter>();
 
     HashSet<String> sharedFilterPatterns = new HashSet<String>();
     HashSet<String> requireBundleFilterPatterns = new HashSet<String>();
@@ -134,8 +135,10 @@ public class FabClassPathResolver {
         this.rootTree = connection.collectDependencyTree(offline, excludeFilter);
 
         // let's prune unnecessary items from the tree before continuing
-        for (Filter<DependencyTree> filter : pruningFilters) {
-            DependencyTreeFilters.prune(rootTree, filter);
+        for (PruningFilter filter : pruningFilters) {
+            if (filter.isEnabled(this)) {
+                DependencyTreeFilters.prune(rootTree, filter);
+            }
         }
 
         String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
@@ -688,8 +691,11 @@ public class FabClassPathResolver {
     /*
      * Add a pruning filter to this classpath resolver.  These filters will be used after the initial resolution
      * of the dependencies to prune unnecessary items from the dependency tree.
+     *
+     * If the filter also implements the {@link FeatureCollector} interface, it will also be added to the collectors
+     * used for tracking {@link #getInstallFeatures}
      */
-    public void addPruningFilter(Filter<DependencyTree> filter) {
+    public void addPruningFilter(PruningFilter filter) {
         pruningFilters.add(filter);
         if (filter instanceof FeatureCollector) {
             installFeatures.addCollector((FeatureCollector) filter);

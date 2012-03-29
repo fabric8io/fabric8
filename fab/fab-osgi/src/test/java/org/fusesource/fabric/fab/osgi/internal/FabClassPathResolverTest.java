@@ -19,8 +19,9 @@ package org.fusesource.fabric.fab.osgi.internal;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.VersionedDependencyId;
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.osgi.util.PruningFilter;
+import org.fusesource.fabric.fab.osgi.util.Services;
 import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
 import org.sonatype.aether.RepositoryException;
@@ -30,10 +31,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.*;
 
 /**
  * Test cases for {@link FabClassPathResolver}
@@ -55,12 +57,8 @@ public class FabClassPathResolverTest {
     @Test
     public void testAvailableHeaderParsing() {
         FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null) {
-            
-            private Map<String, String> properties = new HashMap<String, String>();
 
-            {
-                properties.put(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES, "true");
-            }
+            Map<String, String> properties = Services.createProperties(INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES, "true");
 
             @Override
             public String getManifestProperty(String name) {
@@ -88,7 +86,7 @@ public class FabClassPathResolverTest {
      * Mock Filter for DependencyTree instances that also implements FeatureCollector,
      * similar to e.g. {@link CamelFeaturesFilter}
      */
-    private static final class MockFeatureCollectorFilter implements Filter<DependencyTree>, FeatureCollector {
+    private static final class MockFeatureCollectorFilter implements PruningFilter, FeatureCollector {
 
         @Override
         public Collection<String> getCollection() {
@@ -99,12 +97,17 @@ public class FabClassPathResolverTest {
         public boolean matches(DependencyTree dependencyTree) {
             return false;
         }
+
+        @Override
+        public boolean isEnabled(FabClassPathResolver resolver) {
+            return true;
+        }
     }
 
     /*
      * A mock {@link FabFacade} installation
      */
-    private static final class MockFabFacade extends FabFacadeSupport {
+    public static final class MockFabFacade extends FabFacadeSupport {
 
         @Override
         public File getJarFile() throws IOException {

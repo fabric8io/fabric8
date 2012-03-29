@@ -93,6 +93,15 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES = "FAB-Install-Provided-Bundle-Dependencies";
 
     /**
+     * By default, if FAB encounters a well-known dependency that has its own feature definition in the container (e.g. a Camel component),
+     * it will install the feature instead.  Using a space-separated list, you can disable this behavior for one or more of the
+     * features it supports.
+     *
+     * Example: <code>FAB-Skip-Matching-Feature-Detection: org.apache.camel</code> to skip feature detection for Camel
+     */
+    static final String INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION = "FAB-Skip-Matching-Feature-Detection";
+
+    /**
      * The space separated list of optional dependencies to be included. By default no optional dependencies are included.
      *
      * You can use wildcards such as "group:artifact group:* *:*"
