@@ -57,6 +57,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin-version}</version>
                 <configuration>
                     <mainClass>org.fusesource.examples.cxf.jaxws.client.Client</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>

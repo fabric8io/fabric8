@@ -70,6 +70,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>${maven-bundle-plugin-version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <!--
@@ -106,6 +107,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin-version}</version>
                 <configuration>
                     <mainClass>org.fusesource.examples.cxf.jaxrs.security.client.Client</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
