@@ -124,8 +124,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     }
 
     public Integer getPort() {
-        return port != null ? port :
-                (getProxyUri().getPort() != 0 ? getProxyUri().getPort() : DEFAULT_SSH_PORT);
+        return port != null && port != 0 ? port :
+                (getProviderURI() != null && getProviderURI().getPort() != 0  ? getProviderURI().getPort() : DEFAULT_SSH_PORT);
     }
 
     public void setPort(Integer port) {
