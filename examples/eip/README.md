@@ -37,21 +37,21 @@ Before building and running this example you need:
 To build the example:
 
 1. Change your working directory to the `examples/eip` directory
-1. Run `mvn clean install` to build the example
+2. Run `mvn clean install` to build the example
 
 ## Running the Example
 To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
-1. In the Fuse ESB console, enter the following command:
+2. In the Fuse ESB console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/eip/${project.version}
-1. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your Fuse ESB installation
-1. Copy the file you find in this example's `src/test/data` directory to the newly created `work/eip/input` directory
-1. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':
+3. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your Fuse ESB installation
+4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/eip/input` directory
+5. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':
 ** `2012_0003.xml` and `2012_0005.xml` in `work/eip/output/AMER`
 ** `2012_0020.xml` in `work/eip/output/APAC`
 ** `2012_0001.xml`, `2012_0002.xml` and `2012_0004.xml` in `work/eip/output/EMEA`
-1. Use `log:display` to check out the business logging
+6. Use `log:display` to check out the business logging
         [main]    Processing orders.xml
         [wiretap]  Archiving orders.xml
         [splitter] Shipping order 2012_0001 to region EMEA

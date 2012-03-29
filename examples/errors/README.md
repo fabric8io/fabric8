@@ -25,19 +25,19 @@ Before building and running this example you need:
 To build the example:
 
 1. Change your working directory to the examples/errors directory
-1. Run `mvn clean install` to build the example
+2. Run `mvn clean install` to build the example
 
 ## Running the Example
 To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running bin/fuseesb (on Linux) or bin\fuseesb.bat (on Windows)
-1. In the Fuse ESB console, enter the following command: `osgi:install -s fab:mvn:org.fusesource.examples/errors/${project.version}`
-1. As soon as the Camel route has been started, you will see a directory work/errors/input in your Fuse ESB installation
-1. Copy the file you find in this example's src/test/data directory to the newly created work/errors/input directory
-1. Wait a few moment and you will find the files in other folder under work/errors
+2. In the Fuse ESB console, enter the following command: `osgi:install -s fab:mvn:org.fusesource.examples/errors/${project.version}`
+3. As soon as the Camel route has been started, you will see a directory work/errors/input in your Fuse ESB installation
+4. Copy the file you find in this example's src/test/data directory to the newly created work/errors/input directory
+5. Wait a few moment and you will find the files in other folder under work/errors
         order4.xml will always end up in the work/errors/validation folder
         other files will end up in work/errors/output or work/errors/deadletter depending on the runtime exceptions that occur
-1. Use `log:display` to check out the business logging - the exact output may look differently because the 'unexpected runtime exception...' happen randomly
+6. Use `log:display` to check out the business logging - the exact output may look differently because the 'unexpected runtime exception...' happen randomly
         Processing order4.xml
         Order validation failure: order date 2012-03-04 should not be a Sunday
         Validation failed for order4.xml - moving the file to work/errors/validation
