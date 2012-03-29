@@ -341,7 +341,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String realConnectionUrl = "";
             String containerList = "";
             for (String container : containers) {
-                String ip = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(container));
+                String ip = ZooKeeperUtils.getSubstitutedData(zooKeeper,ZkPath.CONTAINER_IP.getPath(container));
                 String profNode = "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + newClusterId + "-" + Integer.toString(index);
                 String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
                 Properties pidNodeProperties = new Properties();

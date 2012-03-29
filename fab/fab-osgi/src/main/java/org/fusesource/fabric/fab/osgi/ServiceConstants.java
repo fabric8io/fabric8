@@ -188,6 +188,11 @@ public interface ServiceConstants extends Constants {
     static final String PROPERTY_MAVEN_REPOSITORIES = "org.ops4j.pax.url.mvn.repositories";
 
     /**
+     * The property for configuring an alternative local repository location
+     */
+    static final String PROPERTY_LOCAL_MAVEN_REPOSITORY = "org.ops4j.pax.url.mvn.localRepository";
+
+    /**
      * List of paths looked for in shared dependencies which should be copied onto the Bundle-ClassPath
      * for example to fix the META-INF/services stuff when using shared class loaders.
      */

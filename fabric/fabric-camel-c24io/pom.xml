@@ -141,6 +141,17 @@
       </snapshots>
     </repository>
     <repository>
+      <id>ea.fusesource.org</id>
+      <name>FuseSource Early Access Repository</name>
+      <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <repository>
       <id>c24io.public</id>
       <name>C24IO Public Repository</name>
       <url>http://repo.c24io.net:8081/nexus/content/groups/C24</url>

@@ -56,7 +56,7 @@ public class Activator extends HandlerActivator<Configuration> {
         this.bundleContext = bundleContext;
 
         ServiceReference serviceReference = bundleContext.getServiceReference("org.osgi.service.cm.ConfigurationAdmin");
-        ConfigurationAdmin configurationAdmin = (ConfigurationAdmin)bundleContext.getService(serviceReference);
+        ConfigurationAdmin configurationAdmin = (ConfigurationAdmin) bundleContext.getService(serviceReference);
 
         File data = new File(System.getProperty("karaf.data", "."));
         registry.setDirectory(new File(data, "fab-module-registry"));

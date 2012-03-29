@@ -239,6 +239,17 @@
             <enabled>false</enabled>
           </releases>
         </repository>
+        <repository>
+          <id>ea.fusesource.org</id>
+          <name>FuseSource Early Access Repository</name>
+          <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+        </repository>
         <!-- Java.net Maven Repository, required by javax.mail -->
         <repository>
             <id>java.net</id>

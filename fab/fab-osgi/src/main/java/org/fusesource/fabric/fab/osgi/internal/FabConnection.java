@@ -85,6 +85,10 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         if (repositories != null) {
             resolver.setRepositories(repositories);
         }
+        String localrepo = configuration.getLocalMavenRepository();
+        if (localrepo != null) {
+            resolver.setLocalRepo(localrepo);
+        }
     }
 
     @Override

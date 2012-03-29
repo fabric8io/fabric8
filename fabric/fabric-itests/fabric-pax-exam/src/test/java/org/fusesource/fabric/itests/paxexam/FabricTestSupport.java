@@ -198,7 +198,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 "http://repository.springsource.com/maven/bundles/release," +
                 "http://repository.springsource.com/maven/bundles/external," +
                 "http://scala-tools.org/repo-releases," +
-                "http://repo.fusesource.com/nexus/content/repositories/ea" +
+                "http://repo.fusesource.com/nexus/content/groups/ea" +
                 " default");
     }
     

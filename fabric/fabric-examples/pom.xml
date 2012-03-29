@@ -36,6 +36,7 @@
       <module>fabric-activemq-demo</module>
       <module>fabric-camel-eca</module>
       <module>fabric-camel-demo</module>
+      <module>fabric-cxf-demo</module>
     </modules>  
 
 </project>

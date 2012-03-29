@@ -32,6 +32,7 @@
 
   <properties>
       <fuse.osgi.import.additional>
+          org.apache.commons.cli*,
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
