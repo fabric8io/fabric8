@@ -442,4 +442,9 @@ public class ProfileImpl implements Profile {
         result = 31 * result + version.hashCode();
         return result;
     }
+
+    @Override
+    public boolean isAbstract() {
+        return id == null || id.equals("mq-base") || id.startsWith("fabric-ensemble-0000");
+    }
 }

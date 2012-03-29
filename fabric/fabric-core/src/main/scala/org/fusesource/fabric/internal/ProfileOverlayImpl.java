@@ -226,4 +226,8 @@ public class ProfileOverlayImpl implements Profile {
         }
     }
 
+    @Override
+    public boolean isAbstract() {
+        return self.isAbstract();
+    }
 }
