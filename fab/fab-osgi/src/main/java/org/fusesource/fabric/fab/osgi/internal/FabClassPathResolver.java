@@ -33,11 +33,8 @@ import org.apache.felix.utils.version.VersionCleaner;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.IOHelpers;
-import org.fusesource.fabric.fab.util.Manifests;
-import org.fusesource.fabric.fab.util.Maps;
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.util.*;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
@@ -82,6 +79,9 @@ public class FabClassPathResolver {
     private Filter<DependencyTree> excludeDependencyFilter;
     private Filter<DependencyTree> optionalDependencyFilter;
     private Filter<DependencyTree> importExportFilter;
+
+    // collectors keeping track of features to be installed
+    private Collectors<String> installFeatures = new Collectors<String>();
 
     private List<DependencyTree> nonSharedDependencies = new ArrayList<DependencyTree>();
     private List<DependencyTree> sharedDependencies = new ArrayList<DependencyTree>();
@@ -208,6 +208,11 @@ public class FabClassPathResolver {
         sharedDependencies = filterOutDuplicates(sharedDependencies);
         installDependencies = filterOutDuplicates(installDependencies);
         optionalDependencies = filterOutDuplicates(optionalDependencies);
+
+        LOG.debug("Required features:");
+        for (String feature : getInstallFeatures()) {
+            LOG.debug("- " + feature);
+        }
 
         LOG.debug("nonSharedDependencies:");
         for( DependencyTree d : nonSharedDependencies) {
@@ -661,6 +666,13 @@ public class FabClassPathResolver {
         installDependencies.add(node);
     }
 
+    /*
+     * Get the list of features to be installed
+     */
+    public Collection<String> getInstallFeatures() {
+        return installFeatures.getCollection();
+    }
+
     public Map<String, Map<String, String>> getExtraImportPackages() {
         return importPackages;
     }
@@ -679,6 +691,9 @@ public class FabClassPathResolver {
      */
     public void addPruningFilter(Filter<DependencyTree> filter) {
         pruningFilters.add(filter);
+        if (filter instanceof FeatureCollector) {
+            installFeatures.addCollector((FeatureCollector) filter);
+        }
     }
 
     /**
@@ -689,4 +704,6 @@ public class FabClassPathResolver {
     protected boolean isInstallProvidedBundleDependencies() {
         return Boolean.valueOf(getManifestProperty(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES));
     }
+
+
 }

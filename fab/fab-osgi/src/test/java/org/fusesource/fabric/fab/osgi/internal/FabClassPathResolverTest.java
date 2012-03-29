@@ -20,6 +20,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
 import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
 import org.sonatype.aether.RepositoryException;
@@ -27,6 +28,8 @@ import org.sonatype.aether.graph.Dependency;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +68,37 @@ public class FabClassPathResolverTest {
             }
         };
         assertTrue(resolver.isInstallProvidedBundleDependencies());
+    }
+
+    @Test
+    public void testAddFeatureCollectorThroughPruningFilters() {
+        FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null);
+
+        MockFeatureCollectorFilter filter = new MockFeatureCollectorFilter();
+        resolver.addPruningFilter(filter);
+
+        // now ensure that every feature collected by the filter is listed in the install features
+        assertEquals(filter.getCollection().size(), resolver.getInstallFeatures().size());
+        for (String element : filter.getCollection()) {
+            resolver.getInstallFeatures().contains(element);
+        }
+    }
+
+    /*
+     * Mock Filter for DependencyTree instances that also implements FeatureCollector,
+     * similar to e.g. {@link CamelFeaturesFilter}
+     */
+    private static final class MockFeatureCollectorFilter implements Filter<DependencyTree>, FeatureCollector {
+
+        @Override
+        public Collection<String> getCollection() {
+            return Arrays.asList(new String[]{"mock_feature_1", "mock_feature_2"});
+        }
+
+        @Override
+        public boolean matches(DependencyTree dependencyTree) {
+            return false;
+        }
     }
 
     /*
