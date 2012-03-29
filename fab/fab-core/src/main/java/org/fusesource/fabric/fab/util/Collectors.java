@@ -48,4 +48,17 @@ public class Collectors<T> implements Collector<T> {
         return result;
     }
 
+    /**
+     * Convenience method for adding an existing collection to the collector directly
+     *
+     * @param items the collection to be added
+     */
+    public void addCollection(final Collection<T> items) {
+        collectors.add(new Collector<T>() {
+            @Override
+            public Collection<T> getCollection() {
+                return items;
+            }
+        });
+    }
 }

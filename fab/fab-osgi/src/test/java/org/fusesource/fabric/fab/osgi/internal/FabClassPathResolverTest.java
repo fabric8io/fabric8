@@ -69,6 +69,25 @@ public class FabClassPathResolverTest {
     }
 
     @Test
+    public void testConfigureRequiredFeatures() {
+        FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null) {
+
+            Map<String, String> properties = Services.createProperties(INSTR_FAB_REQUIRE_FEATURE, "karaf-framework camel-blueprint/2.9.0");
+
+            @Override
+            public String getManifestProperty(String name) {
+                return properties.get(name);
+            }
+        };
+
+        resolver.processFabInstructions();
+        Collection<String> features = resolver.getInstallFeatures();
+        assertEquals(2, features.size());
+        assertTrue(features.contains("karaf-framework"));
+        assertTrue(features.contains("camel-blueprint/2.9.0"));
+    }
+
+    @Test
     public void testAddFeatureCollectorThroughPruningFilters() {
         FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null);
 

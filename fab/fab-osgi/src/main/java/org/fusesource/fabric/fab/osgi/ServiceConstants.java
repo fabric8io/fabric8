@@ -138,6 +138,14 @@ public interface ServiceConstants extends Constants {
      */
     static final String INSTR_FAB_VERSION_RANGE_DIGITS = "FAB-Version-Range-Digits";
 
+    /**
+     * The space separated list of additional Karaf features that are required. Features can be specified using only
+     * their name or both their name and version (separated by /)
+     *
+     * Example: <code>FAB-Require-Feature: activemq camel-blueprint/2.9.0</code>
+     */
+
+    static final String INSTR_FAB_REQUIRE_FEATURE = "FAB-Require-Feature";
 
     /**
      * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]

@@ -23,22 +23,33 @@ import java.util.Collection;
 
 import static org.junit.Assert.*;
 
-
 /**
  * Test cases for {@link Collectors}
  */
 public class CollectorsTest {
 
     @Test
-    public void testGetCollecion() {
+    public void testGetCollection() {
         Collectors<String> collectors = new Collectors<String>(createCollector("a", "b", "c"),
                                                                createCollector("b", "d", "e"));
+
         Collection<String> result = collectors.getCollection();
-        assertNotNull(result);
         assertCollectionContains(result, "a", "b", "c", "d", "e");
     }
 
+    @Test
+    public void testAddCollection() {
+        Collectors<String> collectors = new Collectors<String>();
+        collectors.addCollection(Arrays.asList("a", "b", "c"));
+        collectors.addCollection(Arrays.asList("b", "d", "e"));
+
+        Collection<String> result = collectors.getCollection();
+        assertCollectionContains(result, "a", "b", "c", "d", "e");
+    }
+
+
     private void assertCollectionContains(Collection<String> collection, String... expected) {
+        assertNotNull(collection);
         assertEquals(expected.length, collection.size());
         for (String element : expected) {
             assertTrue(collection.contains(element));
