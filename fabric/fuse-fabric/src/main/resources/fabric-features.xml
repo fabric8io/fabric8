@@ -184,8 +184,8 @@
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
-        <bundle dependency="true">mvn:org.fusesource.fabric/fabric-groups/${project.version}</bundle>
+        <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-groups/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-monitor" version="${project.version}" resolver="(obr)">
