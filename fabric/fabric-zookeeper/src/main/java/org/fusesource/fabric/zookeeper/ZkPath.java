@@ -70,7 +70,6 @@ public enum ZkPath {
     CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
     CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc"),
     CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata"),
-    CONTAINER_MANAGED              ("/fabric/registry/containers/config/{container}/managed"),
 
     POLICIES                        ("/fabric/registry/policies/{policy}");
 

@@ -27,7 +27,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
-import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.slf4j.Logger;

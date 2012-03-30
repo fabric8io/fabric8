@@ -37,6 +37,7 @@ import org.fusesource.fabric.service.ContainerTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -158,27 +159,13 @@ public class ContainerImpl implements Container {
 
     @Override
     public boolean isManaged() {
-        try {
-            String managed = service.getZooKeeper().getStringData(ZkPath.CONTAINER_MANAGED.getPath(id));
-            return Boolean.parseBoolean(managed);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public void setManaged(boolean managed) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_MANAGED.getPath(getId()), String.valueOf(managed));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return getProvisionResult() != null;
     }
 
     @Override
     public Version getVersion() {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
+            String version = getZkData(ZkPath.CONFIG_CONTAINER);
             return new VersionImpl(version, service);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -258,7 +245,7 @@ public class ContainerImpl implements Container {
     public void setLocation(String location) {
         try {
             String path = ZkPath.CONTAINER_LOCATION.getPath(id);
-            ZooKeeperUtils.set( service.getZooKeeper(), path, location );
+            ZooKeeperUtils.set(service.getZooKeeper(), path, location);
         } catch (Exception e) {
             throw new FabricException(e);
         }

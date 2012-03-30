@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.internal;
+package org.fusesource.fabric.zookeeper.utils;
 
 import java.io.IOException;
 import java.io.StringReader;
