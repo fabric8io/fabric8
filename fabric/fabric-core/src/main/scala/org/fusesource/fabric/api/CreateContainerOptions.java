@@ -38,9 +38,6 @@ public interface CreateContainerOptions extends Serializable {
     public boolean isEnsembleServer();
     public void setEnsembleServer(boolean setEnsembleServer);
 
-    public boolean isDebugContainer();
-    public void setDebugContainer(boolean debugContainer);
-
     public String getResolver();
     public void setResolver(String resolver);
 

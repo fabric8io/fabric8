@@ -251,7 +251,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
-        if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
+        if (options.getZookeeperUrl() == null && !options.isEnsembleServer()) {
             options.setZookeeperUrl(getZookeeperUrl());
         }
         if (options.getProxyUri() == null) {

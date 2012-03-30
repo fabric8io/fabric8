@@ -70,9 +70,6 @@ public class ContainerProviderUtils {
         if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
         }
-        if(options.isDebugContainer()) {
-           sb.append("run export KARAF_DEBUG=true").append("\n");
-        }
         if(options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
            sb.append("run export JAVA_OPTS=").append(options.getJvmOpts()).append("\n");
         }
