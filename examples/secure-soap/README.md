@@ -25,14 +25,14 @@ Before building and running this example you need:
 To build the example:
 
 1. Change your working directory to the `examples/secure-soap` directory
-1. Run `mvn clean install` to build the example
+2. Run `mvn clean install` to build the example
 
 
 ## Running the Example
 To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
-1. In the Fuse ESB console, enter the following command:
+2. In the Fuse ESB console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/secure-soap/${project.version}
 
 There are several ways you can interact with the running web services: you can browse the web service metadata,

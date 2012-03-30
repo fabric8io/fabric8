@@ -19,6 +19,8 @@ package org.fusesource.fabric.fab.osgi.internal;
 
 import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
@@ -26,19 +28,16 @@ import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.osgi.util.PruningFilter;
 import org.fusesource.fabric.fab.osgi.util.Service;
 import org.fusesource.fabric.fab.osgi.util.Services;
-import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.*;
 import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Objects;
-import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.ops4j.net.URLUtils;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
@@ -52,6 +51,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 
+import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
@@ -229,6 +229,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     actualImports,
                     this);
 
+            installMissingFeatures();
             if (getConfiguration().isInstallMissingDependencies()) {
                 installMissingDependencies(actualImports);
             } else {
@@ -239,6 +240,42 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
             throw e;
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
+        }
+    }
+
+    /*
+     * Install all the required features for this FAB
+     */
+    private void installMissingFeatures() {
+        ServiceReference reference = bundleContext.getServiceReference(FeaturesService.class.getName());
+        try {
+            final FeaturesService service = (FeaturesService) bundleContext.getService(reference);
+
+            for (String feature : classPathResolver.getInstallFeatures()) {
+                try {
+                    installMissingFeature(service, feature);
+                } catch (Exception e) {
+                    LOG.warn("Unable to install missing feature {} - FAB {} may not get installed properly", feature, url);
+                }
+            }
+        } finally {
+            bundleContext.ungetService(reference);
+        }
+    }
+
+    /*
+    * Install a feature, based on the feature name (either <name>/<version> or <name>
+    */
+    private void installMissingFeature(FeaturesService service, String feature) throws Exception {
+        if (feature.contains("/")) {
+            String[] parts = feature.split("/");
+            if (parts.length == 2) {
+                service.installFeature(parts[0], parts[1]);
+            } else {
+                throw new IllegalStateException(String.format("Invalid feature identifier: %s - valid syntax: <name>/<version> or <name>", feature));
+            }
+        } else {
+            service.installFeature(feature);
         }
     }
 
@@ -354,8 +391,16 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
      * Strategy method to allow the instructions to be processed by derived classes
      */
     protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException, BundleException {
-        classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
-        classPathResolver.resolve();
+        ServiceReference reference = bundleContext.getServiceReference(FeaturesService.class.getName());
+        try {
+            final FeaturesService service = (FeaturesService) bundleContext.getService(reference);
+
+            classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
+            classPathResolver.addPruningFilter(new CamelFeaturesFilter(service));
+            classPathResolver.resolve();
+        } finally {
+            bundleContext.ungetService(reference);
+        }
     }
 
     @Override
@@ -452,5 +497,51 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
 
     public boolean isInstalled(DependencyTree tree) {
         return FabFacadeSupport.isInstalled(getBundleContext(), tree);
+    }
+
+    /**
+     * Filter implementation that matches Camel dependencies to features and collects the found features
+     */
+    protected static class CamelFeaturesFilter implements PruningFilter, FeatureCollector {
+
+        private final FeaturesService service;
+        private final List<String> features = new LinkedList<String>();
+
+        public CamelFeaturesFilter(FeaturesService service) {
+            this.service = service;
+        }
+
+        @Override
+        public boolean matches(DependencyTree dependencyTree) {
+            boolean result = false;
+            if (dependencyTree.getGroupId().equals("org.apache.camel")) {
+                try {
+                    Feature feature = service.getFeature(dependencyTree.getArtifactId());
+                    if (feature != null) {
+                        features.add(String.format("%s/%s", feature.getName(), feature.getVersion()));
+                        result = true;
+                    }
+                } catch (Exception e1) {
+                    LOG.debug("Unable to retrieve information about or unable to install Camel feature {} - installing the artifact instead of the feature", dependencyTree.getArtifactId());
+                }
+            }
+
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "filter<replace camel bundles by features>";
+        }
+
+        @Override
+        public Collection<String> getCollection() {
+            return features;
+        }
+
+        @Override
+        public boolean isEnabled(FabClassPathResolver resolver) {
+            return !Strings.splitAndTrimAsList(emptyIfNull(resolver.getManifestProperty(ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION)), "\\s+").contains("org.apache.camel");
+        }
     }
 }

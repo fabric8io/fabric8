@@ -93,4 +93,10 @@ public interface Profile extends Comparable<Profile> {
     void setRepositories(List<String> values);
 
     boolean configurationEquals(Profile other);
+
+    /**
+     * Returns true if this profile is Abstract. Abstract profiles should not be provisioned by default,
+     * they are intended to be inherited
+     */
+    boolean isAbstract();
 }

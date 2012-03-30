@@ -146,6 +146,10 @@
           <artifactId>org.apache.karaf.jaas.modules</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.apache.karaf.features</groupId>
+          <artifactId>org.apache.karaf.features.core</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.apache.karaf.shell</groupId>
           <artifactId>org.apache.karaf.shell.console</artifactId>
       </dependency>

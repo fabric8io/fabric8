@@ -24,14 +24,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Tests for {@link FabConnection}
  */
 public class FabConnectionTest {
-    
+
     @Test
     public void testResolverConfiguration() throws MalformedURLException {
         Properties properties = new Properties();

@@ -19,7 +19,9 @@ package org.fusesource.fabric.fab.osgi.internal;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.VersionedDependencyId;
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.osgi.util.PruningFilter;
+import org.fusesource.fabric.fab.osgi.util.Services;
 import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
 import org.sonatype.aether.RepositoryException;
@@ -27,10 +29,13 @@ import org.sonatype.aether.graph.Dependency;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.*;
 
 /**
  * Test cases for {@link FabClassPathResolver}
@@ -52,12 +57,8 @@ public class FabClassPathResolverTest {
     @Test
     public void testAvailableHeaderParsing() {
         FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null) {
-            
-            private Map<String, String> properties = new HashMap<String, String>();
 
-            {
-                properties.put(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES, "true");
-            }
+            Map<String, String> properties = Services.createProperties(INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES, "true");
 
             @Override
             public String getManifestProperty(String name) {
@@ -67,10 +68,65 @@ public class FabClassPathResolverTest {
         assertTrue(resolver.isInstallProvidedBundleDependencies());
     }
 
+    @Test
+    public void testConfigureRequiredFeatures() {
+        FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null) {
+
+            Map<String, String> properties = Services.createProperties(INSTR_FAB_REQUIRE_FEATURE, "karaf-framework camel-blueprint/2.9.0");
+
+            @Override
+            public String getManifestProperty(String name) {
+                return properties.get(name);
+            }
+        };
+
+        resolver.processFabInstructions();
+        Collection<String> features = resolver.getInstallFeatures();
+        assertEquals(2, features.size());
+        assertTrue(features.contains("karaf-framework"));
+        assertTrue(features.contains("camel-blueprint/2.9.0"));
+    }
+
+    @Test
+    public void testAddFeatureCollectorThroughPruningFilters() {
+        FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null);
+
+        MockFeatureCollectorFilter filter = new MockFeatureCollectorFilter();
+        resolver.addPruningFilter(filter);
+
+        // now ensure that every feature collected by the filter is listed in the install features
+        assertEquals(filter.getCollection().size(), resolver.getInstallFeatures().size());
+        for (String element : filter.getCollection()) {
+            resolver.getInstallFeatures().contains(element);
+        }
+    }
+
+    /*
+     * Mock Filter for DependencyTree instances that also implements FeatureCollector,
+     * similar to e.g. {@link CamelFeaturesFilter}
+     */
+    private static final class MockFeatureCollectorFilter implements PruningFilter, FeatureCollector {
+
+        @Override
+        public Collection<String> getCollection() {
+            return Arrays.asList(new String[]{"mock_feature_1", "mock_feature_2"});
+        }
+
+        @Override
+        public boolean matches(DependencyTree dependencyTree) {
+            return false;
+        }
+
+        @Override
+        public boolean isEnabled(FabClassPathResolver resolver) {
+            return true;
+        }
+    }
+
     /*
      * A mock {@link FabFacade} installation
      */
-    private static final class MockFabFacade extends FabFacadeSupport {
+    public static final class MockFabFacade extends FabFacadeSupport {
 
         @Override
         public File getJarFile() throws IOException {

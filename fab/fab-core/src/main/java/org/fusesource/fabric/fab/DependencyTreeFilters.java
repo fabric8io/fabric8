@@ -19,9 +19,7 @@ package org.fusesource.fabric.fab;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Filters;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  */
@@ -165,6 +163,25 @@ public class DependencyTreeFilters {
                         }
                     };
                 }
+            }
+        }
+    }
+
+    /**
+     * Prune children (and their descendants) from the dependency tree if they match the filter provided.
+     *
+     * @param root the dependency tree to be pruned
+     * @param filter the filter used for finding the children to be removed
+     */
+    public static void prune(DependencyTree root, Filter<DependencyTree> filter) {
+        List<DependencyTree> children = new LinkedList<DependencyTree>();
+        children.addAll(root.getChildren());
+
+        for (DependencyTree child : children) {
+            if (filter.matches(child)) {
+                root.getChildren().remove(child);
+            } else {
+                prune(child, filter);
             }
         }
     }
