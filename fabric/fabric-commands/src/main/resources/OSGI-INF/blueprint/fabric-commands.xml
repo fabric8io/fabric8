@@ -44,7 +44,7 @@
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
             <completers>
-                <ref component-id="containerCompleter"/>
+                <ref component-id="currentContainerCompleter"/>
                 <null/>
             </completers>
             <optional-completers>
@@ -56,7 +56,7 @@
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
             <completers>
-                <ref component-id="containerCompleter"/>
+                <ref component-id="currentContainerCompleter"/>
                 <null/>
             </completers>
             <optional-completers>
@@ -367,6 +367,8 @@
             </action>
         </command>
     </command-bundle>
+
+    <bean id="currentContainerCompleter" class="org.fusesource.fabric.commands.support.CurrentContainerCompleter"/>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
