@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
@@ -61,7 +62,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     private static final transient Logger LOG = LoggerFactory.getLogger(FabConnection.class);
 
     private Configuration configuration;
-    private String[] mavenRepositories;
     private final BundleContext bundleContext;
     private PomDetails pomDetails;
     private MavenResolver resolver = new MavenResolver();
@@ -244,12 +244,20 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     }
 
     /*
-     * Install all the required features for this FAB
+     * Install all the required feature URLs and features for this FAB
      */
     private void installMissingFeatures() {
         ServiceReference reference = bundleContext.getServiceReference(FeaturesService.class.getName());
         try {
             final FeaturesService service = (FeaturesService) bundleContext.getService(reference);
+
+            for (URI uri : classPathResolver.getInstallFeatureURLs()) {
+                try {
+                    service.addRepository(uri);
+                } catch (Exception e) {
+                    LOG.warn("Unable to add feature repository URL {} - FAB {} may not get installed properly", uri, url);
+                }
+            }
 
             for (String feature : classPathResolver.getInstallFeatures()) {
                 try {

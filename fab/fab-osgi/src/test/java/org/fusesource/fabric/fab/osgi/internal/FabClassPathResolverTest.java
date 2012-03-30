@@ -29,6 +29,8 @@ import org.sonatype.aether.graph.Dependency;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -69,10 +71,12 @@ public class FabClassPathResolverTest {
     }
 
     @Test
-    public void testConfigureRequiredFeatures() {
-        FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null) {
+    public void testConfigureRequiredFeaturesAndURLS() throws URISyntaxException {
+        FabClassPathResolver resolver = new FabClassPathResolver(new FabClassPathResolverTest.MockFabFacade(), null, null) {
 
-            Map<String, String> properties = Services.createProperties(INSTR_FAB_REQUIRE_FEATURE, "karaf-framework camel-blueprint/2.9.0");
+            Map<String, String> properties =
+                    Services.createProperties(INSTR_FAB_REQUIRE_FEATURE, "karaf-framework camel-blueprint/2.9.0",
+                                              INSTR_FAB_REQUIRE_FEATURE_URL, "mvn:com.mycompany/features/1.0/xml/features");
 
             @Override
             public String getManifestProperty(String name) {
@@ -81,10 +85,15 @@ public class FabClassPathResolverTest {
         };
 
         resolver.processFabInstructions();
+
         Collection<String> features = resolver.getInstallFeatures();
         assertEquals(2, features.size());
         assertTrue(features.contains("karaf-framework"));
         assertTrue(features.contains("camel-blueprint/2.9.0"));
+
+        Collection<URI> uris = resolver.getInstallFeatureURLs();
+        assertEquals(1, uris.size());
+        assertTrue(uris.contains(new URI("mvn:com.mycompany/features/1.0/xml/features")));
     }
 
     @Test
