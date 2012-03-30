@@ -22,10 +22,10 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class HostUtils {
 
@@ -41,7 +41,9 @@ public class HostUtils {
      * @return
      */
     public static Map<String, Set<InetAddress>> getNetworkInterfaceAddresses() {
-        Map<String, Set<InetAddress>> interfaceAddressMap = new LinkedHashMap<String, Set<InetAddress>>();
+        //JVM returns interfaces in a non-predictable order, so to make this more predictable
+        //let's have them sort by interface name (by using a TreeMap).
+        Map<String, Set<InetAddress>> interfaceAddressMap = new TreeMap<String, Set<InetAddress>>();
         try {
             Enumeration ifaces = NetworkInterface.getNetworkInterfaces();
             while (ifaces.hasMoreElements()) {
@@ -70,6 +72,10 @@ public class HostUtils {
         return interfaceAddressMap;
     }
 
+    /**
+     * Returns a {@link Set} of {@link InetAddress} that are non-loopback or mac.
+     * @return
+     */
     public static Set<InetAddress> getAddresses() {
         Set<InetAddress> allAddresses = new LinkedHashSet<InetAddress>();
         Map<String, Set<InetAddress>> interfaceAddressMap = getNetworkInterfaceAddresses();
@@ -95,6 +101,7 @@ public class HostUtils {
     private static InetAddress chooseAddress(String preferred) throws UnknownHostException {
         Set<InetAddress> addresses = getAddresses();
         if (preferred != null && !preferred.isEmpty()) {
+            //Favor preferred address if exists
             try {
                 InetAddress preferredAddress = InetAddress.getByName(preferred);
                 if (addresses != null && addresses.contains(preferredAddress)) {
@@ -104,9 +111,14 @@ public class HostUtils {
                 //noop
             }
         }
-        if (addresses != null && !addresses.isEmpty()) {
+        if (addresses.contains(InetAddress.getLocalHost())) {
+            //Then if local host address is not bound to a loop-back interface, use it.
+            return InetAddress.getLocalHost();
+        } else if (addresses != null && !addresses.isEmpty()) {
+            //else return the first available addrress
             return addresses.toArray(new InetAddress[addresses.size()])[0];
         } else {
+            //else we are forcedt to use the localhost address.
             return InetAddress.getLocalHost();
         }
     }
