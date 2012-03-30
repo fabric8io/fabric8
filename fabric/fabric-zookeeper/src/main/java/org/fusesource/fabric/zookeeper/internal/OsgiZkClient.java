@@ -1,19 +1,5 @@
 package org.fusesource.fabric.zookeeper.internal;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -38,6 +24,19 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedService, IZKClient {
 
@@ -68,6 +67,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     private ZooKeeperFactory _factory;
     private IZooKeeper _zk;
     private Timespan _reconnectTimeout = Timespan.parse("20s");
+    Timespan sessionTimeout = new Timespan(30, Timespan.TimeUnit.SECOND);
 
     private ExpiredSessionRecovery _expiredSessionRecovery = null;
 
@@ -285,13 +285,12 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void updated(Dictionary properties) throws ConfigurationException {
         synchronized (_lock) {
             String url = System.getProperty("zookeeper.url");
-            Timespan timeout = new Timespan(30, Timespan.TimeUnit.SECOND);
             if (properties != null) {
                 if (properties.get("zookeeper.url") != null) {
                     url = (String) properties.get("zookeeper.url");
                 }
                 if (properties.get("zookeeper.timeout") != null) {
-                    timeout = Timespan.parse((String) properties.get("zookeeper.timeout"));
+                    sessionTimeout = Timespan.parse((String) properties.get("zookeeper.timeout"));
                 }
             }
             if (_factory == null && url == null
@@ -309,7 +308,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 _factory = null;
             }
             if (url != null) {
-                _factory = new ZooKeeperFactory(url, timeout, this);
+                _factory = new ZooKeeperFactory(url, sessionTimeout, this);
                 tryStart();
             }
             zkClientRegistration.setProperties(properties);
@@ -396,7 +395,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     }
 
     public void waitForState(State state, Timespan timeout) throws TimeoutException, InterruptedException {
-        long endTime = (timeout == null ? new Timespan(5, Timespan.TimeUnit.MINUTE) : timeout).futureTimeMillis(_clock);
+        long endTime = (timeout == null ? sessionTimeout : timeout).futureTimeMillis(_clock);
         if (_state != state) {
             synchronized (_lock) {
                 while (_state != state) {
