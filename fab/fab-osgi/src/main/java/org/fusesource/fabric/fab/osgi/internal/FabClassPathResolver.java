@@ -20,6 +20,8 @@ package org.fusesource.fabric.fab.osgi.internal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -83,6 +85,7 @@ public class FabClassPathResolver {
 
     // collectors keeping track of features to be installed
     private Collectors<String> installFeatures = new Collectors<String>();
+    private List<URI> installFeatureURLs = new LinkedList<URI>();
 
     private List<DependencyTree> nonSharedDependencies = new ArrayList<DependencyTree>();
     private List<DependencyTree> sharedDependencies = new ArrayList<DependencyTree>();
@@ -258,6 +261,13 @@ public class FabClassPathResolver {
         optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
         importExportFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS)), "\\s+"));
         installFeatures.addCollection(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE)), "\\s+"));
+        for (String url : Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL)), "\\s+")) {
+            try {
+                installFeatureURLs.add(new URI(url));
+            } catch (URISyntaxException e) {
+                LOG.warn("Invalid URI {} listed in {} will be ignored", new Object[] { url, ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL });
+            }
+        }
     }
 
     public List<DependencyTree> getInstallDependencies() {
@@ -682,6 +692,13 @@ public class FabClassPathResolver {
         return installFeatures.getCollection();
     }
 
+    /*
+     * Get the list of feature URLs to be added
+     */
+    public Collection<URI> getInstallFeatureURLs() {
+        return installFeatureURLs;
+    }
+
     public Map<String, Map<String, String>> getExtraImportPackages() {
         return importPackages;
     }
@@ -716,6 +733,4 @@ public class FabClassPathResolver {
     protected boolean isInstallProvidedBundleDependencies() {
         return Boolean.valueOf(getManifestProperty(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES));
     }
-
-
 }

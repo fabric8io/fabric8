@@ -144,8 +144,14 @@ public interface ServiceConstants extends Constants {
      *
      * Example: <code>FAB-Require-Feature: activemq camel-blueprint/2.9.0</code>
      */
-
     static final String INSTR_FAB_REQUIRE_FEATURE = "FAB-Require-Feature";
+
+    /**
+     * The space separated list of additional Karaf features URLs that are required.
+     *
+     * Example: <code>FAB-Require-Feature-URL: mvn:com.mycompany/features/1.0/xml/features</code>
+     */
+    static final String INSTR_FAB_REQUIRE_FEATURE_URL = "FAB-Require-Feature-URL";
 
     /**
      * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]
