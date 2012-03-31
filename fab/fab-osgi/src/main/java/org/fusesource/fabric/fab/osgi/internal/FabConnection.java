@@ -263,7 +263,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                 try {
                     installMissingFeature(service, feature);
                 } catch (Exception e) {
-                    LOG.warn("Unable to install missing feature {} - FAB {} may not get installed properly", feature, url);
+                    LOG.warn(String.format("Unable to install missing feature %s - FAB %s may not get installed properly", feature, url), e);
                 }
             }
         } finally {

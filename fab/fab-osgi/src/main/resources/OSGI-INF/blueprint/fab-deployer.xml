@@ -82,6 +82,7 @@ set on the SymbolicName osgi header -->
         <action class="org.fusesource.fabric.fab.osgi.commands.fab.UninstallCommand"/>
     </command>
 
+    <!-- FAB-31 - module:* commands are disabled to avoid confusing our users
     <command name="module/show">
         <action class="org.fusesource.fabric.fab.osgi.commands.module.ShowCommand"/>
     </command>
@@ -100,6 +101,7 @@ set on the SymbolicName osgi header -->
     <command name="module/uninstall">
         <action class="org.fusesource.fabric.fab.osgi.commands.module.UninstallCommand"/>
     </command>
+    -->
   </command-bundle>
 
 </blueprint>

@@ -62,7 +62,6 @@ public class ContainerCreate extends ContainerCreateSupport {
                 .parent(parent)
                 .resolver(resolver)
                 .number(number)
-                .debugContainer(debugContainer)
                 .ensembleServer(isEnsembleServer)
                 .providerUri(url)
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())

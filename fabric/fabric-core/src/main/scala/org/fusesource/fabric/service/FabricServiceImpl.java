@@ -46,7 +46,7 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
-import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -251,7 +251,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
-        if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
+        if (options.getZookeeperUrl() == null && !options.isEnsembleServer()) {
             options.setZookeeperUrl(getZookeeperUrl());
         }
         if (options.getProxyUri() == null) {

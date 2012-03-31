@@ -36,8 +36,6 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected List<String> profiles;
     @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver to set to the container(s)")
     protected String resolver;
-    @Option(name = "--enable-debuging", multiValued = false, required = false, description = "Enable debugging")
-    protected Boolean debugContainer = Boolean.FALSE;
     @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the container should be a new ZooKeeper ensemble server")
     protected Boolean isEnsembleServer = Boolean.FALSE;
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Jvm Options for the container")

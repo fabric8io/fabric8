@@ -83,9 +83,6 @@ public class CreateSshAgentTest extends FabricTestSupport {
             assertNotNull(fabricService);
             System.err.println(executeCommand("fabric:create"));
 
-              executeCommand("fabric:profile-edit -p org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=" +
-                      "http://repo1.maven.org/maven2 default");
-
             CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
                     .host(host)
                     .port(Integer.parseInt(port))
@@ -102,6 +99,7 @@ public class CreateSshAgentTest extends FabricTestSupport {
             assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
             waitForProvisionSuccess(metadata[0].getContainer(), 3 * PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
+            System.out.println(executeCommand("fabric:container-resolver-list"));
             Container ssh1 = fabricService.getContainer("ssh1");
             assertTrue(ssh1.isAlive());
             createAndAssertChildContainer("ssh2", "ssh1", "default");

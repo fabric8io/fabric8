@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public class ContainerProviderUtils {
@@ -60,14 +61,14 @@ public class ContainerProviderUtils {
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name = " +options.getName());
         replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+DEFAULT_SSH_PORT);
         appendFile(sb, "etc/system.properties",Arrays.asList("\n"));
+        if(options.getPreferredAddress() != null) {
+            appendFile(sb, "etc/system.properties", Arrays.asList(HostUtils.PREFERED_ADDRESS_PROPERTY_NAME +"=" + options.getPreferredAddress()));
+        }
         if(options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"));
         }
         if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
-        }
-        if(options.isDebugContainer()) {
-           sb.append("run export KARAF_DEBUG=true").append("\n");
         }
         if(options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
            sb.append("run export JAVA_OPTS=").append(options.getJvmOpts()).append("\n");

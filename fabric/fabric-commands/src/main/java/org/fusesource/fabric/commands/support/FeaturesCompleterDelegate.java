@@ -15,27 +15,24 @@
  *   limitations under the License.
  */
 
-package org.fusesource.fabric.maven;
+package org.fusesource.fabric.commands.support;
 
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
+import java.util.List;
+import org.apache.karaf.shell.console.Completer;
 
-public class MavenProxyUtils {
+/**
+ * A delegating completer to Karafs AllFeature completer.
+ * The purpose of this class is to provide a completer that will work even if Feature service/commands are not persent.
+ */
+public class FeaturesCompleterDelegate implements Completer {
 
-    private MavenProxyUtils() {
-        //Utility Class
-    }
+    public static Completer DELEGATE;
 
-    public static String getMavenProxyUrl(int port){
-        return "http://0.0.0.0:" + port + "/";
-    }
-
-    private static String getLocalHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to get address", e);
+    @Override
+    public int complete(String s, int i, List<String> strings) {
+        if (DELEGATE != null) {
+            return DELEGATE.complete(s,i,strings);
         }
+        return 0;
     }
 }

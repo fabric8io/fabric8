@@ -46,7 +46,6 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .providerUri(url)
                 .resolver(resolver)
                 .ensembleServer(isEnsembleServer)
-                .debugContainer(debugContainer)
                 .number(number)
                 .zookeeperUrl(fabricService.getZookeeperUrl())
                 .jvmOpts(jvmOpts);

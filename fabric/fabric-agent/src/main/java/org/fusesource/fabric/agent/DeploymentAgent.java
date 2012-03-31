@@ -70,7 +70,7 @@ import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.fusesource.fabric.agent.utils.MultiException;
-import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -109,7 +109,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private ExecutorService downloadExecutor;
     private volatile boolean shutdownDownloadExecutor;
     private DownloadManager manager;
-    private FabricService fabricService;
     private ExecutorServiceFinder executorServiceFinder;
 
     public DeploymentAgent() throws MalformedURLException {
@@ -158,14 +157,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     public void setZkClient(Callable<IZKClient> zkClient) {
         this.zkClient = zkClient;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
     }
 
     public void start() {
@@ -238,18 +229,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         if (props == null) {
             return;
         }
-        //Adding the mavne proxy URL to the list of repositories.
-        if (fabricService != null) {
-            URI mavenRepoURI = fabricService.getMavenRepoURI();
-            if (mavenRepoURI != null) {
-                String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
-                if (existingRepos == null) {
-                    props.put("org.ops4j.pax.url.mvn.repositories", mavenRepoURI.toString()+"@snapshots");
-                } else {
-                    props.put("org.ops4j.pax.url.mvn.repositories", existingRepos + "," + mavenRepoURI.toString()+"@snapshots");
-                }
-            }
-        }
+        // Adding the maven proxy URL to the list of repositories.
+        addMavenProxies(props);
 
         updateStatus("analyzing", null);
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
@@ -341,6 +322,40 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
         // Update bundles
         updateDeployment(repositories, features, bundles);
+    }
+
+    private void addMavenProxies(Dictionary props) {
+        try {
+            IZKClient zooKeeper = zkClient.call();
+            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_PROXY.getPath()) != null) {
+                StringBuffer sb = new StringBuffer();
+                List<String> children = zooKeeper.getChildren(ZkPath.CONFIGS_MAVEN_PROXY.getPath());
+                for (String child : children) {
+                    String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + child);
+                    if (mavenRepo != null && mavenRepo.length() > 0) {
+                        if (!mavenRepo.endsWith("/")) {
+                            mavenRepo += "/";
+                        }
+                        if (sb.length() > 0) {
+                            sb.append(",");
+                        }
+                        sb.append(mavenRepo);
+                        sb.append("@snapshots");
+                    }
+                }
+                String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
+                if (existingRepos != null) {
+                    if (sb.length() > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(existingRepos);
+                }
+                props.put("org.ops4j.pax.url.mvn.repositories", sb.toString());
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Unable to retrieve maven proxy urls: " + e.getMessage());
+            LOGGER.debug("Unable to retrieve maven proxy urls: " + e.getMessage(), e);
+        }
     }
 
     private void addRepository(Map<URI, Repository> repositories, URI uri) throws Exception {

@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import com.jcraft.jsch.ChannelExec;
@@ -33,7 +34,6 @@ import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildInstallAndStartScript;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
@@ -57,6 +57,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
         try {
             String path = options.getPath();
             String host = options.getHost();
+            String ip = InetAddress.getByName(host).getHostAddress();
+            options.setPreferredAddress(ip);
             if (options.getProviderURI()!= null && options.getProviderURI().getQuery() != null) {
                 verbose = options.getProviderURI().getQuery().contains("verbose");
             }

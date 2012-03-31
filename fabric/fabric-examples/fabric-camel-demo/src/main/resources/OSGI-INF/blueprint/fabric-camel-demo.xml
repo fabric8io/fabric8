@@ -23,7 +23,7 @@
 
     <camelContext id="fabric-camel-demo" xmlns="http://camel.apache.org/schema/blueprint">
 
-        <route>
+        <route id="route1">
             <from uri="timer://foo?period=5s"/>
             <setBody>
                 <simple>Fabric Camel Example: ${date:now:hh:MM:ss.SSS})</simple>
@@ -31,7 +31,7 @@
             <to uri="activemq:queue:camel-test"/>
         </route>
 
-        <route>
+        <route id="route2">
             <from uri="activemq:queue:camel-test"/>
             <to uri="log:org.fusesource.fabric?level=INFO&amp;showExchangePattern=false&amp;showBodyType=false"/>
         </route>

@@ -67,7 +67,6 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .resolver(resolver)
         .ensembleServer(isEnsembleServer)
         .credential(credential)
-        .debugContainer(debugContainer)
         .group(group)
         .hardwareId(hardwareId)
         .identity(identity)

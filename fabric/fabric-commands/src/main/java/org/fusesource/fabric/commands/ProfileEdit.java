@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.features.FeaturesService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
@@ -83,7 +82,6 @@ public class ProfileEdit extends FabricCommand {
     @Argument(index = 1,name = "version",  description = "The version of the profile to edit", required = false, multiValued = false)
     private String versionName = ZkDefs.DEFAULT_VERSION;
 
-    private FeaturesService featuresService;
 
     @Override
     protected Object doExecute() throws Exception {

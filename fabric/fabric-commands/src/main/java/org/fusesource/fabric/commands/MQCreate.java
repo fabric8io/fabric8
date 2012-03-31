@@ -132,7 +132,6 @@ public class MQCreate extends FabricCommand {
                         .name(name)
                         .parent(parent)
                         .number(1)
-                        .debugContainer(false)
                         .ensembleServer(false)
                         .providerUri(url)
                         .proxyUri(fabricService.getMavenRepoURI())

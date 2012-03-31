@@ -60,7 +60,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .name(name)
         .resolver(resolver)
         .ensembleServer(isEnsembleServer)
-        .debugContainer(debugContainer)
         .number(number)
         .host(host)
         .username(user)
