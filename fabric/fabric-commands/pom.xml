@@ -36,12 +36,14 @@
           org.fusesource.fabric.commands.service*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
+            org.apache.karaf.features*;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.commands,
             org.fusesource.fabric.commands.support,
         </fuse.osgi.private.pkg>
+        <fuse.osgi.activator>org.fusesource.fabric.commands.Activator</fuse.osgi.activator>
     </properties>
 
     <dependencies>
