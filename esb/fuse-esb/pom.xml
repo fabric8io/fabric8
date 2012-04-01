@@ -55,30 +55,6 @@
             <type>tar.gz</type>
         </dependency>
 
-        <!--Xerces jar to be included in lib/endorsed -->
-        <dependency>
-            <groupId>org.apache.xerces</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>${xml.api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>${xerces.version}</version>
-        </dependency>
-
-        <!--xalan jar to be included in lib/endorsed-->
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>${xalan.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>serializer</artifactId>
-            <version>${xalan.version}</version>
-        </dependency>
-
         <!-- branding -->
         <dependency>
             <groupId>org.fusesource.esb</groupId>
@@ -214,26 +190,6 @@
                               <type>jar</type>
                               <outputDirectory>target/shared</outputDirectory>
                             </artifactItem>
-                            <artifactItem>
-                              <groupId>org.apache.xerces</groupId>
-                              <artifactId>xercesImpl</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                              <groupId>org.apache.xerces</groupId>
-                              <artifactId>xml-apis</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                              <groupId>xalan</groupId>
-                              <artifactId>xalan</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                              <groupId>xalan</groupId>
-                              <artifactId>serializer</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
                           </artifactItems>
                         </configuration>
                     </execution>
@@ -293,7 +249,7 @@
                              <listDependencies>true</listDependencies>
                              <extraDependencies>org.apache.xerces:xercesImpl:2.11.0,xalan:xalan:2.7.1,xalan:serializer:2.7.1</extraDependencies>
                              <noticeSupplements>shared/notice-supplements.xml</noticeSupplements>
-                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/endorsed,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/lib,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/system</repositories>
+                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/lib,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/system</repositories>
                              <defaultParent>org.fusesource.esb:esb-project:${project.version}</defaultParent>
                         </configuration>
                      </execution>

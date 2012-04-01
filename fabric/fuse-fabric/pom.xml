@@ -125,7 +125,47 @@
                <artifactId>commons-codec</artifactId>
                <version>1.1</version>
            </dependency>
+
+        <!--Xerces jar to be included in lib/endorsed -->
+        <dependency>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${xerces.version}</version>
+        </dependency>
+
+        <!--xalan jar to be included in lib/endorsed-->
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
+
        </dependencies>
+
+    <repositories>
+        <!-- needed for xerces -->
+        <repository>
+            <id>servicemix.m2-repo</id>
+            <name>ServiceMix Maven 2 repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
        <build>
            <defaultGoal>install</defaultGoal>
@@ -278,6 +318,7 @@
                              <organizationURL>http://fusesource.com</organizationURL>
                              <preamble>In addition to the FuseSource products, this disk contains certain third party software or components (“Third Party Components”), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fuse MQ. Please see the mq_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by FuseSource Corporation (“FSC”) solely on an "AS IS" basis, without any warranty.  FSC disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
                              <listDependencies>true</listDependencies>
+                             <extraDependencies>org.apache.xerces:xercesImpl:2.11.0,xalan:xalan:2.7.1,xalan:serializer:2.7.1</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
                              <repositories>${project.basedir}/target/features-repo</repositories>
                              <defaultParent>org.fusesource.fabric:fabric-project:${project.version}</defaultParent>
@@ -387,6 +428,37 @@
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-dependency-plugin</artifactId>
                    <executions>
+                    <execution>
+                        <id>unpack-endorsed</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                          <artifactItems>
+                            <artifactItem>
+                              <groupId>org.apache.xerces</groupId>
+                              <artifactId>xercesImpl</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                              <groupId>org.apache.xerces</groupId>
+                              <artifactId>xml-apis</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                              <groupId>xalan</groupId>
+                              <artifactId>xalan</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                              <groupId>xalan</groupId>
+                              <artifactId>serializer</artifactId>
+                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
+                            </artifactItem>
+                          </artifactItems>
+                        </configuration>
+                    </execution>
                        <execution>
                            <id>unpack-unix</id>
                            <phase>generate-resources</phase>
