@@ -1,5 +1,5 @@
 Fuse ESB Enterprise
-------------------
+-------------------
 
 To start Fuse ESB Enterprise ${project.version}, run 'bin/fuseesb' on 
 Linux/Unix or 'bin\fuseesb.bat' on Windows.
