@@ -7,5 +7,5 @@ Linux/Unix or 'bin\fuseesb.bat' on Windows.
 Examples with instructions are in the 'examples' directory.
 
 You can find documentation online at:
-http://fusesource.com/products/enterprise-servicemix/#documentation
+http://fusesource.com/fuse-esb-enterprise-documentation
 
