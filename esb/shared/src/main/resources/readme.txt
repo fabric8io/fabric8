@@ -1,3 +1,10 @@
+Disclaimer
+--------------------------------------------------------------------
+This is beta software intended for testing and experimentation only. 
+It is not intended for production use. Please, do not use in a 
+production environment.
+--------------------------------------------------------------------
+
 Fuse ESB Enterprise
 -------------------
 
@@ -7,5 +14,5 @@ Linux/Unix or 'bin\fuseesb.bat' on Windows.
 Examples with instructions are in the 'examples' directory.
 
 You can find documentation online at:
-http://fusesource.com/fuse-esb-enterprise-documentation
+http://fusesource.com/documentation/fuse-esb-enterprise-documentation
 
