@@ -1,4 +1,4 @@
-# Content-Based Router
+# Exception Handling
 
 ## Overview
 This example demonstrates how to handle exceptions that occur while routing messages with Camel.
