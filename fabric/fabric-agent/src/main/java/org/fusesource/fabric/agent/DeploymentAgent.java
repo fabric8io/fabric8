@@ -46,7 +46,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.framework.monitor.MonitoringService;
@@ -70,9 +69,9 @@ import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.fusesource.fabric.agent.utils.MultiException;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -97,6 +96,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
     private BundleContext bundleContext;
+    private BundleContext systemBundleContext;
     private PackageAdmin packageAdmin;
     private StartLevel startLevel;
     private ObrResolver obrResolver;
@@ -161,30 +161,21 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     public void start() {
         LOGGER.info("Starting DeploymentAgent");
-        loadState();
         bundleContext.addFrameworkListener(this);
+        systemBundleContext = bundleContext.getBundle(0).getBundleContext();
     }
 
     public void stop() throws InterruptedException {
         LOGGER.info("Stopping DeploymentAgent");
-        saveState();
+        // We can't wait for the threads to finish because the agent needs to be able to
+        // update itself and this would cause a deadlock
         executor.shutdown();
-        executor.awaitTermination(30, TimeUnit.SECONDS);
         if (shutdownDownloadExecutor && downloadExecutor != null) {
             downloadExecutor.shutdown();
-            downloadExecutor.awaitTermination(30, TimeUnit.SECONDS);
             downloadExecutor = null;
         }
         bundleContext.removeFrameworkListener(this);
         manager.shutdown();
-    }
-
-    public void loadState() {
-        // noop
-    }
-
-    public void saveState() {
-        // noop
     }
 
     public void updated(final Dictionary props) throws ConfigurationException {
@@ -229,6 +220,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         if (props == null) {
             return;
         }
+
         // Adding the maven proxy URL to the list of repositories.
         addMavenProxies(props);
 
@@ -456,7 +448,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         // First pass: go through all installed bundles and mark them
         // as either to ignore or delete
         // TODO: handle snapshots
-        for (Bundle bundle : bundleContext.getBundles()) {
+        for (Bundle bundle : systemBundleContext.getBundles()) {
             if (bundle.getBundleId() != 0) {
                 Resource resource = null;
                 for (Resource res : toDeploy) {
@@ -561,7 +553,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
                 is = new URL(resource.getURI()).openStream();
             }
-            Bundle bundle = bundleContext.installBundle(resource.getURI(), is);
+            Bundle bundle = systemBundleContext.installBundle(resource.getURI(), is);
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
         }
@@ -669,7 +661,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     Clause[] clauses = Parser.parseHeader(hostHeader);
                     if (clauses != null && clauses.length > 0) {
                         Clause path = clauses[0];
-                        for (Bundle hostBundle : bundleContext.getBundles()) {
+                        for (Bundle hostBundle : systemBundleContext.getBundles()) {
                             if (hostBundle.getSymbolicName().equals(path.getName())) {
                                 String ver = path.getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE);
                                 if (ver != null) {
@@ -690,7 +682,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     protected void findBundlesWithOptionalPackagesToRefresh(Set<Bundle> toRefresh) {
         // First pass: include all bundles contained in these features
-        Set<Bundle> bundles = new HashSet<Bundle>(Arrays.asList(bundleContext.getBundles()));
+        Set<Bundle> bundles = new HashSet<Bundle>(Arrays.asList(systemBundleContext.getBundles()));
         bundles.removeAll(toRefresh);
         if (bundles.isEmpty()) {
             return;
