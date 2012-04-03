@@ -179,6 +179,11 @@
         <bundle>mvn:org.fusesource.mq/mq-fabric/${project.version}</bundle>
     </feature>
 
+    <feature name="mq-web-console" version="${project.version}" resolver="(obr)">
+        <feature version="[2,3)">war</feature>
+        <bundle>mvn:org.fusesource.mq/mq-web-console/${project.version}/war</bundle>
+    </feature>
+
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
