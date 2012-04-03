@@ -91,7 +91,7 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>039</perfectus-build>
+        <perfectus-build>040</perfectus-build>
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
         <aries.util.version>0.3.1.fuse-beta-7-${perfectus-build}</aries.util.version>

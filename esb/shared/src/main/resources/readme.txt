@@ -1,5 +1,12 @@
+Disclaimer
+--------------------------------------------------------------------
+This is beta software intended for testing and experimentation only. 
+It is not intended for production use. Please, do not use in a 
+production environment.
+--------------------------------------------------------------------
+
 Fuse ESB Enterprise
-------------------
+-------------------
 
 To start Fuse ESB Enterprise ${project.version}, run 'bin/fuseesb' on 
 Linux/Unix or 'bin\fuseesb.bat' on Windows.
@@ -7,5 +14,5 @@ Linux/Unix or 'bin\fuseesb.bat' on Windows.
 Examples with instructions are in the 'examples' directory.
 
 You can find documentation online at:
-http://fusesource.com/products/enterprise-servicemix/#documentation
+http://fusesource.com/documentation/fuse-esb-enterprise-documentation
 

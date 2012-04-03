@@ -254,11 +254,15 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         try {
             if (!tracking) {
                 String version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
-                String resolutionPointer = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name));
-                resolutionPolicy = zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(name));
-                if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
-                      zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name),"${zk:"+name+"/"+resolutionPolicy+"}");
+
+                if (zooKeeper.exists(ZkPath.CONTAINER_IP.getPath(name)) != null) {
+                    String resolutionPointer = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name));
+                    resolutionPolicy = zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(name));
+                    if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
+                        zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name), "${zk:" + name + "/" + resolutionPolicy + "}");
+                    }
                 }
+
                 if (!this.version.equals(version)) {
                     this.version = version;
                     node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);

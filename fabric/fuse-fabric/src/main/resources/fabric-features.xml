@@ -64,8 +64,6 @@
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
 
-        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.core/${karaf-version}</bundle>
-
         <!-- TODO: Disable till the next perfectus build
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.management/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.core/${karaf-version}</bundle>
@@ -75,7 +73,6 @@
         <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/${felix.fileinstall.version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.spring/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.kar/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.wrap/${karaf-version}</bundle>
     </feature>
 
@@ -105,7 +102,8 @@
     </feature>
 
     <feature name="fabric-agent" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-bundle</feature>
+        <!-- Currently not supported and thus commented out -->
+        <!--feature version="${project.version}">fabric-bundle</feature-->
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
         <feature version="${project.version}">fabric-jaas</feature>
