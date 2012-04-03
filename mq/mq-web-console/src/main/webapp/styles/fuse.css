@@ -406,7 +406,6 @@ table tbody tr.selected:first-child td {
     min-height: 100%;
 }
 #header {
-    background-image: url("../img/header.png");
     background-repeat: repeat-x;
     background-color: #be1e2d;
     padding: 20px 20px 6px 20px;
