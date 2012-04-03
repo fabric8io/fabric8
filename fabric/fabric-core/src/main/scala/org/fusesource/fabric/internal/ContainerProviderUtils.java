@@ -19,11 +19,13 @@ package org.fusesource.fabric.internal;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -36,6 +38,8 @@ public class ContainerProviderUtils {
 
     public static final int DEFAULT_SSH_PORT = 8101;
 
+    private static final String[] FALLBACK_REPOS = {"repo.fusesource.com/nexus/content/groups/public","repo.fusesource.com/nexus/content/groups/ea"};
+
     private ContainerProviderUtils() {
         //Utility Class
     }
@@ -46,9 +50,10 @@ public class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildInstallAndStartScript(CreateContainerOptions options) throws MalformedURLException {
+    public static String buildInstallAndStartScript(CreateContainerOptions options) throws MalformedURLException, URISyntaxException {
         StringBuilder sb = new StringBuilder();
         sb.append("function run { echo \"Running: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Command failed\" ; exit ${rc} ; fi ; }\n");
+        sb.append("function try { echo \"Trying: $*\" ; $* ; rc=$? ; if [ \"${rc}\" -ne 0 ]; then echo \"Attempt failed\" ; fi ; }\n");
         sb.append("run mkdir -p ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
@@ -58,8 +63,8 @@ public class ContainerProviderUtils {
         List<String> lines = new ArrayList<String>();
         lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + options.getResolver());
         appendFile(sb, "etc/system.properties", lines);
-        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name = " +options.getName());
-        replaceLineInFile(sb,"etc/org.apache.karaf.shell.cfg","sshPort=8101","sshPort="+DEFAULT_SSH_PORT);
+        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name = " + options.getName());
+        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=8101", "sshPort=" + DEFAULT_SSH_PORT);
         appendFile(sb, "etc/system.properties",Arrays.asList("\n"));
         if(options.getPreferredAddress() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList(HostUtils.PREFERED_ADDRESS_PROPERTY_NAME +"=" + options.getPreferredAddress()));
@@ -153,12 +158,13 @@ public class ContainerProviderUtils {
         sb.append(MARKER).append("\n");
     }
 
-    private static void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) {
+    private static void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) throws URISyntaxException {
 
         String file = artifactId + "-" + version + ".tar.gz";
         String directory =  groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/";
         String artifactParentUri = proxy.resolve(directory).toString();
         String artifactUri = proxy.resolve(directory+file).toString();
+
         //TODO: There may be cases where this is not good enough
         String installationFolder = artifactId + "-" + version;
 
@@ -169,7 +175,12 @@ public class ContainerProviderUtils {
             sb.append("run export DISTRO_URL=`").append(artifactUri).append("`").append("\n");
         }
         sb.append("if [[  \"$DISTRO_URL\" == \"\" ]] ;  then export DISTRO_URL=").append(artifactUri).append("; fi\n");
-        sb.append("run curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append("$DISTRO_URL").append("\n");
+        sb.append("try curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append("$DISTRO_URL").append("\n");
+        for (String fallbackRepo : FALLBACK_REPOS) {
+            URI fallbackRepoURI = new URI(fallbackRepo);
+            String fallbackDistro = fallbackRepoURI.resolve(directory + file).toString();
+            sb.append("if [ ! -f " + file + " ] then ").append("try curl --show-error --silent --get --retry 20 --output ").append(file).append(" ").append(fallbackDistro).append(" fi \n");
+        }
         sb.append("run tar -xpzf ").append(file).append("\n");
     }
 }
