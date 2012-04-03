@@ -27,7 +27,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public static final String DEFAULT_PRIVATE_KEY_FILE = System.getProperty("user.home") + File.separatorChar + ".ssh" + File.separatorChar + "id_rsa";
 
-    static final Integer DEFAULT_SSH_RETRIES = 5;
+    static final Integer DEFAULT_SSH_RETRIES = 1;
     static final Integer DEFAULT_SSH_PORT = 22;
 
     private String username;
