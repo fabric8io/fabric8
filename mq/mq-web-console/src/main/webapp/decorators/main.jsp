@@ -27,10 +27,7 @@
       <div id="middle">
         <div id="header" class="topbar">
             <div id="logo">
-                <img src="images/logo.png" alt="FuseSource">
-            </div>
-            <div id="productname">
-                FuseMQ
+                <img src="images/logo.gif" alt="Fuse MQ Enterprise">
             </div>
             <div id="topbar_nav_container">
             </div>
@@ -105,7 +102,7 @@
                                                 <H3>Useful Links</H3>
 
                                                 <ul class="alternate">
-                                                    <li><a href="http://fusesource.com/products/enterprise-activemq/"
+                                                    <li><a href="http://fusesource.com/documentation/fuse-mq-enterprise-documentation/"
                                                            title="The most popular and powerful open source Message Broker">Documentation</a></li>
                                                     </li>
                                                 </ul>
