@@ -1,3 +1,10 @@
+Disclaimer
+--------------------------------------------------------------------
+This is beta software intended for testing and experimentation only.
+It is not intended for production use. Please, do not use in a
+production environment.
+--------------------------------------------------------------------
+
 Fuse MQ Enterprise
 ------------------
 
@@ -15,3 +22,4 @@ from another command window, type:
     java -jar lib${fileSeparator}mq-client.jar consumer
 
 View the webconsole at http://localhost:8181/activemqweb
+
