@@ -75,7 +75,7 @@ Note: if you use Safari, you will only see the text elements but not the XML tag
 In this cxf-jaxrs example project, we also developed a Java client which can perform a few HTTP requests to test our web services. We
 configured the exec-java-plugin in Maven to allow us to run the Java client code with a simple Maven command:
 
-1. Change to the <esb_home>/examples/cxf-jaxrsdirectory.
+1. Change to the <esb_home>/examples/rest directory.
 2. Run the following command:
 
         mvn compile exec:java

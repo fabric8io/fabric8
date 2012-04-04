@@ -83,15 +83,12 @@ configured the exec-java-plugin in Maven to allow us to run the Java client code
 
         mvn compile exec:java
 
-The client sends the contents of the request.xml sample SOAP request file to the server and afterwards display the response message:
+The client uses a client proxy for the webservice to invoke the remote method - in reality, a SOAP message will be sent to the server
+and the response SOAP message will be received and handled.  You will see this output from the remote method:
 
-        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-          <soap:Body>
-            <ns2:sayHiResponse xmlns:ns2="http://security.jaxws.cxf.examples.fusesource.org/">
-              <return>Hello John Doe</return>
-            </ns2:sayHiResponse>
-          </soap:Body>
-        </soap:Envelope>
+        Apr 4, 2012 7:48:13 AM org.apache.cxf.service.factory.ReflectionServiceFactoryBean buildServiceFromClass
+        INFO: Creating Service {http://security.jaxws.cxf.examples.fusesource.org/}HelloWorldService from class org.fusesource.examples.cxf.jaxws.security.HelloWorld
+        Hello ffang
 
 
 ## Additional configuration options
@@ -105,10 +102,10 @@ You can define additional users in the JAAS realm in two ways:
 
             myuser = mysecretpassword
 
-1. Using the jaas: console commands
+2. Using the jaas: commands in the Fuse ESB Enterprise console:
 
             jaas:manage --realm karaf
-            jaas:adduser myuser mysecretpassword
+            jaas:useradd myuser mysecretpassword
             jaas:update
 
 

@@ -111,10 +111,10 @@ You can define additional users in the JAAS realm in two ways:
 
              myuser = mysecretpassword
 
- 1. Using the jaas: console commands
+ 2. Using the jaas: commands in the Fuse ESB Enterprise console:
 
              jaas:manage --realm karaf
-             jaas:adduser myuser mysecretpassword
+             jaas:useradd myuser mysecretpassword
              jaas:update
 
 ### Changing /cxf servlet alias
