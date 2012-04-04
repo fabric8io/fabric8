@@ -76,8 +76,16 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
             if (matchVersion(container, version)) {
-                String indent = container.isRoot() ? "" : "  ";
-                out.println(String.format(FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
+                String indent = "";
+                for (Container c = container; !c.isRoot(); c = c.getParent()) {
+                    indent+="  ";
+                }
+                //Mark local container with a star symobl
+                String marker = "";
+                if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
+                    marker = "*";
+                }
+                out.println(String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
             }
         }
     }
@@ -86,8 +94,16 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
         for (Container container : containers) {
             if (matchVersion(container, version)) {
-                String indent = container.isRoot() ? "" : "  ";
-                out.println(String.format(VERBOSE_FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
+                String indent = "";
+                for (Container c = container; !c.isRoot(); c = c.getParent()) {
+                    indent += "  ";
+                }
+                //Mark local container with a star symobl
+                String marker = "";
+                if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
+                    marker = "*";
+                }
+                out.println(String.format(VERBOSE_FORMAT, indent + container.getId() + marker,  container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
             }
         }
     }

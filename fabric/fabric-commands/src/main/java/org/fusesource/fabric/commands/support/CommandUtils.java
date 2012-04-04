@@ -87,9 +87,9 @@ public final class CommandUtils {
 
                 // root should be first
                 if (c1.isRoot() && !c2.isRoot()) {
-                    return -1;
+                    return c1.getId().compareTo(c2.getParent().getId());
                 } else if (!c1.isRoot() && c2.isRoot()) {
-                    return 1;
+                    return c1.getParent().getId().compareTo(c2.getId());
                 }
                 
                 // root should include its children
