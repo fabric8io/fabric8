@@ -32,9 +32,16 @@
 
     <properties>
         <fuse.osgi.export>
-          org.fusesource.fabric.service.jclouds
+          org.fusesource.fabric.service.jclouds,
+            org.fusesource.fabric.service.jclouds.commands,
         </fuse.osgi.export>
+        <fuse.osgi.import>
+            !org.fusesource.fabric.zookeeper.commands,
+            *
+        </fuse.osgi.import>
         <fuse.osgi.private.pkg>
+            org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.service.jclouds.commands.completers
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -61,6 +68,12 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-commands</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>org.jclouds</groupId>

@@ -37,10 +37,12 @@ import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
+import org.fusesource.fabric.internal.ContainerProviderUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.compute.RunNodesException;
+import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
@@ -141,22 +143,37 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 jCloudsContainerMetadata.setCreateOptions(options);
                 jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
                 jCloudsContainerMetadata.setContainerName(containerName);
-                jCloudsContainerMetadata.setPublicAddresses(nodeMetadata.getPublicAddresses());
+                jCloudsContainerMetadata.setPublicAddresses(publicAddresses);
                 jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
                 jCloudsContainerMetadata.setIdentity(credentials.identity);
                 jCloudsContainerMetadata.setCredential(credentials.credential);
 
+                Properties addresses = new Properties();
+                if (publicAddresses != null && !publicAddresses.isEmpty()) {
+                    String publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
+                    addresses.put("publicip", publicAddress);
+                }
+
+                options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY,addresses);
+
                 try {
                     String script = buildInstallAndStartScript(options.name(containerName));
+                    ExecResponse response = null;
                     if (credentials != null) {
-                        computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                       response =  computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                     } else {
-                        computeService.runScriptOnNode(id, script);
+                        response = computeService.runScriptOnNode(id, script);
+                    }
+                    if (response == null) {
+                        jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
+                    } else if (response.getOutput() != null && response.getOutput().contains("Command failed")) {
+                        jCloudsContainerMetadata.setFailure(new Exception(response.getError()));
                     }
                 } catch (Throwable t) {
                     jCloudsContainerMetadata.setFailure(t);
                 }
-
+                //Cleanup addresses.
+                options.getSystemProperties().clear();
                 result.add(jCloudsContainerMetadata);
             }
         }
@@ -176,10 +193,16 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 String nodeId = jCloudsContainerMetadata.getNodeId();
                 ComputeService computeService = getOrCreateComputeService(options);
                 String script = buildStartScript(options.name(container.getId()));
+                ExecResponse response = null;
                 if (credentials != null) {
-                    computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                 } else {
-                    computeService.runScriptOnNode(nodeId, script);
+                    response = computeService.runScriptOnNode(nodeId, script);
+                }
+                if (response == null) {
+                    jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
+                } else if (response.getOutput() != null && response.getOutput().contains("Command failed")) {
+                    jCloudsContainerMetadata.setFailure(new Exception(response.getError()));
                 }
             } catch (Throwable t) {
                 jCloudsContainerMetadata.setFailure(t);
@@ -200,10 +223,17 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 String nodeId = jCloudsContainerMetadata.getNodeId();
                 ComputeService computeService = getOrCreateComputeService(options);
                 String script = buildStopScript(options.name(container.getId()));
+                ExecResponse response = null;
                 if (credentials != null) {
-                    computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
                 } else {
-                    computeService.runScriptOnNode(nodeId, script);
+                    response = computeService.runScriptOnNode(nodeId, script);
+                }
+
+                if (response == null) {
+                    jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
+                } else if (response.getOutput() != null && response.getOutput().contains("Command failed")) {
+                    jCloudsContainerMetadata.setFailure(new Exception(response.getError()));
                 }
             } catch (Throwable t) {
                 jCloudsContainerMetadata.setFailure(t);
@@ -259,6 +289,9 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             computeService = computeServiceMap.get(options.getProviderName());
             if (computeService == null) {
 
+                if (options.getIdentity() == null || options.getCredential() == null) {
+                    throw new RuntimeException("Compute service not found, please specify provider, identity & credential in order to create one");
+                }
                 Iterable<? extends Module> modules = ImmutableSet.of();
 
                 Properties props = new Properties();

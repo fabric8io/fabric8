@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.commands;
+package org.fusesource.fabric.service.jclouds.commands;
 
 import java.net.URI;
 
@@ -27,24 +27,24 @@ import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
 
-    static final String DISPLAY_FORMAT = "%12s %-30s %30s";
-    static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]" };
+    static final String DISPLAY_FORMAT = "%22s %-9s %-30s %-30s";
+    static final String[] OUTPUT_HEADERS = {"[id]", "[status]", "[container]", "[public addresses]"};
 
     @Option(name = "--provider", required = true, description = "JClouds provider name")
     private String providerName;
-    @Option(name = "--identity", required = true, description = "The cloud identity to use")
+    @Option(name = "--identity", required = false, description = "The cloud identity to use")
     private String identity;
-    @Option(name = "--credential", required = true, description = "Credential to login to the cloud")
+    @Option(name = "--credential", required = false, description = "Credential to login to the cloud")
     private String credential;
-    @Option(name = "--hardware", required = true, description = "Which hardware kind to use")
+    @Option(name = "--hardware", required = false, description = "Which hardware kind to use")
     private String hardwareId;
-    @Option(name = "--instanceType", required = true, description = "Which kind of instance is required")
-    private JCloudsInstanceType instanceType;
-    @Option(name = "--image", required = true, description = "The image ID to use for the new node(s)")
+    @Option(name = "--instanceType", required = false, description = "Which kind of instance is required")
+    private JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
+    @Option(name = "--image", required = false, description = "The image ID to use for the new node(s)")
     private String imageId;
-    @Option(name = "--location", required = true, description = "The location to use to create the new node(s)")
+    @Option(name = "--location", required = false, description = "The location to use to create the new node(s)")
     private String locationId;
-    @Option(name = "--user", required = true, description = "User account to run on the new node(s)")
+    @Option(name = "--user", required = false, description = "User account to run on the new node(s)")
     private String user;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
@@ -94,7 +94,11 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         if (metadatas != null && metadatas.length > 0) {
             for (CreateContainerMetadata ccm : metadatas) {
                 CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
-                System.out.println(String.format(DISPLAY_FORMAT,metadata.getNodeId(), metadata.getContainerName(), metadata.getPublicAddresses()));
+                String status = "success";
+                if (ccm.getFailure() != null) {
+                    status = "failed";
+                }
+                System.out.println(String.format(DISPLAY_FORMAT, metadata.getNodeId(), status, metadata.getContainerName(), metadata.getPublicAddresses()));
             }
         }
     }
