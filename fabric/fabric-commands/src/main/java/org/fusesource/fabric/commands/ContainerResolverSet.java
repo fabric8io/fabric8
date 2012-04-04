@@ -25,7 +25,6 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkPath;
 
 @Command(name = "container-resolver-set", scope = "fabric", description = "Sets the resolver for the specified container")
 public class ContainerResolverSet extends FabricCommand {
@@ -58,8 +57,9 @@ public class ContainerResolverSet extends FabricCommand {
             }
         }
 
-        for (String container:containerIds) {
-            getZooKeeper().setData(ZkPath.CONTAINER_RESOLVER.getPath(container),resolver);
+        for (String containerId:containerIds) {
+            Container container = fabricService.getContainer(containerId);
+            container.setResolver(resolver);
         }
         return null;
     }

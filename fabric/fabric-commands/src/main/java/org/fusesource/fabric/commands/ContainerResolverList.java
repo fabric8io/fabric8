@@ -46,12 +46,12 @@ public class ContainerResolverList extends FabricCommand {
         }
         System.out.println(String.format(FORMAT, HEADERS));
         for (String containerId:containerIds) {
-
-            String localHostName =getDataIfExists(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(containerId));
-            String localIp = getDataIfExists(ZkPath.CONTAINER_LOCAL_IP.getPath(containerId));
-            String publicHostName = getDataIfExists(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(containerId));
-            String publicIp = getDataIfExists(ZkPath.CONTAINER_PUBLIC_IP.getPath(containerId));
-            String manualIp = getDataIfExists(ZkPath.CONTAINER_MANUAL_IP.getPath(containerId));
+            Container container = fabricService.getContainer(containerId);
+            String localHostName = container.getLocalHostname();
+            String localIp = container.getLocalIp();
+            String publicHostName = container.getPublicHostname();
+            String publicIp = container.getPublicIp();
+            String manualIp = container.getManulIp();
 
             localHostName = localHostName != null ? localHostName : "";
             localIp = localIp != null ? localIp : "";
@@ -59,19 +59,9 @@ public class ContainerResolverList extends FabricCommand {
             publicIp = publicIp != null ? publicIp : "";
             manualIp = manualIp != null ? manualIp : "";
 
-            String resolver = getZooKeeper().getStringData(ZkPath.CONTAINER_RESOLVER.getPath(containerId));
+            String resolver = container.getResolver();
             System.out.println(String.format(FORMAT, containerId, resolver, localHostName,localIp,publicHostName,publicIp,manualIp));
         }
         return null;
-    }
-
-    private String getDataIfExists(String path) {
-        String data = "";
-        try {
-            data = getZooKeeper().getStringData(path) != null ? getZooKeeper().getStringData(path) : "";
-        } catch (Exception ex) {
-            //noop
-        }
-        return data;
     }
 }

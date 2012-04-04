@@ -138,13 +138,11 @@
         <command name="fabric/container-list">
             <action class="org.fusesource.fabric.commands.ContainerList">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
             </action>
         </command>
         <command name="fabric/container-resolver-list">
             <action class="org.fusesource.fabric.commands.ContainerResolverList">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
             </action>
             <completers>
                 <ref component-id="containerCompleter"/>

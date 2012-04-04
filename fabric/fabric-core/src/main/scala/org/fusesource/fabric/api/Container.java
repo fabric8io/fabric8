@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
@@ -49,6 +50,42 @@ public interface Container {
 
     String getLocation();
     void setLocation(String location);
+
+    /**
+     * Returns the resolver of the {@link Container}.
+     * The resolver identifies which of the {@link Container} address should be used for address resolution.
+     * @return One of the: localip, localhostname, publicip, publichostname, manualip.
+     */
+    String getResolver();
+
+    /**
+     * Sets the resolver value of the {@link Container}.
+     * @param resolver
+     */
+    void setResolver(String resolver);
+
+    /**
+     * Returns the resolved address of the {@link Container}.
+     * @return
+     */
+    String getIp();
+
+    String getLocalIp();
+    void setLocalIp(String localIp);
+
+    String getLocalHostname();
+    void setLocalHostname(String localHostname);
+
+    String getPublicIp();
+    void setPublicIp(String publicIp);
+
+    String getPublicHostname();
+    void setPublicHostname(String publicHostname);
+
+    String getManulIp();
+    void setManualIp(String manualIp);
+
+
 
     void start();
     void stop();

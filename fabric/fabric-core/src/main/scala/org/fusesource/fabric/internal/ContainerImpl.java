@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
@@ -246,6 +247,159 @@ public class ContainerImpl implements Container {
         try {
             String path = ZkPath.CONTAINER_LOCATION.getPath(id);
             ZooKeeperUtils.set(service.getZooKeeper(), path, location);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    /**
+     * Returns the resolver of the {@link org.fusesource.fabric.api.Container}.
+     * The resolver identifies which of the {@link org.fusesource.fabric.api.Container} address should be used for address resolution.
+     *
+     * @return One of the: localip, localhostname, publicip, publichostname, manualip.
+     */
+    @Override
+    public String getResolver() {
+        try {
+            return service.getZooKeeper().getStringData(ZkPath.CONTAINER_RESOLVER.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    /**
+     * Sets the resolver value of the {@link org.fusesource.fabric.api.Container}.
+     *
+     * @param resolver
+     */
+    @Override
+    public void setResolver(String resolver) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id), resolver);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    /**
+     * Returns the resolved address of the {@link org.fusesource.fabric.api.Container}.
+     *
+     * @return
+     */
+    @Override
+    public String getIp() {
+        try {
+            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getLocalIp() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_IP.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_LOCAL_IP.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setLocalIp(String localIp) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_IP.getPath(id), localIp);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getLocalHostname() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setLocalHostname(String localHostname) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id), localHostname);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getPublicIp() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_IP.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_PUBLIC_IP.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setPublicIp(String publicIp) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_IP.getPath(id), publicIp);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getPublicHostname() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setPublicHostname(String publicHostname) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id), publicHostname);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getManulIp() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_MANUAL_IP.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_MANUAL_IP.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setManualIp(String manualIp) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_MANUAL_IP.getPath(id), manualIp);
         } catch (Exception e) {
             throw new FabricException(e);
         }
