@@ -60,6 +60,7 @@ public enum ZkPath {
     CONTAINER_ENTRY                ("/fabric/registry/containers/config/{container}/{entry}"),
     CONTAINER_IP                   ("/fabric/registry/containers/config/{container}/ip"),
     CONTAINER_RESOLVER             ("/fabric/registry/containers/config/{container}/resolver"),
+    CONTAINER_ADDRESS              ("/fabric/registry/containers/config/{container}/{type}"),
     CONTAINER_LOCAL_IP             ("/fabric/registry/containers/config/{container}/localip"),
     CONTAINER_LOCAL_HOSTNAME       ("/fabric/registry/containers/config/{container}/localhostname"),
     CONTAINER_PUBLIC_IP            ("/fabric/registry/containers/config/{container}/publicip"),

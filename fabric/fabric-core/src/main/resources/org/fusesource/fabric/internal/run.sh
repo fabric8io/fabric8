@@ -1,0 +1,1 @@
+function run { echo "Running: $*" ; $* ; rc=$? ; if [ "${rc}" -ne 0 ]; then echo "Command failed" ; exit ${rc} ; fi ; }

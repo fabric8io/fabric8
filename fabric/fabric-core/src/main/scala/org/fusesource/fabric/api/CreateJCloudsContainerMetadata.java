@@ -91,7 +91,7 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(getContainerName()).append("[")
-                .append(", public ip=[ ");
+                .append("public ip=[ ");
         for (String ip : publicAddresses) {
             builder.append(ip).append(" ");
         }

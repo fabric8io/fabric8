@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
@@ -58,6 +59,7 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PUBLIC_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
 
@@ -127,6 +129,17 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper,name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+            //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
+            //Mostly usable for adding values when creating containers without an existing ensemble.
+            for (String resolver : ZkDefs.VALID_RESOLVERS) {
+                String address = System.getProperty(resolver);
+                if (address != null && !address.isEmpty()) {
+                    if (zooKeeper.exists(CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
+                        zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), getContainerPointer(zooKeeper, name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    }
+                }
+            }
 
             String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
             String profiles = System.getProperty("fabric.profiles");

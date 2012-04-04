@@ -18,6 +18,8 @@ package org.fusesource.fabric.api;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  */
@@ -40,6 +42,8 @@ public interface CreateContainerOptions extends Serializable {
 
     public String getResolver();
     public void setResolver(String resolver);
+
+    public Map<String,Properties> getSystemProperties();
 
     public String getPreferredAddress();
     public void setPreferredAddress(String preferredAddress);

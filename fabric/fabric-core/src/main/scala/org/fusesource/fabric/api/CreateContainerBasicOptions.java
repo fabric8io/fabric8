@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
@@ -32,6 +33,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected boolean ensembleServer;
     protected String preferredAddress;
     protected String resolver= ZkDefs.DEFAULT_RESOLVER;
+    protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
     protected Integer number = 1;
     protected URI proxyUri;
     protected String zookeeperUrl;
@@ -180,6 +182,13 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             this.resolver = ZkDefs.DEFAULT_RESOLVER;
         }
     }
+
+    @Override
+    public Map<String,Properties> getSystemProperties() {
+        return systemProperties;
+    }
+
+
 
     public Integer getNumber() {
         return number;
