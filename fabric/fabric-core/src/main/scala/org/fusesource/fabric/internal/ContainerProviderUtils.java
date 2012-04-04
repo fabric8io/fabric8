@@ -46,7 +46,7 @@ public class ContainerProviderUtils {
 
     public static final int DEFAULT_SSH_PORT = 8101;
 
-    private static final String[] FALLBACK_REPOS = {"http://repo.fusesource.com/nexus/content/groups/public/","http://repo.fusesource.com/nexus/content/groups/ea/"};
+    private static final String[] FALLBACK_REPOS = {"http://repo.fusesource.com/nexus/content/groups/public/","http://repo.fusesource.com/nexus/content/groups/ea/","http://repo.fusesource.com/nexus/content/groups/snaphsots"};
 
     private ContainerProviderUtils() {
         //Utility Class
