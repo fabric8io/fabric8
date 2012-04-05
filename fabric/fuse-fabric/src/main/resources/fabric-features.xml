@@ -64,11 +64,11 @@
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
 
-        <!-- TODO: Disable till the next perfectus build
+        <!-- TODO: Disable till the next perfectus build -->
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.management/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.command/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle-->
+        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle>
 
         <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/${felix.fileinstall.version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
