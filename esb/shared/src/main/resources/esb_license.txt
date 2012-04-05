@@ -1,4 +1,4 @@
-﻿Fuse ESB v. 7.0.0 License Agreement 
+Fuse ESB v. 7.0.0 License Agreement 
 [Based on the Apache License Version 2.0, January 2004]
 
 TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
@@ -152,4 +152,4 @@ Agreement, such additional terms and conditions will take precedence (but solely
 with respect to the third party component(s) to which the additional terms and
 conditions relates).  This is a License Agreement, not a transfer of copyright
 ownership. All copyrights remain with their respective owners.
-Updated 12/08/2011
+Updated 04/04/2012
