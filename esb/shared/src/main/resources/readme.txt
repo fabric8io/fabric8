@@ -1,8 +1,10 @@
 Disclaimer
 --------------------------------------------------------------------
-This is beta software intended for testing and experimentation only. 
-It is not intended for production use. Please, do not use in a 
-production environment.
+THIS IS UNSUPPORTED SOFTWARE
+This is beta software intended for testing and experimentation only 
+and is not supported by a paid FuseSource Subscription. It is not 
+intended for production use. Please, do not use in a production 
+environment. 
 --------------------------------------------------------------------
 
 Fuse ESB Enterprise
