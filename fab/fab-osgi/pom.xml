@@ -30,7 +30,6 @@
   <name>Fuse Archive Bundles :: OSGi</name>
 
   <properties>
-    <fuse.osgi.activator>org.fusesource.fabric.fab.osgi.internal.Activator</fuse.osgi.activator>
     <fabric.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fabric.embed.dependency>
 
     <fuse.osgi.import.defaults>

@@ -22,13 +22,13 @@ import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabConnection;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
 public class FabURLHandler extends AbstractURLStreamHandlerService {
 
@@ -36,8 +36,8 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
     private static final Logger logger = LoggerFactory.getLogger(FabURLHandler.class);
 
 	private URL fabJarURL;
-    private String mavenRepositories;
     private BundleContext bundleContext;
+    private ConfigurationAdmin configurationAdmin;
 
     /**
      * Open the connection for the given URL.
@@ -54,27 +54,17 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 		fabJarURL = new URL(url.getPath());
 
 		logger.debug("FAB jar URL is: [" + fabJarURL + "]");
-        Configuration config = Configuration.newInstance();
-
-        if (mavenRepositories != null) {
-            String[] array = Configuration.toArray(mavenRepositories);
-            logger.debug("Using maven repos: " + Arrays.asList(array));
-            config.set(ServiceConstants.PROPERTY_MAVEN_REPOSITORIES, array);
-        }
+        Configuration config = createConfiguration();
         return new FabConnection(fabJarURL, config, getBundleContext());
 	}
+
+    private Configuration createConfiguration() {
+        return Configuration.newInstance(configurationAdmin, bundleContext);
+    }
 
     public URL getFabJarURL() {
 		return fabJarURL;
 	}
-
-    public String getMavenRepositories() {
-        return mavenRepositories;
-    }
-
-    public void setMavenRepositories(String mavenRepositories) {
-        this.mavenRepositories = mavenRepositories;
-    }
 
     public BundleContext getBundleContext() {
         if (bundleContext == null) {
@@ -86,6 +76,14 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    public ConfigurationAdmin getConfigurationAdmin() {
+        return configurationAdmin;
+    }
+
+    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
     }
 }
 

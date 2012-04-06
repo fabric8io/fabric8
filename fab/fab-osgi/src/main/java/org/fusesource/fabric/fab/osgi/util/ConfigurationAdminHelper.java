@@ -58,7 +58,7 @@ public class ConfigurationAdminHelper {
      * @param pid the ConfigurationAdmin PID
      * @return the properties defined in the PID or an empty dictionary
      */
-    protected static Dictionary getProperties(ConfigurationAdmin admin, String pid) {
+    public static Dictionary getProperties(ConfigurationAdmin admin, String pid) {
         if (admin == null) {
             return emptyDictionary();
         }

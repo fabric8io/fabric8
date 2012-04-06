@@ -14,14 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.fabric.fab.osgi.internal;
 
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.ops4j.lang.NullArgumentException;
+import org.ops4j.pax.swissbox.property.BundleContextPropertyResolver;
+import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.ops4j.util.property.PropertyResolver;
 import org.ops4j.util.property.PropertyStore;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.ConfigurationAdmin;
+
+import static org.fusesource.fabric.fab.osgi.util.ConfigurationAdminHelper.getProperties;
 
 public class Configuration extends PropertyStore {
     private PropertyResolver propertyResolver;
@@ -33,6 +38,15 @@ public class Configuration extends PropertyStore {
 
     public static Configuration newInstance() {
         PropertiesPropertyResolver resolver = new PropertiesPropertyResolver(System.getProperties());
+        return new Configuration(resolver);
+    }
+
+    public static Configuration newInstance(ConfigurationAdmin admin, BundleContext context) {
+        PropertyResolver resolver =
+                new DictionaryPropertyResolver(getProperties(admin, ServiceConstants.PID),
+                        new DictionaryPropertyResolver(getProperties(admin, "org.ops4j.pax.url.mvn"),
+                                new BundleContextPropertyResolver(context)));
+
         return new Configuration(resolver);
     }
 
@@ -107,5 +121,9 @@ public class Configuration extends PropertyStore {
             answer = text.split(",");
         }
         return answer;
+    }
+
+    protected PropertyResolver getPropertyResolver() {
+        return propertyResolver;
     }
 }
