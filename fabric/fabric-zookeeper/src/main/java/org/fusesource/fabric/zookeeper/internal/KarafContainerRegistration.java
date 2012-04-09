@@ -136,7 +136,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 String address = System.getProperty(resolver);
                 if (address != null && !address.isEmpty()) {
                     if (zooKeeper.exists(CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
-                        zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), getContainerPointer(zooKeeper, name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), address, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                     }
                 }
             }
