@@ -53,6 +53,7 @@
             </includes>
             <excludes>
               <exclude>bin/fusefabric</exclude>
+              <exclude>bin/shell</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
