@@ -38,7 +38,7 @@ In the EJB 1.0 days just like in OSGi today folks often say 'ah thats just a too
 
 However we'd rather simplify application developers life so they can instead focus on simpler more coarse grained dependencies; using the transitive dependency model of [Maven and similar build tools](faq.html#Which_build_tools_generate_FABs_).
 
-From an application developer perspective we'd like building applications to be pretty similar whether the deployment container is a web container like [Apache Tomcat](http://tomcat.apache.org/) or [Jetty](http://eclipse.org/jetty/) or its an OSGi based container like [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/#documentation), [Apache Karaf](http://karaf.apache.org/) or [Apache ServiceMix](http://servicemix.apache.org/).
+From an application developer perspective we'd like building applications to be pretty similar whether the deployment container is a web container like [Apache Tomcat](http://tomcat.apache.org/) or [Jetty](http://eclipse.org/jetty/) or its an OSGi based container like [Fuse ESB](http://fusesource.com/products/fuse-esb-enterprise/#documentation), [Apache Karaf](http://karaf.apache.org/) or [Apache ServiceMix](http://servicemix.apache.org/).
 
 So we'd prefer application developers just focus on the course grained high level transitive dependency structure they already use in their [existing build tools](faq.html#Which_build_tools_generate_FABs_) for both web apps and OSGi then let [Fuse Bundles do the work of integrating into OSGi](overview.html).
 
@@ -46,7 +46,7 @@ So we'd prefer application developers just focus on the course grained high leve
 
 ${include("/bundle/_what-is-fab.md")}
 
-So if you are already using a [suitable build tool](faq.html#Which_build_tools_generate_FABs_) like [Apache Maven](http://maven.apache.org/) then you don't have to particularly learn anything new or change your build system. You can just deploy your FABs directly into a [suitable container](faq.html#Which_containers_support_FABs_) like [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/).
+So if you are already using a [suitable build tool](faq.html#Which_build_tools_generate_FABs_) like [Apache Maven](http://maven.apache.org/) then you don't have to particularly learn anything new or change your build system. You can just deploy your FABs directly into a [suitable container](faq.html#Which_containers_support_FABs_) like [Fuse ESB](http://fusesource.com/products/fuse-esb-enterprise/).
 
 This means application developers don't have different class loader mechanisms to work with; they can work with their build tool, IDE (e.g. Maven integration in IDEA / eclipse) and then just deploy it into their container (either web applications or OSGi).
 

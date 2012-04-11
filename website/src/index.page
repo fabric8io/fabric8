@@ -17,11 +17,11 @@ header(class="jumbotron masthead" id="overview")
   .container
     .row
       .span5
-        p <a target="_blank" href="http://fusesource.com/products/enterprise-servicemix/" class="btn">Fuse ESB &raquo;</a></p>
+        p <a target="_blank" href="http://fusesource.com/products/fuse-esb-enterprise/" class="btn">Fuse ESB &raquo;</a></p>
       .span5
         p <a target="_blank" href="fabric/index.html" class="btn">Fuse Fabric &raquo;</a></p>
       .span5
-        p <a target="_blank" href="http://fusesource.com/products/enterprise-activemq/" class="btn">Fuse MQ &raquo;</a></p>
+        p <a target="_blank" href="http://fusesource.com/products/fuse-mq-enterprise/" class="btn">Fuse MQ &raquo;</a></p>
       -#
         .span5
           p <a target="_blank" href="esb/index.html" class="btn">Fuse ESB &raquo;</a></p>

@@ -16,8 +16,8 @@ header(class="jumbotron masthead" id="overview")
         | <b>Fuse Fabric</b> is an <a href="faq.html#What_is_the_license_">open source</a> distributed configuration, management and provisioning system <br />
         | for working with the following open source integration solutions in a public or private cloud:
         ul
-          li <a href="http://fusesource.com/products/enterprise-servicemix/">Fuse ESB<a> 
-          li <a href="http://fusesource.com/products/enterprise-activemq/">Fuse Message Broker<a>
+          li <a href="http://fusesource.com/products/fuse-esb-enterprise/">Fuse ESB<a> 
+          li <a href="http://fusesource.com/products/fuse-mq-enterprise/">Fuse Message Broker<a>
           li <a href="http://activemq.apache.org/">Apache ActiveMQ</a>, <a href="http://camel.apache.org/">Camel</a>, <a href="http://cxf.apache.org/">CXF</a>, <a href="http://karaf.apache.org/">Karaf</a> &amp; <a href="http://servicemix.apache.org/">ServiceMix</a>
           
       p <b>Fuse Fabric</b> helps you keep DRY from those rainy clouds! :) <br />

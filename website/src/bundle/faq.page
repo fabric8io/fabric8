@@ -33,7 +33,7 @@ If you know of another build tool that does this then [please let us know](${uri
 
 ## Which containers support FABs?
 
-* [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/)
+* [Fuse ESB](http://fusesource.com/products/fuse-esb-enterprise/)
 * [Apache Karaf](http://karaf.apache.org/) with the [Fuse bundle feature installed](#How_do_I_enable_FAB_support_in_my_OSGi_container_)
 * any OSGi container which has the [Fuse bundle feature installed](#How_do_I_enable_FAB_support_in_my_OSGi_container_)
 
