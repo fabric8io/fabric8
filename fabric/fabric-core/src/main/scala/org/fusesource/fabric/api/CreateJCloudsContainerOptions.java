@@ -16,9 +16,6 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Arguments for creating a new container via JClouds
  */
@@ -26,6 +23,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private static final long serialVersionUID = 4489740280396972109L;
 
 
+    private String osFamily;
+    private String osVersion;
     private String imageId;
     private String hardwareId;
     private String locationId;
@@ -40,6 +39,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public CreateJCloudsContainerOptions() {
         this.providerType = "jclouds";
+        this.adminAccess = true;
     }
 
     @Override
@@ -54,6 +54,15 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 '}';
     }
 
+    public CreateJCloudsContainerOptions osVersion(final String osVersion) {
+        this.osVersion = osVersion;
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions osFamily(final String osFamily) {
+        this.osFamily = osFamily;
+        return this;
+    }
 
     public CreateJCloudsContainerOptions imageId(final String imageId) {
         this.imageId = imageId;
@@ -198,4 +207,19 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.servicePort = servicePort;
     }
 
+    public String getOsFamily() {
+        return osFamily;
+    }
+
+    public void setOsFamily(String osFamily) {
+        this.osFamily = osFamily;
+    }
+
+    public String getOsVersion() {
+        return osVersion;
+    }
+
+    public void setOsVersion(String osVersion) {
+        this.osVersion = osVersion;
+    }
 }

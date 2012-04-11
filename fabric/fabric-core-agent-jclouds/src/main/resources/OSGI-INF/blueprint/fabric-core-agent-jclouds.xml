@@ -20,19 +20,16 @@
     <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
 
     <reference id="imageCompleter" interface="org.apache.karaf.shell.console.Completer"
-               filter="(completer-type=image)"/>
+               filter="(completer-type=image)" availability="optional"/>
     <reference id="locationCompleter" interface="org.apache.karaf.shell.console.Completer"
-               filter="(completer-type=location)"/>
+               filter="(completer-type=location)" availability="optional"/>
     <reference id="groupCompleter" interface="org.apache.karaf.shell.console.Completer"
-               filter="(completer-type=group)"/>
+               filter="(completer-type=group)" availability="optional"/>
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <service ref="jcloudsContainerProvider" auto-export="interfaces">
-        <service-properties>
-            <entry key="fabric.container.protocol" value="jclouds"/>
-        </service-properties>
-    </service>
-
-    <bean id="jcloudsContainerProvider" class="org.fusesource.fabric.service.jclouds.JcloudsContainerProvider"/>
+    <reference-list interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport" availability="optional">
+        <reference-listener ref="firewallManagerFactory" bind-method="bind" unbind-method="unbind"/>
+    </reference-list>
 
     <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
         <reference-listener ref="jcloudsContainerProvider" bind-method="bind" unbind-method="unbind"/>
@@ -52,6 +49,26 @@
                 <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
         </command>
+        <command name="fabric/cloud-provider-add">
+            <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderAdd">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="configurationAdmin" ref="configurationAdmin"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+        </command>
+        <command name="fabric/cloud-provider-remove">
+            <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderRemove">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="configurationAdmin" ref="configurationAdmin"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+        </command>
+        <command name="fabric/cloud-provider-list">
+            <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderList">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+        </command>
     </command-bundle>
 
     <bean id="resolverCompleter" class="org.fusesource.fabric.commands.support.ResolverCompleter"/>
@@ -64,5 +81,37 @@
     <bean id="computeProviderCompleter" class="org.fusesource.fabric.service.jclouds.commands.completers.ComputeProviderCompleter">
         <property name="computeServices" ref="computeServices"/>
     </bean>
+
+    <bean id="zookeeperCredentialStore" class="org.fusesource.fabric.service.jclouds.modules.ZookeeperCredentialStore" init-method="init">
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+
+    <bean id="firewallManagerFactory" class="org.fusesource.fabric.service.jclouds.firewall.internal.FirewallManagerFactoryImpl"/>
+
+    <bean id="ec2FirewallSupport" class="org.fusesource.fabric.service.jclouds.firewall.internal.Ec2FirewallSupport"/>
+
+    <bean id="jcloudsContainerProvider" class="org.fusesource.fabric.service.jclouds.JcloudsContainerProvider">
+        <property name="firewallManagerFactory" ref="firewallManagerFactory"/>
+    </bean>
+
+    <service ref="ec2FirewallSupport" interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport"/>
+
+    <service ref="zookeeperCredentialStore">
+        <interfaces>
+            <value>org.jclouds.karaf.core.CredentialStore</value>
+            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+        </interfaces>
+        <service-properties>
+            <entry key="credential-store-type" value="zookeeper"/>
+        </service-properties>
+    </service>
+
+    <service ref="jcloudsContainerProvider" auto-export="interfaces">
+        <service-properties>
+            <entry key="fabric.container.protocol" value="jclouds"/>
+        </service-properties>
+    </service>
+
 
 </blueprint>

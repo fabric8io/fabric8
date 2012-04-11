@@ -275,6 +275,7 @@ public class ContainerImpl implements Container {
     @Override
     public void setResolver(String resolver) {
         try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id), "${zk:"+id+"/"+resolver+"}");
             ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id), resolver);
         } catch (Exception e) {
             throw new FabricException(e);

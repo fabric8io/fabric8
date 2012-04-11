@@ -59,4 +59,9 @@ public interface CreateContainerOptions extends Serializable {
 
     public String getJvmOpts();
     public void setJvmOpts(String jvmOpts);
+
+
+    public boolean isAdminAccess();
+    public void setAdminAccess(boolean adminAccess);
+
 }

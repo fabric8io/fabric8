@@ -33,7 +33,8 @@
     <properties>
         <fuse.osgi.export>
           org.fusesource.fabric.service.jclouds,
-            org.fusesource.fabric.service.jclouds.commands,
+          org.fusesource.fabric.service.jclouds.commands,
+          org.fusesource.fabric.service.jclouds.firewall
         </fuse.osgi.export>
         <fuse.osgi.import>
             !org.fusesource.fabric.zookeeper.commands,
@@ -41,7 +42,10 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.commands.support,
-            org.fusesource.fabric.service.jclouds.commands.completers
+            org.fusesource.fabric.service.jclouds.commands.completers,
+            org.fusesource.fabric.service.jclouds.modules,
+            org.fusesource.fabric.service.jclouds.firewall.internal,
+            org.jclouds.aws.util
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -52,6 +56,7 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
@@ -71,14 +76,55 @@
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-linkedin-zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-commands</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jclouds.karaf</groupId>
+            <artifactId>services</artifactId>
+            <version>${jclouds-karaf-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jclouds</groupId>
+            <artifactId>jclouds-core</artifactId>
+            <version>${jclouds-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jclouds</groupId>
+            <artifactId>jclouds-blobstore</artifactId>
+            <version>${jclouds-version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.jclouds</groupId>
             <artifactId>jclouds-compute</artifactId>
+            <version>${jclouds-version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jclouds.driver</groupId>
+            <artifactId>jclouds-sshj</artifactId>
+            <version>${jclouds-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jclouds.driver</groupId>
+            <artifactId>jclouds-log4j</artifactId>
+            <version>${jclouds-version}</version>
+        </dependency>
+
 
         <dependency>
              <groupId>org.jclouds.provider</groupId>

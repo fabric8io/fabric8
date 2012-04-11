@@ -17,9 +17,12 @@
 
 package org.fusesource.fabric.service.jclouds;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -32,22 +35,34 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
+import org.apache.commons.io.IOUtils;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
+import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
+import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
+import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
+import org.fusesource.fabric.service.jclouds.firewall.Rule;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
+import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Credentials;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.rest.RestContextFactory;
+import org.jclouds.scriptbuilder.statements.login.AdminAccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildInstallAndStartScript;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
@@ -58,7 +73,12 @@ import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScr
  */
 public class JcloudsContainerProvider implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
+
+
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
+
+    private FirewallManagerFactory firewallManagerFactory;
 
     public void bind(ComputeService computeService) {
         if(computeService != null) {
@@ -99,16 +119,26 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             case Fastest:
                 builder.fastest();
         }
+        //Define Image by OS & Version or By ImageId
+        if (options.getOsFamily() != null && options.getOsFamily() != null) {
+            builder.osFamily(OsFamily.fromValue(options.getOsFamily()));
+            builder.osVersionMatches(options.getOsVersion());
+        }
+        else if (options.getImageId() != null) {
+            builder.imageId(options.getImageId());
+        }
 
+        //Define Location & Hardware
         if (options.getLocationId() != null) {
             builder.locationId(options.getLocationId());
         }
-        if (options.getImageId() != null) {
-            builder.imageId(options.getImageId());
-        }
+
         if (options.getHardwareId() != null) {
             builder.hardwareId(options.getHardwareId());
         }
+
+        TemplateOptions templateOptions = computeService.templateOptions();
+        templateOptions.runScript(AdminAccess.standard());
 
         Set<? extends NodeMetadata> metadatas = null;
 
@@ -122,10 +152,26 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         if (metadatas != null) {
             String originalName = new String(options.getName());
             for (NodeMetadata nodeMetadata : metadatas) {
-                Credentials credentials = null;
+
+                //Setup firwall for node
+                try {
+                    String source = getOriginatingIp();
+                    Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(4444, 1099);
+                    Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
+                    Rule httpRule = Rule.create().source(source).destination(nodeMetadata).port(8181);
+                    Rule zookeeperRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(2181);
+                    FirewallManager firewallManager =  firewallManagerFactory.getFirewallManager(computeService);
+                    firewallManager.addRules(jmxRule, sshRule, httpRule,zookeeperRule);
+                } catch (FirewallNotSupportedOnProviderException e) {
+                   LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
+                } catch (IOException e) {
+                    LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
+                }
+
+                LoginCredentials credentials = nodeMetadata.getCredentials();
                 //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
-                if (options.getUser() != null) {
-                    credentials = new Credentials(options.getUser(), nodeMetadata.getCredentials().credential);
+                if (options.getUser() != null && credentials != null) {
+                    credentials = credentials.toBuilder().user(options.getUser()).build();
                 } else {
                     credentials = nodeMetadata.getCredentials();
                 }
@@ -145,8 +191,10 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 jCloudsContainerMetadata.setContainerName(containerName);
                 jCloudsContainerMetadata.setPublicAddresses(publicAddresses);
                 jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
-                jCloudsContainerMetadata.setIdentity(credentials.identity);
-                jCloudsContainerMetadata.setCredential(credentials.credential);
+                if (credentials != null) {
+                    jCloudsContainerMetadata.setIdentity(credentials.identity);
+                    jCloudsContainerMetadata.setCredential(credentials.credential);
+                }
 
                 Properties addresses = new Properties();
                 if (publicAddresses != null && !publicAddresses.isEmpty()) {
@@ -160,9 +208,9 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     String script = buildInstallAndStartScript(options.name(containerName));
                     ExecResponse response = null;
                     if (credentials != null) {
-                       response =  computeService.runScriptOnNode(id, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                       response =  computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
                     } else {
-                        response = computeService.runScriptOnNode(id, script);
+                        response = computeService.runScriptOnNode(id, script, templateOptions);
                     }
                     if (response == null) {
                         jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
@@ -310,5 +358,24 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
         }
         return computeService;
+    }
+
+    /**
+     * @return the IP address of the client on which this code is running.
+     * @throws java.io.IOException
+     */
+    private String getOriginatingIp() throws IOException {
+        URL url = new URL("http://checkip.amazonaws.com/");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.connect();
+        return IOUtils.toString(connection.getInputStream()).trim() + "/32";
+    }
+
+    public FirewallManagerFactory getFirewallManagerFactory() {
+        return firewallManagerFactory;
+    }
+
+    public void setFirewallManagerFactory(FirewallManagerFactory firewallManagerFactory) {
+        this.firewallManagerFactory = firewallManagerFactory;
     }
 }

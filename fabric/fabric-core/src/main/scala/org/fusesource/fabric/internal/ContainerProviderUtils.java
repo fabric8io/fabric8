@@ -43,10 +43,14 @@ public class ContainerProviderUtils {
 
     private static final String RUN_FUCNTION = loadFunction("run.sh");
     private static final String DOWNLOAD_FUCNTION = loadFunction("download.sh");
+    private static final String MAVEN_DOWNLOAD_FUCNTION = loadFunction("maven-download.sh");
+    private static final String INSTALL_JDK = loadFunction("install-open-jdk.sh");
+    private static final String INSTALL_CURL = loadFunction("install-curl.sh");
+    private static final String KARAF_CHECK = loadFunction("karaf-check.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
 
-    private static final String[] FALLBACK_REPOS = {"http://repo.fusesource.com/nexus/content/groups/public/","http://repo.fusesource.com/nexus/content/groups/ea/","http://repo.fusesource.com/nexus/content/groups/snaphsots"};
+    private static final String[] FALLBACK_REPOS = {"http://repo.fusesource.com/nexus/content/groups/public/","http://repo.fusesource.com/nexus/content/groups/ea/","http://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
     private ContainerProviderUtils() {
         //Utility Class
@@ -62,6 +66,15 @@ public class ContainerProviderUtils {
         StringBuilder sb = new StringBuilder();
         sb.append(RUN_FUCNTION).append("\n");
         sb.append(DOWNLOAD_FUCNTION).append("\n");
+        sb.append(MAVEN_DOWNLOAD_FUCNTION).append("\n");
+        sb.append(INSTALL_CURL).append("\n");
+        sb.append(INSTALL_JDK).append("\n");
+        sb.append(KARAF_CHECK).append("\n");
+        //We need admin access to be able to install curl & java.
+        if (options.isAdminAccess()) {
+            sb.append("install_curl").append("\n");
+            sb.append("install_openjdk").append("\n");
+        }
         sb.append("run mkdir -p ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
@@ -77,9 +90,9 @@ public class ContainerProviderUtils {
 
         //Read all system properties
         for (Map.Entry<String, Properties> entry : options.getSystemProperties().entrySet()) {
-            Properties addresses = entry.getValue();
-            for (Object type : addresses.keySet()) {
-                Object value = addresses.get(type);
+            Properties sysprops = entry.getValue();
+            for (Object type : sysprops.keySet()) {
+                Object value = sysprops.get(type);
                 appendFile(sb, "etc/system.properties", Arrays.asList(type + "=" + value));
             }
         }
@@ -91,11 +104,11 @@ public class ContainerProviderUtils {
 
         if(options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"));
-        }
-
-        if (options.getZookeeperUrl() != null) {
+            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH +"=${karaf.home}/fabric/import/"));
+        } else if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
         }
+
         if(options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
            sb.append("run export JAVA_OPTS=").append(options.getJvmOpts()).append("\n");
         }
@@ -104,7 +117,7 @@ public class ContainerProviderUtils {
         //Add the proxyURI to the list of repositories
         appendToLineInFile(sb,"etc/org.ops4j.pax.url.mvn.cfg","repositories=",options.getProxyUri().toString()+",");
         sb.append("run nohup bin/start").append("\n");
-        sb.append("echo STARTED").append("\n");
+        sb.append("karaf_check `pwd`").append("\n");
         return sb.toString();
     }
 
@@ -118,10 +131,12 @@ public class ContainerProviderUtils {
     public static String buildStartScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append(RUN_FUCNTION).append("\n");
+        sb.append(KARAF_CHECK).append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         sb.append("run nohup bin/start").append("\n");
+        sb.append("karaf_check `pwd`").append("\n");
         return sb.toString();
     }
 
@@ -155,13 +170,6 @@ public class ContainerProviderUtils {
         return sb.toString();
     }
 
-    private static String downloadAndStartMavenBundle(StringBuilder sb, URI proxy, String groupId, String artifactId, String version, String type) {
-        String path = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version;
-        String file = path + "/" + artifactId + "-" + version + "." + type;
-        sb.append("run mkdir -p " + "system/").append(path).append("\n");
-        sb.append("run curl --show-error --silent --get --retry 20 --output system/").append(file).append(" ").append(proxy.resolve(file)).append("\n");
-        return file;
-    }
 
     private static void replaceLineInFile(StringBuilder sb, String path, String pattern, String line) {
         sb.append(String.format(REPLACE_FORMAT,pattern,line,path)).append("\n");
@@ -189,20 +197,21 @@ public class ContainerProviderUtils {
         String artifactUri = proxy.resolve(directory+file).toString();
 
         //TODO: There may be cases where this is not good enough
-        String installationFolder = artifactId + "-" + version;
+        String baseProxyURL =  (! proxy.toString().endsWith("/")) ? proxy.toString() + "/"  : proxy.toString();
 
-        //To cover the case of SNAPSHOT dependencies where URL can't be determined we are querying for the available versions first
-        if(version.contains("SNAPSHOT")) {
-            sb.append("run export DISTRO_URL=`curl --silent ").append(artifactParentUri).append("| grep href | grep \"tar.gz\\\"\" | sed 's/^.*<a href=\"//' | sed 's/\".*$//'  | tail -1`").append("\n");
-        } else {
-            sb.append("run export DISTRO_URL=`").append(artifactUri).append("`").append("\n");
-        }
-        sb.append("if [[  \"$DISTRO_URL\" == \"\" ]] ;  then export DISTRO_URL=").append(artifactUri).append("; fi\n");
-        sb.append("download ").append("$DISTRO_URL").append(" ").append(file).append("\n");
+
+        sb.append("maven-download ").append(baseProxyURL).append(" ")
+                .append(groupId).append(" ")
+                .append(artifactId).append(" ")
+                .append(version).append(" ")
+                .append("tar.gz").append("\n");
+
         for (String fallbackRepo : FALLBACK_REPOS) {
-            URI fallbackRepoURI = new URI(fallbackRepo);
-            String fallbackDistro = fallbackRepoURI.resolve(directory + file).toString();
-            sb.append("if [ ! -f " + file + " ] ; then ").append("download ").append(fallbackDistro).append(" ").append(file).append(" ; fi \n");
+            sb.append("if [ ! -f " + file + " ] ; then ").append("maven-download ").append(fallbackRepo).append(" ")
+                    .append(groupId).append(" ")
+                    .append(artifactId).append(" ")
+                    .append(version).append(" ")
+                    .append("tar.gz").append(" ; fi \n");
         }
         sb.append("run tar -xpzf ").append(file).append("\n");
     }

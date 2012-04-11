@@ -71,8 +71,16 @@ public enum ZkPath {
     CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
     CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc"),
     CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata"),
-
-    POLICIES                        ("/fabric/registry/policies/{policy}");
+    CLOUD_CONFIG                   ("/fabric/registry/cloud/config"),
+    CLOUD_PROVIDER                 ("/fabric/registry/cloud/config/{provider}"),
+    CLOUD_PROVIDER_PROPERTY        ("/fabric/registry/cloud/config/{provider}/{property}"),
+    CLOUD_PROVIDER_IDENTIY         ("/fabric/registry/cloud/config/{provider}/identity"),
+    CLOUD_PROVIDER_CREDENTIAL      ("/fabric/registry/cloud/config/{provider}/credential"),
+    CLOUD_NODES                    ("/fabric/registry/cloud/nodes"),
+    CLOUD_NODE                     ("/fabric/registry/cloud/nodes/{id}"),
+    CLOUD_NODE_IDENTITY            ("/fabric/registry/cloud/nodes/{id}/identity"),
+    CLOUD_NODE_CREDENTIAL          ("/fabric/registry/cloud/nodes/{id}/credential"),
+    POLICIES                       ("/fabric/registry/policies/{policy}");
 
     /**
      * Path template.

@@ -38,6 +38,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected URI proxyUri;
     protected String zookeeperUrl;
     protected String jvmOpts;
+    protected boolean adminAccess = false;
 
     /**
      * Converts provider URI Query to a Map.
@@ -120,6 +121,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public T jvmOpts(final String jvmOpts) {
         this.jvmOpts = jvmOpts;
+        return (T) this;
+    }
+
+    public T adminAccess(final boolean adminAccess) {
+        this.adminAccess = adminAccess;
         return (T) this;
     }
 
@@ -220,5 +226,13 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public void setJvmOpts(String jvmOpts) {
         this.jvmOpts = jvmOpts;
+    }
+
+    public boolean isAdminAccess() {
+        return adminAccess;
+    }
+
+    public void setAdminAccess(boolean adminAccess) {
+        this.adminAccess = adminAccess;
     }
 }

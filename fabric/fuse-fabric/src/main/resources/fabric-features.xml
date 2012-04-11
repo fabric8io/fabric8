@@ -64,7 +64,6 @@
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
 
-        <!-- TODO: Disable till the next perfectus build -->
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.management/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.command/${karaf-version}</bundle>
@@ -213,11 +212,13 @@
         <bundle>mvn:org.fusesource.fabric/fabric-jaas/${project.version}</bundle>
     </feature>
 
-   <feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
+    <feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
         <feature version='${jclouds-karaf-version}'>jclouds</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-driver-jsch</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-compute</feature>
-       <feature version='${jclouds-karaf-version}'>jclouds-commands</feature>
+        <feature version='${jclouds-karaf-version}'>jclouds-commands</feature>
+        <bundle dependency='true'>mvn:org.jclouds.api/ec2/${jclouds-version}</bundle>
+        <bundle dependency='true'>mvn:org.jclouds.common/aws-common/${jclouds-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-jclouds/${project.version}</bundle>
     </feature>
 

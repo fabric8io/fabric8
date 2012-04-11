@@ -120,6 +120,7 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                 quorumPeer.setZKDatabase(new ZKDatabase(quorumPeer.getTxnFactory()));
                 quorumPeer.setLearnerType(config.getPeerType());
 
+
                 try {
                     debug("Starting quorum peer \"%s\" on address %s", quorumPeer.getMyid(), config.getClientPortAddress());
                     quorumPeer.start();

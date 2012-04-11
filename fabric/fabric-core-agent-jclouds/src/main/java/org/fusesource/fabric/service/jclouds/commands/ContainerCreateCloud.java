@@ -32,6 +32,10 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
 
     @Option(name = "--provider", required = true, description = "JClouds provider name")
     private String providerName;
+    @Option(name = "--os-family", multiValued = false, required = false, description = "OS Family")
+    private String osFamily = "ubuntu";
+    @Option(name = "--os-version", multiValued = false, required = false, description = "OS Version")
+    private String osVersion = "11.";
     @Option(name = "--identity", required = false, description = "The cloud identity to use")
     private String identity;
     @Option(name = "--credential", required = false, description = "Credential to login to the cloud")
@@ -49,7 +53,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
     @Option(name = "--group", description = "Group tag to use on the new node(s)")
-    private String group;
+    private String group = "fabric";
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
@@ -70,6 +74,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .group(group)
         .hardwareId(hardwareId)
         .identity(identity)
+        .osFamily(osFamily)
+        .osVersion(osVersion)
         .imageId(imageId)
         .instanceType(instanceType)
         .locationId(locationId)
@@ -111,6 +117,13 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
             // for cloud we accept 3 digits
             throw new IllegalArgumentException("The number of containers must be between 1 and 999.");
         }
+
+        if (osFamily == null && imageId == null) {
+            System.out.println("Using Ubuntu 11.04");
+            osFamily = "ubuntu";
+            osVersion = "11.04";
+        }
+
         if (isEnsembleServer && number > 1) {
             throw new IllegalArgumentException("Can not create a new ZooKeeper ensemble on multiple containers.  Create the containers and then use the fabric:create command instead.");
         }
