@@ -6,3 +6,5 @@ title: Fuse MQ
 
 Fuse MQ is an open source Message Broker built on top of [Apache ActiveMQ](http://activemq.apache.org/).
 
+Fuse MQ offers a [number of features](../fabric/docs/mq.html) to make it easier to use, configure and cluster when using [Fuse Fabric](../fabric/index.html)
+

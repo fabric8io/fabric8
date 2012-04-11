@@ -1,19 +1,20 @@
 ---
-title: Fabric MQ
+title: Fuse MQ
 in_menu: false
 sort_info: 10
 --- pipeline:markdown
 {:toc} 
 
-## MQ Profiles
+## Fuse MQ Profiles
 
-In Fabric, everything is defined through profiles. The main profile for ActiveMQ brokers is called **mq-base** and it defines basic options for the broker instances.
+In Fabric, everything is defined through profiles. The main profile for Fuse MQ brokers is called **mq-base** and it defines basic options for the broker instances.
+
 It's an abstract profile, so you shouldn't ever try to create an instance using this profile, as it will not give you the expected effect.
 For basic broker creation you can use the **mq** profile which inherits most of its properties from **mq-base**.
 
 ## Creating new broker instances
 
-A Fabric broker is an Karaf container instance running a message broker profile. The profile defines the broker dependencies (through features) and configuration for the broker.
+A Fuse MQ broker is an Karaf container instance running a message broker profile. The profile defines the broker dependencies (through features) and configuration for the broker.
 The simplest option is to use the pre-canned **mq** profile. You can see the display the contents of the **mq** profile and it parent **mq-base**, using the command:
 
     FuseFabric:karaf@root> profile-display mq

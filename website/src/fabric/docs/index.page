@@ -31,6 +31,14 @@ sort_info: 2
 .row
   .span4
     :markdown
+      # [MQ Guide](mq.html)
+  .span12
+    :markdown
+      Working with [Fuse MQ](../../mq/index.html) and Fuse Fabric
+
+.row
+  .span4
+    :markdown
       # [Command Shell](commands/commands.html)
   .span12
     :markdown
