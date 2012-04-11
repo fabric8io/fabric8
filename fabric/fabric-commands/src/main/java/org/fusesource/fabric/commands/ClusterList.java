@@ -28,12 +28,12 @@ import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "cluster-list", scope = "fabric", description = "List the contents of a cluster")
+@Command(name = "cluster-list", scope = "fabric", description = "Lists all ActiveMQ message brokers in the fabric, enabling you to see which brokers are grouped into clusters.")
 public class ClusterList extends FabricCommand {
 
     protected static String CLUSTER_PREFIX = "/fabric/registry/clusters";
 
-    @Argument(required = false, description = "Path of the cluster to list. If empty will list all clusters.")
+    @Argument(required = false, description = "Path of the fabric registry node (Zookeeper registry node) to list. Relative paths are evaluated relative to the base node, " + CLUSTER_PREFIX + ". If not specified, all clusters are listed.")
     String path = "";
 
     @Override

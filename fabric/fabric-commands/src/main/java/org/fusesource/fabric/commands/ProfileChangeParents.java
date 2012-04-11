@@ -25,14 +25,14 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "profile-change-parents", scope = "fabric", description = "Delete an existing profile")
+@Command(name = "profile-change-parents", scope = "fabric", description = "Replace the profile's parents with the specified list of parents (where the parents are specified as a space-separated list)")
 public class ProfileChangeParents extends FabricCommand {
 
-    @Option(name = "--version")
+    @Option(name = "--version", description = "The profile version. Defaults to the current default version.")
     private String version;
-    @Argument(index = 0, required = true, name = "profile")
+    @Argument(index = 0, required = true, name = "profile", description = "Name of the profile.")
     private String name;
-    @Argument(index = 1, name = "parents", description = "The parent profiles", required = true, multiValued = true)
+    @Argument(index = 1, name = "parents", description = "The list of new parent profiles.", required = true, multiValued = true)
     private List<String> parents;
 
     @Override

@@ -25,7 +25,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
-@Command(name = "container-resolver-list", scope = "fabric", description = "Displays the resolver set to the container")
+@Command(name = "container-resolver-list", scope = "fabric", description = "List the resolver policy and the host data for each container in the fabric", detailedDescription = "classpath:containerResolverList.txt")
 public class ContainerResolverList extends FabricCommand {
 
     static final String FORMAT = "%-16s %-16s %-16s %-16s %-32s %-16s %-32s";

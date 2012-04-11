@@ -1,0 +1,9 @@
+This command is a generic container create command. It combines the functionality of the fabric:container-create-child, fabric:container-create-cloud, and fabric:container-create-ssh commands. The type of container that is created, depends on the specified URL, as follows:
+
+* Child container - to create a child container, specify a URL in the format, child://<ParentName>, where <ParentName> is the name of the child's parent container.
+
+* Cloud container - to create a cloud container, specify a URL in the format, jclouds://<ProviderId>?imageId=<ImageID>&locationId=<LocationID>&group=<Group>&user=<User>
+
+* SSH container - to create an SSH container with username and password credentials, specify a URL in the format, ssh://<User>:<Password>@<Host>:<Port>, where <User> and <Password> are the credentials for logging in to the machine at <Host>:<Port>, through the SSH protocol.
+
+To create an SSH container with username and private key credentials, specify a URL in the format, ssh://<User>@<Host>:<Port>?privateKeyFile=<KeyPath>, where <KeyPath> is the pathname of the private key file on the local filesystem.

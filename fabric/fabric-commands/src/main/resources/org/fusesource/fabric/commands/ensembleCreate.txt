@@ -1,0 +1,19 @@
+There are two distinct ways you can use the fabric:ensemble-create command:
+
+* Starting from a standalone ESB container, create a new fabric. This is typically the first command you would enter when starting to work with fabric. Assuming that the standalone container has the default name, root, create a new fabric by entering the following command:
+
+fabric:ensemble-create --clean root
+
+After running this command in the console, the standalone container is converted into an ensemble container, running a fabric registry agent (ZooKeeper server). This single fabric registry agent now constitutes the core of the fabric ensemble.
+
+* If the current container already belongs to a fabric, you can use the fabric:ensemble-create command to re-create the ensemble, specifying which containers belong to the new ensemble. Any containers excluded from the new ensemble will no longer host a fabric registry agent and any containers listed in the new ensemble will start to host a fabric registry agent.
+
+For example, to change the current fabric ensemble, so that it consists of the containers, root, root1, and root2, enter the following console command:
+
+fabric:ensemble-create root root1 root2
+
+All of the existing containers (ordinary containers and ensemble containers) are switched over to the new ensemble.
+
+Note: The number of containers in the ensemble must always be an odd number. Three or five containers is a typical ensemble size.
+
+Note: Because the fabric ensemble is the key component of fabric, changing the ensemble is a critical operation. All data will be preserved and copied to the new ensemble before switching.

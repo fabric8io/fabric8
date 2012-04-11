@@ -1,0 +1,3 @@
+For all containers in the fabric, list the resolver policy and the following variants of the host address: local IP address, local hostname, public IP address, public hostname, and manually specified IP address.
+
+The host addresses are found by looking them up in the fabric registry (ZooKeeper registry) for each container. This information is stored in the fabric registry at the time when the container is created. In most cases, only the local IP address and the local hostname are known. The public IP address and public hostname are generally available only for cloud containers.

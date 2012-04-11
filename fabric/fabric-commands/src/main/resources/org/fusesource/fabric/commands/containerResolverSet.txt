@@ -1,0 +1,36 @@
+The resolver policy can take one of the following values: localip, localhostname, publicip, publichostname, manualip.
+
+The localip and localhostname resolver policies are suitable for accessing a container in a LAN. The publicip and publichostname resolver policies are suitable for accessing a container in a WAN (Internet), but they are typically only available for cloud containers. In the case of a the cloud, localip and localhostname can be used for container-to-container connections within the cloud, but for container-to-container connections from outside the cloud, you must use publicip or publichostname.
+
+Fabric manages host addresses as follows:
+
+* When you create a new container, fabric tries to discover as much as it can about the container's host address and stores this information in the following fields in the fabric registry: localip (local IP address); localhostname (local hostname); publicip (public IP address); publichostname (public hostname).
+
+For example, if you create a new container using the fabric:container-create-ssh command and specify the local IP address to the --host option, fabric attempts to perform a reverse lookup to obtain the corresponding local hostname and then stores both the local IP address and the local hostname in the fabric registry.
+
+If you create a new container in the cloud, the metadata sent by the cloud provider typically includes a complete set of host addresses: localip, localhostname, publicip, and publichostname.
+
+* Every container in the fabric has its own resolver policy, which determines what kind of host address is returned to another container that wants to connect to it. The container's resolver policy is set in one of the following ways:
+
+ - (Default) By inheriting the resolver policy from the global resolver policy (specified at the time the fabric is created)
+
+ - By specifying the resolver policy explicitly at the time the container is created (through the --resolver option).
+
+ - By invoking the fabric:container-resolver-set command.
+
+* The container's resolver policy is applied whenever fabric looks up the container's host address, irrespective of what protocol is involved. In particular, the resolver policy determines the form of the host address used in the following URLs:
+
+ - ZooKeeper URL (fabric registry URL),
+ - SSH URL (console client port),
+ - Maven proxy URL,
+ - JMX URL.
+
+For example, if your fabric includes a container called SSH1 (originally created using the fabric:container-create-ssh command) and the SSH1 container is configured with the localip resolver policy, any container that tries to connect to SSH1 will automatically receive the local IP address of SSH1 when it looks up the fabric registry.
+
+A container's resolver policy only affects the host address returned when other containers want to connect to it. The container's own policy has no effect on how the container resolves the host addresses of the other containers. In other words, if containers X, Y, and Z want to connect to container SSH1, the form of host address they get is determined by SSH1's resolver policy. But if SSH1 wants to connect to container X, it is container X's resolver policy that is used.
+
+Manual IP resolver policy
+
+The manualip resolver policy is a special case. If none of the standard resolver policies are suitable for your network set-up, you can manually specify a container's host address by setting the following key in the fabric registry (ZooKeeper registry):
+
+/fabric/registry/containers/config/<ContainerName>/manualip

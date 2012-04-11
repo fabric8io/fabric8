@@ -21,7 +21,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "container-stop", scope = "fabric", description = "Stop an existing container")
+@Command(name = "container-stop", scope = "fabric", description = "Shut down an existing container")
 public class ContainerStop extends FabricCommand {
 
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)

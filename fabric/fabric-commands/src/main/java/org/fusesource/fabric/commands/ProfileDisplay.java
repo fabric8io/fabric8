@@ -30,14 +30,14 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "profile-display", scope = "fabric", description = "Displays profile information")
+@Command(name = "profile-display", scope = "fabric", description = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDisplay extends FabricCommand {
 
-    @Option(name = "--version")
+    @Option(name = "--version", description = "Select a specific profile version. Defaults to the current default version.")
     private String version;
-    @Option(name = "--overlay", aliases = "-o")
+    @Option(name = "--overlay", aliases = "-o", description = "Shows the effective profile settings, taking into account the settings inherited from parent profiles.")
     private Boolean overlay = false;
-    @Argument(index = 0, required = true, name = "profile")
+    @Argument(index = 0, required = true, name = "profile", description = "The name of the profile.")
     @CompleterValues(index = 0)
     private String name;
 

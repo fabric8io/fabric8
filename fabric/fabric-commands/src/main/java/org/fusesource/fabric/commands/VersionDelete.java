@@ -22,7 +22,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "version-delete", scope = "fabric", description = "Delete a version")
+@Command(name = "version-delete", scope = "fabric", description = "Delete the specified version, together with all of its associated profile data")
 public class VersionDelete extends FabricCommand {
 
     @Argument(index = 0, name = "version", description = "The version to delete", required = true, multiValued = false)

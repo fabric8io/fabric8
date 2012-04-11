@@ -23,7 +23,7 @@ import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
-@Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers")
+@Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers", detailedDescription = "classpath:containerCreateChild.txt")
 public class ContainerCreateChild extends ContainerCreateSupport {
 
     @Argument(index = 0, required = true, description = "Parent containers ID")

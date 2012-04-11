@@ -25,12 +25,12 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "profile-create", scope = "fabric", description = "Create a new profile")
+@Command(name = "profile-create", scope = "fabric", description = "Create a new profile with the specified name and version", detailedDescription = "classpath:profileCreate.txt")
 public class ProfileCreate extends FabricCommand {
 
-    @Option(name = "--version")
+    @Option(name = "--version", description = "The profile version. Defaults to the current default version.")
     private String version;
-    @Option(name = "--parents", multiValued = true, required = false)
+    @Option(name = "--parents", multiValued = true, required = false, description = "Optionally specifies one or multiple parent profiles. To specify multiple parent profiles, specify this flag multiple times on the command line. For example, --parents foo --parents bar.")
     private List<String> parents;
     @Argument(index = 0)
     private String name;

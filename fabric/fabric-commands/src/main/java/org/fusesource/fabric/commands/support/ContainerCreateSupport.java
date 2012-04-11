@@ -30,15 +30,15 @@ import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.osgi.framework.ServiceReference;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
-    @Option(name = "--version", description = "The version id in the registry")
+    @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
     protected String version;
-    @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s)")
+    @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named, default.")
     protected List<String> profiles;
-    @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver to set to the container(s)")
+    @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver policy for this container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip. Defaults to the fabric's default resolver policy.")
     protected String resolver;
-    @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the container should be a new ZooKeeper ensemble server")
+    @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the new container should be a fabric ensemble server (ZooKeeper ensemble server).")
     protected Boolean isEnsembleServer = Boolean.FALSE;
-    @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Jvm Options for the container")
+    @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
 
     public List<String> getProfileNames() {

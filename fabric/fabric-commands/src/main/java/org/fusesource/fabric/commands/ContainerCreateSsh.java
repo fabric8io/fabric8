@@ -27,24 +27,24 @@ import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.commands.support.ContainerCreateSupport;
 
-@Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH")
+@Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends ContainerCreateSupport {
 
     @Option(name = "--host", required = true, description = "Host name to SSH into")
     private String host;
-    @Option(name = "--path", description = "Path to use to install the container")
+    @Option(name = "--path", description = "Path on the remote filesystem where the container is to be installed.")
     private String path;
-    @Option(name = "--user", description = "User name")
+    @Option(name = "--user", description = "User name for login.")
     private String user;
-    @Option(name = "--password", description = "Password")
+    @Option(name = "--password", description = "Password for login. If the password is omitted, private key authentication is used instead.")
     private String password;
-    @Option(name = "--port", description = "The port number to use to connect over SSH")
+    @Option(name = "--port", description = "The IP port number for the SSH connection.")
     private Integer port;
     @Option(name = "--ssh-retries", description = "Number of retries to connect on SSH")
     private Integer sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
-    @Option(name = "--private-key", description = "The path to the private key")
+    @Option(name = "--private-key", description = "The path to the private key on the filesystem. Default is ~/.ssh/id_rsa on *NIX platforms or C:\\Documents and Settings\\<UserName>\\.ssh\\id_rsa on Windows.")
     private String privateKeyFile;
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
