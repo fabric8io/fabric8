@@ -30,7 +30,7 @@ import static org.fusesource.fabric.commands.support.CommandUtils.matchVersion;
 import static org.fusesource.fabric.commands.support.CommandUtils.sortContainers;
 import static org.fusesource.fabric.commands.support.CommandUtils.status;
 
-@Command(name = "container-list", scope = "fabric", description = "List existing containers")
+@Command(name = "container-list", scope = "fabric", description = "List the containers in the current fabric")
 public class ContainerList extends FabricCommand {
 
     static final String FORMAT = "%-30s %-9s %-7s %-30s %s";
@@ -43,7 +43,7 @@ public class ContainerList extends FabricCommand {
     private String version;
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
-    @Argument(index = 0, name = "filter", description = "Filter by id or profiles", required = false, multiValued = false)
+    @Argument(index = 0, name = "filter", description = "Filter by container ID or by profile name. When a profile name is specified, only the containers with that profile are listed.", required = false, multiValued = false)
     private String filter = null;
 
     @Override

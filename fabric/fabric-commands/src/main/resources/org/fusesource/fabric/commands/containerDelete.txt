@@ -1,0 +1,5 @@
+Deleting a container deletes all of the files associated with the container from the host.
+
+If the container has children, the default behavior of the command is to leave the children in place. You can force the deletion of the children using the -r option.
+
+Note: If the container to be deleted is running a fabric registry agent, you must first remove it from the ensemble using fabric:ensemble-remove.

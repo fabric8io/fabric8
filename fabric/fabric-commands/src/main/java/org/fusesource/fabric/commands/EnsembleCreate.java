@@ -23,7 +23,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
-@Command(name = "ensemble-create", scope = "fabric", description = "Create a new ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-create", scope = "fabric", description = "Create a new ZooKeeper ensemble", detailedDescription = "classpath:ensembleCreate.txt")
 public class EnsembleCreate extends EnsembleCommandSupport {
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")

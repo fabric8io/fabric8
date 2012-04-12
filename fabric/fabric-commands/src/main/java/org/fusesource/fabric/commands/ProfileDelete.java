@@ -24,12 +24,12 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "profile-delete", scope = "fabric", description = "Delete an existing profile")
+@Command(name = "profile-delete", scope = "fabric", description = "Delete the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDelete extends FabricCommand {
 
-    @Option(name = "--version")
+    @Option(name = "--version", description = "The profile version to delete. Defaults to the current default version.")
     private String version;
-    @Argument(index = 0, required = true, name = "profile")
+    @Argument(index = 0, required = true, name = "profile", description = "Name of the profile to delete.")
     @CompleterValues(index = 0)
     private String name;
 

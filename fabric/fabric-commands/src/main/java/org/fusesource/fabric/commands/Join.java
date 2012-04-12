@@ -33,7 +33,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import java.util.Properties;
 
-@Command(name = "join", scope = "fabric", description = "Join fabric cluster", detailedDescription = "classpath:join.txt")
+@Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
 public class Join extends OsgiCommandSupport implements org.fusesource.fabric.commands.service.Join {
 
     ConfigurationAdmin configurationAdmin;

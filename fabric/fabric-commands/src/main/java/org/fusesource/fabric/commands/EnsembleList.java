@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 
-@Command(name = "ensemble-list", scope = "fabric", description = "Lists the containers in the ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-list", scope = "fabric", description = "List the containers in the current fabric ensemble (ZooKeeper ensemble)", detailedDescription = "classpath:ensembleList.txt")
 public class EnsembleList extends EnsembleCommandSupport {
 
     @Override

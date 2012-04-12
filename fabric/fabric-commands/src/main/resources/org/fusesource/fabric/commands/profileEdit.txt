@@ -1,0 +1,71 @@
+In the specifid profile, you can edit different kinds of settings, as follows:
+
+* Feature repository locations---to add a feature repository to the profile, enter a command in the following format:
+
+fabric:profile-edit --repositories <RepoList> <Profile> [<Version>]
+
+To delete repositories, enter a command of the following form:
+
+fabric:profile-edit --delete --repositories <RepoList> <Profile> [<Version>]
+
+* Features to install---to add features to the profile, enter a command in the following format:
+
+fabric:profile-edit --features <FeatureList> <Profile> [<Version>]
+
+Where <FeatureList> is a comma-separated list of features. For example, to add the camel-jetty and the camel-quartz features to the default version of the sample profile, enter a command like the following:
+
+fabric:profile-edit --features camel-jetty,camel-quartz sample
+
+To delete features, enter a command of the following form:
+
+fabric:profile-edit --delete --features <FeatureList> <Profile> [<Version>]
+
+* Bundles to install---to add bundles to the profile, enter a command in the following format:
+
+fabric:profile-edit --bundles <BundleList> <Profile> [<Version>]
+
+For example, to add camel-quartz bundle to the sample profile, enter a command like the following:
+
+fabric:profile-edit --bundles mvn:org.apache.camel/camel-quartz/<CamelVersion> sample
+
+To delete bundles, enter a command of the following form:
+
+fabric:profile-edit --delete --bundles <BundleList> <Profile> [<Version>]
+
+* Configuration settings for the OSGi Config Admin service---to modify or create a configuration setting from the OSGi Config Admin service, enter a command in the following format:
+
+fabric:profile-edit --pid <PID>/<Property>=<Value> <Profile> [<Version>]
+
+Where <PID> is a persistent ID, which is used in the context of the OSGi Config Admin service to identify a collection of related properties. For example, to change the value of the secure HTTPS port used by the Jetty server in the sample profile, you could edit the org.osgi.service.http.port.secure property from the org.ops4j.pax.web PID using a command like the following:
+
+fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port.secure=8553 sample
+
+To delete a property, enter a command of the following form:
+
+fabric:profile-edit --delete --pid <PID>/<Property> <Profile> [<Version>]
+
+* Property settings from etc/config.properties---to modify or create a Java system property in the container's etc/config.properties file (which affects the karaf container), enter a command in the following format:
+
+fabric:profile-edit --config <Property>=<Value> <Profile> [<Version>]
+
+For example, to change the value of the karaf.startlevel.bundle Java system property in config.properties, you would enter a command like the following:
+
+fabric:profile-edit --config karaf.startlevel.bundle=80 <Profile> [<Version>]
+
+To delete a Java system property from config.properties, enter a command of the following form:
+
+fabric:profile-edit --delete --config <Property> <Profile> [<Version>]
+
+* Property settings from etc/system.properties---to modify or create a Java system property in the container's etc/system.properties file (which affects bundles deployed in the container), enter a command in the following format:
+
+fabric:profile-edit --system <Property>=<Value> <Profile> [<Version>]
+
+For example, to change the default port for the OSGi HTTP service, you would enter a command like the following:
+
+fabric:profile-edit --system org.osgi.service.http.port=8181 <Profile> [<Version>]
+
+To delete a Java system property from system.properties, enter a command of the following form:
+
+fabric:profile-edit --delete --system <Property> <Profile> [<Version>]
+
+Important: Any modifications you make to a profile using fabric:profile-edit are immediately propagated to the containers that use that profile. This is not the recommended way to edit profiles, however: if you change multiple settings in the profile, you could potentially put the affected containers into an inconsistent state. To guarantee atomicity, it is better to use the fabric:profile-edit command in combination with the fabric:container-upgrade command.

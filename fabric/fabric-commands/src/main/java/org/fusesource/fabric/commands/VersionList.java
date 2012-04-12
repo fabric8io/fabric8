@@ -25,7 +25,7 @@ import org.fusesource.fabric.commands.support.FabricCommand;
 
 import static org.fusesource.fabric.commands.support.CommandUtils.countContainersByVersion;
 
-@Command(name = "version-list", scope = "fabric", description = "List existing versions")
+@Command(name = "version-list", scope = "fabric", description = "List the existing versions")
 public class VersionList extends FabricCommand {
 
     @Override

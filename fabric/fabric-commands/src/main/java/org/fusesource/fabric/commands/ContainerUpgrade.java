@@ -27,14 +27,14 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
 
-@Command(name = "container-upgrade", scope = "fabric", description = "Upgrade containers to a new version")
+@Command(name = "container-upgrade", scope = "fabric", description = "Upgrade containers to a new version", detailedDescription = "classpath:containerUpgrade.txt")
 public class ContainerUpgrade extends ContainerUpgradeSupport {
 
     @Option(name = "--all", description = "Upgrade all containers")
     private boolean all;
-    @Argument(index = 0, name = "version", description = "The version to upgrade", required = true)
+    @Argument(index = 0, name = "version", description = "The version to upgrade to.", required = true)
     private String version;
-    @Argument(index = 1, name = "container", description = "The list of containers to upgrade. Empty list assumes current container only.", required = false, multiValued = true)
+    @Argument(index = 1, name = "container", description = "The list of containers to upgrade. An empty list implies the current container.", required = false, multiValued = true)
     private List<String> containerIds;
 
     @Override

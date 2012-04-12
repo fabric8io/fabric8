@@ -26,20 +26,20 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
-@Command(name = "create", scope = "fabric", description = "Create a new ZooKeeper ensemble and imports Fabric profiles")
+@Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.commands.service.Create {
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
-    @Option(name = "--no-import", description = "Disable the import of the sample registry data from ")
+    @Option(name = "--no-import", description = "Disable the import of the sample registry data")
     private boolean noImport;
     @Option(name = "--import-dir", description = "Directory of files to import into the newly created ensemble")
     private String importDir = getDefaultImportDir();
-    @Option(name = "-v", aliases = {"--verbose"}, description = "Verbose output of files being imported")
+    @Option(name = "-v", aliases = {"--verbose"}, description = "Flag to enable verbose output of files being imported")
     boolean verbose = false;
-    @Option(name = "-r", aliases = {"--resolver"}, description = "The global resolver to use for resolver containers to addresses")
+    @Option(name = "-r", aliases = {"--resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
     String resolver;
-    @Option(name = "-t", aliases = {"--time"}, description = "The amount of time to wait for the ensemble to startup before trying to import the default data")
+    @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
     private List<String> containers;

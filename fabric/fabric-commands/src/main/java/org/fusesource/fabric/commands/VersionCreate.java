@@ -22,14 +22,14 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.FabricCommand;
 
-@Command(name = "version-create", scope = "fabric", description = "Create a new version")
+@Command(name = "version-create", scope = "fabric", description = "Create a new version, copying all of the profiles from the current latest version into the new version")
 public class VersionCreate extends FabricCommand {
 
-    @Option(name = "--parent", description = "The parent version (will default use latest version as parent)")
+    @Option(name = "--parent", description = "The parent version. By default, use the latest version as the parent.")
     private String parentVersion;
-    @Option(name = "--default", description = "Set the created version as the new default version.")
+    @Option(name = "--default", description = "Set the created version to be the new default version.")
     private Boolean defaultVersion;
-    @Argument(index = 0, description = "Version number. If left blank Fabric will use next minor version.",  required = false)
+    @Argument(index = 0, description = "The new version to create. If not specified, defaults to the next minor version.",  required = false)
     private String name;
 
     @Override
