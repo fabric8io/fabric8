@@ -33,7 +33,7 @@ public class ClusterList extends FabricCommand {
 
     protected static String CLUSTER_PREFIX = "/fabric/registry/clusters";
 
-    @Argument(required = false, description = "Path of the fabric registry node (Zookeeper registry node) to list. Relative paths are evaluated relative to the base node, " + CLUSTER_PREFIX + ". If not specified, all clusters are listed.")
+    @Argument(required = false, description = "Path of the fabric registry node (Zookeeper registry node) to list. Relative paths are evaluated relative to the base node, /fabric/registry/clusters. If not specified, all clusters are listed.")
     String path = "";
 
     @Override
