@@ -17,3 +17,12 @@ All of the code included with the examples are thoroughly documented by comments
 * `secure-rest` - demonstrates how to secure a RESTful Web service using JAAS
 * `secure-soap`- demonstrates how to use WS-Security to secure a JAX-WS Web service
 * `soap` - demonstrates how to build a SOAP/HTTP Web service using JAX-WS
+
+# FUSE IDE
+
+You can als import the examples in Fuse IDE to work with them and to be able to view the graphical representations of the Camel routes:
+
+1. From the menu, select File -> Import...
+2. In the dialog, select Maven -> Existing Maven Projects and click Next.
+3. In the next dialog, select your ESB installation's examples directory as the root directory.
+4. Eclipse will now scan for projects and list them in the 'Projects:' section - once that process is done, click 'Finish'.
