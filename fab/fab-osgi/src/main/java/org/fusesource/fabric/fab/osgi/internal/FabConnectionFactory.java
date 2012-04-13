@@ -33,6 +33,7 @@ import static org.fusesource.fabric.fab.osgi.util.ConfigurationAdminHelper.getPr
 /**
  * {@link ConnectionFactory} for the "fab" protocol
  */
+//TODO: remove this one?
 public class FabConnectionFactory implements ConnectionFactory<Configuration> {
     
     public URLConnection createConection(BundleContext bundleContext, URL url, Configuration config) throws MalformedURLException {
@@ -43,7 +44,7 @@ public class FabConnectionFactory implements ConnectionFactory<Configuration> {
             }
 
             URL jar = new URL(url.getPath());
-            return new FabConnection(jar, config, bundleContext);
+            return null;
         }
         throw new MalformedURLException("Unsupported protocol: " + protocol);
     }

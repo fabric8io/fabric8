@@ -20,10 +20,20 @@
            default-activation="lazy">
 
   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
+  <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" />
 
-  <bean id="fabUrlHandler" class="org.fusesource.fabric.fab.osgi.FabURLHandler">
+  <bean id="fabResolverFactory" class="org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl">
     <property name="bundleContext" ref="blueprintBundleContext" />
     <property name="configurationAdmin" ref="configurationAdmin" />
+    <property name="featuresService" ref="featuresService" />
+  </bean>
+
+  <!-- export the FAB resolver factory - this allows e.g. Fabric to learn about FAB resolution as well -->
+  <service ref="fabResolverFactory" interface="org.fusesource.fabric.fab.osgi.FabResolverFactory" />
+
+  <bean id="fabUrlHandler" class="org.fusesource.fabric.fab.osgi.FabURLHandler">
+    <property name="fabResolverFactory" ref="fabResolverFactory" />
+    <property name="serviceProvider" ref="fabResolverFactory" />
   </bean>
 
 

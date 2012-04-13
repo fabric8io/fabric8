@@ -19,6 +19,7 @@ package org.fusesource.fabric.fab.osgi.internal;
 import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
 import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.ops4j.net.URLUtils;
@@ -46,15 +47,17 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
     private final Properties instructions;
     private final Configuration configuration;
     private final Map<String, Object> embeddedResources;
+    private final PomDetails pomDetails;
     private final Set<String> actualImports = new HashSet<String>();
 
-    public FabBundleInfoImpl(FabClassPathResolver classPathResolver, String fabUri, Properties instructions, Configuration configuration, Map<String, Object> embeddedResources) {
+    public FabBundleInfoImpl(FabClassPathResolver classPathResolver, String fabUri, Properties instructions, Configuration configuration, Map<String, Object> embeddedResources, PomDetails pomDetails) {
         super();
         this.classPathResolver = classPathResolver;
         this.fabUri = fabUri;
         this.instructions = instructions;
         this.configuration = configuration;
         this.embeddedResources = embeddedResources;
+        this.pomDetails = pomDetails;
     }
 
     @Override
@@ -88,6 +91,11 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
     @Override
     public Collection<String> getFeatures() {
         return classPathResolver.getInstallFeatures();
+    }
+
+    @Override
+    public PomDetails getPomDetails() {
+        return pomDetails;
     }
 
     @Override

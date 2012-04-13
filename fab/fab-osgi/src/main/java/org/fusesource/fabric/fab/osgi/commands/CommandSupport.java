@@ -20,6 +20,7 @@ package org.fusesource.fabric.fab.osgi.commands;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.FabURLHandler;
 import org.fusesource.fabric.fab.osgi.internal.BundleFabFacade;
 import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;

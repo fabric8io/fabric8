@@ -17,9 +17,11 @@
 
 package org.fusesource.fabric.fab.osgi;
 
+import org.apache.karaf.features.FeaturesService;
 import org.fusesource.fabric.fab.osgi.internal.Activator;
 import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabConnection;
+import org.fusesource.fabric.fab.osgi.internal.ServiceProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -36,8 +38,9 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
     private static final Logger logger = LoggerFactory.getLogger(FabURLHandler.class);
 
 	private URL fabJarURL;
-    private BundleContext bundleContext;
-    private ConfigurationAdmin configurationAdmin;
+    private ServiceProvider serviceProvider;
+
+    private FabResolverFactory fabResolverFactory;
 
     /**
      * Open the connection for the given URL.
@@ -54,36 +57,17 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 		fabJarURL = new URL(url.getPath());
 
 		logger.debug("FAB jar URL is: [" + fabJarURL + "]");
-        Configuration config = createConfiguration();
-        return new FabConnection(fabJarURL, config, getBundleContext());
+
+        return new FabConnection(fabJarURL, fabResolverFactory, serviceProvider);
+        //return new FabConnection(fabJarURL, config, getBundleContext());
 	}
 
-    private Configuration createConfiguration() {
-        return Configuration.newInstance(configurationAdmin, bundleContext);
+    public void setFabResolverFactory(FabResolverFactory fabResolverFactory) {
+        this.fabResolverFactory = fabResolverFactory;
     }
 
-    public URL getFabJarURL() {
-		return fabJarURL;
-	}
-
-    public BundleContext getBundleContext() {
-        if (bundleContext == null) {
-            // lets try find it ourselves
-            bundleContext = Activator.getInstanceBundleContext();
-        }
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
-
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    public void setServiceProvider(ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
     }
 }
 

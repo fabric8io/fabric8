@@ -17,6 +17,7 @@
 package org.fusesource.fabric.fab.osgi;
 
 import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.PomDetails;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -53,5 +54,11 @@ public interface FabBundleInfo {
      * Get the list of additional features to be installed for this FAB
      */
     Collection<String> getFeatures();
+
+    /**
+     * Get the POM details for the artifact that we resolved as a FAB
+     */
+    PomDetails getPomDetails();
+
 
 }
