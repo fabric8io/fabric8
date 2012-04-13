@@ -29,14 +29,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -113,7 +106,7 @@ public class BndUtils
                                            final OverwriteMode overwriteMode,
                                            final Map<String, Object> embeddedResources,
                                            final Map<String, Map<String, String>> extraImportPackages,
-                                           final HashSet<String> actualImports,
+                                           final Set<String> actualImports,
                                            final VersionResolver versionResolver)
         throws Exception
     {

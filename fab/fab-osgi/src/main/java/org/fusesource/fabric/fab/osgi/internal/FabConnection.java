@@ -27,6 +27,7 @@ import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
 import org.fusesource.fabric.fab.osgi.util.PruningFilter;
@@ -58,7 +59,7 @@ import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 /**
  * {@link URLConnection} for the "fab" protocol
  */
-public class FabConnection extends URLConnection implements FabFacade, VersionResolver {
+public class FabConnection extends URLConnection implements FabFacade  {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabConnection.class);
 
     private Configuration configuration;
@@ -218,20 +219,16 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                         "Instructions file must contain a property named " + ServiceConstants.INSTR_FAB_URL
                 );
             }
-            HashSet<String> actualImports = new HashSet<String>();
-            InputStream rc = BndUtils.createBundle(
-                    URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
-                    instructions,
-                    fabUri,
-                    OverwriteMode.MERGE,
-                    embeddedResources,
-                    classPathResolver.getExtraImportPackages(),
-                    actualImports,
-                    this);
 
-            installMissingFeatures();
+            FabBundleInfo info = new FabBundleInfoImpl(classPathResolver, fabUri, instructions, configuration, embeddedResources);
+            HashSet<String> actualImports = new HashSet<String>();
+            InputStream rc = info.getInputStream();
+            actualImports.addAll(info.getImports());
+
+
+            installMissingFeatures(info);
             if (getConfiguration().isInstallMissingDependencies()) {
-                installMissingDependencies(actualImports);
+                installMissingDependencies(info, actualImports);
             } else {
                 LOG.info("Not installing dependencies as not enabled");
             }
@@ -246,12 +243,12 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     /*
      * Install all the required feature URLs and features for this FAB
      */
-    private void installMissingFeatures() {
+    private void installMissingFeatures(FabBundleInfo info) {
         ServiceReference reference = bundleContext.getServiceReference(FeaturesService.class.getName());
         try {
             final FeaturesService service = (FeaturesService) bundleContext.getService(reference);
 
-            for (URI uri : classPathResolver.getInstallFeatureURLs()) {
+            for (URI uri : info.getFeatureURLs()) {
                 try {
                     service.addRepository(uri);
                 } catch (Exception e) {
@@ -259,7 +256,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                 }
             }
 
-            for (String feature : classPathResolver.getInstallFeatures()) {
+            for (String feature : info.getFeatures()) {
                 try {
                     installMissingFeature(service, feature);
                 } catch (Exception e) {
@@ -288,12 +285,12 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
     }
 
 
-    protected void installMissingDependencies(HashSet<String> actualImports) throws IOException, BundleException, InvalidSyntaxException {
+    protected void installMissingDependencies(FabBundleInfo info, HashSet<String> actualImports) throws IOException, BundleException, InvalidSyntaxException {
         BundleContext bundleContext = getBundleContext();
         if (bundleContext == null) {
             LOG.warn("No BundleContext available so cannot install provided dependencies");
         } else {
-            for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
+            for (DependencyTree dependency : info.getBundles()) {
                 if (dependency.isBundle()) {
                     // Expand the actual imports list with imports of our dependencies
                     String importPackages = dependency.getManifestEntry(Analyzer.IMPORT_PACKAGE);
@@ -310,7 +307,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                 }
             }
 
-            for (DependencyTree dependency : classPathResolver.getInstallDependencies() ) {
+            for (DependencyTree dependency : info.getBundles()) {
                 String name = dependency.getBundleSymbolicName();
                 String version = dependency.getVersion();
                 if (Bundles.isInstalled(bundleContext, name, version)) {
@@ -322,7 +319,7 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
                     p.retainAll(actualImports);
 
                     // Now which of the packages are not exported in the OSGi env for this version?
-                    Set<String> missing = Bundles.filterInstalled(bundleContext, p, this);
+                    Set<String> missing = Bundles.filterInstalled(bundleContext, p, (VersionResolver) info);
 
                     // we may be dependent on the actual service it exposes rather than packages we import...
                     boolean hasNoPendingPackagesOrServices = false;
@@ -409,80 +406,6 @@ public class FabConnection extends URLConnection implements FabFacade, VersionRe
         } finally {
             bundleContext.ungetService(reference);
         }
-    }
-
-    @Override
-    public String resolvePackageVersion(String packageName) {
-        DependencyTree dependency = resolvePackageDependency(packageName);
-        if (dependency != null) {
-            // lets find the export packages and use the version from that
-            if (dependency.isBundle()) {
-                String exportPackages = dependency.getManifestEntry("Export-Package");
-                if (notEmpty(exportPackages)) {
-                    Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
-                    Map<String, String> map = values.get(packageName);
-                    if (map != null) {
-                        String version = map.get("version");
-                        if (version == null) {
-                            version = map.get("specification-version");
-                        }
-                        if (version != null) {
-                            return toVersionRange(version);
-                        }
-                    }
-                }
-            }
-            String version = dependency.getVersion();
-            if (version != null) {
-                // lets convert to OSGi
-                String osgiVersion = VersionCleaner.clean(version);
-                return toVersionRange(osgiVersion);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public String resolveExportPackageVersion(String packageName) {
-        List<DependencyTree> dependencies = new ArrayList<DependencyTree>(classPathResolver.getSharedDependencies());
-
-        // lets add the root too in case its an exported package we are resolving
-        dependencies.add(classPathResolver.getRootTree());
-
-        DependencyTree dependency = resolvePackageDependency(packageName, dependencies);
-        if (dependency != null) {
-            return Versions.getOSGiPackageVersion(dependency, packageName);
-
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isPackageOptional(String packageName) {
-        DependencyTree dependency = resolvePackageDependency(packageName);
-        if (dependency != null) {
-            // mark optional dependencies which are explicitly marked as included as not being optional
-            return dependency.isThisOrDescendantOptional() && classPathResolver.getOptionalDependencyFilter().matches(dependency);
-        }
-        return true;
-    }
-
-    public DependencyTree resolvePackageDependency(String packageName) {
-        return resolvePackageDependency(packageName, classPathResolver.getSharedDependencies());
-    }
-
-    protected DependencyTree resolvePackageDependency(String packageName, List<DependencyTree> dependencies) {
-        for (DependencyTree dependency : dependencies) {
-            try {
-                Set<String> packages = dependency.getPackages();
-                if (packages.contains(packageName)) {
-                    return dependency;
-                }
-            } catch (IOException e) {
-                LOG.warn("Failed to get the packages on dependency: " + dependency + ". " + e, e);
-            }
-        }
-        return null;
     }
 
     @Override
