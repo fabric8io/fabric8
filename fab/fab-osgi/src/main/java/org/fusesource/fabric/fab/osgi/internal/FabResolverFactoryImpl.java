@@ -1,6 +1,21 @@
+/**
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.fusesource.fabric.fab.osgi.internal;
 
-import aQute.lib.osgi.Analyzer;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.model.Model;
@@ -15,8 +30,6 @@ import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
 import org.fusesource.fabric.fab.osgi.util.PruningFilter;
-import org.fusesource.fabric.fab.osgi.util.Service;
-import org.fusesource.fabric.fab.osgi.util.Services;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Objects;
@@ -32,22 +45,18 @@ import org.sonatype.aether.graph.Dependency;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 
 import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
- * Created with IntelliJ IDEA.
- * User: gertv
- * Date: 13/04/12
- * Time: 10:12
- * To change this template use File | Settings | File Templates.
+ * Implementation for {@link FabResolverFactory} - this implementation will be instantiated by Blueprint
+ * and get injected with appropriate bundle context / configuration admin / features service.
+ *
+ * It will also be embedded inside Fabric's FAB support, but there the features service will not available.
  */
 public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvider {
 
@@ -94,7 +103,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         }
     }
 
-    private class FabResolverImpl implements FabResolver, FabFacade  {
+    protected class FabResolverImpl implements FabResolver, FabFacade  {
 
         private Configuration configuration;
         private final BundleContext bundleContext;
@@ -117,15 +126,6 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
             String path = url.getPath();
             if (path == null || path.trim().length() == 0) {
                 throw new MalformedURLException("Path cannot empty");
-            }
-            this.configuration = Configuration.newInstance(FabResolverFactoryImpl.this.configurationAdmin, bundleContext);
-            String[] repositories = configuration.getMavenRepositories();
-            if (repositories != null) {
-                resolver.setRepositories(repositories);
-            }
-            String localrepo = configuration.getLocalMavenRepository();
-            if (localrepo != null) {
-                resolver.setLocalRepo(localrepo);
             }
         }
 
@@ -236,7 +236,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
                     );
                 }
 
-                FabBundleInfo info = new FabBundleInfoImpl(classPathResolver, fabUri, instructions, configuration, embeddedResources, resolvePomDetails());
+                FabBundleInfo info = new FabBundleInfoImpl(classPathResolver, fabUri, instructions, getConfiguration(), embeddedResources, resolvePomDetails());
                 return info;
             } catch (IOException e) {
                 throw e;
@@ -248,6 +248,17 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
 
         @Override
         public Configuration getConfiguration() {
+            if (configuration == null) {
+                this.configuration = Configuration.newInstance(FabResolverFactoryImpl.this.configurationAdmin, bundleContext);
+                String[] repositories = configuration.getMavenRepositories();
+                if (repositories != null) {
+                    resolver.setRepositories(repositories);
+                }
+                String localrepo = configuration.getLocalMavenRepository();
+                if (localrepo != null) {
+                    resolver.setLocalRepo(localrepo);
+                }
+            }
             return configuration;
         }
 
@@ -269,9 +280,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
          * Strategy method to allow the instructions to be processed by derived classes
          */
         protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException, BundleException {
-            classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
-            classPathResolver.addPruningFilter(new CamelFeaturesFilter(FabResolverFactoryImpl.this.getFeaturesService()));
-            classPathResolver.resolve();
+            getClasspathResolver(instructions, embeddedResources).resolve();
         }
 
         @Override
@@ -294,6 +303,18 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
 
         public boolean isInstalled(DependencyTree tree) {
             return FabFacadeSupport.isInstalled(getBundleContext(), tree);
+        }
+
+        public FabClassPathResolver getClasspathResolver(Properties instructions, Map<String, Object> embeddedResources) {
+            if (classPathResolver == null) {
+                classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
+
+                // e.g. when used inside Fabric, the features service is not available
+                if (featuresService != null) {
+                    classPathResolver.addPruningFilter(new CamelFeaturesFilter(FabResolverFactoryImpl.this.getFeaturesService()));
+                }
+            }
+            return classPathResolver;
         }
     }
 

@@ -69,7 +69,7 @@ public class FabClassPathResolver {
     private boolean offline = false;
 
     // filters used for pruning unnecessary nodes from the dependency tree
-    private final List<PruningFilter> pruningFilters = new LinkedList<PruningFilter>();
+    protected final List<PruningFilter> pruningFilters = new LinkedList<PruningFilter>();
 
     HashSet<String> sharedFilterPatterns = new HashSet<String>();
     HashSet<String> requireBundleFilterPatterns = new HashSet<String>();
