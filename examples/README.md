@@ -20,7 +20,7 @@ All of the code included with the examples are thoroughly documented by comments
 
 # FUSE IDE
 
-You can als import the examples in Fuse IDE to work with them and to be able to view the graphical representations of the Camel routes:
+You can also import the examples in Fuse IDE to work with them and to be able to view the graphical representations of the Camel routes:
 
 1. From the menu, select File -> Import...
 2. In the dialog, select Maven -> Existing Maven Projects and click Next.
