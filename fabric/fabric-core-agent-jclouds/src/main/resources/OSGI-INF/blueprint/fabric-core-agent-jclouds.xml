@@ -25,6 +25,9 @@
                filter="(completer-type=location)" availability="optional"/>
     <reference id="groupCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=group)" availability="optional"/>
+    <reference id="osFamilyCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=osfamily)" availability="optional"/>
+
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <reference-list interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport" availability="optional">
@@ -34,6 +37,8 @@
     <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
         <reference-listener ref="jcloudsContainerProvider" bind-method="bind" unbind-method="unbind"/>
     </reference-list>
+
+    <reference id="computeProviderListener" interface="org.jclouds.karaf.core.ComputeProviderListener" availability="optional"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/container-create-cloud">
@@ -47,6 +52,7 @@
                 <entry key="--group" value-ref="groupCompleter"/>
                 <entry key="--profile" value-ref="profileCompleter"/>
                 <entry key="--resolver" value-ref="resolverCompleter"/>
+                <entry key="--os-family" value-ref="osFamilyCompleter"/>
             </optional-completers>
         </command>
         <command name="fabric/cloud-provider-add">
@@ -67,6 +73,8 @@
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="computeProviderListener" ref="computeProviderListener"/>
+                <property name="computeServices" ref="computeServices"/>
             </action>
         </command>
     </command-bundle>
@@ -93,6 +101,7 @@
 
     <bean id="jcloudsContainerProvider" class="org.fusesource.fabric.service.jclouds.JcloudsContainerProvider">
         <property name="firewallManagerFactory" ref="firewallManagerFactory"/>
+        <property name="credentialStore" ref="zookeeperCredentialStore"/>
     </bean>
 
     <service ref="ec2FirewallSupport" interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport"/>
