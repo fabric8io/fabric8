@@ -1,6 +1,7 @@
 # Fuse ESB Enterprise Examples
 
 The examples included with Fuse ESB Enterprise are intended to demonstrate how to implement common use cases. Each example includes a `README.md` file that explains:
+
 * the use case shown in the example
 * the prerequisites for building and running the example
 * directions for building and running the example
@@ -20,7 +21,9 @@ All of the code included with the examples are thoroughly documented by comments
 
 # FUSE IDE
 
-You can also import the examples in Fuse IDE to work with them and to be able to view the graphical representations of the Camel routes:
+You can import the Fuse ESB Enterprise examples into Fuse IDE. Fuse IDE allows you to view graphical representations of the Camel routes and to perform run time testing in a distributed environment.
+
+To import the examples into Fuse IDE:
 
 1. From the menu, select File -> Import...
 2. In the dialog, select Maven -> Existing Maven Projects and click Next.

@@ -33,7 +33,7 @@ import java.util.GregorianCalendar;
 import java.util.Random;
 
 /**
- * An order service implementation, providing a method to do validation as well as another method that just
+ * An order service implementation that provides one method to do validation and another method that just
  * randomly throws Exceptions to be able to test error handling in our Camel route.
  */
 public class OrderService {

@@ -18,7 +18,7 @@
     under the License.
 -->
 <!--
-   This file is the OSGi Blueprint XML file defining the CXF JAX-RS beans.  Because the file is in the
+   This is the OSGi Blueprint XML file defining the CXF JAX-RS beans.  Because the file is in the
    OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
 
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint

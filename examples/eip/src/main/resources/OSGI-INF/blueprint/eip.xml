@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 <!--
-   This file is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
+   This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
    OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
 
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
@@ -30,7 +30,7 @@
 
 
     <!--
-      We are using the OSGi Blueprint XML syntax to define a bean that we will later use in our Camel route to determine
+      We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to determine
       the geographical region. The code for this bean can be found in src/main/java/org/fusesource/examples/eip/RegionSupport.java
     -->
     <bean id="MyRegionSupport" class="org.fusesource.examples.eip.RegionSupport" />
@@ -49,8 +49,8 @@
                   id="eip-example-context">
 
         <!--
-          This is the main Camel route.  In Camel, you can always split up routes in more manageable bits and pieces and
-          using direct: endpoint to link those routes together again.
+          This is the main Camel route.  In Camel, you can split up routes into more manageable bits and pieces and
+          using a direct: endpoint to link those routes together again.
 
           In this case, files will be sent to the direct:splitter endpoint after a wiretap has sent a copy of the message
           to the direct:wiretap endpoint.  The routes behind these endpoints are defined below.
@@ -65,7 +65,7 @@
 
         <!--
           This route starts with the direct:wiretap endpoint we used in our main route.  Whenever the wiretap in the main route
-           sends a message to this endpoint, the route below will log a human-friendly message and afterwards it stores a copy
+           sends a message to this endpoint, the route below will log a human-friendly message and store a copy
            of the message in the work/eip/archive directory.
         -->
         <route id="wiretapRoute">
@@ -104,7 +104,7 @@
                 -->
                 <log message="[splitter] Shipping order ${header.orderId} to region ${header.region}"/>
                 <!--
-                  A recipient list can be used to dynamically determine the next hops for a message.  In this case, we dynamically
+                  A recipient list can be used to dynamically determine the next steps for a message.  In this case, we dynamically
                   generate the file: endpoint uri using the two headers we defined earlier.  We will also send the message to the
                   direct:filter endpoint to see if the order needs attention from our strategic account management team.
                 -->
@@ -116,7 +116,7 @@
 
         <!--
           This route starts with the direct:filter endpoint we used in the <recipientList> in our splitter route.
-          It will use a Filter EIP to filter out the order messages that contain more than 100 animals in a single order.
+          It uses a Filter EIP to filter out the order messages that contain more than 100 animals in a single order.
           For all messages that meet the XPath filter expression,  an extra message will appear in the logs.
         -->
         <route id="filterRoute">

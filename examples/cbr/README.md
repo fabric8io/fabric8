@@ -21,25 +21,30 @@ Before building and running this example you need:
 * JDK 1.6
 * Fuse ESB Enterprise 7
 
+## Files in the Example
+* `pom.xml` - the Maven POM file for building the example
+* `src/main/resources/OSGI-INF/blueprint/cbr.xml` - the OSGI Blueprint file that defines the route
+* `test/data/*.xml` - data files that can be used to test the route
+
 ## Building the Example
 To build the example:
 
-1. Change your working directory to the `examples/cbr` directory
-2. Run `mvn clean install` to build the example
+1. Change your working directory to the `examples/cbr` directory.
+2. Run `mvn clean install` to build the example.
 
 ## Running the Example
 To run the example:
 
-1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
+1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
 2. In the Fuse ESB console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/cbr/${project.version}
-3. As soon as the Camel route has been started, you will see a directory `work/cbr/input` in your Fuse ESB installation
-4. Copy the files you find in this example's `src/test/data` directory to the newly created `work/cbr/input` directory
-5. Wait a few moment and you will find the same files organized by country under `work/cbr/output`
+3. As soon as the Camel route has been started, you will see a directory `work/cbr/input` in your Fuse ESB installation.
+4. Copy the files you find in this example's `src/test/data` directory to the newly created `work/cbr/input` directory.
+5. Wait a few moment and you will find the same files organized by country under the `work/cbr/output` directory.
 ** `order1.xml` in `work/cbr/output/others`
 ** `order2.xml` and `order4.xml` in `work/cbr/output/uk`
 ** `order3.xml` and `order5.xml` in `work/cbr/output/us`
-6. Use `log:display` to check out the business logging
+6. Use `log:display` to check out the business logging.
         Receiving order order1.xml
         Sending order order1.xml to another country
         Done processing order1.xml
@@ -48,3 +53,4 @@ To run the example:
 For more information see:
 
 * http://www.enterpriseintegrationpatterns.com/ContentBasedRouter.html for more information about the CBR EIP
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
