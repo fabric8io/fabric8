@@ -16,13 +16,15 @@
  */
 package org.fusesource.fabric.fab.osgi;
 
-import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.PomDetails;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Set;
+import java.util.jar.Attributes;
+
+import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.PomDetails;
 
 /**
  * Information about a resolved Fuse Application Bundle.  This class will allow you to access the FAB's InputStream
@@ -31,9 +33,19 @@ import java.util.Set;
 public interface FabBundleInfo {
 
     /**
+     * Get the original jar url
+     */
+    String getUrl();
+
+    /**
      * Access the FAB's input stream
      */
-    InputStream getInputStream() throws Exception;
+    InputStream getInputStream() throws IOException;
+
+    /**
+     * Get the computed manifest attributes
+     */
+    Attributes getManifest();
 
     /**
      * Get the list of imports determined by the FAB resolver process
@@ -59,6 +71,5 @@ public interface FabBundleInfo {
      * Get the POM details for the artifact that we resolved as a FAB
      */
     PomDetails getPomDetails();
-
 
 }

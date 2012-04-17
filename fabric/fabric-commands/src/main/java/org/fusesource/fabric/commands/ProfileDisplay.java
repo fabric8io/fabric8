@@ -99,8 +99,7 @@ public class ProfileDisplay extends FabricCommand {
             else if (key.startsWith("config.")) {
                 configProperties.add("  " + key.substring("config.".length()) + " = " + value);
             }
-            else if (!key.startsWith("feature.") && !key.startsWith("repository") && !key.startsWith("bundle.")) {
-
+            else if (!key.startsWith("feature.") && !key.startsWith("repository") && !key.startsWith("bundle.") && !key.startsWith("fab.")) {
                 agentProperties.add("  " + key + " = " + value);
             }
         }
@@ -117,6 +116,9 @@ public class ProfileDisplay extends FabricCommand {
             }
             if (profile.getBundles().size() > 0) {
                 printConfigList("Bundles : ", output, profile.getBundles());
+            }
+            if (profile.getFabs().size() > 0) {
+                printConfigList("Fabs : ", output, profile.getFabs());
             }
 
             if (agentProperties.size() > 0) {

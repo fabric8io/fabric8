@@ -16,11 +16,11 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -43,6 +43,7 @@ public class ProfileEdit extends FabricCommand {
     static final String FEATURE_PREFIX = "feature.";
     static final String REPOSITORY_PREFIX = "repository.";
     static final String BUNDLE_PREFIX = "bundle.";
+    static final String FAB_PREFIX = "fab.";
     static final String CONFIG_PREFIX = "config.";
     static final String SYSTEM_PREFIX = "system.";
     static final String DELIMETER = ",";
@@ -57,6 +58,9 @@ public class ProfileEdit extends FabricCommand {
 
     @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles, specifying a comma-separated list of bundles to add (or delete).", required = false, multiValued = false)
     private String bundlesList;
+
+    @Option(name = "-f", aliases = {"--fabs"}, description = "Edit fabs, specifying a comma-separated list of fabs to add (or delete).", required = false, multiValued = false)
+    private String fabsList;
 
     @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>.", required = false, multiValued = false)
     private String configAdminConfigList;
@@ -123,6 +127,12 @@ public class ProfileEdit extends FabricCommand {
             String[] bundles = bundlesList.split(DELIMETER);
             for (String bundlesLocation : bundles) {
                 updateConfig(pidConfig, BUNDLE_PREFIX + bundlesLocation.replace('/', '_'), bundlesLocation, set, delete);
+            }
+        }
+        if (fabsList != null && !fabsList.isEmpty()) {
+            String[] fabs = fabsList.split(DELIMETER);
+            for (String fabsLocation : fabs) {
+                updateConfig(pidConfig, FAB_PREFIX + fabsLocation.replace('/', '_'), fabsLocation, set, delete);
             }
         }
 

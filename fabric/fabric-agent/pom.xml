@@ -36,21 +36,54 @@
             !org.kxml2.io,
             !org.xmlpull.v1,
             !org.osgi.service.obr,
+            !org.osgi.service.framework,
+            !org.apache.commons.httpclient.*,
+            !org.apache.felix.fileinstall,
+            !org.apache.felix.gogo.commands,
+            !org.apache.felix.service.command,
+            !org.apache.karaf.shell.console,
+            !org.fusesource.jansi,
+            !org.cyberneko.html.*,
+            !com.google.common.collect,
+            !hidden.org.codehaus.plexus.interpolation,
+            !jline,
+            !junit.framework,
+            !org.apache.xbean.recipe,
+            !org.apache.xerces.*,
+            !org.codehaus.classworlds,
+            !org.eclipse.osgi.*,
+            javax.*,
+            org.w3c.*,
+            org.xml.sax.*,
             org.osgi.service.event*;resolution:=optional,
             org.osgi.service.obr*;resolution:=optional,
+            org.osgi.*,
             org.apache.felix.framework.monitor;resolution:=optional,
-            *
+            org.apache.commons.logging.*,
+            org.slf4j.*,
+            org.linkedin.zookeeper.*,
+            org.apache.zookeeper.*,
+            org.fusesource.fabric.zookeeper.*,
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
+            =META-INF;-split-package:=merge-first,
+            =META-INF.nexus;-split-package:=merge-first,
             org.fusesource.fabric.agent,
             org.fusesource.fabric.agent.mvn,
             org.fusesource.fabric.agent.download,
             org.fusesource.fabric.agent.utils,
             org.apache.felix.bundlerepository*,
-            org.apache.karaf.features*,
+            org.apache.karaf.features.*,
             org.apache.felix.utils.*,
+            org.apache.aries.util*,
+            org.fusesource.fabric.fab.*,
+            aQute.*,
+            org.apache.maven.*,
+            org.sonatype.aether.*,
+            org.codehaus.plexus.*,
+            org.ops4j.*,
         </fuse.osgi.private.pkg>
         <fuse.osgi.activator>
             org.fusesource.fabric.agent.Activator
@@ -112,6 +145,44 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric.fab</groupId>
+            <artifactId>fab-osgi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric.fab</groupId>
+            <artifactId>fab-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-commons</artifactId>
+            <version>${pax.url.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-mvn</artifactId>
+            <version>${pax.url.mvn.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.base</groupId>
+            <artifactId>ops4j-base-net</artifactId>
+            <version>${ops4j-base.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.swissbox</groupId>
+            <artifactId>pax-swissbox-optional-jcl</artifactId>
+            <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

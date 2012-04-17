@@ -46,6 +46,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.framework.monitor.MonitoringService;
@@ -58,6 +60,7 @@ import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeatureValidationUtil;
+import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.apache.karaf.features.internal.RepositoryImpl;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
@@ -69,6 +72,9 @@ import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.fusesource.fabric.agent.utils.MultiException;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
+import org.fusesource.fabric.fab.osgi.FabResolver;
+import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
@@ -105,7 +111,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private final Object refreshLock = new Object();
     private long refreshTimeout = 5000;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
     private ExecutorService downloadExecutor;
     private volatile boolean shutdownDownloadExecutor;
     private DownloadManager manager;
@@ -181,10 +187,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     public void updated(final Dictionary props) throws ConfigurationException {
         executor.submit(new Runnable() {
             public void run() {
-                Exception result = null;
+                Throwable result = null;
                 try {
                     doUpdate(props);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     result = e;
                     LOGGER.error("Unable to update agent", e);
                 }
@@ -193,7 +199,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         });
     }
 
-    private void updateStatus(String status, Exception result) {
+    private void updateStatus(String status, Throwable result) {
         try {
             IZKClient zk = zkClient.call();
             if (zk != null) {
@@ -312,8 +318,20 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
             }
         }
+        Set<String> fabs = new HashSet<String>();
+        for (String key : properties.keySet()) {
+            if (key.startsWith("fab.")) {
+                String url = properties.get(key);
+                if (url == null || url.length() == 0) {
+                    url = key.substring("fab.".length());
+                }
+                if (url != null && url.length() > 0) {
+                    fabs.add(url);
+                }
+            }
+        }
         // Update bundles
-        updateDeployment(repositories, features, bundles);
+        updateDeployment(repositories, features, bundles, fabs);
     }
 
     private void addMavenProxies(Dictionary props) {
@@ -423,12 +441,34 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return set;
     }
 
-    private void updateDeployment(Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles) throws Exception {
+    private void updateDeployment(final Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles, Set<String> fabs) throws Exception {
+        FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
+        fabResolverFactory.setBundleContext(bundleContext);
+        fabResolverFactory.setFeaturesService(new FeaturesServiceImpl() {
+            @Override
+            public Repository[] listRepositories() {
+                return repositories.values().toArray(new Repository[repositories.size()]);
+            }
+        });
+        Map<String, FabBundleInfo> infos = new HashMap<String, FabBundleInfo>();
+        for (String fab : fabs) {
+            FabResolver resolver = fabResolverFactory.getResolver(new URL(fab));
+            FabBundleInfo info = resolver.getInfo();
+            for (String name : info.getFeatures()) {
+                Feature feature = search(name, repositories.values());
+                if (feature == null) {
+                    throw new IllegalArgumentException("Unable to find feature " + name);
+                }
+                features.add(feature);
+            }
+            LOGGER.info("Fab: " + info.getUrl());
+            infos.put("fab:" + info.getUrl(), info);
+        }
         Set<Feature> allFeatures = addFeatures(features, repositories.values());
         updateStatus("downloading", null);
         Map<String, File> downloads = downloadBundles(allFeatures, bundles);
         updateStatus("resolving", null);
-        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles);
+        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos.values());
 
         updateStatus("installing", null);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
@@ -530,29 +570,15 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
             Bundle bundle = entry.getKey();
             Resource resource = entry.getValue();
-            InputStream is;
             LOGGER.info("  " + resource.getURI());
-            File file = downloads.get(resource.getURI());
-            if (file != null) {
-                is = new FileInputStream(file);
-            } else {
-                LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
-                is = new URL(resource.getURI()).openStream();
-            }
+            InputStream is = getBundleInputStream(resource, downloads, infos);
             bundle.update(is);
             toRefresh.add(bundle);
         }
         LOGGER.info("Installing bundles:");
         for (Resource resource : toInstall) {
-            InputStream is;
             LOGGER.info("  " + resource.getURI());
-            File file = downloads.get(resource.getURI());
-            if (file != null) {
-                is = new FileInputStream(file);
-            } else {
-                LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
-                is = new URL(resource.getURI()).openStream();
-            }
+            InputStream is = getBundleInputStream(resource, downloads, infos);
             Bundle bundle = systemBundleContext.installBundle(resource.getURI(), is);
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
@@ -595,6 +621,21 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
 
         LOGGER.info("Done.");
+    }
+
+    private InputStream getBundleInputStream(Resource resource, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws IOException {
+        InputStream is;
+        File file;
+        FabBundleInfo info;
+        if ((file = downloads.get(resource.getURI())) != null) {
+            is = new FileInputStream(file);
+        } else if ((info = infos.get(resource.getURI())) != null) {
+            is = info.getInputStream();
+        } else {
+            LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
+            is = new URL(resource.getURI()).openStream();
+        }
+        return is;
     }
 
     private List<Bundle> getBundlesToDestroy(List<Bundle> bundles) {
@@ -878,4 +919,30 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
     }
 
+    static class NamedThreadFactory implements ThreadFactory {
+        private static final AtomicInteger poolNumber = new AtomicInteger(1);
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String namePrefix;
+
+        NamedThreadFactory(String prefix) {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() :
+                    Thread.currentThread().getThreadGroup();
+            namePrefix = prefix + "-" +
+                    poolNumber.getAndIncrement() +
+                    "-thread-";
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r,
+                    namePrefix + threadNumber.getAndIncrement(),
+                    0);
+            if (t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+    }
 }
