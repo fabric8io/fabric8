@@ -16,7 +16,22 @@
  */
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.jar.Attributes;
+
 import aQute.lib.osgi.Analyzer;
+import aQute.lib.osgi.Jar;
 import org.apache.felix.utils.version.VersionCleaner;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.PomDetails;
@@ -25,12 +40,6 @@ import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.ops4j.net.URLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
 
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
@@ -49,8 +58,13 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
     private final Map<String, Object> embeddedResources;
     private final PomDetails pomDetails;
     private final Set<String> actualImports = new HashSet<String>();
+    private final Jar jar;
 
-    public FabBundleInfoImpl(FabClassPathResolver classPathResolver, String fabUri, Properties instructions, Configuration configuration, Map<String, Object> embeddedResources, PomDetails pomDetails) {
+    public FabBundleInfoImpl(FabClassPathResolver classPathResolver, String fabUri,
+                             Properties instructions, Configuration configuration,
+                             Map<String, Object> embeddedResources, PomDetails pomDetails)
+            throws Exception
+    {
         super();
         this.classPathResolver = classPathResolver;
         this.fabUri = fabUri;
@@ -58,11 +72,7 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
         this.configuration = configuration;
         this.embeddedResources = embeddedResources;
         this.pomDetails = pomDetails;
-    }
-
-    @Override
-    public InputStream getInputStream() throws Exception {
-        return BndUtils.createBundle(
+        this.jar = BndUtils.createJar(
                 URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
                 instructions,
                 fabUri,
@@ -71,6 +81,25 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
                 classPathResolver.getExtraImportPackages(),
                 actualImports,
                 this);
+    }
+
+    @Override
+    public String getUrl() {
+        return fabUri;
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return BndUtils.createInputStream( jar );
+    }
+
+    @Override
+    public Attributes getManifest() {
+        try {
+            return jar.getManifest().getMainAttributes();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override

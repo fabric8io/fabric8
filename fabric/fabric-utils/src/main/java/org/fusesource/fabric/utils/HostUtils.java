@@ -131,7 +131,7 @@ public class HostUtils {
      */
     public static String getLocalHostName() throws UnknownHostException {
         String preffered = System.getProperty(PREFERED_ADDRESS_PROPERTY_NAME);
-        return chooseAddress(preffered).getCanonicalHostName();
+        return chooseAddress(preffered).getHostName();
     }
 
     /**
