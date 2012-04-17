@@ -324,8 +324,9 @@ public class ServiceImpl implements Service {
                 String vr = att.getValue(Constants.BUNDLE_VERSION);
                 Version v = VersionTable.getVersion(vr);
                 // We can't really upgrade with versions such as 2.1.0
-                if (v.getMicro() > 0) {
-                    VersionRange range = new VersionRange(false, new Version(v.getMajor(), v.getMinor(), 0), v, true);
+                Version lower = new Version(v.getMajor(), v.getMinor(), 0);
+                if (v.compareTo(lower) > 0) {
+                    VersionRange range = new VersionRange(false, lower, v, true);
                     for (Bundle bundle : allBundles) {
                         Version oldV = bundle.getVersion();
                         if (sn.equals(bundle.getSymbolicName()) && range.contains(oldV)) {
