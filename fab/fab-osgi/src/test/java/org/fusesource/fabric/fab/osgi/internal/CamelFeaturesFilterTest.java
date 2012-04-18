@@ -34,7 +34,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test cases for {@link FabConnection.CamelFeaturesFilter}
+ * Test cases for {@link FabResolverFactoryImpl.CamelFeaturesFilter}
  */
 public class CamelFeaturesFilterTest {
 
@@ -43,7 +43,7 @@ public class CamelFeaturesFilterTest {
         FeaturesService service = createNiceMock(FeaturesService.class);
         replay(service);
 
-        FabConnection.CamelFeaturesFilter filter = new FabConnection.CamelFeaturesFilter(service);
+        FabResolverFactoryImpl.CamelFeaturesFilter filter = new FabResolverFactoryImpl.CamelFeaturesFilter(service);
 
         FabClassPathResolver resolver = new FabClassPathResolver(new FabClassPathResolverTest.MockFabFacade(), new Properties(), null);
         assertTrue("No configuration specified - filter should be enabled", filter.isEnabled(resolver));
@@ -74,7 +74,7 @@ public class CamelFeaturesFilterTest {
         FeaturesService service = createNiceMock(FeaturesService.class);
         replay(service);
 
-        FabConnection.CamelFeaturesFilter filter = new FabConnection.CamelFeaturesFilter(service);
+        FabResolverFactoryImpl.CamelFeaturesFilter filter = new FabResolverFactoryImpl.CamelFeaturesFilter(service);
         assertFalse("camel-blueprint feature should not have replaced the customer dependency",
                     filter.matches(DependencyTree.newBuilder("com.customer.group.id", "camel-blueprint", "2.9.0").build()));
         assertEquals(0, filter.getCollection().size());
@@ -89,7 +89,7 @@ public class CamelFeaturesFilterTest {
         expect(service.getFeature("camel-blueprint")).andReturn(feature);
         replay(service, feature);
 
-        FabConnection.CamelFeaturesFilter filter = new FabConnection.CamelFeaturesFilter(service);
+        FabResolverFactoryImpl.CamelFeaturesFilter filter = new FabResolverFactoryImpl.CamelFeaturesFilter(service);
         assertTrue("camel-blueprint feature should have replaced the dependency",
                    filter.matches(DependencyTree.newBuilder("org.apache.camel", "camel-blueprint", "2.9.0").build()));
         assertEquals(1, filter.getCollection().size());
@@ -105,7 +105,7 @@ public class CamelFeaturesFilterTest {
         expect(service.getFeature("camel-blueprint")).andReturn(null);
         replay(service, feature);
 
-        FabConnection.CamelFeaturesFilter filter = new FabConnection.CamelFeaturesFilter(service);
+        FabResolverFactoryImpl.CamelFeaturesFilter filter = new FabResolverFactoryImpl.CamelFeaturesFilter(service);
         assertFalse("camel-blueprint feature should not have replaced the dependency if no matching feature is available",
                     filter.matches(DependencyTree.newBuilder("org.apache.camel", "camel-blueprint", "2.9.0").build()));
         assertEquals(0, filter.getCollection().size());

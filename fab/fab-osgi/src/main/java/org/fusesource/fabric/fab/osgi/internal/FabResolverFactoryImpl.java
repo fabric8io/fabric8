@@ -312,6 +312,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
                 // e.g. when used inside Fabric, the features service is not available
                 if (featuresService != null) {
                     classPathResolver.addPruningFilter(new CamelFeaturesFilter(FabResolverFactoryImpl.this.getFeaturesService()));
+                    classPathResolver.addPruningFilter(new CXFFeaturesFilter(FabResolverFactoryImpl.this.getFeaturesService()));
                 }
             }
             return classPathResolver;
@@ -341,7 +342,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
                         result = true;
                     }
                 } catch (Exception e1) {
-                    LOG.debug("Unable to retrieve information about or unable to install Camel feature {} - installing the artifact instead of the feature", dependencyTree.getArtifactId());
+                    LOG.debug("Unable to retrieve information about Camel feature {} - installing the artifact instead of the feature", dependencyTree.getArtifactId());
                 }
             }
 
@@ -362,5 +363,57 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         public boolean isEnabled(FabClassPathResolver resolver) {
             return !Strings.splitAndTrimAsList(emptyIfNull(resolver.getManifestProperty(ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION)), "\\s+").contains("org.apache.camel");
         }
+    }
+
+
+    protected static class CXFFeaturesFilter implements PruningFilter, FeatureCollector {
+
+        private final FeaturesService service;
+        private final List<String> features = new LinkedList<String>();
+
+        public CXFFeaturesFilter(FeaturesService service) {
+            this.service = service;
+        }
+
+        @Override
+        public Collection<String> getCollection() {
+            return features;
+        }
+
+        @Override
+        public boolean isEnabled(FabClassPathResolver resolver) {
+            return !Strings.splitAndTrimAsList(emptyIfNull(resolver.getManifestProperty(ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION)), "\\s+").contains("org.apache.cxf");
+        }
+
+        @Override
+        public boolean matches(DependencyTree dependencyTree) {
+            final String groupId = dependencyTree.getGroupId();
+
+            if (groupId.equals("org.apache.cxf")) {
+                return replaceDependencyByFeature(dependencyTree, "cxf");
+            } else if (groupId.equals("org.apache.cxf.sts")) {
+                return replaceDependencyByFeature(dependencyTree, "cxf-sts");
+            } else if (groupId.equals("org.apache.cxf.wsn")) {
+                return replaceDependencyByFeature(dependencyTree, "cxf-wsn");
+            }
+
+            return false;
+        }
+
+        private boolean replaceDependencyByFeature(DependencyTree dependencyTree, String name) {
+            try {
+                Feature feature = service.getFeature(name);;
+                if (feature != null) {
+                    features.add(String.format("%s/%s", feature.getName(), feature.getVersion()));
+                    return true;
+                }
+            } catch (Exception e1) {
+                LOG.debug("Unable to retrieve information about CXF feature {} - installing the artifact instead of the feature", dependencyTree.getArtifactId());
+            }
+
+            return false;
+        }
+
+
     }
 }
