@@ -134,8 +134,12 @@
         
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-commands/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-zookeeper-commands" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-commands</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-commands/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-dosgi" version="${project.version}" resolver="(obr)">

@@ -1,20 +1,20 @@
-/**
+/*
  * Copyright (C) FuseSource, Inc.
- * http://fusesource.com
+ *   http://fusesource.com
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
  */
-package org.fusesource.fabric.zookeeper.commands;
+package org.fusesource.fabric.commands;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,22 +25,23 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.utils.RegexSupport;
 import org.linkedin.zookeeper.client.IZKClient;
+
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
-@Command(name = "export", scope = "zk", description = "Export the contents of the fabric registry to the specified directory in the filesystem", detailedDescription = "classpath:export.txt")
-public class Export extends ZooKeeperCommandSupport {
+@Command(name = "export", scope = "fabric", description = "Export the contents of the fabric registry to the specified directory in the filesystem", detailedDescription = "classpath:export.txt")
+public class Export extends FabricCommand {
 
     @Argument(description="Path of the directory to export to")
-    String target = "." + File.separator + "export";
+    String target = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "export";
 
     @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the export. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String regex[];
@@ -63,7 +64,6 @@ public class Export extends ZooKeeperCommandSupport {
     File ignore = new File(".fabricignore");
     File include = new File(".fabricinclude");
 
-    @Override
     protected void doExecute(IZKClient zk) throws Exception {
         if (ignore.exists() && ignore.isFile()) {
             nregex = merge(ignore, nregex);
@@ -111,7 +111,8 @@ public class Export extends ZooKeeperCommandSupport {
             byte[] data = zk.getData(p);
             if (data != null) {
                 String name = p;
-                if (!p.contains(".")) {
+                //Znodes that translate into folders and also have data need to change their name to avoid a collision.
+                if (!p.contains(".") || p.endsWith("fabric-ensemble")) {
                     name += ".cfg";
                 }
                 String value = new String(data);
@@ -192,5 +193,11 @@ public class Export extends ZooKeeperCommandSupport {
                 System.out.printf("Writing value \"%s\" to file : %s\n", settings.get(f), f);
             }
         }
+    }
+
+    @Override
+    protected Object doExecute() throws Exception {
+        doExecute(getZooKeeper());
+        return null;
     }
 }

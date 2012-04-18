@@ -1,33 +1,34 @@
 /**
  * Copyright (C) FuseSource, Inc.
- * http://fusesource.com
+ *   http://fusesource.com
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
  */
-package org.fusesource.fabric.zookeeper.commands;
+package org.fusesource.fabric.commands;
 
 import java.io.File;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.zookeeper.client.IZKClient;
 
+
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
-@Command(name = "import", scope = "zk", description = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)", detailedDescription = "classpath:import.txt")
-public class Import extends ZooKeeperCommandSupport {
+@Command(name = "import", scope = "fabric", description = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)", detailedDescription = "classpath:import.txt")
+public class Import extends FabricCommand {
 
     @Argument(description = "Location of a filesystem (if --filesystem is specified) or a properties file (if --properties is specified).")
     protected String source = "." + File.separator + "import";
@@ -59,7 +60,6 @@ public class Import extends ZooKeeperCommandSupport {
     File ignore = new File(".fabricignore");
     File include = new File(".fabricinclude");
 
-    @Override
     protected void doExecute(IZKClient zk) throws Exception {
         if (ignore.exists() && ignore.isFile()) {
             nregex = merge(ignore, nregex);
@@ -112,6 +112,12 @@ public class Import extends ZooKeeperCommandSupport {
 
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
+    }
+
+    @Override
+    protected Object doExecute() throws Exception {
+        doExecute(getZooKeeper());
+        return null;
     }
 }
 
