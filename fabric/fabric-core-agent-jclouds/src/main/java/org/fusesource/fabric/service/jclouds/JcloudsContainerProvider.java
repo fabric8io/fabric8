@@ -58,8 +58,11 @@ import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
+import org.jclouds.karaf.core.CredentialStore;
+import org.jclouds.logging.log4j.config.Log4JLoggingModule;
 import org.jclouds.rest.RestContextFactory;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
+import org.jclouds.sshj.config.SshjSshClientModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,11 +77,10 @@ import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScr
 public class JcloudsContainerProvider implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
-
-
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
     private FirewallManagerFactory firewallManagerFactory;
+    private CredentialStore credentialStore;
 
     public void bind(ComputeService computeService) {
         if(computeService != null) {
@@ -119,21 +121,24 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             case Fastest:
                 builder.fastest();
         }
-        //Define Image by OS & Version or By ImageId
-        if (options.getOsFamily() != null && options.getOsFamily() != null) {
+
+        //Define ImageId
+        if (!Strings.isNullOrEmpty(options.getImageId())) {
+            builder.imageId(options.getImageId());
+        }
+        //or define Image by OS & Version or By ImageId
+        else if (!Strings.isNullOrEmpty(options.getOsFamily()) && !Strings.isNullOrEmpty(options.getOsFamily())) {
             builder.osFamily(OsFamily.fromValue(options.getOsFamily()));
             builder.osVersionMatches(options.getOsVersion());
         }
-        else if (options.getImageId() != null) {
-            builder.imageId(options.getImageId());
-        }
+
 
         //Define Location & Hardware
-        if (options.getLocationId() != null) {
+        if (!Strings.isNullOrEmpty(options.getLocationId())) {
             builder.locationId(options.getLocationId());
         }
 
-        if (options.getHardwareId() != null) {
+        if (!Strings.isNullOrEmpty(options.getHardwareId())) {
             builder.hardwareId(options.getHardwareId());
         }
 
@@ -170,7 +175,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
                 LoginCredentials credentials = nodeMetadata.getCredentials();
                 //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
-                if (options.getUser() != null && credentials != null) {
+                if (!Strings.isNullOrEmpty(options.getUser()) && credentials != null) {
                     credentials = credentials.toBuilder().user(options.getUser()).build();
                 } else {
                     credentials = nodeMetadata.getCredentials();
@@ -340,7 +345,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 if (options.getIdentity() == null || options.getCredential() == null) {
                     throw new RuntimeException("Compute service not found, please specify provider, identity & credential in order to create one");
                 }
-                Iterable<? extends Module> modules = ImmutableSet.of();
+                Iterable<? extends Module> modules = ImmutableSet.of(new SshjSshClientModule(), new Log4JLoggingModule(), credentialStore);
 
                 Properties props = new Properties();
                 props.put("provider", options.getProviderName());
@@ -377,5 +382,13 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public void setFirewallManagerFactory(FirewallManagerFactory firewallManagerFactory) {
         this.firewallManagerFactory = firewallManagerFactory;
+    }
+
+    public CredentialStore getCredentialStore() {
+        return credentialStore;
+    }
+
+    public void setCredentialStore(CredentialStore credentialStore) {
+        this.credentialStore = credentialStore;
     }
 }

@@ -17,25 +17,78 @@
 
 package org.fusesource.fabric.service.jclouds.commands;
 
+import java.io.PrintStream;
 import java.util.List;
+import java.util.Set;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.jclouds.compute.ComputeService;
+import org.jclouds.karaf.core.ComputeProviderListener;
 
-@Command(name = "cloud-provider-add", scope = "fabric", description = "Registers a cloud provider to the registry.")
+@Command(name = "cloud-provider-list", scope = "fabric", description = "Registers a cloud provider to the registry.")
 public class CloudProviderList extends FabricCommand {
+
+    public static final String PROVIDERFORMAT = "%-24s %-12s %-12s";
+
+    private ComputeProviderListener computeProviderListener;
+    private List<ComputeService> computeServices;
 
     @Override
     protected Object doExecute() throws Exception {
-        List<String> providers = getZooKeeper().getChildren(ZkPath.CLOUD_CONFIG.getPath());
+        Set<String> providers = computeProviderListener.getInstalledProviders();
         if (providers != null && !providers.isEmpty()) {
-            System.out.println("[cloud providers]");
-            for (String provider : providers) {
-                System.out.println(provider);
-            }
+            printComputeProviders(providers,computeServices, "", System.out);
         } else {
             System.out.print("No providers have been found.");
         }
         return null;
+    }
+
+    protected void printComputeProviders(Set<String> providers, List<ComputeService> computeServices, String indent, PrintStream out) {
+        out.println(String.format(PROVIDERFORMAT, "[id]", "[type]", "[service registration]"));
+        for (String provider : providers) {
+            boolean registered = false;
+            String registrationType = "none";
+
+            for (ComputeService computeService:computeServices) {
+                if (computeService.getContext().getProviderSpecificContext().getId().equals(provider)) {
+                    registered = true;
+                    break;
+                }
+            }
+
+            if (getZooKeeper() != null && getZooKeeper().isConnected()) {
+                try {
+                    if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
+                        registrationType = "local";
+                    } else {
+                        registrationType = "fabric";
+                    }
+                } catch (Exception e) {
+                    //noop
+                }
+            } else if (registered) {
+                registrationType = "local";
+            }
+            out.println(String.format(PROVIDERFORMAT, provider, "compute", registrationType));
+        }
+    }
+
+    public ComputeProviderListener getComputeProviderListener() {
+        return computeProviderListener;
+    }
+
+    public void setComputeProviderListener(ComputeProviderListener computeProviderListener) {
+        this.computeProviderListener = computeProviderListener;
+    }
+
+    public List<ComputeService> getComputeServices() {
+        return computeServices;
+    }
+
+    public void setComputeServices(List<ComputeService> computeServices) {
+        this.computeServices = computeServices;
     }
 }

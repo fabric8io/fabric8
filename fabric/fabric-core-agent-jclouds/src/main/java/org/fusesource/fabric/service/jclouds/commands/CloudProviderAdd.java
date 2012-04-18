@@ -17,8 +17,10 @@
 
 package org.fusesource.fabric.service.jclouds.commands;
 
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Properties;
+import com.google.common.base.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -26,12 +28,19 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Command(name = "cloud-provider-add", scope = "fabric", description = "Registers a cloud provider to the registry.")
 public class CloudProviderAdd extends FabricCommand {
 
-    @Argument(index = 0, name = "provider", required = true, description = "JClouds provider name")
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudProviderAdd.class);
+
+    private static final String FACTORY_FILTER = "(service.factoryPid=%s)";
+
+    @Argument(index = 0, name = "provider", required = true, description = "The cloud provider name")
     private String provider;
     @Argument(index = 1, name = "identity", required = false, description = "The cloud identity to use")
     private String identity;
@@ -46,8 +55,7 @@ public class CloudProviderAdd extends FabricCommand {
 
         Container current = fabricService.getCurrentContainer();
         if (!getZooKeeper().isConnected() || !current.isManaged()) {
-
-            Configuration configuration = configurationAdmin.createFactoryConfiguration("org.jclouds.compute", null);
+            Configuration configuration = findOrCreateFactoryConfiguration("org.jclouds.compute", provider);
             Dictionary dictionary = configuration.getProperties();
             if (dictionary == null) {
                 dictionary = new Properties();
@@ -56,14 +64,48 @@ public class CloudProviderAdd extends FabricCommand {
             dictionary.put("credential", credential);
             dictionary.put("identity", identity);
             dictionary.put("credential-store", "zookeeper");
-            configuration.update(dictionary);
-        } else {
+            if (!Strings.isNullOrEmpty(owner) && "aws-ec2".equals(provider)) {
+                dictionary.put("jclouds.ec2.ami-owners", owner);
 
+            }
+            configuration.update(dictionary);
+        }
+
+        if (getZooKeeper().isConnected()) {
             ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_PROVIDER.getPath(provider));
             ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
             ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
+        } else {
+            System.out.println("Fabric has not been initialized. Provider registration is local to the current container.");
         }
 
         return null;
     }
+
+    /**
+     * Search the configuration admin for the specified factoryPid that refers to the provider.
+     * @param factoryPid
+     * @param provider
+     * @return
+     * @throws IOException
+     */
+    protected Configuration findOrCreateFactoryConfiguration(String factoryPid, String provider) throws IOException {
+        Configuration configuration = null;
+        try {
+            Configuration[] configurations = configurationAdmin.listConfigurations(String.format(FACTORY_FILTER,factoryPid));
+            if (configurations != null) {
+                for (Configuration conf : configurations) {
+                    Dictionary dictionary = configuration.getProperties();
+                    if (dictionary != null && provider.equals(dictionary.get("provider"))) {
+                        return conf;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to lookup configuration admin for existing cloud providers.",e);
+        }
+        configuration = configurationAdmin.createFactoryConfiguration(factoryPid, null);
+        return configuration;
+    }
+
 }

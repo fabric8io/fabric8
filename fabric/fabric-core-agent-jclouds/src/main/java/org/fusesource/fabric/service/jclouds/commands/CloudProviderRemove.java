@@ -33,13 +33,16 @@ public class CloudProviderRemove extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().deleteWithChildren(ZkPath.CLOUD_PROVIDER.getPath(provider));
-
-        Container current = fabricService.getCurrentContainer();
-        if (!current.isManaged()) {
+        boolean connected = getZooKeeper().isConnected();
+        Container current = null;
+        if (connected) {
+            getZooKeeper().deleteWithChildren(ZkPath.CLOUD_PROVIDER.getPath(provider));
+            current = fabricService.getCurrentContainer();
+        }
+        if (current == null || !current.isManaged()) {
             //Remove compute configurations for the provider.
             Configuration[] computeConfigs = findConfigurationByFactoryPid("org.jclouds.compute");
-            for (Configuration configuration: computeConfigs) {
+            for (Configuration configuration : computeConfigs) {
                 configuration.delete();
             }
         }
@@ -48,6 +51,7 @@ public class CloudProviderRemove extends FabricCommand {
 
     /**
      * Finds configurations based on their factoryPid.
+     *
      * @param factoryPid
      * @return
      */

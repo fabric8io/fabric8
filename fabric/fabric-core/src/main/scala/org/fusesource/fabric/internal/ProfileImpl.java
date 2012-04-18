@@ -71,6 +71,7 @@ public class ProfileImpl implements Profile {
     public enum ConfigListType {
 
         BUNDLES("bundle"),
+        FABS("fab"),
         FEATURES("feature"),
         REPOSITORIES("repository");
 
@@ -86,6 +87,10 @@ public class ProfileImpl implements Profile {
 
     public List<String> getBundles() {
         return getContainerConfigList(this, ConfigListType.BUNDLES);
+    }
+
+    public List<String> getFabs() {
+        return getContainerConfigList(this, ConfigListType.FABS);
     }
 
     public List<String> getFeatures() {

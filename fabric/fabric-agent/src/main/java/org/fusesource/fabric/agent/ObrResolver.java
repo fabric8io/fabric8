@@ -22,22 +22,31 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.felix.bundlerepository.Property;
 import org.apache.felix.bundlerepository.Reason;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resource;
+import org.apache.felix.bundlerepository.impl.ResourceImpl;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
+import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ObrResolver {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObrResolver.class);
 
     private RepositoryAdmin repositoryAdmin;
 
@@ -56,7 +65,7 @@ public class ObrResolver {
         this.repositoryAdmin = repositoryAdmin;
     }
 
-    public List<Resource> resolve(Set<Feature> features, Set<String> bundles) throws Exception {
+    public List<Resource> resolve(Set<Feature> features, Set<String> bundles, Collection<FabBundleInfo> fabs) throws Exception {
         List<Requirement> reqs = new ArrayList<Requirement>();
         List<Resource> ress = new ArrayList<Resource>();
         List<Resource> deploy = new ArrayList<Resource>();
@@ -66,6 +75,9 @@ public class ObrResolver {
                 try {
                     URL url = new URL(bundleInfo.getLocation());
                     Resource res = repositoryAdmin.getHelper().createResource(url);
+                    if (res == null) {
+                        throw new IllegalArgumentException("Unable to build OBR representation for bundle " + url);
+                    }
                     ress.add(res);
                     infos.put(res, bundleInfo);
                 } catch (MalformedURLException e) {
@@ -77,8 +89,31 @@ public class ObrResolver {
             for (final String bundle : bundles) {
                 URL url = new URL(bundle);
                 Resource res = repositoryAdmin.getHelper().createResource(url);
+                if (res == null) {
+                    throw new IllegalArgumentException("Unable to build OBR representation for bundle " + url);
+                }
                 ress.add(res);
-                infos.put(res, new SimpleBundleInfo(bundle));
+                infos.put(res, new SimpleBundleInfo(bundle, false));
+            }
+        }
+        for (FabBundleInfo fab : fabs) {
+            Resource res = repositoryAdmin.getHelper().createResource(fab.getManifest());
+            if (res == null) {
+                throw new IllegalArgumentException("Unable to build OBR representation for fab " + fab.getUrl());
+            }
+            ((ResourceImpl) res).put(Resource.URI, "fab:" + fab.getUrl(), Property.URI);
+            ress.add(res);
+            infos.put(res, new SimpleBundleInfo(fab.getUrl(), false));
+            for (DependencyTree dep : fab.getBundles()) {
+                if (dep.isBundle()) {
+                    URL url = new URL(dep.getUrl());
+                    Resource resDep = repositoryAdmin.getHelper().createResource(url);
+                    if (resDep == null) {
+                        throw new IllegalArgumentException("Unable to build OBR representation for fab dependency " + url);
+                    }
+                    ress.add(resDep);
+                    infos.put(resDep, new SimpleBundleInfo(dep.getUrl(), true));
+                }
             }
         }
 
@@ -153,9 +188,11 @@ public class ObrResolver {
 
     private static class SimpleBundleInfo implements BundleInfo {
         private final String bundle;
+        private final boolean dependency;
 
-        public SimpleBundleInfo(String bundle) {
+        public SimpleBundleInfo(String bundle, boolean dependency) {
             this.bundle = bundle;
+            this.dependency = dependency;
         }
 
         @Override
@@ -175,7 +212,7 @@ public class ObrResolver {
 
         @Override
         public boolean isDependency() {
-            return false;
+            return dependency;
         }
     }
 }

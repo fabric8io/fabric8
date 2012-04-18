@@ -28,31 +28,31 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "create", scope = "zk", description = "Create a node", detailedDescription = "classpath:create.txt")
+@Command(name = "create", scope = "zk", description = "Create a znode", detailedDescription = "classpath:create.txt")
 public class Create extends ZooKeeperCommandSupport {
 
-    @Option(name = "-e", aliases = {"--ephemeral"}, description = "Create an ephemeral node")
+    @Option(name = "-e", aliases = {"--ephemeral"}, description = "Make the new znode epehemeral, so that it is automatically deleted after the current ZooKeeper client session closes.")
     boolean ephemeral;
 
-    @Option(name = "-s", aliases = {"--sequential"}, description = "Create a sequential node")
+    @Option(name = "-s", aliases = {"--sequential"}, description = "Make the new znode sequential, so that a unique 10-digit suffix is appended to the znode name.")
     boolean sequential;
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "Automatically create parents")
+    @Option(name = "-r", aliases = {"--recursive"}, description = "Automatically create any missing parent znodes in the specified path.")
     boolean recursive;
 
-    @Option(name = "-i", aliases = {"--import"}, description = "Import data from an url")
+    @Option(name = "-i", aliases = {"--import"}, description = "Interpret the data argument as a URL that locates a resource containing the initial data for the new znode.")
     boolean importUrl;
 
-    @Option(name = "-a", aliases = {"--acl"}, description = "Node ACLs")
+    @Option(name = "-a", aliases = {"--acl"}, description = "Specifies the znode's ACL as a comma-separated list, where each entry in the list has the format, <Scheme>:<ID>:<Permissions>. The <Permissions> string consists of the following characters, concatenated in any order: r (read), w (write), c (create), d (delete), and a (admin).")
     String acl;
 
-    @Option(name = "-o", aliases = {"--overwrite"}, description = "Overwrite existing entry if it already exists")
+    @Option(name = "-o", aliases = {"--overwrite"}, description = "Overwrite the existing znode at this location, if there is one.")
     boolean overwrite;
 
     @Argument(index = 0, required = true, description = "Path of the node to create")
     String path;
 
-    @Argument(index = 1, required = false, description = "Data for the node, or url if 'import' option is used")
+    @Argument(index = 1, required = false, description = "Initial data for the node or, if --import is specified, a URL pointing at a location that contains the initial data.")
     String data;
 
     @Override

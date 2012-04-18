@@ -30,7 +30,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     static final String DISPLAY_FORMAT = "%22s %-9s %-30s %-30s";
     static final String[] OUTPUT_HEADERS = {"[id]", "[status]", "[container]", "[public addresses]"};
 
-    @Option(name = "--provider", required = true, description = "JClouds provider name")
+    @Option(name = "--provider", required = true, description = "The cloud provider name")
     private String providerName;
     @Option(name = "--os-family", multiValued = false, required = false, description = "OS Family")
     private String osFamily = "ubuntu";

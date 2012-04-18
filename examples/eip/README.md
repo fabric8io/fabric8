@@ -1,7 +1,7 @@
 # Enterprise Integration Patterns
 
 ## Overview
-This example demonstrates how to combine multiple EIPs in Camel to solve integration problems.
+This example demonstrates how to combine multiple EIPs to solve integration problems.
 
 In this example, an orders file containing several orders for zoos around the world is sent to us.
 
@@ -33,25 +33,32 @@ Before building and running this example you need:
 * JDK 1.6
 * Fuse ESB Enterprise 7
 
+## Files in the Example
+* `pom.xml` - the Maven POM file for building the example
+* `src/main/java/org/fusesource/examples/eip/RegionSupport.java` - a Java class used to determine the region code used by the recipient list
+* `src/main/resources/OSGI-INF/blueprint/eip.xml` - the OSGI Blueprint file that defines the routes
+* `test/data/orders.xml` - the data file that can be used to test the route
+* `test/java/RegionSupportTest.java` - a JUnit test class for `RegionSupport`
+
 ## Building the Example
 To build the example:
 
-1. Change your working directory to the `examples/eip` directory
-2. Run `mvn clean install` to build the example
+1. Change your working directory to the `examples/eip` directory.
+2. Run `mvn clean install` to build the example.
 
 ## Running the Example
 To run the example:
 
-1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
+1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
 2. In the Fuse ESB console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/eip/${project.version}
-3. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your Fuse ESB installation
-4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/eip/input` directory
+3. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your Fuse ESB installation.
+4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/eip/input` directory.
 5. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':
 ** `2012_0003.xml` and `2012_0005.xml` in `work/eip/output/AMER`
 ** `2012_0020.xml` in `work/eip/output/APAC`
 ** `2012_0001.xml`, `2012_0002.xml` and `2012_0004.xml` in `work/eip/output/EMEA`
-6. Use `log:display` to check out the business logging
+6. Use `log:display` to check out the business logging.
         [main]    Processing orders.xml
         [wiretap]  Archiving orders.xml
         [splitter] Shipping order 2012_0001 to region EMEA
@@ -65,3 +72,4 @@ For more information see:
 * http://www.eaipatterns.com/WireTap.html for the Wire Tap EIP
 * http://www.eaipatterns.com/Filter.html for the Message Filter EIP
 * http://www.eaipatterns.com/Sequencer.html for the Splitter EIP
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise

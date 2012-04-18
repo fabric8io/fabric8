@@ -26,34 +26,34 @@ import org.linkedin.zookeeper.client.IZKClient;
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
-@Command(name = "import", scope = "zk", description = "Import data into zookeeper", detailedDescription = "classpath:import.txt")
+@Command(name = "import", scope = "zk", description = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)", detailedDescription = "classpath:import.txt")
 public class Import extends ZooKeeperCommandSupport {
 
-    @Argument(description = "Location of the file or filesystem to load")
+    @Argument(description = "Location of a filesystem (if --filesystem is specified) or a properties file (if --properties is specified).")
     protected String source = "." + File.separator + "import";
 
-    @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported, ignored when importing a properties file (CAUTION!)")
+    @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported. Ignored when importing a properties file. CAUTION: Using this option could permanently delete all or part of the fabric registry.")
     boolean delete = false;
 
-    @Option(name="-t", aliases={"--target"}, description="Target location in ZooKeeper tree to import to")
+    @Option(name="-t", aliases={"--target"}, description="Path of the znode that the data is imported into.")
     String target = "/";
 
-    @Option(name="-props", aliases={"--properties"}, description="Argument is URL pointing to a properties file")
+    @Option(name="-props", aliases={"--properties"}, description="Indicates that the 'source' argument is a properties file.")
     boolean properties = false;
 
-    @Option(name="-fs", aliases={"--filesystem"}, description="Argument is the top level directory of a local filesystem tree")
+    @Option(name="-fs", aliases={"--filesystem"}, description="Indicates that the 'source' argument is a directory on the filesystem.")
     boolean filesystem = true;
 
     @Option(name="-v", aliases={"--verbose"}, description="Verbose output of files being imported")
     boolean verbose = false;
 
-    @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to import, can specify this option more than once for additional filters", multiValued=true)
+    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the import. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String regex[];
 
-    @Option(name="-rf", aliases={"--reverse-regex"}, description="regex to filter what paths to exclude, can specify this option more than once for additional filters", multiValued=true)
+    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the import. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     protected String[] nregex;
 
-    @Option(name="--dry-run", description="Runs the import but prints out what's going to happen instead of making any changes")
+    @Option(name="--dry-run", description="Log the actions that would be performed during an import, but do not actually perform the import.")
     boolean dryRun = false;
 
     File ignore = new File(".fabricignore");

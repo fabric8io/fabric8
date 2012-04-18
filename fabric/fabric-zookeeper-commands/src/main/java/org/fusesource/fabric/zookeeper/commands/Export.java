@@ -36,28 +36,28 @@ import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 
-@Command(name = "export", scope = "zk", description = "Export data from zookeeper", detailedDescription = "classpath:export.txt")
+@Command(name = "export", scope = "zk", description = "Export the contents of the fabric registry to the specified directory in the filesystem", detailedDescription = "classpath:export.txt")
 public class Export extends ZooKeeperCommandSupport {
 
-    @Argument(description="path of the directory to export to")
+    @Argument(description="Path of the directory to export to")
     String target = "." + File.separator + "export";
 
-    @Option(name="-f", aliases={"--regex"}, description="regex to filter on what paths to export, can specify this option more than once for additional filters", multiValued=true)
+    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the export. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String regex[];
 
-    @Option(name="-rf", aliases={"--reverse-regex"}, description="regex to filter what paths to exclude from the export, can specify this option more than once for additional filters", multiValued=true)
+    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the export. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String nregex[];
 
-    @Option(name="-p", aliases={"--path"}, description="Top level context to export")
+    @Option(name="-p", aliases={"--path"}, description="Top level znode to export")
     String topLevel = "/";
 
-    @Option(name="-d", aliases={"--delete"}, description="Clear target directory before exporting (CAUTION! Performs recursive delete!)")
+    @Option(name="-d", aliases={"--delete"}, description="Delete the existing contents of the target directory before exporting. CAUTION: Performs a recursive delete! ")
     boolean delete;
 
     @Option(name="-t", aliases={"--trim"}, description="Trims the first timestamp comment line in properties files starting with the '#' character")
     boolean trimHeader;
 
-    @Option(name="--dry-run", description="Runs the export but instead prints out what's going to happen rather than performing the action")
+    @Option(name="--dry-run", description="Log the actions that would be performed during an export, but do not actually perform the export.")
     boolean dryRun = false;
 
     File ignore = new File(".fabricignore");

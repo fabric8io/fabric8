@@ -16,7 +16,6 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +39,7 @@ public interface Profile extends Comparable<Profile> {
     Container[] getAssociatedContainers();
 
     List<String> getBundles();
+    List<String> getFabs();
     List<String> getFeatures();
     List<String> getRepositories();
 
