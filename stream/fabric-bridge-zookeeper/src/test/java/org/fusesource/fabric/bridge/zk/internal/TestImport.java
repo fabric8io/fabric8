@@ -17,7 +17,7 @@
 package org.fusesource.fabric.bridge.zk.internal;
 
 
-import org.fusesource.fabric.zookeeper.commands.Import;
+import org.fusesource.fabric.commands.Import;
 import org.linkedin.zookeeper.client.IZKClient;
 
 /**
