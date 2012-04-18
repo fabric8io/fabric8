@@ -42,6 +42,7 @@
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.commands,
             org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.utils,
         </fuse.osgi.private.pkg>
         <fuse.osgi.activator>org.fusesource.fabric.commands.Activator</fuse.osgi.activator>
     </properties>
@@ -64,6 +65,10 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>

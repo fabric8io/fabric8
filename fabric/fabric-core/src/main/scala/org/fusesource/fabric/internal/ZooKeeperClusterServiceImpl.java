@@ -45,6 +45,8 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
+import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
+
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     
     private static final String FRAMEWORK_VERSION = "mvn:org.apache.felix/org.apache.felix.framework/" + FabricConstants.FRAMEWORK_VERSION;
@@ -97,11 +99,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String karafName = System.getProperty("karaf.name");
 
             // Install or stop the fabric-configadmin bridge
-            Bundle bundleFabricConfigAdmin = installOrStopBundle("org.fusesource.fabric.fabric-configadmin",
+            Bundle bundleFabricConfigAdmin = installOrStopBundle(bundleContext,"org.fusesource.fabric.fabric-configadmin",
                                                                  "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
-            Bundle bundleFabricZooKeeper = installOrStopBundle("org.fusesource.fabric.fabric-zookeeper",
+            Bundle bundleFabricZooKeeper = installOrStopBundle(bundleContext,"org.fusesource.fabric.fabric-zookeeper",
                                                                "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
-            Bundle bundleFabricJaas = installOrStopBundle("org.fusesource.fabric.fabric-jaas  ",
+            Bundle bundleFabricJaas = installOrStopBundle(bundleContext,"org.fusesource.fabric.fabric-jaas  ",
                                                                "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
 
             // Create configuration
@@ -189,22 +191,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    private Bundle installOrStopBundle(String bsn, String url) throws BundleException {
-        Bundle bundleFabricConfigAdmin = null;
-        for (Bundle b : bundleContext.getBundles()) {
-            if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
-                bundleFabricConfigAdmin = b;
-                break;
-            }
-        }
-        if (bundleFabricConfigAdmin == null) {
-            bundleFabricConfigAdmin = bundleContext.installBundle(url);
-        }
-        if (bundleFabricConfigAdmin.getState() == Bundle.ACTIVE) {
-            bundleFabricConfigAdmin.stop();
-        }
-        return bundleFabricConfigAdmin;
-    }
 
     public void clean() {
         try {

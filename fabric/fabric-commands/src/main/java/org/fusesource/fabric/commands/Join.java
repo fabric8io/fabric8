@@ -31,6 +31,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
+import static org.fusesource.fabric.utils.BundleUtils.findOrInstallBundle;
+
 import java.util.Properties;
 
 @Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
@@ -66,20 +68,13 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.co
 
         ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
         ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default");
-        Bundle bundleFabricJaas = findOrInstallBundle("org.fusesource.fabric.fabric-jaas",
+        Bundle bundleFabricJaas = findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-jaas",
                 "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
         bundleFabricJaas.start();
         return null;
     }
 
-    private Bundle findOrInstallBundle(String bsn, String url) throws BundleException {
-        for (Bundle b : bundleContext.getBundles()) {
-            if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
-                return b;
-            }
-        }
-        return bundleContext.installBundle(url);
-    }
+
 
     @Override
     public Object run() throws Exception {
