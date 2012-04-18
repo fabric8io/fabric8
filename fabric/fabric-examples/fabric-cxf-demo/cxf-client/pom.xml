@@ -28,9 +28,17 @@
 
     <groupId>org.fusesource.fabric.fabric-examples</groupId>
     <artifactId>fabric-cxf-demo-client</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
     <description>Fuse Fabric :: Simple Fabric CXF Demo :: Client</description>
+
+    <properties>
+        <felix-plugin.version>2.1.0</felix-plugin.version>
+        <fuse.osgi.export>org.fusesource.fabric.demo.cxf.client.*;-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.split.pkg />
+        <fabric.embed.dependency />
+        <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
+    </properties>
 
     <dependencies>
         <dependency>

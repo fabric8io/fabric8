@@ -32,8 +32,9 @@ public class Client {
         // The feature will try to create a zookeeper client itself by checking the system property of
         // zookeeper.url
         FabricLoadBalancerFeature feature = new FabricLoadBalancerFeature();
+        // Feature will use this path to locate the service
         feature.setFabricPath("cxf/demo");
-        // sleep a while to let the service be published
+
         ClientProxyFactoryBean clientFactory = new ClientProxyFactoryBean();
         clientFactory.setServiceClass(ClientProxyFactoryBean.class);
         // The address is not the actual address that the client will access
@@ -41,7 +42,7 @@ public class Client {
 
         List<AbstractFeature> features = new ArrayList<AbstractFeature>();
         features.add(feature);
-        // we need to setup the feature on the clientfactory
+        // we need to setup the feature on the client factory
         clientFactory.setFeatures(features);
         // create the proxy of the hello
         hello = clientFactory.create(Hello.class);
