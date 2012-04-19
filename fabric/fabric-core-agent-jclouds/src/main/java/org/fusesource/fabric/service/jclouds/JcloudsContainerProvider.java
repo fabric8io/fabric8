@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -207,11 +208,17 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     containerName = originalName;
                 }
 
+                //Make a copy of the addresses, because we don't want to return back a guice implementation of Set.
+                Set<String> copyOfPublicAddresses = new HashSet<String>();
+                for (String publicAddress : publicAddresses) {
+                    copyOfPublicAddresses.add(publicAddress);
+                }
+
                 CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
                 jCloudsContainerMetadata.setCreateOptions(options);
                 jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
                 jCloudsContainerMetadata.setContainerName(containerName);
-                jCloudsContainerMetadata.setPublicAddresses(publicAddresses);
+                jCloudsContainerMetadata.setPublicAddresses(copyOfPublicAddresses);
                 jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
                 if (credentials != null) {
                     jCloudsContainerMetadata.setIdentity(credentials.identity);
