@@ -27,7 +27,7 @@
   <artifactId>fab-sample-camel-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Archive Bundles :: Tests :: Camel NoShare</name>
+  <name>Fuse Application Bundles :: Tests :: Camel NoShare</name>
 
   <dependencies>
     <dependency>

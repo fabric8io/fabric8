@@ -28,7 +28,7 @@
   <artifactId>tests-project</artifactId>
   <packaging>pom</packaging>
 
-  <name>Fuse Archive Bundles :: Tests</name>
+  <name>Fuse Application Bundles :: Tests</name>
 
   <modules>
     <module>fab-sample-camel-activemq-share</module>
