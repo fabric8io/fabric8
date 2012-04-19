@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 /**
  * Test cases for {@link org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl.CXFFeaturesFilter}
  */
-public class CXFFeaturesFilterTest {
+public class CxfFeaturesFilterTest {
 
     @Test
     public void testIsEnabled() {
