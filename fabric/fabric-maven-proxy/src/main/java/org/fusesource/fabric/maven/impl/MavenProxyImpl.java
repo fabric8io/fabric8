@@ -221,7 +221,13 @@ public class MavenProxyImpl implements MavenProxy {
                     path = path.substring(1);
                 }
                 String mvn = convertToMavenUrl(path);
-                LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
+                if (mvn == null) {
+                    LOGGER.log(Level.WARNING, String.format("Received non maven request : %s", path));
+                    output.write("HTTP/1.0 404 File not found.\r\n\r\n".getBytes());
+                    return;
+                } else {
+                    LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
+                }
 
                 try {
                     Artifact artifact = new DefaultArtifact( mvn, null );
