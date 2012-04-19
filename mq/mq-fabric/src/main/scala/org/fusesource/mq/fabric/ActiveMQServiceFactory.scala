@@ -35,10 +35,10 @@ import java.net.URI
 import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
 import org.fusesource.fabric.groups.ChangeListener
-import java.lang.{Thread, ThreadLocal}
 import org.apache.activemq.util.IntrospectionSupport
 import org.apache.activemq.broker.{TransportConnector, BrokerService}
 import scala.collection.JavaConversions._
+import java.lang.{ThreadLocal, Thread}
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -165,6 +165,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   case class ClusteredConfiguration(properties:Properties) {
 
     val name = Option(properties.getProperty("broker-name")).getOrElse(System.getProperty("karaf.name"))
+    val data = Option(properties.getProperty("data")).getOrElse("data" + System.getProperty("file.separator") + name)
     val config = Option(properties.getProperty("config")).getOrElse(arg_error("config property must be set"))
     val group = Option(properties.getProperty("group")).getOrElse("default")
     val pool = Option(properties.getProperty("standby.pool")).getOrElse("default")
@@ -201,11 +202,15 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       if (!properties.containsKey("broker-name")) {
         properties.setProperty("broker-name", name)
       }
+      if (!properties.containsKey("data")) {
+        properties.setProperty("data", data)
+      }
     }
+
+    ensure_broker_name_is_set
 
     if (standalone) {
       if (started.compareAndSet(false, true)) {
-        ensure_broker_name_is_set
         info("Standalone broker %s is starting.", name)
         start
       }

@@ -47,8 +47,7 @@ public class MQProfileTest extends FabricTestSupport {
 
         // check jmx stats
         Container container = getFabricService().getContainer("mq1");
-        //TODO investigate why the broker is named karaf.name in this case
-        BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=karaf.name"), BrokerViewMBean.class);
+        BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=mq1"), BrokerViewMBean.class);
         assertEquals("Producer not present", 1, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
