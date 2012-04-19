@@ -47,6 +47,8 @@ import aQute.lib.osgi.Jar;
 import aQute.lib.osgi.Processor;
 import aQute.lib.osgi.Resource;
 import aQute.lib.osgi.URLResource;
+import aQute.lib.spring.SpringXMLType;
+import org.apache.felix.bundleplugin.BlueprintPlugin;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Strings;
@@ -75,6 +77,11 @@ public class BndUtils
         Pattern.compile( "([a-zA-Z_0-9-]+)=([-!\"'()*+,.0-9A-Z_a-z%;:=/]+)" );
 
     private static final String ALLOWED_PACKAGE_CLAUSES = Strings.join(Arrays.asList(Constants.directives), ",") + ",version";
+
+    /**
+     * The list of analyzer plugin names we are using for analyzing Blueprint and Spring XML files
+     */
+    private static final String ANALYZER_PLUGIN_NAMES = BlueprintPlugin.class.getName() + "," + SpringXMLType.class.getName();
 
     /**
      * Utility class. Meant to be used using static methods
@@ -186,6 +193,7 @@ public class BndUtils
             properties.putAll(instructions);
 
             properties.put("Generated-By-FAB-From", jarInfo);
+            properties.put(Analyzer.PLUGIN, ANALYZER_PLUGIN_NAMES);
 
             final Analyzer analyzer = new Analyzer();
             analyzer.setJar(jar);
