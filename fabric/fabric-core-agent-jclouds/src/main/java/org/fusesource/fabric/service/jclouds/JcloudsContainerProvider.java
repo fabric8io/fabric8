@@ -17,6 +17,8 @@
 
 package org.fusesource.fabric.service.jclouds;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -83,19 +85,19 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private CredentialStore credentialStore;
 
     public void bind(ComputeService computeService) {
-        if(computeService != null) {
+        if (computeService != null) {
             String providerName = computeService.getContext().getProviderSpecificContext().getId();
-            if(providerName != null) {
-              computeServiceMap.put(providerName,computeService);
+            if (providerName != null) {
+                computeServiceMap.put(providerName, computeService);
             }
         }
     }
 
     public void unbind(ComputeService computeService) {
-        if(computeService != null) {
+        if (computeService != null) {
             String providerName = computeService.getContext().getProviderSpecificContext().getId();
-            if(providerName != null) {
-               computeServiceMap.remove(providerName);
+            if (providerName != null) {
+                computeServiceMap.remove(providerName);
             }
         }
     }
@@ -105,7 +107,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     }
 
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
-       final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
+        final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
 
         ComputeService computeService = getOrCreateComputeService(options);
 
@@ -142,18 +144,33 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             builder.hardwareId(options.getHardwareId());
         }
 
+        AdminAccess.Builder adminAccess = AdminAccess.builder();
         TemplateOptions templateOptions = computeService.templateOptions();
-        templateOptions.runScript(AdminAccess.standard());
+
+
+        if (!Strings.isNullOrEmpty(options.getPublicKeyFile())) {
+            File publicKey = new File(options.getPublicKeyFile());
+            if (publicKey.exists()) {
+                adminAccess.adminPublicKey(publicKey);
+            } else {
+                templateOptions.runScript(AdminAccess.standard());
+                LOGGER.warn("Public key has been specified file: {} files cannot be found. Ignoring.", publicKey.getAbsolutePath());
+            }
+        }
+
+        if (!Strings.isNullOrEmpty(options.getUser())) {
+            adminAccess.adminUsername(options.getUser());
+        }
+
+        templateOptions.runScript(adminAccess.build());
+        builder.options(templateOptions);
 
         Set<? extends NodeMetadata> metadatas = null;
-
         metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
 
         Thread.sleep(5000);
 
         int suffix = 1;
-        StringBuilder buffer = new StringBuilder();
-        boolean first = true;
         if (metadatas != null) {
             String originalName = new String(options.getName());
             for (NodeMetadata nodeMetadata : metadatas) {
@@ -165,10 +182,10 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
                     Rule httpRule = Rule.create().source(source).destination(nodeMetadata).port(8181);
                     Rule zookeeperRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(2181);
-                    FirewallManager firewallManager =  firewallManagerFactory.getFirewallManager(computeService);
-                    firewallManager.addRules(jmxRule, sshRule, httpRule,zookeeperRule);
+                    FirewallManager firewallManager = firewallManagerFactory.getFirewallManager(computeService);
+                    firewallManager.addRules(jmxRule, sshRule, httpRule, zookeeperRule);
                 } catch (FirewallNotSupportedOnProviderException e) {
-                   LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
+                    LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
                 } catch (IOException e) {
                     LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
                 }
@@ -207,13 +224,13 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     addresses.put("publicip", publicAddress);
                 }
 
-                options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY,addresses);
+                options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY, addresses);
 
                 try {
                     String script = buildInstallAndStartScript(options.name(containerName));
                     ExecResponse response = null;
                     if (credentials != null) {
-                       response =  computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
+                        response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
                     } else {
                         response = computeService.runScriptOnNode(id, script, templateOptions);
                     }
@@ -270,9 +287,9 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             throw new IllegalStateException("Container doesn't have valid create container metadata type");
         } else {
             CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
-            CreateJCloudsContainerOptions options =  jCloudsContainerMetadata.getCreateOptions();
+            CreateJCloudsContainerOptions options = jCloudsContainerMetadata.getCreateOptions();
             try {
-                Credentials credentials = new Credentials(jCloudsContainerMetadata.getIdentity(),jCloudsContainerMetadata.getCredential());
+                Credentials credentials = new Credentials(jCloudsContainerMetadata.getIdentity(), jCloudsContainerMetadata.getCredential());
                 String nodeId = jCloudsContainerMetadata.getNodeId();
                 ComputeService computeService = getOrCreateComputeService(options);
                 String script = buildStopScript(options.name(container.getId()));
@@ -300,8 +317,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         if (!(metadata instanceof CreateJCloudsContainerMetadata)) {
             throw new IllegalStateException("Container doesn't have valid create container metadata type");
         } else {
-            CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata)metadata;
-            CreateJCloudsContainerOptions options =  jCloudsContainerMetadata.getCreateOptions();
+            CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
+            CreateJCloudsContainerOptions options = jCloudsContainerMetadata.getCreateOptions();
             String nodeId = jCloudsContainerMetadata.getNodeId();
             ComputeService computeService = getOrCreateComputeService(options);
             computeService.destroyNode(nodeId);
@@ -333,6 +350,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     /**
      * Gets an existing {@link ComputeService} that matches configuration or creates a new one.
+     *
      * @param options
      * @return
      */
@@ -358,7 +376,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 RestContextFactory restFactory = new RestContextFactory();
                 ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(options.getProviderName(), options.getIdentity(), options.getCredential(), modules, props);
                 computeService = context.getComputeService();
-                computeServiceMap.put(options.getProviderName(),computeService);
+                computeServiceMap.put(options.getProviderName(), computeService);
             }
 
         }
@@ -374,6 +392,30 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
         return IOUtils.toString(connection.getInputStream()).trim() + "/32";
+    }
+
+    private String readFile(String path) {
+        byte[] bytes = null;
+        FileInputStream fin = null;
+
+        File file = new File(path);
+        if (path != null && file.exists()) {
+            try {
+                fin = new FileInputStream(file);
+                bytes = new byte[(int) file.length()];
+                fin.read(bytes);
+            } catch (IOException e) {
+                LOGGER.warn("Error reading file {}.", path);
+            } finally {
+                if (fin != null) {
+                    try {
+                        fin.close();
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        }
+        return new String(bytes);
     }
 
     public FirewallManagerFactory getFirewallManagerFactory() {
