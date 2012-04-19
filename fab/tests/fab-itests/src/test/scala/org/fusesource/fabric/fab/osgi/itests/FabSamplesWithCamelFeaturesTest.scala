@@ -53,6 +53,9 @@ class FabSamplesWithCamelFeaturesTest {
     systemProperty("camel.version").value(CAMEL_VERSION),
     systemProperty("karaf.version").value(KARAF_VERSION),
 
+    // we need the boot delegation to allow the Spring/Blueprint XML parsing with JAXP to succeed
+    bootDelegationPackage("com.sun.*"),
+
     mavenBundle("org.ops4j.pax.url", "pax-url-mvn").versionAsInProject(),
 
     mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").versionAsInProject(),

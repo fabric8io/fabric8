@@ -27,7 +27,7 @@
   <artifactId>fab-osgi</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fuse Archive Bundles :: OSGi</name>
+  <name>Fuse Application Bundles :: OSGi</name>
 
   <properties>
     <fabric.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fabric.embed.dependency>
@@ -43,13 +43,14 @@
         !org.ops4j.pax.swissbox.bnd,
         !org.ops4j.pax.url.commons,
         !aQute.lib.osgi.*,
+        <!-- don't import additional packages required by other class in maven-bundle-plugin -->
+        !org.apache.felix.bundlerepository.*,
+        !org.apache.felix.service.command,
+        !org.kxml2.*,
+        !org.xmlpull.*,
         org.osgi.service.event;resolution:=optional,
         *
     </fuse.osgi.import.pkg>
-<!--
-    <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
--->
-
     <aetherVersion>1.7</aetherVersion>
     <mavenVersion>3.0</mavenVersion>
   </properties>
@@ -84,6 +85,13 @@
         <groupId>org.apache.karaf.shell</groupId>
         <artifactId>org.apache.karaf.shell.console</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <!-- We will 'borrow' the bnd Analyzer for Blueprint files from Felix' mven-bundle-plugin -->
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>maven-bundle-plugin</artifactId>
+      <version>${maven-bundle-plugin-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>

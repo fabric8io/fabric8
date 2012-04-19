@@ -36,6 +36,9 @@ class FabSamplesWithCamelPreinstalledTest {
     //vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" ),
     systemProperty("project.version").value(VERSION),
 
+    // we need the boot delegation to allow the Spring/Blueprint XML parsing with JAXP to succeed
+    bootDelegationPackage("com.sun.*"),
+
     mavenBundle("org.ops4j.pax.url", "pax-url-mvn").versionAsInProject(),
 
     mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").versionAsInProject(),

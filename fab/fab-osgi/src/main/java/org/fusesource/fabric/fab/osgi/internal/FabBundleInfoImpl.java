@@ -163,7 +163,10 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
         List<DependencyTree> dependencies = new ArrayList<DependencyTree>(classPathResolver.getSharedDependencies());
 
         // lets add the root too in case its an exported package we are resolving
-        dependencies.add(classPathResolver.getRootTree());
+        DependencyTree rootTree = classPathResolver.getRootTree();
+        if (rootTree != null)  {
+            dependencies.add(rootTree);
+        }
 
         DependencyTree dependency = resolvePackageDependency(packageName, dependencies);
         if (dependency != null) {

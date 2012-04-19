@@ -32,7 +32,7 @@
     </parent>
 
     <artifactId>secure-soap</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: Secure SOAP </name>
     <description>Secure SOAP example using JAXWS with WS-Security</description>
 
@@ -46,49 +46,6 @@
 
     <build>
         <plugins>
-            <!--
-                In this example, we will use a normal OSGi bundle instead of FAB because it allows for very fine-grained
-                control over the bundle manifest.
-
-                We are defining the maven-bundle-plugin with <extensions>true</extensions> because it provides
-                the additional packaging type ('bundle') we need.
-            -->
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>${maven-bundle-plugin-version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <!--
-                        Additional instructions defined here are used for generating the OSGi MANIFEST.MF file.
-                        In this case, we explicitly define a bundle symbolic name and description.  We also specify
-                        the lists of package to be exported and imported by the bundle.
-                    -->
-                    <instructions>
-                        <Bundle-SymbolicName>org.fuse.examples.secure.soap</Bundle-SymbolicName>
-                        <Bundle-Description>Secure SOAP example using JAXWS with WS-Security</Bundle-Description>
-                        <Import-Package>
-                            javax.jws,
-                            javax.xml.bind.annotation,
-                            javax.wsdl,
-                            org.osgi.service.blueprint,
-                            org.apache.cxf.ws.security.wss4j,
-                            javax.security.auth.callback,
-                            org.apache.ws.security,
-                            org.apache.ws.security.processor,
-                            org.apache.cxf.interceptor.security,
-                            org.apache.cxf, 
-                            org.apache.cxf.endpoint,
-                            org.apache.cxf.frontend,
-                            org.apache.cxf.interceptor,
-                            org.apache.cxf.jaxws,
-                            org.apache.cxf.message,
-                            org.apache.cxf.phase
-                        </Import-Package>
-                        <Export-Package>org.fusesource.examples.cxf.jaxws.security</Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
             <!--
                 The exec-maven-plugin allows us to run our Java client application with a 'mvn exec:java'.
             -->
