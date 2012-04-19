@@ -81,28 +81,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin-version}</version>
-                <configuration>
-                    <archive>
-                        <index>true</index>
-                        <manifestEntries>
-                            <!--
-                              FAB will figure out the OSGi Manifest automatically, but you can always tweak the results
-                              by explicitly setting some additional headers.
-                            -->
-                            <Import-Package>org.apache.camel.builder,org.apache.camel.processor,*</Import-Package>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <repositories>
         <repository>

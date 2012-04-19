@@ -39,7 +39,7 @@ To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
 2. In the Fuse ESB console, enter the following command:
-        osgi:install -s mvn:org.fusesource.examples/secure-rest/${project.version}
+        osgi:install -s fab:mvn:org.fusesource.examples/secure-rest/${project.version}
 
 There are several ways you can interact with the running RESTful Web services:
 * browse the Web service metadata
