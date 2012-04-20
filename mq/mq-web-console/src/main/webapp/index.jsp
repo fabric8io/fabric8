@@ -27,7 +27,7 @@ Welcome to the Fuse MQ Console of <b>${requestContext.brokerQuery.brokerName}</b
 </p>
 
 <p>
-You can find more information about Fuse MQ on the <a href="http://fusesource.com/mq">Fuse MQ Site</a>
+You can find more information about Fuse MQ on the <a href="http://fusesource.com/products/fuse-mq-enterprise">Fuse MQ Site</a>
 </p>
 
 <h2>Broker</h2>
