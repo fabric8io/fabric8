@@ -50,6 +50,7 @@
             org.fusesource.fabric.maven.impl,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
+            org.apache.felix.webconsole,
             org.apache.maven.*,
             org.sonatype.aether*,
             org.codehaus.plexus*,
@@ -74,6 +75,20 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet-api-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-runtime</artifactId>
+            <version>${ops4j-pax-web-version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

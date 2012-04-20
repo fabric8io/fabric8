@@ -113,6 +113,7 @@
     </feature>
 
     <feature name="fabric-maven-proxy" version="${project.version}" resolver="(obr)">
+        <feature version="${karaf-version}">http</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-maven-proxy/${project.version}</bundle>
     </feature>
 

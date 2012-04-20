@@ -148,6 +148,7 @@
         <ops4j-pax-swissbox-bnd.version>1.3.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.2.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-swissbox-optional-jcl.version>1.3.1</ops4j-pax-swissbox-optional-jcl.version>
+        <ops4j-pax-web-version>1.0.8</ops4j-pax-web-version>
         <osgi-version>4.2.0</osgi-version>
         <pax-exam-version>2.3.1</pax-exam-version>
         <pax.logging.version>1.6.5</pax.logging.version>

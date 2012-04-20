@@ -16,8 +16,9 @@
  */
 package org.fusesource.fabric.maven;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStream;
 
 public interface MavenProxy {
 
@@ -25,7 +26,18 @@ public interface MavenProxy {
 
     void stop();
 
-    boolean isStarted();
+    /**
+     * Downloads a {@link File} from the {@link MavenProxy}.
+     * @param path The path from which to download the {@link File}.
+     * @return
+     */
+    File download(String path);
 
-    URI getAddress();
+    /**
+     * Upload a {@link File} to the {@link MavenProxy}.
+     * @param is The {@link InputStream} to upload.
+     * @param path The upload path.
+     * @return true/false based on the outcome of the upload.
+     */
+    boolean upload(InputStream is, String path);
 }

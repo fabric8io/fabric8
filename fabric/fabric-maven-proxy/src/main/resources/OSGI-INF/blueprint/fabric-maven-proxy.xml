@@ -17,37 +17,57 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <cm:property-placeholder persistent-id="org.fusesource.fabric.maven" update-strategy="reload">
+    <cm:property-placeholder id="web" persistent-id="org.ops4j.pax.web" placeholder-prefix="{{" placeholder-suffix="}}"/>
+
+    <cm:property-placeholder id="proxy" persistent-id="org.fusesource.fabric.maven" placeholder-prefix="${" placeholder-suffix="}" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="port" value="8040"/>
-            <cm:property name="localRepository" value="" />
-            <cm:property name="remoteRepositories" value="http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/groups/public,http://repo.fusesource.com/nexus/content/groups/ea"/>
+            <cm:property name="localRepository" value=""/>
+            <cm:property name="remoteRepositories"
+                         value="http://repo1.maven.org/maven2,http://repo.fusesource.com/nexus/content/groups/public,http://repo.fusesource.com/nexus/content/groups/ea"/>
             <cm:property name="updatePolicy" value="never"/>
             <cm:property name="checksumPolicy" value="fail"/>
+            <cm:property name="uploadRole" value="admin"/>
+            <cm:property name="uploadRealm" value="karaf"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
-    <bean id="mavenProxy" class="org.fusesource.fabric.maven.impl.MavenProxyImpl" init-method="start" destroy-method="stop">
-        <property name="port" value="${port}" />
+    <bean id="mavenDownloadProxyServlet" class="org.fusesource.fabric.maven.impl.MavenDownloadProxyServlet" init-method="start" destroy-method="stop">
         <property name="localRepository" value="${localRepository}"/>
         <property name="remoteRepositories" value="${remoteRepositories}"/>
         <property name="updatePolicy" value="${updatePolicy}"/>
         <property name="checksumPolicy" value="${checksumPolicy}"/>
     </bean>
 
-    <bean id="proxyRegistration" class="org.fusesource.fabric.maven.MavenProxyRegistration" destroy-method="destroy">
-        <property name="port" value="${port}" />
-        <property name="zookeeper" ref="zookeeper"/>
+    <bean id="mavenUploadProxyServlet" class="org.fusesource.fabric.maven.impl.MavenUploadProxyServlet" init-method="start" destroy-method="stop">
+        <property name="localRepository" value="${localRepository}"/>
+        <property name="remoteRepositories" value="${remoteRepositories}"/>
+        <property name="updatePolicy" value="${updatePolicy}"/>
+        <property name="checksumPolicy" value="${checksumPolicy}"/>
     </bean>
 
-    <service ref="mavenProxy" interface="org.fusesource.fabric.maven.MavenProxy">
-        <service-properties>
-            <entry key="port" value="${port}" />
-        </service-properties>
-    </service>
+    <bean id="registrationHandler" class="org.fusesource.fabric.maven.impl.MavenProxyRegistrationHandler" init-method="init" destroy-method="destroy">
+        <cm:managed-properties persistent-id="org.ops4j.pax.web" update-strategy="component-managed"  update-method="update"/>
+        <property name="port" value="{{org.osgi.service.http.port}}"/>
+        <property name="zookeeper" ref="zookeeper"/>
+        <property name="secureHttpContext" ref="secureHttpContext"/>
+        <property name="httpService" ref="httpService"/>
+        <property name="mavenDownloadProxyServlet" ref="mavenDownloadProxyServlet"/>
+        <property name="mavenUploadProxyServlet" ref="mavenUploadProxyServlet"/>
+    </bean>
+
+    <bean id="secureHttpContext" class="org.fusesource.fabric.maven.impl.SecureHttpContext">
+        <argument ref="httpService"/>
+        <property name="role" value="${uploadRole}"/>
+        <property name="realm" value="${uploadRealm}"/>
+    </bean>
+
 
     <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+    <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
+    <service ref="registrationHandler" interface="org.linkedin.zookeeper.client.LifecycleListener"/>
 
-    <service ref="proxyRegistration" interface="org.linkedin.zookeeper.client.LifecycleListener"/>
+    <!-- TODO: Not really used as a service. Check if we can remove them  -->
+    <service ref="mavenDownloadProxyServlet" interface="org.fusesource.fabric.maven.MavenProxy"/>
+    <service ref="mavenUploadProxyServletcd" interface="org.fusesource.fabric.maven.MavenProxy"/>
 
 </blueprint>

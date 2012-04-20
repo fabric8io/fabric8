@@ -337,11 +337,11 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private void addMavenProxies(Dictionary props) {
         try {
             IZKClient zooKeeper = zkClient.call();
-            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_PROXY.getPath()) != null) {
+            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 StringBuffer sb = new StringBuffer();
-                List<String> children = zooKeeper.getChildren(ZkPath.CONFIGS_MAVEN_PROXY.getPath());
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
                 for (String child : children) {
-                    String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + child);
+                    String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
                     if (mavenRepo != null && mavenRepo.length() > 0) {
                         if (!mavenRepo.endsWith("/")) {
                             mavenRepo += "/";

@@ -53,6 +53,7 @@ import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
+@Deprecated
 public class MavenProxyImpl implements MavenProxy {
 
     private static final Logger LOGGER = Logger.getLogger(MavenProxyImpl.class.getName());
@@ -167,6 +168,16 @@ public class MavenProxyImpl implements MavenProxy {
                 serverSocket = null;
             }
         }
+    }
+
+    @Override
+    public File download(String path) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean upload(InputStream is, String path) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     protected class Acceptor extends Thread {

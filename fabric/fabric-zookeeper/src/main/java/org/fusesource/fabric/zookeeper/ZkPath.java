@@ -46,8 +46,8 @@ public enum ZkPath {
     CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
     CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profiles/{profile}"),
     CONFIG_VERSIONS_CONTAINER("/fabric/configs/versions/{version}/containers/{container}"),
-    CONFIGS_MAVEN_PROXY      ("/fabric/configs/maven/proxy"),
 
+    MAVEN_PROXY("/fabric/registry/maven/proxy/{type}"),
     // Agent nodes
     CONTAINERS                     ("/fabric/registry/containers/config"),
     CONTAINER                      ("/fabric/registry/containers/config/{container}"),
