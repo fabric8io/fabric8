@@ -179,7 +179,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 //Setup firwall for node
                 try {
                     String source = getOriginatingIp();
-                    Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(4444, 1099);
+                    Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
                     Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
                     Rule httpRule = Rule.create().source(source).destination(nodeMetadata).port(8181);
                     Rule zookeeperRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(2181);
