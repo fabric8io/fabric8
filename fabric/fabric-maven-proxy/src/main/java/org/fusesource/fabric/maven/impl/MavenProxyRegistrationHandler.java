@@ -37,7 +37,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
 
     private int port;
-    private Map<String, String> node = new HashMap<String, String>();
+    private final Map<String, String> node = new HashMap<String, String>();
     private IZKClient zookeeper = null;
     private String name = System.getProperty("karaf.name");
 
@@ -48,9 +48,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
 
     public void init() throws ServletException, NamespaceException {
         httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, null);
-        register("download");
         httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secureHttpContext);
-        register("upload");
     }
 
     public void destroy() {
@@ -78,24 +76,28 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
         String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + port + "/maven/"+type+"/";
         String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
         String path = parentPath + "/p_";
-        try {
-            if (zookeeper.exists(parentPath) == null) {
-                zookeeper.createWithParents(parentPath, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            }
+        if (zookeeper.isConnected()) {
+            try {
+                if (zookeeper.exists(parentPath) == null) {
+                    zookeeper.createWithParents(parentPath, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
 
-            if (zookeeper.exists(path) == null || (node.get(type) != null && zookeeper.exists(node.get(type)) == null)) {
-                node.put(type, zookeeper.create(path, mavenProxyUrl.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL));
+                if (zookeeper.exists(path) == null || (node.get(type) != null && zookeeper.exists(node.get(type)) == null)) {
+                    node.put(type, zookeeper.create(path, mavenProxyUrl.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL));
+                }
+            } catch (Exception e) {
+                LOGGER.error("Failed to register maven proxy.", e);
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to register maven proxy.", e);
         }
     }
 
     public void unregister(String type) {
         try {
             if (node != null) {
-                zookeeper.delete(node.get(type));
-                node = null;
+                if (zookeeper.isConnected()) {
+                    zookeeper.delete(node.get(type));
+                }
+                node.remove(type);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to remove maven proxy from registry.", e);

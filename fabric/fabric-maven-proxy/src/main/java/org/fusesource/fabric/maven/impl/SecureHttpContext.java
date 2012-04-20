@@ -50,24 +50,37 @@ public class SecureHttpContext implements HttpContext {
 
     private String realm;
     private String role;
-    private final HttpContext base;
+    private HttpContext base;
+    private final HttpService httpService;
 
     /**
      * Constructor
      * @param httpService
      */
     public SecureHttpContext(HttpService httpService) {
-        this.base = httpService.createDefaultHttpContext();
+        this.httpService = httpService;
+
+    }
+
+    private synchronized HttpContext getHttpContext() {
+        if (base == null) {
+            try {
+                base = httpService.createDefaultHttpContext();
+            } catch (Exception ex) {
+                //noop
+            }
+        }
+        return base;
     }
 
     @Override
     public URL getResource(String name) {
-        return base.getResource(name);
+        return getHttpContext().getResource(name);
     }
 
     @Override
     public String getMimeType(String name) {
-        return base.getMimeType(name);
+        return getHttpContext().getMimeType(name);
     }
 
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) {

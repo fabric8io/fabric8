@@ -63,11 +63,11 @@
 
 
     <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
-    <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
+    <reference id="httpService" interface="org.osgi.service.http.HttpService" availability="optional"/>
     <service ref="registrationHandler" interface="org.linkedin.zookeeper.client.LifecycleListener"/>
 
     <!-- TODO: Not really used as a service. Check if we can remove them  -->
     <service ref="mavenDownloadProxyServlet" interface="org.fusesource.fabric.maven.MavenProxy"/>
-    <service ref="mavenUploadProxyServletcd" interface="org.fusesource.fabric.maven.MavenProxy"/>
+    <service ref="mavenUploadProxyServlet" interface="org.fusesource.fabric.maven.MavenProxy"/>
 
 </blueprint>
