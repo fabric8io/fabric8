@@ -510,9 +510,11 @@ public class ContainerImpl implements Container {
     public CreateContainerMetadata<?> getMetadata() {
         try {                                        
             if (metadata == null) {
-                byte[] data = service.getZooKeeper().getData(ZkPath.CONTAINER_METADATA.getPath(id));
-                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-                metadata = (CreateContainerMetadata) ois.readObject();
+                if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
+                    byte[] data = service.getZooKeeper().getData(ZkPath.CONTAINER_METADATA.getPath(id));
+                    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+                    metadata = (CreateContainerMetadata) ois.readObject();
+                }
             }
             return metadata;
         } catch (Exception e) {
