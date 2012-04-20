@@ -428,37 +428,6 @@
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-dependency-plugin</artifactId>
                    <executions>
-                    <execution>
-                        <id>unpack-endorsed</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                          <artifactItems>
-                            <artifactItem>
-                              <groupId>org.apache.xerces</groupId>
-                              <artifactId>xercesImpl</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                              <groupId>org.apache.xerces</groupId>
-                              <artifactId>xml-apis</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                              <groupId>xalan</groupId>
-                              <artifactId>xalan</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                              <groupId>xalan</groupId>
-                              <artifactId>serializer</artifactId>
-                              <outputDirectory>target/dependencies/endorsed</outputDirectory>
-                            </artifactItem>
-                          </artifactItems>
-                        </configuration>
-                    </execution>
                        <execution>
                            <id>unpack-unix</id>
                            <phase>generate-resources</phase>

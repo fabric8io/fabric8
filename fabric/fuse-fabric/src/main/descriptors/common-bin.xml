@@ -26,15 +26,6 @@
       </includes>
       <useTransitiveDependencies>false</useTransitiveDependencies>
   </dependencySet>
-        <dependencySet>
-            <outputDirectory>/lib/endorsed</outputDirectory>
-            <fileMode>0644</fileMode>
-            <includes>
-                <include>org.apache.xerces:xercesImpl</include>
-                <include>xalan:xalan</include>
-                <include>xalan:serializer</include>
-            </includes>
-        </dependencySet>
   </dependencySets>
   <files>
       <file>
