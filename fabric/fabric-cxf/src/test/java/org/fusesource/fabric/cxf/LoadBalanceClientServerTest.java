@@ -17,12 +17,10 @@
 
 package org.fusesource.fabric.cxf;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.AbstractFeature;
-import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,6 +29,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @ContextConfiguration(locations = {"LoadBalanceContext.xml"})
@@ -39,19 +38,21 @@ public class LoadBalanceClientServerTest extends AbstractJUnit4SpringContextTest
     protected Bus bus;
     @Autowired
     protected FabricLoadBalancerFeature feature;
+    @Autowired
+    protected Hello helloProxy;
 
     @Test
     public void testClientServer() throws Exception {
         assertNotNull(bus);
         // The bus is load the feature
-        ServerFactoryBean factory = new ServerFactoryBean();
+        JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
         factory.setServiceBean(new HelloImpl());
         factory.setAddress("http://localhost:9000/simple/server");
         factory.setBus(bus);
         factory.create();
 
         // sleep a while to let the service be published
-        ClientProxyFactoryBean clientFactory = new ClientProxyFactoryBean();
+        JaxWsProxyFactoryBean clientFactory = new JaxWsProxyFactoryBean();
         clientFactory.setServiceClass(Hello.class);
         // The address is not the actual address that the client will access
         clientFactory.setAddress("http://someotherplace");
@@ -63,6 +64,15 @@ public class LoadBalanceClientServerTest extends AbstractJUnit4SpringContextTest
         Hello hello = clientFactory.create(Hello.class);
         String response = hello.sayHello();
         assertEquals("Get a wrong response", "Hello", response);
+
+        response = hello.sayHello();
+        assertEquals("Get a wrong response", "Hello", response);
+
+
+        // Try to call the hello proxy which is created by Spring
+        response = helloProxy.sayHello();
+        assertEquals("Get a wrong response", "Hello", response);
+        
     }
 
 }
