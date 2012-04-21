@@ -340,6 +340,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 StringBuffer sb = new StringBuffer();
                 List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
+                //We want the maven proxies to be sorted in the same manner that the fabric service does.
+                //That's beacause when someone uses the fabric service to pick a repo for deployment, we want that repo to be used first.
+                Collections.sort(children);
                 for (String child : children) {
                     String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
                     if (mavenRepo != null && mavenRepo.length() > 0) {
