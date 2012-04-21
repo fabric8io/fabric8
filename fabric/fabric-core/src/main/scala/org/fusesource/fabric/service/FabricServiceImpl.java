@@ -333,6 +333,28 @@ public class FabricServiceImpl implements FabricService {
         return uri;
     }
 
+    @Override
+    public URI getMavenRepoUploadURI() {
+        URI uri = URI.create(defaultRepo);
+        try {
+            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("upload"));
+                if (children != null && !children.isEmpty()) {
+                    Collections.sort(children);
+                }
+
+                String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
+                if(mavenRepo != null && !mavenRepo.endsWith("/")) {
+                    mavenRepo+="/";
+                }
+                uri = new URI(mavenRepo);
+            }
+        } catch (Exception e) {
+            //On exception just return uri.
+        }
+        return uri;
+    }
+
     public void registerProvider(String scheme, ContainerProvider provider) {
         providers.put(scheme, provider);
     }
