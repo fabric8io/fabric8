@@ -17,27 +17,34 @@
 
 package org.fusesource.fabric.maven.impl;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.ServletException;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.maven.MavenProxy;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.LifecycleListener;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MavenProxyRegistrationHandler implements LifecycleListener {
+public class MavenProxyRegistrationHandler implements LifecycleListener, ConfigurationListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
 
-    private int port;
-    private final Map<String, String> node = new HashMap<String, String>();
+    private String port;
+    private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
     private IZKClient zookeeper = null;
     private String name = System.getProperty("karaf.name");
 
@@ -46,34 +53,48 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
     private MavenDownloadProxyServlet mavenDownloadProxyServlet;
     private MavenUploadProxyServlet mavenUploadProxyServlet;
 
+    private ConfigurationAdmin configurationAdmin;
+
+    public MavenProxyRegistrationHandler() {
+        registeredProxies.put(MavenProxy.DOWNLOAD_TYPE,new HashSet<String>());
+        registeredProxies.put(MavenProxy.UPLOAD_TYPE,new HashSet<String>());
+    }
+
     public void init() throws ServletException, NamespaceException {
+        this.port = getPortFromConfig();
         httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, null);
         httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secureHttpContext);
     }
 
     public void destroy() {
-        httpService.unregister("/maven/download");
-        unregister("download");
-        httpService.unregister("/maven/upload");
-        unregister("upload");
+        unregister(MavenProxy.DOWNLOAD_TYPE);
+        unregister(MavenProxy.UPLOAD_TYPE);
+
+        try {
+            httpService.unregister("/maven/download");
+            httpService.unregister("/maven/upload");
+        } catch (Exception ex) {
+            LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
+        }
     }
 
 
     @Override
     public void onConnected() {
-        register("download");
-        register("upload");
+        register(MavenProxy.DOWNLOAD_TYPE);
+        register(MavenProxy.UPLOAD_TYPE);
     }
 
 
     @Override
     public void onDisconnected() {
-        unregister("download");
-        unregister("upload");
+        unregister(MavenProxy.DOWNLOAD_TYPE);
+        unregister(MavenProxy.UPLOAD_TYPE);
     }
 
     public void register(String type) {
-        String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + port + "/maven/"+type+"/";
+        unregister(type);
+        String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/maven/" + type + "/";
         String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
         String path = parentPath + "/p_";
         if (zookeeper.isConnected()) {
@@ -81,9 +102,8 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
                 if (zookeeper.exists(parentPath) == null) {
                     zookeeper.createWithParents(parentPath, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 }
-
-                if (zookeeper.exists(path) == null || (node.get(type) != null && zookeeper.exists(node.get(type)) == null)) {
-                    node.put(type, zookeeper.create(path, mavenProxyUrl.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL));
+                if (zookeeper.exists(path) == null) {
+                    registeredProxies.get(type).add(zookeeper.create(path, mavenProxyUrl.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL));
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to register maven proxy.", e);
@@ -93,30 +113,51 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
 
     public void unregister(String type) {
         try {
-            if (node != null) {
+             for (String entry : registeredProxies.get(type)) {
                 if (zookeeper.isConnected()) {
-                    zookeeper.delete(node.get(type));
+                    zookeeper.deleteWithChildren(entry);
                 }
-                node.remove(type);
-            }
+                registeredProxies.remove(type);
+             }
         } catch (Exception e) {
             LOGGER.error("Failed to remove maven proxy from registry.", e);
         }
     }
 
-    public void update() {
-        unregister("download");
-        unregister("upload");
-        register("upload");
-        register("upload");
+    @Override
+    public void configurationEvent(ConfigurationEvent event) {
+        if (event.getPid().equals("org.ops4j.pax.web") && event.getType() == ConfigurationEvent.CM_UPDATED) {
+            this.port = getPortFromConfig();
+            register(MavenProxy.DOWNLOAD_TYPE);
+            register(MavenProxy.UPLOAD_TYPE);
+        }
     }
 
-    private String getLocalHostName() {
+    public String getPortFromConfig() {
+        String port = "8181";
         try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to get address", e);
+            Configuration[] configurations = configurationAdmin.listConfigurations("(" + Constants.SERVICE_PID + "=org.ops4j.pax.web)");
+            if (configurations != null && configurations.length > 0) {
+                Configuration configuration = configurations[0];
+                Dictionary properties = configuration.getProperties();
+                if (properties != null && properties.get("org.osgi.service.http.port") != null) {
+                    port = String.valueOf(properties.get("org.osgi.service.http.port"));
+                }
+            }
+        } catch (Exception e) {
+            //noop
         }
+        return port;
+    }
+
+    private int getPortSafe() {
+        int port = 8181;
+        try {
+            port = Integer.parseInt(getPort());
+        } catch (NumberFormatException ex) {
+            //noop
+        }
+        return port;
     }
 
     public IZKClient getZookeeper() {
@@ -127,12 +168,8 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
         this.zookeeper = zookeeper;
     }
 
-    public int getPort() {
+    public String getPort() {
         return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public HttpService getHttpService() {
@@ -165,5 +202,13 @@ public class MavenProxyRegistrationHandler implements LifecycleListener {
 
     public void setSecureHttpContext(SecureHttpContext secureHttpContext) {
         this.secureHttpContext = secureHttpContext;
+    }
+
+    public ConfigurationAdmin getConfigurationAdmin() {
+        return configurationAdmin;
+    }
+
+    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
     }
 }

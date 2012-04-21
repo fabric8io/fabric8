@@ -17,8 +17,6 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <cm:property-placeholder id="web" persistent-id="org.ops4j.pax.web" placeholder-prefix="{{" placeholder-suffix="}}"/>
-
     <cm:property-placeholder id="proxy" persistent-id="org.fusesource.fabric.maven" placeholder-prefix="${" placeholder-suffix="}" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="localRepository" value=""/>
@@ -46,13 +44,12 @@
     </bean>
 
     <bean id="registrationHandler" class="org.fusesource.fabric.maven.impl.MavenProxyRegistrationHandler" init-method="init" destroy-method="destroy">
-        <cm:managed-properties persistent-id="org.ops4j.pax.web" update-strategy="component-managed"  update-method="update"/>
-        <property name="port" value="{{org.osgi.service.http.port}}"/>
         <property name="zookeeper" ref="zookeeper"/>
         <property name="secureHttpContext" ref="secureHttpContext"/>
         <property name="httpService" ref="httpService"/>
         <property name="mavenDownloadProxyServlet" ref="mavenDownloadProxyServlet"/>
         <property name="mavenUploadProxyServlet" ref="mavenUploadProxyServlet"/>
+        <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
     <bean id="secureHttpContext" class="org.fusesource.fabric.maven.impl.SecureHttpContext">
@@ -61,10 +58,15 @@
         <property name="realm" value="${uploadRealm}"/>
     </bean>
 
-
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     <reference id="httpService" interface="org.osgi.service.http.HttpService" availability="optional"/>
-    <service ref="registrationHandler" interface="org.linkedin.zookeeper.client.LifecycleListener"/>
+    <service ref="registrationHandler">
+        <interfaces>
+            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+            <value>org.osgi.service.cm.ConfigurationListener</value>
+        </interfaces>
+    </service>
 
     <!-- TODO: Not really used as a service. Check if we can remove them  -->
     <service ref="mavenDownloadProxyServlet" interface="org.fusesource.fabric.maven.MavenProxy"/>

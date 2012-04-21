@@ -22,6 +22,9 @@ import java.io.InputStream;
 
 public interface MavenProxy {
 
+    final String UPLOAD_TYPE = "upload";
+    final String DOWNLOAD_TYPE = "download";
+
     void start() throws IOException;
 
     void stop();
