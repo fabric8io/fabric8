@@ -85,18 +85,23 @@ public final class CommandUtils {
                     return -1;
                 }
 
+                // root should include its children
+                if (c1.isRoot() && c2.getParent() != null && c2.getParent().equals(c1)) {
+                    return -1;
+                } else if (c2.isRoot() && c1.getParent() != null && c1.getParent().equals(c2)) {
+                    return 1;
+                }
+
                 // root should be first
                 if (c1.isRoot() && !c2.isRoot()) {
                     return c1.getId().compareTo(c2.getParent().getId());
                 } else if (!c1.isRoot() && c2.isRoot()) {
                     return c1.getParent().getId().compareTo(c2.getId());
                 }
-                
-                // root should include its children
-                if (c1.isRoot() && c2.getParent() == c1) {
-                    return -1;
-                } else if (c2.isRoot() && c1.getParent() == c2) {
-                    return 1;
+
+                //if both are childs the compare their parents
+                if (!c1.isRoot() && !c2.isRoot()) {
+                   return c1.getParent().getId().compareTo(c2.getParent().getId());
                 }
 
                 // compare names

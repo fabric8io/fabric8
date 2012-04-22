@@ -562,4 +562,21 @@ public class ContainerImpl implements Container {
         }
         return false;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ContainerImpl container = (ContainerImpl) o;
+
+        if (id != null ? !id.equals(container.id) : container.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
