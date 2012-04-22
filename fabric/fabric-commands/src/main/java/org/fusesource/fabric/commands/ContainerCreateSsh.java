@@ -46,6 +46,9 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     private URI proxyUri;
     @Option(name = "--private-key", description = "The path to the private key on the filesystem. Default is ~/.ssh/id_rsa on *NIX platforms or C:\\Documents and Settings\\<UserName>\\.ssh\\id_rsa on Windows.")
     private String privateKeyFile;
+    @Option(name = "--pass-phrase", description = "The pass phrase of the key. This is for use with private keys that require a pass phrase.")
+    private String passPhrase;
+
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
@@ -65,6 +68,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .username(user)
         .password(password)
         .privateKeyFile(privateKeyFile != null ? privateKeyFile : CreateSshContainerOptions.DEFAULT_PRIVATE_KEY_FILE)
+        .passPhrase(passPhrase)
         .path(path)
         .port(port)
         .sshRetries(sshRetries)

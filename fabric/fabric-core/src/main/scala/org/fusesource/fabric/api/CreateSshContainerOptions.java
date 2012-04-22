@@ -38,6 +38,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     private Integer sshRetries = DEFAULT_SSH_RETRIES;
     private Integer retryDelay = 1;
     private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
+    private String passPhrase;
 
     public CreateSshContainerOptions() {
         this.providerType = "ssh";
@@ -86,6 +87,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public CreateSshContainerOptions privateKeyFile(final String privateKeyFile) {
         this.privateKeyFile = privateKeyFile;
+        return this;
+    }
+
+    public CreateSshContainerOptions passPhrase(final String passPhrase) {
+        this.passPhrase = passPhrase;
         return this;
     }
 
@@ -163,5 +169,13 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public void setPrivateKeyFile(String privateKeyFile) {
         this.privateKeyFile = privateKeyFile;
+    }
+
+    public String getPassPhrase() {
+        return passPhrase;
+    }
+
+    public void setPassPhrase(String passPhrase) {
+        this.passPhrase = passPhrase;
     }
 }
