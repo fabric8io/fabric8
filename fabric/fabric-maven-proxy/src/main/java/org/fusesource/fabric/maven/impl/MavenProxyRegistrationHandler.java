@@ -56,8 +56,8 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
     private ConfigurationAdmin configurationAdmin;
 
     public MavenProxyRegistrationHandler() {
-        registeredProxies.put(MavenProxy.DOWNLOAD_TYPE,new HashSet<String>());
-        registeredProxies.put(MavenProxy.UPLOAD_TYPE,new HashSet<String>());
+        registeredProxies.put(MavenProxy.DOWNLOAD_TYPE, new HashSet<String>());
+        registeredProxies.put(MavenProxy.UPLOAD_TYPE, new HashSet<String>());
     }
 
     public void init() throws ServletException, NamespaceException {
@@ -113,12 +113,15 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
 
     public void unregister(String type) {
         try {
-             for (String entry : registeredProxies.get(type)) {
-                if (zookeeper.isConnected()) {
-                    zookeeper.deleteWithChildren(entry);
+            Set<String> proxyNodes = registeredProxies.get(type);
+            if (proxyNodes != null) {
+                for (String entry : registeredProxies.get(type)) {
+                    if (zookeeper.isConnected()) {
+                        zookeeper.deleteWithChildren(entry);
+                    }
+                    registeredProxies.get(type).clear();
                 }
-                registeredProxies.remove(type);
-             }
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to remove maven proxy from registry.", e);
         }
