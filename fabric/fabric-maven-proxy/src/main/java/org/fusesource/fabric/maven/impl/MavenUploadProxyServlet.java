@@ -23,12 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-public class MavenUploadProxyServlet extends MavenProxyServletSupport {
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
-    }
+public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -47,10 +42,5 @@ public class MavenUploadProxyServlet extends MavenProxyServletSupport {
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
         }
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 }
