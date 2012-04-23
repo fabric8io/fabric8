@@ -18,7 +18,6 @@
 package org.fusesource.fabric.service.jclouds.firewall;
 
 import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.NodeMetadata;
 
 public interface ProviderFirewallSupport {
@@ -32,5 +31,5 @@ public interface ProviderFirewallSupport {
      */
     void authorize(ComputeService service, NodeMetadata node, String source, int... ports);
 
-    String getProvider();
+    String[] getProviders();
 }

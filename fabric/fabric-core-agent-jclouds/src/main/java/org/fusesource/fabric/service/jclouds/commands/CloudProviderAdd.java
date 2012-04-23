@@ -72,7 +72,9 @@ public class CloudProviderAdd extends FabricCommand {
         }
 
         if (getZooKeeper().isConnected()) {
-            ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_PROVIDER.getPath(provider));
+            if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
+                ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_PROVIDER.getPath(provider));
+            }
             ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
             ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
         } else {
@@ -104,6 +106,7 @@ public class CloudProviderAdd extends FabricCommand {
         } catch (Exception e) {
             LOGGER.warn("Failed to lookup configuration admin for existing cloud providers.",e);
         }
+        LOGGER.debug("No configuration found with factoryPid org.jclouds.compute. Creating new one.");
         configuration = configurationAdmin.createFactoryConfiguration(factoryPid, null);
         return configuration;
     }

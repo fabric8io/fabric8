@@ -46,6 +46,7 @@ public class ContainerProviderUtils {
     private static final String MAVEN_DOWNLOAD_FUCNTION = loadFunction("maven-download.sh");
     private static final String INSTALL_JDK = loadFunction("install-open-jdk.sh");
     private static final String INSTALL_CURL = loadFunction("install-curl.sh");
+    private static final String UPDATE_PKGS = loadFunction("update-pkgs.sh");
     private static final String KARAF_CHECK = loadFunction("karaf-check.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
@@ -64,21 +65,26 @@ public class ContainerProviderUtils {
      */
     public static String buildInstallAndStartScript(CreateContainerOptions options) throws MalformedURLException, URISyntaxException {
         StringBuilder sb = new StringBuilder();
+        sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUCNTION).append("\n");
         sb.append(DOWNLOAD_FUCNTION).append("\n");
         sb.append(MAVEN_DOWNLOAD_FUCNTION).append("\n");
+        sb.append(UPDATE_PKGS).append("\n");
         sb.append(INSTALL_CURL).append("\n");
         sb.append(INSTALL_JDK).append("\n");
         sb.append(KARAF_CHECK).append("\n");
-        //We need admin access to be able to install curl & java.
-        if (options.isAdminAccess()) {
-            sb.append("install_curl").append("\n");
-            sb.append("install_openjdk").append("\n");
-        }
         sb.append("run mkdir -p ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
+        //We need admin access to be able to install curl & java.
+        if (options.isAdminAccess()) {
+            //This is not really needed.
+            //Its just here as a silly workaround for some cases which fail to get the first thing installed.
+            sb.append("update-pkgs").append("\n");
+            sb.append("install_openjdk").append("\n");
+            sb.append("install_curl").append("\n");
+        }
         extractTargzIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         List<String> lines = new ArrayList<String>();
@@ -130,6 +136,7 @@ public class ContainerProviderUtils {
      */
     public static String buildStartScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
+        sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUCNTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
@@ -148,6 +155,7 @@ public class ContainerProviderUtils {
      */
     public static String buildStopScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
+        sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUCNTION).append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");

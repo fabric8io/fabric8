@@ -35,17 +35,17 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
      */
     @Override
     public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
-      try {
-          new Ec2SupportDelegate().authorize(service,node,source,ports);
-      } catch (NoClassDefFoundError ex) {
-          ex.printStackTrace(System.out);
-          //ignore
-      }
+        try {
+            new Ec2SupportDelegate().authorize(service, node, source, ports);
+        } catch (NoClassDefFoundError ex) {
+            ex.printStackTrace(System.out);
+            //ignore
+        }
     }
 
     @Override
-    public String getProvider() {
-        return "aws-ec2";
+    public String[] getProviders() {
+        return new String[]{"aws-ec2"};
     }
 
 
@@ -61,23 +61,23 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
          */
         @Override
         public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
-                String region = AWSUtils.parseHandle(node.getId())[0];
-                EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
-                String groupName = "jclouds#" + node.getGroup() + "#" + region;
-                for (int port : ports) {
-                    try {
-                        ec2Client.getSecurityGroupServices()
-                                .authorizeSecurityGroupIngressInRegion(region, groupName,
-                                        IpProtocol.TCP, port, port, source);
-                    } catch (IllegalStateException e) {
-                        //noop
-                    }
+            String region = AWSUtils.parseHandle(node.getId())[0];
+            EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
+            String groupName = "jclouds#" + node.getGroup() + "#" + region;
+            for (int port : ports) {
+                try {
+                    ec2Client.getSecurityGroupServices()
+                            .authorizeSecurityGroupIngressInRegion(region, groupName,
+                                    IpProtocol.TCP, port, port, source);
+                } catch (IllegalStateException e) {
+                    //noop
                 }
+            }
         }
 
         @Override
-        public String getProvider() {
-            return "aws-ec2";
+        public String[] getProviders() {
+            return new String[]{"aws-ec2"};
         }
     }
 }

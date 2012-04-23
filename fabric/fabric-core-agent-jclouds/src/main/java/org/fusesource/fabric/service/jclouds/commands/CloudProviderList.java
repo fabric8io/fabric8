@@ -59,7 +59,7 @@ public class CloudProviderList extends FabricCommand {
                 }
             }
 
-            if (getZooKeeper() != null && getZooKeeper().isConnected()) {
+            if (registered && getZooKeeper() != null && getZooKeeper().isConnected()) {
                 try {
                     if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
                         registrationType = "local";

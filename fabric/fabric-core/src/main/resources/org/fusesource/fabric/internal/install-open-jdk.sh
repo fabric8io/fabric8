@@ -52,11 +52,13 @@ function install_openjdk_rpm() {
 }
 
 function install_openjdk() {
+    echo "Checking if java is present."
     ARCH=`uname -m`
     JAVA_VERSION=`java -version 2>&1`
     if [[ $JAVA_VERSION == *1.6* || $JAVA_VERSION == *1.7* ]]; then
      echo "Java is already installed."
     else
+      echo "Installing java."
       if which dpkg &> /dev/null; then
         install_openjdk_deb
       elif which rpm &> /dev/null; then

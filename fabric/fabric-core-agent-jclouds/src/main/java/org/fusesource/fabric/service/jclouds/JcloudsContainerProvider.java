@@ -125,6 +125,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 builder.fastest();
         }
 
+
         //Define ImageId
         if (!Strings.isNullOrEmpty(options.getImageId())) {
             builder.imageId(options.getImageId());
@@ -180,9 +181,9 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 try {
                     String source = getOriginatingIp();
                     Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
-                    Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
-                    Rule httpRule = Rule.create().source(source).destination(nodeMetadata).port(8181);
-                    Rule zookeeperRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(2181);
+                    Rule sshRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8101);
+                    Rule httpRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8181);
+                    Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
                     FirewallManager firewallManager = firewallManagerFactory.getFirewallManager(computeService);
                     firewallManager.addRules(jmxRule, sshRule, httpRule, zookeeperRule);
                 } catch (FirewallNotSupportedOnProviderException e) {

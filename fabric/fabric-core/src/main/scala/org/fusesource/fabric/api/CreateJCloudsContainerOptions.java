@@ -22,7 +22,6 @@ package org.fusesource.fabric.api;
 public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<CreateJCloudsContainerOptions> {
     private static final long serialVersionUID = 4489740280396972109L;
 
-
     private String osFamily;
     private String osVersion;
     private String imageId;
@@ -31,7 +30,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String group;
     private String user;
     private String providerName;
-    private JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
+    private JCloudsInstanceType instanceType = JCloudsInstanceType.Fastest;
     private String identity;
     private String credential;
     private String owner;

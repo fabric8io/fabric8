@@ -104,6 +104,13 @@
         <property name="credentialStore" ref="zookeeperCredentialStore"/>
     </bean>
 
+    <bean id="cloudProviderBridge" class="org.fusesource.fabric.service.jclouds.CloudProviderBridge">
+        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="configurationAdmin" ref="configurationAdmin"/>
+    </bean>
+
+    <service ref="cloudProviderBridge" interface="org.linkedin.zookeeper.client.LifecycleListener"/>
+
     <service ref="ec2FirewallSupport" interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport"/>
 
     <service ref="zookeeperCredentialStore">
