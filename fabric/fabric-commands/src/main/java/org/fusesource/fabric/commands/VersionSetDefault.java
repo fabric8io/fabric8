@@ -19,7 +19,7 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "version-set-default", scope = "fabric", description = "Set the new default version (must be one of the existing versions)", detailedDescription = "classpath:versionSetDefault.txt")
 public class VersionSetDefault extends FabricCommand {

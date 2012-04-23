@@ -22,7 +22,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "container-connect", scope = "fabric", description = "Connect to a remote container")
 public class ContainerConnect extends FabricCommand {

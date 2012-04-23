@@ -23,7 +23,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "profile-change-parents", scope = "fabric", description = "Replace the profile's parents with the specified list of parents (where the parents are specified as a space-separated list)")
 public class ProfileChangeParents extends FabricCommand {

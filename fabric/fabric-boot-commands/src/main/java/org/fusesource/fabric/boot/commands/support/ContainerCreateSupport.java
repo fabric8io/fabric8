@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.commands.support;
+package org.fusesource.fabric.boot.commands.support;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +27,7 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.osgi.framework.ServiceReference;
 
 public abstract class ContainerCreateSupport extends FabricCommand {

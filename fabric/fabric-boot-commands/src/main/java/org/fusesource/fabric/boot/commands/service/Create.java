@@ -1,4 +1,4 @@
-package org.fusesource.fabric.commands.service;
+package org.fusesource.fabric.boot.commands.service;
 
 import java.util.List;
 

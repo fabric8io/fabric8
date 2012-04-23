@@ -28,7 +28,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "profile-display", scope = "fabric", description = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDisplay extends FabricCommand {

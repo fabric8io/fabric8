@@ -26,7 +26,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "cluster-list", scope = "fabric", description = "Lists all ActiveMQ message brokers in the fabric, enabling you to see which brokers are grouped into clusters.")
 public class ClusterList extends FabricCommand {

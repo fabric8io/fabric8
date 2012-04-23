@@ -65,6 +65,10 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-boot-commands</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
                <artifactId>fabric-commands</artifactId>
            </dependency>
            <dependency>
@@ -216,6 +220,7 @@
                                </descriptors>
                                <features>
                                    <feature>fabric-agent</feature>
+                                   <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>

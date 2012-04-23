@@ -635,6 +635,12 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-boot-commands</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-commands</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>

@@ -20,7 +20,7 @@ package org.fusesource.fabric.service.jclouds.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
 

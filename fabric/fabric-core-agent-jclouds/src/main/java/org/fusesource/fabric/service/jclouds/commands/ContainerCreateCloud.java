@@ -22,7 +22,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {

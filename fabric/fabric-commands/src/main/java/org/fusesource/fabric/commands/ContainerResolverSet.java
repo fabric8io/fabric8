@@ -24,7 +24,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "container-resolver-set", scope = "fabric", description = "Apply the specified resolver policy to the specified container or containers", detailedDescription = "classpath:containerResolverSet.txt")
 public class ContainerResolverSet extends FabricCommand {

@@ -79,9 +79,9 @@
         </command>
     </command-bundle>
 
-    <bean id="resolverCompleter" class="org.fusesource.fabric.commands.support.ResolverCompleter"/>
+    <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
 
-    <bean id="profileCompleter" class="org.fusesource.fabric.commands.support.ProfileCompleter">
+    <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>

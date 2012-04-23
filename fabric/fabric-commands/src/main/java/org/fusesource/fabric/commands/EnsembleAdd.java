@@ -18,7 +18,7 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
 

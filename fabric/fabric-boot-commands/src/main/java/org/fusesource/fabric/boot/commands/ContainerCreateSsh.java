@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.commands;
+package org.fusesource.fabric.boot.commands;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,7 +25,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
-import org.fusesource.fabric.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends ContainerCreateSupport {

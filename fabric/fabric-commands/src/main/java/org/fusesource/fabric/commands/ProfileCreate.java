@@ -23,7 +23,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "profile-create", scope = "fabric", description = "Create a new profile with the specified name and version", detailedDescription = "classpath:profileCreate.txt")
 public class ProfileCreate extends FabricCommand {

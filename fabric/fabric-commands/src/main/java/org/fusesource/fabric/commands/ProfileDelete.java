@@ -22,7 +22,7 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "profile-delete", scope = "fabric", description = "Delete the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDelete extends FabricCommand {

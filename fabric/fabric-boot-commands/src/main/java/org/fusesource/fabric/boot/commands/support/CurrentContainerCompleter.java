@@ -15,28 +15,20 @@
  *   limitations under the License.
  */
 
-package org.fusesource.fabric.commands.support;
+package org.fusesource.fabric.boot.commands.support;
 
-import java.util.Arrays;
 import java.util.List;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 
+public class CurrentContainerCompleter implements Completer {
 
-import static org.fusesource.fabric.zookeeper.ZkDefs.LOCAL_HOSTNAME;
-import static org.fusesource.fabric.zookeeper.ZkDefs.LOCAL_IP;
-import static org.fusesource.fabric.zookeeper.ZkDefs.PUBLIC_HOSTNAME;
-import static org.fusesource.fabric.zookeeper.ZkDefs.PUBLIC_IP;
-import static org.fusesource.fabric.zookeeper.ZkDefs.MANUAL_IP;
-
-
-public class ResolverCompleter implements Completer {
-
-    StringsCompleter delegate = new StringsCompleter();
+    private StringsCompleter delegate = new StringsCompleter();
 
     @Override
-    public int complete(String buffer, int index, List<String> candidates) {
-        delegate.getStrings().addAll(Arrays.asList(LOCAL_HOSTNAME,LOCAL_IP,PUBLIC_HOSTNAME,PUBLIC_IP, MANUAL_IP));
-        return delegate.complete(buffer, index, candidates);
+    public int complete(String s, int i, List<String> strings) {
+        delegate.getStrings().clear();
+        delegate.getStrings().add(System.getProperty("karaf.name"));
+        return delegate.complete(s,i,strings);
     }
 }
