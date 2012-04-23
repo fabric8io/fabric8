@@ -41,6 +41,7 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
+            org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.commands.support,
             org.fusesource.fabric.service.jclouds.commands.completers,
             org.fusesource.fabric.service.jclouds.modules,
