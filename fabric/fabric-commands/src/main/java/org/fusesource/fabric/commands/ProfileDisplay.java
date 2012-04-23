@@ -71,18 +71,20 @@ public class ProfileDisplay extends FabricCommand {
         out.println();
     }
 
-    private void displayProfile(Profile profile) {
+    private void displayProfile(Profile p) {
         PrintStream output = session.getConsole();
 
-        output.println("Profile id: " + profile.getId());
-        output.println("Version   : " + profile.getVersion());
+        output.println("Profile id: " + p.getId());
+        output.println("Version   : " + p.getVersion());
 
-        output.println("Parents   : " + toString(profile.getParents()));
+        output.println("Parents   : " + toString(p.getParents()));
 
-        output.printf("Associated Containers : %s\n", toString(profile.getAssociatedContainers()));
+        output.printf("Associated Containers : %s\n", toString(p.getAssociatedContainers()));
 
-        Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
-        Map<String,String> agentConfiguration =  overlay ? profile.getOverlay().getContainerConfiguration() : profile.getContainerConfiguration();
+        Profile profile = overlay ? p.getOverlay() : p;
+
+        Map<String, Map<String, String>> configuration = profile.getConfigurations();
+        Map<String,String> agentConfiguration = profile.getContainerConfiguration();
         List<String> agentProperties = new ArrayList<String>();
         List<String> systemProperties = new ArrayList<String>();
         List<String> configProperties = new ArrayList<String>();
