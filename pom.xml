@@ -786,6 +786,13 @@
                 <artifactId>camel-spring</artifactId>
                 <version>${camel-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.camel.karaf</groupId>
+                <artifactId>apache-camel</artifactId>
+                <version>${camel-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
             <!-- LogBack -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -846,6 +853,13 @@
                 <version>1.1</version>
             </dependency>
             <!-- Karaf version -->
+            <dependency>
+                <groupId>org.apache.karaf.assemblies.features</groupId>
+                <artifactId>standard</artifactId>
+                <version>${karaf-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
             <dependency>
                 <groupId>org.apache.karaf.jaas</groupId>
                 <artifactId>org.apache.karaf.jaas.boot</artifactId>
