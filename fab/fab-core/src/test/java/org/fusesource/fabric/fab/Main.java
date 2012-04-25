@@ -17,8 +17,6 @@
 
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.Filters;
-
 import java.io.File;
 
 /**
@@ -46,7 +44,7 @@ public class Main {
     }
 
     public void run() throws Exception {
-        MavenResolver manager = new MavenResolver();
+        MavenResolverImpl manager = new MavenResolverImpl();
 
         DependencyTreeResult results;
         File file = new File(pomFile);

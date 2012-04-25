@@ -17,13 +17,13 @@
 
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.File;
+
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.ops4j.pax.url.commons.handler.HandlerActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.io.File;
 
 /**
  * Activator for the fab protocol

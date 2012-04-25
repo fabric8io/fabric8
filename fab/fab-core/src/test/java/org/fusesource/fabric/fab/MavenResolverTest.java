@@ -17,8 +17,6 @@
 
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Filters;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +25,6 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -75,7 +72,7 @@ public class MavenResolverTest extends DependencyTestSupport {
 
     @Test
     public void testGetRemoteRepositories() {
-        MavenResolver resolver = new MavenResolver();
+        MavenResolverImpl resolver = new MavenResolverImpl();
         resolver.setRepositories(new String[] { "http://user:password@host1/path/to/repo" , "http://host2/path/to/repo@snapshots"});
         
         List<RemoteRepository> repositories = resolver.getRemoteRepositories();        

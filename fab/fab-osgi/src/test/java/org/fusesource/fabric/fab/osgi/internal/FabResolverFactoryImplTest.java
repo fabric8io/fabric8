@@ -16,13 +16,13 @@
  */
 package org.fusesource.fabric.fab.osgi.internal;
 
-import org.apache.karaf.features.FeaturesService;
-import org.fusesource.fabric.fab.osgi.util.PruningFilter;
-import org.junit.Test;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+
+import org.apache.karaf.features.FeaturesService;
+import org.fusesource.fabric.fab.osgi.util.PruningFilter;
+import org.junit.Test;
 
 import static org.easymock.EasyMock.createNiceMock;
 import static org.junit.Assert.assertFalse;
@@ -37,6 +37,7 @@ public class FabResolverFactoryImplTest {
     public void testFeaturesServiceAvailable() throws MalformedURLException {
         FabResolverFactoryImpl factory = new FabResolverFactoryImpl();
         factory.setFeaturesService(createNiceMock(FeaturesService.class));
+        factory.setConfiguration(ConfigurationImpl.newInstance());
 
         FabResolverFactoryImpl.FabResolverImpl fabResolver =
                 (FabResolverFactoryImpl.FabResolverImpl) factory.getResolver(new URL("http://dummy/location"));
@@ -50,6 +51,7 @@ public class FabResolverFactoryImplTest {
     @Test
     public void testNoFeaturesServiceAvailable() throws MalformedURLException {
         FabResolverFactoryImpl factory = new FabResolverFactoryImpl();
+        factory.setConfiguration(ConfigurationImpl.newInstance());
 
         FabResolverFactoryImpl.FabResolverImpl fabResolver =
                 (FabResolverFactoryImpl.FabResolverImpl) factory.getResolver(new URL("http://dummy/location"));
