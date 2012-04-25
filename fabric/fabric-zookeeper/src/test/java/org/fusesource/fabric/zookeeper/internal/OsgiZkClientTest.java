@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ManagedService;
 
@@ -83,6 +84,7 @@ public class OsgiZkClientTest {
     @Test
     public void testZk() throws Exception {
         reset(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
+        bundleContext.addServiceListener((ServiceListener) anyObject(), (String) anyObject());
         expect(bundleContext.registerService(aryEq(new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() }), same(client), (Dictionary) anyObject())).andReturn(zkClientRegistration);
         expect(bundleContext.registerService(eq(ManagedService.class.getName()), same(client), (Dictionary) anyObject())).andReturn(managedServiceRegistration);
 
