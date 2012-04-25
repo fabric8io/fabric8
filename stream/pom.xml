@@ -32,9 +32,9 @@
   <description>Fuse Stream :: Project</description>
 
   <modules>
+    <module>stream-log</module>
     <module>fabric-bridge</module>
     <module>fabric-bridge-zookeeper</module>
-    <module>stream-log</module>
     <!--module>fabric-bridge-itests</module-->
   </modules>
 
