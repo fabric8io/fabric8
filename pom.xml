@@ -94,6 +94,7 @@
         <perfectus-build>040</perfectus-build>
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
+        <aries.jmx.version>0.3.1.fuse-beta-7-${perfectus-build}</aries.jmx.version>
         <aries.util.version>0.3.1.fuse-beta-7-${perfectus-build}</aries.util.version>
         <aries.blueprint.version>0.3.1.fuse-beta-7-${perfectus-build}</aries.blueprint.version>
         <aries.version>0.3</aries.version>
@@ -151,7 +152,7 @@
         <ops4j-pax-web-version>1.0.8</ops4j-pax-web-version>
         <osgi-version>4.2.0</osgi-version>
         <pax-exam-version>2.3.1</pax-exam-version>
-        <pax.logging.version>1.6.5</pax.logging.version>
+        <pax.logging.version>1.6.6</pax.logging.version>
         <pax-runner-version>1.7.6</pax-runner-version>
         <pax.url.version>1.2.8</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
