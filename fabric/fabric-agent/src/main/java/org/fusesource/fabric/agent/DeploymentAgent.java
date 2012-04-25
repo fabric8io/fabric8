@@ -564,7 +564,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 checksums.put(agentResource.getURI(), newCheckums.get(agentResource.getURI()));
                 checksums.save();
             }
-            refreshPackages(new Bundle[] { bundle });
             return;
         }
 
@@ -625,6 +624,13 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             resToBnd.put(resource, bundle);
         }
 
+        if (!newCheckums.isEmpty()) {
+            for (String key : newCheckums.keySet()) {
+                checksums.put(key, newCheckums.get(key));
+            }
+            checksums.save();
+        }
+
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
         findBundlesWithFragmentsToRefresh(toRefresh);
 
@@ -633,8 +639,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Bundle bundle : toRefresh) {
             LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
         }
-
-        checksums.save(); // Force the needed classes to be loaded
 
         if (!toRefresh.isEmpty()) {
             refreshPackages(toRefresh.toArray(new Bundle[toRefresh.size()]));
@@ -661,12 +665,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
         if (!exceptions.isEmpty()) {
             throw new MultiException("Error updating agent", exceptions);
-        }
-        if (!newCheckums.isEmpty()) {
-            for (String key : newCheckums.keySet()) {
-                checksums.put(key, newCheckums.get(key));
-            }
-            checksums.save();
         }
 
         LOGGER.info("Done.");
