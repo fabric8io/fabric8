@@ -38,11 +38,9 @@ import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
 import org.fusesource.fabric.fab.osgi.util.Features;
-import org.fusesource.fabric.fab.osgi.util.PruningFilter;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.fabric.fab.util.Objects;
-import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.osgi.framework.BundleContext;
@@ -324,7 +322,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
     /**
      * Filter implementation that matches dependencies to known features, replacing the dependency by the feature
      */
-    protected static class FeaturesMatchingFilter implements PruningFilter, FeatureCollector {
+    protected static class FeaturesMatchingFilter implements Filter<DependencyTree>, FeatureCollector {
 
         private final List<String> features = new LinkedList<String>();
         private final FeaturesService service;
@@ -339,11 +337,6 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         @Override
         public Collection<String> getCollection() {
             return features;  //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public boolean isEnabled(FabClassPathResolver resolver) {
-            return true;
         }
 
         private Filter<DependencyTree> getDependencyTreeFilter() {
@@ -363,7 +356,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
                     if (feature != null) {
                         String replacement = String.format("%s/%s", feature.getName(), feature.getVersion());
                         features.add(replacement);
-                        LOG.info(String.format("Installing feature %s matching dependency %s:%s:%s",
+                        LOG.info(String.format("Installing feature %s for maven dependency %s/%s/%s",
                                                replacement,
                                                dependencyTree.getGroupId(), dependencyTree.getArtifactId(), dependencyTree.getVersion()));
                         result = true;
@@ -375,103 +368,5 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
 
             return result;
         }
-    }
-
-    /**
-     * Filter implementation that matches Camel dependencies to features and collects the found features
-     */
-    protected static class CamelFeaturesFilter implements PruningFilter, FeatureCollector {
-
-        private final FeaturesService service;
-        private final List<String> features = new LinkedList<String>();
-
-        public CamelFeaturesFilter(FeaturesService service) {
-            this.service = service;
-        }
-
-        @Override
-        public boolean matches(DependencyTree dependencyTree) {
-            boolean result = false;
-            if (dependencyTree.getGroupId().equals("org.apache.camel")) {
-                try {
-                    Feature feature = service.getFeature(dependencyTree.getArtifactId());
-                    if (feature != null) {
-                        features.add(String.format("%s/%s", feature.getName(), feature.getVersion()));
-                        result = true;
-                    }
-                } catch (Exception e1) {
-                    LOG.debug("Unable to retrieve information about Camel feature {} - installing the artifact instead of the feature", dependencyTree.getArtifactId());
-                }
-            }
-
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "filter<replace camel bundles by features>";
-        }
-
-        @Override
-        public Collection<String> getCollection() {
-            return features;
-        }
-
-        @Override
-        public boolean isEnabled(FabClassPathResolver resolver) {
-            return !Strings.splitAndTrimAsList(emptyIfNull(resolver.getManifestProperty(ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION)), "\\s+").contains("org.apache.camel");
-        }
-    }
-
-
-    protected static class CXFFeaturesFilter implements PruningFilter, FeatureCollector {
-
-        private final FeaturesService service;
-        private final List<String> features = new LinkedList<String>();
-
-        public CXFFeaturesFilter(FeaturesService service) {
-            this.service = service;
-        }
-
-        @Override
-        public Collection<String> getCollection() {
-            return features;
-        }
-
-        @Override
-        public boolean isEnabled(FabClassPathResolver resolver) {
-            return !Strings.splitAndTrimAsList(emptyIfNull(resolver.getManifestProperty(ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION)), "\\s+").contains("org.apache.cxf");
-        }
-
-        @Override
-        public boolean matches(DependencyTree dependencyTree) {
-            final String groupId = dependencyTree.getGroupId();
-
-            if (groupId.equals("org.apache.cxf")) {
-                return replaceDependencyByFeature(dependencyTree, "cxf");
-            } else if (groupId.equals("org.apache.cxf.sts")) {
-                return replaceDependencyByFeature(dependencyTree, "cxf-sts");
-            } else if (groupId.equals("org.apache.cxf.wsn")) {
-                return replaceDependencyByFeature(dependencyTree, "cxf-wsn");
-            }
-
-            return false;
-        }
-
-        private boolean replaceDependencyByFeature(DependencyTree dependencyTree, String name) {
-            try {
-                Feature feature = service.getFeature(name);;
-                if (feature != null) {
-                    features.add(String.format("%s/%s", feature.getName(), feature.getVersion()));
-                    return true;
-                }
-            } catch (Exception e1) {
-                LOG.debug("Unable to retrieve information about CXF feature {} - installing the artifact instead of the feature", dependencyTree.getArtifactId());
-            }
-
-            return false;
-        }
-
-
     }
 }

@@ -28,7 +28,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
-import org.fusesource.fabric.fab.osgi.util.PruningFilter;
 import org.fusesource.fabric.fab.osgi.util.Services;
 import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
@@ -117,7 +116,7 @@ public class FabClassPathResolverTest {
      * Mock Filter for DependencyTree instances that also implements FeatureCollector,
      * similar to e.g. {@link CamelFeaturesFilter}
      */
-    private static final class MockFeatureCollectorFilter implements PruningFilter, FeatureCollector {
+    private static final class MockFeatureCollectorFilter implements Filter<DependencyTree>, FeatureCollector {
 
         @Override
         public Collection<String> getCollection() {
@@ -129,10 +128,6 @@ public class FabClassPathResolverTest {
             return false;
         }
 
-        @Override
-        public boolean isEnabled(FabClassPathResolver resolver) {
-            return true;
-        }
     }
 
     /*

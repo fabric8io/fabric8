@@ -36,7 +36,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
-import org.fusesource.fabric.fab.osgi.util.PruningFilter;
 import org.fusesource.fabric.fab.util.*;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
@@ -69,7 +68,7 @@ public class FabClassPathResolver implements FabConfiguration {
     private boolean offline = false;
 
     // filters used for pruning unnecessary nodes from the dependency tree
-    protected final List<PruningFilter> pruningFilters = new LinkedList<PruningFilter>();
+    protected final List<Filter<DependencyTree>> pruningFilters = new LinkedList<Filter<DependencyTree>>();
 
     HashSet<String> sharedFilterPatterns = new HashSet<String>();
     HashSet<String> requireBundleFilterPatterns = new HashSet<String>();
@@ -135,10 +134,8 @@ public class FabClassPathResolver implements FabConfiguration {
         this.rootTree = connection.collectDependencyTree(offline, excludeFilter);
 
         // let's prune unnecessary items from the tree before continuing
-        for (PruningFilter filter : pruningFilters) {
-            if (filter.isEnabled(this)) {
-                DependencyTreeFilters.prune(rootTree, filter);
-            }
+        for (Filter<DependencyTree> filter : pruningFilters) {
+            DependencyTreeFilters.prune(rootTree, filter);
         }
 
         String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
@@ -718,7 +715,7 @@ public class FabClassPathResolver implements FabConfiguration {
      * If the filter also implements the {@link FeatureCollector} interface, it will also be added to the collectors
      * used for tracking {@link #getInstallFeatures}
      */
-    public void addPruningFilter(PruningFilter filter) {
+    public void addPruningFilter(Filter<DependencyTree> filter) {
         pruningFilters.add(filter);
         if (filter instanceof FeatureCollector) {
             installFeatures.addCollector((FeatureCollector) filter);

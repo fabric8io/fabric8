@@ -21,7 +21,8 @@ import java.net.URL;
 import java.util.List;
 
 import org.apache.karaf.features.FeaturesService;
-import org.fusesource.fabric.fab.osgi.util.PruningFilter;
+import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
 
 import static org.easymock.EasyMock.createNiceMock;
@@ -56,10 +57,10 @@ public class FabResolverFactoryImplTest {
                 (FabResolverFactoryImpl.FabResolverImpl) factory.getResolver(new URL("http://dummy/location"));
 
         FabClassPathResolver classPathResolver = fabResolver.getClasspathResolver(null ,null);
-        assertNotContainsInstanceOf(classPathResolver.pruningFilters, FabResolverFactoryImpl.CamelFeaturesFilter.class);
+        assertNotContainsInstanceOf(classPathResolver.pruningFilters, FabResolverFactoryImpl.FeaturesMatchingFilter.class);
     }
 
-    private void assertContainsInstanceOf(List<PruningFilter> items, Class type) {
+    private void assertContainsInstanceOf(List<Filter<DependencyTree>> items, Class type) {
         assertTrue("Should have found an instance of " + type + " in collection " + items, containsInstanceOf(items, type));
     }
 
