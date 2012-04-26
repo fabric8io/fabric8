@@ -91,9 +91,10 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>040</perfectus-build>
+        <perfectus-build>051</perfectus-build>
 
         <asm.bundle.version>3.3_2</asm.bundle.version>
+        <aries.jmx.version>0.3.1.fuse-beta-7-${perfectus-build}</aries.jmx.version>
         <aries.util.version>0.3.1.fuse-beta-7-${perfectus-build}</aries.util.version>
         <aries.blueprint.version>0.3.1.fuse-beta-7-${perfectus-build}</aries.blueprint.version>
         <aries.version>0.3</aries.version>
@@ -148,9 +149,10 @@
         <ops4j-pax-swissbox-bnd.version>1.3.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.2.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-swissbox-optional-jcl.version>1.3.1</ops4j-pax-swissbox-optional-jcl.version>
+        <ops4j-pax-web-version>1.0.8</ops4j-pax-web-version>
         <osgi-version>4.2.0</osgi-version>
         <pax-exam-version>2.3.1</pax-exam-version>
-        <pax.logging.version>1.6.5</pax.logging.version>
+        <pax.logging.version>1.6.6</pax.logging.version>
         <pax-runner-version>1.7.6</pax-runner-version>
         <pax.url.version>1.2.8</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
@@ -499,6 +501,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <!-- bad repo
         <repository>
             <id>scala-tools.org-releases</id>
             <url>http://scala-tools.org/repo-releases</url>
@@ -511,6 +514,7 @@
             <snapshots><enabled>true</enabled></snapshots>
             <releases><enabled>false</enabled></releases>
         </repository>
+        -->
 
         <repository>
           <id>java.net.m2</id>
@@ -629,6 +633,12 @@
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-camel</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-boot-commands</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
@@ -779,6 +789,13 @@
                 <artifactId>camel-spring</artifactId>
                 <version>${camel-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.camel.karaf</groupId>
+                <artifactId>apache-camel</artifactId>
+                <version>${camel-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
             <!-- LogBack -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -839,6 +856,13 @@
                 <version>1.1</version>
             </dependency>
             <!-- Karaf version -->
+            <dependency>
+                <groupId>org.apache.karaf.assemblies.features</groupId>
+                <artifactId>standard</artifactId>
+                <version>${karaf-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
             <dependency>
                 <groupId>org.apache.karaf.jaas</groupId>
                 <artifactId>org.apache.karaf.jaas.boot</artifactId>

@@ -17,16 +17,16 @@
 
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.ops4j.pax.swissbox.property.BundleContextPropertyResolver;
 import org.ops4j.pax.url.commons.handler.ConnectionFactory;
 import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.ops4j.util.property.PropertyResolver;
 import org.osgi.framework.BundleContext;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 
 import static org.fusesource.fabric.fab.osgi.util.ConfigurationAdminHelper.getProperties;
 
@@ -63,6 +63,6 @@ public class FabConnectionFactory implements ConnectionFactory<Configuration> {
                         new DictionaryPropertyResolver(getProperties(context, "org.ops4j.pax.url.mvn"),
                                 new BundleContextPropertyResolver(context)));
 
-        return new Configuration(resolver);
+        return new ConfigurationImpl(resolver);
     }
 }

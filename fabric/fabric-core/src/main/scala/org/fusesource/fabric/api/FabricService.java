@@ -89,6 +89,11 @@ public interface FabricService {
     URI getMavenRepoURI();
 
     /**
+     * Returns the current maven proxy repository to use to deploy new builds to the fabric
+     */
+    URI getMavenRepoUploadURI();
+
+    /**
      * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
      * It's of the format <p>ip:port</p>
      * @return

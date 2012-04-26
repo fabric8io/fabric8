@@ -195,6 +195,11 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <workingDirectory>target</workingDirectory>
+              <excludes>
+                <!-- ESB-1687 -->
+                <exclude>**/FabricServiceTest.*</exclude>
+                <exclude>**/ProfileTest.*</exclude>
+              </excludes>
             </configuration>
           </plugin>
         </plugins>

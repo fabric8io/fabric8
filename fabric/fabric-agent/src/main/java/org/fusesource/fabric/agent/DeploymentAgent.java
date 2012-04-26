@@ -69,11 +69,19 @@ import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.download.FutureListener;
 import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
 import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
+import org.fusesource.fabric.agent.mvn.PropertyStore;
+import org.fusesource.fabric.agent.utils.ChecksumUtils;
 import org.fusesource.fabric.agent.utils.MultiException;
+import org.fusesource.fabric.fab.MavenResolver;
+import org.fusesource.fabric.fab.MavenResolverImpl;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.FabResolver;
+import org.fusesource.fabric.fab.osgi.FabResolverFactory;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -165,7 +173,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         this.zkClient = zkClient;
     }
 
-    public void start() {
+    public void start() throws IOException {
         LOGGER.info("Starting DeploymentAgent");
         bundleContext.addFrameworkListener(this);
         systemBundleContext = bundleContext.getBundle(0).getBundleContext();
@@ -185,6 +193,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     public void updated(final Dictionary props) throws ConfigurationException {
+        if (executor.isShutdown()) {
+            return;
+        }
         executor.submit(new Runnable() {
             public void run() {
                 Throwable result = null;
@@ -231,6 +242,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         addMavenProxies(props);
 
         updateStatus("analyzing", null);
+
+        // Building configuration
+        DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(props,
+                new PropertiesPropertyResolver(System.getProperties()));
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
                 new DictionaryPropertyResolver(props,
                         new PropertiesPropertyResolver(System.getProperties())),
@@ -279,7 +294,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             return;
         }
         // Compute deployment
-        Map<URI, Repository> repositories = new HashMap<URI, Repository>();
+        final Map<URI, Repository> repositories = new HashMap<URI, Repository>();
         for (String key : properties.keySet()) {
             if (key.startsWith("repository.")) {
                 String url = properties.get(key);
@@ -331,15 +346,27 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             }
         }
         // Update bundles
-        updateDeployment(repositories, features, bundles, fabs);
+        FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
+        fabResolverFactory.setConfiguration(new FabricFabConfiguration(config, propertyResolver));
+        fabResolverFactory.setBundleContext(bundleContext);
+        fabResolverFactory.setFeaturesService(new FeaturesServiceImpl() {
+            @Override
+            public Repository[] listRepositories() {
+                return repositories.values().toArray(new Repository[repositories.size()]);
+            }
+        });
+        updateDeployment(fabResolverFactory, repositories, features, bundles, fabs);
     }
 
     private void addMavenProxies(Dictionary props) {
         try {
             IZKClient zooKeeper = zkClient.call();
-            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_PROXY.getPath()) != null) {
+            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 StringBuffer sb = new StringBuffer();
-                List<String> children = zooKeeper.getChildren(ZkPath.CONFIGS_MAVEN_PROXY.getPath());
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
+                //We want the maven proxies to be sorted in the same manner that the fabric service does.
+                //That's beacause when someone uses the fabric service to pick a repo for deployment, we want that repo to be used first.
+                Collections.sort(children);
                 for (String child : children) {
                     String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + child);
                     if (mavenRepo != null && mavenRepo.length() > 0) {
@@ -441,15 +468,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return set;
     }
 
-    private void updateDeployment(final Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles, Set<String> fabs) throws Exception {
-        FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
-        fabResolverFactory.setBundleContext(bundleContext);
-        fabResolverFactory.setFeaturesService(new FeaturesServiceImpl() {
-            @Override
-            public Repository[] listRepositories() {
-                return repositories.values().toArray(new Repository[repositories.size()]);
-            }
-        });
+    private void updateDeployment(FabResolverFactory fabResolverFactory, Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles, Set<String> fabs) throws Exception {
         Map<String, FabBundleInfo> infos = new HashMap<String, FabBundleInfo>();
         for (String fab : fabs) {
             FabResolver resolver = fabResolverFactory.getResolver(new URL(fab));
@@ -468,7 +487,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         updateStatus("downloading", null);
         Map<String, File> downloads = downloadBundles(allFeatures, bundles);
         updateStatus("resolving", null);
-        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos.values());
+        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos, downloads);
 
         updateStatus("installing", null);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
@@ -480,6 +499,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
         LOGGER.info(sb.toString());
 
+        Map<String, String> newCheckums = new HashMap<String, String>();
         List<Resource> toDeploy = new ArrayList<Resource>(allResources);
         List<Resource> toInstall = new ArrayList<Resource>();
         List<Bundle> toDelete = new ArrayList<Bundle>();
@@ -487,20 +507,36 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
         // First pass: go through all installed bundles and mark them
         // as either to ignore or delete
-        // TODO: handle snapshots
+        File file = bundleContext.getDataFile("checksums.properties");
+        Properties checksums = new Properties(file);
         for (Bundle bundle : systemBundleContext.getBundles()) {
             if (bundle.getBundleId() != 0) {
                 Resource resource = null;
+                boolean update = false;
                 for (Resource res : toDeploy) {
-                    if (res.getSymbolicName().equals(bundle.getSymbolicName())
-                            && res.getVersion().equals(bundle.getVersion())) {
-                        resource = res;
-                        break;
+                    if (res.getSymbolicName().equals(bundle.getSymbolicName())) {
+                        if (res.getVersion().equals(bundle.getVersion())) {
+                            if (res.getVersion().getQualifier().endsWith("SNAPSHOT")) {
+                                // if the checksum are different
+                                InputStream is = getBundleInputStream(res, downloads, infos);
+                                long newCrc = ChecksumUtils.checksum(is);
+                                long oldCrc = checksums.containsKey(res.getURI()) ? Long.parseLong(checksums.get(res.getURI())) : 0;
+                                if (newCrc != oldCrc) {
+                                    update = true;
+                                    newCheckums.put(res.getURI(), Long.toString(newCrc));
+                                }
+                            }
+                            resource = res;
+                            break;
+                        }
                     }
                 }
                 if (resource != null) {
                     toDeploy.remove(resource);
                     resToBnd.put(resource, bundle);
+                    if (update) {
+                        toUpdate.put(bundle, resource);
+                    }
                 } else {
                     toDelete.add(bundle);
                 }
@@ -525,6 +561,22 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             } else {
                 toInstall.add(resource);
             }
+        }
+
+        // Check if an update of the agent is needed
+        Resource agentResource = toUpdate.get(bundleContext.getBundle());
+        if (agentResource != null) {
+            LOGGER.info("Updating agent");
+            LOGGER.info("  " + agentResource.getURI());
+            InputStream is = getBundleInputStream(agentResource, downloads, infos);
+            Bundle bundle = bundleContext.getBundle();
+            checksums.save(); // Force the needed classes to be loaded
+            bundle.update(is);
+            if (newCheckums.containsKey(agentResource.getURI())) {
+                checksums.put(agentResource.getURI(), newCheckums.get(agentResource.getURI()));
+                checksums.save();
+            }
+            return;
         }
 
         // Display
@@ -584,6 +636,13 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             resToBnd.put(resource, bundle);
         }
 
+        if (!newCheckums.isEmpty()) {
+            for (String key : newCheckums.keySet()) {
+                checksums.put(key, newCheckums.get(key));
+            }
+            checksums.save();
+        }
+
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
         findBundlesWithFragmentsToRefresh(toRefresh);
 
@@ -623,17 +682,34 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         LOGGER.info("Done.");
     }
 
-    private InputStream getBundleInputStream(Resource resource, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws IOException {
+    protected static InputStream getBundleInputStream(Resource resource, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws IOException {
+        return getBundleInputStream(resource.getURI(), downloads, infos);
+    }
+
+    protected static InputStream getBundleInputStream(String uri, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws IOException {
         InputStream is;
         File file;
         FabBundleInfo info;
-        if ((file = downloads.get(resource.getURI())) != null) {
+        if ((file = downloads.get(uri)) != null) {
             is = new FileInputStream(file);
-        } else if ((info = infos.get(resource.getURI())) != null) {
+        } else if ((info = infos.get(uri)) != null) {
             is = info.getInputStream();
         } else {
-            LOGGER.warn("Bundle " + resource.getURI() + " not found in the downloads, using direct input stream instead");
-            is = new URL(resource.getURI()).openStream();
+            LOGGER.warn("Bundle " + uri + " not found in the downloads, using direct input stream instead");
+            is = new URL(uri).openStream();
+        }
+        return is;
+    }
+
+    protected static InputStream getBundleInputStream(String uri, Map<String, File> downloads) throws IOException {
+        InputStream is;
+        File file;
+        FabBundleInfo info;
+        if ((file = downloads.get(uri)) != null) {
+            is = new FileInputStream(file);
+        } else {
+            LOGGER.warn("Bundle " + uri + " not found in the downloads, using direct input stream instead");
+            is = new URL(uri).openStream();
         }
         return is;
     }
@@ -645,7 +721,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             int usage = 0;
             if (references != null) {
                 for (ServiceReference reference : references) {
-                    usage += getServiceUsage(reference);
+                    usage += getServiceUsage(reference, bundles);
                 }
             }
             LOGGER.debug("Usage for bundle {} is {}", bundle, usage);
@@ -665,7 +741,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             for (Bundle bundle : bundles) {
                 ServiceReference[] references = bundle.getRegisteredServices();
                 for (ServiceReference reference : references) {
-                    if (getServiceUsage(reference) == 0) {
+                    if (getServiceUsage(reference, bundles) == 0) {
                         continue;
                     }
                     if (ref == null || reference.compareTo(ref) < 0) {
@@ -682,9 +758,17 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return bundlesToDestroy;
     }
 
-    private static int getServiceUsage(ServiceReference ref) {
+    private static int getServiceUsage(ServiceReference ref, List<Bundle> bundles) {
         Bundle[] usingBundles = ref.getUsingBundles();
-        return (usingBundles != null) ? usingBundles.length : 0;
+        int nb = 0;
+        if (usingBundles != null) {
+            for (Bundle bundle : usingBundles) {
+                if (bundles.contains(bundle)) {
+                    nb++;
+                }
+            }
+        }
+        return nb;
     }
 
     private VersionRange getMicroVersionRange(Version version) {
@@ -944,5 +1028,68 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 t.setPriority(Thread.NORM_PRIORITY);
             return t;
         }
+
     }
+
+    class FabricFabConfiguration extends PropertyStore implements Configuration {
+
+        final DictionaryPropertyResolver propertyResolver;
+        final MavenConfigurationImpl config;
+
+        FabricFabConfiguration(MavenConfigurationImpl config, DictionaryPropertyResolver propertyResolver) {
+            this.propertyResolver = propertyResolver;
+            this.config = config;
+        }
+
+        @Override
+        public String[] getSharedResourcePaths() {
+            if (!contains(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS)) {
+                String text = propertyResolver.get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
+                String[] repositories;
+                if (text == null || text.length() == 0) {
+                    repositories = ServiceConstants.DEFAULT_PROPERTY_SHARED_RESOURCE_PATHS;
+                } else {
+                    repositories = toArray(text);
+                }
+                return set(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS, repositories);
+            }
+            return get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
+        }
+
+        @Override
+        public boolean getCertificateCheck() {
+            return config.getCertificateCheck();
+        }
+
+        @Override
+        public boolean isInstallMissingDependencies() {
+            return false;
+        }
+
+        @Override
+        public MavenResolver getResolver() {
+            try {
+                MavenResolverImpl resolver = new MavenResolverImpl();
+                List<String> repos = new ArrayList<String>();
+                for (MavenRepositoryURL url : config.getRepositories()) {
+                    repos.add(url.getURL().toURI().toString());
+                }
+                resolver.setRepositories(repos.toArray(new String[repos.size()]));
+                resolver.setLocalRepo(config.getLocalRepository().getURL().toURI().toString());
+                return resolver;
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        protected String[] toArray(String text) {
+            String[] answer = null;
+            if (text != null) {
+                answer = text.split(",");
+            }
+            return answer;
+        }
+
+    }
+
 }

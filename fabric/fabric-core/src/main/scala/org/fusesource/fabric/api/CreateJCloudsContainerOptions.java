@@ -22,7 +22,6 @@ package org.fusesource.fabric.api;
 public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<CreateJCloudsContainerOptions> {
     private static final long serialVersionUID = 4489740280396972109L;
 
-
     private String osFamily;
     private String osVersion;
     private String imageId;
@@ -31,11 +30,12 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String group;
     private String user;
     private String providerName;
-    private JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
+    private JCloudsInstanceType instanceType = JCloudsInstanceType.Fastest;
     private String identity;
     private String credential;
     private String owner;
     private Integer servicePort = 0;
+    private String publicKeyFile;
 
     public CreateJCloudsContainerOptions() {
         this.providerType = "jclouds";
@@ -116,6 +116,11 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public CreateJCloudsContainerOptions servicePort(final Integer servicePort) {
         this.servicePort = servicePort;
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions publicKeyFile(final String publicKeyFile) {
+        this.publicKeyFile = publicKeyFile;
         return this;
     }
 
@@ -221,5 +226,13 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public void setOsVersion(String osVersion) {
         this.osVersion = osVersion;
+    }
+
+    public String getPublicKeyFile() {
+        return publicKeyFile;
+    }
+
+    public void setPublicKeyFile(String publicKeyFile) {
+        this.publicKeyFile = publicKeyFile;
     }
 }

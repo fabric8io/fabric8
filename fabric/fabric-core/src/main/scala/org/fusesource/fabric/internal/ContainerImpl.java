@@ -509,9 +509,11 @@ public class ContainerImpl implements Container {
     public CreateContainerMetadata<?> getMetadata() {
         try {                                        
             if (metadata == null) {
-                byte[] data = service.getZooKeeper().getData(ZkPath.CONTAINER_METADATA.getPath(id));
-                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-                metadata = (CreateContainerMetadata) ois.readObject();
+                if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
+                    byte[] data = service.getZooKeeper().getData(ZkPath.CONTAINER_METADATA.getPath(id));
+                    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+                    metadata = (CreateContainerMetadata) ois.readObject();
+                }
             }
             return metadata;
         } catch (Exception e) {
@@ -558,5 +560,22 @@ public class ContainerImpl implements Container {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ContainerImpl container = (ContainerImpl) o;
+
+        if (id != null ? !id.equals(container.id) : container.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

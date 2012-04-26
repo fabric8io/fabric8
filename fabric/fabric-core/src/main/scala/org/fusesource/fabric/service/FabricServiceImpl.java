@@ -315,13 +315,35 @@ public class FabricServiceImpl implements FabricService {
     public URI getMavenRepoURI() {
         URI uri = URI.create(defaultRepo);
         try {
-            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_PROXY.getPath()) != null) {
-                List<String> children = zooKeeper.getChildren(ZkPath.CONFIGS_MAVEN_PROXY.getPath());
+            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
                 }
 
-                String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + children.get(0));
+                String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
+                if(mavenRepo != null && !mavenRepo.endsWith("/")) {
+                    mavenRepo+="/";
+                }
+                uri = new URI(mavenRepo);
+            }
+        } catch (Exception e) {
+            //On exception just return uri.
+        }
+        return uri;
+    }
+
+    @Override
+    public URI getMavenRepoUploadURI() {
+        URI uri = URI.create(defaultRepo);
+        try {
+            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("upload"));
+                if (children != null && !children.isEmpty()) {
+                    Collections.sort(children);
+                }
+
+                String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo+="/";
                 }

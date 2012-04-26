@@ -35,6 +35,7 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: RESTful WebService </name>
     <description>RESTful WebService Example using JAX-RS with Fuse ESB</description>
+    <version>7.0-SNAPSHOT</version>
 
     <dependencies>
         <!--

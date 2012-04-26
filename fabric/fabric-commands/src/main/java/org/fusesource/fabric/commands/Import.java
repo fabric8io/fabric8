@@ -20,7 +20,7 @@ import java.io.File;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.zookeeper.client.IZKClient;
 

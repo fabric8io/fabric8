@@ -47,6 +47,7 @@
         <module>fabric-maven-proxy</module>
         <module>fabric-core-agent-ssh</module>
         <module>fabric-core-agent-jclouds</module>
+        <module>fabric-boot-commands</module>
         <module>fabric-commands</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>

@@ -1,5 +1,18 @@
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -18,25 +31,16 @@ import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.client.ZooKeeperFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedService, IZKClient {
 
@@ -82,7 +86,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
 
         @Override
         public void run() {
-            Map<LifecycleListener, Boolean> history = new IdentityHashMap<LifecycleListener, Boolean>();
+            Map<Object, Boolean> history = new IdentityHashMap<Object, Boolean>();
             log.info("Starting StateChangeDispatcher");
             while (_running.get()) {
                 Boolean isConnectedEvent;
@@ -94,7 +98,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 if (!_running.get() || isConnectedEvent == null) {
                     continue;
                 }
-                Map<LifecycleListener, Boolean> newHistory = new IdentityHashMap<LifecycleListener, Boolean>();
+                Map<Object, Boolean> newHistory = new IdentityHashMap<Object, Boolean>();
                 for (LifecycleListener listener : _listeners) {
                     Boolean previousEvent = history.get(listener);
                     // we propagate the event only if it was not already sent
@@ -110,6 +114,31 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                         }
                     }
                     newHistory.put(listener, isConnectedEvent);
+                }
+                try {
+                    ServiceReference[] references = bundleContext.getServiceReferences(LifecycleListener.class.getName(), null);
+                    if (references != null) {
+                        for (ServiceReference reference : references) {
+                            LifecycleListener listener = (LifecycleListener) bundleContext.getService(reference);
+                            Boolean previousEvent = history.get(reference);
+                            // we propagate the event only if it was not already sent
+                            if (previousEvent == null || previousEvent != isConnectedEvent) {
+                                try {
+                                    if (isConnectedEvent) {
+                                        listener.onConnected();
+                                    } else {
+                                        listener.onDisconnected();
+                                    }
+                                } catch (Throwable e) {
+                                    log.warn("Exception while executing listener (ignored)", e);
+                                }
+                            }
+                            newHistory.put(reference, isConnectedEvent);
+                            bundleContext.ungetService(reference);
+                        }
+                    }
+                } catch (InvalidSyntaxException e) {
+                    throw new IllegalStateException(e);
                 }
                 // we save which event each listener has seen last
                 // we don't update the map in place because we need to get rid of unregistered listeners
@@ -181,6 +210,22 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void init() throws Exception {
         _stateChangeDispatcher.setDaemon(true);
         _stateChangeDispatcher.start();
+
+        bundleContext.addServiceListener(new ServiceListener() {
+            @Override
+            public void serviceChanged(ServiceEvent event) {
+                if (_state == State.CONNECTED && event.getType() == ServiceEvent.REGISTERED) {
+                    LifecycleListener listener = (LifecycleListener) bundleContext.getService(event.getServiceReference());
+                    try {
+                        listener.onConnected();
+                    } catch (Throwable e) {
+                        log.warn("Exception while executing listener (ignored)", e);
+                    } finally {
+                        bundleContext.ungetService(event.getServiceReference());
+                    }
+                }
+            }
+        }, "(" + Constants.OBJECTCLASS + "=" + LifecycleListener.class.getName() + ")");
 
         Hashtable ht = new Hashtable();
         zkClientRegistration = bundleContext.registerService(

@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.commands;
+package org.fusesource.fabric.boot.commands;
 
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 @Command(name = "ensemble-create", scope = "fabric", description = "Create a new ZooKeeper ensemble", detailedDescription = "classpath:ensembleCreate.txt")
 public class EnsembleCreate extends EnsembleCommandSupport {

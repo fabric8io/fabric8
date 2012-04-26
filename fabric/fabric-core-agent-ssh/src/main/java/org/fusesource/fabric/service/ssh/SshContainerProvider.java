@@ -160,8 +160,9 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             try {
                 JSch jsch = new JSch();
                 byte[] privateKey = readFile(options.getPrivateKeyFile());
+                byte[] passPhrase = options.getPassPhrase() != null ? options.getPassPhrase().getBytes() : null;
                 if (privateKey != null && options.getPassword() == null) {
-                    jsch.addIdentity(options.getUsername(),privateKey,null,null);
+                    jsch.addIdentity(options.getUsername(),privateKey,null, passPhrase);
                     session = jsch.getSession(options.getUsername(), options.getHost(), options.getPort());
                 } else {
                     session = jsch.getSession(options.getUsername(), options.getHost(), options.getPort());

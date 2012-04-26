@@ -21,8 +21,7 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.Set;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.karaf.core.ComputeProviderListener;
@@ -59,7 +58,7 @@ public class CloudProviderList extends FabricCommand {
                 }
             }
 
-            if (getZooKeeper() != null && getZooKeeper().isConnected()) {
+            if (registered && getZooKeeper() != null && getZooKeeper().isConnected()) {
                 try {
                     if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
                         registrationType = "local";

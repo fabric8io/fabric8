@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.commands;
+package org.fusesource.fabric.boot.commands;
 
 import java.io.File;
 import java.util.Arrays;
@@ -23,11 +23,11 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
-public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.commands.service.Create {
+public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.boot.commands.service.Create {
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;

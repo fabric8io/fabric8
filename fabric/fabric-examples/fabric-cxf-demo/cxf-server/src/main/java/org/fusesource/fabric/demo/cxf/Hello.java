@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.demo.cxf;
 
+import javax.jws.WebService;
+
+@WebService
 public interface Hello {
 
     String sayHello();

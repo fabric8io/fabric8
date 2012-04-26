@@ -22,8 +22,7 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "container-resolver-list", scope = "fabric", description = "List the resolver policy and the host data for each container in the fabric", detailedDescription = "classpath:containerResolverList.txt")
 public class ContainerResolverList extends FabricCommand {

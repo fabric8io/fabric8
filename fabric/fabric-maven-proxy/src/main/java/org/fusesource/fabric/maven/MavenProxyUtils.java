@@ -18,7 +18,6 @@
 package org.fusesource.fabric.maven;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 
 public class MavenProxyUtils {

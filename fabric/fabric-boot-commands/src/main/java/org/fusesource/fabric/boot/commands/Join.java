@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.commands;
+package org.fusesource.fabric.boot.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.internal.FabricConstants;
+import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -27,16 +28,13 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
-
-import static org.fusesource.fabric.utils.BundleUtils.findOrInstallBundle;
 
 import java.util.Properties;
 
 @Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
-public class Join extends OsgiCommandSupport implements org.fusesource.fabric.commands.service.Join {
+public class Join extends OsgiCommandSupport implements org.fusesource.fabric.boot.commands.service.Join {
 
     ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
@@ -68,9 +66,12 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.co
 
         ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
         ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default");
-        Bundle bundleFabricJaas = findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-jaas",
+        Bundle bundleFabricJaas = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-jaas",
                 "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
+        Bundle bundleFabricCommands = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-commands",
+                "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
         bundleFabricJaas.start();
+        bundleFabricCommands.start();
         return null;
     }
 

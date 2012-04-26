@@ -55,11 +55,19 @@ public class FirewallManagerFactoryImpl implements FirewallManagerFactory {
     }
 
     public void bind(ProviderFirewallSupport providerSupport) {
-        support.put(providerSupport.getProvider(),providerSupport);
+        if (providerSupport != null && providerSupport.getProviders() != null) {
+            for (String provider : providerSupport.getProviders()) {
+                support.put(provider, providerSupport);
+            }
+        }
     }
 
     public void unbind(ProviderFirewallSupport providerSupport) {
-        support.remove(providerSupport.getProvider());
+        if (providerSupport != null && providerSupport.getProviders() != null) {
+            for (String provider : providerSupport.getProviders()) {
+                support.remove(provider);
+            }
+        }
     }
 
 }

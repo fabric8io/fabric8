@@ -24,7 +24,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
-import org.fusesource.fabric.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers", detailedDescription = "classpath:containerCreate.txt")
 public class ContainerCreate extends ContainerCreateSupport {

@@ -158,7 +158,7 @@
         <hibernate.springsource.version>3.3.2.GA</hibernate.springsource.version>
         <xmlschema.version>2.0</xmlschema.version>
 
-        <servicemix.specs.version>1.9.0</servicemix.specs.version>
+        <servicemix.specs.version>2.0.0-fuse-SNAPSHOT</servicemix.specs.version>
         <servicemix.components.version>${servicemix-components-version}</servicemix.components.version>
     </properties>
 

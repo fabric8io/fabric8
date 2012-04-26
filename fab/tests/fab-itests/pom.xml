@@ -126,12 +126,24 @@
           <artifactId>camel-spring</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.apache.camel.karaf</groupId>
+          <artifactId>apache-camel</artifactId>
+          <type>xml</type>
+          <classifier>features</classifier>
+      </dependency>
+      <dependency>
           <groupId>org.apache.felix</groupId>
           <artifactId>org.apache.felix.configadmin</artifactId>
       </dependency>
       <dependency>
           <groupId>org.apache.felix</groupId>
           <artifactId>org.apache.felix.fileinstall</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.assemblies.features</groupId>
+          <artifactId>standard</artifactId>
+          <type>xml</type>
+          <classifier>features</classifier>
       </dependency>
       <dependency>
           <groupId>org.apache.karaf.jaas</groupId>

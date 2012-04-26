@@ -17,45 +17,35 @@
 
 package org.fusesource.fabric.fab.osgi.internal;
 
-import aQute.lib.osgi.Analyzer;
-import org.apache.felix.utils.version.VersionCleaner;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
-import org.apache.maven.model.Model;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.MavenResolver;
-import org.fusesource.fabric.fab.PomDetails;
-import org.fusesource.fabric.fab.VersionedDependencyId;
-import org.fusesource.fabric.fab.osgi.FabBundleInfo;
-import org.fusesource.fabric.fab.osgi.FabResolver;
-import org.fusesource.fabric.fab.osgi.FabResolverFactory;
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
-import org.fusesource.fabric.fab.osgi.util.PruningFilter;
-import org.fusesource.fabric.fab.osgi.util.Service;
-import org.fusesource.fabric.fab.osgi.util.Services;
-import org.fusesource.fabric.fab.util.*;
-import org.fusesource.fabric.fab.util.Filter;
-import org.ops4j.lang.NullArgumentException;
-import org.ops4j.lang.PreConditionException;
-import org.ops4j.net.URLUtils;
-import org.osgi.framework.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.graph.Dependency;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
+import aQute.lib.osgi.Analyzer;
+import org.apache.karaf.features.FeaturesService;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.PomDetails;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
+import org.fusesource.fabric.fab.osgi.FabResolver;
+import org.fusesource.fabric.fab.osgi.FabResolverFactory;
+import org.fusesource.fabric.fab.osgi.util.Service;
+import org.fusesource.fabric.fab.osgi.util.Services;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonatype.aether.RepositoryException;
+
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
@@ -75,7 +65,7 @@ public class FabConnection extends URLConnection  {
         this.fabResolverFactory = fabResolverFactory;
         this.serviceProvider = serviceProvider;
 
-        this.configuration = Configuration.newInstance(serviceProvider.getConfigurationAdmin(), serviceProvider.getBundleContext());
+        this.configuration = ConfigurationImpl.newInstance(serviceProvider.getConfigurationAdmin(), serviceProvider.getBundleContext());
         this.bundleContext = serviceProvider.getBundleContext();
 
         resolver = fabResolverFactory.getResolver(url);

@@ -46,8 +46,8 @@ public enum ZkPath {
     CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
     CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profiles/{profile}"),
     CONFIG_VERSIONS_CONTAINER("/fabric/configs/versions/{version}/containers/{container}"),
-    CONFIGS_MAVEN_PROXY      ("/fabric/configs/maven/proxy"),
 
+    MAVEN_PROXY("/fabric/registry/maven/proxy/{type}"),
     // Agent nodes
     CONTAINERS                     ("/fabric/registry/containers/config"),
     CONTAINER                      ("/fabric/registry/containers/config/{container}"),
@@ -116,6 +116,8 @@ public enum ZkPath {
      * Loads a zoo keeper URL content using the provided ZooKeeper client.
      */
     static public byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+        //For local references we want to ignore the the ip placeholder and just get back the local ip.
+        url =  url.replaceAll("zk:"+System.getProperty("karaf.name")+"/ip","zk:"+System.getProperty("karaf.name")+"/localip");
         URI uri = new URI(url);
         String ref = uri.getFragment();
         String path = uri.getSchemeSpecificPart();
@@ -123,6 +125,7 @@ public enum ZkPath {
         if( !path.startsWith("/") ) {
             path = ZkPath.CONTAINER.getPath(path);
         }
+
         byte rc [] = zooKeeper.getData(path);
         if( ref!=null ) {
             if( path.endsWith(".properties") ) {

@@ -18,6 +18,7 @@ package org.fusesource.fabric.demo.cxf.client;
 
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.fusesource.fabric.cxf.FabricLoadBalancerFeature;
 import org.fusesource.fabric.demo.cxf.Hello;
 
@@ -35,7 +36,7 @@ public class Client {
         // Feature will use this path to locate the service
         feature.setFabricPath("cxf/demo");
 
-        ClientProxyFactoryBean clientFactory = new ClientProxyFactoryBean();
+        ClientProxyFactoryBean clientFactory = new JaxWsProxyFactoryBean();
         clientFactory.setServiceClass(ClientProxyFactoryBean.class);
         // The address is not the actual address that the client will access
         clientFactory.setAddress("http://someotherplace");

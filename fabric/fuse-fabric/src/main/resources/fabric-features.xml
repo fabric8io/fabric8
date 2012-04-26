@@ -40,20 +40,17 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.log/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
 
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint/${aries.blueprint.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
-        <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
+        <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/${aries.util.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/${aries.proxy.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/${asm.bundle.version}</bundle>
-
-        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx/0.3</bundle>
-        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/0.3</bundle>
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx/${aries.jmx.version}</bundle>
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/${aries.jmx.version}</bundle>
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/0.3</bundle>
-        <bundle dependency="true">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/${asm.bundle.version}</bundle>
 
-        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
+
         <bundle dependency="true">mvn:org.apache.sshd/sshd-core/${sshd-version}</bundle>
         <bundle dependency="true">mvn:org.apache.mina/mina-core/${mina-version}</bundle>
 
@@ -113,6 +110,7 @@
     </feature>
 
     <feature name="fabric-maven-proxy" version="${project.version}" resolver="(obr)">
+        <feature version="${karaf-version}">http</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-maven-proxy/${project.version}</bundle>
     </feature>
 
@@ -123,7 +121,7 @@
         <bundle>mvn:org.fusesource.fabric/fabric-core/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-commands" version="${project.version}" resolver="(obr)">
+    <feature name="fabric-boot-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-maven-proxy</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
@@ -134,6 +132,11 @@
         
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-boot-commands/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-commands" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-boot-commands</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-commands/${project.version}</bundle>
     </feature>
 

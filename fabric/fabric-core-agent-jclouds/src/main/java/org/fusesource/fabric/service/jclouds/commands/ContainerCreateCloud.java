@@ -22,7 +22,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
@@ -48,8 +48,10 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String imageId;
     @Option(name = "--location", required = false, description = "The location to use to create the new node(s)")
     private String locationId;
-    @Option(name = "--user", required = false, description = "User account to run on the new node(s)")
+    @Option(name = "--user", required = false, description = "User account to use on the new node(s)")
     private String user;
+    @Option(name = "--public-key-file", required = false, description = "Path to the public key file to use for authenticating to the container")
+    private String publicKeyFile;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
     @Option(name = "--group", description = "Group tag to use on the new node(s)")
@@ -81,6 +83,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .locationId(locationId)
         .number(number)
         .owner(owner)
+        .publicKeyFile(publicKeyFile)
         .providerName(providerName)
         .user(user)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())

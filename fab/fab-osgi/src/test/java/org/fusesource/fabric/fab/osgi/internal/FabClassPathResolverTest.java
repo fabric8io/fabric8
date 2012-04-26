@@ -16,6 +16,14 @@
  */
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.VersionedDependencyId;
@@ -27,17 +35,12 @@ import org.junit.Test;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-
-import static org.fusesource.fabric.fab.osgi.ServiceConstants.*;
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES;
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.INSTR_FAB_REQUIRE_FEATURE;
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for {@link FabClassPathResolver}
@@ -143,7 +146,7 @@ public class FabClassPathResolverTest {
         }
 
         @Override
-        public Configuration getConfiguration() {
+        public ConfigurationImpl getConfiguration() {
             return null;
         }
 

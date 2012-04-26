@@ -50,7 +50,6 @@
             </includes>
             <excludes>
                 <exclude>bin/create.bat</exclude>
-                <exclude>bin/karaf.bat</exclude>
             </excludes>
             <lineEnding>dos</lineEnding>
             <fileMode>0644</fileMode>
@@ -101,7 +100,7 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/karaf.bat</source>
+            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fusefabric.bat</destName>
             <lineEnding>dos</lineEnding>

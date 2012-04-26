@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Properties;
 
-import static org.fusesource.fabric.fab.osgi.internal.Configuration.newInstance;
+import static org.fusesource.fabric.fab.osgi.internal.ConfigurationImpl.newInstance;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Test cases for {@link org.fusesource.fabric.fab.osgi.internal.Configuration}
+ * Test cases for {@link ConfigurationImpl}
  */
 public class ConfigurationTest {
 
@@ -56,7 +56,7 @@ public class ConfigurationTest {
 
         BundleContext context = createNiceMock(BundleContext.class);
 
-        org.fusesource.fabric.fab.osgi.internal.Configuration configuration = newInstance(configurationAdmin, context);
+        ConfigurationImpl configuration = newInstance(configurationAdmin, context);
         assertNotNull("We should have a non-null configuration object", configuration);
         assertEquals("FuseSource configuration value should override OPS4J one",
                 "override-value1", configuration.getPropertyResolver().get("key1"));

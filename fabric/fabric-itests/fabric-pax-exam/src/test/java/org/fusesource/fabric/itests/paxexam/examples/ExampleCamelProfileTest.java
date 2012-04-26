@@ -45,9 +45,10 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
         createAndAssertChildContainer("broker1", "root", "mq");
         createAndAssertChildContainer("camel1", "root", "example-camel");
         System.err.println(executeCommand("fabric:cluster-list"));
+        Thread.sleep(5000);
         String output = executeCommand("fabric:container-connect camel1 camel:route-info route2");
         System.err.println(output);
-        Assert.assertTrue(output.contains("Exchanges Completed: ") && !output.contains("Exchanges Completed: 0"));
+        Assert.assertTrue("Expected at least 1 completed exchange.",output.contains("Exchanges Completed: ") && !output.contains("Exchanges Completed: 0"));
     }
 
     @Configuration
