@@ -16,39 +16,6 @@
  */
 package org.fusesource.fabric.agent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.framework.monitor.MonitoringService;
 import org.apache.felix.utils.manifest.Clause;
@@ -101,6 +68,25 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DeploymentAgent implements ManagedService, FrameworkListener {
 
@@ -368,7 +354,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 //That's beacause when someone uses the fabric service to pick a repo for deployment, we want that repo to be used first.
                 Collections.sort(children);
                 for (String child : children) {
-                    String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + child);
+                    String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
                     if (mavenRepo != null && mavenRepo.length() > 0) {
                         if (!mavenRepo.endsWith("/")) {
                             mavenRepo += "/";
