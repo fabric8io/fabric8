@@ -31,15 +31,13 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.MavenResolver;
-import org.fusesource.fabric.fab.PomDetails;
-import org.fusesource.fabric.fab.VersionedDependencyId;
+import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.FabResolver;
 import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.osgi.util.Features;
 import org.fusesource.fabric.fab.osgi.util.PruningFilter;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Filter;
@@ -314,13 +312,68 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
             if (classPathResolver == null) {
                 classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
 
-                // e.g. when used inside Fabric, the features service is not available
+                // when used inside Fabric, the features service is not available
                 if (featuresService != null) {
-                    classPathResolver.addPruningFilter(new CamelFeaturesFilter(FabResolverFactoryImpl.this.getFeaturesService()));
-                    classPathResolver.addPruningFilter(new CXFFeaturesFilter(FabResolverFactoryImpl.this.getFeaturesService()));
+                    classPathResolver.addPruningFilter(new FeaturesMatchingFilter(FabResolverFactoryImpl.this.getFeaturesService(), classPathResolver));
                 }
             }
             return classPathResolver;
+        }
+    }
+
+    /**
+     * Filter implementation that matches dependencies to known features, replacing the dependency by the feature
+     */
+    protected static class FeaturesMatchingFilter implements PruningFilter, FeatureCollector {
+
+        private final List<String> features = new LinkedList<String>();
+        private final FeaturesService service;
+        private final FabConfiguration configuration;
+        private Filter<DependencyTree> filter;
+
+        public FeaturesMatchingFilter(FeaturesService service, FabConfiguration configuration) {
+            this.service = service;
+            this.configuration = configuration;
+        }
+
+        @Override
+        public Collection<String> getCollection() {
+            return features;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public boolean isEnabled(FabClassPathResolver resolver) {
+            return true;
+        }
+
+        private Filter<DependencyTree> getDependencyTreeFilter() {
+            if (filter == null) {
+                filter = DependencyTreeFilters.parse(configuration.getStringProperty(ServiceConstants.INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION));
+            }
+            return filter;
+        }
+
+        @Override
+        public boolean matches(DependencyTree dependencyTree) {
+            boolean result = false;
+
+            if (!getDependencyTreeFilter().matches(dependencyTree)) {
+                try {
+                    Feature feature = Features.getFeatureForBundle(service.listFeatures(), dependencyTree);
+                    if (feature != null) {
+                        String replacement = String.format("%s/%s", feature.getName(), feature.getVersion());
+                        features.add(replacement);
+                        LOG.info(String.format("Installing feature %s matching dependency %s:%s:%s",
+                                               replacement,
+                                               dependencyTree.getGroupId(), dependencyTree.getArtifactId(), dependencyTree.getVersion()));
+                        result = true;
+                    }
+                } catch (Exception e) {
+                    LOG.debug(String.format("Unable to retrieve features information while processing dependency %s", dependencyTree.getArtifactId()), e);
+                }
+            }
+
+            return result;
         }
     }
 

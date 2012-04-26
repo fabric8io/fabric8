@@ -43,8 +43,7 @@ public class FabResolverFactoryImplTest {
                 (FabResolverFactoryImpl.FabResolverImpl) factory.getResolver(new URL("http://dummy/location"));
 
         FabClassPathResolver classPathResolver = fabResolver.getClasspathResolver(null ,null);
-        assertContainsInstanceOf(classPathResolver.pruningFilters, FabResolverFactoryImpl.CamelFeaturesFilter.class);
-        assertContainsInstanceOf(classPathResolver.pruningFilters, FabResolverFactoryImpl.CXFFeaturesFilter.class);
+        assertContainsInstanceOf(classPathResolver.pruningFilters, FabResolverFactoryImpl.FeaturesMatchingFilter.class);
 
     }
 

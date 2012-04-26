@@ -20,6 +20,7 @@ import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -48,5 +49,11 @@ public class DependencyTreeFiltersTest {
         // we only expect child 2 to remain in the tree
         assertEquals(1, root.getDescendants().size());
         assertTrue(root.getDescendants().contains(child2));
+    }
+
+    @Test
+    public void testParseWithNullArgument() {
+        Filter<DependencyTree> filter = DependencyTreeFilters.parse(null);
+        assertNotNull(filter);
     }
 }

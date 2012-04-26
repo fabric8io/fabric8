@@ -103,12 +103,14 @@ public class DependencyTreeFilters {
      */
     public static Filter<DependencyTree> parse(String dependencyFilterText) {
         List<Filter<DependencyTree>> filters = new ArrayList<Filter<DependencyTree>>();
-        StringTokenizer iter = new StringTokenizer(dependencyFilterText);
-        while (iter.hasMoreElements()) {
-            String text = iter.nextToken();
-            Filter<DependencyTree> filter = parseSingleFilter(text);
-            if (filter != null) {
-                filters.add(filter);
+        if (dependencyFilterText != null) {
+            StringTokenizer iter = new StringTokenizer(dependencyFilterText);
+            while (iter.hasMoreElements()) {
+                String text = iter.nextToken();
+                Filter<DependencyTree> filter = parseSingleFilter(text);
+                if (filter != null) {
+                    filters.add(filter);
+                }
             }
         }
         return Filters.compositeFilter(filters);

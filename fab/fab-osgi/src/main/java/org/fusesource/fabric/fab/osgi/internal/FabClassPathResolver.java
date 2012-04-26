@@ -55,7 +55,7 @@ import static org.fusesource.fabric.fab.util.Strings.join;
 /**
  * Resolves the classpath using the FAB resolving mechanism
  */
-public class FabClassPathResolver {
+public class FabClassPathResolver implements FabConfiguration {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabClassPathResolver.class);
 
     private FabFacade connection;
@@ -732,5 +732,10 @@ public class FabClassPathResolver {
      */
     protected boolean isInstallProvidedBundleDependencies() {
         return Boolean.valueOf(getManifestProperty(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES));
+    }
+
+    @Override
+    public String getStringProperty(String name) {
+        return getManifestProperty(name);
     }
 }
