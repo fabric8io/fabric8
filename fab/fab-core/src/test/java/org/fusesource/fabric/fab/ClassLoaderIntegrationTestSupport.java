@@ -20,7 +20,7 @@ package org.fusesource.fabric.fab;
 /**
  */
 public class ClassLoaderIntegrationTestSupport {
-    protected MavenResolver mavenResolver = new MavenResolver();
+    protected MavenResolverImpl mavenResolver = new MavenResolverImpl();
     protected boolean offline;
     protected String groupId = "org.fusesource.fabric.fab.tests";
     protected String version = "1.1-SNAPSHOT";

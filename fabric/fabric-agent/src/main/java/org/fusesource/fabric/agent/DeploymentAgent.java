@@ -69,12 +69,19 @@ import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.download.FutureListener;
 import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
 import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
+import org.fusesource.fabric.agent.mvn.PropertyStore;
 import org.fusesource.fabric.agent.utils.ChecksumUtils;
 import org.fusesource.fabric.agent.utils.MultiException;
+import org.fusesource.fabric.fab.MavenResolver;
+import org.fusesource.fabric.fab.MavenResolverImpl;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.FabResolver;
+import org.fusesource.fabric.fab.osgi.FabResolverFactory;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -235,6 +242,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         addMavenProxies(props);
 
         updateStatus("analyzing", null);
+
+        // Building configuration
+        DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(props,
+                new PropertiesPropertyResolver(System.getProperties()));
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
                 new DictionaryPropertyResolver(props,
                         new PropertiesPropertyResolver(System.getProperties())),
@@ -283,7 +294,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             return;
         }
         // Compute deployment
-        Map<URI, Repository> repositories = new HashMap<URI, Repository>();
+        final Map<URI, Repository> repositories = new HashMap<URI, Repository>();
         for (String key : properties.keySet()) {
             if (key.startsWith("repository.")) {
                 String url = properties.get(key);
@@ -335,7 +346,16 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             }
         }
         // Update bundles
-        updateDeployment(repositories, features, bundles, fabs);
+        FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
+        fabResolverFactory.setConfiguration(new FabricFabConfiguration(config, propertyResolver));
+        fabResolverFactory.setBundleContext(bundleContext);
+        fabResolverFactory.setFeaturesService(new FeaturesServiceImpl() {
+            @Override
+            public Repository[] listRepositories() {
+                return repositories.values().toArray(new Repository[repositories.size()]);
+            }
+        });
+        updateDeployment(fabResolverFactory, repositories, features, bundles, fabs);
     }
 
     private void addMavenProxies(Dictionary props) {
@@ -448,15 +468,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return set;
     }
 
-    private void updateDeployment(final Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles, Set<String> fabs) throws Exception {
-        FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
-        fabResolverFactory.setBundleContext(bundleContext);
-        fabResolverFactory.setFeaturesService(new FeaturesServiceImpl() {
-            @Override
-            public Repository[] listRepositories() {
-                return repositories.values().toArray(new Repository[repositories.size()]);
-            }
-        });
+    private void updateDeployment(FabResolverFactory fabResolverFactory, Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles, Set<String> fabs) throws Exception {
         Map<String, FabBundleInfo> infos = new HashMap<String, FabBundleInfo>();
         for (String fab : fabs) {
             FabResolver resolver = fabResolverFactory.getResolver(new URL(fab));
@@ -1016,5 +1028,68 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 t.setPriority(Thread.NORM_PRIORITY);
             return t;
         }
+
     }
+
+    class FabricFabConfiguration extends PropertyStore implements Configuration {
+
+        final DictionaryPropertyResolver propertyResolver;
+        final MavenConfigurationImpl config;
+
+        FabricFabConfiguration(MavenConfigurationImpl config, DictionaryPropertyResolver propertyResolver) {
+            this.propertyResolver = propertyResolver;
+            this.config = config;
+        }
+
+        @Override
+        public String[] getSharedResourcePaths() {
+            if (!contains(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS)) {
+                String text = propertyResolver.get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
+                String[] repositories;
+                if (text == null || text.length() == 0) {
+                    repositories = ServiceConstants.DEFAULT_PROPERTY_SHARED_RESOURCE_PATHS;
+                } else {
+                    repositories = toArray(text);
+                }
+                return set(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS, repositories);
+            }
+            return get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
+        }
+
+        @Override
+        public boolean getCertificateCheck() {
+            return config.getCertificateCheck();
+        }
+
+        @Override
+        public boolean isInstallMissingDependencies() {
+            return false;
+        }
+
+        @Override
+        public MavenResolver getResolver() {
+            try {
+                MavenResolverImpl resolver = new MavenResolverImpl();
+                List<String> repos = new ArrayList<String>();
+                for (MavenRepositoryURL url : config.getRepositories()) {
+                    repos.add(url.getURL().toURI().toString());
+                }
+                resolver.setRepositories(repos.toArray(new String[repos.size()]));
+                resolver.setLocalRepo(config.getLocalRepository().getURL().toURI().toString());
+                return resolver;
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        protected String[] toArray(String text) {
+            String[] answer = null;
+            if (text != null) {
+                answer = text.split(",");
+            }
+            return answer;
+        }
+
+    }
+
 }

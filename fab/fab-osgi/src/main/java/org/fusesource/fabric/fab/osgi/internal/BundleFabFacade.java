@@ -17,6 +17,13 @@
 
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Properties;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.ModuleDescriptor;
@@ -28,13 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Properties;
 
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
@@ -49,7 +49,8 @@ public class BundleFabFacade extends FabFacadeSupport {
 
     public BundleFabFacade(Bundle bundle) {
         this.bundle = bundle;
-        this.configuration = Configuration.newInstance();
+        this.configuration = ConfigurationImpl.newInstance();
+        setResolver(configuration.getResolver());
         Dictionary headers = bundle.getHeaders();
         Object fabId = headers.get(ServiceConstants.INSTR_FAB_MODULE_ID);
         String fabIdString = null;

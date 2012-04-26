@@ -17,14 +17,9 @@
 
 package org.fusesource.fabric.fab.osgi;
 
-import org.apache.karaf.features.FeaturesService;
-import org.fusesource.fabric.fab.osgi.internal.Activator;
-import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabConnection;
 import org.fusesource.fabric.fab.osgi.internal.ServiceProvider;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

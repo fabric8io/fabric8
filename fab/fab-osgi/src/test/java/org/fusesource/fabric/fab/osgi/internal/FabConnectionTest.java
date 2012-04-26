@@ -16,15 +16,13 @@
  */
 package org.fusesource.fabric.fab.osgi.internal;
 
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.junit.Test;
-import org.ops4j.util.property.DictionaryPropertyResolver;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.junit.Test;
+import org.ops4j.util.property.DictionaryPropertyResolver;
 
 /**
  * Tests for {@link FabConnection}
@@ -38,7 +36,7 @@ public class FabConnectionTest {
         properties.setProperty(ServiceConstants.PROPERTY_LOCAL_MAVEN_REPOSITORY, "/home/test/.m2/repository");
 
         URL url = new URL("file:test");
-        Configuration configuration = new Configuration(new DictionaryPropertyResolver(properties));
+        ConfigurationImpl configuration = new ConfigurationImpl(new DictionaryPropertyResolver(properties));
 
         // TODO: reimplement this test
 //        FabConnection connection = new FabConnection(url, configuration, null);

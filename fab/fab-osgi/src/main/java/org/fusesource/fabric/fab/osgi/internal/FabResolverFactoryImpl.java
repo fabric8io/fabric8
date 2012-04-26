@@ -16,6 +16,17 @@
  */
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.model.Model;
@@ -36,18 +47,13 @@ import org.fusesource.fabric.fab.util.Objects;
 import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
 
 import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
@@ -65,6 +71,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
     private BundleContext bundleContext;
     private ConfigurationAdmin configurationAdmin;
     private FeaturesService featuresService;
+    private Configuration configuration;
 
     @Override
     public BundleContext getBundleContext() {
@@ -92,6 +99,17 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         this.featuresService = featuresService;
     }
 
+    public Configuration getConfiguration() {
+        if (configuration == null) {
+            this.configuration = ConfigurationImpl.newInstance(FabResolverFactoryImpl.this.configurationAdmin, bundleContext);
+        }
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
     @Override
     public FabResolver getResolver(URL url) {
         try {
@@ -105,10 +123,8 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
 
     protected class FabResolverImpl implements FabResolver, FabFacade  {
 
-        private Configuration configuration;
         private final BundleContext bundleContext;
         private PomDetails pomDetails;
-        private MavenResolver resolver = new MavenResolver();
         private boolean includeSharedResources = true;
         private FabClassPathResolver classPathResolver;
         private Model model;
@@ -186,7 +202,12 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         }
 
         public MavenResolver getResolver() {
-            return resolver;
+            return getConfiguration().getResolver();
+        }
+
+        @Override
+        public Configuration getConfiguration() {
+            return FabResolverFactoryImpl.this.getConfiguration();
         }
 
         public PomDetails getPomDetails() {
@@ -245,22 +266,6 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
             }
         }
 
-
-        @Override
-        public Configuration getConfiguration() {
-            if (configuration == null) {
-                this.configuration = Configuration.newInstance(FabResolverFactoryImpl.this.configurationAdmin, bundleContext);
-                String[] repositories = configuration.getMavenRepositories();
-                if (repositories != null) {
-                    resolver.setRepositories(repositories);
-                }
-                String localrepo = configuration.getLocalMavenRepository();
-                if (localrepo != null) {
-                    resolver.setLocalRepo(localrepo);
-                }
-            }
-            return configuration;
-        }
 
         /**
          * Returns the processing instructions

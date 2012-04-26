@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
 public class PomegranateSampleTest {
     private static final transient Log LOG = LogFactory.getLog(PomegranateSampleTest.class);
 
-    MavenResolver manager = new MavenResolver();
+    MavenResolverImpl manager = new MavenResolverImpl();
 
     @Test
     public void testPomegranateSampleWEbApp() throws Exception {
