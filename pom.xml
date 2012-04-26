@@ -501,6 +501,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <!-- bad repo
         <repository>
             <id>scala-tools.org-releases</id>
             <url>http://scala-tools.org/repo-releases</url>
@@ -513,6 +514,7 @@
             <snapshots><enabled>true</enabled></snapshots>
             <releases><enabled>false</enabled></releases>
         </repository>
+        -->
 
         <repository>
           <id>java.net.m2</id>
