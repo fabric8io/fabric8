@@ -16,17 +16,19 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Command(name = "cluster-list", scope = "fabric", description = "Lists all ActiveMQ message brokers in the fabric, enabling you to see which brokers are grouped into clusters.")
 public class ClusterList extends FabricCommand {
@@ -51,12 +53,12 @@ public class ClusterList extends FabricCommand {
         return null;
     }
 
-    protected void printCluster(String dir, PrintStream out) throws InterruptedException, KeeperException, IOException {
+    protected void printCluster(String dir, PrintStream out) throws InterruptedException, KeeperException, IOException, URISyntaxException {
         out.println(String.format("%-30s %-30s %-10s %s", "[cluster]", "[id]", "[master]", "[services]"));
         printChildren(dir, dir, out);
     }
 
-    private void printChildren(String rootDir, String dir, PrintStream out) throws KeeperException, InterruptedException, IOException {
+    private void printChildren(String rootDir, String dir, PrintStream out) throws KeeperException, InterruptedException, IOException, URISyntaxException {
         // do we have any clusters at all?
         if (getZooKeeper().exists(dir) == null) {
             return;
@@ -91,7 +93,8 @@ public class ClusterList extends FabricCommand {
                         if (serviceText.startsWith("[") && serviceText.endsWith("]")) {
                             serviceText = serviceText.substring(1, serviceText.length() - 1);
                         }
-                        services = serviceText;
+
+                        services = ZooKeeperUtils.getSubstitutedData(getZooKeeper(), serviceText);
                     }
 
                     out.println(String.format("%-30s %-30s %-10s %s", clusterName, id, master, services));

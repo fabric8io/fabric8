@@ -40,7 +40,6 @@ import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.ZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
@@ -275,7 +274,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 return;
             }
 
-            String url = ZooKeeperUtils.getSubstitutedData(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url" );
+            String url = ZooKeeperUtils.getSubstitutedPath(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url");
             if (!url.equals(zooKeeperUrl)) {
                 throw new IllegalStateException("The zookeeper configuration is not properly backed in the zookeeper tree.");
             }
@@ -293,11 +292,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 for ( Object n : p.keySet() ) {
                     String node = (String) n;
                     if (node.startsWith("server.")) {
-                        String data = ZooKeeperUtils.getSubstitutedData(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId+".properties#" + node );
+                        String data = ZooKeeperUtils.getSubstitutedPath(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId + ".properties#" + node);
                         addUsedPorts(usedPorts, data);
                     }
                 }
-                String datas =  ZooKeeperUtils.getSubstitutedData(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url" );
+                String datas =  ZooKeeperUtils.getSubstitutedPath(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url");
                 for (String data : datas.split(",")) {
                     addUsedPorts(usedPorts, data);
                 }
@@ -323,7 +322,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String realConnectionUrl = "";
             String containerList = "";
             for (String container : containers) {
-                String ip = ZooKeeperUtils.getSubstitutedData(zooKeeper,ZkPath.CONTAINER_IP.getPath(container));
+                String ip = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_IP.getPath(container));
                 String profNode = "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + newClusterId + "-" + Integer.toString(index);
                 String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
                 Properties pidNodeProperties = new Properties();

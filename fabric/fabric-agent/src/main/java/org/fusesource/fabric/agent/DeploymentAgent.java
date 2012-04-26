@@ -341,7 +341,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 StringBuffer sb = new StringBuffer();
                 List<String> children = zooKeeper.getChildren(ZkPath.CONFIGS_MAVEN_PROXY.getPath());
                 for (String child : children) {
-                    String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + child);
+                    String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + child);
                     if (mavenRepo != null && mavenRepo.length() > 0) {
                         if (!mavenRepo.endsWith("/")) {
                             mavenRepo += "/";

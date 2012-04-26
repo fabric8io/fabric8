@@ -321,7 +321,7 @@ public class FabricServiceImpl implements FabricService {
                     Collections.sort(children);
                 }
 
-                String mavenRepo = ZooKeeperUtils.getSubstitutedData(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + children.get(0));
+                String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONFIGS_MAVEN_PROXY.getPath() + "/" + children.get(0));
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo+="/";
                 }

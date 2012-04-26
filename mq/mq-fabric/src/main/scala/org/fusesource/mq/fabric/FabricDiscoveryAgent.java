@@ -25,6 +25,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.*;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
@@ -258,7 +259,14 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
             HashSet<String> activeServices = new HashSet<String>();
             for(ActiveMQNode m : members) {
                 for(String service: m.services) {
-                    activeServices.add(service);
+
+                    String resolved = service;
+                    try {
+                        resolved = ZooKeeperUtils.getSubstitutedData(zkClient, service);
+                    } catch (Exception e) {
+                        // ignore, we'll use unresolved value
+                    }
+                    activeServices.add(resolved);
                 }
             }
             // If there is error talking the the central server, then activeServices == null

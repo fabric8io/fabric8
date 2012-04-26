@@ -16,16 +16,6 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -43,6 +33,15 @@ import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ContainerImpl implements Container {
 
@@ -134,7 +133,7 @@ public class ContainerImpl implements Container {
 
     public String getSshUrl() {
         try {
-            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_SSH.getPath(id));
+            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_SSH.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -142,7 +141,7 @@ public class ContainerImpl implements Container {
 
     public String getJmxUrl() {
         try {
-            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_JMX.getPath(id));
+            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_JMX.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -290,7 +289,7 @@ public class ContainerImpl implements Container {
     @Override
     public String getIp() {
         try {
-            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id));
+            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
