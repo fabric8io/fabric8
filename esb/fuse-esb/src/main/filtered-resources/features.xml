@@ -10,15 +10,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<features name="servicemix-${smx.features.version}">
+<features name="servicemix-${servicemix.features.version}">
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</repository>
     <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features</repository>
     <repository>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix.nmr.version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
 
-    <feature name="connector" version="${smx.features.version}" resolver="(obr)" start-level='50'>
-        <feature version="${aries.version}">transaction</feature>
+    <feature name="connector" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
+        <feature version="${aries.transaction.version}">transaction</feature>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-connector_1.5_spec/${geronimo-j2ee-connector.version}</bundle>
         <bundle>mvn:org.apache.geronimo.components/geronimo-connector/${geronimo-connector.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms.version}</bundle>
@@ -34,31 +34,31 @@
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix.specs.version}</bundle>
     </feature>
 
-    <feature name="cxf-osgi" version="${smx.features.version}" resolver="(obr)" start-level='50'>
+    <feature name="cxf-osgi" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
         <feature version="${cxf.version}">cxf</feature>
         <feature version="${karaf.version}">war</feature>
     </feature>
-    <feature name="cxf-jaxrs" version="${smx.features.version}" resolver="(obr)" start-level='50'>
-        <feature version="${smx.features.version}">cxf-osgi</feature>
+    <feature name="cxf-jaxrs" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
+        <feature version="${servicemix.features.version}">cxf-osgi</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera/${abdera.bundle.version}</bundle>
         <bundle>mvn:org.codehaus.jettison/jettison/${jettison.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${xmlbeans.bundle.version}</bundle>
     </feature>
-    <feature name="cxf-nmr" version="${smx.features.version}" resolver="(obr)" start-level='50'>
+    <feature name="cxf-nmr" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
         <feature version="${cxf.version}">cxf</feature>
         <feature version="${servicemix.nmr.version}">nmr</feature>
-        <bundle>mvn:org.apache.servicemix.cxf/org.apache.servicemix.cxf.transport.nmr/${smx.features.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.cxf/org.apache.servicemix.cxf.binding.nmr/${smx.features.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.cxf/org.apache.servicemix.cxf.transport.nmr/${servicemix.features.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.cxf/org.apache.servicemix.cxf.binding.nmr/${servicemix.features.version}</bundle>
     </feature>
-    <feature name="camel-nmr" version="${smx.features.version}" resolver="(obr)" start-level='50'>
+    <feature name="camel-nmr" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
         <feature version="${camel.version}">camel</feature>
         <feature version="${servicemix.nmr.version}">nmr</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxws-api-${jaxws-api.version}/${servicemix.specs.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-ws-metadata_2.0_spec/${geronimo-ws-metadata.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/${servicemix.specs.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.camel/org.apache.servicemix.camel.component/${smx.features.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.camel/org.apache.servicemix.camel.component/${servicemix.features.version}</bundle>
     </feature>
-    <feature name="camel-activemq" version="${smx.features.version}" resolver="(obr)" start-level='50'>
+    <feature name="camel-activemq" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
         <feature version="${activemq.version}">activemq</feature>
         <feature version="${camel.version}">camel-jms</feature>
         <bundle>mvn:org.apache.activemq/activemq-camel/${activemq.version}</bundle>
@@ -70,7 +70,7 @@
       -
     -->
     
-    <feature name="jpa-hibernate" version="${smx.features.version}">
+    <feature name="jpa-hibernate" version="${servicemix.features.version}">
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.java-persistence-api-1.1.1/${servicemix.specs.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-dbcp/${commons-dbcp-bundle-version}</bundle>
         <bundle dependency="true">mvn:org.springframework/spring-jdbc/${spring-version}</bundle>
@@ -253,7 +253,7 @@
     -->
 
     <!-- Default broker configuration -->
-    <feature name="activemq-broker" version="${smx.features.version}" resolver="(obr)" start-level='50'>
+    <feature name="activemq-broker" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
         <feature version="${activemq.version}">activemq-blueprint</feature>
         <bundle>blueprint:file:etc/activemq-broker.xml</bundle>
     </feature>
