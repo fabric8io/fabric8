@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.api;
 
+
 /**
  * Arguments for creating a new container via JClouds
  */
@@ -36,6 +37,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String owner;
     private Integer servicePort = 0;
     private String publicKeyFile;
+    private transient Object computeService;
 
     public CreateJCloudsContainerOptions() {
         this.providerType = "jclouds";
@@ -234,5 +236,16 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public void setPublicKeyFile(String publicKeyFile) {
         this.publicKeyFile = publicKeyFile;
+    }
+
+    public Object getComputeService() {
+        return computeService;
+    }
+
+    /**
+     * Sets an optional compute service to use for the creation of the container
+     */
+    public void setComputeService(Object computeService) {
+        this.computeService = computeService;
     }
 }

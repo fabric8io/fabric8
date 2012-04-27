@@ -365,7 +365,13 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private ComputeService getOrCreateComputeService(CreateJCloudsContainerOptions options) {
         ComputeService computeService = null;
         if (options != null) {
-            computeService = computeServiceMap.get(options.getProviderName());
+            Object object = options.getComputeService();
+            if (object instanceof ComputeService) {
+                computeService = (ComputeService) object;
+            }
+            if (computeService == null) {
+                computeService = computeServiceMap.get(options.getProviderName());
+            }
             if (computeService == null) {
 
                 if (options.getIdentity() == null || options.getCredential() == null) {
@@ -386,7 +392,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 computeService = context.getComputeService();
                 computeServiceMap.put(options.getProviderName(), computeService);
             }
-
         }
         return computeService;
     }
