@@ -39,6 +39,8 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected String zookeeperUrl;
     protected String jvmOpts;
     protected boolean adminAccess = false;
+    protected Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
+    private transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
     /**
      * Converts provider URI Query to a Map.
@@ -126,6 +128,12 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public T adminAccess(final boolean adminAccess) {
         this.adminAccess = adminAccess;
+        return (T) this;
+    }
+
+
+    public T creationStateListener(final CreationStateListener creationStateListener) {
+        this.creationStateListener = creationStateListener;
         return (T) this;
     }
 
@@ -232,7 +240,20 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return adminAccess;
     }
 
+    public CreationStateListener getCreationStateListener() {
+        return creationStateListener;
+    }
+
+    public void setCreationStateListener(CreationStateListener creationStateListener) {
+        this.creationStateListener = creationStateListener;
+    }
+
+
     public void setAdminAccess(boolean adminAccess) {
         this.adminAccess = adminAccess;
+    }
+
+    public Map<String, CreateContainerMetadata<T>> getMetadataMap() {
+        return metadataMap;
     }
 }

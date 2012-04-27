@@ -71,6 +71,7 @@
             =META-INF;-split-package:=merge-first,
             =META-INF.nexus;-split-package:=merge-first,
             org.fusesource.fabric.agent,
+            org.fusesource.fabric.utils,
             org.fusesource.fabric.agent.mvn,
             org.fusesource.fabric.agent.download,
             org.fusesource.fabric.agent.utils,
@@ -96,6 +97,11 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
         </dependency>
 
         <dependency>

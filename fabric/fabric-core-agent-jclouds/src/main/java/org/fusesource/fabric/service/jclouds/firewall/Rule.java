@@ -28,6 +28,7 @@ public class Rule {
     private String source;
     private NodeMetadata destination;
     private int[] ports;
+    private RuleType type = RuleType.AUTHORIZE;
 
     private Rule() {
     }
@@ -83,6 +84,33 @@ public class Rule {
         return this;
     }
 
+    /**
+     * Allows access to the specified port.
+     * @return
+     */
+    public Rule authorize() {
+        this.type = RuleType.AUTHORIZE;
+        return this;
+    }
+
+    /**
+     * Revokes access to the specified port.
+     * @return
+     */
+    public Rule revoke() {
+        this.type = RuleType.REVOKE;
+        return this;
+    }
+
+    /**
+     * Revokes access to the specified port.
+     * @return
+     */
+    public Rule flush() {
+        this.type = RuleType.FLUSH;
+        return this;
+    }
+
     public String getSource() {
         return source;
     }
@@ -105,5 +133,13 @@ public class Rule {
 
     public void setPorts(int[] ports) {
         this.ports = ports;
+    }
+
+    public RuleType getType() {
+        return type;
+    }
+
+    public void setType(RuleType type) {
+        this.type = type;
     }
 }

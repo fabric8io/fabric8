@@ -17,14 +17,22 @@
 
 package org.fusesource.fabric.service.jclouds.firewall.internal;
 
+import java.util.Map;
+import java.util.Set;
 import org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport;
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.ec2.EC2Client;
+import org.jclouds.ec2.domain.IpPermission;
+import org.jclouds.ec2.domain.IpPermissionImpl;
 import org.jclouds.ec2.domain.IpProtocol;
+import org.jclouds.ec2.domain.SecurityGroup;
 
 public class Ec2FirewallSupport implements ProviderFirewallSupport {
+
+    ProviderFirewallSupport delegate;
+
     /**
      * Authorizes access to the specified ports of the node, from the specified source.
      *
@@ -36,16 +44,52 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
     @Override
     public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
         try {
-            new Ec2SupportDelegate().authorize(service, node, source, ports);
+            getDelegate().authorize(service, node, source, ports);
         } catch (NoClassDefFoundError ex) {
             ex.printStackTrace(System.out);
             //ignore
         }
     }
 
+    /**
+     * Revokes access to the specified ports of the node, from the specified source.
+     *
+     * @param service
+     * @param node
+     * @param source
+     * @param ports
+     */
+    @Override
+    public void revoke(ComputeService service, NodeMetadata node, String source, int... ports) {
+        try {
+            getDelegate().revoke(service, node, source, ports);
+        } catch (NoClassDefFoundError ex) {
+            ex.printStackTrace(System.out);
+            //ignore
+        }
+    }
+
+    /**
+     * Removes all rules.
+     *
+     * @param service
+     * @param node
+     */
+    @Override
+    public void flush(ComputeService service, NodeMetadata node) {
+        getDelegate().flush(service, node);
+    }
+
     @Override
     public String[] getProviders() {
         return new String[]{"aws-ec2"};
+    }
+
+    private synchronized ProviderFirewallSupport getDelegate() {
+        if (this.delegate == null) {
+            this.delegate = new Ec2SupportDelegate();
+        }
+        return delegate;
     }
 
 
@@ -73,6 +117,53 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
                     //noop
                 }
             }
+        }
+
+        /**
+         * Revokes access to the specified ports of the node, from the specified source.
+         *
+         * @param service
+         * @param node
+         * @param source
+         * @param ports
+         */
+        @Override
+        public void revoke(ComputeService service, NodeMetadata node, String source, int... ports) {
+            String region = AWSUtils.parseHandle(node.getId())[0];
+            EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
+            String groupName = "jclouds#" + node.getGroup() + "#" + region;
+            for (int port : ports) {
+                try {
+                    ec2Client.getSecurityGroupServices()
+                            .revokeSecurityGroupIngressInRegion(region, groupName,
+                                    IpProtocol.TCP, port, port, source);
+                } catch (IllegalStateException e) {
+                    //noop
+                }
+            }
+        }
+
+        /**
+         * Removes all rules.
+         */
+        @Override
+        public void flush(ComputeService service, NodeMetadata node) {
+            String region = AWSUtils.parseHandle(node.getId())[0];
+            EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
+            String groupName = "jclouds#" + node.getGroup() + "#" + region;
+            Set<SecurityGroup> matchedSecurityGroups = ec2Client.getSecurityGroupServices().describeSecurityGroupsInRegion(region, groupName);
+            for (SecurityGroup securityGroup : matchedSecurityGroups) {
+                for (IpPermissionImpl ipPermission : securityGroup.getIpPermissions()) {
+                    for (String cdr : ipPermission.getIpRanges()) {
+                        ec2Client.getSecurityGroupServices().revokeSecurityGroupIngressInRegion(region, groupName,
+                                IpProtocol.TCP, ipPermission.getFromPort(), ipPermission.getToPort(),
+                                cdr
+                        );
+                    }
+                }
+            }
+            //We want at least ssh access from everywhere.
+            authorize(service, node, "0.0.0.0/0", 22);
         }
 
         @Override

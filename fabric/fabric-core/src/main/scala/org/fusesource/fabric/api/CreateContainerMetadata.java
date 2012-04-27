@@ -27,6 +27,7 @@ public interface CreateContainerMetadata<O extends CreateContainerOptions> exten
     Throwable getFailure();
 
     Container getContainer();
+    void setContainer(Container container);
 
     String getContainerName();
 

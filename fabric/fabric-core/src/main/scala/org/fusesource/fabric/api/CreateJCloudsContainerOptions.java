@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Arguments for creating a new container via JClouds
@@ -35,6 +37,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String identity;
     private String credential;
     private String owner;
+    private final Map<String, String> serviceOptions = new HashMap<String, String>();
+    private final Map<String, String> nodeOptions = new HashMap<String, String>();
     private Integer servicePort = 0;
     private String publicKeyFile;
     private transient Object computeService;
@@ -111,10 +115,40 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return this;
     }
 
+    /**
+     * Use servie options instead.
+     * @param owner
+     * @return
+     */
+    @Deprecated
     public CreateJCloudsContainerOptions owner(final String owner) {
         this.owner = owner;
+        this.serviceOptions.put("owner", owner);
         return this;
     }
+
+    public CreateJCloudsContainerOptions nodeOptions(final Map<String, String> nodeOptions) {
+        if (nodeOptions != null) {
+            for (Map.Entry<String, String> entry : nodeOptions.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                this.nodeOptions.put(key,value);
+            }
+        }
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions serviceOptions(final Map<String, String> serviceOptions) {
+        if (serviceOptions != null) {
+            for (Map.Entry<String, String> entry : serviceOptions.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                this.serviceOptions.put(key,value);
+            }
+        }
+        return this;
+    }
+
 
     public CreateJCloudsContainerOptions servicePort(final Integer servicePort) {
         this.servicePort = servicePort;
@@ -238,6 +272,13 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.publicKeyFile = publicKeyFile;
     }
 
+    public Map<String, String> getServiceOptions() {
+        return serviceOptions;
+    }
+
+    public Map<String, String> getNodeOptions() {
+        return nodeOptions;
+    }
     public Object getComputeService() {
         return computeService;
     }
