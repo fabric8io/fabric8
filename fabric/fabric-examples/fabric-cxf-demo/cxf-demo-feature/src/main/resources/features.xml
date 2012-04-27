@@ -21,6 +21,7 @@
 
     <feature name="fabric-cxf-demo-server" version="${project.version}" resolver="(obr)">
         <feature>fabric-cxf</feature>
+        <bundle>mvn:org.fusesource.fabric.fabric-examples/fabric-cxf-demo-client/${pom.version}</bundle>
         <bundle>mvn:org.fusesource.fabric.fabric-examples/fabric-cxf-demo-server/${pom.version}</bundle>
     </feature>
 

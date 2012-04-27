@@ -48,11 +48,15 @@ public class Client {
         // create the proxy of the hello
         hello = clientFactory.create(Hello.class);
     }
+
+    public Hello getProxy() {
+        return hello;
+    }
     
     public static void main(String args[]) {
         Client client = new Client();
-        System.out.println("Calling the sayHello first time with the result "  + client.hello.sayHello());
-        System.out.println("Calling the sayHello second time with the result " + client.hello.sayHello());
-        System.out.println("Calling the sayHello third time with the result " + client.hello.sayHello());
+        System.out.println("Calling the sayHello first time with the result "  + client.getProxy().sayHello());
+        System.out.println("Calling the sayHello second time with the result " +  client.getProxy().sayHello());
+        System.out.println("Calling the sayHello third time with the result " +  client.getProxy().sayHello());
     }
 }
