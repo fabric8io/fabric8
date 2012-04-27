@@ -123,7 +123,9 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     @Deprecated
     public CreateJCloudsContainerOptions owner(final String owner) {
         this.owner = owner;
-        this.serviceOptions.put("owner", owner);
+        if (owner != null) {
+            this.serviceOptions.put("owner", owner);
+        }
         return this;
     }
 

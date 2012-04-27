@@ -51,7 +51,7 @@ public class CloudUtils {
      */
     public static Map<String, String> parseProviderOptions(String[] options) {
         Map<String, String> providerOptions = new HashMap<String, String>();
-        if (options != null && options.length > 1) {
+        if (options != null && options.length > 0) {
             for (String option : options) {
                 if (option.contains("=")) {
                     String key = option.substring(0, option.indexOf("="));

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -143,7 +144,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
             StringBuilder overviewBuilder = new StringBuilder();
 
-            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using",options.getNumber()));
+            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using", options.getNumber()));
 
 
             //Define ImageId
@@ -163,7 +164,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 throw new IllegalArgumentException("Required Image id or Operation System and version predicates.");
             }
 
-            overviewBuilder.append(options.getOsVersion()).append(".");
+            overviewBuilder.append(".");
 
             //Define Location & Hardware
             if (!Strings.isNullOrEmpty(options.getLocationId())) {
@@ -177,9 +178,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
             AdminAccess.Builder adminAccess = AdminAccess.builder();
             TemplateOptions templateOptions = computeService.templateOptions();
-
-
-
+            applyProviderSpecificOptions(templateOptions, options);
 
             if (!Strings.isNullOrEmpty(options.getPublicKeyFile())) {
                 File publicKey = new File(options.getPublicKeyFile());
@@ -204,9 +203,9 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
 
             if (metadatas != null) {
-            for (NodeMetadata metadata : metadatas) {
-                options.getCreationStateListener().onStateChange(String.format("Node %s has been created.", metadata.getName()));
-            }
+                for (NodeMetadata metadata : metadatas) {
+                    options.getCreationStateListener().onStateChange(String.format("Node %s has been created.", metadata.getName()));
+                }
             }
 
             Thread.sleep(5000);
@@ -234,6 +233,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
                     } catch (IOException e) {
                         LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
+                    }  catch (Throwable t) {
+                        LOGGER.warn("Failed to setup firewall", t);
                     }
 
                     LoginCredentials credentials = nodeMetadata.getCredentials();
@@ -282,7 +283,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
                     try {
                         String script = buildInstallAndStartScript(options.name(containerName));
-                        options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It might take a while...",containerName));
+                        options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It might take a while...", containerName));
                         ExecResponse response = null;
                         if (credentials != null) {
                             response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
@@ -431,7 +432,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             if (computeService == null) {
                 options.getCreationStateListener().onStateChange("Compute Service not found. Creating ...");
                 //validate options and make sure a compute service can be created.
-                if (Strings.isNullOrEmpty(options.getProviderName()) || Strings.isNullOrEmpty(options.getIdentity()) || Strings.isNullOrEmpty(options.getCredential())){
+                if (Strings.isNullOrEmpty(options.getProviderName()) || Strings.isNullOrEmpty(options.getIdentity()) || Strings.isNullOrEmpty(options.getCredential())) {
                     throw new IllegalArgumentException("Cannot create compute service. A registered cloud provider or the provider name, identity and credential options are required");
                 }
 
@@ -483,6 +484,12 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         return new String(bytes);
     }
 
+    /**
+     * Returns the compute service when it becomes registered to the OSGi service registry.
+     *
+     * @param provider
+     * @return
+     */
     public synchronized ComputeService waitForComputeService(String provider) {
         ComputeService computeService = null;
         try {
@@ -498,6 +505,30 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             LOGGER.error("Error while waiting for service.", e);
         }
         return computeService;
+    }
+
+    /**
+     * Applies node options to the template options. Currently only works for String key value pairs.
+     * @param templateOptions
+     * @param options
+     */
+    private void applyProviderSpecificOptions(TemplateOptions templateOptions, CreateJCloudsContainerOptions options) {
+        if (options != null && templateOptions != null) {
+            for (Map.Entry<String, String> entry : options.getNodeOptions().entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                try {
+                    Field field = templateOptions.getClass().getDeclaredField(key);
+                    if (field != null)  {
+                        field.setAccessible(true);
+                        field.set(templateOptions, value);
+                    }
+                } catch (Exception ex) {
+                    //noop
+                }
+
+            }
+        }
     }
 
     public FirewallManagerFactory getFirewallManagerFactory() {
