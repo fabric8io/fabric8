@@ -98,6 +98,12 @@
             <groupId>org.fusesource.fabric.fabric-examples</groupId>
             <artifactId>fabric-cxf-demo-client</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-bundle</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -159,6 +165,7 @@
                         <fabricitest.ssh.password>${fabricitest.ssh.password}</fabricitest.ssh.password>
                         <fabricitest.ssh.host>${fabricitest.ssh.host}</fabricitest.ssh.host>
                         <fabricitest.ssh.port>${fabricitest.ssh.port}</fabricitest.ssh.port>
+                        <fabricitest.version>${project.version}</fabricitest.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

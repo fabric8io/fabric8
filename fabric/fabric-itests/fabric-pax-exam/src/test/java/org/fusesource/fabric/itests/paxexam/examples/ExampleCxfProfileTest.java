@@ -16,9 +16,9 @@
  */
 package org.fusesource.fabric.itests.paxexam.examples;
 
+import org.fusesource.fabric.demo.cxf.client.Client;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -26,6 +26,10 @@ import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+
+import static org.junit.Assert.assertNotSame;
+import static org.ops4j.pax.exam.OptionUtils.combine;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -37,17 +41,30 @@ public class ExampleCxfProfileTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("Now we have trouble to install the cxf profile")
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create"));
         createAndAssertChildContainer("cxf-server", "root", "example-cxf");
         System.err.println(executeCommand("fabric:cluster-list"));
+        // install bundle of CXF
+        System.err.println(executeCommand("features:install fabric-cxf"));
+        String projectVersion = System.getProperty("fabricitest.version");
+        // install bundle of CXF demo client
+        System.err.println(executeCommand("osgi:install -s mvn:org.fusesource.fabric.fabric-examples/fabric-cxf-demo-client/" + projectVersion));
         // calling the client here
+        Client client = new Client();
+        String result1 = client.getProxy().sayHello();
+        String result2 = client.getProxy().sayHello();
+        assertNotSame("We should get the two different result", result1, result2);
     }
 
     @Configuration
     public Option[] config() {
-        // we should install the client bundle for invocation
-        return fabricDistributionConfiguration();
+        return combine(
+                fabricDistributionConfiguration(),
+                // Passing the system property to the test container
+                systemProperty("fabricitest.version").value(System.getProperty("fabricitest.version"))
+        );
+
+
     }
 }
