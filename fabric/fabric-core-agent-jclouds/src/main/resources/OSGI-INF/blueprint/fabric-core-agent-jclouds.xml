@@ -23,6 +23,8 @@
                filter="(completer-type=image)" availability="optional"/>
     <reference id="locationCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=location)" availability="optional"/>
+    <reference id="hadrwareCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=hardware)" availability="optional"/>
     <reference id="groupCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=group)" availability="optional"/>
     <reference id="osFamilyCompleter" interface="org.apache.karaf.shell.console.Completer"
@@ -53,6 +55,8 @@
                 <entry key="--location" value-ref="locationCompleter"/>
                 <entry key="--group" value-ref="groupCompleter"/>
                 <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--version" value-ref="versionCompleter"/>
+                <entry key="--hardware" value-ref="hadrwareCompleter"/>
                 <entry key="--resolver" value-ref="resolverCompleter"/>
                 <entry key="--os-family" value-ref="osFamilyCompleter"/>
             </optional-completers>
@@ -108,6 +112,12 @@
     </bean>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+
+    <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>

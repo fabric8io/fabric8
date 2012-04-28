@@ -56,7 +56,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String publicKeyFile;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
-    @Option(name = "--option", required = false, description = "Node specify properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
+    @Option(name = "--option", required = false, multiValued = true, description = "Node specify properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
     private String[] options;
     @Option(name = "--group", description = "Group tag to use on the new node(s)")
     private String group = "fabric";

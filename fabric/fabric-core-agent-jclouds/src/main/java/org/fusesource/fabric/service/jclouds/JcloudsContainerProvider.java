@@ -198,7 +198,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             builder.options(templateOptions);
 
             Set<? extends NodeMetadata> metadatas = null;
-            overviewBuilder.append("It may take a while ...");
+            overviewBuilder.append(" It may take a while ...");
             options.getCreationStateListener().onStateChange(overviewBuilder.toString());
             metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
 
@@ -283,7 +283,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
                     try {
                         String script = buildInstallAndStartScript(options.name(containerName));
-                        options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It might take a while...", containerName));
+                        options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It may take a while...", containerName));
                         ExecResponse response = null;
                         if (credentials != null) {
                             response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));

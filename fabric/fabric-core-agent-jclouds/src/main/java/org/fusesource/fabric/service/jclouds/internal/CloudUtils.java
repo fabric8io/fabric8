@@ -69,28 +69,30 @@ public class CloudUtils {
             public void run() {
                 try {
                     Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute", provider);
-                    Dictionary dictionary = configuration.getProperties();
-                    if (dictionary == null) {
-                        dictionary = new Properties();
-                    }
-                    dictionary.put("provider", provider);
-                    dictionary.put("credential", credential);
-                    dictionary.put("identity", identity);
-                    dictionary.put("credential-store", "zookeeper");
-                    if (provider != null && provider.equals("aws-ec2") && props != null && props.containsKey("owner") && props.get("owner") != null ) {
-                        dictionary.put("jclouds.ec2.ami-owners", props.get("owner"));
-
-                    }
-                    configuration.update(dictionary);
-
-                    if (zooKeeper.isConnected()) {
-                        if (zooKeeper.exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
-                            ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_PROVIDER.getPath(provider));
+                    if (configuration != null) {
+                        Dictionary dictionary = configuration.getProperties();
+                        if (dictionary == null) {
+                            dictionary = new Properties();
                         }
-                        ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
-                        ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
-                    } else {
-                        System.out.println("Fabric has not been initialized. Provider registration is local to the current container.");
+                        dictionary.put("provider", provider);
+                        dictionary.put("credential", credential);
+                        dictionary.put("identity", identity);
+                        dictionary.put("credential-store", "zookeeper");
+                        if (provider != null && provider.equals("aws-ec2") && props != null && props.containsKey("owner") && props.get("owner") != null) {
+                            dictionary.put("jclouds.ec2.ami-owners", props.get("owner"));
+
+                        }
+                        configuration.update(dictionary);
+
+                        if (zooKeeper.isConnected()) {
+                            if (zooKeeper.exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
+                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_PROVIDER.getPath(provider));
+                            }
+                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
+                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
+                        } else {
+                            System.out.println("Fabric has not been initialized. Provider registration is local to the current container.");
+                        }
                     }
                 } catch (Exception ex) {
                    //noop
@@ -110,21 +112,23 @@ public class CloudUtils {
      */
     private static Configuration findOrCreateFactoryConfiguration(ConfigurationAdmin configurationAdmin, String factoryPid, String provider) throws IOException {
         Configuration configuration = null;
-        try {
-            Configuration[] configurations = configurationAdmin.listConfigurations(String.format(FACTORY_FILTER, factoryPid));
-            if (configurations != null) {
-                for (Configuration conf : configurations) {
-                    Dictionary dictionary = conf.getProperties();
-                    if (dictionary != null && provider.equals(dictionary.get("provider"))) {
-                        return conf;
+        if (configurationAdmin != null) {
+            try {
+                Configuration[] configurations = configurationAdmin.listConfigurations(String.format(FACTORY_FILTER, factoryPid));
+                if (configurations != null) {
+                    for (Configuration conf : configurations) {
+                        Dictionary dictionary = conf.getProperties();
+                        if (dictionary != null && provider.equals(dictionary.get("provider"))) {
+                            return conf;
+                        }
                     }
                 }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to lookup configuration admin for existing cloud providers.", e);
             }
-        } catch (Exception e) {
-            LOGGER.warn("Failed to lookup configuration admin for existing cloud providers.", e);
+            LOGGER.debug("No configuration found with factoryPid org.jclouds.compute. Creating new one.");
+            configuration = configurationAdmin.createFactoryConfiguration(factoryPid, null);
         }
-        LOGGER.debug("No configuration found with factoryPid org.jclouds.compute. Creating new one.");
-        configuration = configurationAdmin.createFactoryConfiguration(factoryPid, null);
         return configuration;
     }
 }

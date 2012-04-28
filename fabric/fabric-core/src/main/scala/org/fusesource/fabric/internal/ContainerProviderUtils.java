@@ -301,7 +301,12 @@ public class ContainerProviderUtils {
             String[] lines = output.split("\n");
             for (String line : lines) {
                 if (line.contains(FAILURE_PREFIX)) {
-                    error = error.substring(line.lastIndexOf(FAILURE_PREFIX) + FAILURE_PREFIX.length());
+                    try {
+                        error = error.substring(line.lastIndexOf(FAILURE_PREFIX) + FAILURE_PREFIX.length());
+                    } catch (Throwable t) {
+                        //noop
+                        error = "Unknown error";
+                    }
                     return error;
                 }
             }

@@ -72,6 +72,7 @@
             </action>
             <optional-completers>
                 <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--version" value-ref="versionCompleter"/>
             </optional-completers>
         </command>
     </command-bundle>
@@ -89,5 +90,11 @@
     </bean>
 
     <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
+
+
+    <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
 
 </blueprint>

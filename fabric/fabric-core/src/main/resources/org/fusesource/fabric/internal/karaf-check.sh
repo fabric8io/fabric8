@@ -1,7 +1,7 @@
 function karaf_check() {
    KARAF_HOME=$1
    INSTANCES_FILE=$KARAF_HOME/instances/instance.properties
-   for i in `seq 1 30`;
+   for i in `seq 1 60`;
      do
        if [ ! -f $INSTANCES_FILE ]; then
          sleep 2

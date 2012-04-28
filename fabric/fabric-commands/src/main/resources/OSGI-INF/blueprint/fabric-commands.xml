@@ -86,6 +86,9 @@
             <action class="org.fusesource.fabric.commands.ContainerList">
                 <property name="fabricService" ref="fabricService"/>
             </action>
+            <optional-completers>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/container-resolver-list">
             <action class="org.fusesource.fabric.commands.ContainerResolverList">
@@ -196,6 +199,7 @@
             </action>
             <optional-completers>
                 <entry key="--parents" value-ref="profileCompleter"/>
+                <entry key="--version" value-ref="versionCompleter"/>
             </optional-completers>
         </command>
         <command name="fabric/profile-list">
@@ -301,6 +305,9 @@
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
             </action>
+            <optional-completers>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/import">
             <action class="org.fusesource.fabric.commands.Import">
@@ -343,7 +350,8 @@
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
-    <bean id="versionCompleter" class="org.fusesource.fabric.commands.support.VersionCompleter">
+
+    <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>

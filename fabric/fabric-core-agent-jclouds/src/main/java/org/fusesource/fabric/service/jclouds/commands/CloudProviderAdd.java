@@ -49,12 +49,12 @@ public class CloudProviderAdd extends FabricCommand {
     @Option(name = "--owner", required = false, description = "EC2 AMI owner")
     private String owner;
 
-    @Option(name = "--option", required = false, description = "Provider specify properties. Example: --option jclouds.regions=us-east-1")
+    @Option(name = "--option", required = false, multiValued = true, description = "Provider specify properties. Example: --option jclouds.regions=us-east-1")
     private String[] options;
 
     @Override
     protected Object doExecute() throws Exception {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = CloudUtils.parseProviderOptions(options);
         if (options != null && options.length > 1) {
             for (String option : options) {
                 if (option.contains("=")) {

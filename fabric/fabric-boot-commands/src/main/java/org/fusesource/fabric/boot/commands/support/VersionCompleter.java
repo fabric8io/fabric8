@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.commands.support;
+package org.fusesource.fabric.boot.commands.support;
 
 import java.util.List;
 
