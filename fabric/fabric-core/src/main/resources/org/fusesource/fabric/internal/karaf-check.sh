@@ -1,10 +1,10 @@
 function karaf_check() {
    KARAF_HOME=$1
    INSTANCES_FILE=$KARAF_HOME/instances/instance.properties
-   for i in `seq 1 20`;
+   for i in `seq 1 30`;
      do
        if [ ! -f $INSTANCES_FILE ]; then
-         sleep 1
+         sleep 2
        fi
      done
    if [ -f $INSTANCES_FILE ]; then
@@ -12,9 +12,9 @@ function karaf_check() {
      if ps -p $PID > /dev/null; then
        echo "Fabric is started successfully"
      else
-       echo "Command failed"
+       echo "Command Failed: Karaf process ($PID) is not running"
      fi
    else
-     echo "Command failed"
+     echo "Command Failed:Could not find Karaf instance.properties"
    fi
 }

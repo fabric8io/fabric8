@@ -64,4 +64,9 @@ public interface CreateContainerOptions extends Serializable {
     public boolean isAdminAccess();
     public void setAdminAccess(boolean adminAccess);
 
+    public void setCreationStateListener(CreationStateListener listener);
+    public CreationStateListener getCreationStateListener();
+
+    public Map<String, ? extends CreateContainerMetadata> getMetadataMap();
+
 }

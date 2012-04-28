@@ -31,5 +31,19 @@ public interface ProviderFirewallSupport {
      */
     void authorize(ComputeService service, NodeMetadata node, String source, int... ports);
 
+    /**
+     * Revokes access to the specified ports of the node, from the specified source.
+     * @param service
+     * @param node
+     * @param source
+     * @param ports
+     */
+    void revoke(ComputeService service, NodeMetadata node, String source, int... ports);
+
+    /**
+     * Removes all rules from the node.
+     */
+    void flush(ComputeService service, NodeMetadata node);
+
     String[] getProviders();
 }

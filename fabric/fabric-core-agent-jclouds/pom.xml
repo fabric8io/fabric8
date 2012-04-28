@@ -34,7 +34,10 @@
         <fuse.osgi.export>
           org.fusesource.fabric.service.jclouds,
           org.fusesource.fabric.service.jclouds.commands,
-          org.fusesource.fabric.service.jclouds.firewall
+          org.fusesource.fabric.service.jclouds.firewall,
+          org.fusesource.fabric.service.jclouds.modules,
+          org.fusesource.fabric.service.jclouds.internal,
+          org.fusesource.fabric.service.jclouds.firewall.internal,
         </fuse.osgi.export>
         <fuse.osgi.import>
             !org.fusesource.fabric.zookeeper.commands,
@@ -44,8 +47,6 @@
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.commands.support,
             org.fusesource.fabric.service.jclouds.commands.completers,
-            org.fusesource.fabric.service.jclouds.modules,
-            org.fusesource.fabric.service.jclouds.firewall.internal,
             org.jclouds.aws.util
         </fuse.osgi.private.pkg>
     </properties>

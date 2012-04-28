@@ -26,6 +26,7 @@ import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
@@ -510,9 +511,12 @@ public class ContainerImpl implements Container {
         try {                                        
             if (metadata == null) {
                 if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
-                    byte[] data = service.getZooKeeper().getData(ZkPath.CONTAINER_METADATA.getPath(id));
-                    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+                    //The metadata are stored encoded so that they are import/export friendly.
+                    String encoded = service.getZooKeeper().getStringData(ZkPath.CONTAINER_METADATA.getPath(id));
+                    byte[] decoded = Base64Encoder.decode(encoded).getBytes();
+                    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
                     metadata = (CreateContainerMetadata) ois.readObject();
+
                 }
             }
             return metadata;

@@ -23,19 +23,21 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
+import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
 
-    static final String DISPLAY_FORMAT = "%22s %-9s %-30s %-30s";
-    static final String[] OUTPUT_HEADERS = {"[id]", "[status]", "[container]", "[public addresses]"};
+    static final String DISPLAY_FORMAT = "%22s %-30s %-30s %-30s ";
+    static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]", "[status]"};
 
     @Option(name = "--provider", required = true, description = "The cloud provider name")
     private String providerName;
     @Option(name = "--os-family", multiValued = false, required = false, description = "OS Family")
     private String osFamily = "ubuntu";
     @Option(name = "--os-version", multiValued = false, required = false, description = "OS Version")
-    private String osVersion = "11.";
+    private String osVersion;
     @Option(name = "--identity", required = false, description = "The cloud identity to use")
     private String identity;
     @Option(name = "--credential", required = false, description = "Credential to login to the cloud")
@@ -54,6 +56,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String publicKeyFile;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
+    @Option(name = "--option", required = false, description = "Node specify properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
+    private String[] options;
     @Option(name = "--group", description = "Group tag to use on the new node(s)")
     private String group = "fabric";
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
@@ -82,13 +86,15 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .instanceType(instanceType)
         .locationId(locationId)
         .number(number)
+        .nodeOptions(CloudUtils.parseProviderOptions(options))
         .owner(owner)
         .publicKeyFile(publicKeyFile)
         .providerName(providerName)
         .user(user)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())
-        .jvmOpts(jvmOpts);
+        .jvmOpts(jvmOpts)
+        .creationStateListener(new PrintStreamCreationStateListener(System.out));
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
         // display containers
@@ -105,9 +111,11 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
                 CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
                 String status = "success";
                 if (ccm.getFailure() != null) {
-                    status = "failed";
+                    status = ccm.getFailure().getMessage();
                 }
-                System.out.println(String.format(DISPLAY_FORMAT, metadata.getNodeId(), status, metadata.getContainerName(), metadata.getPublicAddresses()));
+                String nodeId = metadata.getNodeId() != null ? metadata.getNodeId() : "";
+                String containerName = metadata.getContainerName() != null ? metadata.getContainerName() : "";
+                System.out.println(String.format(DISPLAY_FORMAT, nodeId, containerName, metadata.getPublicAddresses(), status));
             }
         }
     }
@@ -119,12 +127,6 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         if (number < 1 || number > 999) {
             // for cloud we accept 3 digits
             throw new IllegalArgumentException("The number of containers must be between 1 and 999.");
-        }
-
-        if (osFamily == null && imageId == null) {
-            System.out.println("Using Ubuntu 11.04");
-            osFamily = "ubuntu";
-            osVersion = "11.04";
         }
 
         if (isEnsembleServer && number > 1) {

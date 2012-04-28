@@ -34,10 +34,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Module;
 import org.apache.commons.io.IOUtils;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
@@ -49,9 +46,8 @@ import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
 import org.fusesource.fabric.service.jclouds.firewall.Rule;
+import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -62,10 +58,11 @@ import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
-import org.jclouds.logging.log4j.config.Log4JLoggingModule;
-import org.jclouds.rest.RestContextFactory;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
-import org.jclouds.sshj.config.SshjSshClientModule;
+import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +81,13 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     private FirewallManagerFactory firewallManagerFactory;
     private CredentialStore credentialStore;
+    private ConfigurationAdmin configurationAdmin;
+    private IZKClient zooKeeper;
+    private BundleContext bundleContext;
 
-    public void bind(ComputeService computeService) {
+    private ServiceReference computeReference = null;
+
+    public synchronized void bind(ComputeService computeService) {
         if (computeService != null) {
             String providerName = computeService.getContext().getProviderSpecificContext().getId();
             if (providerName != null) {
@@ -103,156 +105,210 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         }
     }
 
+    public void destroy() {
+        if (computeReference != null) {
+            bundleContext.ungetService(computeReference);
+        }
+    }
+
     public ConcurrentMap<String, ComputeService> getComputeServiceMap() {
         return computeServiceMap;
     }
 
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
         final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
+        try {
+            options.getCreationStateListener().onStateChange("Looking up for compute service.");
+            ComputeService computeService = getOrCreateComputeService(options);
 
-        ComputeService computeService = getOrCreateComputeService(options);
-
-        TemplateBuilder builder = computeService.templateBuilder();
-        builder.any();
-        switch (options.getInstanceType()) {
-            case Smallest:
-                builder.smallest();
-                break;
-            case Biggest:
-                builder.biggest();
-                break;
-            case Fastest:
-                builder.fastest();
-        }
-
-
-        //Define ImageId
-        if (!Strings.isNullOrEmpty(options.getImageId())) {
-            builder.imageId(options.getImageId());
-        }
-        //or define Image by OS & Version or By ImageId
-        else if (!Strings.isNullOrEmpty(options.getOsFamily()) && !Strings.isNullOrEmpty(options.getOsFamily())) {
-            builder.osFamily(OsFamily.fromValue(options.getOsFamily()));
-            builder.osVersionMatches(options.getOsVersion());
-        }
-
-
-        //Define Location & Hardware
-        if (!Strings.isNullOrEmpty(options.getLocationId())) {
-            builder.locationId(options.getLocationId());
-        }
-
-        if (!Strings.isNullOrEmpty(options.getHardwareId())) {
-            builder.hardwareId(options.getHardwareId());
-        }
-
-        AdminAccess.Builder adminAccess = AdminAccess.builder();
-        TemplateOptions templateOptions = computeService.templateOptions();
-
-
-        if (!Strings.isNullOrEmpty(options.getPublicKeyFile())) {
-            File publicKey = new File(options.getPublicKeyFile());
-            if (publicKey.exists()) {
-                adminAccess.adminPublicKey(publicKey);
-            } else {
-                templateOptions.runScript(AdminAccess.standard());
-                LOGGER.warn("Public key has been specified file: {} files cannot be found. Ignoring.", publicKey.getAbsolutePath());
+            if (computeService == null) {
+                throw new IllegalStateException("Compute service could not be found or created.");
             }
-        }
 
-        if (!Strings.isNullOrEmpty(options.getUser())) {
-            adminAccess.adminUsername(options.getUser());
-        }
+            TemplateBuilder builder = computeService.templateBuilder();
+            builder.any();
+            switch (options.getInstanceType()) {
+                case Smallest:
+                    builder.smallest();
+                    break;
+                case Biggest:
+                    builder.biggest();
+                    break;
+                case Fastest:
+                    builder.fastest();
+                    break;
+                default:
+                    builder.fastest();
+            }
 
-        templateOptions.runScript(adminAccess.build());
-        builder.options(templateOptions);
+            StringBuilder overviewBuilder = new StringBuilder();
 
-        Set<? extends NodeMetadata> metadatas = null;
-        metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
+            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using",options.getNumber()));
 
-        Thread.sleep(5000);
 
-        int suffix = 1;
-        if (metadatas != null) {
-            String originalName = new String(options.getName());
-            for (NodeMetadata nodeMetadata : metadatas) {
-
-                //Setup firwall for node
-                try {
-                    String source = getOriginatingIp();
-                    Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
-                    Rule sshRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8101);
-                    Rule httpRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8181);
-                    Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
-                    FirewallManager firewallManager = firewallManagerFactory.getFirewallManager(computeService);
-                    firewallManager.addRules(jmxRule, sshRule, httpRule, zookeeperRule);
-                } catch (FirewallNotSupportedOnProviderException e) {
-                    LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
-                } catch (IOException e) {
-                    LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
+            //Define ImageId
+            if (!Strings.isNullOrEmpty(options.getImageId())) {
+                overviewBuilder.append(" image id: ").append(options.getImageId());
+                builder.imageId(options.getImageId());
+            }
+            //or define Image by OS & Version or By ImageId
+            else if (!Strings.isNullOrEmpty(options.getOsFamily())) {
+                overviewBuilder.append(" operating system: ").append(options.getOsFamily());
+                builder.osFamily(OsFamily.fromValue(options.getOsFamily()));
+                if (!Strings.isNullOrEmpty(options.getOsVersion())) {
+                    overviewBuilder.append(" and version: ");
+                    builder.osVersionMatches(options.getOsVersion());
                 }
+            } else {
+                throw new IllegalArgumentException("Required Image id or Operation System and version predicates.");
+            }
 
-                LoginCredentials credentials = nodeMetadata.getCredentials();
-                //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
-                if (!Strings.isNullOrEmpty(options.getUser()) && credentials != null) {
-                    credentials = credentials.toBuilder().user(options.getUser()).build();
+            overviewBuilder.append(options.getOsVersion()).append(".");
+
+            //Define Location & Hardware
+            if (!Strings.isNullOrEmpty(options.getLocationId())) {
+                overviewBuilder.append(" On location: ").append(options.getLocationId()).append(".");
+                builder.locationId(options.getLocationId());
+            }
+
+            if (!Strings.isNullOrEmpty(options.getHardwareId())) {
+                builder.hardwareId(options.getHardwareId());
+            }
+
+            AdminAccess.Builder adminAccess = AdminAccess.builder();
+            TemplateOptions templateOptions = computeService.templateOptions();
+
+
+
+
+            if (!Strings.isNullOrEmpty(options.getPublicKeyFile())) {
+                File publicKey = new File(options.getPublicKeyFile());
+                if (publicKey.exists()) {
+                    adminAccess.adminPublicKey(publicKey);
                 } else {
-                    credentials = nodeMetadata.getCredentials();
+                    templateOptions.runScript(AdminAccess.standard());
+                    LOGGER.warn("Public key has been specified file: {} files cannot be found. Ignoring.", publicKey.getAbsolutePath());
                 }
-                String id = nodeMetadata.getId();
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+            }
 
-                String containerName;
-                if (options.getNumber() > 1) {
-                    containerName = originalName + (suffix++);
-                } else {
-                    containerName = originalName;
-                }
+            if (!Strings.isNullOrEmpty(options.getUser())) {
+                adminAccess.adminUsername(options.getUser());
+            }
 
-                //Make a copy of the addresses, because we don't want to return back a guice implementation of Set.
-                Set<String> copyOfPublicAddresses = new HashSet<String>();
-                for (String publicAddress : publicAddresses) {
-                    copyOfPublicAddresses.add(publicAddress);
-                }
+            templateOptions.runScript(adminAccess.build());
+            builder.options(templateOptions);
 
-                CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
-                jCloudsContainerMetadata.setCreateOptions(options);
-                jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
-                jCloudsContainerMetadata.setContainerName(containerName);
-                jCloudsContainerMetadata.setPublicAddresses(copyOfPublicAddresses);
-                jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
-                if (credentials != null) {
-                    jCloudsContainerMetadata.setIdentity(credentials.identity);
-                    jCloudsContainerMetadata.setCredential(credentials.credential);
-                }
+            Set<? extends NodeMetadata> metadatas = null;
+            overviewBuilder.append("It may take a while ...");
+            options.getCreationStateListener().onStateChange(overviewBuilder.toString());
+            metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
 
-                Properties addresses = new Properties();
-                if (publicAddresses != null && !publicAddresses.isEmpty()) {
-                    String publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
-                    addresses.put("publicip", publicAddress);
-                }
+            if (metadatas != null) {
+            for (NodeMetadata metadata : metadatas) {
+                options.getCreationStateListener().onStateChange(String.format("Node %s has been created.", metadata.getName()));
+            }
+            }
 
-                options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY, addresses);
+            Thread.sleep(5000);
 
-                try {
-                    String script = buildInstallAndStartScript(options.name(containerName));
-                    ExecResponse response = null;
-                    if (credentials != null) {
-                        response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
+            int suffix = 1;
+            if (metadatas != null) {
+                String originalName = new String(options.getName());
+                for (NodeMetadata nodeMetadata : metadatas) {
+
+                    //Setup firwall for node
+                    try {
+                        FirewallManager firewallManager = firewallManagerFactory.getFirewallManager(computeService);
+                        if (firewallManager.isSupported()) {
+                            options.getCreationStateListener().onStateChange("Configuring firewall.");
+                            String source = getOriginatingIp();
+                            Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
+                            Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
+                            Rule httpRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8181);
+                            Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
+                            firewallManager.addRules(jmxRule, sshRule, httpRule, zookeeperRule);
+                        } else {
+                            options.getCreationStateListener().onStateChange(String.format("Skipping firewall configuration. Not supported for provider %s", options.getProviderName()));
+                        }
+                    } catch (FirewallNotSupportedOnProviderException e) {
+                        LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
+                    } catch (IOException e) {
+                        LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
+                    }
+
+                    LoginCredentials credentials = nodeMetadata.getCredentials();
+                    //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
+                    if (!Strings.isNullOrEmpty(options.getUser()) && credentials != null) {
+                        credentials = credentials.toBuilder().user(options.getUser()).build();
                     } else {
-                        response = computeService.runScriptOnNode(id, script, templateOptions);
+                        credentials = nodeMetadata.getCredentials();
                     }
-                    if (response == null) {
-                        jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
-                    } else if (response.getOutput() != null && response.getOutput().contains("Command failed")) {
-                        jCloudsContainerMetadata.setFailure(new Exception(response.getError()));
+                    String id = nodeMetadata.getId();
+                    Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+
+                    String containerName;
+                    if (options.getNumber() > 1) {
+                        containerName = originalName + (suffix++);
+                    } else {
+                        containerName = originalName;
                     }
-                } catch (Throwable t) {
-                    jCloudsContainerMetadata.setFailure(t);
+
+                    //Make a copy of the addresses, because we don't want to return back a guice implementation of Set.
+                    Set<String> copyOfPublicAddresses = new HashSet<String>();
+                    for (String publicAddress : publicAddresses) {
+                        copyOfPublicAddresses.add(publicAddress);
+                    }
+
+                    CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
+                    jCloudsContainerMetadata.setCreateOptions(options);
+                    jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
+                    jCloudsContainerMetadata.setContainerName(containerName);
+                    jCloudsContainerMetadata.setPublicAddresses(copyOfPublicAddresses);
+                    jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
+                    if (credentials != null) {
+                        jCloudsContainerMetadata.setIdentity(credentials.identity);
+                        jCloudsContainerMetadata.setCredential(credentials.credential);
+                    }
+
+                    Properties addresses = new Properties();
+                    if (publicAddresses != null && !publicAddresses.isEmpty()) {
+                        String publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
+                        addresses.put("publicip", publicAddress);
+                    }
+
+                    options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY, addresses);
+                    options.getMetadataMap().put(containerName, jCloudsContainerMetadata);
+
+
+                    try {
+                        String script = buildInstallAndStartScript(options.name(containerName));
+                        options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It might take a while...",containerName));
+                        ExecResponse response = null;
+                        if (credentials != null) {
+                            response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
+                        } else {
+                            response = computeService.runScriptOnNode(id, script, templateOptions);
+                        }
+                        if (response == null) {
+                            jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
+                        } else if (response.getOutput() != null && response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
+                            jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));
+                        }
+                    } catch (Throwable t) {
+                        jCloudsContainerMetadata.setFailure(t);
+                    }
+                    //Cleanup addresses.
+                    options.getSystemProperties().clear();
+                    result.add(jCloudsContainerMetadata);
                 }
-                //Cleanup addresses.
-                options.getSystemProperties().clear();
-                result.add(jCloudsContainerMetadata);
+            }
+        } catch (Throwable t) {
+            if (options != null && options.getNumber() > 0) {
+                for (int i = result.size(); i < options.getNumber(); i++) {
+                    CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();
+                    failureMetdata.setFailure(t);
+                    result.add(failureMetdata);
+                }
             }
         }
         return result;
@@ -279,8 +335,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 }
                 if (response == null) {
                     jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
-                } else if (response.getOutput() != null && response.getOutput().contains("Command failed")) {
-                    jCloudsContainerMetadata.setFailure(new Exception(response.getError()));
+                } else if (response.getOutput() != null && response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
+                    jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));
                 }
             } catch (Throwable t) {
                 jCloudsContainerMetadata.setFailure(t);
@@ -310,8 +366,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
                 if (response == null) {
                     jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
-                } else if (response.getOutput() != null && response.getOutput().contains("Command failed")) {
-                    jCloudsContainerMetadata.setFailure(new Exception(response.getError()));
+                } else if (response.getOutput() != null && response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
+                    jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));
                 }
             } catch (Throwable t) {
                 jCloudsContainerMetadata.setFailure(t);
@@ -362,31 +418,32 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
      * @param options
      * @return
      */
-    private ComputeService getOrCreateComputeService(CreateJCloudsContainerOptions options) {
+    private synchronized ComputeService getOrCreateComputeService(CreateJCloudsContainerOptions options) {
         ComputeService computeService = null;
         if (options != null) {
-            computeService = computeServiceMap.get(options.getProviderName());
-            if (computeService == null) {
-
-                if (options.getIdentity() == null || options.getCredential() == null) {
-                    throw new RuntimeException("Compute service not found, please specify provider, identity & credential in order to create one");
-                }
-                Iterable<? extends Module> modules = ImmutableSet.of(new SshjSshClientModule(), new Log4JLoggingModule(), credentialStore);
-
-                Properties props = new Properties();
-                props.put("provider", options.getProviderName());
-                props.put("identity", options.getIdentity());
-                props.put("credential", options.getCredential());
-                if (!Strings.isNullOrEmpty(options.getOwner()) && options.getProviderName().equals("aws-ec2")) {
-                    props.put("jclouds.ec2.ami-owners", options.getOwner());
-                }
-
-                RestContextFactory restFactory = new RestContextFactory();
-                ComputeServiceContext context = new ComputeServiceContextFactory(restFactory).createContext(options.getProviderName(), options.getIdentity(), options.getCredential(), modules, props);
-                computeService = context.getComputeService();
-                computeServiceMap.put(options.getProviderName(), computeService);
+            Object object = options.getComputeService();
+            if (object instanceof ComputeService) {
+                computeService = (ComputeService) object;
             }
+            if (computeService == null) {
+                computeService = computeServiceMap.get(options.getProviderName());
+            }
+            if (computeService == null) {
+                options.getCreationStateListener().onStateChange("Compute Service not found. Creating ...");
+                //validate options and make sure a compute service can be created.
+                if (Strings.isNullOrEmpty(options.getProviderName()) || Strings.isNullOrEmpty(options.getIdentity()) || Strings.isNullOrEmpty(options.getCredential())){
+                    throw new IllegalArgumentException("Cannot create compute service. A registered cloud provider or the provider name, identity and credential options are required");
+                }
 
+                Map<String, String> serviceOptions = options.getServiceOptions();
+                try {
+                    CloudUtils.registerProvider(zooKeeper, configurationAdmin, options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
+                    computeService = waitForComputeService(options.getProviderName());
+                } catch (Exception e) {
+                    LOGGER.warn("Did not manage to register compute cloud provider.");
+                    return computeService;
+                }
+            }
         }
         return computeService;
     }
@@ -426,6 +483,23 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         return new String(bytes);
     }
 
+    public synchronized ComputeService waitForComputeService(String provider) {
+        ComputeService computeService = null;
+        try {
+            for (int r = 0; r < 6; r++) {
+                ServiceReference[] references = bundleContext.getAllServiceReferences(ComputeService.class.getName(), "(provider=" + provider + ")");
+                if (references != null && references.length > 0) {
+                    computeService = (ComputeService) bundleContext.getService(references[0]);
+                    return computeService;
+                }
+                Thread.sleep(10000L);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while waiting for service.", e);
+        }
+        return computeService;
+    }
+
     public FirewallManagerFactory getFirewallManagerFactory() {
         return firewallManagerFactory;
     }
@@ -440,5 +514,29 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public void setCredentialStore(CredentialStore credentialStore) {
         this.credentialStore = credentialStore;
+    }
+
+    public ConfigurationAdmin getConfigurationAdmin() {
+        return configurationAdmin;
+    }
+
+    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
+    }
+
+    public IZKClient getZooKeeper() {
+        return zooKeeper;
+    }
+
+    public void setZooKeeper(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }

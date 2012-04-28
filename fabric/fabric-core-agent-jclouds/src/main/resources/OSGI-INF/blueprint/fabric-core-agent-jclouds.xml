@@ -27,6 +27,8 @@
                filter="(completer-type=group)" availability="optional"/>
     <reference id="osFamilyCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=osfamily)" availability="optional"/>
+    <reference id="activeNodeCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=active-node)" availability="optional"/>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
@@ -77,11 +79,35 @@
                 <property name="computeServices" ref="computeServices"/>
             </action>
         </command>
+        <command name="fabric/cloud-firewall-edit">
+            <action class="org.fusesource.fabric.service.jclouds.commands.CloudFirewallEdit">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="computeServices" ref="computeServices"/>
+                <property name="firewallManagerFactory" ref="firewallManagerFactory"/>
+            </action>
+            <optional-completers>
+                <entry key="--provider" value-ref="computeProviderCompleter"/>
+                <entry key="--target-container" value-ref="cloudContainerCompleter"/>
+                <entry key="--target-node-id" value-ref="activeNodeCompleter"/>
+                <entry key="--source-container" value-ref="containerCompleter"/>
+            </optional-completers>
+        </command>
     </command-bundle>
 
     <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
 
     <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+    <bean id="cloudContainerCompleter" class="org.fusesource.fabric.service.jclouds.commands.completers.CloudContainerCompleter">
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+    <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
@@ -99,9 +125,12 @@
 
     <bean id="ec2FirewallSupport" class="org.fusesource.fabric.service.jclouds.firewall.internal.Ec2FirewallSupport"/>
 
-    <bean id="jcloudsContainerProvider" class="org.fusesource.fabric.service.jclouds.JcloudsContainerProvider">
+    <bean id="jcloudsContainerProvider" class="org.fusesource.fabric.service.jclouds.JcloudsContainerProvider" destroy-method="destroy">
         <property name="firewallManagerFactory" ref="firewallManagerFactory"/>
         <property name="credentialStore" ref="zookeeperCredentialStore"/>
+        <property name="configurationAdmin" ref="configurationAdmin"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
     <bean id="cloudProviderBridge" class="org.fusesource.fabric.service.jclouds.CloudProviderBridge">
@@ -128,6 +157,8 @@
             <entry key="fabric.container.protocol" value="jclouds"/>
         </service-properties>
     </service>
+
+    <service ref="firewallManagerFactory" interface="org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory"/>
 
 
 </blueprint>

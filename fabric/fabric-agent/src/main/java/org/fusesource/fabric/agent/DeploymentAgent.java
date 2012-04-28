@@ -16,6 +16,38 @@
  */
 package org.fusesource.fabric.agent;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.framework.monitor.MonitoringService;
 import org.apache.felix.utils.manifest.Clause;
@@ -66,27 +98,9 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DeploymentAgent implements ManagedService, FrameworkListener {
 
@@ -100,7 +114,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private PackageAdmin packageAdmin;
     private StartLevel startLevel;
     private ObrResolver obrResolver;
-    private Callable<IZKClient> zkClient;
+    private ServiceTracker zkClient;
 
     private final Object refreshLock = new Object();
     private long refreshTimeout = 5000;
@@ -135,7 +149,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return obrResolver;
     }
 
-    public Callable<IZKClient> getZkClient() {
+    public ServiceTracker getZkClient() {
         return zkClient;
     }
 
@@ -155,7 +169,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         this.obrResolver = obrResolver;
     }
 
-    public void setZkClient(Callable<IZKClient> zkClient) {
+    public void setZkClient(ServiceTracker zkClient) {
         this.zkClient = zkClient;
     }
 
@@ -179,26 +193,39 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     public void updated(final Dictionary props) throws ConfigurationException {
-        if (executor.isShutdown()) {
+        if (executor.isShutdown() || props == null) {
             return;
         }
         executor.submit(new Runnable() {
             public void run() {
                 Throwable result = null;
+                boolean success = false;
                 try {
-                    doUpdate(props);
+                    success = doUpdate(props);
                 } catch (Throwable e) {
                     result = e;
                     LOGGER.error("Unable to update agent", e);
                 }
-                updateStatus(result == null ? ZkDefs.SUCCESS : ZkDefs.ERROR, result);
+                // This update is critical, so
+                if (success || result != null) {
+                    updateStatus(success ? ZkDefs.SUCCESS : ZkDefs.ERROR, result, true);
+                }
             }
         });
     }
 
     private void updateStatus(String status, Throwable result) {
+        updateStatus(status, result, false);
+    }
+
+    private void updateStatus(String status, Throwable result, boolean force) {
         try {
-            IZKClient zk = zkClient.call();
+            IZKClient zk;
+            if (force) {
+                zk = (IZKClient) zkClient.waitForService(0);
+            } else {
+                zk = (IZKClient) zkClient.getService();
+            }
             if (zk != null) {
                 String name = System.getProperty("karaf.name");
                 String e;
@@ -219,9 +246,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
     }
 
-    public void doUpdate(Dictionary props) throws Exception {
+    public boolean doUpdate(Dictionary props) throws Exception {
         if (props == null) {
-            return;
+            return false;
         }
 
         // Adding the maven proxy URL to the list of repositories.
@@ -277,7 +304,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             systemProps.save();
             System.setProperty("karaf.restart", "true");
             bundleContext.getBundle(0).stop();
-            return;
+            return false;
         }
         // Compute deployment
         final Map<URI, Repository> repositories = new HashMap<URI, Repository>();
@@ -342,11 +369,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             }
         });
         updateDeployment(fabResolverFactory, repositories, features, bundles, fabs);
+        return true;
     }
 
     private void addMavenProxies(Dictionary props) {
         try {
-            IZKClient zooKeeper = zkClient.call();
+            IZKClient zooKeeper = (IZKClient) zkClient.waitForService(0);
             if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 StringBuffer sb = new StringBuffer();
                 List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));

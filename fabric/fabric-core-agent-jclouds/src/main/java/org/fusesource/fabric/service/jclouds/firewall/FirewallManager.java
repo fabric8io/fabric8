@@ -32,6 +32,7 @@ public class FirewallManager {
 
     /**
      * Constructor
+     *
      * @param computeService
      * @param firewallSupport
      */
@@ -54,6 +55,21 @@ public class FirewallManager {
 
 
     public void addRule(Rule rule) throws IOException {
-        firewallSupport.authorize(computeService, rule.getDestination(), rule.getSource(), rule.getPorts());
+        switch (rule.getType()) {
+            case FLUSH:
+                firewallSupport.flush(computeService, rule.getDestination());
+            break;
+            case AUTHORIZE:
+                firewallSupport.authorize(computeService, rule.getDestination(), rule.getSource(), rule.getPorts());
+            break;
+            case REVOKE:
+                firewallSupport.revoke(computeService, rule.getDestination(), rule.getSource(), rule.getPorts());
+            break;
+            default:
+        }
+    }
+
+    public boolean isSupported() {
+        return firewallSupport != null;
     }
 }

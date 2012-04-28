@@ -46,6 +46,7 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
+import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -278,7 +279,8 @@ public class FabricServiceImpl implements FabricService {
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         oos.writeObject(metadata);
                         oos.close();
-                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), baos.toByteArray());
+                        //We encode the metadata so that they are more friendly to import/export.
+                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(baos.toByteArray()));
 
                         Map<String,String> configuration = metadata.getContainerConfguration();
                         for (Map.Entry<String, String> entry : configuration.entrySet()) {
@@ -288,7 +290,7 @@ public class FabricServiceImpl implements FabricService {
                         }
                         ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName()),options.getResolver());
                     }
-                    ((CreateContainerBasicMetadata) metadata).setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
+                    metadata.setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
                     ((ContainerImpl) metadata.getContainer()).setMetadata(metadata);
                     logger.info("The container " + metadata.getContainerName() + " has been successfully created");
                 } else {
