@@ -48,13 +48,12 @@ public class ContainerProviderUtils {
     public static final String FAILURE_PREFIX = "Command Failed:";
 
     public static final String ADDRESSES_PROPERTY_KEY = "addresses";
-    private static final String REPLACE_FORMAT = "sed -i  \"s/%s/%s/g\" %s";
     private static final String LINE_APPEND = "sed  's/%s/&%s/' %s > %s";
     private static final String FIRST_FABRIC_DIRECTORY = "ls -l | grep fuse-fabric | grep ^d | awk '{ print $NF }' | sort -n | head -1";
 
-    private static final String RUN_FUCNTION = loadFunction("run.sh");
-    private static final String DOWNLOAD_FUCNTION = loadFunction("download.sh");
-    private static final String MAVEN_DOWNLOAD_FUCNTION = loadFunction("maven-download.sh");
+    private static final String RUN_FUNCTION = loadFunction("run.sh");
+    private static final String DOWNLOAD_FUNCTION = loadFunction("download.sh");
+    private static final String MAVEN_DOWNLOAD_FUNCTION = loadFunction("maven-download.sh");
     private static final String INSTALL_JDK = loadFunction("install-open-jdk.sh");
     private static final String INSTALL_CURL = loadFunction("install-curl.sh");
     private static final String UPDATE_PKGS = loadFunction("update-pkgs.sh");
@@ -62,6 +61,7 @@ public class ContainerProviderUtils {
     private static final String EXIT_IF_NOT_EXISTS = loadFunction("exit-if-not-exists.sh");
     private static final String COPY_NODE_METADATA = loadFunction("copy-node-metadata.sh");
     private static final String KARAF_CHECK = loadFunction("karaf-check.sh");
+    private static final String REPLACE_IN_FILE = loadFunction("replace-in-file.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
 
@@ -81,9 +81,9 @@ public class ContainerProviderUtils {
     public static String buildInstallAndStartScript(CreateContainerOptions options) throws MalformedURLException, URISyntaxException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
-        sb.append(RUN_FUCNTION).append("\n");
-        sb.append(DOWNLOAD_FUCNTION).append("\n");
-        sb.append(MAVEN_DOWNLOAD_FUCNTION).append("\n");
+        sb.append(RUN_FUNCTION).append("\n");
+        sb.append(DOWNLOAD_FUNCTION).append("\n");
+        sb.append(MAVEN_DOWNLOAD_FUNCTION).append("\n");
         sb.append(UPDATE_PKGS).append("\n");
         sb.append(INSTALL_CURL).append("\n");
         sb.append(INSTALL_JDK).append("\n");
@@ -91,6 +91,7 @@ public class ContainerProviderUtils {
         sb.append(EXIT_IF_NOT_EXISTS).append("\n");
         sb.append(COPY_NODE_METADATA).append("\n");
         sb.append(KARAF_CHECK).append("\n");
+        sb.append(REPLACE_IN_FILE).append("\n");
         sb.append("run mkdir -p ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
@@ -109,7 +110,7 @@ public class ContainerProviderUtils {
         List<String> lines = new ArrayList<String>();
         lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + options.getResolver());
         appendFile(sb, "etc/system.properties", lines);
-        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name = " + options.getName());
+        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + options.getName());
         replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=8101", "sshPort=" + DEFAULT_SSH_PORT);
         appendFile(sb, "etc/system.properties", Arrays.asList("\n"));
 
@@ -167,7 +168,7 @@ public class ContainerProviderUtils {
     public static String buildStartScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
-        sb.append(RUN_FUCNTION).append("\n");
+        sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
@@ -187,7 +188,7 @@ public class ContainerProviderUtils {
     public static String buildStopScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
-        sb.append(RUN_FUCNTION).append("\n");
+        sb.append(RUN_FUNCTION).append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
@@ -204,7 +205,7 @@ public class ContainerProviderUtils {
      */
     public static String buildUninstallScript(CreateContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
-        sb.append(RUN_FUCNTION).append("\n");
+        sb.append(RUN_FUNCTION).append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run rm -rf ").append(options.getName()).append("\n");
         return sb.toString();
@@ -212,7 +213,11 @@ public class ContainerProviderUtils {
 
 
     private static void replaceLineInFile(StringBuilder sb, String path, String pattern, String line) {
-        sb.append(String.format(REPLACE_FORMAT, pattern, line, path)).append("\n");
+        sb.append("replace-in-file ")
+                .append("\"").append(pattern).append("\" ")
+                .append("\"").append(line).append("\" ")
+                .append(path)
+                .append("\n");
     }
 
     private static void appendToLineInFile(StringBuilder sb, String path, String pattern, String line) {
