@@ -61,7 +61,6 @@
             </includes>
             <excludes>
                 <exclude>bin/create</exclude>
-                <exclude>bin/karaf</exclude>
                 <exclude>bin/fusefabric</exclude>
                 <exclude>bin/shell</exclude>
             </excludes>
