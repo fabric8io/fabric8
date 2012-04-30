@@ -23,10 +23,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -48,6 +50,7 @@ import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
 import org.fusesource.fabric.service.jclouds.firewall.Rule;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.ExecResponse;
@@ -214,29 +217,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             if (metadatas != null) {
                 String originalName = new String(options.getName());
                 for (NodeMetadata nodeMetadata : metadatas) {
-
-                    //Setup firwall for node
-                    try {
-                        FirewallManager firewallManager = firewallManagerFactory.getFirewallManager(computeService);
-                        if (firewallManager.isSupported()) {
-                            options.getCreationStateListener().onStateChange("Configuring firewall.");
-                            String source = getOriginatingIp();
-                            Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
-                            Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
-                            Rule httpRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8181);
-                            Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
-                            firewallManager.addRules(jmxRule, sshRule, httpRule, zookeeperRule);
-                        } else {
-                            options.getCreationStateListener().onStateChange(String.format("Skipping firewall configuration. Not supported for provider %s", options.getProviderName()));
-                        }
-                    } catch (FirewallNotSupportedOnProviderException e) {
-                        LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
-                    } catch (IOException e) {
-                        LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
-                    }  catch (Throwable t) {
-                        LOGGER.warn("Failed to setup firewall", t);
-                    }
-
                     LoginCredentials credentials = nodeMetadata.getCredentials();
                     //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
                     if (!Strings.isNullOrEmpty(options.getUser()) && credentials != null) {
@@ -271,14 +251,47 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         jCloudsContainerMetadata.setCredential(credentials.credential);
                     }
 
+                    String publicAddress = "";
                     Properties addresses = new Properties();
                     if (publicAddresses != null && !publicAddresses.isEmpty()) {
-                        String publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
+                        publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
                         addresses.put("publicip", publicAddress);
                     }
 
+                    applyJavaRmiHostName(options, publicAddress);
+
                     options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY, addresses);
                     options.getMetadataMap().put(containerName, jCloudsContainerMetadata);
+
+                    //Setup firwall for node
+                    try {
+                        FirewallManager firewallManager = firewallManagerFactory.getFirewallManager(computeService);
+                        if (firewallManager.isSupported()) {
+                            options.getCreationStateListener().onStateChange("Configuring firewall.");
+                            String source = getOriginatingIp();
+                            Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
+                            Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
+                            Rule httpRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8181);
+                            Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
+                            firewallManager.addRules(jmxRule, sshRule, httpRule, zookeeperRule);
+                            //We do add the target node public address to the firewall rules, as a way to make things easier in cases
+                            //where firewall configuration is shared among nodes of the same groups, e.g. EC2.
+                            if (!Strings.isNullOrEmpty(publicAddress)) {
+                                Rule zookeeperFromTargetRule = Rule.create().source(publicAddress + "/32").destination(nodeMetadata).port(2181);
+                                firewallManager.addRule(zookeeperRule);
+                            }
+
+                        } else {
+                            options.getCreationStateListener().onStateChange(String.format("Skipping firewall configuration. Not supported for provider %s", options.getProviderName()));
+                        }
+                    } catch (FirewallNotSupportedOnProviderException e) {
+                        LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
+                    } catch (IOException e) {
+                        LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
+                    }  catch (Throwable t) {
+                        LOGGER.warn("Failed to setup firewall", t);
+                    }
+
 
 
                     try {
@@ -530,6 +543,17 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             }
         }
     }
+
+    private void applyJavaRmiHostName(CreateJCloudsContainerOptions options, String publicAddress) {
+        if (!Strings.isNullOrEmpty(publicAddress)) {
+            if (ZkDefs.PUBLIC_IP.equals(options.getResolver())) {
+                String jvmOptions = Strings.isNullOrEmpty(options.getJvmOpts()) ? "" : options.getJvmOpts().trim() + " ";
+                jvmOptions += "-Djava.rmi.server.hostname="+publicAddress;
+                options.setJvmOpts(jvmOptions);
+            }
+        }
+    }
+
 
     public FirewallManagerFactory getFirewallManagerFactory() {
         return firewallManagerFactory;

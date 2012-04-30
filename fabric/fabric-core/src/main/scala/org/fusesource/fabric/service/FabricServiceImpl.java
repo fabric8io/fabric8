@@ -317,7 +317,7 @@ public class FabricServiceImpl implements FabricService {
     public URI getMavenRepoURI() {
         URI uri = URI.create(defaultRepo);
         try {
-            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+            if (zooKeeper != null && zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
@@ -339,7 +339,7 @@ public class FabricServiceImpl implements FabricService {
     public URI getMavenRepoUploadURI() {
         URI uri = URI.create(defaultRepo);
         try {
-            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
+            if (zooKeeper != null && zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
                 List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("upload"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);

@@ -141,7 +141,9 @@ public class ContainerProviderUtils {
 
         appendToLineInFile(sb, "etc/org.apache.karaf.features.cfg", "featuresBoot=", "fabric-agent,");
         //Add the proxyURI to the list of repositories
-        appendToLineInFile(sb, "etc/org.ops4j.pax.url.mvn.cfg", "repositories=", options.getProxyUri().toString() + ",");
+        if (options.getProxyUri() != null) {
+            appendToLineInFile(sb, "etc/org.ops4j.pax.url.mvn.cfg", "repositories=", options.getProxyUri().toString() + ",");
+        }
         //Just for ensemble servers we want to copy their creation metadata for import.
         if (options.isEnsembleServer()) {
             CreateContainerMetadata metadata = options.getMetadataMap().get(options.getName());
@@ -240,14 +242,16 @@ public class ContainerProviderUtils {
         String directory = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/";
 
         //TODO: There may be cases where this is not good enough
-        String baseProxyURL = (!proxy.toString().endsWith("/")) ? proxy.toString() + "/" : proxy.toString();
+        if (proxy != null) {
+            String baseProxyURL = (!proxy.toString().endsWith("/")) ? proxy.toString() + "/" : proxy.toString();
 
 
-        sb.append("maven-download ").append(baseProxyURL).append(" ")
-                .append(groupId).append(" ")
-                .append(artifactId).append(" ")
-                .append(version).append(" ")
-                .append("tar.gz").append("\n");
+            sb.append("maven-download ").append(baseProxyURL).append(" ")
+                    .append(groupId).append(" ")
+                    .append(artifactId).append(" ")
+                    .append(version).append(" ")
+                    .append("tar.gz").append("\n");
+        }
 
         for (String fallbackRepo : FALLBACK_REPOS) {
             sb.append("if [ ! -f " + file + " ] ; then ").append("maven-download ").append(fallbackRepo).append(" ")
