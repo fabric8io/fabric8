@@ -29,6 +29,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.IZKClient;
 
 /**
@@ -115,7 +116,7 @@ public enum ZkPath {
     /**
      * Loads a zoo keeper URL content using the provided ZooKeeper client.
      */
-    static public byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+    public static byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
         URI uri = new URI(url);
         String ref = uri.getFragment();
         String path = uri.getSchemeSpecificPart();
@@ -166,6 +167,20 @@ public enum ZkPath {
         return rc;
     }
 
+    public static void createContainerPaths(IZKClient zooKeeper, String container, String version) throws InterruptedException, KeeperException {
+        boolean versionProvided = version != null;
+        if (version == null) {
+            version = ZooKeeperUtils.get(zooKeeper, CONFIG_DEFAULT_VERSION.getPath());
+        }
 
+        if (version != null) {
+            if (zooKeeper.exists(ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container), version);
+            }
 
+            if (zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container)) == null || versionProvided) {
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container), "default");
+            }
+        }
+    }
 }

@@ -64,8 +64,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
         String karafName = System.getProperty("karaf.name");
 
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
-        ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "default");
+        ZkPath.createContainerPaths(zooKeeper, karafName, version);
         Bundle bundleFabricJaas = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-jaas",
                 "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricCommands = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-commands",
