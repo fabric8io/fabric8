@@ -57,11 +57,13 @@ public abstract class RequirementsListSupport extends FabricCommand {
         Map<String,Integer> answer = new HashMap<String, Integer>();
         Container[] containers = getFabricService().getContainers();
         for (Container container : containers) {
-            Profile[] profiles = container.getProfiles();
-            for (Profile profile : profiles) {
-                String key = profile.getId();
-                int count = getOrZero(answer.get(key));
-                answer.put(key, ++count);
+            if (container.isAlive()) {
+                Profile[] profiles = container.getProfiles();
+                for (Profile profile : profiles) {
+                    String key = profile.getId();
+                    int count = getOrZero(answer.get(key));
+                    answer.put(key, ++count);
+                }
             }
         }
         return answer;
