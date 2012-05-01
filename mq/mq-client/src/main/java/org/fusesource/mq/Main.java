@@ -26,6 +26,7 @@ public class Main {
     String action;
     String destination = "queue://TEST";
     String brokerUrl = ActiveMQConnectionFactory.DEFAULT_BROKER_URL;
+    boolean persistent = true;
     int count = 100;
 
     public static void main(String[] args) throws Exception {
@@ -48,6 +49,8 @@ public class Main {
                     main.destination = shift(arg1);
                 } else if ("--brokerUrl".equals(arg)) {
                     main.brokerUrl = shift(arg1);
+                } else if ("--persistent".equals(arg)) {
+                    main.persistent = Boolean.valueOf(shift(arg1)).booleanValue();
                 } else {
                     System.err.println("Invalid usage: unknown option: " + arg);
                     displayHelpAndExit(1);
@@ -73,6 +76,7 @@ public class Main {
 
                 ProducerThread producerThread = new ProducerThread(activeMQService, destination);
                 producerThread.setMessageCount(count);
+                producerThread.setPersistent(persistent);
                 producerThread.run();
                 System.out.println("Produced: " + producerThread.getSentCount());
 
@@ -111,6 +115,7 @@ public class Main {
         System.out.println(" usage   : (producer|consumer) [OPTIONS]");
         System.out.println(" options : [--destination (queue://..|topic://..)");
         System.out.println("           [--count N]");
+        System.out.println("           [--persistent true|false]");
         System.out.println("           [--brokerUrl URL]\n");
 
         System.exit(exitCode);

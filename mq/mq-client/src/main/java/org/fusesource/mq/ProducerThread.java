@@ -30,6 +30,7 @@ public class ProducerThread extends Thread {
     protected JMSService service;
     int sleep = 0;
     int sentCount = 0;
+    boolean persistent = true;
 
     public ProducerThread(JMSService service, String dest) {
         this.dest = dest;
@@ -40,6 +41,7 @@ public class ProducerThread extends Thread {
         MessageProducer producer = null;
         try {
             producer = service.createProducer(dest);
+            producer.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
             for (sentCount = 0; sentCount < messageCount; sentCount++) {
                 producer.send(createMessage(sentCount));
                 LOG.info("Sent 'test message: " + sentCount + "'");
@@ -79,5 +81,9 @@ public class ProducerThread extends Thread {
 
     public int getSentCount() {
         return sentCount;
+    }
+
+    public void setPersistent(boolean persistent) {
+        this.persistent = persistent;
     }
 }
