@@ -38,6 +38,7 @@ import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +150,7 @@ public class ContainerProviderUtils {
         if (options.isEnsembleServer()) {
             CreateContainerMetadata metadata = options.getMetadataMap().get(options.getName());
             if (metadata != null) {
-                byte[] metadataPayload = toBytes(metadata);
+                byte[] metadataPayload = ObjectUtils.toBytes(metadata);
                 if (metadataPayload != null && metadataPayload.length > 0) {
                     sb.append("copy_node_metadata ").append(options.getName()).append(" ").append(new String(Base64Encoder.encode(metadataPayload))).append("\n");
                 }
@@ -347,39 +348,5 @@ public class ContainerProviderUtils {
             }
         }
         return resolver;
-    }
-
-    private static byte[] toBytes(Object object) {
-        byte[] result = null;
-
-        if (object instanceof byte[]) {
-            return (byte[]) object;
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = null;
-
-        try {
-            oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            result = baos.toByteArray();
-        } catch (IOException e) {
-            LOGGER.error("Error while writing blob", e);
-        } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                }
-            }
-
-            if (baos != null) {
-                try {
-                    baos.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-        return result;
     }
 }
