@@ -192,6 +192,13 @@
             </completers>
         </command>
 
+        <command name="fabric/health">
+            <action class="org.fusesource.fabric.commands.Health">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="zooKeeper" ref="zooKeeper"/>
+            </action>
+        </command>
+
         <command name="fabric/profile-create">
             <action class="org.fusesource.fabric.commands.ProfileCreate">
                 <property name="fabricService" ref="fabricService"/>

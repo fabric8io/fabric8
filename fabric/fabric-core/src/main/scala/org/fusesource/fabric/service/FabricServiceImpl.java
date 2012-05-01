@@ -17,6 +17,7 @@
 package org.fusesource.fabric.service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
@@ -34,17 +35,11 @@ import javax.management.ObjectName;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerBasicMetadata;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
+import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
@@ -59,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 public class FabricServiceImpl implements FabricService {
+    public static String requirementsJsonPath = "/fabric/configs/org.fusesource.fabric.requirements.json";
 
     private static final Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
@@ -557,4 +553,27 @@ public class FabricServiceImpl implements FabricService {
         return new ContainerTemplate(container, cacheJmx, userName, password);
     }
 
+    @Override
+    public void setRequirements(FabricRequirements requirements) throws IOException {
+        try {
+            String json = RequirementsJson.toJSON(requirements);
+            zooKeeper.setData(requirementsJsonPath, json);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public FabricRequirements getRequirements() {
+        try {
+            if (zooKeeper.exists(requirementsJsonPath) == null) {
+                 return null;
+            } else {
+                String json = zooKeeper.getStringData(requirementsJsonPath);
+                return RequirementsJson.fromJSON(json);
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
 }

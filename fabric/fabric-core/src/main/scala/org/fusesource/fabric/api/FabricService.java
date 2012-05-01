@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.api;
 
+import java.io.IOException;
 import java.net.URI;
 
 public interface FabricService {
@@ -142,4 +143,14 @@ public interface FabricService {
      * @return
      */
     String getCurrentContainerName();
+
+    /**
+     * Returns the fabric provisioning requirements if there are any
+     */
+    FabricRequirements getRequirements();
+
+    /**
+     * Stores the fabric provisioning requirements
+     */
+    void setRequirements(FabricRequirements requirements) throws IOException;
 }
