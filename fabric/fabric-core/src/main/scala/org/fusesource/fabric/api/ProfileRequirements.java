@@ -33,8 +33,12 @@ public class ProfileRequirements {
     public ProfileRequirements() {
     }
 
-    public ProfileRequirements(String profile, Integer minimumInstances) {
+    public ProfileRequirements(String profile) {
         this.profile = profile;
+    }
+
+    public ProfileRequirements(String profile, Integer minimumInstances) {
+        this(profile);
         this.minimumInstances = minimumInstances;
     }
 
@@ -51,6 +55,16 @@ public class ProfileRequirements {
     public ProfileRequirements(String profile, Integer minimumInstances, Integer maximumInstances, String... dependentProfiles) {
         this(profile, minimumInstances, maximumInstances);
         this.dependentProfiles = new ArrayList<String>(Arrays.asList(dependentProfiles));
+    }
+
+    @Override
+    public String toString() {
+        return "ProfileRequirements[" + profile + " " + getOrBlank(minimumInstances) + ".." + getOrBlank(maximumInstances) + "]";
+
+    }
+
+    private static String getOrBlank(Object value) {
+        return value != null ? value.toString() : "";
     }
 
     public String getProfile() {

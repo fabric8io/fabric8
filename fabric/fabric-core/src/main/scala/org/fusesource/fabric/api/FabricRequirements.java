@@ -41,4 +41,37 @@ public class FabricRequirements {
     public void setProfileRequirements(List<ProfileRequirements> profileRequirements) {
         this.profileRequirements = profileRequirements;
     }
+
+    /**
+     * Returns or creates a new {@link ProfileRequirements} for the given profile id
+     */
+    public ProfileRequirements getOrCreateProfileRequirement(String profile) {
+        ProfileRequirements requirements = findProfileRequirements(profile);
+        if (requirements == null) {
+            requirements = new ProfileRequirements(profile);
+            profileRequirements.add(requirements);
+        }
+        return requirements;
+    }
+
+    public ProfileRequirements findProfileRequirements(String profile) {
+        for (ProfileRequirements profileRequirement : profileRequirements) {
+            if (profile.equals(profileRequirement.getProfile())) {
+                return profileRequirement;
+            }
+        }
+        return null;
+    }
+
+    public void removeProfileRequirements(String profile) {
+        ProfileRequirements requirements = findProfileRequirements(profile);
+        if (requirements != null) {
+            profileRequirements.remove(requirements);
+        }
+    }
+
+    public void addOrUpdateProfileRequirements(ProfileRequirements requirement) {
+        removeProfileRequirements(requirement.getProfile());
+        profileRequirements.add(requirement);
+    }
 }

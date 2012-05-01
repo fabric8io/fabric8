@@ -1,5 +1,0 @@
-Allows you to define a set of requirements for a fabric and then view how close to your requirements the current fabric is
-
-fabric:health
-
-You will need to define the requirements in a file called  org.fusesource.fabric.requirements.json in the /fabric/configs directory of the registry
