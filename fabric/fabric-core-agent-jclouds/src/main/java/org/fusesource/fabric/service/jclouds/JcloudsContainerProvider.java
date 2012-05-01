@@ -255,10 +255,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     Properties addresses = new Properties();
                     if (publicAddresses != null && !publicAddresses.isEmpty()) {
                         publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
-                        addresses.put("publicip", publicAddress);
+                        addresses.put(ZkDefs.PUBLIC_IP, publicAddress);
                     }
-
-                    applyJavaRmiHostName(options, publicAddress);
 
                     options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY, addresses);
                     options.getMetadataMap().put(containerName, jCloudsContainerMetadata);
@@ -280,7 +278,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                                 Rule zookeeperFromTargetRule = Rule.create().source(publicAddress + "/32").destination(nodeMetadata).port(2181);
                                 firewallManager.addRule(zookeeperRule);
                             }
-
                         } else {
                             options.getCreationStateListener().onStateChange(String.format("Skipping firewall configuration. Not supported for provider %s", options.getProviderName()));
                         }
@@ -288,10 +285,9 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
                     } catch (IOException e) {
                         LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
-                    }  catch (Throwable t) {
+                    } catch (Throwable t) {
                         LOGGER.warn("Failed to setup firewall", t);
                     }
-
 
 
                     try {
@@ -303,10 +299,17 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         } else {
                             response = computeService.runScriptOnNode(id, script, templateOptions);
                         }
-                        if (response == null) {
+                        if (response != null && response.getOutput() != null) {
+                            if (response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
+                                jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));
+                            }
+                            String overridenResolverValue = ContainerProviderUtils.parseResolverOverride(response.getOutput());
+                            if (overridenResolverValue != null) {
+                                options.setResolver(overridenResolverValue);
+                                options.getCreationStateListener().onStateChange("Overriding resolver to " + overridenResolverValue + ".");
+                            }
+                        } else {
                             jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
-                        } else if (response.getOutput() != null && response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
-                            jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));
                         }
                     } catch (Throwable t) {
                         jCloudsContainerMetadata.setFailure(t);
@@ -522,6 +525,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     /**
      * Applies node options to the template options. Currently only works for String key value pairs.
+     *
      * @param templateOptions
      * @param options
      */
@@ -532,7 +536,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 String value = entry.getValue();
                 try {
                     Field field = templateOptions.getClass().getDeclaredField(key);
-                    if (field != null)  {
+                    if (field != null) {
                         field.setAccessible(true);
                         field.set(templateOptions, value);
                     }
@@ -548,7 +552,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         if (!Strings.isNullOrEmpty(publicAddress)) {
             if (ZkDefs.PUBLIC_IP.equals(options.getResolver())) {
                 String jvmOptions = Strings.isNullOrEmpty(options.getJvmOpts()) ? "" : options.getJvmOpts().trim() + " ";
-                jvmOptions += "-Djava.rmi.server.hostname="+publicAddress;
+                jvmOptions += "-Djava.rmi.server.hostname=" + publicAddress;
                 options.setJvmOpts(jvmOptions);
             }
         }

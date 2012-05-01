@@ -212,13 +212,20 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
-        String policy = ZkDefs.LOCAL_HOSTNAME;
-        if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
-            policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
-        }
-        return policy;
-    }
+     private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
+         String policy = ZkDefs.LOCAL_HOSTNAME;
+         List<String> validResoverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
+         if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+             policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
+         } else if (System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
+             policy = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
+         }
+         if (policy == null || !validResoverList.contains(policy)) {
+             policy = getGlobalResolutionPolicy(zookeeper);
+         }
+         zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+         return policy;
+     }
 
     /**
      * Returns a pointer to the container IP based on the global IP policy.

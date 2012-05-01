@@ -275,6 +275,7 @@ public class FabricServiceImpl implements FabricService {
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         oos.writeObject(metadata);
                         oos.close();
+
                         //We encode the metadata so that they are more friendly to import/export.
                         ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(baos.toByteArray()));
 
@@ -284,6 +285,7 @@ public class FabricServiceImpl implements FabricService {
                             String value = entry.getValue();
                             ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(),key),value);
                         }
+
                         ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName()),options.getResolver());
                     }
                     metadata.setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
@@ -395,11 +397,35 @@ public class FabricServiceImpl implements FabricService {
 
     public String getZookeeperUrl() {
         String zooKeeperUrl = null;
+        //We are looking directly for at the zookeeper for the url, since container might not even be mananaged.
+        //Also this is required for the integration with the IDE.
         try {
-            Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
-            zooKeeperUrl = (String) config.getProperties().get("zookeeper.url");
+            if (zooKeeper != null && zooKeeper.isConnected()) {
+                Version defaultVersion = getDefaultVersion();
+                if (defaultVersion != null) {
+                    Profile profile = getProfile(defaultVersion.getName(), "default");
+                    if (profile != null) {
+                        Map<String, Map<String, String>> configurations = profile.getConfigurations();
+                        if (configurations != null) {
+                            Map<String, String> zookeeperConfig = configurations.get("org.fusesource.fabric.zookeeper");
+                            if (zookeeperConfig != null) {
+                                zooKeeperUrl = ZooKeeperUtils.getSubstitutedData(zooKeeper, zookeeperConfig.get("zookeeper.url"));
+                            }
+                        }
+                    }
+                }
+            }
         } catch (Exception e) {
             //Ignore it.
+        }
+
+        if (zooKeeperUrl == null) {
+            try {
+                Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
+                zooKeeperUrl = (String) config.getProperties().get("zookeeper.url");
+            } catch (Exception e) {
+                //Ignore it.
+            }
         }
         return zooKeeperUrl;
     }

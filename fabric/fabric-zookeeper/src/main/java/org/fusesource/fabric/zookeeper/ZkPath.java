@@ -116,8 +116,6 @@ public enum ZkPath {
      * Loads a zoo keeper URL content using the provided ZooKeeper client.
      */
     static public byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
-        //For local references we want to ignore the the ip placeholder and just get back the local ip.
-        url =  url.replaceAll("zk:"+System.getProperty("karaf.name")+"/ip","zk:"+System.getProperty("karaf.name")+"/localip");
         URI uri = new URI(url);
         String ref = uri.getFragment();
         String path = uri.getSchemeSpecificPart();

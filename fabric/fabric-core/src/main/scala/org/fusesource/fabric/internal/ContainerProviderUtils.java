@@ -34,6 +34,7 @@ import java.util.Properties;
 
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
@@ -46,6 +47,8 @@ public class ContainerProviderUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerProviderUtils.class);
 
     public static final String FAILURE_PREFIX = "Command Failed:";
+    public static final String RESOLVER_OVERRIDE = "RESOLVER OVERRIDE:";
+
 
     public static final String ADDRESSES_PROPERTY_KEY = "addresses";
     private static final String LINE_APPEND = "sed  's/%s/&%s/' %s > %s";
@@ -62,6 +65,7 @@ public class ContainerProviderUtils {
     private static final String COPY_NODE_METADATA = loadFunction("copy-node-metadata.sh");
     private static final String KARAF_CHECK = loadFunction("karaf-check.sh");
     private static final String REPLACE_IN_FILE = loadFunction("replace-in-file.sh");
+    private static final String CONFIGURE_HOSTNAMES = loadFunction("configure-hostname.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
 
@@ -92,6 +96,7 @@ public class ContainerProviderUtils {
         sb.append(COPY_NODE_METADATA).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append(REPLACE_IN_FILE).append("\n");
+        sb.append(CONFIGURE_HOSTNAMES).append("\n");
         sb.append("run mkdir -p ~/containers/ ").append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
@@ -135,10 +140,6 @@ public class ContainerProviderUtils {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
         }
 
-        if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
-            sb.append("run export JAVA_OPTS=").append(options.getJvmOpts()).append("\n");
-        }
-
         appendToLineInFile(sb, "etc/org.apache.karaf.features.cfg", "featuresBoot=", "fabric-agent,");
         //Add the proxyURI to the list of repositories
         if (options.getProxyUri() != null) {
@@ -153,6 +154,9 @@ public class ContainerProviderUtils {
                     sb.append("copy_node_metadata ").append(options.getName()).append(" ").append(new String(Base64Encoder.encode(metadataPayload))).append("\n");
                 }
             }
+        }
+        if (options instanceof CreateJCloudsContainerOptions) {
+            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
         }
         sb.append("run nohup bin/start").append("\n");
         sb.append("karaf_check `pwd`").append("\n");
@@ -172,9 +176,13 @@ public class ContainerProviderUtils {
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
+        sb.append(CONFIGURE_HOSTNAMES).append("\n");
         sb.append("run cd ~/containers/ ").append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
+        if (options instanceof CreateJCloudsContainerOptions) {
+            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
+        }
         sb.append("run nohup bin/start").append("\n");
         sb.append("karaf_check `pwd`").append("\n");
         return sb.toString();
@@ -321,6 +329,24 @@ public class ContainerProviderUtils {
             }
         }
         return error;
+    }
+
+    public static String parseResolverOverride(String output)  {
+        String resolver = null;
+        if (output != null) {
+            String[] lines = output.split("\n");
+            for (String line : lines) {
+                if (line.contains(RESOLVER_OVERRIDE)) {
+                    try {
+                        resolver = line.substring(line.lastIndexOf(RESOLVER_OVERRIDE) + RESOLVER_OVERRIDE.length());
+                        return resolver.trim();
+                    } catch (Throwable t) {
+                        //noop
+                    }
+                }
+            }
+        }
+        return resolver;
     }
 
     private static byte[] toBytes(Object object) {

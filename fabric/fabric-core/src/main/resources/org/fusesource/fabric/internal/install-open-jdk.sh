@@ -26,28 +26,28 @@ function install_openjdk_deb() {
 }
 
 function install_openjdk_rpm() {
-  yes | yum install java-1.6.0-openjdk java-1.6.0-openjdk-devel
+  sudo yum install -y java-1.6.0-openjdk java-1.6.0-openjdk-devel
   
   # Try to set JAVA_HOME in a number of commonly used locations
   export JAVA_HOME=/usr/lib/jvm/java-1.6.0
   if [ -f /etc/profile ]; then
-    echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
+    sudo echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
   fi
   if [ -f /etc/bashrc ]; then
-    echo export JAVA_HOME=$JAVA_HOME >> /etc/bashrc
+    sudo echo export JAVA_HOME=$JAVA_HOME >> /etc/bashrc
   fi
   if [ -f ~root/.bashrc ]; then
-    echo export JAVA_HOME=$JAVA_HOME >> ~root/.bashrc
+    sudo echo export JAVA_HOME=$JAVA_HOME >> ~root/.bashrc
   fi
   if [ -f /etc/skel/.bashrc ]; then
-    echo export JAVA_HOME=$JAVA_HOME >> /etc/skel/.bashrc
+    sudo echo export JAVA_HOME=$JAVA_HOME >> /etc/skel/.bashrc
   fi
   if [ -f "$DEFAULT_HOME/$NEW_USER" ]; then
-    echo export JAVA_HOME=$JAVA_HOME >> $DEFAULT_HOME/$NEW_USER
+    sudo echo export JAVA_HOME=$JAVA_HOME >> $DEFAULT_HOME/$NEW_USER
   fi
 
-  alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
-  alternatives --set java $JAVA_HOME/bin/java
+  sudo alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
+  sudo alternatives --set java $JAVA_HOME/bin/java
   java -version
 }
 
