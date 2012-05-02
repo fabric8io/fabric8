@@ -117,10 +117,12 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
             if (proxyNodes != null) {
                 for (String entry : registeredProxies.get(type)) {
                     if (zookeeper.isConnected()) {
-                        zookeeper.deleteWithChildren(entry);
+                        if (zookeeper.exists(entry) != null) {
+                            zookeeper.deleteWithChildren(entry);
+                        }
                     }
-                    registeredProxies.get(type).clear();
                 }
+                registeredProxies.get(type).clear();
             }
         } catch (Exception e) {
             LOGGER.error("Failed to remove maven proxy from registry.", e);
