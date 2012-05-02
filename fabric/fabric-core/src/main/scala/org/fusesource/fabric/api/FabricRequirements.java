@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,6 +33,7 @@ public class FabricRequirements {
     public FabricRequirements(List<ProfileRequirements> profileRequirements) {
         this();
         this.profileRequirements = profileRequirements;
+        sortProfilesRequirements();
     }
 
     public List<ProfileRequirements> getProfileRequirements() {
@@ -40,6 +42,7 @@ public class FabricRequirements {
 
     public void setProfileRequirements(List<ProfileRequirements> profileRequirements) {
         this.profileRequirements = profileRequirements;
+        sortProfilesRequirements();
     }
 
     /**
@@ -73,5 +76,10 @@ public class FabricRequirements {
     public void addOrUpdateProfileRequirements(ProfileRequirements requirement) {
         removeProfileRequirements(requirement.getProfile());
         profileRequirements.add(requirement);
+        sortProfilesRequirements();
+    }
+
+    protected void sortProfilesRequirements() {
+        Collections.sort(profileRequirements);
     }
 }

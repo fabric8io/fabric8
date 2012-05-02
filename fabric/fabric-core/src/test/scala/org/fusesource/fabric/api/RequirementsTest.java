@@ -46,16 +46,16 @@ public class RequirementsTest {
         List<ProfileRequirements> profileRequirements = actual.getProfileRequirements();
         assertEquals("size", 2, profileRequirements.size());
 
-        ProfileRequirements profile0 = profileRequirements.get(0);
-        assertEquals("name", "mq", profile0.getProfile());
-        assertEquals("minimumInstances", new Integer(1), profile0.getMinimumInstances());
-        assertEquals("maximumInstances", new Integer(5), profile0.getMaximumInstances());
+        ProfileRequirements profileMq = profileRequirements.get(1);
+        assertEquals("name", "mq", profileMq.getProfile());
+        assertEquals("minimumInstances", new Integer(1), profileMq.getMinimumInstances());
+        assertEquals("maximumInstances", new Integer(5), profileMq.getMaximumInstances());
 
-        ProfileRequirements profile1 = profileRequirements.get(1);
-        assertEquals("name", "example-camel", profile1.getProfile());
-        assertEquals("minimumInstances", new Integer(1), profile1.getMinimumInstances());
-        assertEquals("maximumInstances", null, profile1.getMaximumInstances());
-        assertEquals("profiles", new ArrayList<String>(Arrays.asList("mq")), profile1.getDependentProfiles());
+        ProfileRequirements profileCamel = profileRequirements.get(0);
+        assertEquals("name", "example-camel", profileCamel.getProfile());
+        assertEquals("minimumInstances", new Integer(1), profileCamel.getMinimumInstances());
+        assertEquals("maximumInstances", null, profileCamel.getMaximumInstances());
+        assertEquals("profiles", new ArrayList<String>(Arrays.asList("mq")), profileCamel.getDependentProfiles());
     }
 
     @Test
