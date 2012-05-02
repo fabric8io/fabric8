@@ -26,11 +26,15 @@ public class ConsumerThread extends Thread {
     private static final Logger LOG = LoggerFactory.getLogger(ConsumerThread.class);
 
     int messageCount = 1000;
+    int receiveTimeOut = 3000;
     int received = 0;
+    int transactions = 0;
     String dest;
     JMSService service;
     boolean breakOnNull = false;
     boolean running = false;
+    int sleep;
+    int transactionBatchSize;
 
     public ConsumerThread(JMSService service, String dest) {
         this.dest = dest;
@@ -45,17 +49,26 @@ public class ConsumerThread extends Thread {
         try {
             consumer = service.createConsumer(dest);
             while (running && received < messageCount) {
-                Message msg = consumer.receive(3000);
+                Message msg = consumer.receive(receiveTimeOut);
                 if (msg != null) {
-                    LOG.info("Received " + ((TextMessage)msg).getText());
+                    LOG.info("Received " + (msg instanceof TextMessage ? ((TextMessage)msg).getText() : msg.getJMSMessageID()));
                     received++;
                 } else {
                     if (breakOnNull) {
                         break;
                     }
                 }
+
+                if (transactionBatchSize > 0 && received > 0 && received % transactionBatchSize == 0) {
+                    LOG.info("Committing transaction: " + transactions++);
+                    service.getDefaultSession().commit();
+                }
+
+                if (sleep > 0) {
+                    Thread.sleep(sleep);
+                }
             }
-        } catch (JMSException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (consumer != null) {
@@ -80,5 +93,18 @@ public class ConsumerThread extends Thread {
 
     public void setBreakOnNull(boolean breakOnNull) {
         this.breakOnNull = breakOnNull;
+    }
+
+
+    public void setReceiveTimeOut(int receiveTimeOut) {
+        this.receiveTimeOut = receiveTimeOut;
+    }
+
+    public void setSleep(int sleep) {
+        this.sleep = sleep;
+    }
+
+    public void setTransactionBatchSize(int transactionBatchSize) {
+        this.transactionBatchSize = transactionBatchSize;
     }
 }
