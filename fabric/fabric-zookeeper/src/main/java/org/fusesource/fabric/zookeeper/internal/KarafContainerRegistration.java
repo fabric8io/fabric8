@@ -223,7 +223,9 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
          if (policy == null || !validResoverList.contains(policy)) {
              policy = getGlobalResolutionPolicy(zookeeper);
          }
-         zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+         if (policy != null && zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
+             zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+         }
          return policy;
      }
 
