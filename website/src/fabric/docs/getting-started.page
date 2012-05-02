@@ -242,20 +242,20 @@ sort_info: 10
   .span12
     :&markdown
       Fuse Fabric can be installed in a vanilla container such as Apache Karaf or ServiceMix.
-      Run the following in an Apache Karaf (2.2.x) or ServiecMix (4.x) console:
+      Run the following sequence of commands in an Apache Karaf (2.2.x) or ServiceMix (4.x) console:
 
       Notice: You cannot use Karaf 2.2.5 as it has an issue, that is being fixed in 2.2.6  
 
     pre
-      | karaf@root> shell:source mvn:org.fusesource.fabric/fuse-fabric/#{project_version}/karaf/installer
+      | karaf@root> features:addUrl mvn:org.fusesource.fabric/fuse-fabric/#{project_version}/xml/features
+      | karaf@root> features:install fabric-boot-commands
 
     :&markdown
-      The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
-      create the initial ZooKeeper server and profiles.
+      The above command will install the necessary commands to create a fabric or join an existing fabric
 
-       If you are using a SNAPSHOT version of Fabric, and have not build Fabric locally, then you must add the Maven repositories list,
-       the location of where the Fabric SNAPSHOT artifacts is installed.
-       In the "etc/org.ops4j.pax.url.mvn.cfg" file add the following entries to the "org.ops4j.pax.url.mvn.repositories" key:
+      If you are using a SNAPSHOT version of Fabric, and have not built Fabric locally, then you must add the Maven repositories list,
+      the location of where the Fabric SNAPSHOT artifacts is installed.
+      In the "etc/org.ops4j.pax.url.mvn.cfg" file add the following entries to the "org.ops4j.pax.url.mvn.repositories" key:
 
     pre
       | http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots, \
