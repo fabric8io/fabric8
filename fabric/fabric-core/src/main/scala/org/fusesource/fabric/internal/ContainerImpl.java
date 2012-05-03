@@ -167,6 +167,9 @@ public class ContainerImpl implements Container {
     public Version getVersion() {
         try {
             String version = getZkData(ZkPath.CONFIG_CONTAINER);
+            if (version == null) {
+                return null;
+            }
             return new VersionImpl(version, service);
         } catch (Exception e) {
             throw new RuntimeException(e);
