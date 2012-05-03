@@ -7,10 +7,5 @@
         "profile":"example-camel",
         "minimumInstances":1,
         "dependentProfiles":["mq"]
-    },
-    {
-        "profile":"example-mq",
-        "minimumInstances":1,
-        "dependentProfiles":["mq"]
     }
 ]}
