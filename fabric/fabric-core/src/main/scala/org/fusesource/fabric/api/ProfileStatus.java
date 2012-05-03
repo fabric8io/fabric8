@@ -60,6 +60,10 @@ public class ProfileStatus {
         return requirements.getMinimumInstances();
     }
 
+    public double getHealth() {
+        return requirements.getHealth(getCount());
+    }
+
     public double getHealth(int instances) {
         return requirements.getHealth(instances);
     }
