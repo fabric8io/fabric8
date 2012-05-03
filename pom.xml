@@ -91,7 +91,7 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>052</perfectus-build>
+        <perfectus-build>054</perfectus-build>
 
         <activemq-version>5.5.1.fuse-beta-7-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
