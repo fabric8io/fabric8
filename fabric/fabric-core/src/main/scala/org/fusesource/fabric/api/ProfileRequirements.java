@@ -24,7 +24,7 @@ import java.util.List;
  * Represents the requirements to successfully provision a profile such as the minimum instances required
  * and which other profiles should be profiled before hand.
  */
-public class ProfileRequirements {
+public class ProfileRequirements implements Comparable<ProfileRequirements> {
     private String profile;
     private Integer minimumInstances;
     private Integer maximumInstances;
@@ -55,6 +55,28 @@ public class ProfileRequirements {
     public ProfileRequirements(String profile, Integer minimumInstances, Integer maximumInstances, String... dependentProfiles) {
         this(profile, minimumInstances, maximumInstances);
         this.dependentProfiles = new ArrayList<String>(Arrays.asList(dependentProfiles));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProfileRequirements that = (ProfileRequirements) o;
+
+        if (!profile.equals(that.profile)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int compareTo(ProfileRequirements o) {
+        return this.profile.compareTo(o.profile);
+    }
+
+    @Override
+    public int hashCode() {
+        return profile.hashCode();
     }
 
     @Override

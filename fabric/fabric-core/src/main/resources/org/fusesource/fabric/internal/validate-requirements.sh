@@ -1,4 +1,4 @@
-function validate_requirements() {
+function validate-requirements() {
   if ! which curl &> /dev/null; then
     echo "Command Failed:Curl is not installed.";
   fi

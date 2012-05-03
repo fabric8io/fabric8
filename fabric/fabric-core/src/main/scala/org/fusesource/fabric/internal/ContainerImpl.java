@@ -167,6 +167,9 @@ public class ContainerImpl implements Container {
     public Version getVersion() {
         try {
             String version = getZkData(ZkPath.CONFIG_CONTAINER);
+            if (version == null) {
+                return null;
+            }
             return new VersionImpl(version, service);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -581,5 +584,10 @@ public class ContainerImpl implements Container {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public  boolean isAliveAndOK() {
+        String status = getProvisionStatus();
+        return isAlive() && (status == null || status.length() == 0 || status.toLowerCase().startsWith("success"));
     }
 }

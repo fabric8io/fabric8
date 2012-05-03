@@ -32,6 +32,8 @@ public interface JMSService {
 
     public TextMessage createTextMessage(String text) throws JMSException;
 
+    public BytesMessage createBytesMessage(byte[] payload) throws JMSException;
+
     public void start() throws JMSException;
 
     public void stop();

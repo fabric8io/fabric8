@@ -1,4 +1,4 @@
-function install_curl() {
+function install-curl() {
   echo "Checking if curl is present."
   if which curl &> /dev/null; then
     sudo echo "Curl is already installed."

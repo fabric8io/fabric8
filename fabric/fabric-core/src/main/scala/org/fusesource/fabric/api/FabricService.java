@@ -145,7 +145,8 @@ public interface FabricService {
     String getCurrentContainerName();
 
     /**
-     * Returns the fabric provisioning requirements if there are any
+     * Returns the fabric provisioning requirements if there are any defined
+     * or empty requirements if none are defined.
      */
     FabricRequirements getRequirements();
 
@@ -153,4 +154,9 @@ public interface FabricService {
      * Stores the fabric provisioning requirements
      */
     void setRequirements(FabricRequirements requirements) throws IOException;
+
+    /**
+     * Get the profile statuses of the fabric in terms of the current number of instances and their max/min requirements
+     */
+    FabricStatus getFabricStatus();
 }

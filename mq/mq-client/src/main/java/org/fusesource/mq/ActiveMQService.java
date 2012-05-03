@@ -18,6 +18,7 @@ package org.fusesource.mq;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,16 +31,20 @@ public class ActiveMQService implements JMSService {
     Connection defaultConnection;
     Session defaultSession;
     boolean transacted = false;
-    int ackMode = Session.AUTO_ACKNOWLEDGE;
     int maxAttempts = 1;
 
     boolean started = false;  //TODO use atomic boolean
 
     private ActiveMQConnectionFactory connectionFactory;
+    private String clientId;
 
+
+    public ActiveMQService(String user, String password, String brokerUrl) {
+        connectionFactory = new ActiveMQConnectionFactory(user, password, brokerUrl);
+    }
 
     public ActiveMQService(String brokerUrl) {
-        connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
+        this(null, null, brokerUrl);
     }
 
     public ConnectionFactory getConnectionFactory() {
@@ -59,11 +64,21 @@ public class ActiveMQService implements JMSService {
     }
 
     public MessageConsumer createConsumer(String destination) throws JMSException {
-        return defaultSession.createConsumer(ActiveMQDestination.createDestination(destination, ActiveMQDestination.QUEUE_TYPE));
+        if (clientId != null) {
+            return defaultSession.createDurableSubscriber((ActiveMQTopic)ActiveMQDestination.createDestination(destination, ActiveMQDestination.TOPIC_TYPE), "fuseSub");
+        } else {
+            return defaultSession.createConsumer(ActiveMQDestination.createDestination(destination, ActiveMQDestination.QUEUE_TYPE));
+        }
     }
 
     public TextMessage createTextMessage(String text) throws JMSException {
         return defaultSession.createTextMessage(text);
+    }
+
+    public BytesMessage createBytesMessage(byte[] payload) throws JMSException {
+        BytesMessage message = defaultSession.createBytesMessage();
+        message.writeBytes(payload);
+        return message;
     }
 
     public void start() throws JMSException {
@@ -72,8 +87,12 @@ public class ActiveMQService implements JMSService {
         while (!started && attempts++ < maxAttempts) {
             try {
                 defaultConnection = connectionFactory.createConnection();
+                if (clientId != null) {
+                    defaultConnection.setClientID(clientId);
+                }
                 defaultConnection.start();
-                defaultSession = defaultConnection.createSession(transacted, ackMode);
+                defaultSession = defaultConnection.createSession(transacted,
+                        transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
                 started = true;
             } catch (JMSException e) {
                 lastException = e;
@@ -107,5 +126,13 @@ public class ActiveMQService implements JMSService {
 
     public void setMaxAttempts(int maxAttempts) {
         this.maxAttempts = maxAttempts;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public void setTransacted(boolean transacted) {
+        this.transacted = transacted;
     }
 }
