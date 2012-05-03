@@ -17,7 +17,6 @@
 
 package org.fusesource.mq.fabric
 
-import org.osgi.framework.BundleContext
 import org.osgi.service.cm.ConfigurationException
 import org.osgi.service.cm.ManagedServiceFactory
 import org.slf4j.LoggerFactory
@@ -39,6 +38,8 @@ import org.apache.activemq.util.IntrospectionSupport
 import org.apache.activemq.broker.{TransportConnector, BrokerService}
 import scala.collection.JavaConversions._
 import java.lang.{ThreadLocal, Thread}
+import org.apache.activemq.ActiveMQConnectionFactory
+import org.osgi.framework.{ServiceRegistration, BundleContext}
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -171,6 +172,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val pool = Option(properties.getProperty("standby.pool")).getOrElse("default")
     val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
     val standalone:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("standalone")).getOrElse("false"))
+    val registerService:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("registerService")).getOrElse("true"))
 
     val started = new AtomicBoolean
 
@@ -197,6 +199,9 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     var start_thread:Thread = _
     @volatile
     var server:(ResourceXmlApplicationContext, BrokerService) = _
+
+    var cfServiceRegistration:ServiceRegistration = null
+
 
     def ensure_broker_name_is_set = {
       if (!properties.containsKey("broker-name")) {
@@ -259,6 +264,17 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       }
     }
 
+    def osgiRegister(broker: BrokerService): Unit = {
+      val connectionFactory = new ActiveMQConnectionFactory("vm://" + broker.getBrokerName + "?create=false")
+      cfServiceRegistration = bundleContext.registerService(classOf[javax.jms.ConnectionFactory].getName, connectionFactory, HashMap("name" -> broker.getBrokerName))
+      debug("registerService of type " + classOf[javax.jms.ConnectionFactory].getName  + " as: " + connectionFactory + " with name: " + broker.getBrokerName + "; " + cfServiceRegistration)
+    }
+
+    def osgiUnregister(broker: BrokerService): Unit = {
+      if (cfServiceRegistration != null) cfServiceRegistration.unregister()
+      debug("unregister connection factory for: " + broker.getBrokerName + "; " + cfServiceRegistration)
+    }
+
     def start = {
       // Startup async so that we do not block the ZK event thread.
       def trystartup:Unit = {
@@ -298,6 +314,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
                 }
               })
 
+              if (registerService) osgiRegister(server._2)
             } catch {
               case e:Throwable =>
                 info("Broker %s failed to start.  Will try again in 10 seconds", name)
@@ -333,6 +350,9 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
           try {
             s._2.stop()
             s._2.waitUntilStopped()
+            if (registerService) {
+              osgiUnregister(s._2)
+            }
           } catch {
             case e:Throwable => e.printStackTrace()
           }
