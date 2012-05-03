@@ -45,7 +45,7 @@ public class Status extends FabricCommand {
             int instances = profile.getCount();
 
             Integer minimum = profile.getMinimumInstances();
-            Integer maximum = profile.getMinimumInstances();
+            Integer maximum = profile.getMaximumInstances();
             double health = profile.getHealth(instances);
 
             out.println(String.format("%-40s %-14s %s", id, instances, percentText(health)));
