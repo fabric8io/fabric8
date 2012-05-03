@@ -208,10 +208,11 @@
           <useSystemClassLoader>true</useSystemClassLoader>
        
           <excludes>
-           <!-- Excluded because of failures JIRA ESB-1692 -->
+           <!-- Excluded because of failures JIRA ESB-1692
            <exclude>**/FabSamplesWithCamelFeaturesTest.*</exclude>
            <exclude>**/FabSamplesWithCamelPreinstalledTest.*</exclude>
            <exclude>**/FabSamplesWithoutCamelPreinstalledTest.*</exclude>
+           -->
           </excludes>
         </configuration>
       </plugin>

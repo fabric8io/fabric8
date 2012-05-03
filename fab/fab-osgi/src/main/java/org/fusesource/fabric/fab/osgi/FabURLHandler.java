@@ -32,7 +32,6 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
     private static String SYNTAX = "fab: fab-jar-uri";
     private static final Logger logger = LoggerFactory.getLogger(FabURLHandler.class);
 
-	private URL fabJarURL;
     private ServiceProvider serviceProvider;
 
     private FabResolverFactory fabResolverFactory;
@@ -49,12 +48,11 @@ public class FabURLHandler extends AbstractURLStreamHandlerService {
 		if (url.getPath() == null || url.getPath().trim().length() == 0) {
 			throw new MalformedURLException("Path can not be null or empty. Syntax: " + SYNTAX );
 		}
-		fabJarURL = new URL(url.getPath());
+		URL fabJarURL = new URL(url.getPath());
 
 		logger.debug("FAB jar URL is: [" + fabJarURL + "]");
 
         return new FabConnection(fabJarURL, fabResolverFactory, serviceProvider);
-        //return new FabConnection(fabJarURL, config, getBundleContext());
 	}
 
     public void setFabResolverFactory(FabResolverFactory fabResolverFactory) {

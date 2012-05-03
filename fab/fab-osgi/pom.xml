@@ -45,7 +45,6 @@
         !aQute.lib.osgi.*,
         <!-- don't import additional packages required by other class in maven-bundle-plugin -->
         !org.apache.felix.bundlerepository.*,
-        !org.apache.felix.service.command,
         !org.kxml2.*,
         !org.xmlpull.*,
         org.osgi.service.event;resolution:=optional,

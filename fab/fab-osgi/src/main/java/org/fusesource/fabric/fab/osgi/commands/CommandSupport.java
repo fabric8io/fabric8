@@ -20,6 +20,7 @@ package org.fusesource.fabric.fab.osgi.commands;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.FabURLHandler;
 import org.fusesource.fabric.fab.osgi.internal.BundleFabFacade;
@@ -43,6 +44,7 @@ import java.util.regex.Pattern;
 
 public abstract class CommandSupport extends OsgiCommandSupport {
     private PackageAdmin admin;
+    private FabResolverFactory factory;
 
     protected PackageAdmin getPackageAdmin() {
         if (admin == null) {
@@ -55,6 +57,19 @@ public abstract class CommandSupport extends OsgiCommandSupport {
             admin = getService(PackageAdmin.class, ref);
         }
         return admin;
+    }
+
+    protected FabResolverFactory getFabResolverFactory() {
+        if (factory == null) {
+            ServiceReference ref = getBundleContext().getServiceReference(FabResolverFactory.class.getName());
+            if (ref == null) {
+                System.out.println("FabResolverFactory service is unavailable.");
+                return null;
+            }
+            // using the getService call ensures that the reference will be released at the end
+            factory = getService(FabResolverFactory.class, ref);
+        }
+        return factory;
     }
 
     protected void println() {
@@ -98,17 +113,9 @@ public abstract class CommandSupport extends OsgiCommandSupport {
     protected FabClassPathResolver createResolver(String arg) throws RepositoryException, IOException, XmlPullParserException, BundleException, InvalidSyntaxException {
         FabClassPathResolver resolver = null;
         if (arg.matches("\\d+")) {
-            Long id = null;
-            try {
-                id = Long.parseLong(arg);
-            } catch (NumberFormatException e) {
-                System.err.println("Failed to parse bundle ID: " + arg + ". Reason: " + e);
-            }
-            Bundle bundle = bundleContext.getBundle(id);
+            Bundle bundle = getBundle(arg);
             if (bundle != null) {
                 resolver = createFabResolver(bundle);
-            } else {
-                System.err.println("Bundle ID " + id + " is invalid");
             }
         } else {
             FabURLHandler handler = findURLHandler();
@@ -128,6 +135,40 @@ public abstract class CommandSupport extends OsgiCommandSupport {
             }
         }
         return resolver;
+    }
+
+    /**
+     * Get the bundle by id, printing a nice error message if the bundle id is invalid
+     */
+    protected Bundle getBundle(String id) {
+        try {
+            return getBundle(Long.parseLong(id));
+        } catch (NumberFormatException e) {
+            System.err.println("Failed to parse bundle ID: " + id + ". Reason: " + e);
+            return null;
+        }
+    }
+
+    /**
+     * Get the bundle by id, printing a nice error message if the bundle id is invalid
+     */
+    protected Bundle getBundle(long id) {
+        Bundle bundle = bundleContext.getBundle(id);
+        if (bundle == null) {
+            System.err.println("Bundle ID " + id + " is invalid");
+        }
+        return bundle;
+    }
+
+    protected FabBundleInfo getFabBundleInfo(String url) {
+        try {
+            FabBundleInfo info = getFabResolverFactory().getResolver(new URL(url)).getInfo();
+            info.getInputStream();
+            return info;
+        } catch (Exception e) {
+            System.err.println("Unable to retrieve FAB info for " + url + ". Reason: " + e);
+        }
+        return null;
     }
 
     public static class Table {
