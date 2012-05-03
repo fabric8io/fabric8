@@ -1,4 +1,4 @@
-function copy_node_metadata() {
+function copy-node-metadata() {
   echo "Copying metadata for container: $1";
   TARGET_PATH="./fabric/import/fabric/registry/containers/config/$1/"
   mkdir -p $TARGET_PATH

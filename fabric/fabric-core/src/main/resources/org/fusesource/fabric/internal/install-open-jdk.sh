@@ -1,4 +1,4 @@
-function install_openjdk_deb() {
+function install-openjdk-deb() {
   sudo apt-get update
   sudo apt-get -y install openjdk-6-jdk
   
@@ -25,7 +25,7 @@ function install_openjdk_deb() {
   java -version
 }
 
-function install_openjdk_rpm() {
+function install-openjdk-rpm() {
   sudo yum install -y java-1.6.0-openjdk java-1.6.0-openjdk-devel
   
   # Try to set JAVA_HOME in a number of commonly used locations
@@ -51,7 +51,7 @@ function install_openjdk_rpm() {
   java -version
 }
 
-function install_openjdk() {
+function install-openjdk() {
     echo "Checking if java is present."
     ARCH=`uname -m`
     JAVA_VERSION=`java -version 2>&1`

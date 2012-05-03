@@ -107,10 +107,10 @@ public class ContainerProviderUtils {
             //This is not really needed.
             //Its just here as a silly workaround for some cases which fail to get the first thing installed.
             sb.append("update-pkgs").append("\n");
-            sb.append("install_openjdk").append("\n");
-            sb.append("install_curl").append("\n");
+            sb.append("install-openjdk").append("\n");
+            sb.append("install-curl").append("\n");
         }
-        sb.append("validate_requirements").append("\n");
+        sb.append("validate-requirements").append("\n");
         extractTargzIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         List<String> lines = new ArrayList<String>();
@@ -152,15 +152,15 @@ public class ContainerProviderUtils {
             if (metadata != null) {
                 byte[] metadataPayload = ObjectUtils.toBytes(metadata);
                 if (metadataPayload != null && metadataPayload.length > 0) {
-                    sb.append("copy_node_metadata ").append(options.getName()).append(" ").append(new String(Base64Encoder.encode(metadataPayload))).append("\n");
+                    sb.append("copy-node-metadata ").append(options.getName()).append(" ").append(new String(Base64Encoder.encode(metadataPayload))).append("\n");
                 }
             }
         }
         if (options instanceof CreateJCloudsContainerOptions) {
-            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
+            sb.append("configure-hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
         }
         sb.append("run nohup bin/start").append("\n");
-        sb.append("karaf_check `pwd`").append("\n");
+        sb.append("karaf-check `pwd`").append("\n");
         return sb.toString();
     }
 
@@ -182,10 +182,10 @@ public class ContainerProviderUtils {
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         if (options instanceof CreateJCloudsContainerOptions) {
-            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
+            sb.append("configure-hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
         }
         sb.append("run nohup bin/start").append("\n");
-        sb.append("karaf_check `pwd`").append("\n");
+        sb.append("karaf-check `pwd`").append("\n");
         return sb.toString();
     }
 
@@ -269,7 +269,7 @@ public class ContainerProviderUtils {
                     .append(version).append(" ")
                     .append("tar.gz").append(" ; fi \n");
         }
-        sb.append("exit_if_not_exists ").append(file).append("\n");
+        sb.append("exit-if-not-exists ").append(file).append("\n");
         sb.append("run tar -xpzf ").append(file).append("\n");
     }
 

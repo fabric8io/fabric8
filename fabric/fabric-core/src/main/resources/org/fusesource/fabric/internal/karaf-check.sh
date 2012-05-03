@@ -1,14 +1,24 @@
-function karaf_check() {
+function karaf-check() {
    KARAF_HOME=$1
    INSTANCES_FILE=$KARAF_HOME/instances/instance.properties
-   for i in `seq 1 60`;
+   for i in `seq 1 30`;
      do
        if [ ! -f $INSTANCES_FILE ]; then
-         sleep 2
+         sleep 1
+       else
+         break
        fi
      done
    if [ -f $INSTANCES_FILE ]; then
-     PID=`cat $INSTANCES_FILE | grep "item.0.pid" | awk -F "=" '{print $2}'`
+      for j in `seq 1 10`;
+         do
+           PID=`cat $INSTANCES_FILE | grep "item.0.pid" | awk -F "=" '{print $2}'`
+           if [ "$PID" = "" ]; then
+             sleep 1
+           else
+            break
+           fi
+     done
      if ps -p $PID > /dev/null; then
        echo "Fabric is started successfully"
      else
