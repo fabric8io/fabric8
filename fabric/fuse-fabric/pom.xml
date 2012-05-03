@@ -386,44 +386,9 @@
                                     <classifier>features</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/distro/etc/increase-logging.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>enable-logging</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/install-fabric.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>installer</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/add-scala-tools-repo.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>add-scala-tools-repo</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/dosgi.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>dosgi</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/profiles.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>profiles</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/loadbalancing.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>loadbalancing</classifier>
-                                  </artifact>
-                                  <artifact>
                                     <file>target/classes/distro/etc/activemq.xml</file>
                                     <type>xml</type>
                                     <classifier>activemq</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/wait-for-service.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>wait-for-service</classifier>
                                   </artifact>
                             </artifacts>
                         </configuration>
