@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.boot.commands.support;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,4 +141,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return false;
     }
 
+    protected String percentText(double value) {
+        return NumberFormat.getPercentInstance().format(value);
+    }
 }

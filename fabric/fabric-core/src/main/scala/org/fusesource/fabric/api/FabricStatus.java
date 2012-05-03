@@ -31,9 +31,6 @@ public class FabricStatus {
     public FabricStatus(FabricService service) {
         this.service = service;
         requirements = service.getRequirements();
-        if (requirements == null) {
-            requirements = new FabricRequirements();
-        }
         List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
         for (ProfileRequirements profileRequirement : profileRequirements) {
             String key = profileRequirement.getProfile();

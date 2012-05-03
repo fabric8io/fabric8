@@ -145,7 +145,8 @@ public interface FabricService {
     String getCurrentContainerName();
 
     /**
-     * Returns the fabric provisioning requirements if there are any
+     * Returns the fabric provisioning requirements if there are any defined
+     * or empty requirements if none are defined.
      */
     FabricRequirements getRequirements();
 

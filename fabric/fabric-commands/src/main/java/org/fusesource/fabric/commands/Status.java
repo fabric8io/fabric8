@@ -18,19 +18,27 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.commands.support.RequirementsListSupport;
 
 import java.io.PrintStream;
 import java.util.*;
 
 @Command(name = "status", scope = "fabric", description = "Displays the current status of the fabric by comparing the requirements to the actual instance counts", detailedDescription = "classpath:status.txt")
-public class Status extends RequirementsListSupport {
+public class Status extends FabricCommand {
 
     @Override
-    protected void printRequirements(PrintStream out, FabricRequirements requirements) {
+    protected Object doExecute() throws Exception {
+        checkFabricAvailable();
+        PrintStream out = System.out;
+        FabricStatus status = getFabricService().getFabricStatus();
+        printStatus(out, status);
+        return null;
+    }
+
+    protected void printStatus(PrintStream out, FabricStatus status) {
         out.println(String.format("%-40s %-14s %s", "[profile]", "[instances]", "[health]"));
 
-        FabricStatus status = getFabricService().getFabricStatus();
         Collection<ProfileStatus> statuses = status.getProfileStatusMap().values();
         for (ProfileStatus profile : statuses) {
             String id = profile.getProfile();

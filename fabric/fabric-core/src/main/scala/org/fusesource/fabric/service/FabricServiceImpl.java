@@ -572,7 +572,7 @@ public class FabricServiceImpl implements FabricService {
     public void setRequirements(FabricRequirements requirements) throws IOException {
         try {
             String json = RequirementsJson.toJSON(requirements);
-            zooKeeper.setData(requirementsJsonPath, json);
+            zooKeeper.createOrSetWithParents(requirementsJsonPath, json, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -581,12 +581,15 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public FabricRequirements getRequirements() {
         try {
-            if (zooKeeper.exists(requirementsJsonPath) == null) {
-                 return null;
-            } else {
+            FabricRequirements answer = null;
+            if (zooKeeper.exists(requirementsJsonPath) != null) {
                 String json = zooKeeper.getStringData(requirementsJsonPath);
-                return RequirementsJson.fromJSON(json);
+                answer = RequirementsJson.fromJSON(json);
             }
+            if (answer == null) {
+                answer = new FabricRequirements();
+            }
+            return answer;
         } catch (Exception e) {
             throw new FabricException(e);
         }
