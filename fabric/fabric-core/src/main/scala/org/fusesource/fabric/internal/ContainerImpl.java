@@ -582,4 +582,9 @@ public class ContainerImpl implements Container {
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }
+
+    public  boolean isAliveAndOK() {
+        String status = getProvisionStatus();
+        return isAlive() && (status == null || status.length() == 0 || status.toLowerCase().startsWith("success"));
+    }
 }

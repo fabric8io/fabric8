@@ -118,4 +118,9 @@ public interface Container {
 
     CreateContainerMetadata<?> getMetadata();
 
+
+    /**
+     * Returns true if the container is alive and provisioning is successful (if required)
+     */
+    boolean isAliveAndOK();
 }

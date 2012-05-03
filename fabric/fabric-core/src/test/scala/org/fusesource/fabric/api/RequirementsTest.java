@@ -67,4 +67,12 @@ public class RequirementsTest {
         assertEquals(1.0, requirements.getHealth(2));
         assertEquals(1.5, requirements.getHealth(3));
     }
+
+    @Test
+    public void healthNumbersWithNoNumbers() throws Exception {
+        ProfileRequirements requirements = new ProfileRequirements("mq");
+
+        assertEquals(0.0, requirements.getHealth(0));
+        assertEquals(1.0, requirements.getHealth(1));
+    }
 }

@@ -45,27 +45,9 @@ public abstract class RequirementsListSupport extends FabricCommand {
 
     protected abstract void printRequirements(PrintStream out, FabricRequirements requirements);
 
-    protected int getOrZero(Integer counter) {
-        return counter != null ? counter.intValue() : 0;
-    }
 
     protected String percentText(double value) {
         return NumberFormat.getPercentInstance().format(value);
     }
 
-    public Map<String,Integer> getProfileInstances() {
-        Map<String,Integer> answer = new HashMap<String, Integer>();
-        Container[] containers = getFabricService().getContainers();
-        for (Container container : containers) {
-            if (container.isAlive()) {
-                Profile[] profiles = container.getProfiles();
-                for (Profile profile : profiles) {
-                    String key = profile.getId();
-                    int count = getOrZero(answer.get(key));
-                    answer.put(key, ++count);
-                }
-            }
-        }
-        return answer;
-    }
 }

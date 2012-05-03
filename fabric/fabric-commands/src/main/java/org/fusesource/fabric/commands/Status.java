@@ -29,16 +29,15 @@ public class Status extends RequirementsListSupport {
     @Override
     protected void printRequirements(PrintStream out, FabricRequirements requirements) {
         out.println(String.format("%-40s %-14s %s", "[profile]", "[instances]", "[health]"));
-        List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
 
-        Map<String, Integer> counts = getProfileInstances();
-
-        for (ProfileRequirements profile : profileRequirements) {
+        FabricStatus status = getFabricService().getFabricStatus();
+        Collection<ProfileStatus> statuses = status.getProfileStatusMap().values();
+        for (ProfileStatus profile : statuses) {
             String id = profile.getProfile();
-            Integer counter = counts.get(id);
-            int instances = getOrZero(counter);
+            int instances = profile.getCount();
 
-            Integer minimumInstances = profile.getMinimumInstances();
+            Integer minimum = profile.getMinimumInstances();
+            Integer maximum = profile.getMinimumInstances();
             double health = profile.getHealth(instances);
 
             out.println(String.format("%-40s %-14s %s", id, instances, percentText(health)));
