@@ -17,17 +17,6 @@
 -->
 <component>
     <fileSets>
-        <!-- Copy over karaf demo to examples folder -->
-        <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}/demos</directory>
-            <outputDirectory>/examples/karaf-demos</outputDirectory>
-            <lineEnding>unix</lineEnding>
-            <includes>
-              <include>pom.xml</include>
-              <include>**/web/**</include>
-            </includes>
-        </fileSet>
-
         <!-- Copy over the examples' files (except POM files and READMEs) -->
         <fileSet>
             <directory>../../examples</directory>
@@ -47,6 +36,9 @@
         <fileSet>
             <directory>../../examples</directory>
             <outputDirectory>/examples</outputDirectory>
+            <excludes>
+                <exclude>pom.xml</exclude>
+            </excludes>
             <includes>
                 <include>README.md</include>
                 <include>**/pom.xml</include>
