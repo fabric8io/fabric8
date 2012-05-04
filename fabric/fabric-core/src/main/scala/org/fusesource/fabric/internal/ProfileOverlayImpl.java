@@ -102,6 +102,11 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public void setFabs(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
     public void setFeatures(List<String> values) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }

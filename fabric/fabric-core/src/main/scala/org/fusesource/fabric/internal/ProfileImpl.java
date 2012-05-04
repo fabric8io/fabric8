@@ -107,6 +107,11 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
+    public void setFabs(List<String> values) {
+        setContainerConfigList(this, values, ConfigListType.FABS);
+    }
+
+    @Override
     public void setFeatures(List<String> values) {
         setContainerConfigList(this, values, ConfigListType.FEATURES);
     }

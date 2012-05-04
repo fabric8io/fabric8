@@ -88,6 +88,8 @@ public interface Profile extends Comparable<Profile> {
 
     void setBundles(List<String> values);
 
+    void setFabs(List<String> values);
+
     void setFeatures(List<String> values);
 
     void setRepositories(List<String> values);
