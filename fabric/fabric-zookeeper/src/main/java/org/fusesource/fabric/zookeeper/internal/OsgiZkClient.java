@@ -148,8 +148,8 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         }
 
         public void end() {
-            _running.set(false);
             _events.add(false);
+            _running.set(false);
         }
 
         public void addEvent(OsgiZkClient.State oldState, OsgiZkClient.State newState) {
@@ -208,34 +208,38 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     }
 
     public void init() throws Exception {
-        _stateChangeDispatcher.setDaemon(true);
-        _stateChangeDispatcher.start();
+        // Grab the lock to make sure that the registration of the ManagedService
+        // won't be updated immediately but that the initial update will happen first
+        synchronized (_lock) {
+            _stateChangeDispatcher.setDaemon(true);
+            _stateChangeDispatcher.start();
 
-        bundleContext.addServiceListener(new ServiceListener() {
-            @Override
-            public void serviceChanged(ServiceEvent event) {
-                if (_state == State.CONNECTED && event.getType() == ServiceEvent.REGISTERED) {
-                    LifecycleListener listener = (LifecycleListener) bundleContext.getService(event.getServiceReference());
-                    try {
-                        listener.onConnected();
-                    } catch (Throwable e) {
-                        log.warn("Exception while executing listener (ignored)", e);
-                    } finally {
-                        bundleContext.ungetService(event.getServiceReference());
+            bundleContext.addServiceListener(new ServiceListener() {
+                @Override
+                public void serviceChanged(ServiceEvent event) {
+                    if (_state == State.CONNECTED && event.getType() == ServiceEvent.REGISTERED) {
+                        LifecycleListener listener = (LifecycleListener) bundleContext.getService(event.getServiceReference());
+                        try {
+                            listener.onConnected();
+                        } catch (Throwable e) {
+                            log.warn("Exception while executing listener (ignored)", e);
+                        } finally {
+                            bundleContext.ungetService(event.getServiceReference());
+                        }
                     }
                 }
-            }
-        }, "(" + Constants.OBJECTCLASS + "=" + LifecycleListener.class.getName() + ")");
+            }, "(" + Constants.OBJECTCLASS + "=" + LifecycleListener.class.getName() + ")");
 
-        Hashtable ht = new Hashtable();
-        zkClientRegistration = bundleContext.registerService(
-                new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() },
-                this, ht);
-        ht = new Hashtable();
-        ht.put(Constants.SERVICE_PID, PID);
-        managedServiceRegistration = bundleContext.registerService(ManagedService.class.getName(), this, ht);
+            Hashtable ht = new Hashtable();
+            zkClientRegistration = bundleContext.registerService(
+                    new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() },
+                    this, ht);
+            ht = new Hashtable();
+            ht.put(Constants.SERVICE_PID, PID);
+            managedServiceRegistration = bundleContext.registerService(ManagedService.class.getName(), this, ht);
 
-        updated(getDefaultProperties());
+            updated(getDefaultProperties());
+        }
     }
     
     private Dictionary getDefaultProperties() {
@@ -256,6 +260,11 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         }
         if (_stateChangeDispatcher != null) {
             _stateChangeDispatcher.end();
+            try {
+                _stateChangeDispatcher.join(1000);
+            } catch(Exception e) {
+                log.debug("ignored exception", e);
+            }
         }
         synchronized(_lock) {
             if (_zk != null) {

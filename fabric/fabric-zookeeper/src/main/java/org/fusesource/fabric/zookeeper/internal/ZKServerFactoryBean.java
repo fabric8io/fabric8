@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
@@ -46,6 +47,7 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
     private BundleContext bundleContext;
     private Map<String, Object> servers = new HashMap<String, Object>();
     private Map<String, ServiceRegistration> services = new HashMap<String, ServiceRegistration>();
+    private final AtomicBoolean destroyed = new AtomicBoolean();
 
     public BundleContext getBundleContext() {
         return bundleContext;
@@ -67,6 +69,29 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
     }
 
     public synchronized void updated(String pid, Dictionary properties) throws ConfigurationException {
+        if (destroyed.get()) {
+            return;
+        }
+        doCreate(pid, properties);
+    }
+
+    public synchronized void deleted(String pid) {
+        if (destroyed.get()) {
+            return;
+        }
+        doDelete(pid);
+    }
+
+    public synchronized void destroy() throws Exception {
+        if (destroyed.compareAndSet(false, true)) {
+            while (!servers.isEmpty()) {
+                String pid = servers.keySet().iterator().next();
+                doDelete(pid);
+            }
+        }
+    }
+
+    protected void doCreate(String pid, Dictionary properties) throws ConfigurationException {
         try {
             deleted(pid);
             Properties props = new Properties();
@@ -165,7 +190,7 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
         }
     }
 
-    public synchronized void deleted(String pid) {
+    protected void doDelete(String pid) {
         debug("Shutting down ZK server %s", pid);
         Object obj = servers.remove(pid);
         ServiceRegistration reg = services.remove(pid);
@@ -188,13 +213,6 @@ public class ZKServerFactoryBean implements ManagedServiceFactory {
                 debug("Caught and am ignoring exception %s while unregistering %s", t, pid);
                 // ignore
             }
-        }
-    }
-
-    public void destroy() throws Exception {
-        while (!servers.isEmpty()) {
-            String pid = servers.keySet().iterator().next();
-            deleted(pid);
         }
     }
 

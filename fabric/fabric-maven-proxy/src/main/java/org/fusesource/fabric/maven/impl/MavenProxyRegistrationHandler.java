@@ -97,24 +97,24 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/maven/" + type + "/";
         String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
         String path = parentPath + "/p_";
-        if (zookeeper.isConnected()) {
-            try {
+        try {
+            if (zookeeper.isConnected()) {
                 if (zookeeper.exists(parentPath) == null) {
                     zookeeper.createWithParents(parentPath, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 }
                 if (zookeeper.exists(path) == null) {
                     registeredProxies.get(type).add(zookeeper.create(path, mavenProxyUrl.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL));
                 }
-            } catch (Exception e) {
-                LOGGER.error("Failed to register maven proxy.", e);
             }
+        } catch (Exception e) {
+            LOGGER.error("Failed to register maven proxy.", e);
         }
     }
 
     public void unregister(String type) {
-        try {
-            Set<String> proxyNodes = registeredProxies.get(type);
-            if (proxyNodes != null) {
+        Set<String> proxyNodes = registeredProxies.get(type);
+        if (proxyNodes != null) {
+            try {
                 for (String entry : registeredProxies.get(type)) {
                     if (zookeeper.isConnected()) {
                         if (zookeeper.exists(entry) != null) {
@@ -122,10 +122,10 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
                         }
                     }
                 }
-                registeredProxies.get(type).clear();
+            } catch (Exception e) {
+                LOGGER.error("Failed to remove maven proxy from registry.", e);
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to remove maven proxy from registry.", e);
+            registeredProxies.get(type).clear();
         }
     }
 

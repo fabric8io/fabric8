@@ -47,6 +47,7 @@
         </fuse.osgi.import.additional>
         <fuse.osgi.services.export>
             org.linkedin.zookeeper.client.IZKClient,
+            org.fusesource.fabric.zookeeper.IZKClient,
             org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>

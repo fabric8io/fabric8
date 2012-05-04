@@ -25,12 +25,6 @@
         <property name="bundleContext" ref="blueprintBundleContext" />
         <property name="configurationAdmin" ref="configAdmin" />
     </bean>
-    <service ref="zkClient">
-        <interfaces>
-            <value>org.fusesource.fabric.zookeeper.IZKClient</value>
-            <value>org.linkedin.zookeeper.client.IZKClient</value>
-        </interfaces>
-    </service>
 
     <!-- ZooKeeper url handler -->
     <bean id="urlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">

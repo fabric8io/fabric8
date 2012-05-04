@@ -31,6 +31,15 @@
     <description>Fuse Fabric :: ZooKeeper ConfigAdmin Bridge</description>
 
     <properties>
+        <fuse.osgi.import.additional>
+            org.fusesource.fabric.zookeeper,
+        </fuse.osgi.import.additional>
+        <fuse.osgi.export>
+        </fuse.osgi.export>
+        <fuse.osgi.private.pkg>
+            org.fusesource.fabric.configadmin,
+            org.fusesource.fabric.utils,
+        </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>

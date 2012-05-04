@@ -54,9 +54,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private String version = ZkDefs.DEFAULT_VERSION;
+    private boolean autoStart = Boolean.getBoolean(ENSEMBLE_AUTOSTART);
 
     public void init() {
-        Boolean autoStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART));
         if (autoStart) {
             createLocalServer();
         }
@@ -183,11 +183,19 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/domain", "karaf");
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
 
+            // Reset the autostart flag
+            if (autoStart) {
+                System.setProperty(ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
+                org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
+                props.put(ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                props.save();
+            }
+
             // Restart fabric-configadmin bridge
             bundleFabricConfigAdmin.start();
             bundleFabricJaas.start();
             bundleFabricCommands.start();
-
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper server configuration", e);
         }

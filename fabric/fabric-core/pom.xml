@@ -38,7 +38,8 @@
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.internal,
-            org.fusesource.fabric.utils
+            org.fusesource.fabric.utils,
+            org.apache.felix.utils.properties,
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -71,6 +72,11 @@
           <artifactId>org.osgi.enterprise</artifactId>
           <scope>provided</scope>
       </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
