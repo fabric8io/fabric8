@@ -62,7 +62,9 @@ import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
+import org.jclouds.rest.AuthorizationException;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
+import org.jclouds.ssh.SshException;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -183,22 +185,26 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             TemplateOptions templateOptions = computeService.templateOptions();
             applyProviderSpecificOptions(templateOptions, options);
 
-            if (!Strings.isNullOrEmpty(options.getPublicKeyFile())) {
-                File publicKey = new File(options.getPublicKeyFile());
-                if (publicKey.exists()) {
-                    adminAccess.adminPublicKey(publicKey);
-                } else {
-                    templateOptions.runScript(AdminAccess.standard());
-                    LOGGER.warn("Public key has been specified file: {} files cannot be found. Ignoring.", publicKey.getAbsolutePath());
+            //There are images that have issues with copying of public keys, creation of admin user accounts,etc
+            //To allow
+            if (options.isAdminAccess()) {
+                if (!Strings.isNullOrEmpty(options.getPublicKeyFile())) {
+                    File publicKey = new File(options.getPublicKeyFile());
+                    if (publicKey.exists()) {
+                        adminAccess.adminPublicKey(publicKey);
+                    } else {
+                        templateOptions.runScript(AdminAccess.standard());
+                        LOGGER.warn("Public key has been specified file: {} files cannot be found. Ignoring.", publicKey.getAbsolutePath());
+                    }
                 }
-            }
 
-            if (!Strings.isNullOrEmpty(options.getUser())) {
-                adminAccess.adminUsername(options.getUser());
-            }
+                if (!Strings.isNullOrEmpty(options.getUser())) {
+                    adminAccess.adminUsername(options.getUser());
+                }
 
-            templateOptions.runScript(adminAccess.build());
-            builder.options(templateOptions);
+                templateOptions.runScript(adminAccess.build());
+            }
+            builder = builder.options(templateOptions);
 
             Set<? extends NodeMetadata> metadatas = null;
             overviewBuilder.append(" It may take a while ...");
@@ -294,11 +300,29 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         String script = buildInstallAndStartScript(options.name(containerName));
                         options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It may take a while...", containerName));
                         ExecResponse response = null;
-                        if (credentials != null) {
-                            response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
-                        } else {
-                            response = computeService.runScriptOnNode(id, script, templateOptions);
+                        boolean doRetry = true;
+                        //In some cases it just needs time for the keys to setup.
+                        //So we do a couple of retries in case we encounter ssh related errors.
+                        //TODO: we may be able to avoid looping ourselves and leverage jclouds.ssh-retries option to a really big number.
+                        for (int i = 0; i < 5 && doRetry; i++) {
+                            try {
+                                if (credentials != null) {
+                                    response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
+                                } else {
+                                    response = computeService.runScriptOnNode(id, script, templateOptions);
+                                }
+                                doRetry = false;
+                            } catch (AuthorizationException ex) {
+                                doRetry = true;
+                            } catch (SshException ex) {
+                                doRetry = true;
+                            }
                         }
+                        //If all retry attempts failed.
+                        if (doRetry) {
+                            throw new Exception("Failed to connect to the container via ssh.");
+                        }
+
                         if (response != null && response.getOutput() != null) {
                             if (response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
                                 jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));

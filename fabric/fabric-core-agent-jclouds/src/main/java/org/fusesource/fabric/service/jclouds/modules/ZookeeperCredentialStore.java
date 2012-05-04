@@ -204,8 +204,13 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
                     if (credentials == null) {
                         credentials = get(o);
                     }
-                    zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(o)));
-                    zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(o)));
+                    String normalizedKey = normalizeKey(o);
+                    if (zookeeper.exists(ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizedKey)) != null) {
+                        zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizedKey));
+                    }
+                    if (zookeeper.exists(ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizedKey)) != null) {
+                        zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizedKey));
+                    }
                 } catch (Exception e) {
                     LOGGER.warn("Failed to remove jclouds credentials to zookeeper.", e);
                 }
@@ -230,8 +235,12 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
             if (zookeeper.isConnected()) {
                 try {
                     for (String nodeId : keySet()) {
-                        zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_IDENTITY.getPath(nodeId));
-                        zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_CREDENTIAL.getPath(nodeId));
+                        if (zookeeper.exists(ZkPath.CLOUD_NODE_IDENTITY.getPath(nodeId)) != null) {
+                            zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_IDENTITY.getPath(nodeId));
+                        }
+                        if (zookeeper.exists(ZkPath.CLOUD_NODE_CREDENTIAL.getPath(nodeId)) != null) {
+                            zookeeper.deleteWithChildren(ZkPath.CLOUD_NODE_CREDENTIAL.getPath(nodeId));
+                        }
                     }
                 } catch (Exception e) {
                     LOGGER.warn("Failed to clear zookeeper jclouds credentials store.", e);

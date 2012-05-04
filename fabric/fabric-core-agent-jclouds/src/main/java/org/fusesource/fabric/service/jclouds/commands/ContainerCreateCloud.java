@@ -52,6 +52,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String locationId;
     @Option(name = "--user", required = false, description = "User account to use on the new node(s)")
     private String user;
+    @Option(name = "--no-admin-access", required = false, description = "Disables admin access as it might no be feasible on all images.")
+    private boolean disableAdminAccess;
     @Option(name = "--public-key-file", required = false, description = "Path to the public key file to use for authenticating to the container")
     private String publicKeyFile;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
@@ -88,6 +90,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .number(number)
         .nodeOptions(CloudUtils.parseProviderOptions(options))
         .owner(owner)
+        .adminAccess(!disableAdminAccess)
         .publicKeyFile(publicKeyFile)
         .providerName(providerName)
         .user(user)
