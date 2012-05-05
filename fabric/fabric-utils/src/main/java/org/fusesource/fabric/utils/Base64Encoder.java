@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.utils;
 
+import java.nio.charset.Charset;
+
 /**
  * Bease64 encoding utilities.
  *
@@ -24,6 +26,7 @@ package org.fusesource.fabric.utils;
  * @since 0.5.0, January 16, 2008
  */
 public class Base64Encoder {
+    public static final Charset macRomanCharSet = Charset.forName("MacRoman");
 
     /**
      * Utility class. ment to be used via static methods.
@@ -59,9 +62,9 @@ public class Base64Encoder {
             throws IllegalArgumentException {
         s = s.replaceAll("\n", "");
         s = s.replaceAll("\r", "");
-        byte[] sBytes = s.getBytes();
+        byte[] sBytes = s.getBytes(macRomanCharSet);
         sBytes = decode(sBytes);
-        s = new String(sBytes);
+        s = new String(sBytes, macRomanCharSet);
         return s;
     }
 

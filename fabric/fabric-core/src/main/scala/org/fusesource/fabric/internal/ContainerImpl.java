@@ -46,7 +46,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class ContainerImpl implements Container {
-    public static final Charset macRomanCharSet = Charset.forName("MacRoman");
 
     /**
      * Logger.
@@ -518,7 +517,7 @@ public class ContainerImpl implements Container {
                 if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
                     //The metadata are stored encoded so that they are import/export friendly.
                     String encoded = service.getZooKeeper().getStringData(ZkPath.CONTAINER_METADATA.getPath(id));
-                    byte[] decoded = Base64Encoder.decode(encoded).getBytes(macRomanCharSet);
+                    byte[] decoded = Base64Encoder.decode(encoded).getBytes(Base64Encoder.macRomanCharSet);
                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
                     metadata = (CreateContainerMetadata) ois.readObject();
 
