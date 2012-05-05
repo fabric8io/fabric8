@@ -39,12 +39,14 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class ContainerImpl implements Container {
+    public static final Charset macRomanCharSet = Charset.forName("MacRoman");
 
     /**
      * Logger.
@@ -516,7 +518,7 @@ public class ContainerImpl implements Container {
                 if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
                     //The metadata are stored encoded so that they are import/export friendly.
                     String encoded = service.getZooKeeper().getStringData(ZkPath.CONTAINER_METADATA.getPath(id));
-                    byte[] decoded = Base64Encoder.decode(encoded).getBytes();
+                    byte[] decoded = Base64Encoder.decode(encoded).getBytes(macRomanCharSet);
                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
                     metadata = (CreateContainerMetadata) ois.readObject();
 
