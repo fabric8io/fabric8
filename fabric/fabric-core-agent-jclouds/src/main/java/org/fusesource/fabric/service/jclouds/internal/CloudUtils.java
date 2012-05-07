@@ -25,7 +25,10 @@ import java.util.Properties;
 import com.google.common.base.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.jclouds.compute.ComputeService;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -91,7 +94,7 @@ public class CloudUtils {
                             ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
                             ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
                         } else {
-                            System.out.println("Fabric has not been initialized. Provider registration is local to the current container.");
+                            System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
                         }
                     }
                 } catch (Exception ex) {
@@ -130,5 +133,28 @@ public class CloudUtils {
             configuration = configurationAdmin.createFactoryConfiguration(factoryPid, null);
         }
         return configuration;
+    }
+
+    /**
+     * Returns the compute service when it becomes registered to the OSGi service registry.
+     *
+     * @param provider
+     * @return
+     */
+    public static synchronized ComputeService waitForComputeService(BundleContext bundleContext, String provider) {
+        ComputeService computeService = null;
+        try {
+            for (int r = 0; r < 6; r++) {
+                ServiceReference[] references = bundleContext.getAllServiceReferences(ComputeService.class.getName(), "(provider=" + provider + ")");
+                if (references != null && references.length > 0) {
+                    computeService = (ComputeService) bundleContext.getService(references[0]);
+                    return computeService;
+                }
+                Thread.sleep(10000L);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while waiting for service.", e);
+        }
+        return computeService;
     }
 }

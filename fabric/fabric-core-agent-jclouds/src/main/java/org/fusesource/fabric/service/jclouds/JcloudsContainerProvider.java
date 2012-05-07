@@ -479,7 +479,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 Map<String, String> serviceOptions = options.getServiceOptions();
                 try {
                     CloudUtils.registerProvider(zooKeeper, configurationAdmin, options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
-                    computeService = waitForComputeService(options.getProviderName());
+                    computeService = CloudUtils.waitForComputeService(bundleContext, options.getProviderName());
                 } catch (Exception e) {
                     LOGGER.warn("Did not manage to register compute cloud provider.");
                     return computeService;
@@ -524,28 +524,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         return new String(bytes);
     }
 
-    /**
-     * Returns the compute service when it becomes registered to the OSGi service registry.
-     *
-     * @param provider
-     * @return
-     */
-    public synchronized ComputeService waitForComputeService(String provider) {
-        ComputeService computeService = null;
-        try {
-            for (int r = 0; r < 6; r++) {
-                ServiceReference[] references = bundleContext.getAllServiceReferences(ComputeService.class.getName(), "(provider=" + provider + ")");
-                if (references != null && references.length > 0) {
-                    computeService = (ComputeService) bundleContext.getService(references[0]);
-                    return computeService;
-                }
-                Thread.sleep(10000L);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error while waiting for service.", e);
-        }
-        return computeService;
-    }
 
     /**
      * Applies node options to the template options. Currently only works for String key value pairs.

@@ -46,6 +46,9 @@ public class CloudProviderAdd extends FabricCommand {
     @Argument(index = 2, name = "credential", required = true, description = "The cloud credential to use")
     private String credential;
 
+    @Option(name = "--async-registration", required = false, description = "Flag to not wait for the provider registration.")
+    private Boolean registerAsync = false;
+
     @Option(name = "--owner", required = false, description = "EC2 AMI owner")
     private String owner;
 
@@ -71,6 +74,10 @@ public class CloudProviderAdd extends FabricCommand {
         Container current = fabricService.getCurrentContainer();
         if (!getZooKeeper().isConnected() || !current.isManaged()) {
             CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, provider, identity, credential, props);
+            if(!registerAsync) {
+                System.out.println("Waiting for "+provider+" service to initialize.");
+                CloudUtils.waitForComputeService(bundleContext, provider);
+            }
         }
 
         return null;
