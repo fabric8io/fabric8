@@ -516,7 +516,7 @@ public class ContainerImpl implements Container {
                 if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
                     //The metadata are stored encoded so that they are import/export friendly.
                     String encoded = service.getZooKeeper().getStringData(ZkPath.CONTAINER_METADATA.getPath(id));
-                    byte[] decoded = Base64Encoder.decode(encoded).getBytes(Base64Encoder.DEFAULT_CHAR_SET);
+                    byte[] decoded = Base64Encoder.decode(encoded).getBytes(Base64Encoder.macRomanCharSet);
                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
                     metadata = (CreateContainerMetadata) ois.readObject();
 
