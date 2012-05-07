@@ -81,10 +81,19 @@ public class CloudUtils {
                         dictionary.put("credential", credential);
                         dictionary.put("identity", identity);
                         dictionary.put("credential-store", "zookeeper");
+                        //This is set to workaround race conditions with ssh pk copies.
+                        //Required workaround for some images (e.g. Red Hat) on Amazon EC2.
+                        dictionary.put("jclouds.ssh.max-retries", "40");
                         if (provider != null && provider.equals("aws-ec2") && props != null && props.containsKey("owner") && props.get("owner") != null) {
                             dictionary.put("jclouds.ec2.ami-owners", props.get("owner"));
 
                         }
+                        for (Map.Entry<String,String> entry:props.entrySet()) {
+                            String key = entry.getKey();
+                            String value = entry.getValue();
+                            dictionary.put(key,value);
+                        }
+
                         configuration.update(dictionary);
 
                         if (zooKeeper.isConnected()) {

@@ -320,7 +320,7 @@ public class ContainerProviderUtils {
             for (String line : lines) {
                 if (line.contains(FAILURE_PREFIX)) {
                     try {
-                        error = error.substring(line.lastIndexOf(FAILURE_PREFIX) + FAILURE_PREFIX.length());
+                        error = line.substring(line.lastIndexOf(FAILURE_PREFIX) + FAILURE_PREFIX.length());
                     } catch (Throwable t) {
                         //noop
                         error = "Unknown error";

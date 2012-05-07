@@ -300,26 +300,15 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         String script = buildInstallAndStartScript(options.name(containerName));
                         options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It may take a while...", containerName));
                         ExecResponse response = null;
-                        boolean doRetry = true;
-                        //In some cases it just needs time for the keys to setup.
-                        //So we do a couple of retries in case we encounter ssh related errors.
-                        //TODO: we may be able to avoid looping ourselves and leverage jclouds.ssh-retries option to a really big number.
-                        for (int i = 0; i < 5 && doRetry; i++) {
-                            try {
-                                if (credentials != null) {
-                                    response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
-                                } else {
-                                    response = computeService.runScriptOnNode(id, script, templateOptions);
-                                }
-                                doRetry = false;
-                            } catch (AuthorizationException ex) {
-                                doRetry = true;
-                            } catch (SshException ex) {
-                                doRetry = true;
+                        try {
+                            if (credentials != null) {
+                                response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
+                            } else {
+                                response = computeService.runScriptOnNode(id, script, templateOptions);
                             }
-                        }
-                        //If all retry attempts failed.
-                        if (doRetry) {
+                        } catch (AuthorizationException ex) {
+                            throw new Exception("Failed to connect to the container via ssh.");
+                        } catch (SshException ex) {
                             throw new Exception("Failed to connect to the container via ssh.");
                         }
 
