@@ -22,4 +22,4 @@ if not "%ECHO%" == "" echo %ECHO%
 setlocal
 set DIRNAME=%~dp0%
 
-call "%DIRNAME%\bin\karaf.bat" %*
+call "%DIRNAME%\karaf.bat" %*
