@@ -273,16 +273,21 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         if (firewallManager.isSupported()) {
                             options.getCreationStateListener().onStateChange("Configuring firewall.");
                             String source = getOriginatingIp();
-                            Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
-                            Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
+
                             Rule httpRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8181);
-                            Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
-                            firewallManager.addRules(jmxRule, sshRule, httpRule, zookeeperRule);
+                            firewallManager.addRules(httpRule);
+
+                            if (source != null) {
+                                Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
+                                Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
+                                Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
+                                firewallManager.addRules(jmxRule, sshRule, zookeeperRule);
+                            }
                             //We do add the target node public address to the firewall rules, as a way to make things easier in cases
                             //where firewall configuration is shared among nodes of the same groups, e.g. EC2.
                             if (!Strings.isNullOrEmpty(publicAddress)) {
                                 Rule zookeeperFromTargetRule = Rule.create().source(publicAddress + "/32").destination(nodeMetadata).port(2181);
-                                firewallManager.addRule(zookeeperRule);
+                                firewallManager.addRule(zookeeperFromTargetRule);
                             }
                         } else {
                             options.getCreationStateListener().onStateChange(String.format("Skipping firewall configuration. Not supported for provider %s", options.getProviderName()));
@@ -483,10 +488,16 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
      * @throws java.io.IOException
      */
     private String getOriginatingIp() throws IOException {
-        URL url = new URL("http://checkip.amazonaws.com/");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.connect();
-        return IOUtils.toString(connection.getInputStream()).trim() + "/32";
+        String ip = null;
+        try {
+            URL url = new URL("http://checkip.amazonaws.com/");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+            ip = IOUtils.toString(connection.getInputStream()).trim() + "/32";
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to lookup public ip of current container.");
+        }
+        return ip;
     }
 
     private String readFile(String path) {
