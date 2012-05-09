@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.fusesource.examples</groupId>
         <artifactId>project</artifactId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.0.0.fuse-061</version>
     </parent>
 
     <groupId>org.fusesource.examples</groupId>
@@ -34,7 +34,7 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: Content-Based Router</name>
     <description>Content-Based Router Example</description>
-    <version>7.0-SNAPSHOT</version>
+    <version>7.0.0.fuse-061</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -22,7 +22,7 @@
     <parent>
         <artifactId>tooling</artifactId>
         <groupId>org.fusesource</groupId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.0.0.fuse-061</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

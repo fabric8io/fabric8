@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-examples</artifactId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.0.0.fuse-061</version>
         <relativePath>..</relativePath>
     </parent>
 

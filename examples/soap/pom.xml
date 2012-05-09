@@ -28,14 +28,14 @@
     <parent>
         <groupId>org.fusesource.examples</groupId>
         <artifactId>project</artifactId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.0.0.fuse-061</version>
     </parent>
 
     <artifactId>soap</artifactId>
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: SOAP </name>
     <description>SOAP example using JAXWS</description>
-    <version>7.0-SNAPSHOT</version>
+    <version>7.0.0.fuse-061</version>
 
     <dependencies>
         <!--
