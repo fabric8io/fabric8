@@ -26,7 +26,7 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.karaf.core.ComputeProviderListener;
 
-@Command(name = "cloud-provider-list", scope = "fabric", description = "Registers a cloud provider to the registry.")
+@Command(name = "cloud-provider-list", scope = "fabric", description = "Lists the cloud providers registered with the fabric.")
 public class CloudProviderList extends FabricCommand {
 
     public static final String PROVIDERFORMAT = "%-24s %-12s %-12s";

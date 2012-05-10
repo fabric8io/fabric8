@@ -38,19 +38,19 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String osFamily = "ubuntu";
     @Option(name = "--os-version", multiValued = false, required = false, description = "OS Version")
     private String osVersion;
-    @Option(name = "--identity", required = false, description = "The cloud identity to use")
+    @Option(name = "--identity", required = false, description = "The identity used to access the cloud provider")
     private String identity;
-    @Option(name = "--credential", required = false, description = "Credential to login to the cloud")
+    @Option(name = "--credential", required = false, description = "The credential used The identity used to access the cloud provider")
     private String credential;
-    @Option(name = "--hardware", required = false, description = "Which hardware kind to use")
+    @Option(name = "--hardware", required = false, description = "The kind of hardware to use")
     private String hardwareId;
-    @Option(name = "--instanceType", required = false, description = "Which kind of instance is required")
+    @Option(name = "--instanceType", required = false, description = "The kind of instance required")
     private JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
     @Option(name = "--image", required = false, description = "The image ID to use for the new node(s)")
     private String imageId;
     @Option(name = "--location", required = false, description = "The location to use to create the new node(s)")
     private String locationId;
-    @Option(name = "--user", required = false, description = "User account to use on the new node(s)")
+    @Option(name = "--user", required = false, description = "The user account to use on the new node(s)")
     private String user;
     @Option(name = "--no-admin-access", required = false, description = "Disables admin access as it might no be feasible on all images.")
     private boolean disableAdminAccess;
@@ -58,11 +58,11 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String publicKeyFile;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
-    @Option(name = "--option", required = false, multiValued = true, description = "Node specify properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
+    @Option(name = "--option", required = false, multiValued = true, description = "Node specific properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
     private String[] options;
-    @Option(name = "--group", description = "Group tag to use on the new node(s)")
+    @Option(name = "--group", description = "The group tag to use on the new node(s)")
     private String group = "fabric";
-    @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
+    @Option(name = "--proxy-uri", description = "The Maven proxy URL to use")
     private URI proxyUri;
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
