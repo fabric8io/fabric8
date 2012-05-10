@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -79,8 +80,11 @@ public class ZooKeeperUtils {
 
     public static void remove(IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) != null) {
+            List<String> parts = new LinkedList<String>();
             String data = zooKeeper.getStringData( path );
-            List<String> parts = new ArrayList<String>(Arrays.asList(data.split(" ")));
+            if (data != null) {
+                parts = new ArrayList<String>(Arrays.asList(data.split(" ")));
+            }
             boolean changed = false;
             for (Iterator<String> it = parts.iterator(); it.hasNext();) {
                 String v = it.next();
