@@ -24,7 +24,7 @@ import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
 
-@Command(name = "cloud-provider-add", scope = "fabric", description = "Registers a cloud provider to the registry.")
+@Command(name = "cloud-provider-remove", scope = "fabric", description = "Removes a cloud provider from the fabric's registry.")
 public class CloudProviderRemove extends FabricCommand {
     private static final String PID_FILTER = "(service.pid=%s*)";
 

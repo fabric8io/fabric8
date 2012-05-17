@@ -422,8 +422,8 @@ public class FabricServiceImpl implements FabricService {
     private void createContainerConfig(String parent, String name) {
         try {
             String configVersion = getDefaultVersion().getName();
-            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(name), configVersion);
-            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(configVersion, name), profile);
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(name), configVersion);
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(configVersion, name), profile);
             zooKeeper.createOrSetWithParents(CONTAINER_PARENT.getPath(name), parent, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (FabricException e) {
             throw e;
@@ -441,8 +441,8 @@ public class FabricServiceImpl implements FabricService {
             }
             if (version == null || version.isEmpty()) {
                 version = ZkDefs.DEFAULT_VERSION;
-                ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
-                ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSION.getPath(version), null);
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSION.getPath(version), (String) null);
             }
             return new VersionImpl(version, this);
         } catch (Exception e) {

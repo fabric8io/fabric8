@@ -58,7 +58,7 @@ public class CloudFirewallEdit extends FabricCommand {
     @Option( name = "--target-container", required = false, description = "The target container name.")
     private String targetContainerName;
 
-    @Option(name = "--provider", required = false, description = "The cloud provider name")
+    @Option(name = "--provider", required = false, description = "The cloud provider name.")
     private String providerName;
 
     private FirewallManagerFactory firewallManagerFactory;

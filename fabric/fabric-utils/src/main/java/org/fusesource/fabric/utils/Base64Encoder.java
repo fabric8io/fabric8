@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
  * @since 0.5.0, January 16, 2008
  */
 public class Base64Encoder {
-    public static final Charset macRomanCharSet = Charset.forName("MacRoman");
+    public static final Charset base64CharSet = Charset.forName("ISO-8859-1");
 
     /**
      * Utility class. ment to be used via static methods.
@@ -62,9 +62,9 @@ public class Base64Encoder {
             throws IllegalArgumentException {
         s = s.replaceAll("\n", "");
         s = s.replaceAll("\r", "");
-        byte[] sBytes = s.getBytes(macRomanCharSet);
+        byte[] sBytes = s.getBytes(base64CharSet);
         sBytes = decode(sBytes);
-        s = new String(sBytes, macRomanCharSet);
+        s = new String(sBytes, base64CharSet);
         return s;
     }
 
