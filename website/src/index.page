@@ -10,8 +10,8 @@ sort_info: 1
 header(class="jumbotron masthead" id="overview")
   .inner
     .container
-      h1 FuseSource
-      p.lead Welcome to pen source Integration Everywhere from <a href="http://fusesource.com/" title="FuseSource, Corp. Integration Everywhere">FuseSource</a>
+      h1 Integration Everywhere
+      p.lead Welcome to open source Integration Everywhere from <a href="http://fusesource.com/" title="FuseSource, Corp. Integration Everywhere">FuseSource</a>
       a(href="http://fusesource.com/")
         img(src="images/IntegrationEverywhere.jpeg" alt="Integration Everywhere")
 
