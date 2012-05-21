@@ -11,7 +11,9 @@ header(class="jumbotron masthead" id="overview")
   .inner
     .container
       h1 FuseSource
-      p.lead Welcome to awesome open source integration from <a href="http://fusesource.com/" title="FuseSource, Corp. Integration Everywhere">FuseSource</a>
+      p.lead Welcome to pen source Integration Everywhere from <a href="http://fusesource.com/" title="FuseSource, Corp. Integration Everywhere">FuseSource</a>
+      a(href="http://fusesource.com/")
+        img(src="images/IntegrationEverywhere.jpeg" alt="Integration Everywhere")
 
 .quickstart
   .container
