@@ -37,6 +37,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.tracker.NodeEvent;
@@ -87,7 +88,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 // Find our root node
                 String versionNode = ZkPath.CONFIG_CONTAINER.getPath(name);
                 if (zooKeeper.exists(versionNode) == null) {
-                    throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
+                    ZkPath.createContainerPaths(zooKeeper, name, null);
                 }
                 version = zooKeeper.getStringData(versionNode);
                 if (version == null) {
@@ -253,11 +254,15 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         try {
             if (!tracking) {
                 String version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
-                String resolutionPointer = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name));
-                resolutionPolicy = zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(name));
-                if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
-                      zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name),"${zk:"+name+"/"+resolutionPolicy+"}");
+
+                if (zooKeeper.exists(ZkPath.CONTAINER_IP.getPath(name)) != null) {
+                    String resolutionPointer = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name));
+                    resolutionPolicy = zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(name));
+                    if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
+                        zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name), "${zk:" + name + "/" + resolutionPolicy + "}");
+                    }
                 }
+
                 if (!this.version.equals(version)) {
                     this.version = version;
                     node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);

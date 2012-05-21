@@ -16,15 +16,6 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -35,12 +26,23 @@ import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ContainerImpl implements Container {
 
@@ -132,7 +134,7 @@ public class ContainerImpl implements Container {
 
     public String getSshUrl() {
         try {
-            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_SSH.getPath(id));
+            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_SSH.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -140,7 +142,7 @@ public class ContainerImpl implements Container {
 
     public String getJmxUrl() {
         try {
-            return ZooKeeperUtils.getSubstitutedData(service.getZooKeeper(), ZkPath.CONTAINER_JMX.getPath(id));
+            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_JMX.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -158,27 +160,16 @@ public class ContainerImpl implements Container {
 
     @Override
     public boolean isManaged() {
-        try {
-            String managed = service.getZooKeeper().getStringData(ZkPath.CONTAINER_MANAGED.getPath(id));
-            return Boolean.parseBoolean(managed);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public void setManaged(boolean managed) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_MANAGED.getPath(getId()), String.valueOf(managed));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return getProvisionResult() != null;
     }
 
     @Override
     public Version getVersion() {
         try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
+            String version = getZkData(ZkPath.CONFIG_CONTAINER);
+            if (version == null) {
+                return null;
+            }
             return new VersionImpl(version, service);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -258,7 +249,161 @@ public class ContainerImpl implements Container {
     public void setLocation(String location) {
         try {
             String path = ZkPath.CONTAINER_LOCATION.getPath(id);
-            ZooKeeperUtils.set( service.getZooKeeper(), path, location );
+            ZooKeeperUtils.set(service.getZooKeeper(), path, location);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    /**
+     * Returns the resolver of the {@link org.fusesource.fabric.api.Container}.
+     * The resolver identifies which of the {@link org.fusesource.fabric.api.Container} address should be used for address resolution.
+     *
+     * @return One of the: localip, localhostname, publicip, publichostname, manualip.
+     */
+    @Override
+    public String getResolver() {
+        try {
+            return service.getZooKeeper().getStringData(ZkPath.CONTAINER_RESOLVER.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    /**
+     * Sets the resolver value of the {@link org.fusesource.fabric.api.Container}.
+     *
+     * @param resolver
+     */
+    @Override
+    public void setResolver(String resolver) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id), "${zk:"+id+"/"+resolver+"}");
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id), resolver);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    /**
+     * Returns the resolved address of the {@link org.fusesource.fabric.api.Container}.
+     *
+     * @return
+     */
+    @Override
+    public String getIp() {
+        try {
+            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getLocalIp() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_IP.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_LOCAL_IP.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setLocalIp(String localIp) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_IP.getPath(id), localIp);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getLocalHostname() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setLocalHostname(String localHostname) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id), localHostname);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getPublicIp() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_IP.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_PUBLIC_IP.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setPublicIp(String publicIp) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_IP.getPath(id), publicIp);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getPublicHostname() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setPublicHostname(String publicHostname) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id), publicHostname);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getManulIp() {
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_MANUAL_IP.getPath(id)) == null) {
+                return null;
+            } else {
+                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_MANUAL_IP.getPath(id));
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setManualIp(String manualIp) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_MANUAL_IP.getPath(id), manualIp);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -368,9 +513,14 @@ public class ContainerImpl implements Container {
     public CreateContainerMetadata<?> getMetadata() {
         try {                                        
             if (metadata == null) {
-                byte[] data = service.getZooKeeper().getData(ZkPath.CONTAINER_METADATA.getPath(id));
-                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-                metadata = (CreateContainerMetadata) ois.readObject();
+                if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
+                    //The metadata are stored encoded so that they are import/export friendly.
+                    String encoded = service.getZooKeeper().getStringData(ZkPath.CONTAINER_METADATA.getPath(id));
+                    byte[] decoded = Base64Encoder.decode(encoded).getBytes(Base64Encoder.base64CharSet);
+                    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
+                    metadata = (CreateContainerMetadata) ois.readObject();
+
+                }
             }
             return metadata;
         } catch (Exception e) {
@@ -417,5 +567,27 @@ public class ContainerImpl implements Container {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ContainerImpl container = (ContainerImpl) o;
+
+        if (id != null ? !id.equals(container.id) : container.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    public  boolean isAliveAndOK() {
+        String status = getProvisionStatus();
+        return isAlive() && (status == null || status.length() == 0 || status.toLowerCase().startsWith("success"));
     }
 }

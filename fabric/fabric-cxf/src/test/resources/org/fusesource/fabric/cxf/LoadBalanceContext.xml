@@ -17,9 +17,11 @@
   -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:cxfcore="http://cxf.apache.org/core"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
        xsi:schemaLocation="
          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-         http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+         http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+         http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
    <import resource="classpath:META-INF/cxf/cxf.xml"/>
 
   <!-- Since this is a test case lets run a local ZK server -->
@@ -36,6 +38,14 @@
       <property name="zkClient" ref="zkClient" />
       <property name="fabricPath" value="simple/test" />
   </bean>
+
+  <jaxws:client id="helloProxy" address="http://dummyAddress"
+                 serviceClass="org.fusesource.fabric.cxf.Hello">
+          <jaxws:features>
+              <ref bean="fabicLoadBalancerFeature" />
+          </jaxws:features>
+  </jaxws:client>
+
   <!-- configure the feature on the bus -->
   <cxfcore:bus>
     <cxfcore:features>

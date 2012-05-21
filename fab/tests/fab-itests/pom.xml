@@ -28,7 +28,7 @@
   <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Archive Bundles :: Tests :: Integration Tests</name>
+  <name>Fuse Application Bundles :: Tests :: Integration Tests</name>
 
   <dependencies>
       <!-- Set up Pax Exam with Pax Runner and @Inject support -->
@@ -127,12 +127,24 @@
           <artifactId>camel-spring</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.apache.camel.karaf</groupId>
+          <artifactId>apache-camel</artifactId>
+          <type>xml</type>
+          <classifier>features</classifier>
+      </dependency>
+      <dependency>
           <groupId>org.apache.felix</groupId>
           <artifactId>org.apache.felix.configadmin</artifactId>
       </dependency>
       <dependency>
           <groupId>org.apache.felix</groupId>
           <artifactId>org.apache.felix.fileinstall</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.assemblies.features</groupId>
+          <artifactId>standard</artifactId>
+          <type>xml</type>
+          <classifier>features</classifier>
       </dependency>
       <dependency>
           <groupId>org.apache.karaf.jaas</groupId>
@@ -145,6 +157,10 @@
       <dependency>
           <groupId>org.apache.karaf.jaas</groupId>
           <artifactId>org.apache.karaf.jaas.modules</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.features</groupId>
+          <artifactId>org.apache.karaf.features.core</artifactId>
       </dependency>
       <dependency>
           <groupId>org.apache.karaf.shell</groupId>
@@ -191,6 +207,14 @@
           <argLine>-Dproject.version=${project.version}</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <useSystemClassLoader>true</useSystemClassLoader>
+       
+          <excludes>
+           <!-- Excluded because of failures JIRA ESB-1692
+           <exclude>**/FabSamplesWithCamelFeaturesTest.*</exclude>
+           <exclude>**/FabSamplesWithCamelPreinstalledTest.*</exclude>
+           <exclude>**/FabSamplesWithoutCamelPreinstalledTest.*</exclude>
+           -->
+          </excludes>
         </configuration>
       </plugin>
 

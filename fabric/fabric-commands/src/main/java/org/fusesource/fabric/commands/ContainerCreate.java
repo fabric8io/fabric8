@@ -24,14 +24,14 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
-import org.fusesource.fabric.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 
-@Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers")
+@Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers", detailedDescription = "classpath:containerCreate.txt")
 public class ContainerCreate extends ContainerCreateSupport {
 
     @Option(name = "--parent", multiValued = false, required = false, description = "Parent container ID")
     protected String parent;
-    @Option(name = "--url", multiValued = false, required = false, description = "The URL")
+    @Option(name = "--url", multiValued = false, required = false, description = "The URL of the new container. To specify the resolver policy of the new container, add the URL option ?resolver=<policy>.")
     protected String url;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     protected URI proxyUri;
@@ -62,7 +62,6 @@ public class ContainerCreate extends ContainerCreateSupport {
                 .parent(parent)
                 .resolver(resolver)
                 .number(number)
-                .debugContainer(debugContainer)
                 .ensembleServer(isEnsembleServer)
                 .providerUri(url)
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())

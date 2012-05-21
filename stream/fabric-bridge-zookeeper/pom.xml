@@ -88,7 +88,7 @@
     </dependency>
     <dependency>
         <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fabric-zookeeper-commands</artifactId>
+        <artifactId>fabric-commands</artifactId>
         <scope>test</scope>
     </dependency>
 

@@ -18,6 +18,7 @@ package org.fusesource.fabric.demo.cxf.client;
 
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.fusesource.fabric.cxf.FabricLoadBalancerFeature;
 import org.fusesource.fabric.demo.cxf.Hello;
 
@@ -32,25 +33,30 @@ public class Client {
         // The feature will try to create a zookeeper client itself by checking the system property of
         // zookeeper.url
         FabricLoadBalancerFeature feature = new FabricLoadBalancerFeature();
+        // Feature will use this path to locate the service
         feature.setFabricPath("cxf/demo");
-        // sleep a while to let the service be published
-        ClientProxyFactoryBean clientFactory = new ClientProxyFactoryBean();
+
+        ClientProxyFactoryBean clientFactory = new JaxWsProxyFactoryBean();
         clientFactory.setServiceClass(ClientProxyFactoryBean.class);
         // The address is not the actual address that the client will access
         clientFactory.setAddress("http://someotherplace");
 
         List<AbstractFeature> features = new ArrayList<AbstractFeature>();
         features.add(feature);
-        // we need to setup the feature on the clientfactory
+        // we need to setup the feature on the client factory
         clientFactory.setFeatures(features);
         // create the proxy of the hello
         hello = clientFactory.create(Hello.class);
     }
+
+    public Hello getProxy() {
+        return hello;
+    }
     
     public static void main(String args[]) {
         Client client = new Client();
-        System.out.println("Calling the sayHello first time with the result "  + client.hello.sayHello());
-        System.out.println("Calling the sayHello second time with the result " + client.hello.sayHello());
-        System.out.println("Calling the sayHello third time with the result " + client.hello.sayHello());
+        System.out.println("Calling the sayHello first time with the result "  + client.getProxy().sayHello());
+        System.out.println("Calling the sayHello second time with the result " +  client.getProxy().sayHello());
+        System.out.println("Calling the sayHello third time with the result " +  client.getProxy().sayHello());
     }
 }

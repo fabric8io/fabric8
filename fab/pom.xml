@@ -28,7 +28,7 @@
   <groupId>org.fusesource.fabric.fab</groupId>
   <artifactId>fab-project</artifactId>
   <packaging>pom</packaging>
-  <name>Fuse Archive Bundles</name>
+  <name>Fuse Application Bundles</name>
   <description>${project.name}</description>
   <!--
   <properties>

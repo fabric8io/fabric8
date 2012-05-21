@@ -35,6 +35,7 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: RESTful WebService </name>
     <description>RESTful WebService Example using JAX-RS with Fuse ESB</description>
+    <version>7.0-SNAPSHOT</version>
 
     <dependencies>
         <!--
@@ -66,6 +67,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin-version}</version>
                 <configuration>
                     <mainClass>org.fusesource.examples.cxf.jaxrs.client.Client</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
@@ -73,5 +75,55 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+         <pluginRepository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+         <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

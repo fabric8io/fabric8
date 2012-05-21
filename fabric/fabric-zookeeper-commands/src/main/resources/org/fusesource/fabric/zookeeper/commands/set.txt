@@ -1,0 +1,3 @@
+The data stored in a znode should not be too large. ZooKeeper imposes an absolute limit of 1 MB, but in practice a data item should normally be much smaller than that.
+
+IMPORTANT: To avoid corruption of the fabric registry, you should not modify any znodes under the /fabric/ path using the zk:set command. Use the appropriate fabric console commands instead.

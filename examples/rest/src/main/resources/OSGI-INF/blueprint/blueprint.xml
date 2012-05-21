@@ -18,7 +18,7 @@
     under the License.
 -->
 <!--
-   This file is the OSGi Blueprint XML file defining the CXF JAX-RS beans.  Because the file is in the
+   This is the OSGi Blueprint XML file defining the CXF JAX-RS beans.  Because the file is in the
    OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
 
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
@@ -32,7 +32,7 @@
       http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
     <!--
-      The <jaxrs:server/> element is used to set up our JAX-RS services.  It defines:
+      The <jaxrs:server/> element sets up our JAX-RS services.  It defines:
       - the server's address, '/crm', relative to the default CXF servlet URI
         with the default settings, the server will be running on 'http://localhost:8181/cxf/crm'
       - a list of service beans
@@ -45,7 +45,7 @@
     </jaxrs:server>
 
     <!--
-      We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-RS server setup before.
+      We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-RS server setup.
       This bean carries a set of JAX-RS annotations that allow its methods to be mapped to incoming requests.
     -->
     <bean id="customerSvc" class="org.fusesource.examples.cxf.jaxrs.CustomerService"/>

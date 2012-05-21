@@ -39,6 +39,7 @@
     <module>mq-fabric</module>
     <module>mq-client</module>
     <module>mq-branding</module>
+    <module>mq-web-console</module>
     <module>fuse-mq</module>
   </modules>
 

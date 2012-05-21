@@ -25,7 +25,7 @@ import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.MQService;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.service.MQServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
@@ -132,7 +132,6 @@ public class MQCreate extends FabricCommand {
                         .name(name)
                         .parent(parent)
                         .number(1)
-                        .debugContainer(false)
                         .ensembleServer(false)
                         .providerUri(url)
                         .proxyUri(fabricService.getMavenRepoURI())

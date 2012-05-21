@@ -66,19 +66,9 @@
                 <null/>
             </completers>
         </command>
-        <command name="zk/import">
-            <action class="org.fusesource.fabric.zookeeper.commands.Import">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-        </command>
-        <command name="zk/export">
-            <action class="org.fusesource.fabric.zookeeper.commands.Export">
-                <property name="zooKeeper" ref="zkClient"/>
-            </action>
-        </command>
     </command-bundle>
 
-    <bean id="znodeCompleter" class="org.fusesource.fabric.zookeeper.commands.ZNodeCompleter">
+    <bean id="znodeCompleter" class="org.fusesource.fabric.commands.support.ZNodeCompleter">
         <property name="zooKeeper" ref="zkClient"/>
     </bean>
 

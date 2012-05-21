@@ -18,6 +18,7 @@ package org.fusesource.fabric.zookeeper.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -49,15 +51,17 @@ import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PUBLIC_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
 
 public class KarafContainerRegistration implements LifecycleListener, NotificationListener {
 
@@ -122,9 +126,20 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             if (zooKeeper.exists(CONTAINER_RESOLVER.getPath(name)) == null) {
                 zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), getGlobalResolutionPolicy(zooKeeper), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
-            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), getLocalHostName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), getLocalIp(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper,name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+            //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
+            //Mostly usable for adding values when creating containers without an existing ensemble.
+            for (String resolver : ZkDefs.VALID_RESOLVERS) {
+                String address = System.getProperty(resolver);
+                if (address != null && !address.isEmpty()) {
+                    if (zooKeeper.exists(CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
+                        zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), address, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    }
+                }
+            }
 
             String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
             String profiles = System.getProperty("fabric.profiles");
@@ -197,13 +212,22 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
-        String policy = ZkDefs.LOCAL_HOSTNAME;
-        if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
-            policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
-        }
-        return policy;
-    }
+     private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
+         String policy = ZkDefs.LOCAL_HOSTNAME;
+         List<String> validResoverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
+         if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+             policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
+         } else if (System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
+             policy = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
+         }
+         if (policy == null || !validResoverList.contains(policy)) {
+             policy = getGlobalResolutionPolicy(zookeeper);
+         }
+         if (policy != null && zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
+             zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+         }
+         return policy;
+     }
 
     /**
      * Returns a pointer to the container IP based on the global IP policy.
@@ -219,28 +243,11 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         return String.format(pointer,container,policy);
     }
 
-    /**
-     * Returns the local hostname.
-     * @return
-     * @throws UnknownHostException
-     */
-    private static String getLocalHostName() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostName();
-    }
 
-    /**
-     * Returns the local IP.
-     * @return
-     * @throws UnknownHostException
-     */
-    private static String getLocalIp() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostAddress();
-    }
-
-    private static String getExternalAddresses(String host, String port) throws UnknownHostException {
+    private static String getExternalAddresses(String host, String port) throws UnknownHostException, SocketException {
         InetAddress ip = InetAddress.getByName(host);
         if (ip.isAnyLocalAddress()) {
-            return getLocalHostName() + ":" + port;
+            return HostUtils.getLocalHostName() + ":" + port;
         } else if (!ip.isLoopbackAddress()) {
             return ip.getHostName() + ":" + port;
         }

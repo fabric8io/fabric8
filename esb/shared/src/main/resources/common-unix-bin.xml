@@ -35,6 +35,7 @@
               <exclude>fabric_license.txt</exclude>
               <exclude>fabric_notices.txt</exclude>
               <exclude>fabric_dependencies.txt</exclude>
+              <exclude>readme.txt</exclude>
               <exclude>LICENSE</exclude>
               <exclude>NOTICE</exclude>
               <exclude>README</exclude>
@@ -52,6 +53,7 @@
             </includes>
             <excludes>
               <exclude>bin/fusefabric</exclude>
+              <exclude>bin/shell</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -61,7 +63,6 @@
             <directory>${basedir}/../..</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>README</include>
                 <include>RELEASE*</include>
             </includes>
             <lineEnding>unix</lineEnding>
@@ -76,6 +77,17 @@
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>target/shared</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>readme.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
 
         <!-- Copy over everything that needs to get unix line endings -->
         <fileSet>

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,6 +31,10 @@ import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.client.ZooKeeperFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -68,6 +71,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     private ZooKeeperFactory _factory;
     private IZooKeeper _zk;
     private Timespan _reconnectTimeout = Timespan.parse("20s");
+    Timespan sessionTimeout = new Timespan(30, Timespan.TimeUnit.SECOND);
 
     private ExpiredSessionRecovery _expiredSessionRecovery = null;
 
@@ -82,7 +86,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
 
         @Override
         public void run() {
-            Map<LifecycleListener, Boolean> history = new IdentityHashMap<LifecycleListener, Boolean>();
+            Map<Object, Boolean> history = new IdentityHashMap<Object, Boolean>();
             log.info("Starting StateChangeDispatcher");
             while (_running.get()) {
                 Boolean isConnectedEvent;
@@ -94,7 +98,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 if (!_running.get() || isConnectedEvent == null) {
                     continue;
                 }
-                Map<LifecycleListener, Boolean> newHistory = new IdentityHashMap<LifecycleListener, Boolean>();
+                Map<Object, Boolean> newHistory = new IdentityHashMap<Object, Boolean>();
                 for (LifecycleListener listener : _listeners) {
                     Boolean previousEvent = history.get(listener);
                     // we propagate the event only if it was not already sent
@@ -111,6 +115,31 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                     }
                     newHistory.put(listener, isConnectedEvent);
                 }
+                try {
+                    ServiceReference[] references = bundleContext.getServiceReferences(LifecycleListener.class.getName(), null);
+                    if (references != null) {
+                        for (ServiceReference reference : references) {
+                            LifecycleListener listener = (LifecycleListener) bundleContext.getService(reference);
+                            Boolean previousEvent = history.get(reference);
+                            // we propagate the event only if it was not already sent
+                            if (previousEvent == null || previousEvent != isConnectedEvent) {
+                                try {
+                                    if (isConnectedEvent) {
+                                        listener.onConnected();
+                                    } else {
+                                        listener.onDisconnected();
+                                    }
+                                } catch (Throwable e) {
+                                    log.warn("Exception while executing listener (ignored)", e);
+                                }
+                            }
+                            newHistory.put(reference, isConnectedEvent);
+                            bundleContext.ungetService(reference);
+                        }
+                    }
+                } catch (InvalidSyntaxException e) {
+                    throw new IllegalStateException(e);
+                }
                 // we save which event each listener has seen last
                 // we don't update the map in place because we need to get rid of unregistered listeners
                 history = newHistory;
@@ -119,8 +148,8 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         }
 
         public void end() {
-            _running.set(false);
             _events.add(false);
+            _running.set(false);
         }
 
         public void addEvent(OsgiZkClient.State oldState, OsgiZkClient.State newState) {
@@ -179,18 +208,38 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     }
 
     public void init() throws Exception {
-        _stateChangeDispatcher.setDaemon(true);
-        _stateChangeDispatcher.start();
+        // Grab the lock to make sure that the registration of the ManagedService
+        // won't be updated immediately but that the initial update will happen first
+        synchronized (_lock) {
+            _stateChangeDispatcher.setDaemon(true);
+            _stateChangeDispatcher.start();
 
-        Hashtable ht = new Hashtable();
-        zkClientRegistration = bundleContext.registerService(
-                new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() },
-                this, ht);
-        ht = new Hashtable();
-        ht.put(Constants.SERVICE_PID, PID);
-        managedServiceRegistration = bundleContext.registerService(ManagedService.class.getName(), this, ht);
+            bundleContext.addServiceListener(new ServiceListener() {
+                @Override
+                public void serviceChanged(ServiceEvent event) {
+                    if (_state == State.CONNECTED && event.getType() == ServiceEvent.REGISTERED) {
+                        LifecycleListener listener = (LifecycleListener) bundleContext.getService(event.getServiceReference());
+                        try {
+                            listener.onConnected();
+                        } catch (Throwable e) {
+                            log.warn("Exception while executing listener (ignored)", e);
+                        } finally {
+                            bundleContext.ungetService(event.getServiceReference());
+                        }
+                    }
+                }
+            }, "(" + Constants.OBJECTCLASS + "=" + LifecycleListener.class.getName() + ")");
 
-        updated(getDefaultProperties());
+            Hashtable ht = new Hashtable();
+            zkClientRegistration = bundleContext.registerService(
+                    new String[] { IZKClient.class.getName(), org.linkedin.zookeeper.client.IZKClient.class.getName() },
+                    this, ht);
+            ht = new Hashtable();
+            ht.put(Constants.SERVICE_PID, PID);
+            managedServiceRegistration = bundleContext.registerService(ManagedService.class.getName(), this, ht);
+
+            updated(getDefaultProperties());
+        }
     }
     
     private Dictionary getDefaultProperties() {
@@ -211,6 +260,11 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         }
         if (_stateChangeDispatcher != null) {
             _stateChangeDispatcher.end();
+            try {
+                _stateChangeDispatcher.join(1000);
+            } catch(Exception e) {
+                log.debug("ignored exception", e);
+            }
         }
         synchronized(_lock) {
             if (_zk != null) {
@@ -285,13 +339,12 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     public void updated(Dictionary properties) throws ConfigurationException {
         synchronized (_lock) {
             String url = System.getProperty("zookeeper.url");
-            Timespan timeout = new Timespan(30, Timespan.TimeUnit.SECOND);
             if (properties != null) {
                 if (properties.get("zookeeper.url") != null) {
                     url = (String) properties.get("zookeeper.url");
                 }
                 if (properties.get("zookeeper.timeout") != null) {
-                    timeout = Timespan.parse((String) properties.get("zookeeper.timeout"));
+                    sessionTimeout = Timespan.parse((String) properties.get("zookeeper.timeout"));
                 }
             }
             if (_factory == null && url == null
@@ -309,7 +362,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
                 _factory = null;
             }
             if (url != null) {
-                _factory = new ZooKeeperFactory(url, timeout, this);
+                _factory = new ZooKeeperFactory(url, sessionTimeout, this);
                 tryStart();
             }
             zkClientRegistration.setProperties(properties);
@@ -396,7 +449,7 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
     }
 
     public void waitForState(State state, Timespan timeout) throws TimeoutException, InterruptedException {
-        long endTime = (timeout == null ? new Timespan(5, Timespan.TimeUnit.MINUTE) : timeout).futureTimeMillis(_clock);
+        long endTime = (timeout == null ? sessionTimeout : timeout).futureTimeMillis(_clock);
         if (_state != state) {
             synchronized (_lock) {
                 while (_state != state) {

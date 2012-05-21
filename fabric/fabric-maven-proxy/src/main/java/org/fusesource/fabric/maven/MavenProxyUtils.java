@@ -18,7 +18,6 @@
 package org.fusesource.fabric.maven;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 
 public class MavenProxyUtils {
@@ -28,7 +27,7 @@ public class MavenProxyUtils {
     }
 
     public static String getMavenProxyUrl(int port){
-        return "http://" + getLocalHostName() + ":" + port + "/";
+        return "http://0.0.0.0:" + port + "/";
     }
 
     private static String getLocalHostName() {

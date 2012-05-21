@@ -30,6 +30,11 @@ public class ProducerThread extends Thread {
     protected JMSService service;
     int sleep = 0;
     int sentCount = 0;
+    int transactions = 0;
+    boolean persistent = true;
+    int messageSize = 0;
+    byte[] payload = null;
+    int transactionBatchSize;
 
     public ProducerThread(JMSService service, String dest) {
         this.dest = dest;
@@ -40,9 +45,18 @@ public class ProducerThread extends Thread {
         MessageProducer producer = null;
         try {
             producer = service.createProducer(dest);
+            producer.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
+            initPayLoad();
             for (sentCount = 0; sentCount < messageCount; sentCount++) {
-                producer.send(createMessage(sentCount));
-                LOG.info("Sent 'test message: " + sentCount + "'");
+                Message message = createMessage(sentCount);
+                producer.send(message);
+                LOG.info("Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
+
+                if (transactionBatchSize > 0 && sentCount > 0 && sentCount % transactionBatchSize == 0) {
+                    LOG.info("Committing transaction: " + transactions++);
+                    service.getDefaultSession().commit();
+                }
+
                 if (sleep > 0) {
                     Thread.sleep(sleep);
                 }
@@ -61,8 +75,21 @@ public class ProducerThread extends Thread {
         LOG.info("Producer thread finished");
     }
 
+    private void initPayLoad() {
+        if (messageSize > 0) {
+            payload = new byte[messageSize];
+            for (int i=0; i<payload.length; i++) {
+                payload[i] = '.';
+            }
+        }
+    }
+
     protected Message createMessage(int i) throws Exception {
-        return service.createTextMessage("test message: " + i);
+        if (payload != null) {
+            return service.createBytesMessage(payload);
+        } else {
+            return service.createTextMessage("test message: " + i);
+        }
     }
 
     public void setMessageCount(int messageCount) {
@@ -79,5 +106,17 @@ public class ProducerThread extends Thread {
 
     public int getSentCount() {
         return sentCount;
+    }
+
+    public void setPersistent(boolean persistent) {
+        this.persistent = persistent;
+    }
+
+    public void setMessageSize(int size) {
+        this.messageSize = size;
+    }
+
+    public void setTransactionBatchSize(int transactionBatchSize) {
+        this.transactionBatchSize = transactionBatchSize;
     }
 }

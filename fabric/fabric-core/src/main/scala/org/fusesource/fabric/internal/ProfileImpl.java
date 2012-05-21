@@ -32,6 +32,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.IZKClient;
 
 public class ProfileImpl implements Profile {
@@ -70,6 +71,7 @@ public class ProfileImpl implements Profile {
     public enum ConfigListType {
 
         BUNDLES("bundle"),
+        FABS("fab"),
         FEATURES("feature"),
         REPOSITORIES("repository");
 
@@ -87,6 +89,10 @@ public class ProfileImpl implements Profile {
         return getContainerConfigList(this, ConfigListType.BUNDLES);
     }
 
+    public List<String> getFabs() {
+        return getContainerConfigList(this, ConfigListType.FABS);
+    }
+
     public List<String> getFeatures() {
         return getContainerConfigList(this, ConfigListType.FEATURES);
     }
@@ -98,6 +104,11 @@ public class ProfileImpl implements Profile {
     @Override
     public void setBundles(List<String> values) {
         setContainerConfigList(this, values, ConfigListType.BUNDLES);
+    }
+
+    @Override
+    public void setFabs(List<String> values) {
+        setContainerConfigList(this, values, ConfigListType.FABS);
     }
 
     @Override
@@ -441,5 +452,10 @@ public class ProfileImpl implements Profile {
         int result = id.hashCode();
         result = 31 * result + version.hashCode();
         return result;
+    }
+
+    @Override
+    public boolean isAbstract() {
+        return id == null || id.equals("mq-base") || id.startsWith("fabric-ensemble-0000");
     }
 }

@@ -65,9 +65,8 @@
                                 <feature>cxf</feature>
                                 <feature>saaj</feature>
                                 <feature>activemq</feature>
-                                <feature>activemq-blueprint</feature>
                                 <feature>activemq-spring</feature>
-                                <feature>activemq-broker</feature>
+                                <feature>mq-fabric</feature>
                                 <feature>camel</feature>
                                 <feature>camel-activemq</feature>
                                 <feature>camel-nmr</feature>

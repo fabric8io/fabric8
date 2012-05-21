@@ -64,9 +64,6 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     jvmOptsBuilder.append(" ").append(options.getJvmOpts());
                 }
 
-                if (options.isDebugContainer()) {
-                    jvmOptsBuilder.append(" ").append(DEBUG_CONTAINER);
-                }
                 if (options.isEnsembleServer()) {
                     jvmOptsBuilder.append(" ").append(ENSEMBLE_SERVER_CONTAINER);
                 }

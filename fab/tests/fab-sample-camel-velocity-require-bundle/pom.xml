@@ -27,7 +27,7 @@
   <artifactId>fab-sample-camel-velocity-require-bundle</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Archive Bundles :: Tests :: Camel Velocity Require Bundle</name>
+  <name>Fuse Application Bundles :: Tests :: Camel Velocity Require Bundle</name>
 
   <dependencies>
     <dependency>

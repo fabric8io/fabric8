@@ -36,12 +36,16 @@
           org.fusesource.fabric.commands.service*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
+            org.apache.karaf.features*;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.commands,
             org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.boot.commands.support,
+            org.fusesource.fabric.utils,
         </fuse.osgi.private.pkg>
+        <fuse.osgi.activator>org.fusesource.fabric.commands.Activator</fuse.osgi.activator>
     </properties>
 
     <dependencies>
@@ -61,14 +65,17 @@
             <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
+            <artifactId>fabric-boot-commands</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-zookeeper-commands</artifactId>
+            <artifactId>fabric-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>

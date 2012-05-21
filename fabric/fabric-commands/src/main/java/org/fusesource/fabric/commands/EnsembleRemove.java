@@ -20,12 +20,12 @@ import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
-@Command(name = "ensemble-remove", scope = "fabric", description = "Removes containers from a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-remove", scope = "fabric", description = "Re-create the current ensemble, excluding the specified containers from the ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemove extends EnsembleCommandSupport {
 
-    @Argument(required = true, multiValued = true, description = "List of containers to be removed")
+    @Argument(required = true, multiValued = true, description = "List of containers to be removed. Must be an even number of containers.")
     private List<String> containers;
 
     @Override

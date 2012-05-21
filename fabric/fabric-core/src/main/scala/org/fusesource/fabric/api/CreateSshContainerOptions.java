@@ -27,7 +27,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public static final String DEFAULT_PRIVATE_KEY_FILE = System.getProperty("user.home") + File.separatorChar + ".ssh" + File.separatorChar + "id_rsa";
 
-    static final Integer DEFAULT_SSH_RETRIES = 5;
+    static final Integer DEFAULT_SSH_RETRIES = 1;
     static final Integer DEFAULT_SSH_PORT = 22;
 
     private String username;
@@ -38,6 +38,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     private Integer sshRetries = DEFAULT_SSH_RETRIES;
     private Integer retryDelay = 1;
     private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
+    private String passPhrase;
 
     public CreateSshContainerOptions() {
         this.providerType = "ssh";
@@ -89,6 +90,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         return this;
     }
 
+    public CreateSshContainerOptions passPhrase(final String passPhrase) {
+        this.passPhrase = passPhrase;
+        return this;
+    }
+
     public String getUsername() {
         try {
             return username != null && !username.isEmpty() ? username : getProviderURI().getUserInfo().split(":")[0];
@@ -124,8 +130,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     }
 
     public Integer getPort() {
-        return port != null ? port :
-                (getProxyUri().getPort() != 0 ? getProxyUri().getPort() : DEFAULT_SSH_PORT);
+        return port != null && port != 0 ? port :
+                (getProviderURI() != null && getProviderURI().getPort() != 0  ? getProviderURI().getPort() : DEFAULT_SSH_PORT);
     }
 
     public void setPort(Integer port) {
@@ -163,5 +169,13 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public void setPrivateKeyFile(String privateKeyFile) {
         this.privateKeyFile = privateKeyFile;
+    }
+
+    public String getPassPhrase() {
+        return passPhrase;
+    }
+
+    public void setPassPhrase(String passPhrase) {
+        this.passPhrase = passPhrase;
     }
 }

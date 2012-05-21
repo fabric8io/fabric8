@@ -26,6 +26,7 @@ import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Directive;
 import org.apache.felix.utils.manifest.Parser;
 import org.apache.felix.utils.version.VersionRange;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;
 import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
@@ -35,12 +36,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.net.URL;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -62,20 +59,32 @@ public class HeadersCommand extends CommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabClassPathResolver resolver = createResolver(fab);
-        if (resolver != null) {
-            Manifest manifest = resolver.getManifest();
-            if (manifest != null) {
-                Attributes attributes = manifest.getMainAttributes();
-                println(generateFormattedOutput(attributes));
-            } else {
-                println("ERROR: could not resolve FabURLHandler service in OSGi");
+        Map attributes = new HashMap();
+
+        // if the command is invoked using a URL, we resolve the FAB info using the service
+        // for an existing bundle, we just use the bundle headers directly
+        if (fab.matches("\\d+")) {
+            Bundle bundle = getBundle(fab);
+            if (bundle != null) {
+                Dictionary<String, String> headers = bundle.getHeaders();
+                Enumeration<String> enumeration = headers.keys();
+                while (enumeration.hasMoreElements()) {
+                    String key = enumeration.nextElement();
+                    attributes.put(key, headers.get(key));
+                }
+            }
+        } else {
+            FabBundleInfo info = getFabBundleInfo(fab);
+            if (info != null) {
+                attributes = info.getManifest();
             }
         }
+
+        println(generateFormattedOutput(attributes));
         return null;
     }
 
-    protected String generateFormattedOutput(Attributes attributes) {
+    protected String generateFormattedOutput(Map attributes) {
         StringBuilder output = new StringBuilder();
         Map<String, Object> otherAttribs = new HashMap<String, Object>();
         Map<String, Object> bundleAttribs = new HashMap<String, Object>();

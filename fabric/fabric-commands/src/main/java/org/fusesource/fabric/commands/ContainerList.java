@@ -23,14 +23,14 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 import static org.fusesource.fabric.commands.support.CommandUtils.filterContainers;
 import static org.fusesource.fabric.commands.support.CommandUtils.matchVersion;
 import static org.fusesource.fabric.commands.support.CommandUtils.sortContainers;
 import static org.fusesource.fabric.commands.support.CommandUtils.status;
 
-@Command(name = "container-list", scope = "fabric", description = "List existing containers")
+@Command(name = "container-list", scope = "fabric", description = "List the containers in the current fabric")
 public class ContainerList extends FabricCommand {
 
     static final String FORMAT = "%-30s %-9s %-7s %-30s %s";
@@ -43,7 +43,7 @@ public class ContainerList extends FabricCommand {
     private String version;
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
-    @Argument(index = 0, name = "filter", description = "Filter by id or profiles", required = false, multiValued = false)
+    @Argument(index = 0, name = "filter", description = "Filter by container ID or by profile name. When a profile name is specified, only the containers with that profile are listed.", required = false, multiValued = false)
     private String filter = null;
 
     @Override
@@ -76,8 +76,16 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
             if (matchVersion(container, version)) {
-                String indent = container.isRoot() ? "" : "  ";
-                out.println(String.format(FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
+                String indent = "";
+                for (Container c = container; !c.isRoot(); c = c.getParent()) {
+                    indent+="  ";
+                }
+                //Mark local container with a star symobl
+                String marker = "";
+                if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
+                    marker = "*";
+                }
+                out.println(String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
             }
         }
     }
@@ -86,8 +94,16 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
         for (Container container : containers) {
             if (matchVersion(container, version)) {
-                String indent = container.isRoot() ? "" : "  ";
-                out.println(String.format(VERBOSE_FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
+                String indent = "";
+                for (Container c = container; !c.isRoot(); c = c.getParent()) {
+                    indent += "  ";
+                }
+                //Mark local container with a star symobl
+                String marker = "";
+                if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
+                    marker = "*";
+                }
+                out.println(String.format(VERBOSE_FORMAT, indent + container.getId() + marker,  container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
             }
         }
     }

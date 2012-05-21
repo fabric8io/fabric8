@@ -28,16 +28,16 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "profile-display", scope = "fabric", description = "Displays profile information")
+@Command(name = "profile-display", scope = "fabric", description = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDisplay extends FabricCommand {
 
-    @Option(name = "--version")
+    @Option(name = "--version", description = "Select a specific profile version. Defaults to the current default version.")
     private String version;
-    @Option(name = "--overlay", aliases = "-o")
+    @Option(name = "--overlay", aliases = "-o", description = "Shows the effective profile settings, taking into account the settings inherited from parent profiles.")
     private Boolean overlay = false;
-    @Argument(index = 0, required = true, name = "profile")
+    @Argument(index = 0, required = true, name = "profile", description = "The name of the profile.")
     @CompleterValues(index = 0)
     private String name;
 
@@ -71,18 +71,20 @@ public class ProfileDisplay extends FabricCommand {
         out.println();
     }
 
-    private void displayProfile(Profile profile) {
+    private void displayProfile(Profile p) {
         PrintStream output = session.getConsole();
 
-        output.println("Profile id: " + profile.getId());
-        output.println("Version   : " + profile.getVersion());
+        output.println("Profile id: " + p.getId());
+        output.println("Version   : " + p.getVersion());
 
-        output.println("Parents   : " + toString(profile.getParents()));
+        output.println("Parents   : " + toString(p.getParents()));
 
-        output.printf("Associated Containers : %s\n", toString(profile.getAssociatedContainers()));
+        output.printf("Associated Containers : %s\n", toString(p.getAssociatedContainers()));
 
-        Map<String, Map<String, String>> configuration = overlay ? profile.getOverlay().getConfigurations() : profile.getConfigurations();
-        Map<String,String> agentConfiguration =  overlay ? profile.getOverlay().getContainerConfiguration() : profile.getContainerConfiguration();
+        Profile profile = overlay ? p.getOverlay() : p;
+
+        Map<String, Map<String, String>> configuration = profile.getConfigurations();
+        Map<String,String> agentConfiguration = profile.getContainerConfiguration();
         List<String> agentProperties = new ArrayList<String>();
         List<String> systemProperties = new ArrayList<String>();
         List<String> configProperties = new ArrayList<String>();
@@ -99,8 +101,7 @@ public class ProfileDisplay extends FabricCommand {
             else if (key.startsWith("config.")) {
                 configProperties.add("  " + key.substring("config.".length()) + " = " + value);
             }
-            else if (!key.startsWith("feature.") && !key.startsWith("repository") && !key.startsWith("bundle.")) {
-
+            else if (!key.startsWith("feature.") && !key.startsWith("repository") && !key.startsWith("bundle.") && !key.startsWith("fab.")) {
                 agentProperties.add("  " + key + " = " + value);
             }
         }
@@ -117,6 +118,9 @@ public class ProfileDisplay extends FabricCommand {
             }
             if (profile.getBundles().size() > 0) {
                 printConfigList("Bundles : ", output, profile.getBundles());
+            }
+            if (profile.getFabs().size() > 0) {
+                printConfigList("Fabs : ", output, profile.getFabs());
             }
 
             if (agentProperties.size() > 0) {

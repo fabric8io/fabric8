@@ -29,7 +29,7 @@
   <artifactId>fab-sample-camel-activemq-broker-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Archive Bundles :: Tests :: Camel ActiveMQ Broker Share</name>
+  <name>Fuse Application Bundles :: Tests :: Camel ActiveMQ Broker Share</name>
 
   <dependencies>
     <dependency>

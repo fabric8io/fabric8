@@ -18,6 +18,8 @@ package org.fusesource.fabric.api;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  */
@@ -38,11 +40,13 @@ public interface CreateContainerOptions extends Serializable {
     public boolean isEnsembleServer();
     public void setEnsembleServer(boolean setEnsembleServer);
 
-    public boolean isDebugContainer();
-    public void setDebugContainer(boolean debugContainer);
-
     public String getResolver();
     public void setResolver(String resolver);
+
+    public Map<String,Properties> getSystemProperties();
+
+    public String getPreferredAddress();
+    public void setPreferredAddress(String preferredAddress);
 
     public Integer getNumber();
     public void setNumber(Integer number);
@@ -55,4 +59,14 @@ public interface CreateContainerOptions extends Serializable {
 
     public String getJvmOpts();
     public void setJvmOpts(String jvmOpts);
+
+
+    public boolean isAdminAccess();
+    public void setAdminAccess(boolean adminAccess);
+
+    public void setCreationStateListener(CreationStateListener listener);
+    public CreationStateListener getCreationStateListener();
+
+    public Map<String, ? extends CreateContainerMetadata> getMetadataMap();
+
 }

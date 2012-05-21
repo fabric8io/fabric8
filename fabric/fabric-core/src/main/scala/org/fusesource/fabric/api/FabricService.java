@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.api;
 
+import java.io.IOException;
 import java.net.URI;
 
 public interface FabricService {
@@ -89,6 +90,11 @@ public interface FabricService {
     URI getMavenRepoURI();
 
     /**
+     * Returns the current maven proxy repository to use to deploy new builds to the fabric
+     */
+    URI getMavenRepoUploadURI();
+
+    /**
      * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
      * It's of the format <p>ip:port</p>
      * @return
@@ -137,4 +143,20 @@ public interface FabricService {
      * @return
      */
     String getCurrentContainerName();
+
+    /**
+     * Returns the fabric provisioning requirements if there are any defined
+     * or empty requirements if none are defined.
+     */
+    FabricRequirements getRequirements();
+
+    /**
+     * Stores the fabric provisioning requirements
+     */
+    void setRequirements(FabricRequirements requirements) throws IOException;
+
+    /**
+     * Get the profile statuses of the fabric in terms of the current number of instances and their max/min requirements
+     */
+    FabricStatus getFabricStatus();
 }

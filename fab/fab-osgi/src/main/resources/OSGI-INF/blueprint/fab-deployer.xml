@@ -19,40 +19,33 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            default-activation="lazy">
 
-  <cm:property-placeholder persistent-id="org.fusesource.fabric.fab.osgi.url" update-strategy="reload">
-    <!--
-    TODO copy the value across from the ops4j.pax.url.mvn value...
-  <cm:property-placeholder persistent-id="org.ops4j.pax.url.mvn" update-strategy="reload">
-  -->
-    <cm:default-properties>
-      <cm:property name="org.ops4j.pax.url.mvn.repositories" value="
-        http://repo1.maven.org/maven2, http://repository.ops4j.org/maven2,
-        http://svn.apache.org/repos/asf/servicemix/m2-repo,
-        http://repository.springsource.com/maven/bundles/release,
-        http://repository.springsource.com/maven/bundles/external,
-        http://scala-tools.org/repo-releases,
-        http://repo.fusesource.com/nexus/content/groups/public,
-        http://repo.fusesource.com/nexus/content/groups/ea,
-        http://repo.fusesource.com/nexus/content/groups/public-snapshots@snapshots,
-        http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases,
-        https://repository.apache.org/content/repositories/snapshots@snapshots"/>
+  <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
+  <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" />
 
-      <cm:property name="org.fusesource.fabric.fab.osgi.url.sharedResourcePaths" value="META-INF/services, WEB-INF"/>
-    </cm:default-properties>
-  </cm:property-placeholder>
+  <bean id="fabResolverFactory" class="org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl">
+    <property name="bundleContext" ref="blueprintBundleContext" />
+    <property name="configurationAdmin" ref="configurationAdmin" />
+    <property name="featuresService" ref="featuresService" />
+  </bean>
 
-  <!-- TODO: remove this one (activator already does the same thing with a Pax URL ConnectionFactory) -->
-  <service id="fabUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
+  <!-- export the FAB resolver factory - this allows e.g. Fabric to learn about FAB resolution as well -->
+  <service ref="fabResolverFactory" interface="org.fusesource.fabric.fab.osgi.FabResolverFactory" />
+
+  <bean id="fabUrlHandler" class="org.fusesource.fabric.fab.osgi.FabURLHandler">
+    <property name="fabResolverFactory" ref="fabResolverFactory" />
+    <property name="serviceProvider" ref="fabResolverFactory" />
+  </bean>
+
+
+  <service ref="fabUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
     <service-properties>
       <entry key="url.handler.protocol" value="fab"/>
     </service-properties>
-    <bean class="org.fusesource.fabric.fab.osgi.FabURLHandler">
-      <!-- TODO figure out how to pull this value directly from Config Admin... -->
-      <property name="mavenRepositories" value="${org.ops4j.pax.url.mvn.repositories}"/>
-    </bean>
   </service>
 
   <bean id="fabDeploymentListener" class="org.fusesource.fabric.fab.osgi.FabDeploymentListener"/>
+
+
 
   <!-- Force a reference to the url handler above from the osgi registry to (try to) make sure
 the url handler is registered inside the framework.  Else we can run into timing issues
@@ -82,6 +75,7 @@ set on the SymbolicName osgi header -->
         <action class="org.fusesource.fabric.fab.osgi.commands.fab.UninstallCommand"/>
     </command>
 
+    <!-- FAB-31 - module:* commands are disabled to avoid confusing our users
     <command name="module/show">
         <action class="org.fusesource.fabric.fab.osgi.commands.module.ShowCommand"/>
     </command>
@@ -100,6 +94,7 @@ set on the SymbolicName osgi header -->
     <command name="module/uninstall">
         <action class="org.fusesource.fabric.fab.osgi.commands.module.UninstallCommand"/>
     </command>
+    -->
   </command-bundle>
 
 </blueprint>

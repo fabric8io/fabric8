@@ -36,6 +36,9 @@ class FabSamplesWithCamelPreinstalledTest {
     //vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" ),
     systemProperty("project.version").value(VERSION),
 
+    // we need the boot delegation to allow the Spring/Blueprint XML parsing with JAXP to succeed
+    bootDelegationPackage("com.sun.*"),
+
     mavenBundle("org.ops4j.pax.url", "pax-url-mvn").versionAsInProject(),
 
     mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").versionAsInProject(),
@@ -50,6 +53,7 @@ class FabSamplesWithCamelPreinstalledTest {
     mavenBundle("org.apache.aries.proxy", "org.apache.aries.proxy").versionAsInProject(),
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.api").versionAsInProject(),
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.core").versionAsInProject(),
+    mavenBundle("org.apache.karaf.features", "org.apache.karaf.features.core").versionAsInProject(),
     mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console").versionAsInProject(),
 
     mavenBundle("org.apache.camel", "camel-core").versionAsInProject(),

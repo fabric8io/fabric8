@@ -194,6 +194,8 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
                                getEndpoint().getEndpointInfo().getAddress());
             requestContext.put("javax.xml.ws.service.endpoint.address",
                                getEndpoint().getEndpointInfo().getAddress());
+            // We should not replace the Address this time as the address is already override
+            requestContext.put(LoadBalanceTargetSelector.OVERRIDE_ADDRESS, "false");
         }
     }
 

@@ -22,14 +22,14 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 import static org.fusesource.fabric.commands.support.CommandUtils.sortProfiles;
 
-@Command(name = "profile-list", scope = "fabric", description = "List existing profiles")
+@Command(name = "profile-list", scope = "fabric", description = "Lists all profiles that belong to the specified version (where the version defaults to the current default version)")
 public class ProfileList extends FabricCommand {
 
-    @Option(name = "--version")
+    @Option(name = "--version", description = "Specifies the version of the profiles to list. Defaults to the current default version.")
     private String version;
 
     @Override

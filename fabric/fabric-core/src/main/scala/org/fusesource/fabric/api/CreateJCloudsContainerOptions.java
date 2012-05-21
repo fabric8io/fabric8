@@ -25,21 +25,27 @@ import java.util.Map;
 public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<CreateJCloudsContainerOptions> {
     private static final long serialVersionUID = 4489740280396972109L;
 
-
+    private String osFamily;
+    private String osVersion;
     private String imageId;
     private String hardwareId;
     private String locationId;
     private String group;
     private String user;
     private String providerName;
-    private JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
+    private JCloudsInstanceType instanceType = JCloudsInstanceType.Fastest;
     private String identity;
     private String credential;
     private String owner;
+    private final Map<String, String> serviceOptions = new HashMap<String, String>();
+    private final Map<String, String> nodeOptions = new HashMap<String, String>();
     private Integer servicePort = 0;
+    private String publicKeyFile;
+    private transient Object computeService;
 
     public CreateJCloudsContainerOptions() {
         this.providerType = "jclouds";
+        this.adminAccess = true;
     }
 
     @Override
@@ -54,6 +60,15 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 '}';
     }
 
+    public CreateJCloudsContainerOptions osVersion(final String osVersion) {
+        this.osVersion = osVersion;
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions osFamily(final String osFamily) {
+        this.osFamily = osFamily;
+        return this;
+    }
 
     public CreateJCloudsContainerOptions imageId(final String imageId) {
         this.imageId = imageId;
@@ -100,13 +115,50 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return this;
     }
 
+    /**
+     * Use servie options instead.
+     * @param owner
+     * @return
+     */
+    @Deprecated
     public CreateJCloudsContainerOptions owner(final String owner) {
         this.owner = owner;
+        if (owner != null) {
+            this.serviceOptions.put("owner", owner);
+        }
         return this;
     }
 
+    public CreateJCloudsContainerOptions nodeOptions(final Map<String, String> nodeOptions) {
+        if (nodeOptions != null) {
+            for (Map.Entry<String, String> entry : nodeOptions.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                this.nodeOptions.put(key,value);
+            }
+        }
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions serviceOptions(final Map<String, String> serviceOptions) {
+        if (serviceOptions != null) {
+            for (Map.Entry<String, String> entry : serviceOptions.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                this.serviceOptions.put(key,value);
+            }
+        }
+        return this;
+    }
+
+
     public CreateJCloudsContainerOptions servicePort(final Integer servicePort) {
         this.servicePort = servicePort;
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions publicKeyFile(final String publicKeyFile) {
+        this.publicKeyFile = publicKeyFile;
         return this;
     }
 
@@ -198,4 +250,45 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.servicePort = servicePort;
     }
 
+    public String getOsFamily() {
+        return osFamily;
+    }
+
+    public void setOsFamily(String osFamily) {
+        this.osFamily = osFamily;
+    }
+
+    public String getOsVersion() {
+        return osVersion;
+    }
+
+    public void setOsVersion(String osVersion) {
+        this.osVersion = osVersion;
+    }
+
+    public String getPublicKeyFile() {
+        return publicKeyFile;
+    }
+
+    public void setPublicKeyFile(String publicKeyFile) {
+        this.publicKeyFile = publicKeyFile;
+    }
+
+    public Map<String, String> getServiceOptions() {
+        return serviceOptions;
+    }
+
+    public Map<String, String> getNodeOptions() {
+        return nodeOptions;
+    }
+    public Object getComputeService() {
+        return computeService;
+    }
+
+    /**
+     * Sets an optional compute service to use for the creation of the container
+     */
+    public void setComputeService(Object computeService) {
+        this.computeService = computeService;
+    }
 }

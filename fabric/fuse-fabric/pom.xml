@@ -65,6 +65,10 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-boot-commands</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
                <artifactId>fabric-commands</artifactId>
            </dependency>
            <dependency>
@@ -125,7 +129,47 @@
                <artifactId>commons-codec</artifactId>
                <version>1.1</version>
            </dependency>
+
+        <!--Xerces jar to be included in lib/endorsed -->
+        <dependency>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${xerces.version}</version>
+        </dependency>
+
+        <!--xalan jar to be included in lib/endorsed-->
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
+
        </dependencies>
+
+    <repositories>
+        <!-- needed for xerces -->
+        <repository>
+            <id>servicemix.m2-repo</id>
+            <name>ServiceMix Maven 2 repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
        <build>
            <defaultGoal>install</defaultGoal>
@@ -176,6 +220,7 @@
                                </descriptors>
                                <features>
                                    <feature>fabric-agent</feature>
+                                   <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>
@@ -215,47 +260,48 @@
                                    </concat>
                                    <echo message="Updating etc/config.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                       <fileset file="src/main/append-resources/common/etc/config.properties" />
                                    </concat>
                                    <echo message="Updating etc/custom.properties in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/config.properties" />
+                                       <fileset file="src/main/append-resources/common/etc/config.properties" />
                                    </concat>
 
                                    <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
+                                       <fileset file="src/main/append-resources/common/etc/org.ops4j.pax.logging.cfg" />
                                    </concat>
                                    <echo message="Updating etc/org.ops4j.pax.logging.cfg in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/org.ops4j.pax.logging.cfg" />
+                                       <fileset file="src/main/append-resources/common/etc/org.ops4j.pax.logging.cfg" />
                                    </concat>
 
                                    <echo message="Updating etc/system.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/system.properties" />
+                                       <fileset file="src/main/append-resources/common/etc/system.properties" />
                                    </concat>
                                    <echo message="Updating etc/system.properties in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/system.properties" />
+                                       <fileset file="src/main/append-resources/common/etc/system.properties" />
                                    </concat>
 
                                    <echo message="Updating etc/shell.init.script in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/shell.init.script" />
+                                       <fileset file="src/main/append-resources/common/etc/shell.init.script" />
                                    </concat>
                                    <echo message="Updating etc/shell.init.script in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/shell.init.script" />
+                                       <fileset file="src/main/append-resources/common/etc/shell.init.script" />
                                    </concat>
-                                   
-                                   <echo message="Fixing start/stop scripts in windows assembly" />
-                                   <replace file="target/dependencies/win/apache-karaf-${karaf-version}/bin/start.bat" token="karaf.bat" value="fusefabric.bat"/>
-                                   <replace file="target/dependencies/win/apache-karaf-${karaf-version}/bin/stop.bat" token="karaf.bat" value="fusefabric.bat"/>
-                                   <echo message="Fixing start/stop scripts in unix assembly" />
-                                   <replace file="target/dependencies/unix/apache-karaf-${karaf-version}/bin/start" token="bin/karaf" value="bin/fusefabric"/>
-                                   <replace file="target/dependencies/unix/apache-karaf-${karaf-version}/bin/stop" token="bin/karaf" value="bin/fusefabric"/>
 
+                                   <echo message="Copying bin/fusefabric in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fusefabric" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/unix/fusefabric" />
+                                   </concat>
+                                   <echo message="Copying bin/fusefabric.bat in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fusefabric.bat" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/win/fusefabric.bat" />
+                                   </concat>
                                </target>
                            </configuration>
                        </execution>
@@ -264,7 +310,7 @@
             <plugin>
                  <groupId>org.fusesource.mvnplugins</groupId>
                  <artifactId>maven-notices-plugin</artifactId>
-                 <version>1.25</version>
+                 <version>1.26</version>
                  <executions>
                      <execution>
                          <id>merge-notices-in-repository</id>
@@ -278,6 +324,7 @@
                              <organizationURL>http://fusesource.com</organizationURL>
                              <preamble>In addition to the FuseSource products, this disk contains certain third party software or components (“Third Party Components”), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fuse MQ. Please see the mq_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by FuseSource Corporation (“FSC”) solely on an "AS IS" basis, without any warranty.  FSC disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
                              <listDependencies>true</listDependencies>
+                             <extraDependencies>org.apache.xerces:xercesImpl:2.11.0,xalan:xalan:2.7.1,xalan:serializer:2.7.1</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
                              <repositories>${project.basedir}/target/features-repo</repositories>
                              <defaultParent>org.fusesource.fabric:fabric-project:${project.version}</defaultParent>
@@ -339,44 +386,9 @@
                                     <classifier>features</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/distro/etc/increase-logging.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>enable-logging</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/install-fabric.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>installer</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/add-scala-tools-repo.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>add-scala-tools-repo</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/dosgi.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>dosgi</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/profiles.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>profiles</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/loadbalancing.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>loadbalancing</classifier>
-                                  </artifact>
-                                  <artifact>
                                     <file>target/classes/distro/etc/activemq.xml</file>
                                     <type>xml</type>
                                     <classifier>activemq</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/wait-for-service.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>wait-for-service</classifier>
                                   </artifact>
                             </artifacts>
                         </configuration>

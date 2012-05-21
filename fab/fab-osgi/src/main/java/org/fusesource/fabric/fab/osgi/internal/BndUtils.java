@@ -17,15 +17,12 @@
 
 package org.fusesource.fabric.fab.osgi.internal;
 
-import aQute.lib.osgi.*;
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.fusesource.fabric.fab.util.Files;
-import org.fusesource.fabric.fab.util.Strings;
-import org.ops4j.lang.NullArgumentException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -36,11 +33,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import aQute.lib.osgi.Analyzer;
+import aQute.lib.osgi.Constants;
+import aQute.lib.osgi.FileResource;
+import aQute.lib.osgi.Jar;
+import aQute.lib.osgi.Processor;
+import aQute.lib.osgi.Resource;
+import aQute.lib.osgi.URLResource;
+import aQute.lib.spring.SpringXMLType;
+import org.apache.felix.bundleplugin.BlueprintPlugin;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.util.Files;
+import org.fusesource.fabric.fab.util.Strings;
+import org.ops4j.lang.NullArgumentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
@@ -65,7 +79,12 @@ public class BndUtils
     private static final String ALLOWED_PACKAGE_CLAUSES = Strings.join(Arrays.asList(Constants.directives), ",") + ",version";
 
     /**
-     * Utility class. Ment to be used using static methods
+     * The list of analyzer plugin names we are using for analyzing Blueprint and Spring XML files
+     */
+    private static final String ANALYZER_PLUGIN_NAMES = BlueprintPlugin.class.getName() + "," + SpringXMLType.class.getName();
+
+    /**
+     * Utility class. Meant to be used using static methods
      */
     private BndUtils()
     {
@@ -113,8 +132,39 @@ public class BndUtils
                                            final OverwriteMode overwriteMode,
                                            final Map<String, Object> embeddedResources,
                                            final Map<String, Map<String, String>> extraImportPackages,
-                                           final HashSet<String> actualImports,
+                                           final Set<String> actualImports,
                                            final VersionResolver versionResolver)
+            throws Exception
+    {
+        Jar jar = createJar(jarInputStream,  instructions, jarInfo,
+                            overwriteMode, embeddedResources, extraImportPackages,
+                            actualImports, versionResolver);
+        return createInputStream( jar );
+    }
+
+    /**
+    * Processes the input jar and generates the necessary OSGi headers using specified instructions.
+    *
+    *
+    * @param jarInputStream input stream for the jar to be processed. Cannot be null.
+    * @param instructions   bnd specific processing instructions. Cannot be null.
+    * @param jarInfo        information about the jar to be processed. Usually the jar url. Cannot be null or empty.
+    * @param overwriteMode  manifets overwrite mode
+    *
+    * @param actualImports
+    * @return the bnd jar
+    *
+    * @throws NullArgumentException if any of the parameters is null
+    * @throws IOException           re-thron during jar processing
+    */
+    public static Jar createJar(final InputStream jarInputStream,
+                                final Properties instructions,
+                                final String jarInfo,
+                                final OverwriteMode overwriteMode,
+                                final Map<String, Object> embeddedResources,
+                                final Map<String, Map<String, String>> extraImportPackages,
+                                final Set<String> actualImports,
+                                final VersionResolver versionResolver)
         throws Exception
     {
         NullArgumentException.validateNotNull( jarInputStream, "Jar URL" );
@@ -143,6 +193,7 @@ public class BndUtils
             properties.putAll(instructions);
 
             properties.put("Generated-By-FAB-From", jarInfo);
+            properties.put(Analyzer.PLUGIN, ANALYZER_PLUGIN_NAMES);
 
             final Analyzer analyzer = new Analyzer();
             analyzer.setJar(jar);
@@ -282,7 +333,7 @@ public class BndUtils
             }
 
         }
-        return createInputStream( jar );
+        return jar;
     }
 
     private static File toFile(Object value) throws IOException {
@@ -315,7 +366,7 @@ public class BndUtils
      *
      * @throws java.io.IOException re-thrown
      */
-    private static PipedInputStream createInputStream( final Jar jar )
+    public static PipedInputStream createInputStream( final Jar jar )
         throws IOException
     {
         final PipedInputStream pin = new PipedInputStream();

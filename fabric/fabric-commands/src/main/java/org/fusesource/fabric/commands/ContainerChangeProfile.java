@@ -22,15 +22,15 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "container-change-profile", scope = "fabric", description = "Change profiles associated to an existing container")
+@Command(name = "container-change-profile", scope = "fabric", description = "Replaces a container's profiles with the specified list of profiles")
 public class ContainerChangeProfile extends FabricCommand {
 
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container;
     
-    @Argument(index = 1, name = "profiles", description = "The profiles", required = true, multiValued = true)
+    @Argument(index = 1, name = "profiles", description = "The profiles to deploy into the container", required = true, multiValued = true)
     private List<String> profiles;
 
     protected Object doExecute() throws Exception {

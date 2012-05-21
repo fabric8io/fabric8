@@ -1,15 +1,16 @@
 # SOAP EXAMPLE
 
 ## Overview
-This example demonstrates how to create a SOAP web service with CXF and expose it through the OSGi HTTP Service.
+This example demonstrates how to create a SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
 
 ## What You Will Learn
 In studying this example you will learn:
 
-* how to configure JAX-WS web services by using the blueprint configuration file.
+* how to configure JAX-WS Web services by using the blueprint configuration file
 * how to configure additional CXF features like logging
-* how to use standard Java Web Service annotations to define a web service interface
-* how to use standard Java Web Service annotations when implementing a web service in Java
+* how to use standard Java Web Service annotations to define a Web service interface
+* how to use standard Java Web Service annotations when implementing a Web service in Java
+* how to use CXF's `JaxWsProxyFactoryBean` to create a client side proxy to invoke a remote Web service
 
 ## Prerequisites
 Before building and running this example you need:
@@ -18,19 +19,28 @@ Before building and running this example you need:
 * JDK 1.6
 * Fuse ESB Enterprise 7
 
+## Files in the Example
+* `pom.xml` - the Maven POM file for building the example
+* `client.html` - a Web client that can be used to test the Web service from your browser
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorld.java` - a Java interface that defines the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorldImpl.java` - a Java class that implements the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/Client.java` - a Java class implementing a client that uses `JaxWsProxyFactoryBean` to call the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/ClientPasswordCallback.java` - a Java class implementing a JAAS callback handler for retrieving the credentials needed by the client
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/CustomSecurityInterceptor.java` - a Java class implementing a CXF interceptor that configures the standard WSS4J interceptor to provide the credentials needed to invoke the service
+* `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
 ## Building the Example
 To build the example:
 
 1. Change your working directory to the `examples/soap` directory
-1. Run `mvn clean install` to build the example
+2. Run `mvn clean install` to build the example
 
 
 ## Running the Example
 To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
-1. In the Fuse ESB console, enter the following command:
+2. In the Fuse ESB console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/soap/${project.version}
 
 There are several ways you can interact with the running web services: you can browse the web service metadata,

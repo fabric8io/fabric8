@@ -16,14 +16,14 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.Profile;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.Profile;
 
 import static org.fusesource.fabric.internal.ProfileImpl.*;
 
@@ -53,6 +53,10 @@ public class ProfileOverlayImpl implements Profile {
 
     public List<String> getBundles() {
         return getContainerConfigList(this, ConfigListType.BUNDLES);
+    }
+
+    public List<String> getFabs() {
+        return getContainerConfigList(this, ConfigListType.FABS);
     }
 
     public List<String> getFeatures() {
@@ -94,6 +98,11 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public void setBundles(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setFabs(List<String> values) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 
@@ -226,4 +235,8 @@ public class ProfileOverlayImpl implements Profile {
         }
     }
 
+    @Override
+    public boolean isAbstract() {
+        return self.isAbstract();
+    }
 }

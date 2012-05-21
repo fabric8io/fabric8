@@ -21,11 +21,11 @@ import java.io.PrintStream;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 import static org.fusesource.fabric.commands.support.CommandUtils.countContainersByVersion;
 
-@Command(name = "version-list", scope = "fabric", description = "List existing versions")
+@Command(name = "version-list", scope = "fabric", description = "List the existing versions")
 public class VersionList extends FabricCommand {
 
     @Override

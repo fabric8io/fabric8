@@ -34,6 +34,7 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: Error Handling</name>
     <description>Handle errors in the Camel m</description>
+    <version>7.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -71,27 +72,65 @@
             <version>${junit-version}</version>
             <scope>test</scope>
         </dependency>
+        <!--
+          Add the slf4j-log4j12 dependency jar for testing
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j-api-version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <index>true</index>
-                        <manifestEntries>
-                            <!--
-                              FAB will figure out the OSGi Manifest automatically, but you can always tweak the results
-                              by explicitly setting some additional headers.
-                            -->
-                            <Import-Package>org.apache.camel.builder,org.apache.camel.processor,*</Import-Package>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
+    <repositories>
+        <repository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+         <pluginRepository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+         <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

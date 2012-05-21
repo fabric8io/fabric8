@@ -24,19 +24,18 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "container-resolver-set", scope = "fabric", description = "Sets the resolver for the specified container")
+@Command(name = "container-resolver-set", scope = "fabric", description = "Apply the specified resolver policy to the specified container or containers", detailedDescription = "classpath:containerResolverSet.txt")
 public class ContainerResolverSet extends FabricCommand {
 
-    @Option(name = "--all", description = "Upgrade all containers.")
+    @Option(name = "--all", description = "Apply the resolver policy to all containers in the fabric.")
     private boolean all;
 
-    @Option(name = "--container", description = "Upgrade the given containers. Defaults to the current container.", required = false, multiValued = true)
+    @Option(name = "--container", description = "Apply the resolver policy to the specified container.", required = false, multiValued = true)
     private List<String> containerIds;
 
-    @Argument(index = 0, name = "resolver", description = "The resolver to set. A resolver defines the policy of how a container name is resovled to an ip.", required = true, multiValued = false)
+    @Argument(index = 0, name = "resolver", description = "The resolver policy to set on the specified container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip.", required = true, multiValued = false)
     private String resolver;
 
     @Override
@@ -58,8 +57,9 @@ public class ContainerResolverSet extends FabricCommand {
             }
         }
 
-        for (String container:containerIds) {
-            getZooKeeper().setData(ZkPath.CONTAINER_RESOLVER.getPath(container),resolver);
+        for (String containerId:containerIds) {
+            Container container = fabricService.getContainer(containerId);
+            container.setResolver(resolver);
         }
         return null;
     }

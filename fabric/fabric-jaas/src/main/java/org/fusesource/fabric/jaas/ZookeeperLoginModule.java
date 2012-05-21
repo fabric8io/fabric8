@@ -20,7 +20,7 @@ import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.RolePrincipal;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleReference;

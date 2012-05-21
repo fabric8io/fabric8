@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
@@ -30,12 +31,16 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected String providerType;
     protected URI providerURI;
     protected boolean ensembleServer;
-    protected boolean debugContainer;
+    protected String preferredAddress;
     protected String resolver= ZkDefs.DEFAULT_RESOLVER;
+    protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
     protected Integer number = 1;
     protected URI proxyUri;
     protected String zookeeperUrl;
     protected String jvmOpts;
+    protected boolean adminAccess = false;
+    protected Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
+    private transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
     /**
      * Converts provider URI Query to a Map.
@@ -55,6 +60,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return map;
     }
 
+    public T preferredAddress(final String preferredAddress) {
+        this.setPreferredAddress(preferredAddress);
+        return (T) this;
+    }
+
     public T resolver(final String resolver) {
         this.setResolver(resolver);
         return (T) this;
@@ -62,11 +72,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public T ensembleServer(final boolean ensembleServer) {
         this.ensembleServer = ensembleServer;
-        return (T) this;
-    }
-
-    public T debugContainer(final boolean debugContainer) {
-        this.debugContainer = debugContainer;
         return (T) this;
     }
 
@@ -121,6 +126,17 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return (T) this;
     }
 
+    public T adminAccess(final boolean adminAccess) {
+        this.adminAccess = adminAccess;
+        return (T) this;
+    }
+
+
+    public T creationStateListener(final CreationStateListener creationStateListener) {
+        this.creationStateListener = creationStateListener;
+        return (T) this;
+    }
+
     public String getProviderType() {
         return providerType != null ? providerType : (providerURI != null ? providerURI.getScheme() : null);
     }
@@ -161,12 +177,12 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.ensembleServer = ensembleServer;
     }
 
-    public boolean isDebugContainer() {
-        return debugContainer;
+    public String getPreferredAddress() {
+        return preferredAddress;
     }
 
-    public void setDebugContainer(boolean debugContainer) {
-        this.debugContainer = debugContainer;
+    public void setPreferredAddress(String preferredAddress) {
+        this.preferredAddress = preferredAddress;
     }
 
     public String getResolver() {
@@ -180,6 +196,13 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             this.resolver = ZkDefs.DEFAULT_RESOLVER;
         }
     }
+
+    @Override
+    public Map<String,Properties> getSystemProperties() {
+        return systemProperties;
+    }
+
+
 
     public Integer getNumber() {
         return number;
@@ -211,5 +234,26 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public void setJvmOpts(String jvmOpts) {
         this.jvmOpts = jvmOpts;
+    }
+
+    public boolean isAdminAccess() {
+        return adminAccess;
+    }
+
+    public CreationStateListener getCreationStateListener() {
+        return creationStateListener;
+    }
+
+    public void setCreationStateListener(CreationStateListener creationStateListener) {
+        this.creationStateListener = creationStateListener;
+    }
+
+
+    public void setAdminAccess(boolean adminAccess) {
+        this.adminAccess = adminAccess;
+    }
+
+    public Map<String, CreateContainerMetadata<T>> getMetadataMap() {
+        return metadataMap;
     }
 }

@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <!--
-   This file is the OSGi Blueprint XML file defining the CXF JAX-WS beans.  Because the file is in the
+   This is the OSGi Blueprint XML file defining the CXF JAX-WS beans.  Because the file is in the
    OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
 
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
@@ -66,7 +66,7 @@ under the License.
     </jaxws:endpoint>
 
     <!--
-      We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-WS endpoint setup before.
+      We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-WS endpoint setup.
       This bean is a CXF interceptor that ensures that a request has been authenticated before allowing it to pass. For
       performing the authentication, this interceptor will delegate to JAAS, using the realm name 'karaf'.  This will allow
       it to reuse the same authentication mechanism that is being used to secure other ESB facilities, such as the remote

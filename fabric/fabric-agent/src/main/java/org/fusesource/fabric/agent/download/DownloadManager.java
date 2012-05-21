@@ -18,7 +18,6 @@ package org.fusesource.fabric.agent.download;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.fusesource.fabric.agent.mvn.MavenConfiguration;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
@@ -44,7 +43,7 @@ public class DownloadManager {
     public DownloadManager(MavenConfiguration configuration, ExecutorService executor) throws MalformedURLException {
         this.configuration = configuration;
         this.executor = executor;
-        String systemRepo = "file:" + System.getProperty("karaf.home") + "/" + System.getProperty("karaf.default.repository") + "@snapshots";
+        String systemRepo = "file://" + System.getProperty("karaf.home") + "/" + System.getProperty("karaf.default.repository") + "@snapshots";
         system = new MavenRepositoryURL(systemRepo);
     }
 
@@ -58,6 +57,12 @@ public class DownloadManager {
             mvnUrl = mvnUrl.substring("wrap:".length());
             if (mvnUrl.contains("$")) {
                 mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('$') - 1);
+            }
+        }
+        if (mvnUrl.startsWith("war:")) {
+            mvnUrl = mvnUrl.substring("war:".length());
+            if (mvnUrl.contains("?")) {
+                mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('?') - 1);
             }
         }
         if (mvnUrl.startsWith("blueprint:") || mvnUrl.startsWith("spring:")) {

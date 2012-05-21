@@ -16,21 +16,30 @@
  */
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.VersionedDependencyId;
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.osgi.util.Services;
 import org.fusesource.fabric.fab.util.Filter;
 import org.junit.Test;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.*;
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES;
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.INSTR_FAB_REQUIRE_FEATURE;
+import static org.fusesource.fabric.fab.osgi.ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for {@link FabClassPathResolver}
@@ -52,12 +61,8 @@ public class FabClassPathResolverTest {
     @Test
     public void testAvailableHeaderParsing() {
         FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null) {
-            
-            private Map<String, String> properties = new HashMap<String, String>();
 
-            {
-                properties.put(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES, "true");
-            }
+            Map<String, String> properties = Services.createProperties(INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES, "true");
 
             @Override
             public String getManifestProperty(String name) {
@@ -67,10 +72,68 @@ public class FabClassPathResolverTest {
         assertTrue(resolver.isInstallProvidedBundleDependencies());
     }
 
+    @Test
+    public void testConfigureRequiredFeaturesAndURLS() throws URISyntaxException {
+        FabClassPathResolver resolver = new FabClassPathResolver(new FabClassPathResolverTest.MockFabFacade(), null, null) {
+
+            Map<String, String> properties =
+                    Services.createProperties(INSTR_FAB_REQUIRE_FEATURE, "karaf-framework camel-blueprint/2.9.0",
+                                              INSTR_FAB_REQUIRE_FEATURE_URL, "mvn:com.mycompany/features/1.0/xml/features");
+
+            @Override
+            public String getManifestProperty(String name) {
+                return properties.get(name);
+            }
+        };
+
+        resolver.processFabInstructions();
+
+        Collection<String> features = resolver.getInstallFeatures();
+        assertEquals(2, features.size());
+        assertTrue(features.contains("karaf-framework"));
+        assertTrue(features.contains("camel-blueprint/2.9.0"));
+
+        Collection<URI> uris = resolver.getInstallFeatureURLs();
+        assertEquals(1, uris.size());
+        assertTrue(uris.contains(new URI("mvn:com.mycompany/features/1.0/xml/features")));
+    }
+
+    @Test
+    public void testAddFeatureCollectorThroughPruningFilters() {
+        FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null);
+
+        MockFeatureCollectorFilter filter = new MockFeatureCollectorFilter();
+        resolver.addPruningFilter(filter);
+
+        // now ensure that every feature collected by the filter is listed in the install features
+        assertEquals(filter.getCollection().size(), resolver.getInstallFeatures().size());
+        for (String element : filter.getCollection()) {
+            resolver.getInstallFeatures().contains(element);
+        }
+    }
+
+    /*
+     * Mock Filter for DependencyTree instances that also implements FeatureCollector,
+     * similar to e.g. {@link CamelFeaturesFilter}
+     */
+    private static final class MockFeatureCollectorFilter implements Filter<DependencyTree>, FeatureCollector {
+
+        @Override
+        public Collection<String> getCollection() {
+            return Arrays.asList(new String[]{"mock_feature_1", "mock_feature_2"});
+        }
+
+        @Override
+        public boolean matches(DependencyTree dependencyTree) {
+            return false;
+        }
+
+    }
+
     /*
      * A mock {@link FabFacade} installation
      */
-    private static final class MockFabFacade extends FabFacadeSupport {
+    public static final class MockFabFacade extends FabFacadeSupport {
 
         @Override
         public File getJarFile() throws IOException {
@@ -78,7 +141,7 @@ public class FabClassPathResolverTest {
         }
 
         @Override
-        public Configuration getConfiguration() {
+        public ConfigurationImpl getConfiguration() {
             return null;
         }
 

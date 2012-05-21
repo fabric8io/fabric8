@@ -16,18 +16,17 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.features.FeaturesService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-@Command(name = "profile-edit", scope = "fabric", description = "Edit a profile")
+@Command(name = "profile-edit", scope = "fabric", description = "Edits the specified version of the specified profile (where the version defaults to the current default version)", detailedDescription = "classpath:profileEdit.txt")
 public class ProfileEdit extends FabricCommand {
 
      private static final Logger LOGGER = LoggerFactory.getLogger(ProfileEdit.class);
@@ -44,46 +43,49 @@ public class ProfileEdit extends FabricCommand {
     static final String FEATURE_PREFIX = "feature.";
     static final String REPOSITORY_PREFIX = "repository.";
     static final String BUNDLE_PREFIX = "bundle.";
+    static final String FAB_PREFIX = "fab.";
     static final String CONFIG_PREFIX = "config.";
     static final String SYSTEM_PREFIX = "system.";
     static final String DELIMETER = ",";
     static final String PID_KEY_SEPARATOR = "/";
 
 
-    @Option(name = "-r", aliases = {"--repositories"}, description = "Edit repositories", required = false, multiValued = false)
+    @Option(name = "-r", aliases = {"--repositories"}, description = "Edit the features repositories", required = false, multiValued = false)
     private String repositoryUriList;
 
-    @Option(name = "-f",aliases = {"--features"} ,description = "Edit features", required = false, multiValued = false)
+    @Option(name = "-f",aliases = {"--features"} ,description = "Edit features, specifying a comma-separated list of features to add (or delete).", required = false, multiValued = false)
     private String featuresList;
 
-    @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles", required = false, multiValued = false)
+    @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles, specifying a comma-separated list of bundles to add (or delete).", required = false, multiValued = false)
     private String bundlesList;
 
-    @Option(name = "-p", aliases = {"--pid"}, description = "Edit configuration pid", required = false, multiValued = false)
+    @Option(name = "-f", aliases = {"--fabs"}, description = "Edit fabs, specifying a comma-separated list of fabs to add (or delete).", required = false, multiValued = false)
+    private String fabsList;
+
+    @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>.", required = false, multiValued = false)
     private String configAdminConfigList;
 
-    @Option(name = "-s", aliases = {"--system"}, description = "Edit system properties", required = false, multiValued = false)
+    @Option(name = "-s", aliases = {"--system"}, description = "Edit the Java system properties that affect installed bundles (analogous to editing etc/system.properties in a root container).", required = false, multiValued = false)
     private String systemPropertyList;
 
-    @Option(name = "-c", aliases = {"--config"}, description = "Edit system properties", required = false, multiValued = false)
+    @Option(name = "-c", aliases = {"--config"}, description = "Edit the Java system properties that affect the karaf container (analogous to editing etc/config.properties in a root container).", required = false, multiValued = false)
     private String configPropertyList;
 
-    @Option(name = "-i", aliases = {"--import-pid"}, description = "Imports the pids that are edited, from local config admin", required = false, multiValued = false)
+    @Option(name = "-i", aliases = {"--import-pid"}, description = "Imports the pids that are edited, from local OSGi config admin", required = false, multiValued = false)
     private boolean importPid = false;
 
-    @Option(name = "--set", description = "Set or create value(s)")
+    @Option(name = "--set", description = "Set or create values (selected by default).")
     private boolean set = true;
 
-    @Option(name = "--delete", description = "Delete value(s)")
+    @Option(name = "--delete", description = "Delete values.")
     private boolean delete = false;
 
     @Argument(index = 0, name = "profile", description = "The target profile to edit", required = true, multiValued = false)
     private String profileName;
 
-    @Argument(index = 1,name = "version",  description = "The version of the profile to edit", required = false, multiValued = false)
+    @Argument(index = 1,name = "version",  description = "The version of the profile to edit. Defaults to the current default version.", required = false, multiValued = false)
     private String versionName = ZkDefs.DEFAULT_VERSION;
 
-    private FeaturesService featuresService;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -125,6 +127,12 @@ public class ProfileEdit extends FabricCommand {
             String[] bundles = bundlesList.split(DELIMETER);
             for (String bundlesLocation : bundles) {
                 updateConfig(pidConfig, BUNDLE_PREFIX + bundlesLocation.replace('/', '_'), bundlesLocation, set, delete);
+            }
+        }
+        if (fabsList != null && !fabsList.isEmpty()) {
+            String[] fabs = fabsList.split(DELIMETER);
+            for (String fabsLocation : fabs) {
+                updateConfig(pidConfig, FAB_PREFIX + fabsLocation.replace('/', '_'), fabsLocation, set, delete);
             }
         }
 

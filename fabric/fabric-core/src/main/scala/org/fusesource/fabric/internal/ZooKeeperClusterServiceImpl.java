@@ -16,30 +16,10 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooKeeper;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
-import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.ZKClient;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.util.tracker.ServiceTracker;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.InetAddress;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +27,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
+import org.linkedin.util.clock.Timespan;
+import org.linkedin.zookeeper.client.ZKClient;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
+
+import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     
@@ -56,9 +54,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private String version = ZkDefs.DEFAULT_VERSION;
+    private boolean autoStart = Boolean.getBoolean(ENSEMBLE_AUTOSTART);
 
     public void init() {
-        Boolean autoStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART));
         if (autoStart) {
             createLocalServer();
         }
@@ -100,16 +98,17 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String karafName = System.getProperty("karaf.name");
 
             // Install or stop the fabric-configadmin bridge
-            Bundle bundleFabricConfigAdmin = installOrStopBundle("org.fusesource.fabric.fabric-configadmin",
+            Bundle bundleFabricConfigAdmin = installOrStopBundle(bundleContext,"org.fusesource.fabric.fabric-configadmin",
                                                                  "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
-            Bundle bundleFabricZooKeeper = installOrStopBundle("org.fusesource.fabric.fabric-zookeeper",
+            Bundle bundleFabricZooKeeper = installOrStopBundle(bundleContext,"org.fusesource.fabric.fabric-zookeeper",
                                                                "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
-            Bundle bundleFabricJaas = installOrStopBundle("org.fusesource.fabric.fabric-jaas  ",
+            Bundle bundleFabricJaas = installOrStopBundle(bundleContext,"org.fusesource.fabric.fabric-jaas  ",
                                                                "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
+            Bundle bundleFabricCommands = installOrStopBundle(bundleContext,"org.fusesource.fabric.fabric-commands  ",
+                    "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
 
             // Create configuration
-            String connectionUrl = getLocalHostAddress() + ":" + Integer.toString(port);
-            String mavenProxyUrl = "http://" + getLocalHostAddress() + ":" + 8040;
+            String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(port);
 
             Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Properties();
@@ -184,31 +183,24 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/domain", "karaf");
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
 
+            // Reset the autostart flag
+            if (autoStart) {
+                System.setProperty(ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
+                org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
+                props.put(ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                props.save();
+            }
+
             // Restart fabric-configadmin bridge
             bundleFabricConfigAdmin.start();
             bundleFabricJaas.start();
-
+            bundleFabricCommands.start();
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper server configuration", e);
         }
     }
 
-    private Bundle installOrStopBundle(String bsn, String url) throws BundleException {
-        Bundle bundleFabricConfigAdmin = null;
-        for (Bundle b : bundleContext.getBundles()) {
-            if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
-                bundleFabricConfigAdmin = b;
-                break;
-            }
-        }
-        if (bundleFabricConfigAdmin == null) {
-            bundleFabricConfigAdmin = bundleContext.installBundle(url);
-        }
-        if (bundleFabricConfigAdmin.getState() == Bundle.ACTIVE) {
-            bundleFabricConfigAdmin.stop();
-        }
-        return bundleFabricConfigAdmin;
-    }
 
     public void clean() {
         try {
@@ -293,7 +285,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 return;
             }
 
-            String url = ZooKeeperUtils.getSubstitutedData(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url" );
+            String url = ZooKeeperUtils.getSubstitutedPath(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url");
             if (!url.equals(zooKeeperUrl)) {
                 throw new IllegalStateException("The zookeeper configuration is not properly backed in the zookeeper tree.");
             }
@@ -311,11 +303,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 for ( Object n : p.keySet() ) {
                     String node = (String) n;
                     if (node.startsWith("server.")) {
-                        String data = ZooKeeperUtils.getSubstitutedData(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId+".properties#" + node );
+                        String data = ZooKeeperUtils.getSubstitutedPath(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + oldClusterId + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId + ".properties#" + node);
                         addUsedPorts(usedPorts, data);
                     }
                 }
-                String datas =  ZooKeeperUtils.getSubstitutedData(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url" );
+                String datas =  ZooKeeperUtils.getSubstitutedPath(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url");
                 for (String data : datas.split(",")) {
                     addUsedPorts(usedPorts, data);
                 }
@@ -341,7 +333,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String realConnectionUrl = "";
             String containerList = "";
             for (String container : containers) {
-                String ip = ZooKeeperUtils.getSubstitutedData(zooKeeper,ZkPath.CONTAINER_IP.getPath(container));
+                String ip = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_IP.getPath(container));
                 String profNode = "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + newClusterId + "-" + Integer.toString(index);
                 String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
                 Properties pidNodeProperties = new Properties();
@@ -487,9 +479,4 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             throw new FabricException("Unable to remove containers to fabric ensemble: " + e.getMessage(), e);
         }
     }
-
-    private static String getLocalHostAddress() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostName();
-    }
-
 }

@@ -1,0 +1,7 @@
+Because the total number of containers in an ensemble must always be odd, you must add an even number of containers.
+
+For example, consider a fabric consisting of three containers (root1, root2, and root3) where root1 is an ensemble server and root2 and root3 are ordinary containers. You can add root2 and root3 to the ensemble by entering the following console command:
+
+fabric:ensemble-add root2 root3
+
+Note: Because the fabric ensemble is the key component of fabric, changing the ensemble is a critical operation. All data will be preserved and copied to the new ensemble servers before switching.

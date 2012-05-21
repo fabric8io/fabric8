@@ -53,6 +53,7 @@ import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
+@Deprecated
 public class MavenProxyImpl implements MavenProxy {
 
     private static final Logger LOGGER = Logger.getLogger(MavenProxyImpl.class.getName());
@@ -134,7 +135,7 @@ public class MavenProxyImpl implements MavenProxy {
                 session = newSession( system, localRepository );
             }
             repositories = new ArrayList<RemoteRepository>();
-            repositories.add(new RemoteRepository("local", "default", localRepository));
+            repositories.add(new RemoteRepository("local", "default", "file://" + localRepository));
             int i = 0;
             for (String rep : remoteRepositories.split(",")) {
                 RemoteRepository remoteRepository = new RemoteRepository( "repo-" + i++, "default", rep );
@@ -167,6 +168,16 @@ public class MavenProxyImpl implements MavenProxy {
                 serverSocket = null;
             }
         }
+    }
+
+    @Override
+    public File download(String path) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean upload(InputStream is, String path) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     protected class Acceptor extends Thread {
@@ -221,7 +232,13 @@ public class MavenProxyImpl implements MavenProxy {
                     path = path.substring(1);
                 }
                 String mvn = convertToMavenUrl(path);
-                LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
+                if (mvn == null) {
+                    LOGGER.log(Level.WARNING, String.format("Received non maven request : %s", path));
+                    output.write("HTTP/1.0 404 File not found.\r\n\r\n".getBytes());
+                    return;
+                } else {
+                    LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
+                }
 
                 try {
                     Artifact artifact = new DefaultArtifact( mvn, null );

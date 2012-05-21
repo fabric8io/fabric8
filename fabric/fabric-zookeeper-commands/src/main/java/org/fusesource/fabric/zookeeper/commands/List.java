@@ -21,16 +21,16 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "list", scope = "zk", description = "List a node's children", detailedDescription = "classpath:list.txt")
+@Command(name = "list", scope = "zk", description = "List a znode's children", detailedDescription = "classpath:list.txt")
 public class List extends ZooKeeperCommandSupport {
 
-    @Argument(description = "Path of the node to list")
+    @Argument(description = "Path of the znode to list")
     String path = "/";
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "Display children recursively")
+    @Option(name = "-r", aliases = {"--recursive"}, description = "List children recursively")
     boolean recursive = false;
 
-    @Option(name="-d", aliases={"--display"}, description="Display a node's value if set")
+    @Option(name="-d", aliases={"--display"}, description="Display a znode's value if set")
     boolean display = false;
 
     //TODO - Be good to also have an option to show other ZK attributes for a node similar to ls -la

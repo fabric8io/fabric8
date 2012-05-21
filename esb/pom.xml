@@ -34,15 +34,6 @@
     <properties>
         <examples.directory>../examples</examples.directory>
         <felix.obr.version>1.6.4</felix.obr.version>
-        <activemq.version>${activemq-version}</activemq.version>
-        <camel.version>${camel-version}</camel.version>
-        <cxf.version>${cxf-version}</cxf.version>
-        <fabric.version>${project.version}</fabric.version>
-        <karaf.version>${karaf-version}</karaf.version>
-        <smx.features.version>${smx-features-version}</smx.features.version>
-        <servicemix.utils.version>${servicemix-utils-version}</servicemix.utils.version>
-        <maven-assembly-plugin.version>${maven-assembly-plugin-version}</maven-assembly-plugin.version>
-        <servicemix.nmr.version>${servicemix-nmr-version}</servicemix.nmr.version>
 
         <felix.prefs.version>1.0.4</felix.prefs.version>
 
@@ -157,9 +148,6 @@
         <hibernate.ejb.springsource.version>3.4.0.GA</hibernate.ejb.springsource.version>
         <hibernate.springsource.version>3.3.2.GA</hibernate.springsource.version>
         <xmlschema.version>2.0</xmlschema.version>
-
-        <servicemix.specs.version>1.9.0</servicemix.specs.version>
-        <servicemix.components.version>${servicemix-components-version}</servicemix.components.version>
     </properties>
 
     <build>

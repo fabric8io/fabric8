@@ -25,12 +25,6 @@
         <property name="bundleContext" ref="blueprintBundleContext" />
         <property name="configurationAdmin" ref="configAdmin" />
     </bean>
-    <service ref="zkClient">
-        <interfaces>
-            <value>org.fusesource.fabric.zookeeper.IZKClient</value>
-            <value>org.linkedin.zookeeper.client.IZKClient</value>
-        </interfaces>
-    </service>
 
     <!-- ZooKeeper url handler -->
     <bean id="urlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">
@@ -42,12 +36,7 @@
         </service-properties>
     </service>
     
-    <!-- ZooKeeper client lifecycle listeners -->
-    <reference-list interface="org.linkedin.zookeeper.client.LifecycleListener" availability="optional">
-        <reference-listener ref="zkClient" bind-method="registerListener" unbind-method="removeListener"/>
-    </reference-list>
-
-    <!-- The karaf container registration --> 
+    <!-- The karaf container registration -->
     <bean id="karafContainerRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafContainerRegistration" destroy-method="destroy" depends-on="zkServerFactory">
         <property name="configurationAdmin" ref="configAdmin" />
         <property name="bundleContext" ref="blueprintBundleContext" />

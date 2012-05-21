@@ -32,9 +32,10 @@
     </parent>
 
     <artifactId>secure-rest</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: Secure Restful Web Services </name>
     <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fuse ESB</description>
+    <version>7.0-SNAPSHOT</version>
 
     <dependencies>
         <!--
@@ -61,51 +62,12 @@
     <build>
         <plugins>
             <!--
-                In this example, we will use a normal OSGi bundle instead of FAB because it allows for very fine-grained
-                control over the bundle manifest.
-
-                We are defining the maven-bundle-plugin with <extensions>true</extensions> because it provides
-                the additional packaging type ('bundle') we need.
-            -->
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <!--
-                        Additional instructions defined here are used for generating the OSGi MANIFEST.MF file.
-                        In this case, we explicitly define a bundle symbolic name and description.  We also specify
-                        the lists of package to be exported and imported by the bundle.
-
-                        With this Export-Package configuration, we will only add the web service itself to the bundle.
-                        There's no need to deploy the client code inside the container as well.
-                    -->
-                    <instructions>
-                        <Bundle-SymbolicName>org.fusesource.examples.secure.rest</Bundle-SymbolicName>
-                        <Bundle-Description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fuse ESB</Bundle-Description>
-                        <Import-Package>
-                            javax.wsdl,
-                            javax.xml.bind,
-                            javax.xml.bind.annotation,
-                            javax.ws.rs,
-                            javax.ws.rs.core,
-                            org.osgi.service.blueprint,
-                            org.apache.cxf.interceptor.security
-                        </Import-Package>
-                        <Export-Package>
-                            org.fusesource.examples.cxf.jaxrs.security,
-                            !org.fusesource.examples.cxf.jaxrs.security.client
-                        </Export-Package>
-                        <Private-Package>!*</Private-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <!--
                 The exec-maven-plugin allows us to run our Java client application with a 'mvn exec:java'.
             -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin-version}</version>
                 <configuration>
                     <mainClass>org.fusesource.examples.cxf.jaxrs.security.client.Client</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
@@ -113,5 +75,55 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+         <pluginRepository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+         <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

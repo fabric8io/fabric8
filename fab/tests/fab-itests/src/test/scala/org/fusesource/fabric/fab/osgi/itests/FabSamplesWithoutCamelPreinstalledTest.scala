@@ -32,8 +32,11 @@ class FabSamplesWithoutCamelPreinstalledTest {
     felix(),
     equinox(),
 
-    //vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" ),
+    // vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5006" ),
     systemProperty("project.version").value(VERSION),
+
+    // we need the boot delegation to allow the Spring/Blueprint XML parsing with JAXP to succeed
+    bootDelegationPackage("com.sun.*"),
 
     mavenBundle("org.ops4j.pax.url", "pax-url-mvn").versionAsInProject(),
 
@@ -49,6 +52,7 @@ class FabSamplesWithoutCamelPreinstalledTest {
     mavenBundle("org.apache.aries.proxy", "org.apache.aries.proxy").versionAsInProject(),
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.api").versionAsInProject(),
     mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.core").versionAsInProject(),
+    mavenBundle("org.apache.karaf.features", "org.apache.karaf.features.core").versionAsInProject(),
     mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console").versionAsInProject(),
 
     // and then add a few extra bundles to it to enable Scala- and FAB-support
