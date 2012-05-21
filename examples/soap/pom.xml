@@ -35,7 +35,6 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: SOAP </name>
     <description>SOAP example using JAXWS</description>
-    <version>7.0-SNAPSHOT</version>
 
     <dependencies>
         <!--
