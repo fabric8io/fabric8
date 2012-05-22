@@ -7,7 +7,7 @@ title: Fuse Bundles
 
 .left
   :markdown
-    # [FAB Overview](overview.html)
+    # [Overview](overview.html)
 .right
   :markdown
     A detailed overview of what Fuse Bundles are and how you use them.
