@@ -35,7 +35,6 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: Secure SOAP </name>
     <description>Secure SOAP example using JAXWS with WS-Security</description>
-    <version>7.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

@@ -34,7 +34,6 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: Content-Based Router</name>
     <description>Content-Based Router Example</description>
-    <version>7.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

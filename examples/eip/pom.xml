@@ -34,7 +34,6 @@
     <packaging>jar</packaging>
     <name>Fuse ESB :: Examples :: Enterprise Integration Patterns</name>
     <description>Combine multiple EIPs into a single solution</description>
-    <version>7.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
