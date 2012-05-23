@@ -10,18 +10,12 @@ sort_info: 1
 header(class="jumbotron masthead" id="overview")
   .inner
     .container
-      img(src={uri("/images/fabric/project-logo.png")})
-      
       p.lead
-        | <b>Fuse Fabric</b> is an <a href="faq.html#What_is_the_license_">open source</a> distributed configuration, management and provisioning system <br />
-        | for working with the following open source integration solutions in a public or private cloud:
-        ul
-          li <a href="http://fusesource.com/products/fuse-esb-enterprise/">Fuse ESB<a> 
-          li <a href="http://fusesource.com/products/fuse-mq-enterprise/">Fuse Message Broker<a>
-          li <a href="http://activemq.apache.org/">Apache ActiveMQ</a>, <a href="http://camel.apache.org/">Camel</a>, <a href="http://cxf.apache.org/">CXF</a>, <a href="http://karaf.apache.org/">Karaf</a> &amp; <a href="http://servicemix.apache.org/">ServiceMix</a>
-          
-      p <b>Fuse Fabric</b> helps you keep DRY from those rainy clouds! :) <br />
+        | <b>Fuse Fabric</b> is an <a href="faq.html#What_is_the_license_">open source</a> integration platform (<a href="http://www.ebizq.net/blogs/integrationedge/2012/01/where-do-i-buy-gartner-researchs-ipaas-cloud-integration-confusion.php">iPaaS</a>) for working with <a href="http://fusesource.com/products/fuse-esb-enterprise/">Fuse ESB</a>, <a href="http://fusesource.com/products/fuse-mq-enterprise/">Fuse MQ<a>, <a href="http://activemq.apache.org/">Apache ActiveMQ</a>, <a href="http://camel.apache.org/">Camel</a>, <a href="http://cxf.apache.org/">CXF</a>, <a href="http://karaf.apache.org/">Karaf</a> &amp; <a href="http://servicemix.apache.org/">ServiceMix</a>
+        
+      img(src={uri("/images/fabric/fabric-diagram.png")})
 
+      p <b>Fuse Fabric</b> helps you keep DRY from those rainy clouds! :) <br />
 
   .container
     .row
