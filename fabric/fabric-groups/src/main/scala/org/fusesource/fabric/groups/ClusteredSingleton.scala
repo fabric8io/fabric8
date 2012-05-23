@@ -38,14 +38,15 @@ trait NodeState {
    * but only the first node in the cluster will be the master for for it.
    */
   def id: String
+
+  override
+  def toString = new String(ClusteredSupport.encode(this), "UTF-8")
 }
 
 class TextNodeState extends NodeState {
   @BeanProperty
   @JsonProperty
   var id:String = _
-
-  override def toString = new String(ClusteredSupport.encode(this), "UTF-8")
 }
 
 /**
@@ -55,18 +56,18 @@ class TextNodeState extends NodeState {
  */
 object ClusteredSupport {
 
-  private var mapper: ObjectMapper = new ObjectMapper
+  val DEFAULT_MAPPER = new ObjectMapper
 
-  def decode[T](t : Class[T], buffer: Array[Byte]): T = decode(t, new ByteArrayInputStream(buffer))
-  def decode[T](t : Class[T], in: InputStream): T =  mapper.readValue(in, t)
+  def decode[T](t : Class[T], buffer: Array[Byte], mapper: ObjectMapper=DEFAULT_MAPPER): T = decode(t, new ByteArrayInputStream(buffer), mapper)
+  def decode[T](t : Class[T], in: InputStream, mapper: ObjectMapper): T =  mapper.readValue(in, t)
 
-  def encode(value: AnyRef): Array[Byte] = {
+  def encode(value: AnyRef, mapper: ObjectMapper=DEFAULT_MAPPER): Array[Byte] = {
     var baos: ByteArrayOutputStream = new ByteArrayOutputStream
-    encode(value, baos)
+    encode(value, baos, mapper)
     return baos.toByteArray
   }
 
-  def encode(value: AnyRef, out: OutputStream): Unit = {
+  def encode(value: AnyRef, out: OutputStream, mapper: ObjectMapper): Unit = {
     mapper.writeValue(out, value)
   }
 
@@ -84,6 +85,11 @@ class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends
   protected var _group:Group = _
   def group = _group
 
+  /**
+   * Override to use a custom configured mapper.
+   */
+  def mapper = ClusteredSupport.DEFAULT_MAPPER
+
   private val listener = new ChangeListener() {
     def changed() {
       val members = _group.members
@@ -91,7 +97,7 @@ class ClusteredSingletonWatcher[T <: NodeState](val stateClass:Class[T]) extends
       members.foreach {
         case (path, data) =>
           try {
-            val value = decode(stateClass, data)
+            val value = decode(stateClass, data, mapper)
             t.put(path, value)
           } catch {
             case e: Throwable =>
@@ -192,7 +198,7 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T]) extends Clustered
     if(this._state!=null)
       throw new IllegalStateException("Already joined")
     this._state = state
-    _eid = group.join(encode(state))
+    _eid = group.join(encode(state, mapper))
   }
 
   def leave:Unit = this.synchronized {
@@ -218,7 +224,7 @@ class ClusteredSingleton[T <: NodeState ](stateClass:Class[T]) extends Clustered
     if(_group==null)
       throw new IllegalStateException("Not started.")
     this._state = state
-    _group.update(_eid, encode(state))
+    _group.update(_eid, encode(state, mapper))
   }
 
   def isMaster:Boolean = this.synchronized {
