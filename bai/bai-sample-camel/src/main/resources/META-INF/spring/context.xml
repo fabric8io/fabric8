@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.8.0.xsd">
+
+	<bean class="com.fusesource.bai.event.AuditEventNotifier">
+		<property name="endpointUri" value="vm:audit" />
+		<property name="inRegex">
+			<list value-type="java.lang.String">
+				<value>.*</value>
+			</list>
+		</property>
+		<property name="outRegex">
+			<list value-type="java.lang.String">
+				<value>.*</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="com.fusesource.bai.event.AuditEventFactory" />
+	
+	<bean class="java.lang.Exception" id="exception">
+		<constructor-arg index="0" value="Hello, I'm an exception" />
+	</bean>
+	
+	<!-- ActiveMQ through which all exchange events will be pushed
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    	<property name="brokerURL" value="vm://default?copyMessageOnSend=false&amp;objectMessageSerializationDefered=true&amp;useAsyncSend=true"/>
+    </bean> -->
+	
+	<camelContext id="context1"
+				  useBreadcrumb="true"
+				  xmlns="http://camel.apache.org/schema/spring">
+		
+        <route id="route1" startupOrder="5">
+        	<from uri="timer://foo?fixedRate=true&amp;period=2000" id="timerEndpoint" />
+        	<setBody><constant><![CDATA[<test>Hello</test>]]></constant></setBody>
+        	<to uri="seda:otherRoute" id="anotherRoute" />
+        </route>
+        
+        <route id="failureRoute" startupOrder="6">
+       		<from uri="jetty:http://localhost:49999/fail?matchOnUriPrefix=true" id="httpServerFail" />
+        	<setProperty propertyName="fail"><constant>true</constant></setProperty>
+        	<to uri="seda:otherRoute" id="anotherRouteFail" />
+        </route>
+        
+        <route id="route2" startupOrder="4">
+        	<from uri="seda:otherRoute" id="theOtherRoute" />
+        	<to uri="file:outbox/test.txt?fileExist=Append" id="fileEndpoint" />
+        	<to uri="http://localhost:43234/test" id="httpEndpoint" />
+        	<filter>
+        		<simple>${property.fail} == 'true'</simple>
+        		<throwException ref="exception" />
+        	</filter>
+        </route>
+        
+        <route id="route3" startupOrder="3">
+        	<from uri="jetty:http://localhost:43234/test?matchOnUriPrefix=true" id="httpServer" />
+        	<setBody><constant><![CDATA[{ "result": "OK" }]]></constant></setBody>
+        	<setHeader headerName="destinations"><constant>activemq:queue:test.one,activemq:queue:test.two,activemq:queue:test.three</constant></setHeader>
+        	<to uri="direct:notifyResult" />
+        </route>
+        
+        <route id="route4" startupOrder="2">
+        	<from uri="direct:notifyResult" id="notifyResults" />
+        	<to uri="log:test?showAll=true" />
+        	<camel:recipientList id="rlNode">
+        		<camel:tokenize token="," headerName="destinations" regex="false" />
+        	</camel:recipientList>
+        </route>
+        
+        <route id="route5" startupOrder="1">
+        	<from uri="activemq:queue:&gt;" />
+        	<to uri="log:ReceivedJMS" />
+        	<setBody><constant><![CDATA[{ "result": "OK" }]]></constant></setBody>
+        </route>
+        
+    </camelContext>    
+
+</beans>

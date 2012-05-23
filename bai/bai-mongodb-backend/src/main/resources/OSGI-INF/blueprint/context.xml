@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+           
+	<bean class="com.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
+		<property name="mongo">
+			<bean class="com.mongodb.Mongo" />
+		</property>
+		<property name="dbname" value="bai" />
+		<property name="context" ref="mongoDbAuditContext" />
+	</bean>
+	
+	<camelContext id="mongoDbAuditContext"
+				  useBreadcrumb="true"
+				  xmlns="http://camel.apache.org/schema/blueprint"
+				  xsi:schemaLocation="http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.8.0.xsd">	  
+		<route>
+			<from uri="vm:audit?concurrentConsumers=5&amp;waitForTaskToComplete=Never" />
+			<bean ref="mongoBackend" method="audit" />
+		</route>		  
+				  
+	</camelContext>
+		
+   	
+</blueprint>
