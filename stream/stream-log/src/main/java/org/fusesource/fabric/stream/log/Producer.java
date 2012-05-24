@@ -18,7 +18,6 @@ package org.fusesource.fabric.stream.log;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageProducer;
-import org.apache.activemq.AsyncCallback;
 import org.apache.activemq.command.ActiveMQDestination;
 
 import javax.jms.*;
@@ -162,6 +161,10 @@ public class Producer {
             public void send(HashMap<String, String> headers, byte[] data, final Callback onComplete) {
                 try {
                     BytesMessage msg = session.createBytesMessage();
+                    // TODO made this sync for now!
+                    producer.send(msg);
+                    onComplete.onSuccess();
+                    /*
                     producer.send(msg, new AsyncCallback(){
                         public void onSuccess() {
                             onComplete.onSuccess();
@@ -169,7 +172,21 @@ public class Producer {
                         public void onException(JMSException exception) {
                             onComplete.onFailure(exception);
                         }
+
+                        // TODO the above is an old API it seems, below seems better
+                        // though there's no send() method with an async callack now?
+                        @Override
+                        public void done(boolean status) {
+                            if (status) {
+                                onComplete.onSuccess();
+                            } else {
+                                // TODO how to find the failure???
+                                Throwable failure = null;
+                                onComplete.onFailure(failure);
+                            }
+                        }
                     });
+                    */
                 } catch (JMSException e) {
                     onComplete.onFailure(e);
                 }
