@@ -1,4 +1,4 @@
-package com.fusesource.bai.backend.mongo;
+package org.fusesource.bai.backend.mongo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,8 +18,8 @@ import org.apache.camel.util.ServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fusesource.bai.backend.BAIAuditBackend;
-import com.fusesource.bai.event.AuditEvent;
+import org.fusesource.bai.backend.BAIAuditBackend;
+import org.fusesource.bai.event.AuditEvent;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;

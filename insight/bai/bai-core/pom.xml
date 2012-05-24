@@ -9,7 +9,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.fusesource.bai</groupId>
+	<groupId>org.fusesource.bai</groupId>
 	<artifactId>bai-core</artifactId>
 	<packaging>bundle</packaging>
 	<version>0.0.1-SNAPSHOT</version>
@@ -52,7 +52,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
 						<Import-Package>*,org.apache.camel.osgi</Import-Package>
-						<Export-Package>com.fusesource.bai*</Export-Package>
+						<Export-Package>org.fusesource.bai*</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

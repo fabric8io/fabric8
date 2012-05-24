@@ -1,4 +1,4 @@
-package com.fusesource.bai.event;
+package org.fusesource.bai.event;
 
 import java.util.Arrays;
 import java.util.EventObject;

@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.8.0.xsd">
 
-	<bean class="com.fusesource.bai.event.AuditEventNotifier">
+	<bean class="org.fusesource.bai.event.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit" />
 		<property name="inRegex">
 			<list value-type="java.lang.String">
@@ -19,7 +19,7 @@
 		</property>
 	</bean>
 	
-	<bean class="com.fusesource.bai.event.AuditEventFactory" />
+	<bean class="org.fusesource.bai.event.AuditEventFactory" />
 	
 	<bean class="java.lang.Exception" id="exception">
 		<constructor-arg index="0" value="Hello, I'm an exception" />
