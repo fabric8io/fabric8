@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.elasticsearch.discovery.zookeeper;
+package org.elasticsearch.discovery.fabric;
 
 import org.elasticsearch.discovery.Discovery;
 import org.elasticsearch.discovery.zen.ZenDiscoveryModule;
 
-public class ZooKeeperDiscoveryModule extends ZenDiscoveryModule {
+public class FabricDiscoveryModule extends ZenDiscoveryModule {
 
     @Override
     protected void bindDiscovery() {
-        bind(Discovery.class).to(ZooKeeperDiscovery.class).asEagerSingleton();
+        bind(Discovery.class).to(FabricDiscovery.class).asEagerSingleton();
     }
 }

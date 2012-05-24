@@ -71,33 +71,33 @@
       <dependency>
           <groupId>org.elasticsearch</groupId>
           <artifactId>elasticsearch</artifactId>
-          <version>0.16.0</version>
+          <version>0.19.4</version>
       </dependency>
 
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-core</artifactId>
-          <version>3.1.0</version>
+          <version>3.6.0</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-analyzers</artifactId>
-          <version>3.1.0</version>
+          <version>3.6.0</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-highlighter</artifactId>
-          <version>3.1.0</version>
+          <version>3.6.0</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-memory</artifactId>
-          <version>3.1.0</version>
+          <version>3.6.0</version>
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
           <artifactId>lucene-queries</artifactId>
-          <version>3.1.0</version>
+          <version>3.6.0</version>
       </dependency>
 
       <dependency>
