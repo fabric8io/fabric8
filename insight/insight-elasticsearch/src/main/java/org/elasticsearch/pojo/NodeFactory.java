@@ -64,7 +64,7 @@ public class NodeFactory extends BaseManagedServiceFactory<Node> {
     }
 
     @Override
-    protected String[] getExposedClasses() {
+    protected String[] getExposedClasses(Node node) {
         return new String[] { Node.class.getName() };
     }
 

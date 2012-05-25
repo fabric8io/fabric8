@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.elasticsearch.pojo;
+package org.fusesource.fabric.zookeeper.internal;
 
 import java.util.Dictionary;
 import java.util.Map;

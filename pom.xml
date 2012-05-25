@@ -564,6 +564,12 @@
           <layout>default</layout>
         </repository>
 
+        <!-- for elasticsearch -->
+        <repository>
+            <id>oss.sonatype.releases</id>
+            <url>http://oss.sonatype.org/content/repositories/releases</url>
+            <layout>default</layout>
+        </repository>
     </repositories>
 
     <pluginRepositories>

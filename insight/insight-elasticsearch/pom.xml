@@ -34,7 +34,7 @@
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.elasticsearch*;-noimport:=true;version=0.14.2
+          org.elasticsearch*;-noimport:=true;version=0.19.4
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           org.apache.lucene*,
@@ -72,6 +72,11 @@
           <groupId>org.elasticsearch</groupId>
           <artifactId>elasticsearch</artifactId>
           <version>0.19.4</version>
+      </dependency>
+      <dependency>
+          <groupId>org.elasticsearch</groupId>
+          <artifactId>elasticsearch-hadoop</artifactId>
+          <version>1.2.0</version>
       </dependency>
 
       <dependency>

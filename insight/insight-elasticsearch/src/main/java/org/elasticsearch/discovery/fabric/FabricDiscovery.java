@@ -28,7 +28,6 @@ import org.apache.zookeeper.data.ACL;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.DeserializationContext;
 import org.codehaus.jackson.map.JsonDeserializer;
 import org.codehaus.jackson.map.JsonSerializer;
@@ -47,6 +46,7 @@ import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.cluster.node.DiscoveryNodeService;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
+import org.elasticsearch.common.Base64;
 import org.elasticsearch.common.UUID;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.inject.Inject;
@@ -255,10 +255,10 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                     // Rebuild nodes
                     DiscoveryNodes.Builder nodesBuilder = newNodesBuilder()
                             .localNodeId(localNode.id())
-                            .masterNodeId(singleton.master().get().node.id())
+                            .masterNodeId(singleton.master().get().node().id())
                             .put(singleton.master().get().node);
                     for (ESNode node : JavaConversions$.MODULE$.asJavaCollection(singleton.slaves())) {
-                        nodesBuilder.put(node.node);
+                        nodesBuilder.put(node.node());
                     }
                     latestDiscoNodes = nodesBuilder.build();
                     stateBuilder.nodes(latestDiscoNodes);
@@ -281,7 +281,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                 }
             });
         } else if (joined && singleton.master().isDefined()) {
-            DiscoveryNode masterNode = singleton.master().get().node;
+            DiscoveryNode masterNode = singleton.master().get().node();
             try {
                 // first, make sure we can connect to the master
                 transportService.connectToNode(masterNode);
@@ -360,10 +360,8 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     @JsonSerialize(using = NodeSerializer.class)
     @JsonDeserialize(using = NodeDeserializer.class)
     static class ESNode implements NodeState {
-        @JsonProperty
-        String id;
-        @JsonProperty
-        DiscoveryNode node;
+        private final String id;
+        private final DiscoveryNode node;
 
         ESNode(String id, DiscoveryNode node) {
             this.id = id;
@@ -375,6 +373,9 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
             return id;
         }
 
+        public DiscoveryNode node() {
+            return node;
+        }
     }
 
     static class NodeSerializer extends JsonSerializer<ESNode> {
@@ -382,10 +383,17 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         public void serialize(ESNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
             jgen.writeStringField("id", value.id());
-            jgen.writeFieldName("binary");
-            BytesStreamOutput bso = new BytesStreamOutput();
-            value.node.writeTo(bso);
-            jgen.writeBinary(bso.underlyingBytes(), 0, bso.size());
+            jgen.writeStringField("nodeName", value.node().name());
+            jgen.writeStringField("nodeId", value.node().id());
+            jgen.writeStringField("address", value.node().address().toString());
+            jgen.writeStringField("version", value.node().version().toString());
+            jgen.writeFieldName("attributes");
+            jgen.writeStartObject();
+            for (Map.Entry<String, String> entry : value.node().attributes().entrySet()) {
+                jgen.writeStringField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+            jgen.writeStringField("binary", Base64.encodeObject(value.node()));
             jgen.writeEndObject();
         }
     }
@@ -393,14 +401,14 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     static class NodeDeserializer extends JsonDeserializer<ESNode> {
         @Override
         public ESNode deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-            jp.nextToken();
-            jp.nextValue();
-            String id = jp.getText();
-            jp.nextToken();
-            jp.nextValue();
-            BytesStreamInput bsi = new BytesStreamInput(jp.getBinaryValue(), false);
-            DiscoveryNode node = DiscoveryNode.readNode(bsi);
-            return new ESNode(id, node);
+            try {
+                Map map = jp.readValueAs(Map.class);
+                String id = map.get("id").toString();
+                DiscoveryNode node = (DiscoveryNode) Base64.decodeToObject(map.get("binary").toString(), Base64.NO_OPTIONS, DiscoveryNode.class.getClassLoader());
+                return new ESNode(id, node);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
