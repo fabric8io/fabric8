@@ -49,6 +49,7 @@ public class AuditEventFactory extends DefaultEventFactory {
         ae.exception = exchange.getException();
         // failure endpoint
         ae.endpointURI = exchange.getProperty(Exchange.FAILURE_ENDPOINT, String.class);
+        enrichWithCommonMetadata(ae, exchange);
         return ae;
     }
 
@@ -90,11 +91,19 @@ public class AuditEventFactory extends DefaultEventFactory {
         ae.sourceContextId = e.getContext().getName();
         // if the UoW exists, get the info from there as it's more accurate; if it doesn't exist, we have received an ExchangeCreated event so the info in the
         // exchange's fromRouteId will be correct anyway... so it's all good
-        ae.sourceRouteId = (e.getUnitOfWork() == null || e.getUnitOfWork().getRouteContext() == null) ? e.getFromRouteId() : e.getUnitOfWork().getRouteContext().getRoute().getId();
+        // all consumer endpoints create an exchange (ExchangeCreatedEvent) except for direct (even seda and VM create new Exchanges)
+        // the sourceRouteId serves as correlation and in the MongoDB backend, it's part of the collection name
+        // if the routeId changes WITHOUT an exchange being created in the new route, the event will never be written because
+        // sourceRouteId: what route created the Exchange
+        ae.sourceRouteId = e.getFromRouteId();
+        // currentRouteId: what route the Exchange currently is in
+        ae.currentRouteId = (e.getUnitOfWork() == null || e.getUnitOfWork().getRouteContext() == null) ? null : e.getUnitOfWork().getRouteContext().getRoute().getId();
         ae.breadCrumbId = e.getIn().getHeader(Exchange.BREADCRUMB_ID, String.class);
         if (ae.breadCrumbId == null && e.hasOut()) {
             ae.breadCrumbId = e.getOut().getHeader(Exchange.BREADCRUMB_ID, String.class);
         }
+        ae.exception = e.getException() == null ? e.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class) : e.getException();
+        ae.redelivered = e.getProperty(Exchange.REDELIVERED, boolean.class);
     }
 
 }

@@ -6,7 +6,7 @@
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.8.0.xsd">
 
 	<bean class="org.fusesource.bai.event.AuditEventNotifier">
-		<property name="endpointUri" value="vm:audit" />
+		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
 		<property name="inRegex">
 			<list value-type="java.lang.String">
 				<value>.*</value>
@@ -25,31 +25,52 @@
 		<constructor-arg index="0" value="Hello, I'm an exception" />
 	</bean>
 	
-	<!-- ActiveMQ through which all exchange events will be pushed
-	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-    	<property name="brokerURL" value="vm://default?copyMessageOnSend=false&amp;objectMessageSerializationDefered=true&amp;useAsyncSend=true"/>
-    </bean> -->
+	<bean id="noErrorHandler" class="org.apache.camel.builder.NoErrorHandlerBuilder"/>
+	
+	<!-- ActiveMQ through which all exchange events will be pushed -->
+	<!-- <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+		<property name="configuration">
+			<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+			   <property name="connectionFactory">
+			   	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+			   		?jms.copyMessageOnSend=false&amp;jms.objectMessageSerializationDefered=false&amp;jms.useAsyncSend=true 
+				   <property name="brokerURL" value="vm://default" />
+				</bean>
+			   </property>
+			   <property name="transacted" value="false"/>
+			   <property name="deliveryPersistent" value="false" />
+			</bean>
+		</property>
+    </bean>  -->
 	
 	<camelContext id="context1"
 				  useBreadcrumb="true"
 				  xmlns="http://camel.apache.org/schema/spring">
 		
         <route id="route1" startupOrder="5">
-        	<from uri="timer://foo?fixedRate=true&amp;period=2000" id="timerEndpoint" />
+        	<from uri="timer://foo?fixedRate=true&amp;period=300000" id="timerEndpoint" />
         	<setBody><constant><![CDATA[<test>Hello</test>]]></constant></setBody>
+        	<camel:log message="At route route1" />
         	<to uri="seda:otherRoute" id="anotherRoute" />
         </route>
         
         <route id="failureRoute" startupOrder="6">
        		<from uri="jetty:http://localhost:49999/fail?matchOnUriPrefix=true" id="httpServerFail" />
+       		<onException>
+	        	<exception>java.lang.Exception</exception>
+	        	<redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="1000" logRetryAttempted="true" logExhausted="true"/>
+        	</onException>
+        	<setBody><constant>fail</constant></setBody>
+        	<camel:log message="At route failureRoute" />
         	<setProperty propertyName="fail"><constant>true</constant></setProperty>
         	<to uri="seda:otherRoute" id="anotherRouteFail" />
         </route>
         
-        <route id="route2" startupOrder="4">
+        <route id="route2" startupOrder="4" errorHandlerRef="noErrorHandler">
         	<from uri="seda:otherRoute" id="theOtherRoute" />
-        	<to uri="file:outbox/test.txt?fileExist=Append" id="fileEndpoint" />
-        	<to uri="http://localhost:43234/test" id="httpEndpoint" />
+        	<camel:log message="At route route2" />
+        	<to uri="file:outbox?fileExist=Append&amp;fileName=test.txt" id="fileEndpoint" />
+        	<to uri="http://localhost:43234/test?bridgeEndpoint=true" id="httpEndpoint" />
         	<filter>
         		<simple>${property.fail} == 'true'</simple>
         		<throwException ref="exception" />
@@ -58,13 +79,15 @@
         
         <route id="route3" startupOrder="3">
         	<from uri="jetty:http://localhost:43234/test?matchOnUriPrefix=true" id="httpServer" />
-        	<setBody><constant><![CDATA[{ "result": "OK" }]]></constant></setBody>
+        	<camel:log message="At route route3" />
+        	<setBody><constant><![CDATA[{ "hello": "world" }]]></constant></setBody>
         	<setHeader headerName="destinations"><constant>activemq:queue:test.one,activemq:queue:test.two,activemq:queue:test.three</constant></setHeader>
         	<to uri="direct:notifyResult" />
         </route>
         
         <route id="route4" startupOrder="2">
         	<from uri="direct:notifyResult" id="notifyResults" />
+        	<camel:log message="At route route4" />
         	<to uri="log:test?showAll=true" />
         	<camel:recipientList id="rlNode">
         		<camel:tokenize token="," headerName="destinations" regex="false" />
@@ -73,8 +96,9 @@
         
         <route id="route5" startupOrder="1">
         	<from uri="activemq:queue:&gt;" />
+        	<camel:log message="At route route5" />
         	<to uri="log:ReceivedJMS" />
-        	<setBody><constant><![CDATA[{ "result": "OK" }]]></constant></setBody>
+        	<setBody><constant><![CDATA[{ "result": "OK", "replier": "route5" }]]></constant></setBody>
         </route>
         
     </camelContext>    

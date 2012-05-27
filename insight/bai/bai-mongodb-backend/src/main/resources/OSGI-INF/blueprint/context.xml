@@ -29,12 +29,26 @@
 		<property name="context" ref="mongoDbAuditContext" />
 	</bean>
 	
+	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+	   <property name="brokerURL" value="vm://default" />
+	</bean>
+
+	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+	   <property name="connectionFactory" ref="amqConnectionFactory"/>
+	   <property name="transacted" value="false"/>
+	   <property name="concurrentConsumers" value="1"/>
+	</bean>
+	
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+	    <property name="configuration" ref="jmsConfig"/>
+	</bean>
+
 	<camelContext id="mongoDbAuditContext"
 				  useBreadcrumb="true"
 				  xmlns="http://camel.apache.org/schema/blueprint"
 				  xsi:schemaLocation="http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.8.0.xsd">	  
 		<route>
-			<from uri="vm:audit?concurrentConsumers=5&amp;waitForTaskToComplete=Never" />
+			<from uri="vm:audit?concurrentConsumers=1" />
 			<bean ref="mongoBackend" method="audit" />
 		</route>		  
 				  

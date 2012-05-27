@@ -43,5 +43,7 @@ public class AuditEvent extends AbstractExchangeEvent {
     public String sourceContextId;
     public String sourceRouteId;
     public String breadCrumbId;
+    public Boolean redelivered;
+    public String currentRouteId;
     
 }

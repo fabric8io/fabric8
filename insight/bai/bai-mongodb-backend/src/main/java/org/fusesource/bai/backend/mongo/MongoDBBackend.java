@@ -19,10 +19,12 @@ package org.fusesource.bai.backend.mongo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.ExchangePattern;
 import org.apache.camel.TypeConverter;
 import org.apache.camel.dataformat.xmljson.XmlJsonDataFormat;
 import org.apache.camel.management.event.ExchangeCompletedEvent;
@@ -32,12 +34,14 @@ import org.apache.camel.management.event.ExchangeRedeliveryEvent;
 import org.apache.camel.management.event.ExchangeSendingEvent;
 import org.apache.camel.management.event.ExchangeSentEvent;
 import org.apache.camel.util.ServiceHelper;
+import org.fusesource.bai.AuditConstants;
+import org.fusesource.bai.backend.BAIAuditBackend;
+import org.fusesource.bai.event.AuditEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.fusesource.bai.backend.BAIAuditBackend;
-import org.fusesource.bai.event.AuditEvent;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -47,6 +51,16 @@ import com.mongodb.util.JSONParseException;
 
 /**
  * MongoDB Business Activity Insight backend
+ * Manages three types of collections: per-route collection, x-ray collection and debug
+ * The per-route collection is the heart of BAI, and contains records following this structure:
+ * { breadcrumbId: ,
+ *   input: { },
+ *   exchanges: { },
+ *   endpointFailures: { },
+ *   processorFailures: { },
+ *   endpointRedeliveries: { },
+ *   processorRedeliveries: { }
+ * }
  * @author Raul Kripalani
  *
  */
@@ -61,118 +75,295 @@ public class MongoDBBackend implements BAIAuditBackend {
 	private TypeConverter typeConverter;
 	private Properties typeHints;
 	private XmlJsonDataFormat xmlJson = new XmlJsonDataFormat();
-	
-	@Override
-	public void audit(AuditEvent event) {
-	    String endpointId = event.endpointURI;
-	    String srcContextId = event.getExchange().getContext().getName();
-	    String srcRouteId = event.getExchange().getFromRouteId();
+    private boolean debug = true;
 
-	    LOG.info("Received AuditEvent: " + event + " | Extracted data: " + endpointId + ", " + srcContextId + ", " + srcRouteId);
-        LOG.info("Breadcrumb ID for: " + event + " is: " + event.breadCrumbId, String.class);
+	@Override
+	public void audit(AuditEvent ev) {
+	    String endpointId = ev.endpointURI;
+	    String srcContextId = ev.getExchange().getContext().getName();
+	    String srcRouteId = ev.getExchange().getFromRouteId();
+
+	    // do some basic logging
+	    LOG.info("Received AuditEvent: " + ev + " | Extracted data: " + endpointId + ", " + srcContextId + ", " + srcRouteId);
+        LOG.info("Breadcrumb ID for: " + ev + " is: " + ev.breadCrumbId, String.class);
 
         boolean handled = false;
 		// a message is being sent
-		if (event.event instanceof ExchangeSendingEvent || event.event instanceof ExchangeSentEvent || 
-		        event.event instanceof ExchangeCreatedEvent || event.event instanceof ExchangeCompletedEvent) {
-			digestExchangeEvent(event);
+		if (ev.event instanceof ExchangeSendingEvent || ev.event instanceof ExchangeSentEvent || 
+		        ev.event instanceof ExchangeCreatedEvent || ev.event instanceof ExchangeCompletedEvent) {
+			digestExchangeEvent(ev);
 			handled = true;
 		} 
 		// a message has failed
-		else if (event.event instanceof ExchangeFailedEvent) {
-		    digestFailureEvent(event);
+		else if (ev.event instanceof ExchangeFailedEvent) {
+		    digestEndpointFailureEvent(ev);
 	        handled = true;
 		} 
 		// a message is being redelivered
-		else if (event.event instanceof ExchangeRedeliveryEvent) {
-		    digestRedeliveryEvent(event);
+		else if (ev.event instanceof ExchangeRedeliveryEvent) {
+		    if (ev.endpointURI != null) {
+		        digestEndpointRedeliveryEvent(ev);
+		    } else {
+		        digestProcessorRedeliveryEvent(ev);
+		    }
 	        handled = true;
 		}
 		
+		// add the entry to the meta collection - which tells us which routes a breadcrumbId has passed through
 		if (handled) {
-		    addToMetaCollection(event);
+		    addToMetaCollection(ev);
 		}
+		
+		// if debug is enabled, insert a record in the debug collection
+		if (debug) {
+		    createDebugRecord(ev);
+		}
+		
 	}
-	
-	private void digestExchangeEvent(AuditEvent ev) {	    
-        DBObject filter = new BasicDBObject("_id", ev.breadCrumbId);
-        DBObject toApply = new BasicDBObject();
+
+    private void createDebugRecord(AuditEvent ev) {
+        BasicDBObject object = new BasicDBObject();
+        object.append("breadCrumbId", ev.breadCrumbId);
+        object.append("eventtype", (ev.event).getClass().getName());
+        object.append("endpointURI", ev.endpointURI);
+        object.append("exchangeId", ev.getExchange().getExchangeId());
+        object.append("exception", ev.exception == null ? null : ev.exception.toString());
+        object.append("redelivered", ev.redelivered);
+        object.append("timestamp", ev.timestamp);
+        object.append("sourceContextId", ev.sourceContextId);
+        object.append("sourceRouteId", ev.sourceRouteId);
+        object.append("inBody", ev.event.getExchange().getIn().getBody(String.class));
+        object.append("outBody", ev.event.getExchange().hasOut() ? ev.event.getExchange().getOut().getBody(String.class) : null);
+
+        db.getCollection("baievents").insert(object);
+    }
+
+    /*
+     * Assumes that events are processed in order, i.e. the first ExchangeCreatedEvent received is the one from the route's consumer, ExchangeSending events are not received before
+     * the ExchangeCreated, etc.
+     */
+    
+    private void digestExchangeEvent(AuditEvent ev) {	    
+        if (ev.event instanceof ExchangeCreatedEvent) {
+            digestExchangeCreatedEvent(ev);
+        }
+        
+        // if the Exchange that has just completed is the same that started the route (i.e. the one from the ExchangeCreated event we accepted)
+        if (ev.event instanceof ExchangeCompletedEvent) {
+            digestExchangeCompletedEvent(ev);
+        }
+        
+        if (ev.event instanceof ExchangeSendingEvent) {
+            digestExchangeSendingEvent(ev);
+        }
+        
+        if (ev.event instanceof ExchangeSentEvent) {
+            digestExchangeSentEvent(ev);
+        }
+        
+	}
+
+    
+
+    private void digestExchangeCreatedEvent(AuditEvent ev) {
         // filter: { _id : <breadcrumbId> }
         // updateObj: { $push : { exchanges: { in: <inmessage>, inTimestamp: <inTimestamp> } } }
-        if (ev.event instanceof ExchangeSendingEvent || ev.event instanceof ExchangeCreatedEvent) {
-            toApply.put("endpointUri", ev.endpointURI);
-            toApply.put("startTimestamp", ev.timestamp);
-            toApply.put("status", "in_progress");
-            try {
-                toApply.put("in", convertPayload(ev.getExchange().getIn().getBody(), ev.getExchange()));
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-            DBObject exchanges = new BasicDBObject("exchanges", toApply);
-            DBObject updateObj = new BasicDBObject("$push", exchanges);
-            // if the exchange is being created, 
-            updateDatabase(ev, filter, updateObj);
-        }
-        // filter: { _id : <breadcrumbId>, exchanges.endpointUri: <endpointUri> }
-        // updateObj: { $set : { exchanges.$.in: { in: <inmessage>, inTimestamp: <inTimestamp> } } }
-        else if (ev.event instanceof ExchangeSentEvent || ev.event instanceof ExchangeCompletedEvent) {
-            // if the same endpoint URI is hit twice, two exchange entries will be created, but when marking one as 'finished', we won't know which one is the correct one
-            // correlate by exchange id won't work because it may be the same exchange; think of <to uri="log:blah" /> followed by <to uri="log:blah" />
-            filter.put("exchanges.endpointUri", ev.endpointURI);
-            filter.put("exchanges.endTimestamp", new BasicDBObject("$exists", false));
-            toApply.put("exchanges.$.endTimestamp", ev.timestamp);
-            toApply.put("exchanges.$.status", "finished");
-            try {
-                Object outBody = ev.getExchange().hasOut() ? ev.getExchange().getOut().getBody() : null;
-                if (outBody != null) {
-                    toApply.put("exchanges.$.out", convertPayload(outBody, ev.getExchange()));
-                }
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-            DBObject updateObj = new BasicDBObject("$set", toApply);
-            updateDatabase(ev, filter, updateObj);
-        }
-	}
-	
-	private void digestFailureEvent(AuditEvent ev) {
-        DBObject filter = new BasicDBObject("_id", ev.breadCrumbId);
-        // 1. Add an array element to failures with the exception
-        DBObject dboj = new BasicDBObject("endpointUri", ev.endpointURI);
-        dboj.put("exception", ev.exception.toString());
-        dboj.put("timestamp", ev.timestamp);
-        DBObject updateObj = new BasicDBObject("$push", new BasicDBObject("failures", dboj));
-        updateDatabase(ev, filter, updateObj);
+        // an exchange has been created (by a consumer or by an EIP - we probably don't want to track the latter, so we need to find a way)
+        // perhaps: if an exchange already exists with the same unit of work, of if an exchange with created='yes' already exists for that route, discard this message
         
-        // 2. Then set the status of the exchange to failed
-        filter.put("exchanges.endpointUri", ev.endpointURI);
-        dboj = new BasicDBObject("exchanges.$.status", "failed");
-        dboj.put("exchanges.$.failTimestamp", ev.timestamp);
-        updateObj = new BasicDBObject("$set", dboj);
-        updateDatabase(ev, filter, updateObj);
-	}
-	
-	private void digestRedeliveryEvent(AuditEvent ev) {
-	    DBObject filter = new BasicDBObject("_id", ev.breadCrumbId);
-	    // failure endpoint
-        filter.put("redeliveries.endpointUri", ev.endpointURI);
-        DBCollection collection = db.getCollection(ev.sourceContextId + "." + ev.sourceRouteId);
-        DBObject updateObj = new BasicDBObject();
-        // TODO: need to figure out how to make this atomic, otherwise it is easily subject to dirty read
-        // some redeliveries for that endpoint have already happened, just increment the counter
-        if (collection.count(filter) > 0) {
-            updateObj.put("$inc", new BasicDBObject("redeliveries.$.attempts", 1));
-        } else {
-            filter.removeField("redeliveries.endpointUri");
-            DBObject content = new BasicDBObject("endpointUri", ev.endpointURI);
-            content.put("attempts", 1);
-            updateObj.put("$push", new BasicDBObject("redeliveries", content));
+        // ExchangeCreated will create a record in the per-route collection, *ONLY IF* a record doesn't already exist
+        // if a record exists, it means that an EIP or processor has created a new Exchange, which will be sent later on, so we'll intercept it at that event
+        Object inMessage = null;
+        try {
+            inMessage = convertPayload(ev.getExchange().getIn().getBody(), ev.getExchange());
+        } catch (Exception e) {
+            // nothing
         }
-        updateDatabase(ev, filter, updateObj);
+    
+        DBObject exchObj = BasicDBObjectBuilder.start()
+                .append("endpointUri", ev.endpointURI)
+                .append("startTimestamp", ev.timestamp)
+                .append("status", "in_progress")
+                .append("exchangeId", ev.event.getExchange().getExchangeId())
+                .append("exchangePattern", ev.event.getExchange().getPattern().toString())
+                .append("in", inMessage)
+                .append("dispatchId", ev.event.getExchange().getProperty(AuditConstants.DISPATCH_ID, String.class)).get();
+        
+        DBObject toInsert = BasicDBObjectBuilder.start()
+                .append("_id", ev.breadCrumbId)
+                .append("input", 
+                        Arrays.asList(exchObj)).get();
+        
+        addCurrentRouteIdIfNeeded(ev, exchObj);
+        // insert the record => if it already exists, Mongo will ignore the insert
+        collectionFor(ev).insert(toInsert);
+    }
 
+    private void digestExchangeCompletedEvent(AuditEvent ev) {
+        DBObject filter = BasicDBObjectBuilder.start()
+                .append("_id", ev.breadCrumbId)
+                .append("input.endpointUri", ev.endpointURI)
+                .append("input.exchangeId", ev.getExchange().getExchangeId())
+                .append("exchanges.dispatchId", ev.event.getExchange().getProperty(AuditConstants.DISPATCH_ID, String.class)).get();
+        
+        DBObject toApply = new BasicDBObject();
+        toApply.put("$set", new BasicDBObject());
+        DBObject toSet = (BasicDBObject) toApply.get("$set");
+        toSet.put("input.$.endTimestamp", ev.timestamp);
+        toSet.put("input.$.status", "finished");
+        
+        // TODO: what if the exchange pattern changed while routing?
+        // if the exchange pattern is InOut, first check if there's an out message, if not, dump the in message as the out (since this is what Camel's PipelineProcessor
+        // will do internally anyway)
+        if (ev.event.getExchange().getPattern() == ExchangePattern.InOut) {
+            Object outBody = null;
+            try {
+                outBody = ev.getExchange().hasOut() ? ev.getExchange().getOut().getBody() : ev.getExchange().getIn().getBody();
+                // it's okay to insert a null value if the he pattern was InOut
+                toSet.put("input.$.out", convertPayload(outBody, ev.getExchange()));
+                toSet.put("input.$.originalOut", typeConverter.convertTo(String.class, outBody));
+            } catch (Exception e) {
+                // nothing
+            }
+        }
+        // update the record, only if the filter criteria is met
+        collectionFor(ev).update(filter, toApply);
+    }
+
+    private void digestExchangeSendingEvent(AuditEvent ev) {
+        DBObject filter = new BasicDBObject();
+        filter.put("_id", ev.breadCrumbId);
+        DBObject toApply = new BasicDBObject();
+        toApply.put("$push", new BasicDBObject("exchanges", new BasicDBObject()));
+        DBObject exchangeToPush = (BasicDBObject) ((BasicDBObject) toApply.get("$push")).get("exchanges");
+        exchangeToPush.put("endpointUri", ev.endpointURI);
+        exchangeToPush.put("startTimestamp", ev.timestamp);
+        exchangeToPush.put("status", "in_progress");
+        exchangeToPush.put("exchangeId", ev.event.getExchange().getExchangeId());
+        exchangeToPush.put("exchangePattern", ev.event.getExchange().getPattern().toString());
+        exchangeToPush.put("dispatchId", ev.event.getExchange().getProperty(AuditConstants.DISPATCH_ID, String.class));
+        addCurrentRouteIdIfNeeded(ev, exchangeToPush);
+        try {
+            exchangeToPush.put("in", convertPayload(ev.getExchange().getIn().getBody(), ev.getExchange()));
+        } catch (Exception e) {
+            // nothing
+        }
+         
+        // update the record
+        collectionFor(ev).update(filter, toApply);
+    }
+
+    private void digestExchangeSentEvent(AuditEvent ev) {
+        DBObject filter = BasicDBObjectBuilder.start()
+                .append("_id", ev.breadCrumbId)
+                .append("exchanges.endpointUri", ev.endpointURI)
+                .append("exchanges.exchangeId", ev.getExchange().getExchangeId())
+                .append("exchanges.dispatchId", ev.event.getExchange().getProperty(AuditConstants.DISPATCH_ID, String.class)).get();
+        
+        DBObject toApply = BasicDBObjectBuilder.start()
+                .push("$set")
+                    .append("exchanges.$.endTimestamp", ev.timestamp)
+                    .append("exchanges.$.status", "finished").get();
+        
+        // if the exchange pattern is InOut, first check if there's an out message, if not, dump the in message as the out (since this is what Camel's PipelineProcessor
+        // will do internally anyway)
+        if (ev.event.getExchange().getPattern() == ExchangePattern.InOut) {
+            Object outBody = null;
+            try {
+               outBody = ev.getExchange().hasOut() ? ev.getExchange().getOut().getBody() : ev.getExchange().getIn().getBody();
+               // it's okay to insert a null value if the he pattern was InOut
+               ((BasicDBObject) toApply.get("$set")).put("exchanges.$.out", convertPayload(outBody, ev.getExchange()));                  
+            } catch (Exception e) {
+                // nothing
+            }
+        }
+        // update the record, only if the filter criteria is met
+        collectionFor(ev).update(filter, toApply);
+    }
+    
+    private void digestEndpointFailureEvent(AuditEvent ev) {
+        DBObject filter = new BasicDBObject("_id", ev.breadCrumbId);
+        // 1. push the failure into endpointFailures
+        DBObject toUpdate = BasicDBObjectBuilder.start()
+                .push("$push")
+                    .push("endpointFailures")
+                        .append("endpointUri", ev.endpointURI)
+                        .append("exception", ev.exception.toString())
+                        .append("timestamp", ev.timestamp).get();
+
+        collectionFor(ev).update(filter, toUpdate);
+        addCurrentRouteIdIfNeeded(ev, (DBObject) ((DBObject) toUpdate.get("$push")).get("endpointFailures"));
+        
+        // 2. Then set the status of the exchange to failed - if it was an exchange sent from this route
+        filter.put("exchanges.endpointUri", ev.endpointURI);
+        filter.put("exchanges.exchangeId", ev.event.getExchange().getExchangeId());
+        filter.put("exchanges.dispatchId", ev.event.getExchange().getProperty(AuditConstants.DISPATCH_ID, String.class));
+        toUpdate = BasicDBObjectBuilder.start()
+                .push("$set")
+                .append("exchanges.$.status", "failed")
+                .append("exchanges.$.failTimestamp", ev.timestamp).get();
+        
+        // if an exception is informed, we add it too
+        if (ev.exception != null) {
+            ((BasicDBObject) toUpdate.get("$set")).put("exchanges.$.exception", ev.exception.toString());
+        }
+        
+        collectionFor(ev).update(filter, toUpdate);
+        
+        // 3. Then set the status of the exchange to failed - if it was the incoming exchange into the route
+        filter.put("in.endpointUri", ev.endpointURI);
+        filter.put("in.exchangeId", ev.event.getExchange().getExchangeId());
+        filter.put("in.dispatchId", ev.event.getExchange().getProperty(AuditConstants.DISPATCH_ID, String.class));
+        toUpdate = BasicDBObjectBuilder.start()
+                .push("$set")
+                .append("in.$.status", "failed")
+                .append("in.$.failTimestamp", ev.timestamp).get();
+        
+        // if an exception is informed, we add it too
+        if (ev.exception != null) {
+            ((BasicDBObject) toUpdate.get("$set")).put("in.$.exception", ev.exception.toString());
+        }
+                
+        collectionFor(ev).update(filter, toUpdate);
+        
 	}
 	
-	private void addToMetaCollection(AuditEvent ev) {
+	private void digestEndpointRedeliveryEvent(AuditEvent ev) {
+	    DBObject filter = new BasicDBObject("_id", ev.breadCrumbId);
+        // we don't know what processor caused it, because this info is not on the event, so just push an element into the processorRedeliveries array for the time being
+        DBObject toPush = BasicDBObjectBuilder.start()
+                .push("$push")
+                    .push("endpointRedeliveries")
+                        .append("exchangeId", ev.getExchange().getExchangeId())
+                        .append("endpointURI", ev.endpointURI)
+                        .append("timestamp", ev.timestamp)
+                        .append("exception", ev.exception.toString())
+                        .append("attempt", ev.getExchange().getProperty(Exchange.REDELIVERY_COUNTER)).get();
+        collectionFor(ev).update(filter, toPush);
+	}
+	
+	   private void digestProcessorRedeliveryEvent(AuditEvent ev) {
+	       DBObject filter = new BasicDBObject("_id", ev.breadCrumbId);
+	       // we don't know what processor caused it, because this info is not on the event, so just push an element into the processorRedeliveries array for the time being
+	       DBObject toPush = BasicDBObjectBuilder.start()
+	               .push("$push")
+	                   .push("processorRedeliveries")
+	                       .append("exchangeId", ev.getExchange().getExchangeId())
+	                       .append("timestamp", ev.timestamp)
+	                       .append("exception", ev.exception.toString())
+	                       .append("attempt", ev.getExchange().getProperty(Exchange.REDELIVERY_COUNTER)).get();
+	       
+	       collectionFor(ev).update(filter, toPush);
+	           
+	   }
+	
+	private void addCurrentRouteIdIfNeeded(AuditEvent ev, DBObject dbo) {
+        if (ev.currentRouteId != null && !ev.currentRouteId.equals(ev.sourceRouteId)) {
+            dbo.put("currentRouteId", ev.currentRouteId);
+        }
+    }
+
+    private void addToMetaCollection(AuditEvent ev) {
 	    DBObject filter = new BasicDBObject("_id", ev.breadCrumbId);
 	    DBObject dbo = new BasicDBObject("$addToSet", new BasicDBObject("routes", ev.sourceContextId + "." + ev.sourceRouteId));
 	    // possible collection names: eagleView, hawkView
@@ -180,13 +371,9 @@ public class MongoDBBackend implements BAIAuditBackend {
 	    collection.update(filter, dbo, true, false);
 	}
 	
-	private void updateDatabase(AuditEvent ev, DBObject filter, DBObject dbo) {
-		// obtain a collection with name contextId.routeId
-		DBCollection collection = db.getCollection(ev.sourceContextId + "." + ev.sourceRouteId);
-		// update the collection using upsert
-		collection.update(filter, dbo, true, false);
-	}
-	
+    private DBCollection collectionFor(AuditEvent ev) {
+        return db.getCollection(ev.sourceContextId + "." + ev.sourceRouteId);
+    }
 
 	/**
 	 * Converts the payload into something that we know for sure can go into Mongo (DBObject), primitive value, etc.
@@ -196,6 +383,9 @@ public class MongoDBBackend implements BAIAuditBackend {
 	 * @throws Exception
 	 */
 	private Object convertPayload(Object payload, Exchange exchange) throws Exception {
+	    if (payload == null) {
+	        return null;
+	    }
 	    // have a String representation handy
 	    String s = typeConverter.convertTo(String.class, payload);
         // 1. JSON if it starts with {
