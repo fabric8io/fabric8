@@ -43,7 +43,7 @@ sort_info: 50
       ## Commits List
   .span10
     :markdown
-      The [fabric-commits google group](http://groups.google.com/group/fusefabric-commits) is notified of all changes to the source code or changes to [issues](support.html) so you can use this list to watch development and support occur.
+      The [fabric-commits google group](http://groups.google.com/group/fusefabric-commits) is notified of all changes to the source code or changes to [issues](http://fusesource.com/issues/browse/FABRIC) so you can use this list to watch development and support occur.
 
       * [http://groups.google.com/group/fusefabric-commits](http://groups.google.com/group/fusefabric-commits)
 
