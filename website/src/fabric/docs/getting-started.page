@@ -13,7 +13,7 @@ sort_info: 10
       To install Fuse Fabric 
   
       * [download](../download.html) the Fuse Fabric distro 
-      * [checkout](../source.html) and [build](../building.html) the Fabric distro locally and untar the fabric/fuse-fabric tarball
+      * [checkout](../../source.html) and [build](../../building.html) the Fabric distro locally and untar the fabric/fuse-fabric tarball
   
 
 .row-fluid
