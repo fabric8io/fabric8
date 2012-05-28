@@ -14,7 +14,7 @@ header(class="jumbotron masthead" id="overview")
       img(src={uri("/images/fabric/fabric-diagram.png")})
     p.summary <b>Fuse Fabric</b> works with <a href="http://fusesource.com/products/fuse-esb-enterprise/">Fuse ESB</a>, <a href="http://fusesource.com/products/fuse-mq-enterprise/">Fuse MQ<a>, <a href="http://activemq.apache.org/">Apache ActiveMQ</a>, <a href="http://camel.apache.org/">Camel</a>, <a href="http://cxf.apache.org/">CXF</a>, <a href="http://karaf.apache.org/">Karaf</a> &amp; <a href="http://servicemix.apache.org/">ServiceMix</a>
     p
-      a(href="docs/getting-started.html" class="btn btn-primary btn-large") Get Started &raquo;
-      a(href="docs/user-guide.html" class="btn btn-primary btn-large") User Guide &raquo;
-      a(href="download.html" class="btn btn-primary btn-large") Download &raquo;
+      a(href="docs/getting-started.html" class="btn btn-danger btn-large") Get Started &raquo;
+      a(href="docs/user-guide.html" class="btn btn-danger btn-large") User Guide &raquo;
+      a(href="download.html" class="btn btn-danger btn-large") Download &raquo;
   

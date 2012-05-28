@@ -14,6 +14,6 @@ header(class="jumbotron masthead" id="overview")
       a(href="http://fusesource.com/")
         img(src="images/IntegrationEverywhere.jpeg" alt="Integration Everywhere")
       p
-        a(target="_blank" href="http://fusesource.com/products/fuse-esb-enterprise/" class="btn btn-primary btn-large") Fuse ESB &raquo;
-        a(target="_blank" href="fabric/index.html" class="btn btn-primary btn-large") Fuse Fabric &raquo;
-        a(target="_blank" href="http://fusesource.com/products/fuse-mq-enterprise/" class="btn btn-primary btn-large") Fuse MQ &raquo; 
+        a(target="_blank" href="http://fusesource.com/products/fuse-esb-enterprise/" class="btn btn-danger btn-large") Fuse ESB &raquo;
+        a(target="_blank" href="fabric/index.html" class="btn btn-danger btn-large") Fuse Fabric &raquo;
+        a(target="_blank" href="http://fusesource.com/products/fuse-mq-enterprise/" class="btn btn-danger btn-large") Fuse MQ &raquo; 
