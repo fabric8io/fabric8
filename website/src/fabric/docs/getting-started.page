@@ -4,11 +4,11 @@ in_menu: true
 sort_info: 10
 --- pipeline:jade
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Install
-  .span12
+      ## Install
+  .span8
     :&markdown
       To install Fuse Fabric 
   
@@ -16,11 +16,11 @@ sort_info: 10
       * [checkout](../source.html) and [build](../building.html) the Fabric distro locally and untar the fabric/fuse-fabric tarball
   
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Start Fuse Fabric
-  .span12
+      ## Start Fuse Fabric
+  .span8
     :&markdown
       To start Fuse Fabric use the following commands from a shell 
 
@@ -50,11 +50,11 @@ sort_info: 10
       |
       | FuseFabric:admin@root> 
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Create a Fabric
-  .span12
+      ## Create a Fabric
+  .span8
     :&markdown
       Create a new fabric on your machine via the **fabric:create** command.
 
@@ -94,11 +94,11 @@ sort_info: 10
       | [id]                           [alive]    [profiles]                       [provision status]
       | root                           true       default, fabric-ensemble-0000-1  success
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Create a Broker process 
-  .span12
+      ## Create a Broker process 
+  .span8
     :&markdown
       Lets start by creating a message broker using the default **mq** profile as a child container on the **root** process, and naming the container **broker1**.
       Child containers are separate JVMs which can be connected to via the shell or JMX and started/stopped independently.
@@ -131,11 +131,11 @@ sort_info: 10
       | admin@broker1> activemq:list
       | BrokerName = broker1
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Exit an Container 
-  .span12
+      ## Exit an Container 
+  .span8
     :&markdown
       After creating the message broker, we want to disconnect the container, to return to Fuse Fabric.
       You can do this by pressing `ctrl + d` in the console, or run the **logout** command:
@@ -145,11 +145,11 @@ sort_info: 10
       | ...
   
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Create a Camel process 
-  .span12
+      ## Create a Camel process 
+  .span8
     :&markdown
       Now lets create a separate container running a Camel route using the default **example-camel** profile as a child container on the **root** process.
 
@@ -177,11 +177,11 @@ sort_info: 10
       | [route1              ]
       | [route2              ]
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Running Camel Example 
-  .span12
+      ## Running Camel Example 
+  .span8
     :&markdown
       The **example-camel** example which we just installed, will every 5th second send a message to the message broker. And the consume
       the message and print it to the log. This is implemented using the two Camel routes, which you can view in more details using **camel:info-route route1**
@@ -208,11 +208,11 @@ sort_info: 10
       | admin@broker1> activemq:query -QQueue=camel-test
       | ...
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Stopping Containers and Fuse Fabric
-  .span12
+      ## Stopping Containers and Fuse Fabric
+  .span8
     :&markdown
       You can manage containers from the Fuse Fabric shell. For example to stop the **camel1** container, you can do as shown below.
       Remember you have to in the Fuse Fabric shell, which you can notice in the prompt. If you are connected to another container, you
@@ -235,11 +235,11 @@ sort_info: 10
       Congratulations, you are now started with Fuse Fabric, and have successfully managed to install two child containers. Install an example, which
       exchanges messages between the containers using the message broker.
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Install Fuse Fabric in a vanilla container
-  .span12
+      ## Install Fuse Fabric in a vanilla container
+  .span8
     :&markdown
       Fuse Fabric can be installed in a vanilla container such as Apache Karaf or ServiceMix.
       Run the following sequence of commands in an Apache Karaf (2.2.x) or ServiceMix (4.x) console:

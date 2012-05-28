@@ -4,11 +4,11 @@ in_menu: true
 sort_info: 40
 --- pipeline:jade
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Source Repository
-  .span12
+      ## Source Repository
+  .span8
     :&markdown
       Fuse stores its source code in a [Git](http://git-scm.com/) repository hosted on [github](http://github.com) at this location:
 
@@ -16,11 +16,11 @@ sort_info: 40
 
       If you are new to Git you might like to try the [Git guide for subversion users](http://git.or.cz/course/svn.html) or have a look at the [Git community book](http://book.git-scm.com/).
 
-.row
+.row-fluid
   .span4
     :markdown
-      # How to Checkout
-  .span12
+      ## How to Checkout
+  .span8
     :&markdown
       Read only access to the repository is available at the following URL:
 
@@ -33,11 +33,11 @@ sort_info: 40
 
       Now you probably want to try [build the fabric code](building.html) 
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Committer access
-  .span12
+      ## Committer access
+  .span8
     :&markdown
       Project members can push to the repository using the following URL:
 
@@ -49,21 +49,21 @@ sort_info: 40
           cd fuse
 
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Contributing patches
-  .span12
+      ## Contributing patches
+  .span8
     :markdown
       If you are not yet a committer but want to contribute some patch (we love [contributions!](contributing.html)) here's how you can submit patches
     
     - include("_creating_patches.ssp.md")
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Next steps
-  .span12
+      ## Next steps
+  .span8
     :&markdown
       Once you have checked out the code try following 
 

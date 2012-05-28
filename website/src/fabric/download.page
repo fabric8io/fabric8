@@ -4,13 +4,12 @@ in_menu: true
 sort_info: 5
 --- pipeline:jade
 
-.row
-  .span4
-    :markdown
-      # Download
-  .span12
+.row-fluid
+  .span2
+    h2 Download
+  .span10
     :&markdown
-    
+  
       You can download **Fabric** from the [Maven Repository](http://repo.fusesource.com/nexus/content/repositories/public/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/public/org/fusesource/fabric/).
 
       Fabric is composed of several components and does not provide any binary distribution to run at the moment.  
@@ -22,19 +21,18 @@ sort_info: 5
         * #{version} - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
 
     :&markdown
-  
+
       ## Snapshots
 
       You can download a recent snapshot from the [Snapshot Maven Repository](http://repo.fusesource.com/nexus/content/repositories/snapshots/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/snapshots/org/fusesource/fabric/).
 
 
-.row
-  .span4
-    :markdown
-      # Maven
-  .span12
+.row-fluid
+  .span2
+    h2 Maven
+  .span10
     :&markdown
-  
+
       If you build your project using [Maven](http://maven.apache.org/) then just add the following to your *pom.xml*
       {pygmentize:: xml}
       <dependency>
@@ -83,11 +81,10 @@ sort_info: 5
        </repositories>
       {pygmentize}
 
-.row
-  .span4
-    :markdown
-      # Building
-  .span12
+.row-fluid
+  .span2
+    h2 Building
+  .span10
     :markdown
       If you prefer you can try building from [the source code](source.html) and [building it](building.html)
 

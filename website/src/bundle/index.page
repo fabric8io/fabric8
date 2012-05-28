@@ -5,24 +5,27 @@ title: Fuse Bundles
 
 --- pipeline:jade
 
-.left
-  :markdown
-    # [Overview](overview.html)
-.right
-  :markdown
-    A detailed overview of what Fuse Bundles are and how you use them.
+.row-fluid
+  .span2
+    :markdown
+      # [Overview](overview.html)
+  .span10
+    :markdown
+      A detailed overview of what Fuse Bundles are and how you use them.
 
-.left
-  :markdown
-    # [FAQ](faq.html)
-.right
-  :markdown
-    Frequently asked questions on Fuse Bundles
+.row-fluid
+  .span2
+    :markdown
+      # [FAQ](faq.html)
+  .span10
+    :markdown
+      Frequently asked questions on Fuse Bundles
     
-.left
-  :markdown
-    # [Background](background.html)
-.right
-  :markdown
-    Some background on why we created Fuse Bundles.
+.row-fluid
+  .span2
+    :markdown
+      # [Background](background.html)
+  .span10
+    :markdown
+      Some background on why we created Fuse Bundles.
 
