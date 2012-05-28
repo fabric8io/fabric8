@@ -10,11 +10,11 @@ title: FuseSource Tools
       In addition we also provide the following tools to help you get the most of our open source:
 
     .row-fluid
-      .span4
+      .span2
         a(href="http://fusesource.com/products/fuse-ide/" title="Eclipse based developer tooling for Fuse")
           h1 Fuse IDE
       
-      .span8
+      .span10
         :&markdown
           Fuse IDE is an eclipse based **developer** tool for working with Fuse.
           
@@ -23,20 +23,20 @@ title: FuseSource Tools
           Fuse IDE is free to use for design time editing of code and Apache Camel routes, plus it comes with advanced runtime & debugging features available for [subscribers](http://fusesource.com/enterprise-support/support-offerings/).
 
       .row-fluid
-        .span4
+        .span2
           a(href="http://fusesource.com/products/fuse-management-console/" title="Web based operational management tooling for Fuse")
             h1 Fuse MC
 
-        .span8
+        .span10
           :&markdown
             Fuse Management Console is a web based application for [subscribers](http://fusesource.com/enterprise-support/support-offerings/) for **operational management** of the Fuse platform.
 
       .row-fluid
-        .span4
+        .span2
           a(href="http://fusesource.com/products/fuse-hq/" title="Web based operational monitoring tooling for Fuse")
             h1 Fuse HQ
 
-        .span8
+        .span10
           :&markdown
             Fuse HQ is a web based application for [subscribers](http://fusesource.com/enterprise-support/support-offerings/) for **operational monitoring** of the Fuse platform.
 
