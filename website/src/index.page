@@ -1,5 +1,5 @@
 ---
-title: Fuse Stack
+title: Integration Everywhere from FuseSource
 in_menu: true
 sort_info: 1
 --- name:head pipeline:ssp
@@ -12,8 +12,10 @@ header(class="jumbotron masthead" id="overview")
     h1 Integration Everywhere
     p
       a(href="http://fusesource.com/")
-        img(src="images/IntegrationEverywhere.jpeg" alt="Integration Everywhere")
+        img(src="images/fmc-small.jpg" alt="Integration Everywhere")
       p
-        a(target="_blank" href="http://fusesource.com/products/fuse-esb-enterprise/" class="btn btn-danger btn-large") Fuse ESB &raquo;
-        a(target="_blank" href="fabric/index.html" class="btn btn-danger btn-large") Fuse Fabric &raquo;
-        a(target="_blank" href="http://fusesource.com/products/fuse-mq-enterprise/" class="btn btn-danger btn-large") Fuse MQ &raquo; 
+        a(target="_blank" href="http://fusesource.com/products/fuse-esb-enterprise/" class="btn btn-danger btn-large" title="Fuse Enterprise Service Bus") Fuse ESB &raquo;
+        a(target="_blank" href="fabric/index.html" class="btn btn-danger btn-large" title="Fuse platform as a service") Fuse Fabric &raquo;
+        a(target="_blank" href="http://fusesource.com/products/fuse-mq-enterprise/" class="btn btn-danger btn-large" title="Open Source Messaging Platform") Fuse MQ &raquo; 
+        a(target="_blank" href="tools.html" class="btn btn-danger btn-large" title="Tools for working with Fuse") Tools &raquo;
+        

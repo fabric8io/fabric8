@@ -165,7 +165,7 @@ sort_info: 10
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
       | root                           true       default, fabric-ensemble-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
-      | &nbsp;&nbsp;camel1                       true       example-camel           success
+      | &nbsp;&nbsp;camel1                       true       example-camel                  success
   
     :&markdown
       Now we should be able to connect to it and list the Camel routes
