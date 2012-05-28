@@ -10,7 +10,7 @@ sort_info: 40
       ## Source Repository
   .span8
     :&markdown
-      Fuse stores its source code in a [Git](http://git-scm.com/) repository hosted on [github](http://github.com) at this location:
+      The source code is in a [Git](http://git-scm.com/) repository hosted on [github](http://github.com) at this location:
 
       * [#{github_page}](#{github_page})
 
@@ -31,7 +31,7 @@ sort_info: 40
           git clone #{git_user_url}
           cd fuse
 
-      Now you probably want to try [build the fabric code](building.html) 
+      Now you probably want to try [build the code](building.html) 
 
 .row-fluid
   .span4
@@ -67,8 +67,6 @@ sort_info: 40
     :&markdown
       Once you have checked out the code try following 
 
-      * [instructions to build #{project_name}](building.html) 
-      * read the [documentation](docs/index.html)
-      * browse the [developer links and maven reports](developers.html)
+      * [instructions to build the project](building.html) 
 
 
