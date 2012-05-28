@@ -31,14 +31,14 @@ sort_info: 10
     :&markdown
       Fuse Fabric will present itself on the console as shown below
     pre
-      | fuse-fabric-1.2$ bin/fusefabric 
+      | fuse-fabric-#{project_version}$ bin/fusefabric 
       | ______                  ______      _            _       
       | |  ___|                 |  ___|    | |          (_)      
       | | |_  _   _  ___   ___  | |_  __ _ | |__   _ __  _   ___ 
       | |  _|| | | |/ __| / _ \ |  _|/ _` || '_ \ | '__|| | / __|
       | | |  | |_| |\__ \|  __/ | | | (_| || |_) || |   | || (__ 
       | \_|   \__,_||___/ \___| \_|  \__,_||_.__/ |_|   |_| \___|
-      |   Fuse Fabric Container (1.2)
+      |   Fuse Fabric Container (#{project_version})
       |   http://fuse.fusesource.org/fabric/
       |
       | Hit '<tab>' for a list of available commands
