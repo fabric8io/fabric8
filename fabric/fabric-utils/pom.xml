@@ -29,7 +29,6 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-utils</artifactId>
     <packaging>jar</packaging>
-    <version>7.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
