@@ -36,7 +36,7 @@
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.apache.hadoop*;-noimport:=true;version=${hadoop-version}
+          org.apache.hadoop*;-noimport:=true;version=${hadoop-version};-split-package:=merge-first
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           webapps.*,
@@ -75,12 +75,24 @@
       </dependency>
 
       <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.jetty-bundle</artifactId>
+      </dependency>
+      <!--
+      <dependency>
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-server</artifactId>
       </dependency>
       <dependency>
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-webapp</artifactId>
+      </dependency>
+      -->
+
+      <dependency>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-servlet</artifactId>
+          <version>1.10</version>
       </dependency>
 
   </dependencies>

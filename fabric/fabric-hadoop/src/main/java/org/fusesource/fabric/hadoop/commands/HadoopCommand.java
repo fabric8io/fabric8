@@ -18,10 +18,13 @@ package org.fusesource.fabric.hadoop.commands;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+
+import javax.security.auth.Subject;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
@@ -51,17 +54,22 @@ public class HadoopCommand extends AbstractCommand implements Function, Completa
     }
 
     @Override
-    public Object execute(CommandSession commandSession, List<Object> objects) throws Exception {
+    public Object execute(CommandSession commandSession, final List<Object> objects) throws Exception {
         ClassLoader oldTccl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-            doExecute(objects);
+            Subject.doAs(null, new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() throws Exception {
+                    doExecute(objects);
+                    return null;
+                }
+            });
         } finally {
             Thread.currentThread().setContextClassLoader(oldTccl);
         }
         return null;
     }
-
 
     protected void doExecute(List<Object> objects) throws Exception {
         org.apache.hadoop.conf.Configuration conf = getConfiguration();

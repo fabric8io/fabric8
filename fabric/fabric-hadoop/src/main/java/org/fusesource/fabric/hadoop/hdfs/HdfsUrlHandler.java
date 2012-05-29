@@ -47,13 +47,21 @@ public class HdfsUrlHandler extends AbstractURLStreamHandlerService implements M
 
     @Override
     public void updated(Dictionary properties) throws ConfigurationException {
-        Configuration conf = new Configuration();
-        for (Enumeration e = properties.keys(); e.hasMoreElements();) {
-            Object key = e.nextElement();
-            Object val = properties.get(key);
-            conf.set( key.toString(), val.toString() );
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            Configuration conf = new Configuration();
+            if (properties != null) {
+                for (Enumeration e = properties.keys(); e.hasMoreElements();) {
+                    Object key = e.nextElement();
+                    Object val = properties.get(key);
+                    conf.set( key.toString(), val.toString() );
+                }
+            }
+            this.conf = conf;
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
         }
-        this.conf = conf;
     }
 
     /**
@@ -78,18 +86,22 @@ public class HdfsUrlHandler extends AbstractURLStreamHandlerService implements M
 
         @Override
         public void connect() throws IOException {
+            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
             try {
-              FileSystem fs = FileSystem.get(url.toURI(), conf);
-              is = fs.open(new Path(url.getPath()));
+                Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+                FileSystem fs = FileSystem.get(url.toURI(), conf);
+                is = fs.open(new Path(url.getPath()));
             } catch (URISyntaxException e) {
-              throw new IOException(e.toString());
+                throw new IOException(e.toString());
+            } finally {
+                Thread.currentThread().setContextClassLoader(tccl);
             }
         }
 
         @Override
         public InputStream getInputStream() throws IOException {
             if (is == null) {
-              connect();
+                connect();
             }
             return is;
         }

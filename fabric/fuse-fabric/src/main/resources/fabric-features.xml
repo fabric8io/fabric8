@@ -365,10 +365,39 @@
     </feature>
 
     <feature name="fabric-hadoop" version="${project.version}" resolver="(obr)">
-        <feature>war</feature>
+        <config name="org.fusesource.fabric.hadoop">
+            #
+            # Copyright (C) FuseSource, Inc.
+            # http://fusesource.com
+            #
+            # Licensed under the Apache License, Version 2.0 (the "License");
+            # you may not use this file except in compliance with the License.
+            # You may obtain a copy of the License at
+            #
+            #    http://www.apache.org/licenses/LICENSE-2.0
+            #
+            # Unless required by applicable law or agreed to in writing, software
+            # distributed under the License is distributed on an "AS IS" BASIS,
+            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            # See the License for the specific language governing permissions and
+            # limitations under the License.
+            #
+
+            fs.default.name=hdfs\://localhost\:9000
+            dfs.replication=1
+            mapred.job.tracker=localhost\:9001
+            dfs.name.dir=${karaf.data}/hadoop/dfs/name
+            dfs.http.address=localhost\:9002
+            dfs.data.dir=${karaf.data}/hadoop/dfs/data
+            dfs.name.edits.dir=${karaf.data}/hadoop/dfs/name
+            dataNode = true
+            nameNode = true
+        </config>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/0.1.44_2</bundle>
         <bundle dependency='true'>mvn:commons-cli/commons-cli/1.2</bundle>
+        <bundle dependency='true'>wrap:mvn:commons-configuration/commons-configuration/1.8$Import-Package=*;resolution:=optional&amp;Export-Package=org.apache.commons.configuration*;version=1.8;-noimport:=true&amp;overwrite=merge</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jetty-bundle/${jetty6-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-hadoop/${project.version}</bundle>
     </feature>
 
