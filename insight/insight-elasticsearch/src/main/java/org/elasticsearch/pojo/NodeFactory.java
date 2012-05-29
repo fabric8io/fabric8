@@ -16,9 +16,11 @@
  */
 package org.elasticsearch.pojo;
 
+import java.security.PrivilegedAction;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Map;
+import javax.security.auth.Subject;
 
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
@@ -35,7 +37,18 @@ public class NodeFactory extends BaseManagedServiceFactory<Node> {
     }
 
     @Override
-    protected Node doCreate(Dictionary properties) {
+    protected Node doCreate(final Dictionary properties) {
+        // If we want to use HDFS, we need to run under no user credentials so
+        // that the default hdfs security mechanism will be used.
+        return Subject.doAs(null, new PrivilegedAction<Node>() {
+            @Override
+            public Node run() {
+                return doCreateInternal(properties);
+            }
+        });
+    }
+
+    protected Node doCreateInternal(Dictionary properties) {
         ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder();
         builder.put(settings);
         builder.classLoader(NodeFactory.class.getClassLoader());

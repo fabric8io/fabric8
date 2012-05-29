@@ -15,7 +15,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<features name="fabric-${project.version}">
+<features name="fabric-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
@@ -128,7 +129,7 @@
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
-        <feature version="${project.version}">fabric-core</feature>>
+        <feature version="${project.version}">fabric-core</feature>
         
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
@@ -390,14 +391,26 @@
             dfs.http.address=localhost\:9002
             dfs.data.dir=${karaf.data}/hadoop/dfs/data
             dfs.name.edits.dir=${karaf.data}/hadoop/dfs/name
-            dataNode = true
-            nameNode = true
+            #dataNode = true
+            #nameNode = true
         </config>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/0.1.44_2</bundle>
         <bundle dependency='true'>mvn:commons-cli/commons-cli/1.2</bundle>
+        <bundle dependency='true'>mvn:commons-codec/commons-codec/1.6</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_5</bundle>
         <bundle dependency='true'>wrap:mvn:commons-configuration/commons-configuration/1.8$Import-Package=*;resolution:=optional&amp;Export-Package=org.apache.commons.configuration*;version=1.8;-noimport:=true&amp;overwrite=merge</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jetty-bundle/${jetty6-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/0.1.44_2</bundle>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.2</bundle>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jsp_2.1_spec/1.0.1</bundle>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-el_2.2_spec/1.0.3</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jetty/${jetty6-version}</bundle>
+        <bundle dependency='true'>mvn:com.sun.jersey/jersey-core/1.8</bundle>
+        <bundle dependency='true'>mvn:com.sun.jersey/jersey-server/1.8</bundle>
+        <bundle dependency='true'>mvn:com.sun.jersey/jersey-json/1.8</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasper/6.0.35_1</bundle>
+        <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-core-asl/1.9.5</bundle>
+        <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-mapper-asl/1.9.5</bundle>
+        <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-jaxrs/1.9.5</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-hadoop/${project.version}</bundle>
     </feature>
 

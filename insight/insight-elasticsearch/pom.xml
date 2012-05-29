@@ -34,7 +34,7 @@
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.elasticsearch*;-noimport:=true;version=0.19.4
+          org.elasticsearch*;-noimport:=true;version=0.19.4;-split-package:=merge-first
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           org.apache.lucene*,
