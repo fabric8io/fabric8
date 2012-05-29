@@ -32,11 +32,20 @@
 
   <properties>
       <fuse.osgi.import.additional>
-          org.apache.commons.cli*,
-          *;resolution:=optional
+          org.apache.commons.daemon*;resolution:=optional,
+          org.apache.commons.httpclient*;resolution:=optional,
+          org.apache.commons.io*;resolution:=optional,
+          org.apache.commons.math*;resolution:=optional,
+          org.apache.commons.net*;resolution:=optional,
+          org.apache.log4j*;resolution:=optional,
+          org.apache.tools.ant*;resolution:=optional,
+          org.kosmix.kosmosfs*;resolution:=optional,
+          org.jets3t.service*;resolution:=optional,
+          sun.net*;resolution:=optional,
+          *
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.apache.hadoop*;-noimport:=true;version=${hadoop-version}
+          org.apache.hadoop*;-noimport:=true;version=${hadoop-version};-split-package:=merge-first
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           webapps.*,
@@ -75,12 +84,24 @@
       </dependency>
 
       <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.jetty</artifactId>
+      </dependency>
+      <!--
+      <dependency>
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-server</artifactId>
       </dependency>
       <dependency>
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-webapp</artifactId>
+      </dependency>
+      -->
+
+      <dependency>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-servlet</artifactId>
+          <version>1.10</version>
       </dependency>
 
   </dependencies>

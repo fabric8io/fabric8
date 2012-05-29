@@ -148,8 +148,8 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         }
 
         public void end() {
-            _events.add(false);
             _running.set(false);
+            _events.add(false);
         }
 
         public void addEvent(OsgiZkClient.State oldState, OsgiZkClient.State newState) {

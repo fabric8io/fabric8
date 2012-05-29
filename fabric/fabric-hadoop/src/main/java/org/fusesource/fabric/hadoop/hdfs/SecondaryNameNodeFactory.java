@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.server.namenode.NameNode;
 import org.apache.hadoop.hdfs.server.namenode.SecondaryNameNode;
 import org.apache.hadoop.util.Daemon;
 import org.osgi.framework.BundleContext;
@@ -65,7 +64,7 @@ public class SecondaryNameNodeFactory implements ManagedServiceFactory {
             Daemon checkpointThread = new Daemon(secondaryNameNode);
             checkpointThread.start();
             secondaryNameNodes.put(pid, secondaryNameNode);
-            services.put(pid, bundleContext.registerService(NameNode.class.getName(), secondaryNameNode, properties));
+            services.put(pid, bundleContext.registerService(SecondaryNameNode.class.getName(), secondaryNameNode, properties));
         } catch (Exception e) {
             throw (ConfigurationException) new ConfigurationException(null, "Unable to parse HDFS configuration: " + e.getMessage()).initCause(e);
         } finally {

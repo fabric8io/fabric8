@@ -16,9 +16,12 @@
  */
 package org.fusesource.fabric.hadoop;
 
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Set;
+import javax.security.auth.Subject;
 
 import org.fusesource.fabric.hadoop.hdfs.DataNodeFactory;
 import org.fusesource.fabric.hadoop.hdfs.NameNodeFactory;
@@ -117,10 +120,24 @@ public class HadoopFactory implements ManagedService {
         updateFactory(pid, properties, "taskTracker", taskTrackers, taskTrackerFactory);
     }
 
-    private void updateFactory(String pid, Dictionary properties, String prop, Set<String> set, ManagedServiceFactory factory) throws ConfigurationException {
+    private void updateFactory(final String pid, final Dictionary properties, final String prop, Set<String> set, final ManagedServiceFactory factory) throws ConfigurationException {
         if (getBool(properties.get(prop), false)) {
             set.add(pid);
-            factory.updated(pid, properties);
+            try {
+                Subject.doAs(null, new PrivilegedExceptionAction<Object>() {
+                    @Override
+                    public Object run() throws  Exception {
+                        factory.updated(pid, properties);
+                        return null;
+                    }
+                });
+            } catch (PrivilegedActionException e) {
+                if (e.getCause() instanceof ConfigurationException) {
+                    throw (ConfigurationException) e.getCause();
+                } else {
+                    throw new RuntimeException(e.getCause());
+                }
+            }
         } else if (set.remove(pid)) {
             factory.deleted(pid);
         }
