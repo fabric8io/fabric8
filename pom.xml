@@ -120,7 +120,7 @@
         <hadoop-version>1.0.0</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.9</hawtdispatch-version>
-        <jackson-version>1.9.5</jackson-version>
+        <jackson-version>1.9.7</jackson-version>
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
@@ -133,14 +133,14 @@
         <jna-version>3.3.0</jna-version>
         <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
-        <junit-version>4.8.1</junit-version>
+        <junit-version>4.10</junit-version>
         <karaf-version>2.2.5.fuse-7-${perfectus-build}</karaf-version>
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
-        <logback-version>1.0.0</logback-version>
+        <logback-version>1.0.2</logback-version>
         <maven-assembly-plugin-version>2.2.2</maven-assembly-plugin-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
