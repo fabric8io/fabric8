@@ -22,6 +22,13 @@ import java.io.IOException;
 public interface DownloadFuture extends Future<DownloadFuture> {
 
     /**
+     * Returns the original url
+     *
+     * @return the original url
+     */
+    String getUrl();
+
+    /**
      * Returns the file that has been downloaded on the local file system
      *
      * @return the downloaded file or <code>null</code> is the operation has
