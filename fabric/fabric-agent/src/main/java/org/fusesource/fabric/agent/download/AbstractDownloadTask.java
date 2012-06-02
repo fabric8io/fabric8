@@ -40,6 +40,10 @@ public abstract class AbstractDownloadTask extends DefaultFuture<DownloadFuture>
         this.executor = executor;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
     public File getFile() throws IOException {
         Object v = getValue();
         if (v instanceof File) {
