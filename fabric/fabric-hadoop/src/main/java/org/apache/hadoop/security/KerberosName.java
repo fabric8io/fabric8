@@ -15,6 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * gnodet: this file has a simple modification to catch all
+ * throwables when initializing the default realm
+ */
 
 package org.apache.hadoop.security;
 

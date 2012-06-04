@@ -124,58 +124,27 @@
         </bean>
     </service>
 
-    <bean id="nameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.NameNodeFactory" destroy-method="destroy">
+    <bean id="nameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.NameNodeFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <service ref="nameNodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
-        <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.hadoop.hdfs.namenode"/>
-        </service-properties>
-    </service>
-
-    <bean id="dataNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.DataNodeFactory" destroy-method="destroy">
+    <bean id="dataNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.DataNodeFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <service ref="dataNodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
-        <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.hadoop.hdfs.datanode"/>
-        </service-properties>
-    </service>
-
-    <bean id="secondaryNameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.SecondaryNameNodeFactory" destroy-method="destroy">
+    <bean id="secondaryNameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.SecondaryNameNodeFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <service ref="secondaryNameNodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
-        <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.hadoop.hdfs.secondarynamenode"/>
-        </service-properties>
-    </service>
-
-    <bean id="jobTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.JobTrackerFactory" destroy-method="destroy">
+    <bean id="jobTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.JobTrackerFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <service ref="jobTrackerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
-        <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.hadoop.mapred.jobtracker"/>
-        </service-properties>
-    </service>
-
-    <bean id="taskTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.TaskTrackerFactory" destroy-method="destroy">
+    <bean id="taskTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.TaskTrackerFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
-
-    <service ref="taskTrackerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
-        <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.hadoop.mapred.tasktracker"/>
-        </service-properties>
-    </service>
 
     <bean id="hadoopFactory" class="org.fusesource.fabric.hadoop.HadoopFactory" destroy-method="destroy">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="nameNodeFactory" ref="nameNodeFactory"/>
         <property name="dataNodeFactory" ref="dataNodeFactory"/>
         <property name="secondaryNameNodeFactory" ref="secondaryNameNodeFactory"/>
