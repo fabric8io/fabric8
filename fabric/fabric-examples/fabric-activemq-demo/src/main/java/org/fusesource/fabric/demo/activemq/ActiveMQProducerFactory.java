@@ -29,6 +29,7 @@ import java.util.Dictionary;
 public class ActiveMQProducerFactory implements ManagedServiceFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
+    ProducerThread producer;
 
     @Override
     public String getName() {
@@ -46,7 +47,7 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
             producerService.setMaxAttempts(10);
             producerService.start();
             String destination = (String) properties.get("destination");
-            ProducerThread producer = new ProducerThread(producerService, destination);
+            producer = new ProducerThread(producerService, destination);
             producer.setSleep(500);
             producer.start();
             LOG.info("Producer started " + pid + " started");
@@ -57,6 +58,12 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
 
     @Override
     public void deleted(String pid) {
-        //TODO enable stopping of producers
+        destroy();
+    }
+
+    public void destroy() {
+        if (producer != null) {
+            producer.setRunning(false);
+        }
     }
 }

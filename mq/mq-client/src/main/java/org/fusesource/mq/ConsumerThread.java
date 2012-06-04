@@ -107,4 +107,12 @@ public class ConsumerThread extends Thread {
     public void setTransactionBatchSize(int transactionBatchSize) {
         this.transactionBatchSize = transactionBatchSize;
     }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 }
