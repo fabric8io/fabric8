@@ -21,11 +21,11 @@ Conceptually Fabric has 2 registries:
 
 ### Profiles
 
-Fabric defines a notion of *profile* that can be applied to nodes of the Fabric.  A profile consists
+Fabric defines a notion of *profile* that can be applied to containers of the Fabric.  A profile consists
 of a list of configurations that will be provided to ConfigAdmin along with bundles and features to be provisioned.  Multiple profiles can
-be associated to a given node, allowing a given node to serve multiple purposes.
+be associated to a given container, allowing a given container to serve multiple purposes.
 
-If you want a Fabric where each node is running exactly the same set of features with exactly the same configuration then you only need one profile. However in most real world use cases you often want either to provision features differently across nodes or at least have different configurations. 
+If you want a Fabric where each container running exactly the same set of features with exactly the same configuration then you only need one profile. However in most real world use cases you often want either to provision features differently across nodes or at least have different configurations.
 
 For example you may wish to run different kinds of things on different nodes; you may run some message brokers, some web applications, some ESBs and some transformation engines and proxies. Each of these can be profiles that you can manage as a single logical entity irrespective of how many instances you wish to run. Or you may want to run the same features everywhere but you may wish to provide location specific configurations, you may use different locations of message broker or cache services in different data centres or geographical regions.
 
@@ -35,9 +35,13 @@ a profile to override values from its parents, which provides power and flexibil
 Those profiles are stored in ZooKeeper, hence automatically and immediately propagated to all
 nodes which can refresh the configurations as needed.
 
-Fabric defines a provisioning agent relying on Karaf features through ConfigurationAdmin.
-The list of features to be installed on a given node is retrieved from a known configuration
-by the agent and the features are installed / uninstalled as needed.
+### Agent
+Fabric defines a provisioning *agent* relying on profiles. The agent runs on each managed container and its role is to provision the container according to the profiles assigned to it.
+The agent will retrieve the configuration, bundles & features as defined in the profile overlay, calculate what needs to be installed / uninstalled and finally perform all the actions required.
+
+The agent is not just capable of provisioning just applications. It is capable of even provisioning fabric itself and can go as low as the osgi framework.
+
+The fabric provisioning agent, will retrieve artifacts from a list of repositories that are specified inside the profile and a list of [maven proxies](fabric-maven-proxy.html) that are managed by Fabric.
 
 
 ## Provisioning and Configuration
