@@ -45,6 +45,8 @@ import org.linkedin.zookeeper.tracker.NodeEventsListener;
 import org.linkedin.zookeeper.tracker.TrackedNode;
 import org.linkedin.zookeeper.tracker.ZKStringDataReader;
 import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -173,6 +175,16 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                         } catch (Exception e) {
                             LOGGER.warn("Could not load zk value: {}. This exception will be ignored.", key, e);
                         }
+                    } else {
+                        String value = key;
+                        BundleContext context = getBundleContext();
+                        if (context != null) {
+                            value = context.getProperty(key);
+                        }
+                        if (value == null) {
+                            value = System.getProperty(value, "");
+                        }
+                        return value;
                     }
                     return key;
                 }
@@ -182,6 +194,14 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             throw (IOException) new InterruptedIOException("Error loading pid " + pid).initCause(e);
         } catch (KeeperException e) {
             throw (IOException) new IOException("Error loading pid " + pid).initCause(e);
+        }
+    }
+
+    private static BundleContext getBundleContext() {
+        try {
+            return FrameworkUtil.getBundle(ZooKeeperConfigAdminBridge.class).getBundleContext();
+        } catch (Throwable t) {
+            return null;
         }
     }
 
