@@ -26,16 +26,20 @@ public class FabricServerListener implements ServerLifeCycleListener {
     private static final transient Log LOG = LogFactory.getLog(FabricServerListener.class);
     private final Group group;
     private String eid;
+    private ServerAddressResolver addressResolver;
 
-
-    FabricServerListener(Group group) {
+    public FabricServerListener(Group group, ServerAddressResolver addressResolver) {
         this.group = group;
+        this.addressResolver = addressResolver;
     }
 
+    public FabricServerListener(Group group) {
+        this(group, null);
+    }
 
     public void startServer(Server server) {
         // get the server address
-        String address = server.getEndpoint().getEndpointInfo().getAddress();
+        String address = getFullAddress(server.getEndpoint().getEndpointInfo().getAddress());
         if (LOG.isDebugEnabled()) {
             LOG.debug("The CXF server is start with address " + address);
         }
@@ -48,10 +52,25 @@ public class FabricServerListener implements ServerLifeCycleListener {
 
     public void stopServer(Server server) {
         // get the server address
-        String address = server.getEndpoint().getEndpointInfo().getAddress();
+        String address = getFullAddress(server.getEndpoint().getEndpointInfo().getAddress());
         if (LOG.isDebugEnabled()) {
             LOG.debug("The CXF server is stopped with address " + address);
         }
         group.leave(eid);
+    }
+
+    public String getFullAddress(String address) {
+        // Current CXF only supports these two schema
+        if (!(address.startsWith("http") || address.startsWith("jms"))) {
+            // we need to update the address with the prefixAddress as the Service is published from Servlet
+            if (addressResolver == null) {
+                LOG.warn("Cannot find a full address for the CXF service of " + address + " , due to lack of the configuration of ServerAddressResolver");
+                // TODO do we need to throw exception here
+                return address;
+            }
+            return addressResolver.getFullAddress(address);
+        } else {
+            return address;
+        }
     }
 }

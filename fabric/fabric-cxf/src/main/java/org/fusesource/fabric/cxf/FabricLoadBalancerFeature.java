@@ -47,6 +47,8 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     private LoadBalanceStrategy loadBalanceStrategy;
     private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
+    private ServerAddressResolver addressResolver;
+
     public void initialize(Client client, Bus bus) {
         LoadBalanceTargetSelector selector = getDefaultLoadBalanceTargetSelector();
         selector.setEndpoint(client.getEndpoint());
@@ -63,7 +65,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
 
     public void initialize(Bus bus) {
         try {
-            FabricServerListener lister = new FabricServerListener(getGroup());
+            FabricServerListener lister = new FabricServerListener(getGroup(), addressResolver);
             // register the listener itself
             ServerLifeCycleManager mgr = bus.getExtension(ServerLifeCycleManager.class);
             if (mgr != null) {
@@ -177,6 +179,15 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     public void setConnectionRetryTime(long connectionRetryTime) {
         this.connectionRetryTime = connectionRetryTime;
     }
+
+    public ServerAddressResolver getAddressResolver() {
+        return addressResolver;
+    }
+
+    public void setAddressResolver(ServerAddressResolver addressResolver) {
+        this.addressResolver = addressResolver;
+    }
+
 
     /**
      * Lets check if we are connected and throw an exception if we are not.
