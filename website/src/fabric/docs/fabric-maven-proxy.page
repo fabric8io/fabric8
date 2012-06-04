@@ -99,7 +99,13 @@ The second step is to configure maven by with the credentials for the maven prox
         <password>username</password>
     </server>
 
+## Integrating with 3rd party maven repository managers
+If it hasn't been clear yet, you can integrate with a 3rd party maven repository manager either by adding them to the list of repositories in the fabric-agent configuration, or by adding them in the list of remote repositories of the fabric-maven-proxy.
 
+The question is when to do go by the first approach and when to go by the second approach.
+
+The actual difference in the two approaches is that the fabric-maven-proxy will store any artifact it fetches from remote repos to its local repository. Future requests for that such artfiacts will be served using the local repository.
+If retrieving artifacts from the 3rd party repository manager is an expensive operation, then you definitely need to use the fabric-maven-proxy, as it will limit requests to the 3rd party repository manager.
 
 
 
