@@ -18,7 +18,7 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <bean id="activeMQProducerFactory" class="org.fusesource.fabric.demo.activemq.ActiveMQProducerFactory"/>
+    <bean id="activeMQProducerFactory" class="org.fusesource.fabric.demo.activemq.ActiveMQProducerFactory" destroy-method="destroy"/>
 
     <service ref="activeMQProducerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
@@ -26,7 +26,7 @@
         </service-properties>
     </service>
 
-    <bean id="activeMQConsumerFactory" class="org.fusesource.fabric.demo.activemq.ActiveMQConsumerFactory"/>
+    <bean id="activeMQConsumerFactory" class="org.fusesource.fabric.demo.activemq.ActiveMQConsumerFactory" destroy-method="destroy"/>
 
     <service ref="activeMQConsumerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>

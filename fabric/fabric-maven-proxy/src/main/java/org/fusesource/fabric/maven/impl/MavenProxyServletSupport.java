@@ -46,7 +46,7 @@ import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 public class MavenProxyServletSupport extends HttpServlet implements MavenProxy {
 
-    protected static final Logger LOGGER = Logger.getLogger(MavenProxyImpl.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(MavenProxyServletSupport.class.getName());
 
     protected String localRepository;
     protected String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/public-snapshots,repo.fusesource.com/nexus/content/groups/ea";
@@ -76,6 +76,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         }
         repositories = new ArrayList<RemoteRepository>();
         repositories.add(new RemoteRepository("local", "default", "file://" + localRepository));
+        repositories.add(new RemoteRepository("karaf.default.repo", "default", "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
+
         int i = 0;
         for (String rep : remoteRepositories.split(",")) {
             RemoteRepository remoteRepository = new RemoteRepository("repo-" + i++, "default", rep);
