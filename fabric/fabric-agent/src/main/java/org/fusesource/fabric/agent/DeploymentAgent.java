@@ -961,7 +961,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 public void operationComplete(DownloadFuture future) {
                     try {
                         downloads.put(location, future.getFile());
-                    } catch (IOException e) {
+                    } catch (Throwable e) {
                         errors.add(e);
                     } finally {
                         latch.countDown();

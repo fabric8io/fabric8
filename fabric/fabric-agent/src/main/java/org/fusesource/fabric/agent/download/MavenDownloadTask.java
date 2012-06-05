@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.fusesource.fabric.agent.mvn.DownloadableArtifact;
 import org.fusesource.fabric.agent.mvn.MavenConfiguration;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
@@ -100,12 +101,21 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
                 }
                 InputStream is = artifact.getInputStream();
                 File file = new File(repository + parser.getArtifactPath());
-                File tmp = new File(file.getAbsolutePath() + ".tmp");
-                tmp.getParentFile().mkdirs();
+                file.getParentFile().mkdirs();
+                if (!file.getParentFile().isDirectory()) {
+                    throw new IOException("Unable to create directory " + file.getParentFile().toString());
+                }
+                File tmp = File.createTempFile("fabric-agent-", null, file.getParentFile());
                 OutputStream os = new FileOutputStream(tmp);
                 copy(is, os);
-                file.delete();
-                tmp.renameTo(file);
+                is.close();
+                os.close();
+                if (file.exists() && !file.delete()) {
+                    throw new IOException("Unable to delete file: " + file.toString());
+                }
+                if (!tmp.renameTo(file)) {
+                    throw new IOException("Unable to rename file " + tmp.toString() + " to " + file.toString());
+                }
                 return file;
             } catch (IOException ignore) {
                 // go on with next repository
