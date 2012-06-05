@@ -32,11 +32,14 @@
 
   <properties>
       <fuse.osgi.import.additional>
+          =org.apache.jasper.servlet;version="[6,7)",
+          org.apache.jasper*;version="[6,7)",
           org.apache.commons.daemon*;resolution:=optional,
           org.apache.commons.httpclient*;resolution:=optional,
           org.apache.commons.io*;resolution:=optional,
           org.apache.commons.math*;resolution:=optional,
           org.apache.commons.net*;resolution:=optional,
+          =org.apache.commons.el,
           org.apache.log4j*;resolution:=optional,
           org.apache.tools.ant*;resolution:=optional,
           org.kosmix.kosmosfs*;resolution:=optional,
