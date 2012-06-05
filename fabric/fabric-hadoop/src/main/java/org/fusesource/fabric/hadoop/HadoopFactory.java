@@ -19,44 +19,26 @@ package org.fusesource.fabric.hadoop;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.Set;
 import javax.security.auth.Subject;
 
+import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.fusesource.fabric.hadoop.hdfs.DataNodeFactory;
 import org.fusesource.fabric.hadoop.hdfs.NameNodeFactory;
 import org.fusesource.fabric.hadoop.hdfs.SecondaryNameNodeFactory;
 import org.fusesource.fabric.hadoop.mapred.JobTrackerFactory;
 import org.fusesource.fabric.hadoop.mapred.TaskTrackerFactory;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.cm.ManagedServiceFactory;
 
 public class HadoopFactory implements ManagedService {
 
     public static final String CONFIG_PID = "org.fusesource.fabric.hadoop";
-    private BundleContext bundleContext;
 
     private DataNodeFactory dataNodeFactory;
     private NameNodeFactory nameNodeFactory;
     private SecondaryNameNodeFactory secondaryNameNodeFactory;
     private JobTrackerFactory jobTrackerFactory;
     private TaskTrackerFactory taskTrackerFactory;
-
-    private Set<String> nameNodes = new HashSet<String>();
-    private Set<String> dataNodes = new HashSet<String>();
-    private Set<String> secondaryNameNodes = new HashSet<String>();
-    private Set<String> jobTrackers = new HashSet<String>();
-    private Set<String> taskTrackers = new HashSet<String>();
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
 
     public DataNodeFactory getDataNodeFactory() {
         return dataNodeFactory;
@@ -99,35 +81,27 @@ public class HadoopFactory implements ManagedService {
     }
 
     public void updated(Dictionary properties) throws ConfigurationException {
-        ClassLoader oldTccl = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-            if (properties == null) {
-                deleted(getClass().getName());
-            } else {
-                updated(getClass().getName(), properties);
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldTccl);
-        }
+        updateFactory(properties, "nameNode", nameNodeFactory);
+        updateFactory(properties, "dataNode", dataNodeFactory);
+        updateFactory(properties, "secondaryNameNode", secondaryNameNodeFactory);
+        updateFactory(properties, "jobTracker", jobTrackerFactory);
+        updateFactory(properties, "taskTracker", taskTrackerFactory);
     }
 
-    public void updated(String pid, Dictionary properties) throws ConfigurationException {
-        updateFactory(pid, properties, "nameNode", nameNodes, nameNodeFactory);
-        updateFactory(pid, properties, "dataNode", dataNodes, dataNodeFactory);
-        updateFactory(pid, properties, "secondaryNameNode", secondaryNameNodes, secondaryNameNodeFactory);
-        updateFactory(pid, properties, "jobTracker", jobTrackers, jobTrackerFactory);
-        updateFactory(pid, properties, "taskTracker", taskTrackers, taskTrackerFactory);
-    }
-
-    private void updateFactory(final String pid, final Dictionary properties, final String prop, Set<String> set, final ManagedServiceFactory factory) throws ConfigurationException {
-        if (getBool(properties.get(prop), false)) {
-            set.add(pid);
+    private void updateFactory(final Dictionary properties, final String prop, final Factory<?> factory) throws ConfigurationException {
+        if (getBool(properties, prop)) {
             try {
                 Subject.doAs(null, new PrivilegedExceptionAction<Object>() {
                     @Override
                     public Object run() throws  Exception {
-                        factory.updated(pid, properties);
+                        ClassLoader oldTccl = Thread.currentThread().getContextClassLoader();
+                        try {
+                            Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
+                            factory.delete();
+                            factory.create(properties);
+                        } finally {
+                            Thread.currentThread().setContextClassLoader(oldTccl);
+                        }
                         return null;
                     }
                 });
@@ -138,30 +112,22 @@ public class HadoopFactory implements ManagedService {
                     throw new RuntimeException(e.getCause());
                 }
             }
-        } else if (set.remove(pid)) {
-            factory.deleted(pid);
-        }
-    }
-
-    public void deleted(String pid) {
-        deleteFactory(pid, nameNodes, nameNodeFactory);
-    }
-
-    private void deleteFactory(String pid, Set<String> set, ManagedServiceFactory factory) {
-        if (set.remove(pid)) {
-            factory.deleted(pid);
+        } else {
+            factory.delete();
         }
     }
 
     public void destroy() throws ConfigurationException {
         updated(null);
+        DefaultMetricsSystem.INSTANCE.shutdown();
     }
 
-    private boolean getBool(Object val, boolean def) {
+    private boolean getBool(Dictionary properties, String key) {
+        Object val = properties != null ? properties.get(key) : null;
         if (val != null) {
             return Boolean.parseBoolean(val.toString());
         } else {
-            return def;
+            return false;
         }
     }
 

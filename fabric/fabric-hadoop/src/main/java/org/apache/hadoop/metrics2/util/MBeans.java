@@ -15,6 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * gnodet: this file mainly contains a modification in the mbean
+ * registration so that they belong to org.apache.hadoop to be
+ * more consistent with our other mbeans
+ */
 package org.apache.hadoop.metrics2.util;
 
 import java.lang.management.ManagementFactory;
