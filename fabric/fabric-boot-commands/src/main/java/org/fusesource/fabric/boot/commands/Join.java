@@ -18,6 +18,7 @@ package org.fusesource.fabric.boot.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
@@ -41,8 +42,12 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     private String version = ZkDefs.DEFAULT_VERSION;
     private BundleContext bundleContext;
 
+    @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
+    private boolean nonManaged;
+
     @Argument(required = true, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
+
 
     @Override
     protected Object doExecute() throws Exception {
@@ -71,6 +76,15 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
         bundleFabricJaas.start();
         bundleFabricCommands.start();
+
+        if(!nonManaged) {
+            Bundle bundleFabricConfigAdmin = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
+                    "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
+            Bundle bundleFabricAgent = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
+                    "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
+            bundleFabricConfigAdmin.start();
+            bundleFabricAgent.start();
+        }
         return null;
     }
 
