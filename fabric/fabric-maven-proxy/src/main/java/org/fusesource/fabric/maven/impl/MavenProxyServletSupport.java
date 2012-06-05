@@ -23,9 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
+
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.fusesource.fabric.maven.MavenProxy;
@@ -56,6 +59,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     protected List<RemoteRepository> repositories;
     protected RepositorySystem system;
     protected RepositorySystemSession session;
+
+    protected ConcurrentMap<String, Object> artifactLocks = new ConcurrentHashMap<String, Object>();
 
     protected File tmpFolder = new File(System.getProperty("karaf.home") + File.separator + "data" + File.separator + "maven" + File.separator);
 
@@ -99,14 +104,19 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
         }
 
-        try {
-            Artifact artifact = new DefaultArtifact(mvn, null);
-            ArtifactRequest request = new ArtifactRequest(artifact, repositories, null);
-            ArtifactResult result = system.resolveArtifact(session, request);
-            return result.getArtifact().getFile();
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, String.format("Could not find file : %s due to %s", mvn, e));
-            return null;
+        Artifact artifact = new DefaultArtifact(mvn, null);
+        String id = artifact.getGroupId() + ":" + artifact.getArtifactId();
+        artifactLocks.putIfAbsent(id, new Object());
+        final Object lock = artifactLocks.get(id);
+        synchronized (lock) {
+            try {
+                ArtifactRequest request = new ArtifactRequest(artifact, repositories, null);
+                ArtifactResult result = system.resolveArtifact(session, request);
+                return result.getArtifact().getFile();
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, String.format("Could not find file : %s due to %s", mvn, e));
+                return null;
+            }
         }
     }
 
