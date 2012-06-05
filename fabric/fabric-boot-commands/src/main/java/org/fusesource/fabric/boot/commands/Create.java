@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
@@ -39,6 +40,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     boolean verbose = false;
     @Option(name = "-r", aliases = {"--resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
     String resolver;
+    @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
+    private boolean nonManaged;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
@@ -55,11 +58,17 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         }
 
         if (!noImport && importDir != null) {
-            System.setProperty("profiles.auto.import.path",importDir);
+            System.setProperty(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH, importDir);
         }
 
         if (resolver != null) {
-            System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY,resolver);
+            System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, resolver);
+        }
+
+        if (nonManaged) {
+            System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "false");
+        } else {
+            System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "true");
         }
 
         if (containers != null && !containers.isEmpty()) {

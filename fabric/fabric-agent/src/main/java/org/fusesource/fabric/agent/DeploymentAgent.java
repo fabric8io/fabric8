@@ -535,10 +535,11 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                                 InputStream is = getBundleInputStream(res, downloads, infos);
                                 long newCrc = ChecksumUtils.checksum(is);
                                 long oldCrc = checksums.containsKey(res.getURI()) ? Long.parseLong(checksums.get(res.getURI())) : 0;
-                                if (newCrc != oldCrc) {
+                                if (oldCrc != 0 && newCrc != oldCrc) {
+                                    LOGGER.info("New snapshot available for " + res);
                                     update = true;
-                                    newCheckums.put(res.getURI(), Long.toString(newCrc));
                                 }
+                                newCheckums.put(res.getURI(), Long.toString(newCrc));
                             }
                             resource = res;
                             break;

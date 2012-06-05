@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 @Command(name = "ensemble-create", scope = "fabric", description = "Create a new ZooKeeper ensemble", detailedDescription = "classpath:ensembleCreate.txt")
@@ -28,6 +29,8 @@ public class EnsembleCreate extends EnsembleCommandSupport {
 
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
+    @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
+    private boolean nonManaged;
     @Argument(required = true, multiValued = true, description = "List of containers")
     private List<String> containers;
 
@@ -35,6 +38,11 @@ public class EnsembleCreate extends EnsembleCommandSupport {
     protected Object doExecute() throws Exception {
         if (clean) {
             service.clean();
+        }
+        if (nonManaged) {
+            System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "false");
+        } else {
+            System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "true");
         }
         service.createCluster(containers);
         return null;
