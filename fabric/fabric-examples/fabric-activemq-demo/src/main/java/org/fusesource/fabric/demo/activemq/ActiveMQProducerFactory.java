@@ -30,6 +30,7 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
     ProducerThread producer;
+    ActiveMQService producerService;
 
     @Override
     public String getName() {
@@ -43,7 +44,7 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
             if (brokerUrl == null) {
                 brokerUrl = "discover:(fabric:default)";
             }
-            ActiveMQService producerService = new ActiveMQService(brokerUrl);
+            producerService = new ActiveMQService(brokerUrl);
             producerService.setMaxAttempts(10);
             producerService.start();
             String destination = (String) properties.get("destination");
@@ -64,6 +65,7 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
     public void destroy() {
         if (producer != null) {
             producer.setRunning(false);
+            producerService.stop();
         }
     }
 }

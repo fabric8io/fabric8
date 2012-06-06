@@ -112,8 +112,10 @@ public class ActiveMQService implements JMSService {
         if (started) {
             if (defaultConnection != null) {
                 try {
+                    LOG.info("Closed JMS connection");
                     defaultConnection.close();
                 } catch (JMSException ignored) {
+                    LOG.info("Exception closing JMS exception", ignored);
                 }
             }
         }
