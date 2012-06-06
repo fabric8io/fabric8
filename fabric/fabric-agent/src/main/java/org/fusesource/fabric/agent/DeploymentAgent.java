@@ -535,11 +535,11 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                                 InputStream is = getBundleInputStream(res, downloads, infos);
                                 long newCrc = ChecksumUtils.checksum(is);
                                 long oldCrc = checksums.containsKey(res.getURI()) ? Long.parseLong(checksums.get(res.getURI())) : 0;
-                                if (oldCrc != 0 && newCrc != oldCrc) {
-                                    LOGGER.info("New snapshot available for " + res);
+                                if (newCrc != oldCrc) {
+                                    LOGGER.debug("New snapshot available for " + res);
                                     update = true;
+                                    newCheckums.put(res.getURI(), Long.toString(newCrc));
                                 }
-                                newCheckums.put(res.getURI(), Long.toString(newCrc));
                             }
                             resource = res;
                             break;
@@ -649,6 +649,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             Bundle bundle = systemBundleContext.installBundle(resource.getURI(), is);
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
+            // save a checksum of installed snapshot bundle
+            if (bundle.getVersion().getQualifier().endsWith("SNAPSHOT") && !newCheckums.containsKey(resource.getURI())) {
+                newCheckums.put(resource.getURI(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(resource, downloads, infos))));
+            }
         }
 
         if (!newCheckums.isEmpty()) {
