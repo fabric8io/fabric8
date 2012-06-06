@@ -19,6 +19,8 @@ package org.fusesource.insight.log.elasticsearch;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -30,12 +32,16 @@ import static org.fusesource.insight.log.elasticsearch.ElasticSender.quote;
 
 public class InsightEventHandler implements EventHandler {
 
+    // Making an assumption here that we will log less than 1,000,000 events/sec,  next this JVM
+    // restarts, the next sequence number should be < any previously generated sequence numbers.
+    static final private AtomicLong SEQUENCE_COUNTER = new AtomicLong(System.currentTimeMillis()*1000);
+
     private String name;
     private String index;
     private String type;
     private ElasticSender sender;
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     public String getName() {
         return name;
@@ -71,6 +77,18 @@ public class InsightEventHandler implements EventHandler {
 
     public void init() {
         CreateIndexRequest request = new CreateIndexRequest(index);
+
+        HashMap<String, Object> not_analyzed = new HashMap<String, Object>();
+        not_analyzed.put("type", "string");
+        not_analyzed.put("index", "not_analyzed");
+
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put("seq", not_analyzed);
+
+        HashMap<String, Object> options = new HashMap<String, Object>();
+        options.put("properties", properties);
+        request.mapping(type, options);
+
         sender.createIndexIfNeeded(request);
     }
 
@@ -79,6 +97,7 @@ public class InsightEventHandler implements EventHandler {
             StringBuilder writer = new StringBuilder();
             writer.append("{ \"host\": ");
             quote(name, writer);
+            writer.append(", \"seq\" : " + SEQUENCE_COUNTER.incrementAndGet());
             writer.append(", \"topic\": ");
             quote(event.getTopic(), writer);
             writer.append(", \"properties\": { ");
@@ -91,14 +110,28 @@ public class InsightEventHandler implements EventHandler {
                 }
                 quote(name, writer);
                 writer.append(": ");
-                if (EventConstants.TIMESTAMP.equals(name)) {
-                    quote(formatDate((Long) event.getProperty(name)), writer);
+                Object value = event.getProperty(name);
+                if (value == null) {
+                    writer.append("null");
+                } else if (EventConstants.TIMESTAMP.equals(name) && value instanceof Long) {
+                    quote(formatDate((Long) value), writer);
+                } else if (value.getClass().isArray()) {
+                    writer.append(" [ ");
+                    boolean vfirst = true;
+                    for (Object v : ((Object[]) value)) {
+                        if (!vfirst) {
+                            writer.append(", ");
+                        } else {
+                            vfirst = false;
+                        }
+                        quote(v.toString(), writer);
+                    }
+                    writer.append(" ] ");
                 } else {
-                    quote(event.getProperty(name).toString(), writer);
+                    quote(value.toString(), writer);
                 }
             }
             writer.append(" } }");
-
             IndexRequest request = new IndexRequest()
                     .index(index)
                     .type(type)
