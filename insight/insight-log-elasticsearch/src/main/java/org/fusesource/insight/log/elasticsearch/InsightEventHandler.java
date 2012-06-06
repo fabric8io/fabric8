@@ -17,9 +17,13 @@
 
 package org.fusesource.insight.log.elasticsearch;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import static org.fusesource.insight.log.elasticsearch.ElasticSender.quote;
@@ -30,6 +34,8 @@ public class InsightEventHandler implements EventHandler {
     private String index;
     private String type;
     private ElasticSender sender;
+
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     public String getName() {
         return name;
@@ -71,11 +77,11 @@ public class InsightEventHandler implements EventHandler {
     public void handleEvent(final Event event) {
         try {
             StringBuilder writer = new StringBuilder();
-            writer.append("{ host : ");
+            writer.append("{ \"host\": ");
             quote(name, writer);
-            writer.append(", topic: ");
+            writer.append(", \"topic\": ");
             quote(event.getTopic(), writer);
-            writer.append(", properties: { ");
+            writer.append(", \"properties\": { ");
             boolean first = true;
             for (String name : event.getPropertyNames()) {
                 if (first) {
@@ -85,7 +91,11 @@ public class InsightEventHandler implements EventHandler {
                 }
                 quote(name, writer);
                 writer.append(": ");
-                quote(event.getProperty(name).toString(), writer);
+                if (EventConstants.TIMESTAMP.equals(name)) {
+                    quote(formatDate((Long) event.getProperty(name)), writer);
+                } else {
+                    quote(event.getProperty(name).toString(), writer);
+                }
             }
             writer.append(" } }");
 
@@ -98,6 +108,10 @@ public class InsightEventHandler implements EventHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String formatDate(long timestamp) {
+        return simpleDateFormat.format(new Date(timestamp));
     }
 
 }
