@@ -79,7 +79,7 @@ public class DownloadManager {
                     @Override
                     public void operationComplete(DownloadFuture future) {
                         try {
-                            String mvn = future.getUrl();
+                            final String mvn = future.getUrl();
                             String file = future.getFile().toURI().toURL().toString();
                             String real = url.replace(mvn, file);
                             SimpleDownloadTask task = new SimpleDownloadTask(real, executor);
@@ -90,12 +90,12 @@ public class DownloadManager {
                                     try {
                                         download.setFile(future.getFile());
                                     } catch (IOException e) {
-                                        // Ignore
+                                        download.setException(e);
                                     }
                                 }
                             });
                         } catch (IOException e) {
-                            // Ignore
+                            download.setException(e);
                         }
                     }
                 });

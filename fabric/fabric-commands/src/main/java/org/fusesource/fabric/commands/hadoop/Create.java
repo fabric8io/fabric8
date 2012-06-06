@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.hadoop.commands;
+package org.fusesource.fabric.commands.hadoop;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -109,7 +109,8 @@ public class Create extends OsgiCommandSupport {
                                       "hadoop-" + name + "-secondary-namenode",
                                       "hadoop-" + name + "-datanode",
                                       "hadoop-" + name + "-job-tracker",
-                                      "hadoop-" + name + "-task-tracker")) {
+                                      "hadoop-" + name + "-task-tracker",
+                                      "insight-hdfs-" + name)) {
             Profile profile = null;
             try {
                 profile = service.getProfile(service.getDefaultVersion().getName(), p);
@@ -172,6 +173,13 @@ public class Create extends OsgiCommandSupport {
         configs.get("org.fusesource.fabric.hadoop").put("taskTracker", "true");
         taskTrackerProfile.setConfigurations(configs);
 
+        Profile insightProfile = service.createProfile(service.getDefaultVersion().getName(), "insight-hdfs-" + name);
+        insightProfile.setParents(new Profile[]{ service.getProfile(service.getDefaultVersion().getName(), "insight-hdfs")});
+        configs = new HashMap<String, Map<String, String>>();
+        configs.put("org.fusesource.insight.elasticsearch-default", new HashMap<String, String>());
+        configs.get("org.fusesource.insight.elasticsearch-default").put("gateway.hdfs.uri", "hdfs://${zk:" + nameNode + "/ip}:9000");
+        insightProfile.setConfigurations(configs);
+
         // Name node
         Container nameNodeContainer = findContainer(containers, nameNode);
         if (nameNodeContainer == null && createChildren) {
@@ -225,10 +233,26 @@ public class Create extends OsgiCommandSupport {
 
     private void addProfile(Container container, Profile profile) {
         List<Profile> profiles = new ArrayList<Profile>();
-        Collections.addAll(profiles, container.getProfiles());
+        for (Profile p : container.getProfiles()) {
+            if (!isAncestor(p, profile)) {
+                profiles.add(p);
+            }
+        }
         profiles.add(profile);
         container.setProfiles(profiles.toArray(new Profile[profiles.size()]));
 
+    }
+
+    private boolean isAncestor(Profile parent, Profile child) {
+        if (child.getId().equals(parent.getId())) {
+            return true;
+        }
+        for (Profile p : child.getParents()) {
+            if (isAncestor(parent, p)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Container findContainer(Container[] containers, String name) {

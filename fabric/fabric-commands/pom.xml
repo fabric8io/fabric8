@@ -40,8 +40,7 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.commands,
-            org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.commands*,
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.utils,
         </fuse.osgi.private.pkg>
