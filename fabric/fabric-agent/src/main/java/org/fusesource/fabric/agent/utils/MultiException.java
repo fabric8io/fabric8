@@ -23,37 +23,37 @@ import java.util.List;
 
 public class MultiException extends Exception {
 
-    private List<Exception> exceptions = new ArrayList<Exception>();
+    private List<Throwable> causes = new ArrayList<Throwable>();
 
     public MultiException(String message) {
         super(message);
     }
 
-    public MultiException(String message, List<Exception> exceptions) {
+    public MultiException(String message, List<Throwable> causes) {
         super(message);
-        this.exceptions = exceptions;
+        this.causes = causes;
     }
 
-    public void addException(Exception e) {
-        exceptions.add(e);
+    public void addCause(Throwable e) {
+        causes.add(e);
     }
 
-    public void throwIfExceptions() throws MultiException {
-        if (!exceptions.isEmpty()) {
+    public void throwIfCauses() throws MultiException {
+        if (!causes.isEmpty()) {
             throw this;
         }
     }
 
     public Throwable[] getCauses() {
-        return exceptions.toArray(new Throwable[exceptions.size()]);
+        return causes.toArray(new Throwable[causes.size()]);
     }
 
     @Override
     public void printStackTrace()
     {
         super.printStackTrace();
-        for (Exception e : exceptions) {
-            e.printStackTrace();
+        for (Throwable t : causes) {
+            t.printStackTrace();
         }
     }
 
@@ -66,8 +66,8 @@ public class MultiException extends Exception {
     public void printStackTrace(PrintStream out)
     {
         super.printStackTrace(out);
-        for (Exception e : exceptions) {
-            e.printStackTrace(out);
+        for (Throwable t : causes) {
+            t.printStackTrace(out);
         }
     }
 
@@ -75,20 +75,20 @@ public class MultiException extends Exception {
     public void printStackTrace(PrintWriter out)
     {
         super.printStackTrace(out);
-        for (Exception e : exceptions) {
-            e.printStackTrace(out);
+        for (Throwable t : causes) {
+            t.printStackTrace(out);
         }
     }
 
-    public static void throwIf(String message, List<Exception> exceptions) throws MultiException {
-        if (exceptions != null && !exceptions.isEmpty()) {
+    public static void throwIf(String message, List<Throwable> throwables) throws MultiException {
+        if (throwables != null && !throwables.isEmpty()) {
             StringBuilder sb = new StringBuilder(message);
             sb.append(":");
-            for (Exception e : exceptions) {
+            for (Throwable t : throwables) {
                 sb.append("\n\t");
-                sb.append(e.getMessage());
+                sb.append(t.getMessage());
             }
-            throw new MultiException(sb.toString(), exceptions);
+            throw new MultiException(sb.toString(), throwables);
         }
     }
 }
