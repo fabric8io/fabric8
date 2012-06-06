@@ -125,6 +125,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private DownloadManager manager;
     private ExecutorServiceFinder executorServiceFinder;
 
+    private Properties checksums;
+
     public DeploymentAgent() throws MalformedURLException {
         final MavenConfigurationImpl config = new MavenConfigurationImpl(
                 new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn"
@@ -177,6 +179,23 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         LOGGER.info("Starting DeploymentAgent");
         bundleContext.addFrameworkListener(this);
         systemBundleContext = bundleContext.getBundle(0).getBundleContext();
+        if (checksums == null) {
+            File file = bundleContext.getDataFile("checksums.properties");
+            checksums = new Properties(file);
+        }
+        for (Bundle bundle : systemBundleContext.getBundles()) {
+            try {
+                if (bundle.getLocation().endsWith("SNAPSHOT")) {
+                    org.fusesource.fabric.agent.mvn.Parser parser = new org.fusesource.fabric.agent.mvn.Parser(bundle.getLocation());
+                    String path = System.getProperty("karaf.home") + File.separator + "system" + File.separator + parser.getArtifactPath().substring(4);
+                    long checksum = ChecksumUtils.checksum(new FileInputStream(path));
+                    checksums.put(bundle.getLocation(), Long.toString(checksum));
+                }
+            } catch (Exception e) {
+                LOGGER.debug("Error calculating checksum", e);
+            }
+        }
+        checksums.save();
     }
 
     public void stop() throws InterruptedException {
@@ -521,8 +540,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
         // First pass: go through all installed bundles and mark them
         // as either to ignore or delete
-        File file = bundleContext.getDataFile("checksums.properties");
-        Properties checksums = new Properties(file);
+        if (checksums == null) {
+            File file = bundleContext.getDataFile("checksums.properties");
+            checksums = new Properties(file);
+        }
         for (Bundle bundle : systemBundleContext.getBundles()) {
             if (bundle.getBundleId() != 0) {
                 Resource resource = null;
@@ -534,11 +555,11 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                                 // if the checksum are different
                                 InputStream is = getBundleInputStream(res, downloads, infos);
                                 long newCrc = ChecksumUtils.checksum(is);
-                                long oldCrc = checksums.containsKey(res.getURI()) ? Long.parseLong(checksums.get(res.getURI())) : 0;
+                                long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong(checksums.get(bundle.getLocation())) : 0;
                                 if (newCrc != oldCrc) {
-                                    LOGGER.debug("New snapshot available for " + res);
+                                    LOGGER.debug("New snapshot available for " + bundle.getLocation());
                                     update = true;
-                                    newCheckums.put(res.getURI(), Long.toString(newCrc));
+                                    newCheckums.put(bundle.getLocation(), Long.toString(newCrc));
                                 }
                             }
                             resource = res;
@@ -587,8 +608,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             Bundle bundle = bundleContext.getBundle();
             checksums.save(); // Force the needed classes to be loaded
             bundle.update(is);
-            if (newCheckums.containsKey(agentResource.getURI())) {
-                checksums.put(agentResource.getURI(), newCheckums.get(agentResource.getURI()));
+            if (newCheckums.containsKey(bundle.getLocation())) {
+                checksums.put(bundle.getLocation(), newCheckums.get(bundle.getLocation()));
                 checksums.save();
             }
             return;
@@ -650,8 +671,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
             // save a checksum of installed snapshot bundle
-            if (bundle.getVersion().getQualifier().endsWith("SNAPSHOT") && !newCheckums.containsKey(resource.getURI())) {
-                newCheckums.put(resource.getURI(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(resource, downloads, infos))));
+            if (bundle.getVersion().getQualifier().endsWith("SNAPSHOT") && !newCheckums.containsKey(bundle.getLocation())) {
+                newCheckums.put(bundle.getLocation(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(resource, downloads, infos))));
             }
         }
 
