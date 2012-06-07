@@ -86,6 +86,9 @@ Creating a container is as simple as using the [fabric:container-create-child](c
 
 In a similar manner you can create containers in the local network via [ssh](fabric-ssh-containers.html) & also in the [cloud](fabric-cloud-containers.html).
 
+More details on [ssh container providers](fabric-ssh-containers.html).
+More details on [cloud container providers](fabric-cloud-containers.html).
+
 
 ## Fabric Extensions
 

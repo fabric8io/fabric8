@@ -19,6 +19,24 @@ The requirements for using this feature to create a container in a remote host a
 The list of supported cloud providers can be found at [jclouds supported providers](http://www.jclouds.org/documentation/reference/supported-providers).
 **Important** The term **supported provider** does not refer to commerical support, its just an indication that there is an available implementation.
 
+#### Additional requirement for hybrid clusters
+
+A hybrid cluster is a cluster that is composed of containers running both in the premises and inside a public cloud provider. This special type of cluster may impose some additional requirements:
+
+* **Guarantee that all containers will be able to connect the registry** *(refers to network connectivity)*
+
+In order to satisfy this requirement, you will need to make sure that one of the following conditions are meet:
+
+* **Fabric registry is running inside the public cloud**
+* **Cloud and Local containers are part of a VPN**
+* **Fabric registry is accessible from the internet** *(Not recommended)*
+
+In the case that the Fabric registry is running the cloud, your local containers will have no problem accessing the registry as long as they are able to connect to the internet.
+However, if the Fabric registry is running in the premises, the cloud containers, won't be able to have access to your premises. At least not unless you have the registry accessible from the internet or unless you setup a vpn.
+Having the registry accessible from the internet is not really the best idea for the obvious reasons. Setting up a vpn sounds like a better idea.
+
+The easiest approach is just to host the registry in the cloud & configure the firewall in the cloud accordingly to only allow access to containers from the premises. By default Fabric will configure the firewall for you. Below you can see how you can create an ensemble in the cloud *(host the registry in the cloud)*, there is also a small demonstration video covering that case.
+
 ### Preparation
 
 Before you can make use of this feature you will need to obtain a valid *identity* and *credential* for your cloud provider. That is not necessarily the username and password you obtain upon registration with the provider. This is usually refers to the credentials that you get for using the service from an external api.
@@ -92,6 +110,16 @@ The command will display the creation status and also some usefull information, 
         Overriding resolver to publichostname.
                           [id] [container]                    [public addresses]             [status]
           us-east-1/i-f674a68f cloud                          [23.20.114.82]                 success
+
+
+#### Creating a new Fabric ensemble in the cloud
+
+The cloud container provider not only allows you to create containers in the cloud, it also allows you to create a new ensemble in the cloud using the **--ensemble-server** option.
+Here is a short clip that demonstrates how you can create a new ensemble in the cloud and join that from the premisses:
+
+<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/zTMoz_5bBDY?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/zTMoz_5bBDY?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+
+As already mentioned above this approach is the easier way to get you going with a hybrid cloud solution.
 
 ### Images
 
@@ -175,4 +203,20 @@ To make use of those information for creating a Fabric in the cloud you can spec
          fabric:container-create-cloud --provider aws-ec2 --location eu-west-1 --hardware m2.4xlarge mycontainer
 
 The example above will create a new fabric container on the *eu-west-1* region and will use the *m2.4xlarge* hardware profile.
+
+Here is a small clip that demonstrates how you can acquire those information from your cloud provider:
+
+<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/wVsazzjIlAo?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/wVsazzjIlAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+
+### Fabric Examples in the Cloud
+Fabric ships out of the box some really interesting example of how you can use Fabric with Camel and Fuse MQ. In the following clip you'll see how you can run on of these examples in the cloud using Fabric's cloud container provider.
+More specifically you'll see how:
+
+* **Setup MQ containers in the cloud as master/slave**
+* **Discover brokers using the Fabric runtime registry**
+* **Run the camel example in the cloud that leverages broker discovery of Fabric**
+* **Use the shell to retrieve live information about your running routes**
+
+<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/wVsazzjIlAo?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/wVsazzjIlAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+
 
