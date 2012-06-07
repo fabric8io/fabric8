@@ -38,12 +38,12 @@ Those profiles are stored in ZooKeeper, hence automatically and immediately prop
 nodes which can refresh the configurations as needed.
 
 ### Agent
-Fabric defines a provisioning *agent* relying on profiles. The agent runs on each managed container and its role is to provision the container according to the profiles assigned to it.
-The agent will retrieve the configuration, bundles & features as defined in the profile overlay, calculate what needs to be installed / uninstalled and finally perform all the actions required.
+Fabric defines a provisioning [agent](fabric-agent.html) relying on profiles. The [agent](fabric-agent.html) runs on each managed container and its role is to provision the container according to the profiles assigned to it.
+The [agent](fabric-agent.html) will retrieve the configuration, bundles & features as defined in the profile overlay, calculate what needs to be installed / uninstalled and finally perform all the actions required.
 
 The agent is not just capable of provisioning just applications. It is capable of even provisioning fabric itself and can go as low as the osgi framework.
 
-The fabric provisioning agent, will retrieve artifacts from a list of repositories that are specified inside the profile and a list of [maven proxies](fabric-maven-proxy.html) that are managed by Fabric.
+The fabric provisioning [agent](fabric-agent.html), will retrieve artifacts from a list of repositories that are specified inside the profile and a list of [maven proxies](fabric-maven-proxy.html) that are managed by Fabric.
 
 
 ## Provisioning and Configuration
@@ -63,6 +63,29 @@ Through the use of profiles you can then control all or a group of nodes in each
 Each container registers itself into the ZooKeeper runtime registry details of its machine, host name and connection details (e.g. JMX URL) so its easy to discover and introspect the Fabric and to delve into any node to introspect or control it in more detail.
 
 In addition Fabric supports a number of additional discovery mechanisms which are framework specific in the Fabric Extensions.
+
+## Weaving Fabric
+
+Provisioning and configuration is very powerfull feature of fabric. However, Fabric does not stop there. It provides you the ability to create container from scratch:
+
+* **In the local VM as child processes**
+* **Everywhere in your network**
+* **In public or private clouds**
+
+Fabric uses the notion of *container provider*. A container provider allows you to create new containers, without any prior container installation. Currently it provides 3 types of container provides, one for each of the cases mentioned above.
+The container providers allow you to gradually build and extend your cluster *(weave your Fabirc)*.
+
+### Creating child containers
+
+A child container is a container that runs an individual process and shares the same host with its parent and siblings. This allows you to have parts of the application trully isolated from each other, but also allows you to make better use of your resources.
+From any Fabric container you can create a child container for any of your existing containers *(not just the current container, you can also create child containers for containers on remote hosts)*.
+
+Creating a container is as simple as using the [fabric:container-create-child](commands/fabric-container-create-child.html) command, For example:
+
+        fabric:container-create-child root child1
+
+In a similar manner you can create containers in the local network via [ssh](fabric-ssh-containers.html) & also in the [cloud](fabric-cloud-containers.html).
+
 
 ## Fabric Extensions
 
