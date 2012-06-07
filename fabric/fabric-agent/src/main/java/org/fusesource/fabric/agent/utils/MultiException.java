@@ -18,32 +18,43 @@ package org.fusesource.fabric.agent.utils;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MultiException extends Exception {
 
-    private List<Throwable> causes;
+    private List<Throwable> causes = new ArrayList<Throwable>();
+
+    public MultiException(String message) {
+        super(message);
+    }
 
     public MultiException(String message, List<Throwable> causes) {
         super(message);
-        this.causes = causes != null ? causes : Collections.<Throwable>emptyList();
+        this.causes = causes;
     }
 
-    /* ------------------------------------------------------------ */
-    @Override
-    public String toString()
-    {
-        return MultiException.class.getSimpleName() + causes.toString();
+    public void addCause(Throwable e) {
+        causes.add(e);
     }
 
-    /* ------------------------------------------------------------ */
+    public void throwIfCauses() throws MultiException {
+        if (!causes.isEmpty()) {
+            throw this;
+        }
+    }
+
+    public Throwable[] getCauses() {
+        return causes.toArray(new Throwable[causes.size()]);
+    }
+
     @Override
     public void printStackTrace()
     {
         super.printStackTrace();
-        for (Throwable t : causes)
+        for (Throwable t : causes) {
             t.printStackTrace();
+        }
     }
 
 
@@ -55,20 +66,29 @@ public class MultiException extends Exception {
     public void printStackTrace(PrintStream out)
     {
         super.printStackTrace(out);
-        for (Throwable t : causes)
+        for (Throwable t : causes) {
             t.printStackTrace(out);
+        }
     }
 
-    /* ------------------------------------------------------------------------------- */
-    /**
-     * @see java.lang.Throwable#printStackTrace(java.io.PrintWriter)
-     */
     @Override
     public void printStackTrace(PrintWriter out)
     {
         super.printStackTrace(out);
-        for (Throwable t : causes)
+        for (Throwable t : causes) {
             t.printStackTrace(out);
+        }
     }
 
+    public static void throwIf(String message, List<Throwable> throwables) throws MultiException {
+        if (throwables != null && !throwables.isEmpty()) {
+            StringBuilder sb = new StringBuilder(message);
+            sb.append(":");
+            for (Throwable t : throwables) {
+                sb.append("\n\t");
+                sb.append(t.getMessage());
+            }
+            throw new MultiException(sb.toString(), throwables);
+        }
+    }
 }
