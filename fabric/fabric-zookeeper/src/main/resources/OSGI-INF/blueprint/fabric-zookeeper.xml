@@ -49,7 +49,7 @@
 
     <!-- ZooKeeper server -->
     <bean id="zkServerFactory" class="org.fusesource.fabric.zookeeper.internal.ZKServerFactoryBean" destroy-method="destroy">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <argument ref="blueprintBundleContext"/>
     </bean>
     <service ref="zkServerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>

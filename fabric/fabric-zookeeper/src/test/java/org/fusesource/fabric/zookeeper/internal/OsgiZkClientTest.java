@@ -59,8 +59,7 @@ public class OsgiZkClientTest {
         managedServiceRegistration = createMock(ServiceRegistration.class);
         serverStatsRegistration = createMock(ServiceRegistration.class);
 
-        serverFactory = new ZKServerFactoryBean();
-        serverFactory.setBundleContext(bundleContext);
+        serverFactory = new ZKServerFactoryBean(bundleContext);
 
         client = new OsgiZkClient();
         client.setBundleContext(bundleContext);
