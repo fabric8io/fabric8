@@ -81,7 +81,7 @@ trait ChangeListenerSupport {
       val end = System.nanoTime()
       val elapsed = TimeUnit.NANOSECONDS.toMillis(end-start)
       if( elapsed > 100 ) {
-        println("WARN: listerns are taking too long to process the events")
+        println("WARN: listeners are taking too long to process the events")
       }
     }
   }
