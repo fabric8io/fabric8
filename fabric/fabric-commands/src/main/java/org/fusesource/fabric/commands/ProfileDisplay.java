@@ -20,6 +20,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -77,9 +78,13 @@ public class ProfileDisplay extends FabricCommand {
         output.println("Profile id: " + p.getId());
         output.println("Version   : " + p.getVersion());
 
-        output.println("Parents   : " + toString(p.getParents()));
+        output.println("Attributes: ");
+        Properties props = p.getAttributes();
+        for (String key : props.stringPropertyNames()) {
+            output.println("\t" + key + ": " + props.getProperty(key));
+        }
 
-        output.printf("Associated Containers : %s\n", toString(p.getAssociatedContainers()));
+        output.printf("Containers: %s\n", toString(p.getAssociatedContainers()));
 
         Profile profile = overlay ? p.getOverlay() : p;
 

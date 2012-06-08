@@ -47,6 +47,16 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public Properties getAttributes() {
+        return self.getAttributes();
+    }
+
+    @Override
+    public void setAttribute(String key, String value) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
     public Profile[] getParents() {
         return self.getParents();
     }

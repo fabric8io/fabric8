@@ -18,8 +18,14 @@ package org.fusesource.fabric.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public interface Profile extends Comparable<Profile> {
+
+    /**
+     * The attribute key for the list of parents
+     */
+    final String PARENTS = "parents";
 
     /**
      * Key indicating a deletion.
@@ -32,6 +38,19 @@ public interface Profile extends Comparable<Profile> {
 
     String getId();
     String getVersion();
+
+    /**
+     * Returns a read only map of all the attributes of this profile
+     * @return
+     */
+    Properties getAttributes();
+
+    /**
+     * Change an attribute on this version.
+     * @param key the name of the attribute
+     * @param value the new value or <code>null</code> to delete the attribute
+     */
+    void setAttribute(String key, String value);
 
     Profile[] getParents();
     void setParents(Profile[] parents);
