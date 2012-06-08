@@ -16,6 +16,15 @@
  */
 package org.fusesource.fabric.internal;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -34,15 +43,6 @@ import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class ContainerImpl implements Container {
 
@@ -221,6 +221,10 @@ public class ContainerImpl implements Container {
                 if (!version.equals(parent.getVersion())) {
                     throw new IllegalArgumentException("Version mismatch setting profile " + parent + " with version "
                             + parent.getVersion() + " expected version " + version);
+                }
+                if (parent.isAbstract()) {
+                    throw new IllegalArgumentException("The profile " + parent + " is abstract and can not "
+                            + "be associated to containers");
                 }
                 if (!str.isEmpty()) {
                     str += " ";

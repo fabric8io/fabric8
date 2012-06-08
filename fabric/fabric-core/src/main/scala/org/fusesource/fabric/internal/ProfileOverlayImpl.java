@@ -249,4 +249,14 @@ public class ProfileOverlayImpl implements Profile {
     public boolean isAbstract() {
         return self.isAbstract();
     }
+
+    @Override
+    public boolean isLocked() {
+        return self.isLocked();
+    }
+
+    @Override
+    public boolean isHidden() {
+        return self.isHidden();
+    }
 }

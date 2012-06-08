@@ -152,15 +152,17 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
             setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
 
+            ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000"), "abstract=true\nhidden=true");
+
             String profileNode = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000") + "/org.fusesource.fabric.zookeeper.server-0000.properties";
             Properties p = new Properties();
             p.put("tickTime", "2000");
             p.put("initLimit", "10");
             p.put("syncLimit", "5");
             p.put("dataDir", "data/zookeeper/0000");
-
             ZooKeeperUtils.set(client, profileNode, toString(p));
-            ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000-1"), "fabric-ensemble-0000");
+
+            ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000-1"), "parents=fabric-ensemble-0000\nhidden=true");
             profileNode = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000-1") + "/org.fusesource.fabric.zookeeper.server-0000.properties";
             p = new Properties();
             p.put("clientPort", "2181");
@@ -328,6 +330,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 newClusterId = new DecimalFormat("0000").format(Integer.parseInt(oldClusterId) + 1);
             }
 
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-" + newClusterId), "abstract=true\nhidden=true");
             String profileNode = "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + newClusterId + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
 
             Properties profileNodeProperties = new Properties();
@@ -346,7 +349,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
                 Properties pidNodeProperties = new Properties();
 
-                ZooKeeperUtils.add(zooKeeper, profNode, "fabric-ensemble-" + newClusterId);
+                ZooKeeperUtils.set(zooKeeper, profNode, "parents=fabric-ensemble-" + newClusterId + "\nhidden=true");
                 String port1 = Integer.toString(findPort(usedPorts, ip, 2181));
                 if (containers.size() > 1) {
                     String port2 = Integer.toString(findPort(usedPorts, ip, 2888));

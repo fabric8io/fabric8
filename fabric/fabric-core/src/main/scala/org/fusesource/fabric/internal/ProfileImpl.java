@@ -222,6 +222,9 @@ public class ProfileImpl implements Profile {
     }
 
     public void setParents(Profile[] parents) {
+        if (isLocked()) {
+            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        }
         try {
             String str = "";
             for (Profile parent : parents) {
@@ -305,6 +308,9 @@ public class ProfileImpl implements Profile {
 
     @Override
     public void setFileConfigurations(Map<String, byte[]> configurations) {
+        if (isLocked()) {
+            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        }
         try {
             IZKClient zooKeeper = service.getZooKeeper();
             Map<String, byte[]> oldCfgs = getFileConfigurations();
@@ -421,6 +427,9 @@ public class ProfileImpl implements Profile {
 
 
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
+        if (isLocked()) {
+            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        }
         try {
             IZKClient zooKeeper = service.getZooKeeper();
             Map<String, Map<String, String>> oldCfgs = getConfigurations();
@@ -491,6 +500,17 @@ public class ProfileImpl implements Profile {
 
     @Override
     public boolean isAbstract() {
-        return id == null || id.equals("mq-base") || id.startsWith("fabric-ensemble-0000");
+        return Boolean.parseBoolean(getAttributes().getProperty(ABSTRACT));
     }
+
+    @Override
+    public boolean isLocked() {
+        return Boolean.parseBoolean(getAttributes().getProperty(LOCKED));
+    }
+
+    @Override
+    public boolean isHidden() {
+        return Boolean.parseBoolean(getAttributes().getProperty(HIDDEN));
+    }
+
 }

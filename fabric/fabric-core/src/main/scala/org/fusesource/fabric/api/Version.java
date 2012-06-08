@@ -20,6 +20,20 @@ import java.util.Properties;
 
 public interface Version extends Comparable<Version> {
 
+    /**
+     * The attribute key for the description of the version
+     */
+    final String DESCRIPTION = "description";
+
+    /**
+     * The attribute key for the locked flag
+     */
+    final String LOCKED = "locked";
+
+    /**
+     * Returns the name of the version
+     * @return
+     */
     String getName();
 
     /**
