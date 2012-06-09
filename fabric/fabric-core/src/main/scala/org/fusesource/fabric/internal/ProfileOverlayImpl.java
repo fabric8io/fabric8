@@ -47,6 +47,16 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public Properties getAttributes() {
+        return self.getAttributes();
+    }
+
+    @Override
+    public void setAttribute(String key, String value) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
     public Profile[] getParents() {
         return self.getParents();
     }
@@ -238,5 +248,15 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public boolean isAbstract() {
         return self.isAbstract();
+    }
+
+    @Override
+    public boolean isLocked() {
+        return self.isLocked();
+    }
+
+    @Override
+    public boolean isHidden() {
+        return self.isHidden();
     }
 }

@@ -28,6 +28,7 @@ public class RegexSupport {
     public static final String PROFILE_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*";
     public static final String METADATA_REGEX = "/fabric/import/fabric/registry/containers/config/[\\w\\.\\-]*/metadata";
     public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/org.fusesource.fabric.agent.properties";
+    public static final String PROFILE_ATTRIBUTES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/attributes.properties";
     public static final String PARENTS_REGEX = "parents=[[\\w\\-\\.]*[ \\t]]*";
 
     public static String[] merge(File ignore, String[] regex) throws Exception {

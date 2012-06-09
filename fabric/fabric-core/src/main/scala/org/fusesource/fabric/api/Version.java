@@ -16,9 +16,38 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.Properties;
+
 public interface Version extends Comparable<Version> {
 
+    /**
+     * The attribute key for the description of the version
+     */
+    final String DESCRIPTION = "description";
+
+    /**
+     * The attribute key for the locked flag
+     */
+    final String LOCKED = "locked";
+
+    /**
+     * Returns the name of the version
+     * @return
+     */
     String getName();
+
+    /**
+     * Returns a read only map of all the attributes of this version
+     * @return
+     */
+    Properties getAttributes();
+
+    /**
+     * Change an attribute on this version.
+     * @param key the name of the attribute
+     * @param value the new value or <code>null</code> to delete the attribute
+     */
+    void setAttribute(String key, String value);
 
     VersionSequence getSequence();
 

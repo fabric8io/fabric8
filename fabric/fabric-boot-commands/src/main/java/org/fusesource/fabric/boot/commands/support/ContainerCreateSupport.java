@@ -27,7 +27,6 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.osgi.framework.ServiceReference;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
@@ -81,8 +80,12 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             // validate profiles exists before creating a new container
             List<String> names = getProfileNames();
             for (String profile : names) {
-                if (!hasProfile(profiles, profile, ver)) {
+                Profile prof = getProfile(profiles, profile, ver);
+                if (prof == null) {
                     throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
+                }
+                if (prof.isAbstract()) {
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " is abstract and can not be associated to containers.");
                 }
             }
         }
@@ -143,17 +146,17 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
-    private static boolean hasProfile(Profile[] profiles, String name, Version version) {
+    private static Profile getProfile(Profile[] profiles, String name, Version version) {
         if (profiles == null || profiles.length == 0) {
-            return false;
+            return null;
         }
 
         for (Profile profile : profiles) {
             if (profile.getId().equals(name) && profile.getVersion().equals(version.getName())) {
-                return true;
+                return profile;
             }
         }
 
-        return false;
+        return null;
     }
 }

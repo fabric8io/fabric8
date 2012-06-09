@@ -58,6 +58,42 @@ public class ProfileImpl implements Profile {
         return version;
     }
 
+    @Override
+    public Properties getAttributes() {
+        try {
+            String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
+            Properties props = ZooKeeperUtils.getProperties(service.getZooKeeper(), node);
+            // For compatibility, check if we have instead the list of parents
+            if (props.size() == 1) {
+                String key = props.stringPropertyNames().iterator().next();
+                if (!key.equals(PARENTS)) {
+                    String val = props.getProperty(key);
+                    props.remove(key);
+                    props.setProperty(PARENTS, val.isEmpty() ? key : key + " " + val);
+                }
+            }
+            return props;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setAttribute(String key, String value) {
+        try {
+            Properties props = getAttributes();
+            if (value != null) {
+                props.setProperty(key, value);
+            } else {
+                props.remove(key);
+            }
+            String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
+            ZooKeeperUtils.setProperties(service.getZooKeeper(), node, props);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
     public FabricServiceImpl getService() {
         return service;
     }
@@ -170,8 +206,7 @@ public class ProfileImpl implements Profile {
 
     public Profile[] getParents() {
         try {
-            String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
-            String str = service.getZooKeeper().getStringData(node);
+            String str = getAttributes().getProperty(PARENTS);
             if (str == null || str.isEmpty()) {
                 return new Profile[0];
             }
@@ -187,6 +222,9 @@ public class ProfileImpl implements Profile {
     }
 
     public void setParents(Profile[] parents) {
+        if (isLocked()) {
+            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        }
         try {
             String str = "";
             for (Profile parent : parents) {
@@ -199,7 +237,7 @@ public class ProfileImpl implements Profile {
                 }
                 str += parent.getId();
             }
-            service.getZooKeeper().setData( ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id), str );
+            setAttribute(PARENTS, str);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -270,6 +308,9 @@ public class ProfileImpl implements Profile {
 
     @Override
     public void setFileConfigurations(Map<String, byte[]> configurations) {
+        if (isLocked()) {
+            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        }
         try {
             IZKClient zooKeeper = service.getZooKeeper();
             Map<String, byte[]> oldCfgs = getFileConfigurations();
@@ -386,6 +427,9 @@ public class ProfileImpl implements Profile {
 
 
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
+        if (isLocked()) {
+            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        }
         try {
             IZKClient zooKeeper = service.getZooKeeper();
             Map<String, Map<String, String>> oldCfgs = getConfigurations();
@@ -456,6 +500,17 @@ public class ProfileImpl implements Profile {
 
     @Override
     public boolean isAbstract() {
-        return id == null || id.equals("mq-base") || id.startsWith("fabric-ensemble-0000");
+        return Boolean.parseBoolean(getAttributes().getProperty(ABSTRACT));
     }
+
+    @Override
+    public boolean isLocked() {
+        return Boolean.parseBoolean(getAttributes().getProperty(LOCKED));
+    }
+
+    @Override
+    public boolean isHidden() {
+        return Boolean.parseBoolean(getAttributes().getProperty(HIDDEN));
+    }
+
 }

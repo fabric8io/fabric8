@@ -16,10 +16,15 @@
  */
 package org.fusesource.fabric.internal;
 
+import java.util.Properties;
+
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.VersionSequence;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 public class VersionImpl implements Version {
 
@@ -36,6 +41,33 @@ public class VersionImpl implements Version {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public Properties getAttributes() {
+        try {
+            String node = ZkPath.CONFIG_VERSION.getPath(name);
+            Properties props = ZooKeeperUtils.getProperties(service.getZooKeeper(), node);
+            return props;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setAttribute(String key, String value) {
+        try {
+            Properties props = getAttributes();
+            if (value != null) {
+                props.setProperty(key, value);
+            } else {
+                props.remove(key);
+            }
+            String node = ZkPath.CONFIG_VERSION.getPath(name);
+            ZooKeeperUtils.setProperties(service.getZooKeeper(), node, props);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     @Override
@@ -93,6 +125,7 @@ public class VersionImpl implements Version {
 
     @Override
     public String toString() {
+        // TODO: add attributes
         return name;
     }
 }

@@ -32,6 +32,9 @@ public class ProfileList extends FabricCommand {
     @Option(name = "--version", description = "Specifies the version of the profiles to list. Defaults to the current default version.")
     private String version;
 
+    @Option(name = "--hidden", description = "Display hidden profiles")
+    private boolean hidden;
+
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
@@ -46,8 +49,10 @@ public class ProfileList extends FabricCommand {
     protected void printProfiles(Profile[] profiles, PrintStream out) {
         out.println(String.format("%-40s %-14s %s", "[id]", "[# containers]", "[parents]"));
         for (Profile profile : profiles) {
-            int active = profile.getAssociatedContainers().length;
-            out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
+            if (hidden || !profile.isHidden()) {
+                int active = profile.getAssociatedContainers().length;
+                out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
+            }
         }
     }
 

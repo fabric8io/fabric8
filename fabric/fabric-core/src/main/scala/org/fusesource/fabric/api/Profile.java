@@ -18,8 +18,34 @@ package org.fusesource.fabric.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public interface Profile extends Comparable<Profile> {
+
+    /**
+     * The attribute key for the list of parents
+     */
+    final String PARENTS = "parents";
+
+    /**
+     * The attribute key for the description of the profile
+     */
+    final String DESCRIPTION = "description";
+
+    /**
+     * The attribute key for the locked flag
+     */
+    final String LOCKED = "locked";
+
+    /**
+     * The attribute key for the abstract flag
+     */
+    final String ABSTRACT = "abstract";
+
+    /**
+     * The attribute key for the hidden flag
+     */
+    final String HIDDEN = "hidden";
 
     /**
      * Key indicating a deletion.
@@ -32,6 +58,19 @@ public interface Profile extends Comparable<Profile> {
 
     String getId();
     String getVersion();
+
+    /**
+     * Returns a read only map of all the attributes of this profile
+     * @return
+     */
+    Properties getAttributes();
+
+    /**
+     * Change an attribute on this version.
+     * @param key the name of the attribute
+     * @param value the new value or <code>null</code> to delete the attribute
+     */
+    void setAttribute(String key, String value);
 
     Profile[] getParents();
     void setParents(Profile[] parents);
@@ -101,4 +140,16 @@ public interface Profile extends Comparable<Profile> {
      * they are intended to be inherited
      */
     boolean isAbstract();
+
+    /**
+     * Returns true if this profile is locked.  Locked profiles can't be modified.
+     * @return
+     */
+    boolean isLocked();
+
+    /**
+     * Returns true if this profile is hidden.  Hidden profiles are not listed by default.
+     * @return
+     */
+    boolean isHidden();
 }
