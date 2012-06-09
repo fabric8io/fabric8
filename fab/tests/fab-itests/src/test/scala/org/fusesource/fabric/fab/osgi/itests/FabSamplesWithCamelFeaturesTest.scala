@@ -34,10 +34,10 @@ class FabSamplesWithCamelFeaturesTest {
   } catch {
     case e: RuntimeException => System.getProperty("karaf.version")
   }
+  lazy val LOCAL_REPOSITORY = System.getProperty("org.ops4j.pax.url.mvn.localRepository")
   lazy val REPOSITORIES = Array("http://repo1.maven.org/maven2/",
                                 "http://repo.fusesource.com/nexus/content/repositories/public",
                                 "http://repo.fusesource.com/nexus/content/groups/ea").mkString(",")
-
 
   @Inject
   var context: BundleContext = null;
@@ -55,6 +55,7 @@ class FabSamplesWithCamelFeaturesTest {
     systemProperty("project.version").value(VERSION),
     systemProperty("camel.version").value(CAMEL_VERSION),
     systemProperty("karaf.version").value(KARAF_VERSION),
+    systemProperty("org.ops4j.pax.url.mvn.localRepository").value(LOCAL_REPOSITORY),
     systemProperty("org.ops4j.pax.url.mvn.repositories").value(REPOSITORIES),
 
     // we need the boot delegation to allow the Spring/Blueprint XML parsing with JAXP to succeed

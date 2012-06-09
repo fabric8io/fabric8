@@ -23,6 +23,7 @@ import org.fusesource.fabric.fab.osgi.internal.Bundles
 class FabSamplesWithCamelPreinstalledTest {
 
   lazy val VERSION = System.getProperty("project.version")
+  lazy val LOCAL_REPOSITORY = System.getProperty("org.ops4j.pax.url.mvn.localRepository")
 
   @Inject
   var context: BundleContext = null;
@@ -35,6 +36,7 @@ class FabSamplesWithCamelPreinstalledTest {
 
     //vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" ),
     systemProperty("project.version").value(VERSION),
+    systemProperty("org.ops4j.pax.url.mvn.localRepository").value(LOCAL_REPOSITORY),
 
     // we need the boot delegation to allow the Spring/Blueprint XML parsing with JAXP to succeed
     bootDelegationPackage("com.sun.*"),

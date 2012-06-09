@@ -204,17 +204,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.12</version>
         <configuration>
-          <argLine>-Dproject.version=${project.version}</argLine>
+          <argLine>-Dproject.version=${project.version} -Dorg.ops4j.pax.url.mvn.localRepository=${settings.localRepository}</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <useSystemClassLoader>true</useSystemClassLoader>
-       
-          <excludes>
-           <!-- Excluded because of failures JIRA ESB-1692
-           <exclude>**/FabSamplesWithCamelFeaturesTest.*</exclude>
-           <exclude>**/FabSamplesWithCamelPreinstalledTest.*</exclude>
-           <exclude>**/FabSamplesWithoutCamelPreinstalledTest.*</exclude>
-           -->
-          </excludes>
         </configuration>
       </plugin>
 
