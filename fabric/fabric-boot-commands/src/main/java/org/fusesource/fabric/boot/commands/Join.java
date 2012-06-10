@@ -47,7 +47,6 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     private IZKClient zooKeeper;
     private String version = ZkDefs.DEFAULT_VERSION;
     private BundleContext bundleContext;
-    private CommandProcessor commandProcessor;
 
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
@@ -239,13 +238,5 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-    }
-
-    public CommandProcessor getCommandProcessor() {
-        return commandProcessor;
-    }
-
-    public void setCommandProcessor(CommandProcessor commandProcessor) {
-        this.commandProcessor = commandProcessor;
     }
 }
