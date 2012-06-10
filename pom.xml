@@ -951,6 +951,11 @@
                 <artifactId>org.apache.karaf.admin.management</artifactId>
                 <version>${karaf-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.karaf</groupId>
+                <artifactId>org.apache.karaf.util</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
 
             <!-- OSGi Scala distro -->
             <dependency>

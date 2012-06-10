@@ -71,7 +71,6 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     private IZKClient zooKeeper;
     private BundleContext bundleContext;
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
-    private String name = System.getProperty("karaf.name");
     private volatile MBeanServer mbeanServer;
 
 
@@ -94,6 +93,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     public void onConnected() {
+        String name = System.getProperty("karaf.name");
         logger.trace("onConnected");
         try {
             lock.tryLock(10,TimeUnit.SECONDS);
@@ -164,6 +164,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     private String getJmxUrl() throws IOException {
+        String name = System.getProperty("karaf.name");
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.management");
         if (config.getProperties() != null) {
             String jmx = (String) config.getProperties().get("serviceUrl");
@@ -176,6 +177,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     private String getSshUrl() throws IOException {
+        String name = System.getProperty("karaf.name");
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.shell");
         if (config != null && config.getProperties() != null) {
             String port = (String) config.getProperties().get("sshPort");

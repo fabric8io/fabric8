@@ -47,6 +47,7 @@
             org.fusesource.fabric.boot.commands,
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.utils,
+            org.apache.felix.utils.properties
         </fuse.osgi.private.pkg>
     </properties>
 
