@@ -20,6 +20,7 @@
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
     <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
+    <reference id="commandProcessor" interface="org.apache.felix.service.command.CommandProcessor"/>
 
     <bean id="Create" class="org.fusesource.fabric.boot.commands.Create">
         <property name="service" ref="zooKeeperClusterService"/>
@@ -31,6 +32,7 @@
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
         <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="commandProcessor" ref="commandProcessor"/>
     </bean>
 
     <service ref="Join" auto-export="interfaces"/>
@@ -64,6 +66,7 @@
             <action class="org.fusesource.fabric.boot.commands.Join">
                 <property name="zooKeeper" ref="zooKeeper"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
+                <property name="commandProcessor" ref="commandProcessor"/>
             </action>
         </command>
         <command name="fabric/container-create-ssh">

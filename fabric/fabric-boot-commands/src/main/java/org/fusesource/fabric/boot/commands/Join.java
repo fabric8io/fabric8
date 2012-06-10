@@ -18,19 +18,26 @@ package org.fusesource.fabric.boot.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.service.command.CommandProcessor;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
+import org.linkedin.util.clock.Timespan;
+import org.linkedin.zookeeper.client.ZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 @Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
@@ -40,40 +47,155 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     private IZKClient zooKeeper;
     private String version = ZkDefs.DEFAULT_VERSION;
     private BundleContext bundleContext;
+    private CommandProcessor commandProcessor;
 
-    @Argument(required = true, multiValued = false, description = "Zookeeper URL")
+    @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
+    private boolean nonManaged;
+
+    @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
+
+    @Argument(required = false, index = 1, multiValued = false, description = "Zookeeper URL")
+    private String containerName;
+
 
     @Override
     protected Object doExecute() throws Exception {
-        org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-        Properties properties = new Properties();
-        properties.put("zookeeper.url", zookeeperUrl);
-        config.setBundleLocation(null);
-        config.update(properties);
+        String oldName = System.getProperty("karaf.name");
+        if (containerName == null) {
+            containerName = oldName;
+        }
 
-            // Wait for the client to be available
-            ServiceTracker tracker = new ServiceTracker(bundleContext, org.fusesource.fabric.zookeeper.IZKClient.class.getName(), null);
-            tracker.open();
-            zooKeeper = (org.fusesource.fabric.zookeeper.IZKClient) tracker.waitForService(5000);
-            if (zooKeeper == null) {
-                throw new IllegalStateException("Timeout waiting for ZooKeeper client to be registered");
+        if (!containerName.equals(oldName)) {
+            if (permissionToRenameContainer()) {
+                if (registerContainerIfNotExists(containerName)) {
+                    System.err.print("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
+                    return null;
+                }
+
+                System.setProperty("karaf.name", containerName);
+                System.setProperty("zookeeper.url",zookeeperUrl);
+                //Rename the container
+                File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
+                org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
+                props.put("karaf.name", containerName);
+                props.put("zookeeper.url", zookeeperUrl);
+                props.save();
+                //Install required bundles
+                if (!nonManaged) {
+                    installBundles();
+                }
+                org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+                Properties properties = new Properties();
+                properties.put("zookeeper.url", zookeeperUrl);
+                config.setBundleLocation(null);
+                config.update(properties);
+
+                //Restart the container
+                System.setProperty("karaf.restart", "true");
+                System.setProperty("karaf.restart.clean", "false");
+                bundleContext.getBundle(0).stop();
+
+                return null;
+            } else {
+                return null;
             }
-            tracker.close();
-            zooKeeper.waitForConnected();
+        } else {
+            if (registerContainerIfNotExists(containerName)) {
+                System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
+                return null;
+            }
+            org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+            Properties properties = new Properties();
+            properties.put("zookeeper.url", zookeeperUrl);
+            config.setBundleLocation(null);
+            config.update(properties);
 
-        String karafName = System.getProperty("karaf.name");
+            installBundles();
 
-        ZkPath.createContainerPaths(zooKeeper, karafName, version);
+            return null;
+        }
+    }
+
+    /**
+     * Checks if there is an existing container using the same name.
+     *
+     * @param name
+     * @return
+     * @throws InterruptedException
+     * @throws KeeperException
+     */
+    private boolean registerContainerIfNotExists(String name) throws InterruptedException, KeeperException {
+        boolean exists = false;
+        ZKClient zkClient = null;
+        try {
+            zkClient = new ZKClient(zookeeperUrl, Timespan.ONE_MINUTE, null);
+            zkClient.start();
+            zkClient.waitForStart();
+            exists = zkClient.exists(ZkPath.CONTAINER.getPath(name)) != null;
+            if (!exists) {
+                ZkPath.createContainerPaths(zkClient, containerName, version);
+            }
+        } finally {
+            if (zkClient != null) {
+                zkClient.destroy();
+            }
+        }
+        return exists;
+    }
+
+    /**
+     * Asks the users permission to restart the container.
+     *
+     * @return
+     * @throws IOException
+     */
+    private boolean permissionToRenameContainer() throws IOException {
+        for (; ; ) {
+            StringBuffer sb = new StringBuffer();
+            System.err.println("You are about to change the container name. This action will restart the container.");
+            System.err.println("The local shell will automatically restart, but ssh connections will be terminated.");
+            System.err.println("The container will automatically join: " + zookeeperUrl + " the cluster after it restarts.");
+            System.err.print("Do you wish to proceed (yes/no):");
+            System.err.flush();
+            for (; ; ) {
+                int c = session.getKeyboard().read();
+                if (c < 0) {
+                    return false;
+                }
+                System.err.print((char) c);
+                if (c == '\r' || c == '\n') {
+                    break;
+                }
+                sb.append((char) c);
+            }
+            String str = sb.toString();
+            if ("yes".equals(str)) {
+                return true;
+            }
+            if ("no".equals(str)) {
+                return false;
+            }
+        }
+    }
+
+    public void installBundles() throws BundleException {
         Bundle bundleFabricJaas = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-jaas",
                 "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricCommands = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-commands",
                 "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
         bundleFabricJaas.start();
         bundleFabricCommands.start();
-        return null;
-    }
 
+        if (!nonManaged) {
+            Bundle bundleFabricConfigAdmin = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
+                    "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
+            Bundle bundleFabricAgent = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
+                    "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
+            bundleFabricConfigAdmin.start();
+            bundleFabricAgent.start();
+        }
+    }
 
 
     @Override
@@ -117,5 +239,13 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    public CommandProcessor getCommandProcessor() {
+        return commandProcessor;
+    }
+
+    public void setCommandProcessor(CommandProcessor commandProcessor) {
+        this.commandProcessor = commandProcessor;
     }
 }
