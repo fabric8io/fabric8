@@ -229,17 +229,17 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
                 // This update is critical, so
                 if (success || result != null) {
-                    updateStatus(success ? ZkDefs.SUCCESS : ZkDefs.ERROR, result, true);
+                    updateStatus(success ? ZkDefs.SUCCESS : ZkDefs.ERROR, result, null, true);
                 }
             }
         });
     }
 
     private void updateStatus(String status, Throwable result) {
-        updateStatus(status, result, false);
+        updateStatus(status, result, null, false);
     }
 
-    private void updateStatus(String status, Throwable result, boolean force) {
+    private void updateStatus(String status, Throwable result, List<Resource> resources, boolean force) {
         try {
             IZKClient zk;
             if (force) {
@@ -256,6 +256,13 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     StringWriter sw = new StringWriter();
                     result.printStackTrace(new PrintWriter(sw));
                     e = sw.toString();
+                }
+                if (resources != null) {
+                    StringWriter sw = new StringWriter();
+                    for (Resource res : resources) {
+                        sw.write(res.getURI() + "\n");
+                    }
+                    zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_LIST.getPath(name), sw.toString(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 }
                 zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_RESULT.getPath(name), status, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(name), e, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -554,7 +561,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         updateStatus("resolving", null);
         List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos, downloads);
 
-        updateStatus("installing", null);
+        updateStatus("installing", null, allResources, true);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
 
         StringBuilder sb = new StringBuilder();
