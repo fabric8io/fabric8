@@ -559,7 +559,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                                 // if the checksum are different
                                 InputStream is = getBundleInputStream(res, downloads, infos);
                                 long newCrc = ChecksumUtils.checksum(is);
-                                long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong(checksums.get(bundle.getLocation())) : 0;
+                                long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong((String) checksums.get(bundle.getLocation())) : 0l;
                                 if (newCrc != oldCrc) {
                                     LOGGER.debug("New snapshot available for " + bundle.getLocation());
                                     update = true;
@@ -823,6 +823,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
 
     protected void findBundlesWithFragmentsToRefresh(Set<Bundle> toRefresh) {
+        Set fragments = new HashSet();
         for (Bundle b : toRefresh) {
             if (b.getState() != Bundle.UNINSTALLED) {
                 String hostHeader = (String) b.getHeaders().get(Constants.FRAGMENT_HOST);
@@ -836,10 +837,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                                 if (ver != null) {
                                     VersionRange v = VersionRange.parseVersionRange(ver);
                                     if (v.contains(hostBundle.getVersion())) {
-                                        toRefresh.add(hostBundle);
+                                        fragments.add(hostBundle);
                                     }
                                 } else {
-                                    toRefresh.add(hostBundle);
+                                    fragments.add(hostBundle);
                                 }
                             }
                         }
@@ -847,6 +848,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
             }
         }
+        toRefresh.addAll(fragments);
     }
 
     protected void findBundlesWithOptionalPackagesToRefresh(Set<Bundle> toRefresh) {
