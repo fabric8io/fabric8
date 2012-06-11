@@ -44,12 +44,17 @@ public class BundleUtils {
         return bundle;
     }
 
-    public static Bundle findOrInstallBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
+    public static Bundle findBundle(BundleContext bundleContext, String bsn) throws BundleException {
         for (Bundle b : bundleContext.getBundles()) {
             if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
                 return b;
             }
         }
-        return bundleContext.installBundle(url);
+        return null;
+    }
+
+    public static Bundle findOrInstallBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
+        Bundle bundle = findBundle(bundleContext, bsn);
+        return bundle != null ? bundle : bundleContext.installBundle(url);
     }
 }

@@ -54,6 +54,8 @@ import org.slf4j.LoggerFactory;
 
 public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, LifecycleListener {
 
+    public static final String PARENTS = "parents"; // = Profile.PARENTS;
+
     public static final String DELETED = "#deleted#";
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
@@ -116,20 +118,16 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     public void onDisconnected() {
     }
 
-    protected ZooKeeperTreeTracker<String> track(String path) throws InterruptedException, KeeperException {
+    protected ZooKeeperTreeTracker<String> track(String path) throws InterruptedException, KeeperException, IOException {
         ZooKeeperTreeTracker<String> tree = trees.get(path);
         if (tree == null) {
             if (zooKeeper.exists(path) != null) {
                 tree = new ZooKeeperTreeTracker<String>(zooKeeper, new ZKStringDataReader(), path);
                 trees.put(path, tree);
                 tree.track(this);
-                String data = tree.getTree().get(path).getData();
-                if (data != null) {
-                    data = data.trim();
-                    String[] parents = data.split(" ");
-                    for (String parent : parents) {
-                        track(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));
-                    }
+                String[] parents = getParents(tree.getTree().get(path));
+                for (String parent : parents) {
+                    track(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));
                 }
             } else {
                 // If the node does not exist yet, we track the parent to make
@@ -208,7 +206,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     private void load(String pid, String node, Dictionary dict) throws KeeperException, InterruptedException, IOException {
         ZooKeeperTreeTracker<String> tree = track(node);
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
-        String[] parents = root != null && root.getData() != null ? root.getData().split(" ") : new String[0];
+        String[] parents = getParents(root);
         for (String parent : parents) {
             load(pid, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), dict);
         }
@@ -235,16 +233,36 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         }
     }
 
-    private Set<String> getPids() throws KeeperException, InterruptedException {
+    private String[] getParents(TrackedNode<String> root) throws IOException {
+        String[] parents;
+        if (root != null && root.getData() != null) {
+            Properties props = toProperties(root.getData());
+            // For compatibility, check if we have instead the list of parents
+            if (props.size() == 1) {
+                String key = props.stringPropertyNames().iterator().next();
+                if (!key.equals(PARENTS)) {
+                    String val = props.getProperty(key);
+                    props.remove(key);
+                    props.setProperty(PARENTS, val.isEmpty() ? key : key + " " + val);
+                }
+            }
+            parents = props.getProperty(PARENTS, "").split(" ");
+        } else {
+            parents = new String[0];
+        }
+        return parents;
+    }
+
+    private Set<String> getPids() throws KeeperException, InterruptedException, IOException {
         Set<String> pids = new HashSet<String>();
         getPids(node, pids);
         return pids;
     }
 
-    private void getPids(String node, Set<String> pids) throws KeeperException, InterruptedException {
+    private void getPids(String node, Set<String> pids) throws KeeperException, InterruptedException, IOException {
         ZooKeeperTreeTracker<String> tree = track(node);
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
-        String[] parents = root != null && root.getData() != null ? root.getData().split(" ") : new String[0];
+        String[] parents = getParents(root);
         for (String parent : parents) {
             getPids(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), pids);
         }
