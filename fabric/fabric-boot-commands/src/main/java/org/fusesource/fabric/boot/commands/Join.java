@@ -54,7 +54,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
 
-    @Argument(required = false, index = 1, multiValued = false, description = "Zookeeper URL")
+    @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric; by default a karaf name will be used")
     private String containerName;
 
 
