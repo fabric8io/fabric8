@@ -19,7 +19,6 @@ package org.fusesource.fabric.boot.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.felix.service.command.CommandProcessor;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.internal.FabricConstants;
@@ -34,7 +33,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.util.tracker.ServiceTracker;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +49,9 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
 
+    @Option(name = "-f", aliases = "--force", multiValued = false, description = "Forces the use of container name.")
+    private boolean force;
+
     @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
 
@@ -66,14 +67,14 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
         }
 
         if (!containerName.equals(oldName)) {
-            if (permissionToRenameContainer()) {
-                if (registerContainerIfNotExists(containerName)) {
+            if (force || permissionToRenameContainer()) {
+                if (!registerContainer(containerName, force)) {
                     System.err.print("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
                     return null;
                 }
 
                 System.setProperty("karaf.name", containerName);
-                System.setProperty("zookeeper.url",zookeeperUrl);
+                System.setProperty("zookeeper.url", zookeeperUrl);
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
@@ -100,7 +101,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 return null;
             }
         } else {
-            if (registerContainerIfNotExists(containerName)) {
+            if (!registerContainer(containerName, force)) {
                 System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
                 return null;
             }
@@ -124,7 +125,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private boolean registerContainerIfNotExists(String name) throws InterruptedException, KeeperException {
+    private boolean registerContainer(String name, boolean force) throws InterruptedException, KeeperException {
         boolean exists = false;
         ZKClient zkClient = null;
         try {
@@ -132,7 +133,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
             zkClient.start();
             zkClient.waitForStart();
             exists = zkClient.exists(ZkPath.CONTAINER.getPath(name)) != null;
-            if (!exists) {
+            if (!exists || force) {
                 ZkPath.createContainerPaths(zkClient, containerName, version);
             }
         } finally {
@@ -140,7 +141,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 zkClient.destroy();
             }
         }
-        return exists;
+        return !exists || force;
     }
 
     /**
