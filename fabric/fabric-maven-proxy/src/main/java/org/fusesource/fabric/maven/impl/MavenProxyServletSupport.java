@@ -52,7 +52,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     protected static final Logger LOGGER = Logger.getLogger(MavenProxyServletSupport.class.getName());
 
     protected String localRepository;
-    protected String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/public-snapshots,repo.fusesource.com/nexus/content/groups/ea";
+    protected String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/releases,repo.fusesource.com/nexus/content/groups/public-snapshots,repo.fusesource.com/nexus/content/groups/ea";
     protected String updatePolicy;
     protected String checksumPolicy;
 
