@@ -86,6 +86,10 @@ you can connect to it and check its logs to verify the flow of messages, like
     FuseFabric:karaf@root> container-connect example
     FuseFabric:karaf@root> log:display
 
+Here's a short clip that demonstrates how to start a broker and run a demo in Fabric
+
+<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/rua-7asylNw?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/rua-7asylNw?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+
 ## Topologies
 
 ### Broker clusters
