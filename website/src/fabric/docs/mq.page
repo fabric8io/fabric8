@@ -119,6 +119,10 @@ When running instances on separate machines and using shared storage it will req
 The benefit of this kind of master-slave setup is that you don't depend on locking strategies of shared storage so it can even be used with non-persistent brokers.
 The fabric group uses ZooKeeper to manage a shared distributed lock that controls ownership of the master status.
 
+The following clip demonstrates runnning a master-slave broker pair and example reconnecting when master dies.
+
+<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/mZHr6uJqTZs&hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><embed src="http://www.youtube.com/v/mZHr6uJqTZs&hl=en&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" width="853" height="480"></embed></object>
+
 One more feature of Fabric Master-Slave setups is that you can share the same containers between multiple master-slave instances.
 Given the three containers running the **hq-broker** above, it is possible to reuse the same containers for another highly available broker, **web-broker**.
  You can do the following:
@@ -141,7 +145,11 @@ We also defined we want to network this broker with the broker in **us-west** gr
 
     mq-create --group us-west --networks us-east --create-container us-west1,us-west2 us-west
 
-Now we have two master-slave pair of brokers mutually networked. There's also an example profile that demo this topology. You can run
+Now we have two master-slave pair of brokers mutually networked, like shown on the following diagram. 
+
+![Broker Network](/images/fabric/fabric-network.png)
+
+There's also an example profile that demo this topology. You can run
 
     container-create-child --profile example-mq-cluster  root example
 
