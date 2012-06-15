@@ -1,0 +1,39 @@
+---
+title: Getting Started with Fuse MQ
+in_menu: true
+sort_info: 10
+--- pipeline:jade
+
+.row-fluid
+  .span4
+    :markdown
+      ## Install
+  .span8
+    :&markdown
+      To install Fuse MQ 
+  
+      * [download](../download.html) the Fuse MQ distro 
+      * [checkout](../../source.html) and [build](../../building.html) the Fabric distro locally and untar the mq/fuse-mq tarball
+  
+
+.row-fluid
+  .span4
+    :markdown
+      ## Start Fuse MQ
+  .span8
+    :&markdown
+      To start Fuse MQ use the following commands from a shell 
+
+    pre
+      | bin/fusemq           (for Unix systems)
+      | bin\fusemq.bat       (for Windows systems)    
+    
+    :&markdown
+      Fuse MQ will present itself on the console as shown below
+    pre
+      | fuse-mq-#{project_version}$ bin/fusemq 
+      |
+      | FuseMQ:admin@root> 
+
+
+
