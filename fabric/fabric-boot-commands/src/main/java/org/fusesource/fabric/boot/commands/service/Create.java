@@ -32,4 +32,12 @@ public interface Create {
     List<String> getContainers();
 
     void setContainers(List<String> containers);
+
+    public String getProfile();
+
+    public void setProfile(String profile);
+
+    public boolean isNonManaged();
+
+    public void setNonManaged(boolean nonManaged);
 }

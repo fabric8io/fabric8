@@ -168,7 +168,7 @@ public enum ZkPath {
         return rc;
     }
 
-    public static void createContainerPaths(IZKClient zooKeeper, String container, String version) throws InterruptedException, KeeperException {
+    public static void createContainerPaths(IZKClient zooKeeper, String container, String version, String profile) throws InterruptedException, KeeperException {
         boolean versionProvided = version != null;
         if (version == null) {
             version = ZooKeeperUtils.get(zooKeeper, CONFIG_DEFAULT_VERSION.getPath());
@@ -180,7 +180,7 @@ public enum ZkPath {
             }
 
             if (zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container)) == null || versionProvided) {
-                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container), "default");
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container), profile);
             }
         }
     }
