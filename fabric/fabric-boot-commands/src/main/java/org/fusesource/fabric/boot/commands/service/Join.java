@@ -22,4 +22,21 @@ public interface Join {
     String getZookeeperUrl();
 
     void setZookeeperUrl(String zookeeperUrl);
+
+    public boolean isNonManaged();
+
+    public void setNonManaged(boolean nonManaged);
+
+    public boolean isForce();
+
+    public void setForce(boolean force);
+
+    public String getProfile();
+
+    public void setProfile(String profile);
+
+    public String getContainerName();
+
+    public void setContainerName(String containerName);
+
 }
