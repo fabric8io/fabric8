@@ -52,6 +52,9 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Option(name = "-f", aliases = "--force", multiValued = false, description = "Forces the use of container name.")
     private boolean force;
 
+    @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
+    private String profile = "fabric";
+
     @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
 
@@ -68,7 +71,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
-                if (!registerContainer(containerName, force)) {
+                if (!registerContainer(containerName, profile, force)) {
                     System.err.print("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
                     return null;
                 }
@@ -101,7 +104,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 return null;
             }
         } else {
-            if (!registerContainer(containerName, force)) {
+            if (!registerContainer(containerName, profile, force)) {
                 System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
                 return null;
             }
@@ -125,7 +128,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private boolean registerContainer(String name, boolean force) throws InterruptedException, KeeperException {
+    private boolean registerContainer(String name, String profile, boolean force) throws InterruptedException, KeeperException {
         boolean exists = false;
         ZKClient zkClient = null;
         try {
@@ -134,7 +137,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
             zkClient.waitForStart();
             exists = zkClient.exists(ZkPath.CONTAINER.getPath(name)) != null;
             if (!exists || force) {
-                ZkPath.createContainerPaths(zkClient, containerName, version);
+                ZkPath.createContainerPaths(zkClient, containerName, version, profile);
             }
         } finally {
             if (zkClient != null) {
@@ -231,6 +234,38 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Override
     public void setZookeeperUrl(String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
+    }
+
+    public boolean isNonManaged() {
+        return nonManaged;
+    }
+
+    public void setNonManaged(boolean nonManaged) {
+        this.nonManaged = nonManaged;
+    }
+
+    public boolean isForce() {
+        return force;
+    }
+
+    public void setForce(boolean force) {
+        this.force = force;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
     }
 
     public BundleContext getBundleContext() {

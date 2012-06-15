@@ -44,6 +44,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private boolean nonManaged;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
+    @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
+    private String profile = "fabric";
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
     private List<String> containers;
 
@@ -63,6 +65,10 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
         if (resolver != null) {
             System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, resolver);
+        }
+
+        if (profile != null) {
+            System.setProperty(ZooKeeperClusterService.PROFILE, profile);
         }
 
         if (nonManaged) {
@@ -144,5 +150,21 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Override
     public void setContainers(List<String> containers) {
         this.containers = containers;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public boolean isNonManaged() {
+        return nonManaged;
+    }
+
+    public void setNonManaged(boolean nonManaged) {
+        this.nonManaged = nonManaged;
     }
 }
