@@ -20,6 +20,7 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -38,6 +39,7 @@ import static junit.framework.Assert.assertNotNull;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
 
+	@Ignore // JIRA ESB-1687
     @Test
     public void testLocalFabricCluster() throws Exception {
         //Wait for zookeeper service to become available.

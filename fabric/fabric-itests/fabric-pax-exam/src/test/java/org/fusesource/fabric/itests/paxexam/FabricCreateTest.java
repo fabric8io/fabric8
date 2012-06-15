@@ -20,6 +20,7 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -34,7 +35,7 @@ import static junit.framework.Assert.assertNotNull;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class FabricCreateTest extends FabricTestSupport {
 
-
+    @Ignore // JIRA ESB-1687
     @Test
     public void testImportedProfiles() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);

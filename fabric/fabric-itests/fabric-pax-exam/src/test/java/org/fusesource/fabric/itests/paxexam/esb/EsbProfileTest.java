@@ -2,6 +2,7 @@ package org.fusesource.fabric.itests.paxexam.esb;
 
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -19,6 +20,7 @@ public class EsbProfileTest extends FabricTestSupport {
        destroyChildContainer("esb1");
     }
 
+    @Ignore // JIRA ESB-1687
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create"));

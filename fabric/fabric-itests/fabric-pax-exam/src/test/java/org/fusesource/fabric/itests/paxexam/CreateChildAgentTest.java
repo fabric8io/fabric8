@@ -18,6 +18,7 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -35,6 +36,7 @@ public class CreateChildAgentTest extends FabricTestSupport {
        destroyChildContainer("child1");
     }
 
+    @Ignore // JIRA ESB-1687
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create"));

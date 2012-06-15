@@ -4,6 +4,7 @@ import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -33,6 +34,7 @@ public class MQProfileTest extends FabricTestSupport {
        }
     }
 
+    @Ignore // JIRA ESB-1687
     @Test
     public void testLocalChildCreation() throws Exception {
         System.err.println(executeCommand("fabric:create"));
@@ -52,6 +54,8 @@ public class MQProfileTest extends FabricTestSupport {
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
     
+    
+    @Ignore // JIRA ESB-1687
     @Test
     public void testMQCreateBasic() throws Exception {
         System.err.println(executeCommand("fabric:create"));
@@ -74,6 +78,7 @@ public class MQProfileTest extends FabricTestSupport {
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
 
+    @Ignore // JIRA ESB-1687
     @Test
     public void testMQCreateMS() throws Exception {
         System.err.println(executeCommand("fabric:create"));
@@ -102,6 +107,7 @@ public class MQProfileTest extends FabricTestSupport {
 
     }
     
+    @Ignore  // JIRA ESB-1687
     @Test
     public void testMQCreateNetwork() throws Exception {
         System.err.println(executeCommand("fabric:create"));

@@ -2,6 +2,7 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -23,6 +24,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         destroyChildContainer("camel1");
     }
 
+    @Ignore //JIRA ESB-1687
     @Test
     public void testContainerUpgrade() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);

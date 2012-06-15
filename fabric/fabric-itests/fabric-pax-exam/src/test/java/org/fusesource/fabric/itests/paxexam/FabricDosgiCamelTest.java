@@ -19,6 +19,7 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -44,6 +45,7 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
        destroyChildContainer("dosgi-provider");
     }
 
+    @Ignore // JIRA ESB-1687
     @Test
     public void testFeatureProvisioning() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
