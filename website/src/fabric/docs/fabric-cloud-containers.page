@@ -1,11 +1,11 @@
 ---
-title: Fabric Cloud containers
+title: Fabric Cloud Containers
 in_menu: true
 sort_info: 10
 --- 
 {:toc}
 
-## Overview
+## Fabric Cloud Containers
 
 Fabric leverages [jclouds](http://www.jclouds.org/) in order to allow Fabric create new containers in public or private clouds.
 The Fabric cloud container provider will allow you to create new compute instances in the cloud provider of your choice, perform firewall configuration, requirements installation & last but not list full container installation and automatic registration to the cluster.

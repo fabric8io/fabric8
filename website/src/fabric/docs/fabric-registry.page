@@ -5,7 +5,7 @@ sort_info: 10
 --- 
 {:toc}
 
-## Overview
+# Fabric Registry
 
 Fuse Fabric uses [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
 as its registry to store the cluster configuration and node registration.
