@@ -396,21 +396,25 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             IZKClient zooKeeper = (IZKClient) zkClient.waitForService(0);
             if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 StringBuffer sb = new StringBuffer();
-                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
+                List<String> proxies = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
                 //We want the maven proxies to be sorted in the same manner that the fabric service does.
-                //That's beacause when someone uses the fabric service to pick a repo for deployment, we want that repo to be used first.
-                Collections.sort(children);
-                for (String child : children) {
-                    String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
-                    if (mavenRepo != null && mavenRepo.length() > 0) {
-                        if (!mavenRepo.endsWith("/")) {
-                            mavenRepo += "/";
+                //That's because when someone uses the fabric service to pick a repo for deployment, we want that repo to be used first.
+                Collections.sort(proxies);
+                for (String proxy : proxies) {
+                    try {
+                        String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + proxy);
+                        if (mavenRepo != null && mavenRepo.length() > 0) {
+                            if (!mavenRepo.endsWith("/")) {
+                                mavenRepo += "/";
+                            }
+                            if (sb.length() > 0) {
+                                sb.append(",");
+                            }
+                            sb.append(mavenRepo);
+                            sb.append("@snapshots");
                         }
-                        if (sb.length() > 0) {
-                            sb.append(",");
-                        }
-                        sb.append(mavenRepo);
-                        sb.append("@snapshots");
+                    } catch (Throwable t) {
+                        LOGGER.warn("Failed to resolve proxy: " + proxy+". It will be ignored.");
                     }
                 }
                 String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
@@ -1009,7 +1013,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     LOGGER.warn("Cannot find reference to MonitoringService. This exception will be ignored.", t);
                 }
             }
-            
+
             if (downloadExecutor == null) {
                 LOGGER.info("Creating a new fixed thread pool for download manager.");
                 downloadExecutor = Executors.newFixedThreadPool(5);
