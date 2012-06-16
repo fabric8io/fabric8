@@ -42,8 +42,10 @@ public class CloudProviderRemove extends FabricCommand {
         if (current == null || !current.isManaged()) {
             //Remove compute configurations for the provider.
             Configuration[] computeConfigs = findConfigurationByFactoryPid("org.jclouds.compute");
-            for (Configuration configuration : computeConfigs) {
-                configuration.delete();
+            if (computeConfigs != null) {
+                for (Configuration configuration : computeConfigs) {
+                    configuration.delete();
+                }
             }
         }
         return null;
