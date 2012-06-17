@@ -98,9 +98,9 @@ In addition to the core Provisioning, Configuration and Management Fabric descri
 
 When using ActiveMQ you have to configure your ActiveMQ clients with the locations of the ActiveMQ brokers up front which is not terribly cloud friendly (e.g. working on a number of new EC2 boxes spun up on Amazon). 
 
-However the **ActiveMQ Fabric** lets you avoid this by reusing the Fabric discovery mechanism. ActiveMQ brokers register themselves into the Runtime Registry. Then ActiveMQ clients use the Runtime Registry to discover brokers; plus watch for brokers failing and new brokers starting so there is a real time discovery and load balancing mechanism.
+However the [**ActiveMQ Fabric**](mq.html) let you avoid this by reusing the Fabric discovery mechanism. ActiveMQ brokers register themselves into the Runtime Registry. Then ActiveMQ clients use the Runtime Registry to discover brokers; plus watch for brokers failing and new brokers starting so there is a real time discovery and load balancing mechanism.
 
-[Here](mq.html) you can find more information on **ActiveMQ Fabric**
+Find more information on [**ActiveMQ Fabric**](mq.html)
 
 ### Camel Fabric
 

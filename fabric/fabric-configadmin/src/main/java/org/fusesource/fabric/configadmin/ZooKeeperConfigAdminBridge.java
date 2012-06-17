@@ -92,7 +92,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 // Find our root node
                 String versionNode = ZkPath.CONFIG_CONTAINER.getPath(name);
                 if (zooKeeper.exists(versionNode) == null) {
-                    ZkPath.createContainerPaths(zooKeeper, name, null);
+                    ZkPath.createContainerPaths(zooKeeper, name, null, "fabric");
                 }
                 version = zooKeeper.getStringData(versionNode);
                 if (version == null) {
