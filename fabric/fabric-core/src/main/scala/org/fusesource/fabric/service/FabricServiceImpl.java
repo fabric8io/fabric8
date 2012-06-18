@@ -599,4 +599,9 @@ public class FabricServiceImpl implements FabricService {
     public FabricStatus getFabricStatus() {
         return new FabricStatus(this);
     }
+
+    @Override
+    public PatchService getPatchService() {
+        return new PatchServiceImpl(this);
+    }
 }
