@@ -40,7 +40,7 @@ public class CloudProviderList extends FabricCommand {
         if (providers != null && !providers.isEmpty()) {
             printComputeProviders(providers,computeServices, "", System.out);
         } else {
-            System.out.print("No providers have been found.");
+            System.out.println("No providers have been found.");
         }
         return null;
     }
