@@ -159,6 +159,9 @@ public class ContainerProviderUtils {
         if (options instanceof CreateJCloudsContainerOptions) {
             sb.append("configure-hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
         }
+        if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
+            sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
+        }
         sb.append("run nohup bin/start").append("\n");
         sb.append("karaf-check `pwd`").append("\n");
         return sb.toString();
@@ -183,6 +186,9 @@ public class ContainerProviderUtils {
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         if (options instanceof CreateJCloudsContainerOptions) {
             sb.append("configure-hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
+        }
+        if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
+            sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
         }
         sb.append("run nohup bin/start").append("\n");
         sb.append("karaf-check `pwd`").append("\n");
