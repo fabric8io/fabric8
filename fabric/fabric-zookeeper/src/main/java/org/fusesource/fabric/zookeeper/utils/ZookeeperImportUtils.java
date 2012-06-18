@@ -17,14 +17,23 @@
 
 package org.fusesource.fabric.zookeeper.utils;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.linkedin.zookeeper.client.IZKClient;
-
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import java.util.regex.Pattern;
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
@@ -108,6 +117,7 @@ public class ZookeeperImportUtils {
     private static void getCandidates(IZKClient zookeeper, File parent, File current, Map<String, String> settings, String target) throws Exception {
         List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
         List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
+        List<Pattern> attributes = getPatterns(new String[]{RegexSupport.PROFILE_ATTRIBUTES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
                 getCandidates(zookeeper, parent, child, settings, target);
@@ -126,12 +136,18 @@ public class ZookeeperImportUtils {
                 p = p.substring(0, p.length() - ".cfg".length());
             }
 
-            if (matches(containerProperties, "/" + p, false)) {
+            if (matches(attributes, "/" + p, false)) {
+                settings.put(p.substring(0, p.lastIndexOf("/")), new String(contents));
+            } else if (matches(containerProperties, "/" + p, false)) {
                 settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX, ""));
                 Properties props = new Properties();
                 props.load(new StringReader(new String(contents)));
-                String parents = (String) props.get("parents");
-                settings.put(p.substring(0, p.lastIndexOf("/")), parents);
+                if (settings.get(p.substring(0, p.lastIndexOf("/"))) == null) {
+                    String parents = (String) props.get("parents");
+                    if (parents != null && !parents.isEmpty()) {
+                        settings.put(p.substring(0, p.lastIndexOf("/")), "parents=" + parents);
+                    }
+                }
             } else if (!matches(profile, "/" + p, false)) {
                 settings.put(p, new String(contents));
             }
