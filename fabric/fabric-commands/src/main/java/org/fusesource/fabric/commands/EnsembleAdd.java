@@ -31,7 +31,16 @@ public class EnsembleAdd extends EnsembleCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        service.addToCluster(containers);
+        if (containers != null && !containers.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Adding containers:");
+            for (String container : containers) {
+                builder.append(" ").append(container);
+            }
+            builder.append(" to the ensemble. This may take a while.");
+            System.out.println(builder.toString());
+            service.addToCluster(containers);
+        }
         return null;
     }
 

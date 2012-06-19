@@ -144,7 +144,9 @@ public class ZookeeperImportUtils {
                 props.load(new StringReader(new String(contents)));
                 if (settings.get(p.substring(0, p.lastIndexOf("/"))) == null) {
                     String parents = (String) props.get("parents");
-                    settings.put(p.substring(0, p.lastIndexOf("/")), "parents=" + parents);
+                    if (parents != null && !parents.isEmpty()) {
+                        settings.put(p.substring(0, p.lastIndexOf("/")), "parents=" + parents);
+                    }
                 }
             } else if (!matches(profile, "/" + p, false)) {
                 settings.put(p, new String(contents));

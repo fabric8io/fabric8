@@ -22,33 +22,27 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLDecoder;
-import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import com.google.common.base.Strings;
-import org.apache.commons.io.IOUtils;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
-import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
-import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
-import org.fusesource.fabric.service.jclouds.firewall.Rule;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.jclouds.compute.ComputeService;
@@ -60,11 +54,8 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Credentials;
-import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
-import org.jclouds.rest.AuthorizationException;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
-import org.jclouds.ssh.SshException;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -73,7 +64,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import static org.fusesource.fabric.internal.ContainerProviderUtils.buildInstallAndStartScript;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScript;
 
@@ -92,6 +82,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private BundleContext bundleContext;
 
     private ServiceReference computeReference = null;
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     public synchronized void bind(ComputeService computeService) {
         if (computeService != null) {
@@ -222,120 +214,21 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             int suffix = 1;
             if (metadatas != null) {
                 String originalName = new String(options.getName());
-                for (NodeMetadata nodeMetadata : metadatas) {
-                    LoginCredentials credentials = nodeMetadata.getCredentials();
-                    //For some cloud providers return do not allow shell access to root, so the user needs to be overrided.
-                    if (!Strings.isNullOrEmpty(options.getUser()) && credentials != null) {
-                        credentials = credentials.toBuilder().user(options.getUser()).build();
-                    } else {
-                        credentials = nodeMetadata.getCredentials();
-                    }
-                    String id = nodeMetadata.getId();
-                    Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+                CountDownLatch countDownLatch = new CountDownLatch(options.getNumber());
 
+                for (NodeMetadata nodeMetadata : metadatas) {
                     String containerName;
                     if (options.getNumber() > 1) {
                         containerName = originalName + (suffix++);
                     } else {
                         containerName = originalName;
                     }
-
-                    //Make a copy of the addresses, because we don't want to return back a guice implementation of Set.
-                    Set<String> copyOfPublicAddresses = new HashSet<String>();
-                    for (String publicAddress : publicAddresses) {
-                        copyOfPublicAddresses.add(publicAddress);
-                    }
-
-                    CreateJCloudsContainerMetadata jCloudsContainerMetadata = new CreateJCloudsContainerMetadata();
-                    jCloudsContainerMetadata.setCreateOptions(options);
-                    jCloudsContainerMetadata.setNodeId(nodeMetadata.getId());
-                    jCloudsContainerMetadata.setContainerName(containerName);
-                    jCloudsContainerMetadata.setPublicAddresses(copyOfPublicAddresses);
-                    jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
-                    if (credentials != null) {
-                        jCloudsContainerMetadata.setIdentity(credentials.identity);
-                        jCloudsContainerMetadata.setCredential(credentials.credential);
-                    }
-
-                    String publicAddress = "";
-                    Properties addresses = new Properties();
-                    if (publicAddresses != null && !publicAddresses.isEmpty()) {
-                        publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
-                        addresses.put(ZkDefs.PUBLIC_IP, publicAddress);
-                    }
-
-                    options.getSystemProperties().put(ContainerProviderUtils.ADDRESSES_PROPERTY_KEY, addresses);
-                    options.getMetadataMap().put(containerName, jCloudsContainerMetadata);
-
-                    //Setup firwall for node
-                    try {
-                        FirewallManager firewallManager = firewallManagerFactory.getFirewallManager(computeService);
-                        if (firewallManager.isSupported()) {
-                            options.getCreationStateListener().onStateChange("Configuring firewall.");
-                            String source = getOriginatingIp();
-
-                            Rule httpRule = Rule.create().source("0.0.0.0/0").destination(nodeMetadata).port(8181);
-                            firewallManager.addRules(httpRule);
-
-                            if (source != null) {
-                                Rule jmxRule = Rule.create().source(source).destination(nodeMetadata).ports(44444, 1099);
-                                Rule sshRule = Rule.create().source(source).destination(nodeMetadata).port(8101);
-                                Rule zookeeperRule = Rule.create().source(source).destination(nodeMetadata).port(2181);
-                                firewallManager.addRules(jmxRule, sshRule, zookeeperRule);
-                            }
-                            //We do add the target node public address to the firewall rules, as a way to make things easier in cases
-                            //where firewall configuration is shared among nodes of the same groups, e.g. EC2.
-                            if (!Strings.isNullOrEmpty(publicAddress)) {
-                                Rule zookeeperFromTargetRule = Rule.create().source(publicAddress + "/32").destination(nodeMetadata).port(2181);
-                                firewallManager.addRule(zookeeperFromTargetRule);
-                            }
-                        } else {
-                            options.getCreationStateListener().onStateChange(String.format("Skipping firewall configuration. Not supported for provider %s", options.getProviderName()));
-                        }
-                    } catch (FirewallNotSupportedOnProviderException e) {
-                        LOGGER.warn("Firewall manager not supported. Firewall will have to be manually configured.");
-                    } catch (IOException e) {
-                        LOGGER.warn("Could not lookup originating ip. Firewall will have to be manually configured.", e);
-                    } catch (Throwable t) {
-                        LOGGER.warn("Failed to setup firewall", t);
-                    }
-
-
-                    try {
-                        String script = buildInstallAndStartScript(options.name(containerName));
-                        options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It may take a while...", containerName));
-                        ExecResponse response = null;
-                        try {
-                            if (credentials != null) {
-                                response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
-                            } else {
-                                response = computeService.runScriptOnNode(id, script, templateOptions);
-                            }
-                        } catch (AuthorizationException ex) {
-                            throw new Exception("Failed to connect to the container via ssh.");
-                        } catch (SshException ex) {
-                            throw new Exception("Failed to connect to the container via ssh.");
-                        }
-
-                        if (response != null && response.getOutput() != null) {
-                            if (response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
-                                jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));
-                            }
-                            String overridenResolverValue = ContainerProviderUtils.parseResolverOverride(response.getOutput());
-                            if (overridenResolverValue != null) {
-                                options.setResolver(overridenResolverValue);
-                                options.getCreationStateListener().onStateChange("Overriding resolver to " + overridenResolverValue + ".");
-                            }
-                        } else {
-                            jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
-                        }
-                    } catch (Throwable t) {
-                        jCloudsContainerMetadata.setFailure(t);
-                    }
-                    //Cleanup addresses.
-                    options.getSystemProperties().clear();
-                    result.add(jCloudsContainerMetadata);
+                    CloudContainerInstallationTask installationTask = new CloudContainerInstallationTask(containerName,
+                            nodeMetadata, options, computeService, firewallManagerFactory, templateOptions, result,
+                            countDownLatch);
+                    executorService.execute(installationTask);
                 }
+                countDownLatch.await(10, TimeUnit.MINUTES);
             }
         } catch (Throwable t) {
             if (options != null && options.getNumber() > 0) {
@@ -481,23 +374,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             }
         }
         return computeService;
-    }
-
-    /**
-     * @return the IP address of the client on which this code is running.
-     * @throws java.io.IOException
-     */
-    private String getOriginatingIp() throws IOException {
-        String ip = null;
-        try {
-            URL url = new URL("http://checkip.amazonaws.com/");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.connect();
-            ip = IOUtils.toString(connection.getInputStream()).trim() + "/32";
-        } catch (Throwable t) {
-            LOGGER.warn("Failed to lookup public ip of current container.");
-        }
-        return ip;
     }
 
     private String readFile(String path) {
