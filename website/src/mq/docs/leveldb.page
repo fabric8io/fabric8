@@ -1,0 +1,7 @@
+---
+title: LevelDB and HDFS
+--- pipeline:jade,markdown
+- 
+  import java.net._
+  import org.fusesource.scalate.util.IOUtil._
+= loadText(new URL("https://raw.github.com/fusesource/fuse-extra/master/fusemq-leveldb/readme.md").openStream()) 

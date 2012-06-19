@@ -62,8 +62,15 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
 
     public void init() throws ServletException, NamespaceException {
         this.port = getPortFromConfig();
-        httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, null);
-        httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secureHttpContext);
+        try {
+            httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, null);
+            httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secureHttpContext);
+        } catch (Throwable t) {
+            //There is a chance that the http service is not there upon initialization.
+            //The reference is option to avoid resolution issues.
+            //So we just log a warn.
+            LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
+        }
     }
 
     public void destroy() {
