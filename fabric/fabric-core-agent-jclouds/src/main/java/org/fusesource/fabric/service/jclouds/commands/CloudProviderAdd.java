@@ -71,15 +71,12 @@ public class CloudProviderAdd extends FabricCommand {
         if (!Strings.isNullOrEmpty(owner)) {
             props.put("owner", owner);
         }
-        Container current = fabricService.getCurrentContainer();
-        if (!getZooKeeper().isConnected() || !current.isManaged()) {
-            CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, provider, identity, credential, props);
-            if(!registerAsync) {
-                System.out.println("Waiting for "+provider+" service to initialize.");
-                CloudUtils.waitForComputeService(bundleContext, provider);
-            }
-        }
 
+        CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, provider, identity, credential, props);
+        if (!registerAsync) {
+            System.out.println("Waiting for " + provider + " service to initialize.");
+            CloudUtils.waitForComputeService(bundleContext, provider);
+        }
         return null;
     }
 }

@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.service.jclouds.commands;
 
+import java.util.Dictionary;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
@@ -36,15 +37,21 @@ public class CloudProviderRemove extends FabricCommand {
         boolean connected = getZooKeeper().isConnected();
         Container current = null;
         if (connected) {
-            getZooKeeper().deleteWithChildren(ZkPath.CLOUD_PROVIDER.getPath(provider));
+            if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) != null) {
+                getZooKeeper().deleteWithChildren(ZkPath.CLOUD_PROVIDER.getPath(provider));
+            }
             current = fabricService.getCurrentContainer();
         }
-        if (current == null || !current.isManaged()) {
-            //Remove compute configurations for the provider.
-            Configuration[] computeConfigs = findConfigurationByFactoryPid("org.jclouds.compute");
-            if (computeConfigs != null) {
-                for (Configuration configuration : computeConfigs) {
-                    configuration.delete();
+        //Remove compute configurations for the provider.
+        Configuration[] computeConfigs = findConfigurationByFactoryPid("org.jclouds.compute");
+        if (computeConfigs != null) {
+            for (Configuration configuration : computeConfigs) {
+                Dictionary props = configuration.getProperties();
+                if (props != null) {
+                    String fabricPid = (String) props.get("fabric.zookeeper.pid");
+                    if (fabricPid.equals("org.jclouds.compute-" + provider.replaceAll("-", ""))) {
+                        configuration.delete();
+                    }
                 }
             }
         }
