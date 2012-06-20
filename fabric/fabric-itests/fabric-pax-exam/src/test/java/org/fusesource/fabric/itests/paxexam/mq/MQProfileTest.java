@@ -37,7 +37,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Ignore // JIRA ESB-1687
     @Test
     public void testLocalChildCreation() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         addStagingRepoToDefaultProfile();
         containers.add(createAndAssertChildContainer("mq1", "root", "mq"));
 
@@ -58,7 +58,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Ignore // JIRA ESB-1687
     @Test
     public void testMQCreateBasic() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         addStagingRepoToDefaultProfile();
 
         executeCommand("mq-create --create-container mq1 mq1");
@@ -81,7 +81,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Ignore // JIRA ESB-1687
     @Test
     public void testMQCreateMS() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         addStagingRepoToDefaultProfile();
 
         executeCommand("mq-create --create-container broker1,broker2 ms-broker");
@@ -110,7 +110,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Ignore  // JIRA ESB-1687
     @Test
     public void testMQCreateNetwork() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         addStagingRepoToDefaultProfile();
 
         executeCommand("mq-create --group east --networks west --create-container east east");

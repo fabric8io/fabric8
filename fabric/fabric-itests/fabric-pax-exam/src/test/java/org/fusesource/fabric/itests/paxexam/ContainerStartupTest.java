@@ -40,7 +40,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        executeCommand("fabric:ensemble-create --clean root");
+        executeCommand("fabric:ensemble-create -n --clean root");
 
         //Wait for zookeeper service to become available.
         Container[] containers = fabricService.getContainers();

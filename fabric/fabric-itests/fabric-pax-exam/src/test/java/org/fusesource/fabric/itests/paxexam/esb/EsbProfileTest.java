@@ -23,7 +23,7 @@ public class EsbProfileTest extends FabricTestSupport {
     @Ignore // JIRA ESB-1687
     @Test
     public void testLocalChildCreation() throws Exception {
-         System.err.println(executeCommand("fabric:create"));
+         System.err.println(executeCommand("fabric:create -n"));
          addStagingRepoToDefaultProfile();
          createAndAssertChildContainer("esb1", "root", "esb");
     }

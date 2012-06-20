@@ -43,7 +43,7 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
     @Ignore // JIRA ESB-1687
     @Test
     public void testExample() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("broker1", "root", "mq");
         createAndAssertChildContainer("camel1", "root", "example-camel");
         System.err.println(executeCommand("fabric:cluster-list"));

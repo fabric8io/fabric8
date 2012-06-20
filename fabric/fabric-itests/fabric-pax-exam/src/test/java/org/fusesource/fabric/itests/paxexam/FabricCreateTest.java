@@ -41,7 +41,7 @@ public class FabricCreateTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
 
         Profile karafProfile = fabricService.getProfile(ZkDefs.DEFAULT_VERSION,"karaf");
         assertNotNull(karafProfile);

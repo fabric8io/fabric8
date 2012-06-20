@@ -14,7 +14,7 @@ public class EsbProfileLongTest extends FabricFeaturesTest {
 
     @Before
     public void setUp() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
 
         addStagingRepoToDefaultProfile();
 

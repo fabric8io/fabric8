@@ -44,7 +44,7 @@ public class ExampleCxfProfileTest extends FabricTestSupport {
     @Ignore // JIRA ESB-1687
     @Test
     public void testExample() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("cxf-server", "root", "example-cxf");
         System.err.println(executeCommand("fabric:cluster-list"));
         // install bundle of CXF
