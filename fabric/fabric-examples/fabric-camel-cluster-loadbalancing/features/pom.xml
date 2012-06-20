@@ -15,7 +15,8 @@
   limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -40,9 +41,9 @@
                 </includes>
             </resource>
             <resource>
-                  <directory>../etc</directory>
-                  <filtering>true</filtering>
-                  <targetPath>distro/etc</targetPath>
+                <directory>../etc</directory>
+                <filtering>true</filtering>
+                <targetPath>distro/etc</targetPath>
             </resource>
         </resources>
 
@@ -80,10 +81,10 @@
                                     <classifier>features</classifier>
                                 </artifact>
                                 <artifact>
-                                     <file>target/classes/distro/etc/install-fabric-camel.karaf</file>
-                                     <type>karaf</type>
-                                     <classifier>installer</classifier>
-                              </artifact>
+                                    <file>target/classes/distro/etc/install-fabric-camel-on-fuse-esb7.karaf</file>
+                                    <type>karaf</type>
+                                    <classifier>installer</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
@@ -91,7 +92,6 @@
             </plugin>
         </plugins>
     </build>
-
 
 
 </project>
