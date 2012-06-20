@@ -74,6 +74,10 @@
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
             </action>
+            <completers>
+                <ref component-id="computeProviderCompleter"/>
+                <null/>
+            </completers>
         </command>
         <command name="fabric/cloud-provider-list">
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderList">
