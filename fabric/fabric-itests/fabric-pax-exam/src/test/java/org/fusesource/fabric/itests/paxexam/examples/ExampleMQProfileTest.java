@@ -41,7 +41,7 @@ public class ExampleMQProfileTest extends FabricTestSupport {
 
     @Test
     public void testExample() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("broker1", "root", "mq");
         createAndAssertChildContainer("mq1", "root", "example-mq");
         System.err.println(executeCommand("fabric:cluster-list"));

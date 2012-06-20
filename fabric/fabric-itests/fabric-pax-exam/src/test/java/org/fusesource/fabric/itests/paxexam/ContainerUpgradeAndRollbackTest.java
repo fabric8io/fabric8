@@ -27,7 +27,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
     public void testContainerUpgrade() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
 
-        System.out.println(executeCommand("fabric:create"));
+        System.out.println(executeCommand("fabric:create -n"));
 
         addStagingRepoToDefaultProfile();
 

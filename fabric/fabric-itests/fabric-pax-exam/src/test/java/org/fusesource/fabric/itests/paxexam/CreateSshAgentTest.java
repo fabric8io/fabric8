@@ -81,7 +81,7 @@ public class CreateSshAgentTest extends FabricTestSupport {
         if (isReady()) {
             FabricService fabricService = getOsgiService(FabricService.class);
             assertNotNull(fabricService);
-            System.err.println(executeCommand("fabric:create"));
+            System.err.println(executeCommand("fabric:create -n"));
 
             CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
                     .host(host)
