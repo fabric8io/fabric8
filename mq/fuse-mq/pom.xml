@@ -300,14 +300,6 @@
                            </goals>
                            <configuration>
                                <target name="update-properties">
-                                   <echo message="Updating etc/system.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/etc/system.properties" />
-                                   </concat>
-                                   <echo message="Updating etc/system.properties in windows assembly" />
-                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/etc/system.properties" />
-                                   </concat>
                                    <echo message="Fixing start/stop scripts in windows assembly" />
                                    <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="fusemq.bat"/>
                                    <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="fusemq.bat"/>
