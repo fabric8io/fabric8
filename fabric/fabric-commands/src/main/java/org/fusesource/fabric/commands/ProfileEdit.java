@@ -140,7 +140,7 @@ public class ProfileEdit extends FabricCommand {
             Map<String, String> configMap = extractConfigs(configAdminConfigList);
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
                 String key = configEntries.getKey();
-                if (key.contains(".")) {
+                if (key.contains(PID_KEY_SEPARATOR)) {
                     String pid = key.substring(0, key.lastIndexOf(PID_KEY_SEPARATOR));
                     key = key.substring(key.lastIndexOf(PID_KEY_SEPARATOR) + 1);
                     String value = configEntries.getValue();
