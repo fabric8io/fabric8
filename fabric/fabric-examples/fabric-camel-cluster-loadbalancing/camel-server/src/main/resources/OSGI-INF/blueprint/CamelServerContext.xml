@@ -23,17 +23,21 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <!-- osgi blueprint property placeholder -->
-    <cm:property-placeholder id="placeholder" persistent-id="fabricCamel">
+    <cm:property-placeholder id="placeholder" persistent-id="foo.fabricCamel">
         <cm:default-properties>
             <cm:property name="portNumber" value="8181"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
-    <reference id="org.linkedin.zookeeper.client.IZKClient" interface="org.linkedin.zookeeper.client.IZKClient" />
+    <reference id="org.linkedin.zookeeper.client.IZKClient" interface="org.linkedin.zookeeper.client.IZKClient"/>
+
+    <bean id="fabric-camel" class="org.fusesource.fabric.camel.FabricComponent">
+        <property name="zkClient" ref="org.linkedin.zookeeper.client.IZKClient"/>
+    </bean>
 
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="fabric-server">
-            <from uri="fabric:cheese:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
+            <from uri="fabric-camel:local:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
             <log message="Request received : ${body}"/>
             <setHeader headerName="karaf.name">
                 <simple>${sys.karaf.name}</simple>
