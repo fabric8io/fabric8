@@ -59,6 +59,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
                 new VMOption("-D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"),
+                new VMOption("-D"+ZooKeeperClusterService.AGENT_AUTOSTART +"=false"),
         };
     }
 }

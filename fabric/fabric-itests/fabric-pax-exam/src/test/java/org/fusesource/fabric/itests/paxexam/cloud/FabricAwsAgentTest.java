@@ -132,7 +132,7 @@ public class FabricAwsAgentTest extends FabricTestSupport {
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         Thread.sleep(DEFAULT_TIMEOUT);
-        System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
+        System.err.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
         String agentList = executeCommand("fabric:container-list");
         System.err.println(agentList);
         assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));

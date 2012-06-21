@@ -49,7 +49,7 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        System.err.println(executeCommand("fabric:create root"));
+        System.err.println(executeCommand("fabric:create -n root"));
 
         addStagingRepoToDefaultProfile();
 

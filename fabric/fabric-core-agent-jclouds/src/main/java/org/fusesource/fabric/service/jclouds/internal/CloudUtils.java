@@ -22,7 +22,6 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import com.google.common.base.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jclouds.compute.ComputeService;
@@ -77,6 +76,7 @@ public class CloudUtils {
                         if (dictionary == null) {
                             dictionary = new Properties();
                         }
+                        dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-"+provider.replaceAll("-", ""));
                         dictionary.put("provider", provider);
                         dictionary.put("credential", credential);
                         dictionary.put("identity", identity);
@@ -88,10 +88,10 @@ public class CloudUtils {
                             dictionary.put("jclouds.ec2.ami-owners", props.get("owner"));
 
                         }
-                        for (Map.Entry<String,String> entry:props.entrySet()) {
+                        for (Map.Entry<String, String> entry : props.entrySet()) {
                             String key = entry.getKey();
                             String value = entry.getValue();
-                            dictionary.put(key,value);
+                            dictionary.put(key, value);
                         }
 
                         configuration.update(dictionary);
@@ -107,7 +107,7 @@ public class CloudUtils {
                         }
                     }
                 } catch (Exception ex) {
-                   //noop
+                    //noop
                 }
             }
         };

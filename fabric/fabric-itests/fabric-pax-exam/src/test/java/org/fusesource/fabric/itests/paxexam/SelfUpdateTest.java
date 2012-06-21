@@ -50,7 +50,7 @@ public class SelfUpdateTest extends FabricTestSupport {
     public void testLocalChildCreation() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
 
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         addStagingRepoToDefaultProfile();
         createAndAssertChildContainer("child1", "root", "default");
         String curretRepoURL = String.format(FABRIC_FEATURE_REPO_URL,System.getProperty("fabric.version"));

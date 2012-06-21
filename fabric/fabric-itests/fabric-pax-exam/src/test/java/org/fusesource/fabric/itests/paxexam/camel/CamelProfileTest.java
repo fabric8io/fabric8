@@ -22,7 +22,7 @@ public class CamelProfileTest extends FabricFeaturesTest {
 
     @Test
     public void testFeatures() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("camel1", "root", "default");
         addStagingRepoToDefaultProfile();
         assertProvisionedFeature("camel1", "camel-hazelcast", "camel", "camel-hazelcast");
