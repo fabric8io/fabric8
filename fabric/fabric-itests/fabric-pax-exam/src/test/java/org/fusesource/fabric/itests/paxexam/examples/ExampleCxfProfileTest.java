@@ -42,7 +42,7 @@ public class ExampleCxfProfileTest extends FabricTestSupport {
 
     @Test
     public void testExample() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("cxf-server", "root", "example-cxf");
         System.err.println(executeCommand("fabric:cluster-list"));
         // install bundle of CXF

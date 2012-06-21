@@ -118,7 +118,7 @@ public class FabricRackspaceAgentTest extends FabricTestSupport {
         System.err.println(executeCommand(String.format("fabric:container-create --ensemble-server --url jclouds://cloudservers-us?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
-        System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
+        System.err.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
         Thread.sleep(DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
         String agentList = executeCommand("fabric:container-list");

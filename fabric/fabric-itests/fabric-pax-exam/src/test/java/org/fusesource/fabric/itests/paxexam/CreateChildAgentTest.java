@@ -37,7 +37,7 @@ public class CreateChildAgentTest extends FabricTestSupport {
 
     @Test
     public void testLocalChildCreation() throws Exception {
-         System.err.println(executeCommand("fabric:create"));
+         System.err.println(executeCommand("fabric:create -n"));
          createAndAssertChildContainer("child1", "root", "default");
     }
 

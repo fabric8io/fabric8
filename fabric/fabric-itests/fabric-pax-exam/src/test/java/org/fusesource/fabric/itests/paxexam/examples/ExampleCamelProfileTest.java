@@ -41,7 +41,7 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
 
     @Test
     public void testExample() throws Exception {
-        System.err.println(executeCommand("fabric:create"));
+        System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("broker1", "root", "mq");
         createAndAssertChildContainer("camel1", "root", "example-camel");
         System.err.println(executeCommand("fabric:cluster-list"));
