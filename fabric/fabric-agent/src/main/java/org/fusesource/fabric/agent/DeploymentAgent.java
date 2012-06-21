@@ -1121,7 +1121,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     repos.add(url.getURL().toURI().toString());
                 }
                 resolver.setRepositories(repos.toArray(new String[repos.size()]));
-                resolver.setLocalRepo(config.getLocalRepository().getURL().toURI().toString());
+                //The aether local repository is expecting a directory as a String and not a URI/URL.
+                resolver.setLocalRepo(new File(config.getLocalRepository().getURL().toURI()).getAbsolutePath());
                 return resolver;
             } catch (Exception e) {
                 throw new IllegalStateException(e);
