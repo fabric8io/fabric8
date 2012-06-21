@@ -24,6 +24,14 @@ sort_info: 50
 .row-fluid
   .span2
     :markdown
+      ## [Presentations](presentations.html)
+  .span10
+    :markdown
+      Presentations, articles and blogs on Fuse Fabric and related technologies
+      
+.row-fluid
+  .span2
+    :markdown
       ## Mailing List
   .span10
     :&markdown

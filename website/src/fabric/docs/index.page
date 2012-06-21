@@ -50,6 +50,14 @@ sort_info: 2
 .row-fluid
   .span4
     :markdown
+      # [Presentations](../../presentations.html)
+  .span8
+    :markdown
+      Presentations, articles and blogs on Fuse Fabric and related technologies
+
+.row-fluid
+  .span4
+    :markdown
       # [Command Shell](commands/commands.html)
   .span8
     :markdown

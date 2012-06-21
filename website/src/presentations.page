@@ -1,0 +1,20 @@
+---
+title: Presentations
+--- pipeline:jade
+
+:markdown
+  ## Presentations
+
+  There are a number of [great talks from CamelOne 2012](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/) covering Fuse and its related open source projects. Here are some highlights:
+
+  * [Fuse IDE and deploying to Fuse ESB or Fuse Fabric](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#james)
+  * [Deploying services in Fuse Fabric using Fuse Management Console, then operational monitoring & alerting using Fuse HQ](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#strachanlewis)
+  * [Overview of Fuse Fabric and the cloud](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#icanellos)
+  * [Fuse Fabric and Fuse MQ clustering/discovery](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#dbosanac)
+
+  ## Blogs
+  
+  * [Fuse By Example](http://fusebyexample.blogspot.co.uk/)
+  * [Fuse Blog](http://fusesource.com/resources/combined-blogs/)
+  * [Team Blogs](http://fusesource.com/community/apache-committers-and-fuse/)
+  * [@fusenews](http://twitter.com/fusenews)
