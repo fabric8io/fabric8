@@ -42,10 +42,18 @@ sort_info: 2
 .row-fluid
   .span4
     :markdown
-      # [MQ Guide](mq.html)
+      # [Fuse MQ Fabric](../../mq/docs/mq-fabric.html)
   .span8
     :markdown
-      Working with [Fuse MQ](../../mq/index.html) and Fuse Fabric
+      Working with [Fuse MQ](../../mq/index.html) and Fuse Fabric to create a [Messaging Cloud](../../mq/docs/mq-fabric.html)
+
+.row-fluid
+  .span4
+    :markdown
+      # [Presentations](../../presentations.html)
+  .span8
+    :markdown
+      Presentations, articles and blogs on Fuse Fabric and related technologies
 
 .row-fluid
   .span4
@@ -70,7 +78,7 @@ sort_info: 2
       # [FAQ](../faq.html)
   .span8
     :markdown
-      Frequently asked questions on all things Fabric
+      Frequently asked questions on all things Fuse Fabric
 
 
 
