@@ -42,6 +42,8 @@ To register this service (= Interfaces) into the OSGI registry, we use the follo
 
 During this process, Fabric will publish information in the Zookeeper registry. That will allow another Fabric container to discover them at runtime
 
+![fabric-osgi.png](https://raw.github.com/fusesource/fuse/master/fabric/fabric-examples/fabric-camel-dosgi/fabric-osgi.png)
+
 In another bundle, we will create a Camel route where we will refer to this service using as key the name of the interface that we will lookup into
 the Zookeeper registry to find it and get locally a proxy object !
 
