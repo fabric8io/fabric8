@@ -31,7 +31,7 @@ containers and exposing HTTP Servers will be able to answer to the client.
 Additionally, the loadbalancing mechanism of fabric camel will be displayed as the response will come randomly
 from one of the instance configured
 
-![fabric-camel.png](https://raw.github.com/fusesource/fuse/master/fabric/fabric-examples/fabric-camel-cluster-loadbalancing/fabric-camel.png)
+![fabric-camel.png](https://github.com/fusesource/fuse/raw/master/fabric/fabric-examples/fabric-camel-cluster-loadbalancing/fabric-camel.png)
 
 COMPILING
 =========
