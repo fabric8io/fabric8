@@ -10,5 +10,5 @@ header(class="jumbotron masthead" id="overview")
     p.summary <b>Fuse MQ</b> provides automatic <a href="../fabric/docs/mq.html">discovery, partitioning, clustering and HA</a> and provides message high availability via <a href="docs/leveldb.html">Hadoop and LevelDB</a>
     p
       a(href="docs/getting-started.html" class="btn btn-danger btn-large") Get Started &raquo;
-      a(href="../fabric/docs/mq.html" class="btn btn-danger btn-large") Documentation &raquo;
+      a(href="docs/index.html" class="btn btn-danger btn-large") Documentation &raquo;
       a(href="download.html" class="btn btn-danger btn-large") Download &raquo;
