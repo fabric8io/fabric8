@@ -40,13 +40,14 @@ public class StatisticsComponent extends SedaComponent {
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         int consumers = getAndRemoveParameter(parameters, "concurrentConsumers", Integer.class, 1);
+        Integer size = getAndRemoveParameter(parameters, "size", Integer.class);
         boolean limitConcurrentConsumers = getAndRemoveParameter(parameters, "limitConcurrentConsumers", Boolean.class, true);
         if (limitConcurrentConsumers && consumers > maxConcurrentConsumers) {
             throw new IllegalArgumentException("The limitConcurrentConsumers flag in set to true. ConcurrentConsumers cannot be set at a value greater than "
                     + maxConcurrentConsumers + " was " + consumers);
         }
 
-        StatisticsEndpoint answer = new StatisticsEndpoint(uri, this, createQueue(uri, parameters), consumers);
+        StatisticsEndpoint answer = new StatisticsEndpoint(uri, this, getOrCreateQueue(uri, size), consumers);
         answer.configureProperties(parameters);
         return answer;
     }
