@@ -1,9 +1,13 @@
 ---
-title: Fuse MQ
+title: Fuse MQ Fabric
 in_menu: false
 sort_info: 10
 --- pipeline:markdown
 {:toc} 
+
+# Fuse MQ Fabric
+
+This document describes how to create a **Messaging Cloud** using [Fuse MQ](../index.html) and its integration with [Fuse Fabric](../../fabric/index.html)
 
 ## Fuse MQ Profiles
 

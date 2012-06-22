@@ -39,4 +39,8 @@ title: FuseSource Tools
         .span10
           :&markdown
             Fuse HQ is a web based application for [subscribers](http://fusesource.com/enterprise-support/support-offerings/) for **operational monitoring** of the Fuse platform.
-
+            
+          
+      .row-fluid
+        :markdown
+          Check out our [Presentations](presentations.html) to get you started using Fuse and the tools.

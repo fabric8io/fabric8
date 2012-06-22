@@ -49,16 +49,16 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
 
-    @Option(name = "-f", aliases = "--force", multiValued = false, description = "Forces the use of container name.")
+    @Option(name = "-f", aliases = "--force", multiValued = false, description = "Forces the use of container name")
     private boolean force;
 
-    @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
+    @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container")
     private String profile = "fabric";
 
     @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
 
-    @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric; by default a karaf name will be used")
+    @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric. By default a karaf name will be used")
     private String containerName;
 
 
@@ -72,7 +72,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
                 if (!registerContainer(containerName, profile, force)) {
-                    System.err.print("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
+                    System.err.print("A container with the name: " + containerName + " is already member of the cluster. You can specify a different name as an argument.");
                     return null;
                 }
 
@@ -105,7 +105,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
             }
         } else {
             if (!registerContainer(containerName, profile, force)) {
-                System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can use the --container-name option to specify a different name.");
+                System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can specify a different name as an argument.");
                 return null;
             }
             org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
