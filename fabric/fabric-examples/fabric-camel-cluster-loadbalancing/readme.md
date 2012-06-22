@@ -35,8 +35,8 @@ from one of the instance configured
 
 COMPILING
 =========
-cd fabric-examples/fabric-camel-cluster-loadbalancing
-mvn clean install
+    cd fabric-examples/fabric-camel-cluster-loadbalancing
+    mvn clean install
 
 RUNNING ON FUSE ESB 7
 =====================
