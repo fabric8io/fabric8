@@ -29,7 +29,7 @@
     <route id="fabric-client">
       <from uri="timer://foo?fixedRate=true&amp;period=10000"/>
       <setBody>
-          <constant>Karaf Zookeeper server</constant>
+          <constant>Fuse Fabric container</constant>
       </setBody>
       <bean ref="myService" method="messageFrom"/>
       <log message=">>> Response from : ${body}"/>

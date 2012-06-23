@@ -20,6 +20,7 @@ html(lang="en")
     meta(content="fuse fabric clustering and cloud for Fuse" name="description")
     meta(content="fuse,fabric,cluster,cloud,provision,configure" name="keywords")
     meta(content="Fabric" name="author")
+    meta(name="google-site-verification" content="ycChMbJ8gjq1jkirNAl-fRel_SwGttEVovJTo2NLenA")
     link(type="text/css" rel="stylesheet" href={uri("/css/bootstrap.css")})
     link(type="text/css" rel="stylesheet" href={uri("/css/bootstrap-responsive.css")})
     link(type="text/css" rel="stylesheet" href={uri("/css/site.css")})
@@ -93,9 +94,12 @@ html(lang="en")
     script(type="text/javascript"src={uri("/js/bootstrap-typeahead.js")})    
 
     :javascript
-      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-      try {
-      var pageTracker = _gat._getTracker("UA-1347593-12");
-      pageTracker._trackPageview();
-      } catch(err) {}
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-32866955-2']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();

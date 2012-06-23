@@ -33,20 +33,20 @@
             brokerName="${broker-name}"
             dataDirectory="${data}"
             start="false">
-              
+
         <destinationPolicy>
             <policyMap>
               <policyEntries>
-                <policyEntry topic=">" producerFlowControl="true" memoryLimit="1mb">
-                  <pendingSubscriberPolicy>
-                    <vmCursor />
-                  </pendingSubscriberPolicy>
+                <policyEntry topic=">" producerFlowControl="true">
+                  <pendingMessageLimitStrategy>
+                    <constantPendingMessageLimitStrategy limit="1000"/>
+                  </pendingMessageLimitStrategy>
                 </policyEntry>
                 <policyEntry queue=">" producerFlowControl="true" memoryLimit="1mb">
                 </policyEntry>
               </policyEntries>
             </policyMap>
-        </destinationPolicy> 
+        </destinationPolicy>
  
         <managementContext>
             <managementContext createConnector="false"/>
@@ -55,6 +55,20 @@
         <persistenceAdapter>
             <kahaDB directory="${data}/kahadb"/>
         </persistenceAdapter>
+
+        <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage limit="64 mb"/>
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="100 gb"/>
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="50 gb"/>
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
         
         <transportConnectors>
             <transportConnector name="openwire" uri="tcp://0.0.0.0:0"/>
