@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.fusesource.esb</groupId>
         <artifactId>fuse-esb</artifactId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.0.1.fuse-SNAPSHOT</version>
         <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 

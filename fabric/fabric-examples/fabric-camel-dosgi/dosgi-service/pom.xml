@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.fusesource.fabric.fabric-examples</groupId>
         <artifactId>fabric-camel-dosgi</artifactId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.0.1.fuse-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

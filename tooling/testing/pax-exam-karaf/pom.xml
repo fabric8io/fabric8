@@ -22,13 +22,13 @@
     <parent>
         <artifactId>testing</artifactId>
         <groupId>org.fusesource.tooling</groupId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.0.1.fuse-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.fusesource.tooling.testing</groupId>
     <artifactId>pax-exam-karaf</artifactId>
-    <version>7.0-SNAPSHOT</version>
+    <version>7.0.1.fuse-SNAPSHOT</version>
     <name>FuseSource :: Tooling :: Testing :: Pax Exam Karaf</name>
     <packaging>bundle</packaging>
 
