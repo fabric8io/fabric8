@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,7 +34,6 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.actors.threadpool.Arrays;
 
 /**
  *
