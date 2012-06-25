@@ -202,24 +202,24 @@ public class ProfileEdit extends FabricCommand {
 
     public void updatedDelimitedList(Map<String, String> map, String key, String value, String delimeter, boolean set, boolean delete, boolean append, boolean remove) {
         if (append || remove) {
-            String oldValue = map.get(key);
-            if (oldValue != null) {
-                List<String> parts = new LinkedList(Arrays.asList(oldValue.split(delimeter)));
-                if (append) {
-                    parts.add(value);
-                }
-                if (remove) {
-                    parts.remove(value);
-                }
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < parts.size(); i++) {
-                    if (i != 0) {
-                        sb.append(delimeter);
-                    }
-                    sb.append(parts.get(i));
-                }
-                map.put(key, sb.toString());
+            String oldValue = map.containsKey(key) ? map.get(key) : "";
+            List<String> parts = new LinkedList(Arrays.asList(oldValue.split(delimeter)));
+            //We need to remove any possible blanks.
+            parts.remove("");
+            if (append) {
+                parts.add(value);
             }
+            if (remove) {
+                parts.remove(value);
+            }
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < parts.size(); i++) {
+                if (i != 0) {
+                    sb.append(delimeter);
+                }
+                sb.append(parts.get(i));
+            }
+            map.put(key, sb.toString());
         } else if (set) {
             map.put(key, value);
         } else if (delete) {
@@ -228,9 +228,7 @@ public class ProfileEdit extends FabricCommand {
     }
 
     public void updateConfig(Map<String, String> map, String key, String value, boolean set, boolean delete) {
-        if (append) {
-            map.put(key, map.get(key) + "," + value);
-        } else if (set) {
+        if (set) {
             map.put(key, value);
         } else if (delete) {
             map.remove(key);
