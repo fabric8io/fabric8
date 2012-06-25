@@ -22,7 +22,7 @@ rem handle specific scripts; the SCRIPT_NAME is exactly the name of the Karaf
 rem script; for example karaf.bat, start.bat, stop.bat, admin.bat, client.bat, ...
 rem
 
-if "%KARAF_SCRIPT%" == "start" (
+if %KARAF_SCRIPT% == "start.bat" (
    SET JAVA_MIN_MEM=1G
    SET JAVA_MAX_MEM=1G
  )
