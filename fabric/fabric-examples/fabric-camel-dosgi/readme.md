@@ -97,7 +97,7 @@ And run the following command in the console
 
 6) Create a container and assign it the dosgi-provider profile
 
-    fabric:container-create --profile dosgi-provider --parent root provider
+    fabric:container-create --profile dosgi-provider --parent root dosgi-provider
 
 7) Create a container and assign it the dosgi-camel profile
 
