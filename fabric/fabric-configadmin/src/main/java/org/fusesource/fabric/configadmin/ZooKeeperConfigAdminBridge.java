@@ -180,7 +180,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                             value = context.getProperty(key);
                         }
                         if (value == null) {
-                            value = System.getProperty(value, "");
+                            value = System.getProperty(key, "");
                         }
                         return value;
                     }
