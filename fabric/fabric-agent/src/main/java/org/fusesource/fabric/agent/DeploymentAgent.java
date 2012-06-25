@@ -35,6 +35,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +105,7 @@ import org.slf4j.LoggerFactory;
 
 public class DeploymentAgent implements ManagedService, FrameworkListener {
 
+    public static final String FAB_PROTOCOL = "fab:";
     private static final String DEFAULT_VERSION = "0.0.0";
     private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
 
@@ -353,18 +355,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 features.add(feature);
             }
         }
-        Set<String> bundles = new HashSet<String>();
-        for (String key : properties.keySet()) {
-            if (key.startsWith("bundle.")) {
-                String url = properties.get(key);
-                if (url == null || url.length() == 0) {
-                    url = key.substring("bundle.".length());
-                }
-                if (url != null && url.length() > 0) {
-                    bundles.add(url);
-                }
-            }
-        }
         Set<String> fabs = new HashSet<String>();
         for (String key : properties.keySet()) {
             if (key.startsWith("fab.")) {
@@ -374,6 +364,22 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
                 if (url != null && url.length() > 0) {
                     fabs.add(url);
+                }
+            }
+        }
+        Set<String> bundles = new HashSet<String>();
+        for (String key : properties.keySet()) {
+            if (key.startsWith("bundle.")) {
+                String url = properties.get(key);
+                if (url == null || url.length() == 0) {
+                    url = key.substring("bundle.".length());
+                }
+                if (url != null && url.length() > 0) {
+                    if (url.startsWith(FAB_PROTOCOL)) {
+                        fabs.add(url.substring(FAB_PROTOCOL.length()));
+                    } else {
+                        bundles.add(url);
+                    }
                 }
             }
         }
@@ -414,7 +420,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                             sb.append("@snapshots");
                         }
                     } catch (Throwable t) {
-                        LOGGER.warn("Failed to resolve proxy: " + proxy+". It will be ignored.");
+                        LOGGER.warn("Failed to resolve proxy: " + proxy + ". It will be ignored.");
                     }
                 }
                 String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
@@ -518,9 +524,31 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 features.add(feature);
             }
             LOGGER.info("Fab: " + info.getUrl());
-            infos.put("fab:" + info.getUrl(), info);
+            infos.put(FAB_PROTOCOL + info.getUrl(), info);
         }
+
         Set<Feature> allFeatures = addFeatures(features, repositories.values());
+
+        Set<String> featureFabs = new LinkedHashSet<String>();
+        for (Feature feature : allFeatures) {
+            for (BundleInfo bundleInfo : feature.getBundles()) {
+                if (bundleInfo.getLocation().startsWith(FAB_PROTOCOL)) {
+                    String normalizedLocation = bundleInfo.getLocation().substring(FAB_PROTOCOL.length());
+                    if (!fabs.contains(normalizedLocation)) {
+                        featureFabs.add(normalizedLocation);
+                    }
+                }
+            }
+        }
+
+        //Check if we need to resolve more fabs.
+        if (!featureFabs.isEmpty()) {
+            fabs.addAll(featureFabs);
+            updateDeployment(fabResolverFactory, repositories, features, bundles, fabs);
+            return;
+        }
+
+
         updateStatus("downloading", null);
         Map<String, File> downloads = downloadBundles(allFeatures, bundles);
         updateStatus("resolving", null);
@@ -963,10 +991,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         final Map<String, File> downloads = new ConcurrentHashMap<String, File>();
         final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
         for (final String location : locations) {
-            manager.download(location).addListener(new FutureListener<DownloadFuture>() {
+            final String strippedLocation = location.startsWith(FAB_PROTOCOL) ? location.substring(FAB_PROTOCOL.length()) : location;
+            //The Fab URL Handler may not be present so we strip the fab protocol before downloading.
+            manager.download(strippedLocation).addListener(new FutureListener<DownloadFuture>() {
                 public void operationComplete(DownloadFuture future) {
                     try {
-                        downloads.put(location, future.getFile());
+                        downloads.put(strippedLocation, future.getFile());
                     } catch (Throwable e) {
                         errors.add(e);
                     } finally {
