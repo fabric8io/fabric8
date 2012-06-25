@@ -64,6 +64,7 @@
                 <exclude>bin/create</exclude>
                 <exclude>bin/fusefabric</exclude>
                 <exclude>bin/shell</exclude>
+                <exclude>bin/setenv</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -72,6 +73,9 @@
             <directory>target/classes/bin</directory>
             <outputDirectory>/bin/</outputDirectory>
             <lineEnding>unix</lineEnding>
+            <excludes>
+                <exclude>*.bat</exclude>
+            </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
 

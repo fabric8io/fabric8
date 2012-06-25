@@ -33,6 +33,7 @@
                 <exclude>bin/create</exclude>
                 <exclude>bin/fabric</exclude>
                 <exclude>bin/fusefabric.bat</exclude>
+                <exclude>bin/setenv.bat</exclude>
                 <exclude>etc/custom.properties</exclude>
                 <exclude>etc/system.properties</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
@@ -53,6 +54,16 @@
         <fileSet>
             <directory>target/features-repo</directory>
             <outputDirectory>/system/</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes/bin</directory>
+            <outputDirectory>/bin/</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <includes>
+                <include>*.bat</include>
+            </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
 
         <fileSet>
