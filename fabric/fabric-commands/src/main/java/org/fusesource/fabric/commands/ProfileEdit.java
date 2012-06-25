@@ -19,6 +19,8 @@ package org.fusesource.fabric.commands;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -31,6 +33,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.actors.threadpool.Arrays;
 
 /**
  *
@@ -38,7 +41,7 @@ import org.slf4j.LoggerFactory;
 @Command(name = "profile-edit", scope = "fabric", description = "Edits the specified version of the specified profile (where the version defaults to the current default version)", detailedDescription = "classpath:profileEdit.txt")
 public class ProfileEdit extends FabricCommand {
 
-     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileEdit.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileEdit.class);
 
     static final String FEATURE_PREFIX = "feature.";
     static final String REPOSITORY_PREFIX = "repository.";
@@ -53,7 +56,7 @@ public class ProfileEdit extends FabricCommand {
     @Option(name = "-r", aliases = {"--repositories"}, description = "Edit the features repositories", required = false, multiValued = false)
     private String repositoryUriList;
 
-    @Option(name = "-f",aliases = {"--features"} ,description = "Edit features, specifying a comma-separated list of features to add (or delete).", required = false, multiValued = false)
+    @Option(name = "-f", aliases = {"--features"}, description = "Edit features, specifying a comma-separated list of features to add (or delete).", required = false, multiValued = false)
     private String featuresList;
 
     @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles, specifying a comma-separated list of bundles to add (or delete).", required = false, multiValued = false)
@@ -80,10 +83,19 @@ public class ProfileEdit extends FabricCommand {
     @Option(name = "--delete", description = "Delete values.")
     private boolean delete = false;
 
+    @Option(name = "--append", description = "Append value. It is only usable with the system, config & pid options")
+    private boolean append = false;
+
+    @Option(name = "--remove", description = "Removes values. It is only usable with the system, config & pid options")
+    private boolean remove = false;
+
+    @Option(name = "--delimiter", description = "Specifies the delimeter to use for appends and removals.")
+    private String delimiter = ",";
+
     @Argument(index = 0, name = "profile", description = "The target profile to edit", required = true, multiValued = false)
     private String profileName;
 
-    @Argument(index = 1,name = "version",  description = "The version of the profile to edit. Defaults to the current default version.", required = false, multiValued = false)
+    @Argument(index = 1, name = "version", description = "The version of the profile to edit. Defaults to the current default version.", required = false, multiValued = false)
     private String versionName = ZkDefs.DEFAULT_VERSION;
 
 
@@ -144,15 +156,15 @@ public class ProfileEdit extends FabricCommand {
                     String pid = key.substring(0, key.lastIndexOf(PID_KEY_SEPARATOR));
                     key = key.substring(key.lastIndexOf(PID_KEY_SEPARATOR) + 1);
                     String value = configEntries.getValue();
-                    Map<String,String> cfg = config.get(pid);
+                    Map<String, String> cfg = config.get(pid);
                     if (cfg == null) {
-                        cfg = new HashMap<String,String>();
+                        cfg = new HashMap<String, String>();
                     }
                     if (importPid) {
                         importPidFromLocalConfigAdmin(pid, cfg);
                     }
-                    updateConfig(cfg,key,value,set,delete);
-                    config.put(pid,cfg);
+                    updatedDelimitedList(pidConfig, key, value, delimiter, set, delete, append, remove);
+                    config.put(pid, cfg);
                 }
             }
         }
@@ -163,7 +175,7 @@ public class ProfileEdit extends FabricCommand {
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
                 String key = configEntries.getKey();
                 String value = configEntries.getValue();
-                updateConfig(pidConfig, SYSTEM_PREFIX + key, value, set, delete);
+                updatedDelimitedList(pidConfig, SYSTEM_PREFIX + key, value, delimiter, set, delete, append, remove);
             }
         }
 
@@ -173,7 +185,7 @@ public class ProfileEdit extends FabricCommand {
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
                 String key = configEntries.getKey();
                 String value = configEntries.getValue();
-                updateConfig(pidConfig, CONFIG_PREFIX + key, value, set, delete);
+                updatedDelimitedList(pidConfig, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
             }
         }
 
@@ -181,22 +193,53 @@ public class ProfileEdit extends FabricCommand {
         profile.setConfigurations(config);
     }
 
-    public void updateConfig(Map<String,String> map, String key, String value, boolean set, boolean delete) {
-      if (set) {
-          map.put(key,value);
-      } else if (delete)  {
-          map.remove(key);
-      }
+
+    public void updatedDelimitedList(Map<String, String> map, String key, String value, String delimeter, boolean set, boolean delete, boolean append, boolean remove) {
+        if (append || remove) {
+            String oldValue = map.get(key);
+            if (oldValue != null) {
+                List<String> parts = new LinkedList(Arrays.asList(oldValue.split(delimeter)));
+                if (append) {
+                    parts.add(value);
+                }
+                if (remove) {
+                    parts.remove(value);
+                }
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < parts.size(); i++) {
+                    if (i != 0) {
+                        sb.append(delimeter);
+                    }
+                    sb.append(parts.get(i));
+                }
+                map.put(key, sb.toString());
+            }
+        } else if (set) {
+            map.put(key, value);
+        } else if (delete) {
+            map.remove(key);
+        }
+    }
+
+    public void updateConfig(Map<String, String> map, String key, String value, boolean set, boolean delete) {
+        if (append) {
+            map.put(key, map.get(key) + "," + value);
+        } else if (set) {
+            map.put(key, value);
+        } else if (delete) {
+            map.remove(key);
+        }
     }
 
     /**
      * Imports the pid to the target Map.
+     *
      * @param pid
      * @param target
      */
     private void importPidFromLocalConfigAdmin(String pid, Map<String, String> target) {
         try {
-            Configuration[] configuration = configurationAdmin.listConfigurations("service.pid="+pid+")");
+            Configuration[] configuration = configurationAdmin.listConfigurations("service.pid=" + pid + ")");
             if (configuration != null && configuration.length > 0) {
                 Dictionary dictionary = configuration[0].getProperties();
                 Enumeration keyEnumeration = dictionary.keys();
@@ -207,13 +250,14 @@ public class ProfileEdit extends FabricCommand {
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Error while importing configuration {} to profile.",pid);
+            LOGGER.warn("Error while importing configuration {} to profile.", pid);
         }
     }
 
     /**
      * Extracts Key value pairs from a delimited string of key value pairs.
      * Note: The value may contain commas.
+     *
      * @param configs
      * @return
      */
@@ -237,10 +281,10 @@ public class ProfileEdit extends FabricCommand {
                 index += 1;
             }
         } else {
-          String[] keys = configs.split(",");
-          for (String key:keys) {
-              configMap.put(key,"");
-          }
+            String[] keys = configs.split(",");
+            for (String key : keys) {
+                configMap.put(key, "");
+            }
         }
         return configMap;
     }
