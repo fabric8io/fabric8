@@ -85,12 +85,15 @@ public class ObrResolver {
         for (Feature feature : features) {
             for (BundleInfo bundleInfo : feature.getBundles()) {
                 try {
-                    Resource res = createResource(bundleInfo.getLocation(), downloads, fabs);
-                    if (res == null) {
-                        throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundleInfo.getLocation());
+                    //We ignore Fabs completely as the are already been added to fabs set.
+                    if (!bundleInfo.getLocation().startsWith(DeploymentAgent.FAB_PROTOCOL)) {
+                        Resource res = createResource(bundleInfo.getLocation(), downloads, fabs);
+                        if (res == null) {
+                            throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundleInfo.getLocation());
+                        }
+                        ress.add(res);
+                        infos.put(res, bundleInfo);
                     }
-                    ress.add(res);
-                    infos.put(res, bundleInfo);
                 } catch (MalformedURLException e) {
                     Requirement req = parseRequirement(bundleInfo.getLocation());
                     reqs.add(req);
@@ -111,7 +114,7 @@ public class ObrResolver {
             if (res == null) {
                 throw new IllegalArgumentException("Unable to build OBR representation for fab " + fab.getUrl());
             }
-            ((ResourceImpl) res).put(Resource.URI, "fab:" + fab.getUrl(), Property.URI);
+            ((ResourceImpl) res).put(Resource.URI, DeploymentAgent.FAB_PROTOCOL + fab.getUrl(), Property.URI);
             ress.add(res);
             infos.put(res, new SimpleBundleInfo(fab.getUrl(), false));
             for (DependencyTree dep : fab.getBundles()) {
