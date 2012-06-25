@@ -116,9 +116,15 @@ public class ProfileEdit extends FabricCommand {
     }
 
     private void editProfile(Profile profile) throws Exception {
+        String pid = AGENT_PID;
+
+        if (configAdminConfigList != null) {
+            pid = configAdminConfigList.substring(0,configAdminConfigList.indexOf(PID_KEY_SEPARATOR));
+        }
 
         Map<String, Map<String, String>> config = profile.getConfigurations();
-        Map<String, String> pidConfig = config.get(AGENT_PID);
+        Map<String, String> pidConfig = config.get(pid);
+
         if (pidConfig == null) {
             pidConfig = new HashMap<String, String>();
         }
@@ -153,18 +159,18 @@ public class ProfileEdit extends FabricCommand {
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
                 String key = configEntries.getKey();
                 if (key.contains(PID_KEY_SEPARATOR)) {
-                    String pid = key.substring(0, key.lastIndexOf(PID_KEY_SEPARATOR));
+                    String currentPid = key.substring(0, key.lastIndexOf(PID_KEY_SEPARATOR));
                     key = key.substring(key.lastIndexOf(PID_KEY_SEPARATOR) + 1);
                     String value = configEntries.getValue();
-                    Map<String, String> cfg = config.get(pid);
+                    Map<String, String> cfg = config.get(currentPid);
                     if (cfg == null) {
                         cfg = new HashMap<String, String>();
                     }
                     if (importPid) {
-                        importPidFromLocalConfigAdmin(pid, cfg);
+                        importPidFromLocalConfigAdmin(currentPid, cfg);
                     }
                     updatedDelimitedList(pidConfig, key, value, delimiter, set, delete, append, remove);
-                    config.put(pid, cfg);
+                    config.put(currentPid, cfg);
                 }
             }
         }
@@ -189,7 +195,7 @@ public class ProfileEdit extends FabricCommand {
             }
         }
 
-        config.put(AGENT_PID, pidConfig);
+        config.put(pid, pidConfig);
         profile.setConfigurations(config);
     }
 
