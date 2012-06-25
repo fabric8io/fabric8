@@ -70,7 +70,8 @@ public class InvocationTest {
             Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
 
             assertEquals("Hello Fabric!", hello.hello("Fabric"));
-
+            assertEquals("Hello World!", hello.helloworld());
+            
             // Verification the we can pick the right overloaded method even if using a mixure
             // of primitives / objects and array dimensions.
             assertEquals('a', hello.mix(0));
@@ -121,6 +122,8 @@ public class InvocationTest {
             InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
 
             final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
+
+            assertEquals("Hello World!", hello.helloworld());
 
             final AtomicInteger requests = new AtomicInteger(0);
             final AtomicInteger failures = new AtomicInteger(0);
@@ -316,6 +319,8 @@ public class InvocationTest {
         // async version of the hello method.
         void hello(String name, AsyncCallback<String> callback);
 
+        String helloworld();
+
         char mix(int value);
         char mix(int[] value);
         char mix(Integer value);
@@ -349,6 +354,10 @@ public class InvocationTest {
             if( !queue.isExecuting() ) {
                 throw new IllegalStateException("Not executing on our dispatch queue");
             }
+        }
+
+        public String helloworld() {
+            return "Hello World!";
         }
 
         public String hello(String name) {
