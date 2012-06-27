@@ -81,7 +81,12 @@ public abstract class ZKComponentSupport extends DefaultComponent {
     protected void doStart() throws Exception {
         super.doStart();
         if (zkClient == null) {
-            zkClient = (IZKClient) getCamelContext().getRegistry().lookup("zkClient");
+            try {
+                zkClient = (IZKClient) getCamelContext().getRegistry().lookup("zkClient");
+            } catch (Exception exception) {
+                // try to get the zkClient from the OSGi service registry
+                zkClient = (IZKClient) getCamelContext().getRegistry().lookup(IZKClient.class.getName());
+            }
             if (zkClient != null) {
                 LOG.debug("IZKClient found in camel registry. " + zkClient);
             }
