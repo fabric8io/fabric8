@@ -76,4 +76,8 @@ public class PatchImpl implements Patch {
         service.rollback(this, force);
     }
 
+    public String toString() {
+        return "Patch[id=" + id + ", installed=" + isInstalled() + "]";
+    }
+
 }

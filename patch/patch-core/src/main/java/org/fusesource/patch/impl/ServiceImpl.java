@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +59,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.FrameworkWiring;
 
@@ -79,8 +81,10 @@ public class ServiceImpl implements Service {
     private static final String OLD_LOCATION = "old-location";
 
     public ServiceImpl(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-        String dir = bundleContext.getProperty("fuse.patch.location");
+        // Use system bundle' bundle context to avoid running into
+        // "Invalid BundleContext" exceptions when updating bundles
+        this.bundleContext = bundleContext.getBundle(0).getBundleContext();
+        String dir = this.bundleContext.getProperty("fuse.patch.location");
         patchDir = dir != null ? new File(dir) : this.bundleContext.getDataFile("patches");
         if (!patchDir.isDirectory()) {
             patchDir.mkdirs();
@@ -179,6 +183,113 @@ public class ServiceImpl implements Service {
         }
     }
 
+    public void cliInstall(String[] ids) {
+        final List<Patch> patches = new ArrayList<Patch>();
+        for (String id : ids) {
+            Patch patch = getPatch(id);
+            if (patch == null) {
+                throw new IllegalArgumentException("Unknown patch: " + id);
+            }
+            patches.add(patch);
+        }
+        try {
+            final Set<Bundle> toDelete = new HashSet<Bundle>();
+            final Map<String, String> toInstall = new HashMap<String, String>();
+            final List<BundleUpdate> updates = new ArrayList<BundleUpdate>();
+            Bundle[] allBundles = bundleContext.getBundles();
+            for (Patch patch : patches) {
+                System.out.println("Installing patch: " + patch.getId());
+                for (String url : patch.getBundles()) {
+                    JarInputStream jis = new JarInputStream(new URL(url).openStream());
+                    Attributes att = jis.getManifest().getMainAttributes();
+                    jis.close();
+                    String sn = att.getValue(Constants.BUNDLE_SYMBOLICNAME);
+                    if (sn == null) {
+                        continue;
+                    }
+                    if (sn.contains(";")) {
+                        sn = sn.substring(0, sn.indexOf(";"));
+                    }
+                    String vr = att.getValue(Constants.BUNDLE_VERSION);
+                    Version v = VersionTable.getVersion(vr);
+                    System.out.println("Checking update " + sn + "/" + v.toString());
+                    // We can't really upgrade with versions such as 2.1.0
+                    Version lower = new Version(v.getMajor(), v.getMinor(), 0);
+                    if (v.compareTo(lower) > 0) {
+                        VersionRange range = new VersionRange(false, lower, v, true);
+                        // Check existing updates
+                        boolean overwrittenUpdate = false;
+                        for (BundleUpdate update : updates) {
+                            if (sn.equals(update.getSymbolicName())) {
+                                System.out.println("    Found previous update: " + update.getSymbolicName() + "/" + update.getNewVersion());
+                                Version n = VersionTable.getVersion(update.getNewVersion());
+                                if (v.compareTo(n) > 0) {
+                                    System.out.println("    Updating update to: " + sn + "/" + v.toString());
+                                    updates.remove(update);
+                                    toInstall.remove(sn + "/" + update.getNewVersion());
+                                    updates.add(new BundleUpdateImpl(sn, v.toString(), update.getPreviousVersion(), update.getPreviousLocation()));
+                                    toInstall.put(sn + "/" + v.toString(), url);
+                                    overwrittenUpdate = true;
+                                    break;
+                                } else {
+                                    System.out.println("    Ignoring older bundle update");
+                                }
+                            }
+                        }
+                        // Check bundles
+                        if (!overwrittenUpdate) {
+                            for (Bundle bundle : allBundles) {
+                                if (bundle.getBundleId() != 0 && sn.equals(bundle.getSymbolicName())) {
+                                    Version oldV = bundle.getVersion();
+                                    System.out.println("    Found matching bundle: " + sn + "/" + oldV.toString());
+                                    if (range.contains(oldV)) {
+                                        String location = bundle.getLocation();
+                                        updates.add(new BundleUpdateImpl(sn, v.toString(), oldV.toString(), location));
+                                        toInstall.put(sn + "/" + v.toString(), url);
+                                        toDelete.add(bundle);
+                                        System.out.println("    Updating bundle to: " + sn + "/" + v.toString());
+                                    } else {
+                                        System.out.println("    Ignoring older bundle update");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            System.out.println("Bundles to delete:");
+            for (Bundle b : toDelete) {
+                System.out.println("    " + b.getSymbolicName() + "/" + b.getVersion().toString());
+            }
+            System.out.println("Bundles to install:");
+            for (String b : toInstall.keySet()) {
+                System.out.println("    " + b);
+            }
+            System.out.println("Installation will begin.  The connection may be lost or the console restarted.");
+            System.out.flush();
+
+            new Thread() {
+                public void run() {
+                    try {
+//                        Result result = new ResultImpl(patch, false, System.currentTimeMillis(), updates);
+                        applyChanges(toDelete, toInstall.values());
+//                        ((PatchImpl) patch).setResult(result);
+//                        saveResult(result);
+
+                        System.out.println("Patches installed successfully.");
+                        System.out.flush();
+                    } catch (Exception e) {
+                        e.printStackTrace(System.err);
+                        System.err.flush();
+                    }
+                }
+            }.start();
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            System.err.flush();
+        }
+    }
+
     void reload() {
         for (File file : patchDir.listFiles()) {
             if (file.exists() && file.getName().endsWith(".patch")) {
@@ -256,7 +367,7 @@ public class ServiceImpl implements Service {
         }
     }
 
-    void rollback(PatchImpl patch, boolean force) throws PatchException {
+    void rollback(Patch patch, boolean force) throws PatchException {
         Result result = patch.getResult();
         if (result == null) {
             throw new PatchException("Patch " + patch.getId() + " is not installed");
@@ -286,7 +397,6 @@ public class ServiceImpl implements Service {
             throw new PatchException(sb.toString());
         }
 
-        Set<Bundle> toRefresh = new HashSet<Bundle>();
         Set<Bundle> toDelete = new HashSet<Bundle>();
         Set<String> toInstall = new HashSet<String>();
         for (BundleUpdate update : result.getUpdates()) {
@@ -300,18 +410,17 @@ public class ServiceImpl implements Service {
             }
         }
         try {
-            applyChanges(toRefresh, toDelete, toInstall);
+            applyChanges(toDelete, toInstall);
         } catch (Exception e) {
             throw new PatchException("Unable to rollback patch " + patch.getId() + ": " + e.getMessage(), e);
         }
-        patch.setResult(null);
+        ((PatchImpl) patch).setResult(null);
         File file = new File(patchDir, result.getPatch().getId() + ".patch.result");
         file.delete();
     }
 
-    Result install(PatchImpl patch, boolean simulate) {
+    Result install(Patch patch, boolean simulate) {
         try {
-            Set<Bundle> toRefresh = new HashSet<Bundle>();
             Set<Bundle> toDelete = new HashSet<Bundle>();
             Set<String> toInstall = new HashSet<String>();
             List<BundleUpdate> updates = new ArrayList<BundleUpdate>();
@@ -329,7 +438,7 @@ public class ServiceImpl implements Service {
                     VersionRange range = new VersionRange(false, lower, v, true);
                     for (Bundle bundle : allBundles) {
                         Version oldV = bundle.getVersion();
-                        if (sn.equals(bundle.getSymbolicName()) && range.contains(oldV)) {
+                        if (bundle.getBundleId() != 0 && sn.equals(bundle.getSymbolicName()) && range.contains(oldV)) {
                             String location = bundle.getLocation();
                             updates.add(new BundleUpdateImpl(sn, v.toString(), oldV.toString(), location));
                             toInstall.add(url);
@@ -341,8 +450,8 @@ public class ServiceImpl implements Service {
     
             Result result = new ResultImpl(patch, simulate, System.currentTimeMillis(), updates);
             if (!simulate) {
-                applyChanges(toRefresh, toDelete, toInstall);
-                patch.setResult(result);
+                applyChanges(toDelete, toInstall);
+                ((PatchImpl) patch).setResult(result);
                 saveResult(result);
             }
             return result;
@@ -351,7 +460,21 @@ public class ServiceImpl implements Service {
         }
     }
 
-    private void applyChanges(Set<Bundle> toRefresh, Set<Bundle> toDelete, Set<String> toInstall) throws BundleException {
+    private void applyChanges(Collection<Bundle> toDelete, Collection<String> toInstall) throws BundleException {
+        List<Bundle> toStop = new ArrayList<Bundle>();
+        toStop.addAll(toDelete);
+        while (!toStop.isEmpty()) {
+            List<Bundle> bs = getBundlesToDestroy(toStop);
+            for (Bundle bundle : bs) {
+                String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+                if (hostHeader == null && (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING)) {
+                    bundle.stop();
+                }
+                toStop.remove(bundle);
+            }
+        }
+        Set<Bundle> toRefresh = new HashSet<Bundle>();
+        Set<Bundle> toStart = new HashSet<Bundle>();
         for (Bundle bundle : toDelete) {
             bundle.uninstall();
             toRefresh.add(bundle);
@@ -359,6 +482,7 @@ public class ServiceImpl implements Service {
         for (String url : toInstall) {
             Bundle bundle = bundleContext.installBundle(url);
             toRefresh.add(bundle);
+            toStart.add(bundle);
         }
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
         findBundlesWithFramentsToRefresh(toRefresh);
@@ -378,6 +502,65 @@ public class ServiceImpl implements Service {
                 throw new PatchException("Bundle refresh interrupted", e);
             }
         }
+        for (Bundle bundle : toStart) {
+            String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+            if (hostHeader == null) {
+                bundle.start();
+            }
+        }
+    }
+
+    private List<Bundle> getBundlesToDestroy(List<Bundle> bundles) {
+        List<Bundle> bundlesToDestroy = new ArrayList<Bundle>();
+        for (Bundle bundle : bundles) {
+            ServiceReference[] references = bundle.getRegisteredServices();
+            int usage = 0;
+            if (references != null) {
+                for (ServiceReference reference : references) {
+                    usage += getServiceUsage(reference, bundles);
+                }
+            }
+            if (usage == 0) {
+                bundlesToDestroy.add(bundle);
+            }
+        }
+        if (!bundlesToDestroy.isEmpty()) {
+            Collections.sort(bundlesToDestroy, new Comparator<Bundle>() {
+                public int compare(Bundle b1, Bundle b2) {
+                    return (int) (b2.getLastModified() - b1.getLastModified());
+                }
+            });
+        } else {
+            ServiceReference ref = null;
+            for (Bundle bundle : bundles) {
+                ServiceReference[] references = bundle.getRegisteredServices();
+                for (ServiceReference reference : references) {
+                    if (getServiceUsage(reference, bundles) == 0) {
+                        continue;
+                    }
+                    if (ref == null || reference.compareTo(ref) < 0) {
+                        ref = reference;
+                    }
+                }
+            }
+            if (ref != null) {
+                bundlesToDestroy.add(ref.getBundle());
+            }
+        }
+        return bundlesToDestroy;
+    }
+
+    private static int getServiceUsage(ServiceReference ref, List<Bundle> bundles) {
+        Bundle[] usingBundles = ref.getUsingBundles();
+        int nb = 0;
+        if (usingBundles != null) {
+            for (Bundle bundle : usingBundles) {
+                if (bundles.contains(bundle)) {
+                    nb++;
+                }
+            }
+        }
+        return nb;
     }
 
     protected void findBundlesWithFramentsToRefresh(Set<Bundle> toRefresh) {

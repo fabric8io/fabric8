@@ -126,7 +126,8 @@ public class ServiceImplTest {
     public void testPatch() throws Exception {
 
         BundleContext bundleContext = createMock(BundleContext.class);
-        Bundle bundle0 = createMock(Bundle.class);
+        Bundle sysBundle = createMock(Bundle.class);
+        BundleContext sysBundleContext = createMock(BundleContext.class);
         Bundle bundle = createMock(Bundle.class);
         Bundle bundle2 = createMock(Bundle.class);
         FrameworkWiring wiring = createMock(FrameworkWiring.class);
@@ -134,10 +135,11 @@ public class ServiceImplTest {
         //
         // Create a new service, download a patch
         //
-
-        expect(bundleContext.getProperty("fuse.patch.location"))
+        expect(bundleContext.getBundle(0)).andReturn(sysBundle);
+        expect(sysBundle.getBundleContext()).andReturn(sysBundleContext);
+        expect(sysBundleContext.getProperty("fuse.patch.location"))
                 .andReturn(storage.toString()).anyTimes();
-        replay(bundleContext, bundle);
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
 
         ServiceImpl service = new ServiceImpl(bundleContext);
         Iterable<Patch> patches = service.download(patch132.toURI().toURL());
@@ -152,35 +154,37 @@ public class ServiceImplTest {
         Iterator<String> itb = patch.getBundles().iterator();
         assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
         assertNull(patch.getResult());
-        verify(bundleContext, bundle);
+        verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
         //
         // Simulate the patch
         //
 
-        reset(bundleContext, bundle);
+        reset(sysBundleContext, sysBundle, bundleContext, bundle);
         
-        expect(bundleContext.getBundles()).andReturn(new Bundle[] { bundle });
+        expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle });
         expect(bundle.getSymbolicName()).andReturn("my-bsn");
         expect(bundle.getVersion()).andReturn(new Version("1.3.1"));
         expect(bundle.getLocation()).andReturn("location");
-        replay(bundleContext, bundle);
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
         
         Result result = patch.simulate();
         assertNotNull( result );
         assertNull( patch.getResult() ); 
         assertTrue(result.isSimulation());
 
-        verify(bundleContext, bundle);
+        verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
         //
         // Recreate a new service and verify the downloaded patch is still available
         //
 
-        reset(bundleContext, bundle);
-        expect(bundleContext.getProperty("fuse.patch.location"))
+        reset(sysBundleContext, sysBundle, bundleContext, bundle);
+        expect(bundleContext.getBundle(0)).andReturn(sysBundle);
+        expect(sysBundle.getBundleContext()).andReturn(sysBundleContext);
+        expect(sysBundleContext.getProperty("fuse.patch.location"))
                 .andReturn(storage.toString()).anyTimes();
-        replay(bundleContext, bundle);
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
 
         service = new ServiceImpl(bundleContext);
         patches = service.getPatches();
@@ -195,26 +199,29 @@ public class ServiceImplTest {
         itb = patch.getBundles().iterator();
         assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
         assertNull(patch.getResult());
-        verify(bundleContext, bundle);
+        verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
         // 
         // Install the patch
         //
         
-        reset(bundleContext, bundle);
+        reset(sysBundleContext, sysBundle, bundleContext, bundle);
 
-        expect(bundleContext.getBundles()).andReturn(new Bundle[] { bundle });
+        expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle });
         expect(bundle.getSymbolicName()).andReturn("my-bsn");
         expect(bundle.getVersion()).andReturn(new Version("1.3.1"));
         expect(bundle.getLocation()).andReturn("location");
+        expect(bundle.getHeaders()).andReturn(new Hashtable()).anyTimes();
         bundle.uninstall();
-        expect(bundleContext.installBundle(bundlev132.toURI().toURL().toString())).andReturn(bundle2);
-        expect(bundleContext.getBundles()).andReturn(new Bundle[] { bundle2 });
+        expect(sysBundleContext.installBundle(bundlev132.toURI().toURL().toString())).andReturn(bundle2);
+        expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle2 });
         expect(bundle2.getState()).andReturn(Bundle.INSTALLED);
-        expect(bundle2.getHeaders()).andReturn(new Hashtable());
-        expect(bundle.getState()).andReturn(Bundle.UNINSTALLED);
-        expect(bundleContext.getBundle(0)).andReturn(bundle0);
-        expect(bundle0.adapt(FrameworkWiring.class)).andReturn(wiring);
+        expect(bundle2.getHeaders()).andReturn(new Hashtable()).anyTimes();
+        expect(bundle.getState()).andReturn(Bundle.UNINSTALLED).anyTimes();
+        expect(bundle.getRegisteredServices()).andReturn(null);
+        expect(sysBundleContext.getBundle(0)).andReturn(sysBundle);
+        expect(sysBundle.adapt(FrameworkWiring.class)).andReturn(wiring);
+        bundle2.start();
         wiring.refreshBundles(eq(asSet(bundle2, bundle)), anyObject(FrameworkListener[].class));
         expectLastCall().andAnswer(new IAnswer<Object>() {
             @Override
@@ -225,23 +232,25 @@ public class ServiceImplTest {
                 return null;
             }
         });
-        replay(bundleContext, bundle0, bundle, bundle2, wiring);
+        replay(sysBundleContext, sysBundle, bundleContext, bundle, bundle2, wiring);
 
         result = patch.install();
         assertNotNull( result );
         assertSame( result, patch.getResult() );
         assertFalse(patch.getResult().isSimulation());
 
-        verify(bundleContext, bundle);
+        verify(sysBundleContext, sysBundle, bundleContext, bundle, wiring);
 
         //
         // Recreate a new service and verify the downloaded patch is still available and installed
         //
 
-        reset(bundleContext, bundle);
-        expect(bundleContext.getProperty("fuse.patch.location"))
+        reset(sysBundleContext, sysBundle, bundleContext, bundle);
+        expect(bundleContext.getBundle(0)).andReturn(sysBundle);
+        expect(sysBundle.getBundleContext()).andReturn(sysBundleContext);
+        expect(sysBundleContext.getProperty("fuse.patch.location"))
                 .andReturn(storage.toString()).anyTimes();
-        replay(bundleContext, bundle);
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
 
         service = new ServiceImpl(bundleContext);
         patches = service.getPatches();
@@ -256,7 +265,7 @@ public class ServiceImplTest {
         itb = patch.getBundles().iterator();
         assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
         assertNotNull(patch.getResult());
-        verify(bundleContext, bundle);
+        verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
     }
 
