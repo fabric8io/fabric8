@@ -34,7 +34,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +64,36 @@ import org.w3c.dom.NodeList;
 
 public class Main {
 
+    public static final String REPOSITORIES = "repositories";
+    public static final String ARTIFACTS = "artifacts";
+    public static final String CACHE = "cache";
+
+    public static final String DEFAULT_REPOSITORIES = "http://repo.fusesource.com/nexus/content/groups/public/";
+    
+    public static final String DEFAULT_ARTIFACTS = 
+            "org.apache.felix:org.apache.felix.framework," +
+            "org.apache.felix:org.apache.felix.configadmin," +
+            "org.apache.felix:org.apache.felix.eventadmin," +
+            "org.apache.felix:org.apache.felix.fileinstall," +
+            "org.apache.felix:org.apache.felix.webconsole," +
+            "org.apache.aries.blueprint:blueprint," +
+            "org.apache.aries.jmx:jmx," +
+            "org.apache.aries:org.apache.aries.util," +
+            "org.apache.aries.transaction:transaction," +
+            "org.apache.servicemix.specs:specs," +
+            "org.apache.karaf:karaf," +
+            "org.apache.cxf:cxf," +
+            "org.apache.camel:camel," +
+            "org.apache.activemq:activemq," +
+            "org.apache.servicemix:servicemix-utils," +
+            "org.apache.servicemix:components," +
+            "org.apache.servicemix.nmr:nmr-parent," +
+            "org.apache.servicemix:features," +
+            "org.apache.servicemix:archetypes," +
+            "org.fusesource:fuse-project";
+
+    public static final String DEFAULT_CACHE = "data/patches";
+
     private final ExecutorService executor;
     private final List<String> repos;
     private final List<String> artifacts;
@@ -72,40 +101,6 @@ public class Main {
     private final ConsoleReader console;
 
     public Main(List<String> repos, List<String> artifacts, File cache) throws IOException {
-        if (repos == null || repos.isEmpty()) {
-            repos = Arrays.asList("http://repo.fusesource.com/nexus/content/groups/public/");
-        } else {
-            List<String> newRepos = new ArrayList<String>();
-            for (String repo : repos) {
-                if (!repo.endsWith("/")) {
-                    repo += "/";
-                }
-                newRepos.add(repo);
-            }
-            repos = newRepos;
-        }
-        if (artifacts == null || artifacts.isEmpty()) {
-            artifacts = Arrays.asList("org.apache.felix:org.apache.felix.framework",
-                                      "org.apache.felix:org.apache.felix.configadmin",
-                                      "org.apache.felix:org.apache.felix.eventadmin",
-                                      "org.apache.felix:org.apache.felix.fileinstall",
-                                      "org.apache.felix:org.apache.felix.webconsole",
-                                      "org.apache.aries.blueprint:blueprint",
-                                      "org.apache.aries.jmx:jmx",
-                                      "org.apache.aries:org.apache.aries.util",
-                                      "org.apache.aries.transaction:transaction",
-                                      "org.apache.servicemix.specs:specs",
-                                      "org.apache.karaf:karaf",
-                                      "org.apache.cxf:cxf",
-                                      "org.apache.camel:camel",
-                                      "org.apache.activemq:activemq",
-                                      "org.apache.servicemix:servicemix-utils",
-                                      "org.apache.servicemix:components",
-                                      "org.apache.servicemix.nmr:nmr-parent",
-                                      "org.apache.servicemix:features",
-                                      "org.apache.servicemix:archetypes",
-                                      "org.fusesource:fuse-project");
-        }
         this.executor = Executors.newFixedThreadPool(50);
         this.repos = repos;
         this.artifacts = artifacts;
@@ -206,7 +201,7 @@ public class Main {
         String host = readLine("Host", "localhost");
         String port = readLine("Port", "8101");
         String user = readLine("User", "admin");
-        String pass = readLine("Password", "admin");
+        String pass = readLine("Password", "admin", true);
 
         String version = getVersion();
         String osgiVersion = VersionCleaner.clean(version);
@@ -285,6 +280,11 @@ public class Main {
     }
 
     private String readLine(String msg, String def) throws IOException {
+        return readLine(msg, def, false);
+    }
+
+    private String readLine(String msg, String def, boolean password) throws IOException {
+        console.setEchoCharacter(password ? '*' : null);
         String val = console.readLine(msg + " (defaults to " + def + "): ");
         if (val == null || val.isEmpty()) {
             val = def;
@@ -553,19 +553,25 @@ public class Main {
     public static void main(String[] args) throws Exception {
         System.setProperty(TerminalSupport.JLINE_SHUTDOWNHOOK, "true");
         AnsiConsole.systemInstall();
-        Main main = new Main(Arrays.asList(
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-266/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-267/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-268/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-278/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-279/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-280/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-281/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-282/",
-                "http://gnodet:nodule@repo.fusesource.com/nexus/content/repositories/orgapache-283/"
-        ),
-                             null /*Arrays.asList("org.apache.karaf:karaf")*/,
-                             new File("data/patches/"));
+
+        List<String> repos = new ArrayList<String>();
+        String repoStr = System.getProperty(REPOSITORIES, DEFAULT_REPOSITORIES);
+        for (String repo : repoStr.split(",")) {
+            repo = repo.trim();
+            if (!repo.endsWith("/")) {
+                repo += "/";
+            }
+            repos.add(repo);
+        }
+        List<String> artifacts = new ArrayList<String>();
+        String artifactStr = System.getProperty(ARTIFACTS, DEFAULT_ARTIFACTS);
+        for (String artifact : artifactStr.split(",")) {
+            artifact = artifact.trim();
+            artifacts.add(artifact);
+        }
+        File cache = new File(System.getProperty(CACHE, DEFAULT_CACHE));
+
+        Main main = new Main(repos, artifacts, cache);
         try {
             main.run();
         } catch (Throwable t) {

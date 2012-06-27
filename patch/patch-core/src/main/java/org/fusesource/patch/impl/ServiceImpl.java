@@ -201,10 +201,15 @@ public class ServiceImpl implements Service {
                 System.out.println("Installing patch: " + patch.getId());
                 for (String url : patch.getBundles()) {
                     JarInputStream jis = new JarInputStream(new URL(url).openStream());
-                    Attributes att = jis.getManifest().getMainAttributes();
                     jis.close();
+                    if (jis.getManifest() == null) {
+                        System.err.println("Ignoring bad bundle (no manifest): " + url);
+                        continue;
+                    }
+                    Attributes att = jis.getManifest().getMainAttributes();
                     String sn = att.getValue(Constants.BUNDLE_SYMBOLICNAME);
                     if (sn == null) {
+                        System.err.println("Ignoring bad bundle (no symbolic name): " + url);
                         continue;
                     }
                     if (sn.contains(";")) {
