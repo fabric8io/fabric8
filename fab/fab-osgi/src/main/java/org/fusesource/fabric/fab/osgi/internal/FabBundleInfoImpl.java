@@ -72,15 +72,28 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
         this.configuration = configuration;
         this.embeddedResources = embeddedResources;
         this.pomDetails = pomDetails;
-        this.jar = BndUtils.createJar(
-                URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
-                instructions,
-                fabUri,
-                OverwriteMode.MERGE,
-                embeddedResources,
-                classPathResolver.getExtraImportPackages(),
-                actualImports,
-                this);
+        this.jar = getOrCreateJar();
+    }
+
+    /**
+     * Returns the {@link Jar} if exists and is valid or creates on from scratch.
+     * @return the {@link Jar} that corresponds to the object properties.
+     * @throws Exception
+     */
+    private Jar getOrCreateJar() throws Exception {
+        if (this.jar != null && jar.getResources() != null) {
+            return jar;
+        } else {
+            return BndUtils.createJar(
+                    URLUtils.prepareInputStream(new URL(fabUri), configuration.getCertificateCheck()),
+                    instructions,
+                    fabUri,
+                    OverwriteMode.MERGE,
+                    embeddedResources,
+                    classPathResolver.getExtraImportPackages(),
+                    actualImports,
+                    this);
+        }
     }
 
     @Override
@@ -89,14 +102,14 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        return BndUtils.createInputStream( jar );
+    public InputStream getInputStream() throws Exception {
+        return BndUtils.createInputStream( getOrCreateJar() );
     }
 
     @Override
     public Attributes getManifest() {
         try {
-            return jar.getManifest().getMainAttributes();
+            return getOrCreateJar().getManifest().getMainAttributes();
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
