@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -32,7 +33,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -61,6 +61,8 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
 
     public static final String FILEINSTALL = "felix.fileinstall.filename";
+
+    public static final String PROFILE_PROP_REGEX = "profile:[\\w\\.\\-]*/[\\w\\.\\-]*";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperConfigAdminBridge.class);
 
@@ -152,17 +154,29 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     }
 
     static public String stripSuffix(String value, String suffix) {
-        if(value.endsWith(suffix)) {
-            return value.substring(0, value.length() -suffix.length());
+        if (value.endsWith(suffix)) {
+            return value.substring(0, value.length() - suffix.length());
         } else {
             return value;
         }
     }
 
-    public Dictionary load(String pid) throws IOException {
-        try {
-            Hashtable props = new Hashtable();
-            load(pid, node, props);
+    public Map<String, Hashtable> load(Set<String> pids) throws IOException {
+        final Map<String, Hashtable> configs = new HashMap<String, Hashtable>();
+        for (String pid : pids) {
+            try {
+                Hashtable props = new Hashtable();
+                load(pid, node, props);
+                configs.put(pid, props);
+            } catch (InterruptedException e) {
+                throw (IOException) new InterruptedIOException("Error loading pid " + pid).initCause(e);
+            } catch (KeeperException e) {
+                throw (IOException) new IOException("Error loading pid " + pid).initCause(e);
+            }
+        }
+
+        for (Map.Entry<String, Hashtable> entry : configs.entrySet()) {
+            Hashtable props = entry.getValue();
             InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
                 public String getValue(String key) {
                     if (key.startsWith("zk:")) {
@@ -173,6 +187,15 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                         } catch (Exception e) {
                             LOGGER.warn("Could not load zk value: {}. This exception will be ignored.", key, e);
                         }
+                    } else if (key.matches(PROFILE_PROP_REGEX)) {
+                        String pid = key.substring("profile:".length(), key.indexOf("/"));
+                        String propertyKey = key.substring(key.indexOf("/") + 1);
+                        Hashtable targetProps = configs.get(pid);
+                        if (targetProps != null && targetProps.containsKey(propertyKey)) {
+                            return (String) targetProps.get(propertyKey);
+                        } else {
+                            return key;
+                        }
                     } else {
                         String value = key;
                         BundleContext context = getBundleContext();
@@ -180,19 +203,15 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                             value = context.getProperty(key);
                         }
                         if (value == null) {
-                            value = System.getProperty(value, "");
+                            value = System.getProperty(key, "");
                         }
                         return value;
                     }
                     return key;
                 }
             });
-            return props;
-        } catch (InterruptedException e) {
-            throw (IOException) new InterruptedIOException("Error loading pid " + pid).initCause(e);
-        } catch (KeeperException e) {
-            throw (IOException) new IOException("Error loading pid " + pid).initCause(e);
         }
+        return configs;
     }
 
     private static BundleContext getBundleContext() {
@@ -210,21 +229,21 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         for (String parent : parents) {
             load(pid, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), dict);
         }
-        TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid+".properties") : null;
+        TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid + ".properties") : null;
         if (cfg != null) {
-        //if (cfg != null && !DELETED.equals(cfg.getData())) {
+            //if (cfg != null && !DELETED.equals(cfg.getData())) {
             Properties properties = toProperties(cfg.getData());
 
             // clear out the dict if it had a deleted key.
-            if( properties.remove(DELETED)!=null ) {
+            if (properties.remove(DELETED) != null) {
                 Enumeration keys = dict.keys();
                 while (keys.hasMoreElements()) {
                     dict.remove(keys.nextElement());
                 }
             }
 
-            for (Map.Entry<Object, Object> entry: properties.entrySet()){
-                if( DELETED.equals(entry.getValue()) ) {
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                if (DELETED.equals(entry.getValue())) {
                     dict.remove(entry.getKey());
                 } else {
                     dict.put(entry.getKey(), entry.getValue());
@@ -267,7 +286,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             getPids(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), pids);
         }
         for (String pid : getChildren(tree, node)) {
-            if(pid.endsWith(".properties")) {
+            if (pid.endsWith(".properties")) {
                 pid = stripSuffix(pid, ".properties");
                 pids.add(pid);
             }
@@ -307,16 +326,18 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                     track(node);
                 }
                 final Set<String> pids = getPids();
+                Map<String, Hashtable> pidProperties = load(pids);
                 List<Configuration> configs = asList(getConfigAdmin().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
                 for (String pid : pids) {
-                    Dictionary c = load(pid);
+                    Hashtable c = pidProperties.get(pid);
                     String p[] = parsePid(pid);
+                    //Get the configuration by fabric zookeeper pid, pid and factory pid.
                     Configuration config = getConfiguration(pid, p[0], p[1]);
                     configs.remove(config);
                     Dictionary props = config.getProperties();
                     Hashtable old = props != null ? new Hashtable() : null;
                     if (old != null) {
-                        for (Enumeration e = props.keys(); e.hasMoreElements();) {
+                        for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
                             Object key = e.nextElement();
                             Object val = props.get(key);
                             old.put(key, val);
@@ -355,6 +376,12 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         return l;
     }
 
+    /**
+     * Splits a pid into service and factory pid.
+     *
+     * @param pid The pid to parse.
+     * @return An arrays which contains the pid[0] the pid and pid[1] the factory pid if applicable.
+     */
     String[] parsePid(String pid) {
         int n = pid.indexOf('-');
         if (n > 0) {

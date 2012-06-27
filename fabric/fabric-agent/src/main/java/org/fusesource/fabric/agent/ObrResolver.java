@@ -85,12 +85,15 @@ public class ObrResolver {
         for (Feature feature : features) {
             for (BundleInfo bundleInfo : feature.getBundles()) {
                 try {
-                    Resource res = createResource(bundleInfo.getLocation(), downloads, fabs);
-                    if (res == null) {
-                        throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundleInfo.getLocation());
+                    //We ignore Fabs completely as the are already been added to fabs set.
+                    if (!bundleInfo.getLocation().startsWith(DeploymentAgent.FAB_PROTOCOL)) {
+                        Resource res = createResource(bundleInfo.getLocation(), downloads, fabs);
+                        if (res == null) {
+                            throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundleInfo.getLocation());
+                        }
+                        ress.add(res);
+                        infos.put(res, bundleInfo);
                     }
-                    ress.add(res);
-                    infos.put(res, bundleInfo);
                 } catch (MalformedURLException e) {
                     Requirement req = parseRequirement(bundleInfo.getLocation());
                     reqs.add(req);
@@ -111,7 +114,7 @@ public class ObrResolver {
             if (res == null) {
                 throw new IllegalArgumentException("Unable to build OBR representation for fab " + fab.getUrl());
             }
-            ((ResourceImpl) res).put(Resource.URI, "fab:" + fab.getUrl(), Property.URI);
+            ((ResourceImpl) res).put(Resource.URI, DeploymentAgent.FAB_PROTOCOL + fab.getUrl(), Property.URI);
             ress.add(res);
             infos.put(res, new SimpleBundleInfo(fab.getUrl(), false));
             for (DependencyTree dep : fab.getBundles()) {
@@ -166,7 +169,7 @@ public class ObrResolver {
         return deploy;
     }
 
-    protected Resource createResource(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws IOException {
+    protected Resource createResource(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {
         URL url = new URL(uri);
         Attributes attributes = getAttributes(uri, urls, infos);
         ResourceImpl resource = (ResourceImpl) repositoryAdmin.getHelper().createResource(attributes);
@@ -185,7 +188,7 @@ public class ObrResolver {
         return resource;
     }
 
-    protected Attributes getAttributes(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws IOException {
+    protected Attributes getAttributes(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {
         InputStream is = DeploymentAgent.getBundleInputStream(uri, urls, infos);
         byte[] man = loadEntry(is, JarFile.MANIFEST_NAME);
         if (man == null)
