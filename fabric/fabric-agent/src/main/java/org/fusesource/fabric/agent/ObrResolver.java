@@ -169,7 +169,7 @@ public class ObrResolver {
         return deploy;
     }
 
-    protected Resource createResource(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws IOException {
+    protected Resource createResource(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {
         URL url = new URL(uri);
         Attributes attributes = getAttributes(uri, urls, infos);
         ResourceImpl resource = (ResourceImpl) repositoryAdmin.getHelper().createResource(attributes);
@@ -188,7 +188,7 @@ public class ObrResolver {
         return resource;
     }
 
-    protected Attributes getAttributes(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws IOException {
+    protected Attributes getAttributes(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {
         InputStream is = DeploymentAgent.getBundleInputStream(uri, urls, infos);
         byte[] man = loadEntry(is, JarFile.MANIFEST_NAME);
         if (man == null)

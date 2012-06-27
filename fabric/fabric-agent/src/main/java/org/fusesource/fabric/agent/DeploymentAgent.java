@@ -592,13 +592,20 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                         if (res.getVersion().equals(bundle.getVersion())) {
                             if (res.getVersion().getQualifier().endsWith("SNAPSHOT")) {
                                 // if the checksum are different
-                                InputStream is = getBundleInputStream(res, downloads, infos);
+                                InputStream is = null;
+                                try {
+                                is = getBundleInputStream(res, downloads, infos);
                                 long newCrc = ChecksumUtils.checksum(is);
                                 long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong((String) checksums.get(bundle.getLocation())) : 0l;
                                 if (newCrc != oldCrc) {
                                     LOGGER.debug("New snapshot available for " + bundle.getLocation());
                                     update = true;
                                     newCheckums.put(bundle.getLocation(), Long.toString(newCrc));
+                                }
+                                }finally {
+                                    if (is != null) {
+                                        is.close();
+                                    }
                                 }
                             }
                             resource = res;
@@ -761,11 +768,11 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         LOGGER.info("Done.");
     }
 
-    protected static InputStream getBundleInputStream(Resource resource, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws IOException {
+    protected static InputStream getBundleInputStream(Resource resource, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws Exception {
         return getBundleInputStream(resource.getURI(), downloads, infos);
     }
 
-    protected static InputStream getBundleInputStream(String uri, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws IOException {
+    protected static InputStream getBundleInputStream(String uri, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws Exception {
         InputStream is;
         File file;
         FabBundleInfo info;
