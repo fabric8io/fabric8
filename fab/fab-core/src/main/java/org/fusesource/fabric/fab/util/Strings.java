@@ -47,6 +47,10 @@ public class Strings {
         }
     }
 
+    public static String defaultIfEmpty(String value, String defaultValue) {
+        return notEmpty(value) ? value : defaultValue;
+    }
+
     /**
      * splits a string into a list of strings, ignoring the empty string
      */

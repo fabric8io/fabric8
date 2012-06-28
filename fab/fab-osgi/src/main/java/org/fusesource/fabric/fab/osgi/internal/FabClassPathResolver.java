@@ -48,6 +48,7 @@ import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_ID;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_NAME;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
+import static org.fusesource.fabric.fab.util.Strings.defaultIfEmpty;
 import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.join;
 
@@ -55,6 +56,7 @@ import static org.fusesource.fabric.fab.util.Strings.join;
  * Resolves the classpath using the FAB resolving mechanism
  */
 public class FabClassPathResolver implements FabConfiguration {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(FabClassPathResolver.class);
 
     private FabFacade connection;
@@ -252,13 +254,14 @@ public class FabClassPathResolver implements FabConfiguration {
     }
 
     protected void processFabInstructions() {
-        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
-        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
-        excludeDependencyFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
-        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
-        importExportFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS)), "\\s+"));
-        installFeatures.addCollection(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE)), "\\s+"));
-        for (String url : Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL)), "\\s+")) {
+        sharedFilterPatterns.addAll(
+                getListManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY, ServiceConstants.DEFAULT_FAB_PROIVDED_DEPENDENCY));
+        requireBundleFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
+        excludeDependencyFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY));
+        optionalDependencyPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
+        importExportFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS));
+        installFeatures.addCollection(getListManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE));
+        for (String url : getListManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL)) {
             try {
                 installFeatureURLs.add(new URI(url));
             } catch (URISyntaxException e) {
@@ -266,6 +269,15 @@ public class FabClassPathResolver implements FabConfiguration {
             }
         }
     }
+
+    private List<String> getListManifestProperty(String name) {
+        return Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(name)), "\\s+");
+    }
+
+    private List<String> getListManifestProperty(String name, String defaultValue) {
+        return Strings.splitAndTrimAsList(defaultIfEmpty(getManifestProperty(name), defaultValue), "\\s+");
+    }
+
 
     public List<DependencyTree> getInstallDependencies() {
         return installDependencies;
