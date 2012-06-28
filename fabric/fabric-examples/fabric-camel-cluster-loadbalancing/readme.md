@@ -111,6 +111,6 @@ VIDEO
 =====
 
  * [Fabric Camel - How it works](http://www.youtube.com/watch?v=CO1WcTFivT0)
- * [Demo](http://youtu.be/RUg2rgY4BMEgit stat)
+ * [Demo](http://www.youtube.com/watch?v=RUg2rgY4BME)
 
 Enjoy Cloud Integration with Camel !
