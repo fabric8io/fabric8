@@ -4,7 +4,7 @@
 This demo demonstrates the Fuse Technology called "Cloud Integration" where the Camel Routes exposing or consuming
 a Service are deployed within Fabric containers running locally. The service is not published using CXF - WebService
 framework but using Jetty as Web Server.
-Remark : The container instead of being created locally could also be on another machine (ssh) or in the cloud.
+Remark : The container instead of being created locally could be on another machine (ssh) or in the cloud.
 
 The Apache Camel routes exposing a service uses the Jetty component and the Fabric endpoint.
 
@@ -110,7 +110,7 @@ to the Fabric container camel-client and check the log
 VIDEO
 =====
 
- * [Fabric Camel - How it works]()
- * [Demo]()
+ * [Fabric Camel - How it works](http://www.youtube.com/watch?v=CO1WcTFivT0)
+ * [Demo](http://youtu.be/RUg2rgY4BMEgit stat)
 
 Enjoy Cloud Integration with Camel !
