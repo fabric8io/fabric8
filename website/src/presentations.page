@@ -27,7 +27,9 @@ title: Presentations
       * [Overview of Fuse Fabric and the cloud](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#icanellos)
       * [Fuse Fabric and Fuse MQ clustering/discovery](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#dbosanac)
 
+      ## Fuse Integration covering Fabric Camel, CXF, DOSGI
 
+      * [Cloud Integration with Fabric Camel (Part I)](http://cmoulliard.blogspot.be/2012/06/cloud-integration-with-fabric-camel.html)
 
 .row-fluid
   .span4

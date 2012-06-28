@@ -50,6 +50,14 @@ sort_info: 2
 .row-fluid
   .span4
     :markdown
+      # [Fuse Camel Fabric](overview.html#Camel_Fabric)
+  .span8
+    :markdown
+      Working with [Fuse Camel](overview.html#Camel_Fabric) and Fuse Fabric to design [Cloud Integration projects](fabric-camel-loadbalancer.html)
+
+.row-fluid
+  .span4
+    :markdown
       # [Presentations](../../presentations.html)
   .span8
     :markdown
