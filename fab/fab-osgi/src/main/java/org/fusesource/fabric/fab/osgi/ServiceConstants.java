@@ -70,6 +70,12 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_PROVIDED_DEPENDENCY = "FAB-Provided-Dependency";
 
     /**
+     * Default value for the {@link #INSTR_FAB_PROVIDED_DEPENDENCY} header will consider Apache ActiveMQ, Camel and CXF
+     * dependencies to be 'provided'
+     */
+    static final String DEFAULT_FAB_PROIVDED_DEPENDENCY = "org.apache.activemq:* org.apache.camel:* org.apache.cxf:*";
+
+    /**
      * The space separated list of dependencies to be excluded.
      *
      * You can use wildcards such as "group:artifact group:* *:*"

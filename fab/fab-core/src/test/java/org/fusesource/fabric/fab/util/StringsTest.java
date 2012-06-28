@@ -18,7 +18,7 @@ package org.fusesource.fabric.fab.util;
 
 import org.junit.Test;
 
-import static org.fusesource.fabric.fab.util.Strings.unquote;
+import static org.fusesource.fabric.fab.util.Strings.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -33,5 +33,12 @@ public class StringsTest {
         assertEquals("te\"st", unquote("te\"st"));
         assertEquals("", unquote("\"\""));
         assertEquals(null, unquote(null));
+    }
+
+    @Test
+    public void testDefaultIfEmpty() {
+        assertEquals("one", defaultIfEmpty("one", "two"));
+        assertEquals("two", defaultIfEmpty("", "two"));
+        assertEquals("two", defaultIfEmpty(null, "two"));
     }
 }

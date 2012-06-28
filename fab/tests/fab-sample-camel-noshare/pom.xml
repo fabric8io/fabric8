@@ -59,7 +59,9 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <FAB-Provided-Dependency />
+
+              <!-- disable provided dependency handling for Apache Camel -->
+              <FAB-Provided-Dependency>org.apache.activemq:* org.apache.cxf:*</FAB-Provided-Dependency>
             </manifestEntries>
           </archive>
         </configuration>
