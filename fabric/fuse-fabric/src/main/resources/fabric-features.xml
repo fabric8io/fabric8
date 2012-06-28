@@ -220,6 +220,7 @@
     </feature>
 
     <feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
+        <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-version}</bundle>
         <feature version='${jclouds-karaf-version}'>jclouds</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-driver-sshj</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-driver-jsch</feature>
