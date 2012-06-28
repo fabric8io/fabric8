@@ -2,16 +2,11 @@ shell:echo Install Fabric-camel example on Fuse ESB 7
 shell:echo Create Fabric ensemble - Zookeeper registry
 fabric:create --clean root
 
-shell:echo Create fabric-camel-cluster profile in zookeeper
-fabric:profile-create --parents default fabric-camel-cluster
+shell:echo Create fabric-camel-cluster profile
+fabric:profile-create --parents camel fabric-camel-cluster
 
 shell:echo add repositories, features, ... to the fabric-camel-cluster profile
-fabric:profile-edit --repositories mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features fabric-camel-cluster
-fabric:profile-edit --repositories mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features fabric-camel-cluster
 fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features fabric-camel-cluster
-fabric:profile-edit --repositories mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features fabric-camel-cluster
-fabric:profile-edit --features camel fabric-camel-cluster
-fabric:profile-edit --features camel-blueprint fabric-camel-cluster
 fabric:profile-edit --features camel-jetty  fabric-camel-cluster
 fabric:profile-edit --features camel-server fabric-camel-cluster
 
@@ -23,22 +18,19 @@ shell:echo Create camel-cluster-port-9191 profile extending fabric-camel-cluster
 fabric:profile-create --parents fabric-camel-cluster camel-cluster-port-9191
 fabric:profile-edit --pid foo.fabricCamel/portNumber=9191 camel-cluster-port-9191
 
-shell:echo Create fabric container camel-9090 and wait 10s that it is created and configured
+shell:echo Create fabric container camel-9090
 fabric:container-create --profile camel-cluster-port-9090 --parent root camel-9090
-shell:sleep 10000
+shell:sleep 2000
 
 shell:echo Create fabric container camel-9191
 fabric:container-create --profile camel-cluster-port-9191 --parent root camel-9191
-shell:sleep 10000
+shell:sleep 2000
 
-shell:echo Installing camel features repository and deploy camel on the root instance
-features:addurl mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
-features:install camel
-features:install camel-blueprint
-features:install camel-jetty
+shell:echo Create fabric-camel-consumer profile
+fabric:profile-create --parents camel fabric-camel-consumer
+fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features fabric-camel-consumer
+fabric:profile-edit --features camel-jetty fabric-camel-consumer
+fabric:profile-edit --features camel-client fabric-camel-consumer
 
-shell:echo Installing camel fabric demo features repository and deploy camel-client
-features:addurl mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features
-
-shell:echo install camel-client which will connect to the remote instances
-features:install camel-client
+shell:echo Create fabric container camel-client
+fabric:container-create --profile fabric-camel-consumer --parent root camel-client

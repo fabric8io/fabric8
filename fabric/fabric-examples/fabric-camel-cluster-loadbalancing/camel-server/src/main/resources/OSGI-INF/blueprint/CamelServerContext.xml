@@ -43,7 +43,7 @@
                 <simple>${sys.karaf.name}</simple>
             </setHeader>
             <transform>
-                <simple>Response from Zookeeper agent</simple>
+                <simple>Response from Fabric Container</simple>
             </transform>
         </route>
     </camelContext>
