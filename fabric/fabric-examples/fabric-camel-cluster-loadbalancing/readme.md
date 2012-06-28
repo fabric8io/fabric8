@@ -9,7 +9,7 @@ Remark : The container instead of being created locally could be on another mach
 The Apache Camel routes exposing a service uses the Jetty component and the Fabric endpoint.
 
      <route id="fabric-server">
-        <from uri="**fabric-camel:local:jetty:http://0.0.0.0:{{portNumber}}/fabric**"/>
+        <from uri="fabric-camel:local:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
         <log message="Request received : ${body}"/>
         <setHeader headerName="karaf.name">
             <simple>${sys.karaf.name}</simple>
