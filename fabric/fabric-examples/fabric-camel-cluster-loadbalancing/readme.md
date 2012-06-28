@@ -1,5 +1,4 @@
-﻿﻿INTRODUCTION
-============
+﻿# ﻿INTRODUCTION
 
 This demo demonstrates the Fuse Technology called "Cloud Integration" where the Camel Routes exposing or consuming
 a Service are deployed within Fabric containers running locally. The service is not published using CXF - WebService
@@ -47,14 +46,12 @@ Moreover, the component will loadbalance messages to the list of endpoints publi
 
 ![fabric-camel.png](https://github.com/fusesource/fuse/raw/master/fabric/fabric-examples/fabric-camel-cluster-loadbalancing/fabric-camel.png)
 
-COMPILING
-=========
+# COMPILING
 
     cd fabric-examples/fabric-camel-cluster-loadbalancing
     mvn clean install
 
-RUNNING ON FUSE ESB 7
-=====================
+# RUNNING ON FUSE ESB 7
 
 The project will deploy fabric camel routes on Fuse ESB 7 instance but you can also install a Fabric distro
 
@@ -97,8 +94,7 @@ And run the following command in the console
     The following containers have been created successfully:
 	camel-client
 
-OUTPUT
-======
+# OUTPUT
 
 To verify that the camel client consuming the services receive well responses randomly, connect
 to the Fabric container camel-client and check the log
@@ -107,8 +103,7 @@ to the Fabric container camel-client and check the log
     2012-06-28 13:51:16,979 | INFO  | #1 - timer://foo | fabric-client                    | 92 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from Fabric Container : camel-9191
     2012-06-28 13:51:20,980 | INFO  | #1 - timer://foo | fabric-client                    | 92 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from Fabric Container : camel-9191
 
-VIDEO
-=====
+# VIDEO
 
  * [Fabric Camel - How it works](http://www.youtube.com/watch?v=CO1WcTFivT0)
  * [Demo](http://www.youtube.com/watch?v=RUg2rgY4BME)
