@@ -251,6 +251,16 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         }
     }
 
+    @Override
+    public void close() throws InterruptedException {
+        if (_stateChangeDispatcher != null) {
+            _stateChangeDispatcher.end();
+        }
+        if (isConnected()) {
+            super.close();
+        }
+    }
+
     public void destroy() {
         if (managedServiceRegistration != null) {
             managedServiceRegistration.unregister();
