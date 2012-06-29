@@ -21,6 +21,9 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;
 import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
+import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
+
+import java.net.URL;
 
 /**
  * Shows the dependency tree of a maven artifact before it is deployed
@@ -32,11 +35,17 @@ public class TreeCommand extends CommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabClassPathResolver resolver = createResolver(fab);
-        if (resolver != null) {
-            TreeHelper.write(session.getConsole(), resolver);
+        FabResolverFactoryImpl.FabResolverImpl impl = getFabResolverImpl(fab);
+        if (impl != null) {
+            // call FabResolver.getInfo() to get FAB to resolve all dependencies
+            impl.getInfo();
+
+            FabClassPathResolver resolver = impl.getClassPathResolver();
+
+            if (resolver != null) {
+                TreeHelper.write(session.getConsole(), resolver);
+            }
         }
         return null;
     }
-
 }

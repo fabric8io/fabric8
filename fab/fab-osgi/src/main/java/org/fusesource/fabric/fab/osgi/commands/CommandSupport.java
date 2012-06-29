@@ -19,25 +19,19 @@ package org.fusesource.fabric.fab.osgi.commands;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.FabResolverFactory;
-import org.fusesource.fabric.fab.osgi.FabURLHandler;
-import org.fusesource.fabric.fab.osgi.internal.BundleFabFacade;
-import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;
-import org.fusesource.fabric.fab.osgi.internal.FabConnection;
-import org.fusesource.fabric.fab.osgi.internal.FabFacade;
-import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.internal.*;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.sonatype.aether.RepositoryException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -72,6 +66,24 @@ public abstract class CommandSupport extends OsgiCommandSupport {
         return factory;
     }
 
+    protected FabResolverFactoryImpl.FabResolverImpl getFabResolverImpl(String arg) throws MalformedURLException {
+        String url = arg;
+
+        // if the argument is numeric, extract the URL from the bundle with that ID instead
+        if (arg.matches("\\d+")) {
+            Bundle bundle = getBundle(arg);
+            if (bundle != null) {
+                url = bundle.getHeaders().get(ServiceConstants.INSTR_FAB_URL);
+                if (url == null) {
+                    println("Bundle %s is not a FAB - no %s bundle header found", arg, ServiceConstants.INSTR_FAB_URL);
+                    return null;
+                }
+            }
+        }
+
+        return (FabResolverFactoryImpl.FabResolverImpl) getFabResolverFactory().getResolver(new URL(url));
+    }
+
     protected void println() {
         session.getConsole().println();
     }
@@ -96,44 +108,6 @@ public abstract class CommandSupport extends OsgiCommandSupport {
         Map<String, Object> embeddedResources = new HashMap<String, Object>();
         FabClassPathResolver resolver = new FabClassPathResolver(facade, instructions, embeddedResources);
         resolver.resolve();
-        return resolver;
-    }
-
-    protected FabURLHandler findURLHandler() throws InvalidSyntaxException {
-        ServiceReference[] references = bundleContext.getServiceReferences("org.osgi.service.url.URLStreamHandlerService", null);
-        for (ServiceReference reference : references) {
-            Object service = bundleContext.getService(reference);
-            if (service instanceof FabURLHandler) {
-                return (FabURLHandler) service;
-            }
-        }
-        return null;
-    }
-
-    protected FabClassPathResolver createResolver(String arg) throws RepositoryException, IOException, XmlPullParserException, BundleException, InvalidSyntaxException {
-        FabClassPathResolver resolver = null;
-        if (arg.matches("\\d+")) {
-            Bundle bundle = getBundle(arg);
-            if (bundle != null) {
-                resolver = createFabResolver(bundle);
-            }
-        } else {
-            FabURLHandler handler = findURLHandler();
-            if (handler != null) {
-                File file = new File(arg);
-                String u = arg;
-                if (file.exists()) {
-                    u = file.toURI().toURL().toString();
-                }
-                if (!arg.startsWith("fab:")) {
-                    u = "fab:" + u;
-                }
-                FabConnection urlConnection = handler.openConnection(new URL(u));
-                resolver = urlConnection.resolve();
-            } else {
-                println("ERROR: could not resolve FabURLHandler service in OSGi");
-            }
-        }
         return resolver;
     }
 

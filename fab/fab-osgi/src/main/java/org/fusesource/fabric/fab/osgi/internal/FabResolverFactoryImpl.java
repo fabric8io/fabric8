@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
 
-import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
 /**
@@ -117,7 +116,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         }
     }
 
-    protected class FabResolverImpl implements FabResolver, FabFacade  {
+    public class FabResolverImpl implements FabResolver, FabFacade  {
 
         private final BundleContext bundleContext;
         private PomDetails pomDetails;
@@ -315,6 +314,10 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
                     classPathResolver.addPruningFilter(new FeaturesMatchingFilter(FabResolverFactoryImpl.this.getFeaturesService(), classPathResolver));
                 }
             }
+            return classPathResolver;
+        }
+
+        public FabClassPathResolver getClassPathResolver() {
             return classPathResolver;
         }
     }
