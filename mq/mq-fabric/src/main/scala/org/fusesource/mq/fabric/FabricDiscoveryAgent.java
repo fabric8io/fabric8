@@ -19,8 +19,6 @@ package org.fusesource.mq.fabric;
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -29,6 +27,8 @@ import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.ZKClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FabricDiscoveryAgent implements DiscoveryAgent {
     
-    private static final Log LOG = LogFactory.getLog(FabricDiscoveryAgent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FabricDiscoveryAgent.class);
 
     private IZKClient zkClient;
     private boolean managedZkClient;
