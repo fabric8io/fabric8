@@ -19,14 +19,14 @@ package org.fusesource.mq;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.jms.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ActiveMQService implements JMSService {
 
-    private static final Log LOG = LogFactory.getLog(ActiveMQService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActiveMQService.class);
 
     Connection defaultConnection;
     Session defaultSession;
