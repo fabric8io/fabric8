@@ -55,7 +55,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private String version = ZkDefs.DEFAULT_VERSION;
-    private boolean ensembleAutoStart = Boolean.getBoolean(ENSEMBLE_AUTOSTART);
+    private boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART));
 
     public void init() {
         if (ensembleAutoStart) {
