@@ -22,13 +22,15 @@ public class BundleUpdateImpl implements BundleUpdate {
 
     private final String symbolicName;
     private final String newVersion;
+    private final String newLocation;
     private final String previousVersion;
     private final String previousLocation;
 
-    public BundleUpdateImpl(String symbolicName, String newVersion, String previousVersion, String previousLocation) {
+    public BundleUpdateImpl(String symbolicName, String newVersion, String newLocation, String previousVersion, String previousLocation) {
         this.symbolicName = symbolicName;
-        this.previousVersion = previousVersion;
         this.newVersion = newVersion;
+        this.newLocation = newLocation;
+        this.previousVersion = previousVersion;
         this.previousLocation = previousLocation;
     }
 
@@ -38,6 +40,10 @@ public class BundleUpdateImpl implements BundleUpdate {
 
     public String getNewVersion() {
         return newVersion;
+    }
+
+    public String getNewLocation() {
+        return newLocation;
     }
 
     public String getPreviousVersion() {
