@@ -65,6 +65,9 @@ set on the SymbolicName osgi header -->
     <command name="fab/headers">
         <action class="org.fusesource.fabric.fab.osgi.commands.fab.HeadersCommand"/>
     </command>
+    <command name="fab/info">
+        <action class="org.fusesource.fabric.fab.osgi.commands.fab.InfoCommand"/>
+    </command>
     <command name="fab/start">
         <action class="org.fusesource.fabric.fab.osgi.commands.fab.StartCommand"/>
     </command>
