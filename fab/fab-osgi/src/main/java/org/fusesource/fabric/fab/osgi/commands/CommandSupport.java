@@ -20,6 +20,7 @@ package org.fusesource.fabric.fab.osgi.commands;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
+import org.fusesource.fabric.fab.osgi.FabResolver;
 import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.internal.*;
@@ -67,6 +68,10 @@ public abstract class CommandSupport extends OsgiCommandSupport {
     }
 
     protected FabResolverFactoryImpl.FabResolverImpl getFabResolverImpl(String arg) throws MalformedURLException {
+        return (FabResolverFactoryImpl.FabResolverImpl) getFabResolver(arg);
+    }
+
+    protected FabResolver getFabResolver(String arg) throws MalformedURLException {
         String url = arg;
 
         // if the argument is numeric, extract the URL from the bundle with that ID instead
@@ -81,7 +86,7 @@ public abstract class CommandSupport extends OsgiCommandSupport {
             }
         }
 
-        return (FabResolverFactoryImpl.FabResolverImpl) getFabResolverFactory().getResolver(new URL(url));
+        return getFabResolverFactory().getResolver(new URL(url));
     }
 
     protected void println() {
