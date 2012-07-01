@@ -181,6 +181,7 @@
         <spring-version>3.0.7.RELEASE</spring-version>
         <sshd-version>0.5.0</sshd-version>
         <surefire-version>2.12</surefire-version>
+        <tinybundles-version>1.0.0</tinybundles-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
         <xalan.version>2.7.1</xalan.version>

@@ -50,6 +50,7 @@ import aQute.lib.osgi.URLResource;
 import aQute.lib.spring.SpringXMLType;
 import org.apache.felix.bundleplugin.BlueprintPlugin;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.bnd.ActiveMQNamespaceHandlerPlugin;
 import org.fusesource.fabric.fab.util.Files;
 import org.fusesource.fabric.fab.util.Strings;
 import org.ops4j.lang.NullArgumentException;
@@ -81,7 +82,8 @@ public class BndUtils
     /**
      * The list of analyzer plugin names we are using for analyzing Blueprint and Spring XML files
      */
-    private static final String ANALYZER_PLUGIN_NAMES = BlueprintPlugin.class.getName() + "," + SpringXMLType.class.getName();
+    private static final String ANALYZER_PLUGIN_NAMES =
+            BlueprintPlugin.class.getName() + "," + SpringXMLType.class.getName() + "," + ActiveMQNamespaceHandlerPlugin.class.getName();
 
     /**
      * Utility class. Meant to be used using static methods
