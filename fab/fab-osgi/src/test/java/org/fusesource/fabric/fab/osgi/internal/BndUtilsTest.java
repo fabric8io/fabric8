@@ -34,7 +34,7 @@ import java.util.Properties;
 public class BndUtilsTest {
 
     @Test
-    public void testXBeanNamespaces() throws Exception {
+    public void testActiveMQNamespaceElements() throws Exception {
         HashSet<String> actualImports = new HashSet<String>();
 
         InputStream stream =
@@ -54,6 +54,25 @@ public class BndUtilsTest {
                           "org.apache.xbean.spring.context.v2",
                           "org.apache.activemq.broker",
                           "org.apache.activemq.xbean");
+    }
+
+    @Test
+    public void testCXFSpringImports() throws Exception {
+        HashSet<String> actualImports = new HashSet<String>();
+
+        InputStream stream =
+                bundle().set(Constants.BUNDLE_SYMBOLICNAME, "some.bundle.symbolic.name")
+                        .add("META-INF/spring/cxf-example.xml", getClass().getResource("cxf-example.xml"))
+                        .build();
+
+        Properties instructions = new Properties();
+        instructions.put("Import-Package", "*");
+
+        BndUtils.createBundle(stream, instructions, "some.url.like.thingy",
+                OverwriteMode.KEEP, Collections.EMPTY_MAP,  Collections.EMPTY_MAP,
+                actualImports, null );
+
+        assertContainsAll(actualImports, "META-INF.cxf", "org.apache.cxf.bus.spring");
     }
 
     private<T> void assertContainsAll(Collection<T> collection, T... items) {
