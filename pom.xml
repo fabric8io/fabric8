@@ -410,6 +410,7 @@
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
                     <failIfNoTests>false</failIfNoTests>
+                    <runOrder>alphabetical</runOrder>
                     <includes>
                         <include>**/*Test.*</include>
                     </includes>
