@@ -42,7 +42,13 @@
         <property name="bundleContext" ref="blueprintBundleContext" />
         <property name="zooKeeper" ref="zkClient" />
     </bean>
-    <service ref="karafContainerRegistration" interface="org.linkedin.zookeeper.client.LifecycleListener" />
+    <service ref="karafContainerRegistration">
+        <interfaces>
+            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+            <value>org.osgi.service.cm.ConfigurationListener</value>
+        </interfaces>
+    </service>
+
     <reference interface="javax.management.MBeanServer">
         <reference-listener ref="karafContainerRegistration" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
     </reference>
