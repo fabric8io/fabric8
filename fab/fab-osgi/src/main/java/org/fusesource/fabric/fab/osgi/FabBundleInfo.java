@@ -40,7 +40,7 @@ public interface FabBundleInfo {
     /**
      * Access the FAB's input stream
      */
-    InputStream getInputStream() throws IOException;
+    InputStream getInputStream() throws Exception;
 
     /**
      * Get the computed manifest attributes
