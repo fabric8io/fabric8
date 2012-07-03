@@ -59,6 +59,8 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MAX;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PUBLIC_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
@@ -141,6 +143,17 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 }
             }
 
+            //Set the port range values
+            String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
+            String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
+            if (zooKeeper.exists(CONTAINER_PORT_MIN.getPath(name)) == null) {
+                zooKeeper.createOrSetWithParents(CONTAINER_PORT_MIN.getPath(name), minimumPort, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            }
+
+            if (zooKeeper.exists(CONTAINER_PORT_MAX.getPath(name)) == null) {
+                zooKeeper.createOrSetWithParents(CONTAINER_PORT_MAX.getPath(name), maximumPort, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            }
+
             String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
             String profiles = System.getProperty("fabric.profiles");
 
@@ -186,7 +199,6 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             return null;
         }
     }
-
 
     /**
      * Returns the global resolution policy.

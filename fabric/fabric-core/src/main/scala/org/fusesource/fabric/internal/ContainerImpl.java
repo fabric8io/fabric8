@@ -413,6 +413,58 @@ public class ContainerImpl implements Container {
         }
     }
 
+    @Override
+    public int getMinimumPort() {
+        int minimumPort = 0;
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PORT_MIN.getPath(id)) != null) {
+                minimumPort = Integer.parseInt(service.getZooKeeper().getStringData(ZkPath.CONTAINER_PORT_MIN.getPath(id)));
+            }
+        } catch (InterruptedException e) {
+            throw new FabricException(e);
+        } catch (KeeperException e) {
+            throw new FabricException(e);
+        } catch (NumberFormatException e) {
+            //ignore and fallback to 0
+        }
+        return minimumPort;
+    }
+
+    @Override
+    public void setMinimumPort(int port) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MIN.getPath(id), String.valueOf(port));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public int getMaximumPort() {
+        int maximumPort = 0;
+        try {
+            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PORT_MAX.getPath(id)) != null) {
+                maximumPort = Integer.parseInt(service.getZooKeeper().getStringData(ZkPath.CONTAINER_PORT_MAX.getPath(id)));
+            }
+        } catch (InterruptedException e) {
+            throw new FabricException(e);
+        } catch (KeeperException e) {
+            throw new FabricException(e);
+        } catch (NumberFormatException e) {
+            //ignore and fallback to 0
+        }
+        return maximumPort;
+    }
+
+    @Override
+    public void setMaximumPort(int port) {
+        try {
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MAX.getPath(id), String.valueOf(port));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
     public BundleInfo[] getBundles(ContainerTemplate containerTemplate) {
         try {
             return containerTemplate.execute(new ContainerTemplate.BundleStateCallback<BundleInfo[]>() {

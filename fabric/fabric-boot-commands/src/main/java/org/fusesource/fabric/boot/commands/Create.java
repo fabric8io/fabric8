@@ -25,6 +25,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.utils.PortUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
@@ -46,6 +47,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     long ensembleStartupTime = 2000L;
     @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
     private String profile = "fabric";
+    @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
+    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+    @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
+    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
+
+
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
     private List<String> containers;
 
@@ -76,6 +83,9 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         } else {
             System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "true");
         }
+
+        System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+        System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         if (containers != null && !containers.isEmpty()) {
             service.createCluster(containers);

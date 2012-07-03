@@ -16,8 +16,14 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Container;
@@ -25,6 +31,11 @@ import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerChildMetadata;
 import org.fusesource.fabric.api.CreateContainerChildOptions;
 import org.fusesource.fabric.internal.FabricConstants;
+import org.fusesource.fabric.utils.PortUtils;
+
+
+import static org.fusesource.fabric.utils.PortUtils.*;
+
 
 public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
 
@@ -70,6 +81,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
                 String originalName = new String(options.getName());
+                Set<Integer> usedPorts = getContainerUsedPorts(parent);
+
                 for (int i = 1; i <= options.getNumber(); i++) {
                     String containerName;
                     if (options.getNumber() > 1) {
@@ -78,10 +91,36 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                         containerName = originalName;
                     }
                     CreateContainerChildMetadata metadata = new CreateContainerChildMetadata();
+
                     metadata.setCreateOptions(options);
                     metadata.setContainerName(containerName);
+                    int minimumPort = service.getCurrentContainer().getMinimumPort();
+                    int maximumPort = service.getCurrentContainer().getMaximumPort();
+
+                    //This is not enough as it will not work if children has been created and then deleted.
+                    //The admin service should be responsible for allocating ports
+                    int sshPort = mapPortToRange(8101 + i, minimumPort, maximumPort);
+                    while (usedPorts.contains(sshPort)) {
+                        sshPort++;
+                    }
+                    usedPorts.add(sshPort);
+
+                    int rmiServerPort = mapPortToRange(44444 + i, minimumPort, maximumPort);
+                    while (usedPorts.contains(rmiServerPort)) {
+                        rmiServerPort++;
+                    }
+                    usedPorts.add(rmiServerPort);
+                    int rmiRegistryPort = mapPortToRange(1099 + i, minimumPort, maximumPort);
+                    while (usedPorts.contains(rmiRegistryPort)) {
+                        rmiRegistryPort++;
+                    }
+                    usedPorts.add(rmiRegistryPort);
+
                     try {
-                        adminService.createInstance(containerName, 0, 0, 0, null, jvmOptsBuilder.toString(), features, featuresUrls);
+                        adminService.createInstance(containerName,
+                                sshPort,
+                                rmiServerPort,
+                                rmiRegistryPort, null, jvmOptsBuilder.toString(), features, featuresUrls);
                         adminService.startInstance(containerName, null);
                     } catch (Throwable t) {
                         metadata.setFailure(t);
@@ -136,5 +175,54 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
     protected ContainerTemplate getContainerTemplate(Container container) {
         return new ContainerTemplate(container, false, service.getUserName(), service.getPassword());
+    }
+
+    /**
+     * Extracts the used ports of the {@link Container} and its children.
+     *
+     * @param container
+     * @return
+     */
+    private Set<Integer> getContainerUsedPorts(Container container) {
+        Set<Integer> usedPorts = new LinkedHashSet<Integer>();
+        usedPorts.add(getSshPort(container));
+        usedPorts.addAll(getRmiPorts(container));
+        if (container.getChildren() != null) {
+            for (Container child : container.getChildren()) {
+                usedPorts.addAll(getContainerUsedPorts(child));
+            }
+        }
+        return usedPorts;
+    }
+
+    /**
+     * Extracts the ssh Port of the {@link Container}.
+     *
+     * @param container
+     * @return
+     */
+    private int getSshPort(Container container) {
+        String sshUrl = container.getSshUrl();
+        int sshPort = PortUtils.extractPort(sshUrl);
+        return sshPort;
+    }
+
+    /**
+     * Extracts the rmi ports of the {@link Container}.
+     *
+     * @param container
+     * @return
+     */
+    private Set<Integer> getRmiPorts(Container container) {
+        Set<Integer> rmiPorts = new LinkedHashSet<Integer>();
+        String jmxUrl = container.getJmxUrl();
+        String addrees = container.getIp();
+        Pattern pattern = Pattern.compile(addrees + ":\\d{1,5}");
+        Matcher mather = pattern.matcher(jmxUrl);
+        while (mather.find()) {
+            String socketAddress = mather.group();
+            rmiPorts.add(PortUtils.extractPort(socketAddress));
+        }
+        return rmiPorts;
     }
 }

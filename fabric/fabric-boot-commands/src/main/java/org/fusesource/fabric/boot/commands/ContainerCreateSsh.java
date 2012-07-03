@@ -26,6 +26,7 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.utils.PortUtils;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends ContainerCreateSupport {
@@ -40,6 +41,10 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     private String password;
     @Option(name = "--port", description = "The IP port number for the SSH connection.")
     private Integer port;
+    @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
+    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+    @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
+    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
     @Option(name = "--ssh-retries", description = "Number of retries to connect on SSH")
     private Integer sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
@@ -72,6 +77,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .path(path)
         .port(port)
         .sshRetries(sshRetries)
+        .minimumPort(minimumPort)
+        .maximumPort(maximumPort)
         .password(password)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())

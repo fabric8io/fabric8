@@ -25,6 +25,7 @@ import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
+import org.fusesource.fabric.utils.PortUtils;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
@@ -64,6 +65,13 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String group = "fabric";
     @Option(name = "--proxy-uri", description = "The Maven proxy URL to use")
     private URI proxyUri;
+
+    @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
+    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+
+    @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
+    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
+
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")

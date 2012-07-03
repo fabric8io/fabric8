@@ -60,6 +60,8 @@ public enum ZkPath {
     CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),
     CONTAINER_PROVISION_EXCEPTION  ("/fabric/registry/containers/provision/{container}/exception"),
     CONTAINER_ENTRY                ("/fabric/registry/containers/config/{container}/{entry}"),
+    CONTAINER_PORT_MIN             ("/fabric/registry/containers/config/{container}/minimumport"),
+    CONTAINER_PORT_MAX             ("/fabric/registry/containers/config/{container}/maximumport"),
     CONTAINER_IP                   ("/fabric/registry/containers/config/{container}/ip"),
     CONTAINER_RESOLVER             ("/fabric/registry/containers/config/{container}/resolver"),
     CONTAINER_ADDRESS              ("/fabric/registry/containers/config/{container}/{type}"),

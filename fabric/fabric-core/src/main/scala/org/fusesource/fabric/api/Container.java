@@ -85,6 +85,12 @@ public interface Container {
     String getManulIp();
     void setManualIp(String manualIp);
 
+    int getMinimumPort();
+    void setMinimumPort(int port);
+
+    int getMaximumPort();
+    void setMaximumPort(int port);
+
 
 
     void start();

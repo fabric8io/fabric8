@@ -43,9 +43,11 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+import static org.fusesource.fabric.utils.PortUtils.findPort;
 
 
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
+import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
@@ -97,6 +99,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             IZKClient client;
             Properties properties;
             String karafName = System.getProperty("karaf.name");
+            String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
+            String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
+            int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
 
             // Install or stop the fabric-configadmin bridge
             Bundle bundleFabricConfigAdmin = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
@@ -109,7 +114,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
 
             // Create configuration
-            String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(port);
+            String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(mappedPort);
 
             Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Properties();
@@ -117,7 +122,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             properties.put("initLimit", "10");
             properties.put("syncLimit", "5");
             properties.put("dataDir", "data/zookeeper/0000");
-            properties.put("clientPort", Integer.toString(port));
+            properties.put("clientPort", Integer.toString(mappedPort));
             properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper.server-0000");
             config.setBundleLocation(null);
             config.update(properties);
@@ -150,7 +155,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             }
 
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
-            setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(port));
+            setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(mappedPort));
 
             ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000"), "abstract=true\nhidden=true");
 
@@ -165,7 +170,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000-1"), "parents=fabric-ensemble-0000\nhidden=true");
             profileNode = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000-1") + "/org.fusesource.fabric.zookeeper.server-0000.properties";
             p = new Properties();
-            p.put("clientPort", "2181");
+            p.put("clientPort", String.valueOf(mappedPort));
             ZooKeeperUtils.set(client, profileNode, toString(p));
 
             ZooKeeperUtils.set(client, "/fabric/configs/versions/" + version + "/general/fabric-ensemble", "0000");
@@ -350,15 +355,19 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String containerList = "";
             for (String container : containers) {
                 String ip = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_IP.getPath(container));
+
+                String minimumPort = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_PORT_MIN.getPath(container));
+                String maximumPort = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_PORT_MAX.getPath(container));
+
                 String profNode = "/fabric/configs/versions/" + version + "/profiles/fabric-ensemble-" + newClusterId + "-" + Integer.toString(index);
                 String pidNode = profNode + "/org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
                 Properties pidNodeProperties = new Properties();
 
                 ZooKeeperUtils.set(zooKeeper, profNode, "parents=fabric-ensemble-" + newClusterId + "\nhidden=true");
-                String port1 = Integer.toString(findPort(usedPorts, ip, 2181));
+                String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(2181, minimumPort, maximumPort)));
                 if (containers.size() > 1) {
-                    String port2 = Integer.toString(findPort(usedPorts, ip, 2888));
-                    String port3 = Integer.toString(findPort(usedPorts, ip, 3888));
+                    String port2 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(2888, minimumPort, maximumPort)));
+                    String port3 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(3888, minimumPort, maximumPort)));
                     profileNodeProperties.put("server." + Integer.toString(index), "${zk:" + container + "/ip}:" + port2 + ":" + port3);
                     pidNodeProperties.put("server.id", Integer.toString(index));
                 }
@@ -447,21 +456,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         Properties p = getProperties(client, file, new Properties());
         p.setProperty(prop, value);
         ZooKeeperUtils.set(client, file, toString(p));
-    }
-
-    private int findPort(Map<String, List<Integer>> usedPorts, String ip, int port) {
-        List<Integer> ports = usedPorts.get(ip);
-        if (ports == null) {
-            ports = new ArrayList<Integer>();
-            usedPorts.put(ip, ports);
-        }
-        for (; ; ) {
-            if (!ports.contains(port)) {
-                ports.add(port);
-                return port;
-            }
-            port++;
-        }
     }
 
     private void addUsedPorts(Map<String, List<Integer>> usedPorts, String data) {

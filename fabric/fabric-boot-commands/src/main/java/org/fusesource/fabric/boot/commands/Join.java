@@ -23,6 +23,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
+import org.fusesource.fabric.utils.PortUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -55,6 +56,12 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container")
     private String profile = "fabric";
 
+    @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
+    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+
+    @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
+    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
+
     @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
 
@@ -78,6 +85,9 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
                 System.setProperty("karaf.name", containerName);
                 System.setProperty("zookeeper.url", zookeeperUrl);
+
+                System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+                System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);

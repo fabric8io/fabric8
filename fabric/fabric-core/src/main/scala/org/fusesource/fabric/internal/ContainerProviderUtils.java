@@ -39,6 +39,7 @@ import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.ObjectUtils;
+import org.fusesource.fabric.utils.PortUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,8 @@ public class ContainerProviderUtils {
     private static final String CONFIGURE_HOSTNAMES = loadFunction("configure-hostname.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
+    public static final int DEFAULT_RMI_SERVER_PORT = 44444;
+    public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
 
     private static final String[] FALLBACK_REPOS = {"http://repo.fusesource.com/nexus/content/groups/public/", "http://repo.fusesource.com/nexus/content/groups/ea/", "http://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
@@ -117,7 +120,13 @@ public class ContainerProviderUtils {
         lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + options.getResolver());
         appendFile(sb, "etc/system.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + options.getName());
-        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=8101", "sshPort=" + DEFAULT_SSH_PORT);
+        //Apply port range
+        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=" + PortUtils.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort()));
+        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=" + PortUtils.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort()));
+        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=" + PortUtils.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort()));
+        appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MINIMUM_PORT + "=" + options.getMaximumPort()));
+        appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MAXIMUM_PORT + "=" + options.getMinimumPort()));
+
         appendFile(sb, "etc/system.properties", Arrays.asList("\n"));
 
         //Read all system properties

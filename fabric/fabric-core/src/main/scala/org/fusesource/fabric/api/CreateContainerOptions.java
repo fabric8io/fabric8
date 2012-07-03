@@ -48,6 +48,12 @@ public interface CreateContainerOptions extends Serializable {
     public String getPreferredAddress();
     public void setPreferredAddress(String preferredAddress);
 
+    int getMinimumPort();
+    void setMinimumPort(int port);
+
+    int getMaximumPort();
+    void setMaximumPort(int port);
+
     public Integer getNumber();
     public void setNumber(Integer number);
 
