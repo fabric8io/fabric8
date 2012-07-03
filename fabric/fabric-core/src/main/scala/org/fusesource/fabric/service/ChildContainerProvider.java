@@ -32,6 +32,8 @@ import org.fusesource.fabric.api.CreateContainerChildMetadata;
 import org.fusesource.fabric.api.CreateContainerChildOptions;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 
 import static org.fusesource.fabric.utils.PortUtils.*;
@@ -94,8 +96,11 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                     metadata.setCreateOptions(options);
                     metadata.setContainerName(containerName);
-                    int minimumPort = service.getCurrentContainer().getMinimumPort();
-                    int maximumPort = service.getCurrentContainer().getMaximumPort();
+                    int minimumPort = parent.getMinimumPort();
+                    int maximumPort = parent.getMaximumPort();
+
+                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MIN.getPath(containerName), String.valueOf(minimumPort));
+                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MAX.getPath(containerName), String.valueOf(maximumPort));
 
                     //This is not enough as it will not work if children has been created and then deleted.
                     //The admin service should be responsible for allocating ports
