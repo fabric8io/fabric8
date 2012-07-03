@@ -45,6 +45,8 @@ import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,7 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PUBLIC_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
 
-public class KarafContainerRegistration implements LifecycleListener, NotificationListener {
+public class KarafContainerRegistration implements LifecycleListener, NotificationListener, ConfigurationListener {
 
     private transient Logger logger = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
@@ -96,7 +98,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         String name = System.getProperty("karaf.name");
         logger.trace("onConnected");
         try {
-            lock.tryLock(10,TimeUnit.SECONDS);
+            lock.tryLock(10, TimeUnit.SECONDS);
             String nodeAlive = CONTAINER_ALIVE.getPath(name);
             Stat stat = zooKeeper.exists(nodeAlive);
             if (stat != null) {
@@ -128,7 +130,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             }
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper,name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
@@ -168,8 +170,8 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.management");
         if (config.getProperties() != null) {
             String jmx = (String) config.getProperties().get("serviceUrl");
-            jmx = jmx.replace("service:jmx:rmi://localhost:", "service:jmx:rmi://${zk:" + name  + "/ip}:");
-            jmx = jmx.replace("jndi/rmi://localhost","jndi/rmi://${zk:" + name  + "/ip}");
+            jmx = jmx.replace("service:jmx:rmi://localhost:", "service:jmx:rmi://${zk:" + name + "/ip}:");
+            jmx = jmx.replace("jndi/rmi://localhost", "jndi/rmi://${zk:" + name + "/ip}");
             return jmx;
         } else {
             return null;
@@ -181,7 +183,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.shell");
         if (config != null && config.getProperties() != null) {
             String port = (String) config.getProperties().get("sshPort");
-            return "${zk:" + name  + "/ip}:" + port;
+            return "${zk:" + name + "/ip}:" + port;
         } else {
             return null;
         }
@@ -190,6 +192,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     /**
      * Returns the global resolution policy.
+     *
      * @param zookeeper
      * @return
      * @throws InterruptedException
@@ -200,39 +203,41 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         List<String> validResoverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
         if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
             policy = zookeeper.getStringData(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
-        } else if (System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY))){
-            policy =  System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY);
-            zookeeper.createOrSetWithParents(ZkPath.POLICIES.getPath("resolver"),policy,  ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } else if (System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY))) {
+            policy = System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY);
+            zookeeper.createOrSetWithParents(ZkPath.POLICIES.getPath("resolver"), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
         return policy;
     }
 
-     /**
+    /**
      * Returns the container specific resolution policy.
+     *
      * @param zookeeper
      * @return
      * @throws InterruptedException
      * @throws KeeperException
      */
-     private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
-         String policy = ZkDefs.LOCAL_HOSTNAME;
-         List<String> validResoverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-         if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
-             policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
-         } else if (System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
-             policy = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
-         }
-         if (policy == null || !validResoverList.contains(policy)) {
-             policy = getGlobalResolutionPolicy(zookeeper);
-         }
-         if (policy != null && zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
-             zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-         }
-         return policy;
-     }
+    private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
+        String policy = ZkDefs.LOCAL_HOSTNAME;
+        List<String> validResoverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
+        if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+            policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
+        } else if (System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
+            policy = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
+        }
+        if (policy == null || !validResoverList.contains(policy)) {
+            policy = getGlobalResolutionPolicy(zookeeper);
+        }
+        if (policy != null && zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
+            zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        }
+        return policy;
+    }
 
     /**
      * Returns a pointer to the container IP based on the global IP policy.
+     *
      * @param zookeeper The zookeeper client to use to read global policy.
      * @param container The name of the container.
      * @return
@@ -242,7 +247,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     private static String getContainerPointer(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
         String pointer = "${zk:%s/%s}";
         String policy = getContainerResolutionPolicy(zookeeper, container);
-        return String.format(pointer,container,policy);
+        return String.format(pointer, container, policy);
     }
 
 
@@ -283,7 +288,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             }
         } catch (Exception e) {
             logger.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
-        }  finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -366,4 +371,31 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         return zooKeeper != null && zooKeeper.isConnected();
     }
 
+    /**
+     * Receives notification of a Configuration that has changed.
+     *
+     * @param event The <code>ConfigurationEvent</code>.
+     */
+    @Override
+    public void configurationEvent(ConfigurationEvent event) {
+        try {
+            if (zooKeeper.isConnected()) {
+                String name = System.getProperty("karaf.name");
+                if (event.getPid().equals("org.apache.karaf.shell") && event.getType() == ConfigurationEvent.CM_UPDATED) {
+                    String sshUrl = getSshUrl();
+                    if (sshUrl != null) {
+                        zooKeeper.createOrSetWithParents(CONTAINER_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    }
+                }
+                if (event.getPid().equals("org.apache.karaf.management") && event.getType() == ConfigurationEvent.CM_UPDATED) {
+                    String jmxUrl = getJmxUrl();
+                    if (jmxUrl != null) {
+                        zooKeeper.createOrSetWithParents(CONTAINER_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
 }
