@@ -117,8 +117,7 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
         config:propset org.apache.cxf.servlet.context /custom
         config:update
 
-
 ## More information
 For more information see:
 
-
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
