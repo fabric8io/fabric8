@@ -61,7 +61,13 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void init() {
         if (ensembleAutoStart) {
-            createLocalServer();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    createLocalServer();
+                }
+            }).start();
+
         }
     }
 
