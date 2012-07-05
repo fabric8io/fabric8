@@ -40,6 +40,7 @@ import scala.collection.JavaConversions._
 import java.lang.{ThreadLocal, Thread}
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.osgi.framework.{ServiceRegistration, BundleContext}
+import org.apache.activemq.network.DiscoveryNetworkConnector
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -90,9 +91,10 @@ object ActiveMQServiceFactory {
       networks.foreach {name =>
         if (!name.isEmpty) {
           LOG.info("Adding network connector " + name)
-          val nc = broker.addNetworkConnector("fabric:" + name)
+          val nc = new DiscoveryNetworkConnector(new URI("fabric:" + name))
+          nc.setName("fabric-" + name)
           IntrospectionSupport.setProperties(nc, properties.asInstanceOf[java.util.Map[String, String]], "network.")
-          nc.setName("fabric-" + name);
+          broker.addNetworkConnector(nc)
         }
       }
       (ctx, broker)
