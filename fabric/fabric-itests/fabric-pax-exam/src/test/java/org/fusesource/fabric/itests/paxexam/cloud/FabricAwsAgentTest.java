@@ -18,19 +18,13 @@
 package org.fusesource.fabric.itests.paxexam.cloud;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import javax.annotation.Nullable;
-
 import com.google.common.base.Predicate;
-import org.apache.commons.io.IOUtils;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeState;
-import org.jclouds.ec2.EC2Client;
-import org.jclouds.ec2.domain.IpProtocol;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +36,7 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -115,20 +110,12 @@ public class FabricAwsAgentTest extends FabricTestSupport {
         }
 
         //Filtering out regions because there is a temporary connectivity issue with us-west-2.
-        executeCommands("config:edit org.jclouds.compute-ec2",
-                "config:propset provider aws-ec2 ",
-                "config:propset identity " + identity,
-                "config:propset credential " + credential,
-                "config:propset jclouds.regions eu-west-1,us-west-1,us-east-1",
-                "config:update");
-
+        executeCommand("fabric:cloud-provider-add aws-ec2 "+identity+" "+credential);
         ComputeService computeService = getOsgiService(ComputeService.class, 3 * DEFAULT_TIMEOUT);
 
-        setUpSecurityGroup(computeService, 2181);
-
         //The compute service needs some time to properly initialize.
-        Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:container-create --ensemble-server --url jclouds://aws-ec2?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
+        //Thread.sleep(3 * DEFAULT_TIMEOUT);
+        System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider aws-ec2 --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         Thread.sleep(DEFAULT_TIMEOUT);
@@ -160,49 +147,12 @@ public class FabricAwsAgentTest extends FabricTestSupport {
         return null;
     }
 
-    /**
-     * Creates a security group that allows the current host to access ssh and zookeeper.
-     *
-     * @param port
-     */
-    private void setUpSecurityGroup(ComputeService computeService,int port) {
-        if (computeService.getContext().getProviderSpecificContext().getApi() instanceof EC2Client) {
-            EC2Client ec2Client = EC2Client.class.cast(computeService.getContext().getProviderSpecificContext().getApi());
-            String groupName = "jclouds#" + group + "#" + location;
-
-            try {
-                ec2Client.getSecurityGroupServices().createSecurityGroupInRegion(location, groupName, "Fabric security group");
-            } catch (Exception ex) {
-                //Ignore
-            }
-            try {
-                ec2Client.getSecurityGroupServices().authorizeSecurityGroupIngressInRegion(location, groupName, IpProtocol.TCP, port, port, getOriginatingIp());
-            } catch (Exception ex) {
-                //Ignore
-            }
-            try {
-                ec2Client.getSecurityGroupServices().authorizeSecurityGroupIngressInRegion(location, groupName, IpProtocol.TCP, 22, 22, "0.0.0.0/0");
-            } catch (Exception ex) {
-                //Ignore
-            }
-        }
-    }
-
-    /**
-     * @return the IP address of the client on which this code is running.
-     * @throws java.io.IOException
-     */
-    protected String getOriginatingIp() throws IOException {
-        URL url = new URL("http://checkip.amazonaws.com/");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.connect();
-        return IOUtils.toString(connection.getInputStream()).trim() + "/32";
-    }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
+                //debugConfiguration("5005",true),
                 copySystemProperty("fabricitest.aws.identity"),
                 copySystemProperty("fabricitest.aws.credential"),
                 copySystemProperty("fabricitest.aws.image"),
