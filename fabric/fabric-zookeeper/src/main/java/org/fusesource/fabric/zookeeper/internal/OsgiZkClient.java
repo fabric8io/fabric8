@@ -259,6 +259,9 @@ public class OsgiZkClient extends AbstractZKClient implements Watcher, ManagedSe
         if (isConnected()) {
             super.close();
         }
+        if (_zk != null) {
+            _zk.close();
+        }
     }
 
     public void destroy() {
