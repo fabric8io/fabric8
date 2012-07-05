@@ -114,7 +114,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to register maven proxy.", e);
+            LOGGER.warn("Failed to register maven proxy.");
         }
     }
 
@@ -130,7 +130,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
                     }
                 }
             } catch (Exception e) {
-                LOGGER.error("Failed to remove maven proxy from registry.", e);
+                LOGGER.warn("Failed to remove maven proxy from registry.");
             }
             registeredProxies.get(type).clear();
         }
