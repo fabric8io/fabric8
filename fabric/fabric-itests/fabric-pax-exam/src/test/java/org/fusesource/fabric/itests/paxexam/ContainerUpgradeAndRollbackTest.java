@@ -24,7 +24,6 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         destroyChildContainer("camel1");
     }
 
-    @Ignore //JIRA ESB-1687
     @Test
     public void testContainerUpgrade() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);

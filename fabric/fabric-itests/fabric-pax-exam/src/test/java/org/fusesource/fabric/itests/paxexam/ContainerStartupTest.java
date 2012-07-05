@@ -34,7 +34,6 @@ import static junit.framework.Assert.assertNotNull;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ContainerStartupTest extends FabricTestSupport {
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testLocalFabricCluster() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);

@@ -45,7 +45,6 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
        destroyChildContainer("dosgi-provider");
     }
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testFeatureProvisioning() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
