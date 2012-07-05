@@ -105,17 +105,12 @@ public class FabricRackspaceAgentTest extends FabricTestSupport {
         System.err.println(executeCommand("features:install jclouds-cloudserver-us fabric-jclouds jclouds-commands"));
 
         //Filtering out regions because there is a temporary connectivity issue with us-west-2.
-        executeCommands("config:edit org.jclouds.compute-rackspace",
-                "config:propset provider cloudservers-us ",
-                "config:propset identity " + identity,
-                "config:propset credential " + credential,
-                "config:update");
+        executeCommand("fabric:cloud-provider-add cloudservers-us "+identity+" "+credential);
 
         ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
 
         //The compute service needs some time to properly initialize.
-        Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:container-create --ensemble-server --url jclouds://cloudservers-us?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
+        System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider cloudservers-us --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         System.err.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
