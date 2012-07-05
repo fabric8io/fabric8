@@ -36,7 +36,6 @@ public class CreateChildAgentTest extends FabricTestSupport {
        destroyChildContainer("child1");
     }
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create -n"));

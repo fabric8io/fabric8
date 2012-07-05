@@ -39,7 +39,6 @@ import static junit.framework.Assert.assertNotNull;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
 
-	@Ignore // JIRA ESB-1687
     @Test
     public void testLocalFabricCluster() throws Exception {
         //Wait for zookeeper service to become available.
