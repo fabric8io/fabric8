@@ -6,6 +6,8 @@ Assumes the following layout:
 
 /bin/<scripts>
 /lib/main.jar
+/etc/config.properties
+/etc/jvm.properties
 /README.txt
 
 The application executable code needs to be packaged into a single executable main.jar and placed in the lib directory of the install location. The jar needs to be self-contained or include a class-path directive with the location of dependent jar files.
@@ -15,8 +17,8 @@ This artifact can be used in combination with the assembly-descriptor project to
 1. Add the following dependency to the project pom.xml:
 
 <dependency>
-    <groupId>com.proofpoint</groupId>
-    <artifactId>launcher</artifactId>
+    <groupId>org.fusesource.process</groupId>
+    <artifactId>process-launcher</artifactId>
     <version>{version}</version>
     <classifier>bin</classifier>
 </dependency>
