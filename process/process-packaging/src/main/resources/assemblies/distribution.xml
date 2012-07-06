@@ -55,7 +55,9 @@
             <includes>
                 <include>org.fusesource.process:process-launcher</include>
             </includes>
-            <fileMode>0644</fileMode>
+<!--
+            <fileMode>0755</fileMode>
+-->
         </dependencySet>
     </dependencySets>
 </assembly>

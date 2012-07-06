@@ -27,7 +27,7 @@
         <fileSet>
             <directory>src/main/scripts</directory>
             <outputDirectory>/</outputDirectory>
-            <fileMode>0644</fileMode>
+            <fileMode>0755</fileMode>
         </fileSet>
     </fileSets>
 </assembly>
