@@ -256,6 +256,7 @@
         <module>stream</module>
         <module>examples</module>
         <module>esb</module>
+        <module>process</module>
     </modules>
 
     <build>
