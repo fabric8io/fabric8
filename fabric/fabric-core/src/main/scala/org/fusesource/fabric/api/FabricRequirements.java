@@ -18,6 +18,7 @@ package org.fusesource.fabric.api;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -81,5 +82,17 @@ public class FabricRequirements {
 
     protected void sortProfilesRequirements() {
         Collections.sort(profileRequirements);
+    }
+
+    /**
+     * Removes all the empty requirements; usually used just before saving to JSON
+     */
+    public void removeEmptyRequirements() {
+        Iterator<ProfileRequirements> iterator = profileRequirements.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().isEmpty()) {
+                iterator.remove();
+            }
+        }
     }
 }
