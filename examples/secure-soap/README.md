@@ -23,10 +23,11 @@ Before building and running this example you need:
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
 * `client.html` - a Web client that can be used to test the Web service from your browser
-* `src/main/java/org/fusesource/examples/cxf/jaxws/HelloWorld.java` - a Java interface that defines the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/HelloWorldImpl.java` - a Java class that implements the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/client/Client.java` - a Java class implementing a client that connects to the Web service using an HTTP URL
-* `src/main/resources/org/fusesource/examples/cxf/jaxws/client/request.xml` - an SOAP message used to invoke the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorld.java` - a Java interface that defines the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorldImpl.java` - a Java class that implements the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/Client.java` - a Java class implementing a client that connects to the Web service using an HTTP URL
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/ClientPasswordCallback.java` - a Java class implementing authentication callback by checking the identifier and password
+* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/CustomSecurityInterceptor.java` - a Java class which set the security properties for the client 
 * `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
 ## Building the Example
