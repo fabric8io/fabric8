@@ -32,6 +32,12 @@ Install a new process via
 
 Each process is given a number (1, 2, 3 etc) which refers to the ID used within the shell to refer to it, to be able to start/stop/restart etc. **Note** that this is not the same thing as the operating system PID!
 
+To view the current installations and their IDs and PIDs use
+
+    process:list
+
+You'll then see the simple IDs, the real OS PIDs and the URLs of the installed processes.
+
 Once you know the process number you can then start/stop/restart/status/kill it
 
     process:start 1
