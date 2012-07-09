@@ -98,46 +98,6 @@
                     </executions>
                 </plugin>
 
-                <!-- lets attach the process cartridge to the build -->
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>attach-distribution-tar.gz</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>attach-artifact</goal>
-                            </goals>
-                            <configuration>
-                                <artifacts>
-                                    <artifact>
-                                        <file>
-                                            ${project.build.directory}/${project.artifactId}-${project.version}-distribution.tar.gz
-                                        </file>
-                                        <type>tar.gz</type>
-                                    </artifact>
-                                </artifacts>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>attach-readme</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>attach-artifact</goal>
-                            </goals>
-                            <configuration>
-                                <artifacts>
-                                    <artifact>
-                                        <file>README.txt</file>
-                                        <type>txt</type>
-                                        <classifier>readme</classifier>
-                                    </artifact>
-                                </artifacts>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
