@@ -96,7 +96,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     @Override
-    public Installation install(final String url, String controllerJson) throws IOException, CommandFailedException {
+    public Installation install(final String url, URL controllerJson) throws IOException, CommandFailedException {
         int id = createNextId();
         File installDir = createInstallDir(id);
         installDir.mkdirs();
@@ -119,11 +119,11 @@ public class ProcessManagerImpl implements ProcessManager {
         return createInstallation(url, id, installDir, config);
     }
 
-    private ProcessConfig loadControllerJson(String controllerJson) throws IOException {
-        if (Strings.isNullOrEmpty(controllerJson)) {
+    private ProcessConfig loadControllerJson(URL controllerJson) throws IOException {
+        if (controllerJson == null) {
             return new ProcessConfig();
         } else {
-            return JsonHelper.loadProcessConfig(new URL(controllerJson));
+            return JsonHelper.loadProcessConfig(controllerJson);
         }
     }
 

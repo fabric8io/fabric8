@@ -20,6 +20,7 @@ import org.fusesource.process.manager.support.command.CommandFailedException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -35,5 +36,5 @@ public interface ProcessManager {
     /**
      * Installs a process with an optional URL of the controller JSON
      */
-    Installation install(String url, String controllerJson) throws IOException, CommandFailedException;
+    Installation install(String url, URL controllerJson) throws IOException, CommandFailedException;
 }

@@ -79,6 +79,13 @@ For example to install Apache Tomcat:
 
 then once installed you can start/stop/restart/status it like any other process.
 
+Process Manager ships with some default kinds of controller which lets you use a more concise command.
 
+For example to install an Apache Tomcat:
 
+    process:install -k tomcat http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+
+Or to install a Fuse HQ Agent
+
+    process:install -k fusehq-agent someURL
 
