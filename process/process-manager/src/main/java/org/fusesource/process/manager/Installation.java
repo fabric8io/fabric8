@@ -22,11 +22,13 @@ import java.io.File;
  * Represents a locally installed managed process.
  */
 public class Installation {
+    private final String url;
     private final int id;
     private final File installDir;
     private final ProcessController controller;
 
-    public Installation(int id, File installDir, ProcessController controller) {
+    public Installation(String url, int id, File installDir, ProcessController controller) {
+        this.url = url;
         this.id = id;
         this.installDir = installDir;
         this.controller = controller;
@@ -47,5 +49,9 @@ public class Installation {
 
     public File getInstallDir() {
         return installDir;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

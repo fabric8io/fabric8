@@ -16,6 +16,8 @@
  */
 package org.fusesource.process.manager;
 
+import java.io.IOException;
+
 /**
  * Controls a process
  */
@@ -28,4 +30,5 @@ public interface ProcessController {
     int restart() throws Exception;
     int status() throws Exception;
 
+    Integer getPid() throws IOException;
 }

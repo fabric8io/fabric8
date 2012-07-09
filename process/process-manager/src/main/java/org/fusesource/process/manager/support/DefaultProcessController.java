@@ -16,12 +16,17 @@
  */
 package org.fusesource.process.manager.support;
 
+import com.google.common.io.Files;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.support.command.Command;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -89,6 +94,56 @@ public class DefaultProcessController implements ProcessController
         this.launchScript = launchScript;
     }
 
+
+    public Integer getPid() throws IOException {
+        Integer answer = null;
+        File pidDir = new File(baseDir, "var/run");
+        if (pidDir.exists() && pidDir.isDirectory()) {
+            String script = getLaunchScript();
+            int idx = script.lastIndexOf("/");
+            if (idx < 0) {
+                idx = script.lastIndexOf("\\");
+            }
+            if (idx > 0) {
+                script = script.substring(idx + 1);
+            }
+            // lets try find the file /var/run/launcher.pid by default
+            File pidFile = new File(pidDir, script + ".pid");
+
+            if (pidFile.exists()) {
+                answer = extractPidFromFile(pidFile);
+            }
+
+            // otherwise lets just find a /var/run/*.pid file
+            if (answer == null) {
+                File[] files = pidDir.listFiles();
+                for (File file : files) {
+                    if (file.getName().toLowerCase().endsWith(".pid")) {
+                        answer = extractPidFromFile(file);
+                        if (answer != null) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    private Integer extractPidFromFile(File file) throws IOException {
+        List<String> lines = Files.readLines(file, Charset.defaultCharset());
+        for (String line : lines) {
+            String text = line.trim();
+            if (text.matches("\\d+")) {
+                try {
+                    return Integer.parseInt(text);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Failed to parse pid '" + text + "' as a number. Exception: " + e, e);
+                }
+            }
+        }
+        return null;
+    }
 
     // Implementation methods
     //-------------------------------------------------------------------------

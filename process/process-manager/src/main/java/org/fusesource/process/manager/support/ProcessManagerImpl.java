@@ -61,11 +61,13 @@ public class ProcessManagerImpl implements ProcessManager {
                         try {
                             Integer value = Integer.parseInt(name);
                             if (value != null) {
-                                int v = value.intValue();
-                                if (v > lastId) {
-                                    lastId = v;
+                                int id = value.intValue();
+                                if (id > lastId) {
+                                    lastId = id;
                                 }
 
+                                String url = "TODO";
+                                createInstallation(url, id, findInstallDir(file));
                             }
                         } catch (NumberFormatException e) {
                             // should never happen :)
@@ -106,7 +108,7 @@ public class ProcessManagerImpl implements ProcessManager {
         //}, tarball.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 
         FileUtils.extractTar(tarball, installDir, untarTimeout, executor);
-        return createInstallation(id, installDir);
+        return createInstallation(url, id, installDir);
     }
 
     // Properties
@@ -150,14 +152,15 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
 
-    protected Installation createInstallation(int id, File rootDir) {
+    protected Installation createInstallation(String url, int id, File rootDir) {
         // TODO we should support different kinds of controller based on the kind of installation
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?
 
         File installDir = findInstallDir(rootDir);
         ProcessController controller = new DefaultProcessController(executor, installDir);
-        Installation installation = new Installation(id, installDir, controller);
+        // TODO need to read the URL from somewhere...
+        Installation installation = new Installation(url, id, installDir, controller);
         installations.add(installation);
         return installation;
     }
