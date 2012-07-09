@@ -56,3 +56,29 @@ Generally its a case of
 
 * adding the [assembly plugin XML](https://github.com/fusesource/fuse/blob/master/process/samples/pom.xml#L72) to create the tar.gz file using the [process-packaging](https://github.com/fusesource/fuse/tree/master/process/process-packaging)
 * adding the new tar.gz to the maven build via the [build-helper-maven-plugin](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/pom.xml#L89)
+
+### Running other processes like Tomcat, HQ Agent
+
+The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
+
+The default is to use a launch script called **bin/launcher** and then specify a parameter for each command
+
+* bin/launcher start
+* bin/launcher stop
+* bin/launcher restart
+* bin/launcher status
+* bin/launcher kill
+
+You can also specify a configuration in JSON for the controller to use:
+
+    process:install -c urlOfJson urlOfTarBall
+
+For example to install Apache Tomcat:
+
+    process-install -c https://raw.github.com/fusesource/fuse/master/process/process-manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+
+then once installed you can start/stop/restart/status it like any other process.
+
+
+
+
