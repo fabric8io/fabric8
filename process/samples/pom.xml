@@ -29,7 +29,8 @@
     <groupId>org.fusesource.process.samples</groupId>
     <artifactId>samples</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse Process Samples :: Project</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse Process Samples :: Project</description>
 
     <modules>
         <module>process-sample-camel-spring</module>

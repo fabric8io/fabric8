@@ -28,7 +28,8 @@
     <groupId>org.fusesource.process</groupId>
     <artifactId>process-project</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse Process :: Project</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse Process :: Project</description>
 
     <licenses>
       <license>
@@ -42,6 +43,7 @@
     <modules>
         <module>process-launcher</module>
         <module>process-packaging</module>
+        <module>process-manager</module>
         <module>samples</module>
     </modules>
 

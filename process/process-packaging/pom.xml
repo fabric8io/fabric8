@@ -8,7 +8,8 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>process-packaging</artifactId>
-    <name>Fuse Process :: Packaging</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse Process :: Packaging</description>
 
     <build>
         <resources>
