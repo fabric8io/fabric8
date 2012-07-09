@@ -93,8 +93,6 @@ public class ProcessManagerImpl implements ProcessManager {
         File installDir = createInstallDir(id);
         installDir.mkdirs();
 
-        System.out.println("Installing into: " + installDir);
-
         // copy the URL to the install dir
         // TODO we could use a temp file?
         File tarball = new File(installDir, "install.tar.gz");

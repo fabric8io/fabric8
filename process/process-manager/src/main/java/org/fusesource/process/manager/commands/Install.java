@@ -32,7 +32,7 @@ public class Install extends ProcessCommandSupport {
         checkRequirements();
         Installation install = getProcessManager().install(url);
 
-        System.out.println("Installed process " + install.getId());
+        System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
         return null;
     }
 }
