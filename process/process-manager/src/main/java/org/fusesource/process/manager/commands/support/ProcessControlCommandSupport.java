@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  */
 public abstract class ProcessControlCommandSupport extends ProcessCommandSupport {
-    @Argument(required = true, multiValued = true, name = "process numbers", description = "The numeric ids of the processes to control")
+    @Argument(index = 0, required = true, multiValued = true, name = "id", description = "The id of the managed processes to control")
     protected int[] ids;
 
     @Override

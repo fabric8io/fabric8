@@ -16,6 +16,7 @@
  */
 package org.fusesource.process.manager.support;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -32,6 +33,7 @@ import org.fusesource.process.manager.support.command.Duration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -94,13 +96,16 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     @Override
-    public Installation install(final String url) throws IOException, CommandFailedException {
+    public Installation install(final String url, String controllerJson) throws IOException, CommandFailedException {
         int id = createNextId();
         File installDir = createInstallDir(id);
         installDir.mkdirs();
 
+        ProcessConfig config = loadControllerJson(controllerJson);
+        config.setUrl(url);
+
         // copy the URL to the install dir
-        // TODO we could use a temp file?
+        // TODO should we use a temp file?
         File tarball = new File(installDir, "install.tar.gz");
         Files.copy(new InputSupplier<InputStream>() {
             @Override
@@ -109,15 +114,18 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         }, tarball);
 
-        //}, tarball.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-
         FileUtils.extractTar(tarball, installDir, untarTimeout, executor);
-        ProcessConfig config = new ProcessConfig();
-        config.setUrl(url);
         JsonHelper.saveProcessConfig(config, installDir);
         return createInstallation(url, id, installDir, config);
     }
 
+    private ProcessConfig loadControllerJson(String controllerJson) throws IOException {
+        if (Strings.isNullOrEmpty(controllerJson)) {
+            return new ProcessConfig();
+        } else {
+            return JsonHelper.loadProcessConfig(new URL(controllerJson));
+        }
+    }
 
     // Properties
     //-------------------------------------------------------------------------

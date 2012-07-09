@@ -33,7 +33,7 @@ public interface ProcessManager {
     List<Installation> listInstallations();
 
     /**
-     * Installs a process
+     * Installs a process with an optional URL of the controller JSON
      */
-    Installation install(String url) throws IOException, CommandFailedException;
+    Installation install(String url, String controllerJson) throws IOException, CommandFailedException;
 }

@@ -18,6 +18,7 @@ package org.fusesource.process.manager.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.commands.support.ProcessCommandSupport;
 
@@ -26,13 +27,16 @@ import org.fusesource.process.manager.commands.support.ProcessCommandSupport;
  */
 @Command(name = "install", scope = "process", description = "Installs a managed process into this container.")
 public class Install extends ProcessCommandSupport {
-    @Argument(required = true, name = "installation URL", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
+    @Option(name="-c", aliases={"--controllerJson"}, required = false, description = "The optional JSON document URL containing the controller configuration")
+    protected String controllerJson;
+
+    @Argument(index = 0, required = true, name = "url", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
     protected String url;
 
     @Override
     protected Object doExecute() throws Exception {
         checkRequirements();
-        Installation install = getProcessManager().install(url);
+        Installation install = getProcessManager().install(url, controllerJson);
 
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
         return null;

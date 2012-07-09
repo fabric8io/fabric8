@@ -16,6 +16,7 @@
  */
 package org.fusesource.process.manager.config;
 
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Helper methods for marshaling to and from JSON
@@ -36,29 +38,26 @@ public class JsonHelper {
     }
 
 
+    public static ProcessConfig loadProcessConfig(URL url) throws IOException {
+        return mapper.readValue(url, ProcessConfig.class);
+    }
+
     public static ProcessConfig loadProcessConfig(File installDir) throws IOException {
         File file = createControllerConfigFile(installDir);
         if (!file.exists()) {
             LOG.warn("Process configuration file " + file.getPath() + " does not exist");
             return new ProcessConfig();
         }
-        return readProcessConfig(file);
+        return mapper.readValue(file, ProcessConfig.class);
     }
 
     public static void saveProcessConfig(ProcessConfig config, File installDir) throws IOException {
-        writeProcessConfig(createControllerConfigFile(installDir), config);
-    }
-
-    public static void writeProcessConfig(File file, ProcessConfig value) throws IOException {
-        mapper.writeValue(file, value);
-    }
-
-    public static ProcessConfig readProcessConfig(File file) throws IOException {
-        return mapper.readValue(file, ProcessConfig.class);
+        mapper.writeValue(createControllerConfigFile(installDir), config);
     }
 
 
     public static File createControllerConfigFile(File installDir) {
         return new File(installDir, "process-config.json");
     }
+
 }
