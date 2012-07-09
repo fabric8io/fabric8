@@ -16,19 +16,21 @@
  */
 package org.fusesource.process.manager.support;
 
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import org.fusesource.process.manager.ProcessController;
+import org.fusesource.process.manager.config.ProcessConfig;
 import org.fusesource.process.manager.support.command.Command;
 import org.fusesource.process.manager.support.command.CommandFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * A default implementation of {@link ProcessController} which assumes a launch script which takes opertions as the first argument
@@ -36,14 +38,24 @@ import java.util.concurrent.Executors;
  */
 public class DefaultProcessController implements ProcessController
 {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
+
+    private final int id;
     private final File baseDir;
+    private final ProcessConfig config;
     private final Executor executor;
 
-    private String launchScript = "bin/launcher";
 
-    public DefaultProcessController(Executor executor, File baseDir) {
+    public DefaultProcessController(int id, ProcessConfig config, Executor executor, File baseDir) {
+        this.id = id;
+        this.config = config;
         this.executor = executor;
         this.baseDir = baseDir;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultProcessController(" + id + ")";
     }
 
     @Override
@@ -53,27 +65,43 @@ public class DefaultProcessController implements ProcessController
 
     @Override
     public int start() throws Exception {
-        return runCommand("start");
+        return runConfigCommandValueOrLaunchScriptWith(config.getStartCommand(), "start");
     }
 
     @Override
     public int stop() throws Exception {
-        return runCommand("stop");
+        return runConfigCommandValueOrLaunchScriptWith(config.getStopCommand(), "stop");
     }
 
     @Override
     public int kill() throws Exception {
-        return runCommand("start");
+        String customCommand = config.getKillCommand();
+        if (customCommand != null && customCommand.trim().isEmpty()) {
+            // lets stop it
+            LOG.info("No kill cCommand configured so lets just try stopping " + this);
+            return stop();
+        }
+        return runConfigCommandValueOrLaunchScriptWith(customCommand, "kill");
     }
 
     @Override
     public int restart() throws Exception {
-        return runCommand("restart");
+        String customCommand = config.getRestartCommand();
+        if (customCommand != null && customCommand.trim().isEmpty()) {
+            // lets stop and start()
+            LOG.info("No restart command configured so lets just try stopping " + this + " then starting again.");
+            int answer = stop();
+            if (answer == 0) {
+                answer = start();
+            }
+            return answer;
+        }
+        return runConfigCommandValueOrLaunchScriptWith(customCommand, "restart");
     }
 
     @Override
     public int status() throws Exception {
-        return runCommand("status");
+        return runConfigCommandValueOrLaunchScriptWith(config.getStatusCommand(), "status");
     }
 
     // Properties
@@ -86,20 +114,19 @@ public class DefaultProcessController implements ProcessController
         return executor;
     }
 
-    public String getLaunchScript() {
-        return launchScript;
-    }
-
-    public void setLaunchScript(String launchScript) {
-        this.launchScript = launchScript;
-    }
-
-
     public Integer getPid() throws IOException {
         Integer answer = null;
+        String pidFileName = config.getPidFile();
+        if (pidFileName != null) {
+            File file = new File(baseDir, pidFileName);
+            if (file.exists() && file.isFile()) {
+                return extractPidFromFile(file);
+            }
+        }
         File pidDir = new File(baseDir, "var/run");
         if (pidDir.exists() && pidDir.isDirectory()) {
-            String script = getLaunchScript();
+            String launchScript = getLaunchScript();
+            String script = launchScript;
             int idx = script.lastIndexOf("/");
             if (idx < 0) {
                 idx = script.lastIndexOf("\\");
@@ -130,6 +157,15 @@ public class DefaultProcessController implements ProcessController
         return answer;
     }
 
+    protected String getLaunchScript() {
+        String launchScript = config.getLaunchScript();
+        if (launchScript == null) {
+            // TODO should we auto-discover here?
+            launchScript = "bin/launcher";
+        }
+        return launchScript;
+    }
+
     private Integer extractPidFromFile(File file) throws IOException {
         List<String> lines = Files.readLines(file, Charset.defaultCharset());
         for (String line : lines) {
@@ -148,8 +184,22 @@ public class DefaultProcessController implements ProcessController
     // Implementation methods
     //-------------------------------------------------------------------------
 
-    protected int runCommand(String argument) throws IOException, InterruptedException, CommandFailedException {
-        Command command = new Command(launchScript, argument).setDirectory(baseDir);
+    protected int runCommand(String... arguments) throws IOException, InterruptedException, CommandFailedException {
+        Command command = new Command(arguments).setDirectory(baseDir);
+        Map<String,String> environment = config.getEnvironment();
+        if (environment != null && environment.size() > 0) {
+            command = command.addEnvironment(environment);
+        }
         return command.execute(getExecutor());
     }
+    
+    protected int runConfigCommandValueOrLaunchScriptWith(String command, String launchArgument) throws InterruptedException, IOException, CommandFailedException {
+        if (command != null) {
+            String[] commandArgs = command.split("\\s+");
+            return runCommand(commandArgs);
+        } else {
+            return runCommand(getLaunchScript(), launchArgument);
+        }
+    }
+    
 }

@@ -143,6 +143,33 @@
               </configuration>
             </plugin>
 
+            <plugin>
+             <groupId>org.codehaus.mojo</groupId>
+             <artifactId>build-helper-maven-plugin</artifactId>
+             <executions>
+                 <execution>
+                     <id>attach-artifacts</id>
+                     <phase>package</phase>
+                     <goals>
+                         <goal>attach-artifact</goal>
+                     </goals>
+                     <configuration>
+                         <artifacts>
+                             <artifact>
+                                 <file>target/classes/fusehq-agent.json</file>
+                                 <type>json</type>
+                                 <classifier>tomcat</classifier>
+                               </artifact>
+                             <artifact>
+                                 <file>target/classes/tomcat.json</file>
+                                 <type>json</type>
+                                 <classifier>fusehq-agent</classifier>
+                               </artifact>
+                         </artifacts>
+                     </configuration>
+                 </execution>
+             </executions>
+         </plugin>
         </plugins>
     </build>
 

@@ -166,11 +166,15 @@ public class ProcessManagerImpl implements ProcessManager {
         // or generate this file on installation time?
 
         File installDir = findInstallDir(rootDir);
-        ProcessController controller = new DefaultProcessController(executor, installDir);
+        ProcessController controller = createController(id, config, rootDir, installDir);
         // TODO need to read the URL from somewhere...
         Installation installation = new Installation(id, installDir, controller, config);
         installations.add(installation);
         return installation;
+    }
+
+    protected ProcessController createController(int id, ProcessConfig config, File rootDir, File installDir) {
+        return new DefaultProcessController(id, config, executor, installDir);
     }
 
     /**

@@ -1,0 +1,11 @@
+{
+    "launchScript": "bin/catalina.sh",
+    "pidFile": "work/catalina.pid",
+    "restartCommand": "",
+    "statusCommand": "bin/version.sh",
+    "killCommand": "",
+
+    "environment": {
+        "CATALINA_PID": "work/catalina.pid"
+    }
+}
