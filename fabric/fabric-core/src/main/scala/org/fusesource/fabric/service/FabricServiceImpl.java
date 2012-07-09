@@ -603,6 +603,6 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public PatchService getPatchService() {
-        return new PatchServiceImpl(this);
+        return new PatchServiceImpl(this, configurationAdmin);
     }
 }
