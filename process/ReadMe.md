@@ -14,7 +14,7 @@ The launcher is currently designed to run on unixes (Linux / OS X etc).
 
 If you are on OS X and don't have Ruby 1.9 installed then [try install it via RVM](https://rvm.io/rvm/install/)
 
-    $ curl -L https://get.rvm.io | bash -s stable --ruby
+    curl -L https://get.rvm.io | bash -s stable --ruby
 
 Then in a shell if you type:
 
