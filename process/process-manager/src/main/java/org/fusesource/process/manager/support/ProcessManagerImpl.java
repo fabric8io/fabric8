@@ -24,6 +24,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.ProcessManager;
+import org.fusesource.process.manager.config.ProcessConfig;
+import org.fusesource.process.manager.config.JsonHelper;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 import org.fusesource.process.manager.support.command.Duration;
 
@@ -67,7 +69,8 @@ public class ProcessManagerImpl implements ProcessManager {
                                 }
 
                                 String url = "TODO";
-                                createInstallation(url, id, findInstallDir(file));
+                                ProcessConfig config = JsonHelper.loadProcessConfig(file);
+                                createInstallation(url, id, findInstallDir(file), config);
                             }
                         } catch (NumberFormatException e) {
                             // should never happen :)
@@ -78,6 +81,7 @@ public class ProcessManagerImpl implements ProcessManager {
         }
 
     }
+
 
     @Override
     public String toString() {
@@ -108,8 +112,12 @@ public class ProcessManagerImpl implements ProcessManager {
         //}, tarball.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 
         FileUtils.extractTar(tarball, installDir, untarTimeout, executor);
-        return createInstallation(url, id, installDir);
+        ProcessConfig config = new ProcessConfig();
+        config.setUrl(url);
+        JsonHelper.saveProcessConfig(config, installDir);
+        return createInstallation(url, id, installDir, config);
     }
+
 
     // Properties
     //-------------------------------------------------------------------------
@@ -152,7 +160,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
 
-    protected Installation createInstallation(String url, int id, File rootDir) {
+    protected Installation createInstallation(String url, int id, File rootDir, ProcessConfig config) {
         // TODO we should support different kinds of controller based on the kind of installation
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?
@@ -160,7 +168,7 @@ public class ProcessManagerImpl implements ProcessManager {
         File installDir = findInstallDir(rootDir);
         ProcessController controller = new DefaultProcessController(executor, installDir);
         // TODO need to read the URL from somewhere...
-        Installation installation = new Installation(url, id, installDir, controller);
+        Installation installation = new Installation(id, installDir, controller, config);
         installations.add(installation);
         return installation;
     }

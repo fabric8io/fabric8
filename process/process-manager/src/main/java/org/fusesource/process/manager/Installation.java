@@ -16,27 +16,29 @@
  */
 package org.fusesource.process.manager;
 
+import org.fusesource.process.manager.config.ProcessConfig;
+
 import java.io.File;
 
 /**
  * Represents a locally installed managed process.
  */
 public class Installation {
-    private final String url;
     private final int id;
     private final File installDir;
     private final ProcessController controller;
+    private final ProcessConfig config;
 
-    public Installation(String url, int id, File installDir, ProcessController controller) {
-        this.url = url;
+    public Installation(int id, File installDir, ProcessController controller, ProcessConfig config) {
         this.id = id;
         this.installDir = installDir;
         this.controller = controller;
+        this.config = config;
     }
 
     @Override
     public String toString() {
-        return "Installation[" + installDir + "]";
+        return "Installation[" + getUrl() + " at " + installDir + "]";
     }
 
     public ProcessController getController() {
@@ -52,6 +54,6 @@ public class Installation {
     }
 
     public String getUrl() {
-        return url;
+        return config.getUrl();
     }
 }
