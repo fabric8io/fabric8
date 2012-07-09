@@ -6,11 +6,9 @@ target
 overlays
 .DS_Store
 .settings
-bin
 *.swp
 *.log
 .project
 .classpath
 *.fmd
-
 .cache

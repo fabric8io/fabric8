@@ -25,7 +25,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>src/main/scripts</directory>
+            <directory>src/main/distro</directory>
             <outputDirectory>/</outputDirectory>
             <fileMode>0755</fileMode>
         </fileSet>
