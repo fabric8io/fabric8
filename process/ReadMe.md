@@ -2,7 +2,7 @@
 
 This module provides libraries and tools for running managed processes as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
 
-In addition it provdides tools for turning any Java code (a collection of jars and an executable class name) into a stand alone process which can be managed on Unix like other processes.
+In addition it provides tools for turning any Java code (a collection of jars and an executable class name) into a stand alone process which can be managed on Unix like other processes.
 
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
