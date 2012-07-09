@@ -17,11 +17,13 @@
 
 package org.fusesource.process.manager.commands;
 
+import org.apache.felix.gogo.commands.Command;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
  */
+@Command(name = "unstall", scope = "process", description = "Uninstalls a managed process from this container.")
 public class Uninstall extends ProcessControlCommandSupport {
     @Override
     protected void doControlCommand(Installation installation) throws Exception {

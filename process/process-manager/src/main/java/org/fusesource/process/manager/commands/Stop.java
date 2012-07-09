@@ -17,11 +17,13 @@
 
 package org.fusesource.process.manager.commands;
 
+import org.apache.felix.gogo.commands.Command;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
  */
+@Command(name = "stop", scope = "process", description = "Stops a managed process")
 public class Stop extends ProcessControlCommandSupport {
     @Override
     protected void doControlCommand(Installation installation) throws Exception {

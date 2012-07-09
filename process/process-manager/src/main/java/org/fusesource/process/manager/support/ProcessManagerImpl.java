@@ -150,13 +150,41 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
 
-    protected Installation createInstallation(int id, File installDir) {
+    protected Installation createInstallation(int id, File rootDir) {
         // TODO we should support different kinds of controller based on the kind of installation
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?
+
+        File installDir = findInstallDir(rootDir);
         ProcessController controller = new DefaultProcessController(executor, installDir);
         Installation installation = new Installation(id, installDir, controller);
         installations.add(installation);
         return installation;
+    }
+
+    /**
+     * Lets find the install dir, which may be the root dir or could be a child directory (as typically untarring will create a new child directory)
+     */
+    protected File findInstallDir(File rootDir) {
+        if (installExists(rootDir)) {
+            return rootDir;
+        }
+        File[] files = rootDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (installExists(file)) {
+                    return file;
+                }
+            }
+        }
+        return rootDir;
+    }
+
+    protected boolean installExists(File file) {
+        if (file.isDirectory()) {
+            File binDir = new File(file, "bin");
+            return binDir.exists() && binDir.isDirectory();
+        }
+        return false;
     }
 }

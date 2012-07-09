@@ -27,8 +27,8 @@ import java.util.Map;
 /**
  */
 public abstract class ProcessControlCommandSupport extends ProcessCommandSupport {
-    @Argument(required = true, name = "process numbers", description = "The numeric ids of the processes to control")
-    protected Integer[] ids;
+    @Argument(required = true, multiValued = true, name = "process numbers", description = "The numeric ids of the processes to control")
+    protected int[] ids;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -38,7 +38,7 @@ public abstract class ProcessControlCommandSupport extends ProcessCommandSupport
         for (Installation installation : installations) {
             map.put(installation.getId(), installation);
         }
-        for (Integer id : ids) {
+        for (int id : ids) {
             Installation installation = map.get(id);
             if (installation == null) {
                 System.out.println("No such process number: " + id);
