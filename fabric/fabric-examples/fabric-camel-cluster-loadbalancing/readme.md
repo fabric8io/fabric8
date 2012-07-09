@@ -25,10 +25,10 @@ the location of the endpoint. The result hereafter shows you what Zookeeper has 
     registry/camel/endpoints/local/00000000000 = jetty:http://0.0.0.0:9191/fabric
     registry/camel/endpoints/local/00000000001 = jetty:http://0.0.0.0:9090/fabric
 
-This mechanism allows not only to make the consumer and producer independant from each other as the client does not need to know
+This mechanism allows not only to make the consumer and producer independent from each other as the client does not need to know
 what is the IP or Hostname of the target machines, it allow to add new camel enpoints without having to stop/start existing camel routes.
 
-The camel producer (= client), instead of calling directly the camel endpoint as ususal, will call a Fabric endpoint using as key
+The camel producer (= client), instead of calling directly the camel endpoint as usal, will call a Fabric endpoint using as key
 the group name "local". Then a lookup occurs in the Zookeeper registry to question it and find which endpoints have been registered.
 The Camel component will get a list of endpoints that it will use randomly to publish every 2s a message
 "Hello from Fabric Client to group Local"
@@ -42,7 +42,7 @@ The Camel component will get a list of endpoints that it will use randomly to pu
       <log message=">>> ${body} : ${header.karaf.name}"/>
     </route>
 
-Moreover, the component will loadbalance messages to the list of endpoints published
+Moreover, the component will load balance messages to the list of endpoints published
 
 ![fabric-camel.png](https://github.com/fusesource/fuse/raw/master/fabric/fabric-examples/fabric-camel-cluster-loadbalancing/fabric-camel.png)
 
