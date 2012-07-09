@@ -54,6 +54,7 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
+<!--
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
@@ -62,6 +63,12 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.enterprise</artifactId>
+            <scope>provided</scope>
+        </dependency>
+-->
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-mvn</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -80,6 +87,7 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
+<!--
         <dependency>
             <groupId>org.apache.karaf.features</groupId>
             <artifactId>org.apache.karaf.features.core</artifactId>
@@ -88,6 +96,7 @@
             <groupId>org.apache.karaf.features</groupId>
             <artifactId>org.apache.karaf.features.command</artifactId>
         </dependency>
+-->
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
@@ -96,12 +105,14 @@
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.config</artifactId>
         </dependency>
+<!--
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.42</version>
             <scope>provided</scope>
         </dependency>
+-->
 
         <dependency>
           <groupId>org.apache.servicemix.bundles</groupId>

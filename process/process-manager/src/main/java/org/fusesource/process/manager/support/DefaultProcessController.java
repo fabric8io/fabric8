@@ -17,8 +17,8 @@
 package org.fusesource.process.manager.support;
 
 import org.fusesource.process.manager.ProcessController;
-import org.fusesource.process.manager.commands.Command;
-import org.fusesource.process.manager.commands.CommandFailedException;
+import org.fusesource.process.manager.support.command.Command;
+import org.fusesource.process.manager.support.command.CommandFailedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,20 +31,15 @@ import java.util.concurrent.Executors;
  */
 public class DefaultProcessController implements ProcessController
 {
-    private static Executor defaultExectutor = null;
-
-    private File baseDir = new File(".");
-    private Executor executor = null;
-
-    protected static Executor defaultExectutor() {
-        if (defaultExectutor == null) {
-            defaultExectutor = Executors.newCachedThreadPool();
-        }
-        return defaultExectutor;
-    }
+    private final File baseDir;
+    private final Executor executor;
 
     private String launchScript = "bin/launcher";
 
+    public DefaultProcessController(Executor executor, File baseDir) {
+        this.executor = executor;
+        this.baseDir = baseDir;
+    }
 
     @Override
     public int uninstall() {
@@ -82,19 +77,8 @@ public class DefaultProcessController implements ProcessController
         return baseDir;
     }
 
-    public void setBaseDir(File baseDir) {
-        this.baseDir = baseDir;
-    }
-
     public Executor getExecutor() {
-        if (executor == null) {
-            executor = defaultExectutor();
-        }
         return executor;
-    }
-
-    public void setExecutor(Executor executor) {
-        this.executor = executor;
     }
 
     public String getLaunchScript() {

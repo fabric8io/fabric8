@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.process.manager.commands;
+package org.fusesource.process.manager.support.command;
 
 import com.google.common.base.Preconditions;
 

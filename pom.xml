@@ -765,6 +765,11 @@
                <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.fusesource.process</groupId>
+                <artifactId>process-manager</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.fusesource.mq</groupId>
                 <artifactId>mq-fabric</artifactId>
                 <version>${project.version}</version>

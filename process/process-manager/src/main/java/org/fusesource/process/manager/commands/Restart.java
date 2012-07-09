@@ -17,8 +17,14 @@
 
 package org.fusesource.process.manager.commands;
 
-public class CommandTimeoutException extends CommandFailedException {
-    public CommandTimeoutException(Command command) {
-        super(command, "did not complete in " + command.getTimeLimit(), null);
+import org.fusesource.process.manager.Installation;
+import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
+
+/**
+ */
+public class Restart extends ProcessControlCommandSupport {
+    @Override
+    protected void doControlCommand(Installation installation) throws Exception {
+        installation.getController().restart();
     }
 }

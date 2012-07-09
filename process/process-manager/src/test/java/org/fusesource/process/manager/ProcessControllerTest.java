@@ -17,28 +17,35 @@
 package org.fusesource.process.manager;
 
 import org.fusesource.process.manager.support.DefaultProcessController;
+import org.fusesource.process.manager.support.ProcessManagerImpl;
 import org.junit.Test;
 
 import java.io.File;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 public class ProcessControllerTest {
-    // TODO we really should install this from the mvn tarball
-    protected File installDir = new File("../samples/process-sample-camel-spring/target/process-sample-camel-spring-99-master-SNAPSHOT");
+    protected ProcessManagerImpl processManager = new ProcessManagerImpl(new File("target/processes"));
 
     @Test
     public void startStopCamelSample() throws Exception {
-        //installDir.mkdirs();
+        processManager.init();
 
+        // TODO warning - hard coded version!!!
+        String version = "99-master-SNAPSHOT";
+        Installation install = processManager.install("mvn:org.fusesource.process.samples/process-sample-camel-spring/" + version + "/tar.gz");
+
+        int id = install.getId();
+        assertTrue("ID should be > 0 but was " + id, id > 0);
+        File installDir = install.getInstallDir();
         if (!installDir.exists()) {
             fail("Installation does not exist: " + installDir);
         }
 
         // now lets start the process
-        DefaultProcessController controller = new DefaultProcessController();
-        controller.setBaseDir(installDir);
+        ProcessController controller = install.getController();
 
         int rc = controller.start();
         assertEquals("Return code", 0, rc);

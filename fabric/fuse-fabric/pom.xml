@@ -117,6 +117,10 @@
                <artifactId>insight-log-elasticsearch</artifactId>
            </dependency>
            <dependency>
+               <groupId>org.fusesource.process</groupId>
+               <artifactId>process-manager</artifactId>
+           </dependency>
+           <dependency>
                <groupId>org.fusesource.fabric.fab</groupId>
                <artifactId>fab-osgi</artifactId>
                <version>${project.version}</version>
@@ -230,6 +234,7 @@
                                    <feature>mq-fabric</feature>
                                    <feature>insight-elasticsearch</feature>
                                    <feature>insight-log-elasticsearch</feature>
+                                   <feature>process-manager</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>

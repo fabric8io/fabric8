@@ -84,6 +84,17 @@
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
     </feature>
 
+    <feature name="process-manager" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.fusesource.process/process-manager/${project.version}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${ops4j-pax-swissbox-optional-jcl.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.guava/${guava-version}</bundle>
+    </feature>
+
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
         <bundle>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>

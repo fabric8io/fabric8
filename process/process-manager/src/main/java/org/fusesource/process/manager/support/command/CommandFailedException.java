@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.process.manager.commands;
+package org.fusesource.process.manager.support.command;
 
 public class CommandFailedException extends Exception {
     private final Integer exitCode;

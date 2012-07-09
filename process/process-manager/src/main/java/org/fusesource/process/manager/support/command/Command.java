@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.process.manager.commands;
+package org.fusesource.process.manager.support.command;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
