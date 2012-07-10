@@ -16,6 +16,7 @@
  */
 package org.fusesource.process.manager;
 
+import com.google.common.collect.ImmutableMap;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 
 import java.io.IOException;
@@ -37,4 +38,6 @@ public interface ProcessManager {
      * Installs a process with an optional URL of the controller JSON
      */
     Installation install(String url, URL controllerJson) throws IOException, CommandFailedException;
+
+    ImmutableMap<Integer, Installation> listInstallationMap();
 }

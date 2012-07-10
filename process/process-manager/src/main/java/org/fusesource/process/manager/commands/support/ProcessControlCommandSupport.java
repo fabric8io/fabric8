@@ -33,11 +33,7 @@ public abstract class ProcessControlCommandSupport extends ProcessCommandSupport
     @Override
     protected Object doExecute() throws Exception {
         checkRequirements();
-        Map<Integer, Installation> map = Maps.newHashMap();
-        List<Installation> installations = getProcessManager().listInstallations();
-        for (Installation installation : installations) {
-            map.put(installation.getId(), installation);
-        }
+        Map<Integer, Installation> map = getProcessManager().listInstallationMap();
         for (int id : ids) {
             Installation installation = map.get(id);
             if (installation == null) {

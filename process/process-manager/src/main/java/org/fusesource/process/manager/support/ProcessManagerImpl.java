@@ -18,7 +18,9 @@ package org.fusesource.process.manager.support;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -36,6 +38,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -44,7 +47,7 @@ public class ProcessManagerImpl implements ProcessManager {
     private File storageLocation;
     private int lastId = 0;
     private final Duration untarTimeout = Duration.valueOf("1h");
-    private List<Installation> installations = Lists.newArrayList();
+    private SortedMap<Integer, Installation> installations = Maps.newTreeMap();
 
     public ProcessManagerImpl() {
     }
@@ -91,8 +94,13 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     @Override
-    public List<Installation> listInstallations() {
-        return ImmutableList.copyOf(installations);
+    public ImmutableList<Installation> listInstallations() {
+        return ImmutableList.copyOf(installations.values());
+    }
+
+    @Override
+    public ImmutableMap<Integer, Installation> listInstallationMap() {
+        return ImmutableMap.copyOf(installations);
     }
 
     @Override
@@ -177,7 +185,7 @@ public class ProcessManagerImpl implements ProcessManager {
         ProcessController controller = createController(id, config, rootDir, installDir);
         // TODO need to read the URL from somewhere...
         Installation installation = new Installation(id, installDir, controller, config);
-        installations.add(installation);
+        installations.put(id, installation);
         return installation;
     }
 
