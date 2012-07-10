@@ -99,7 +99,7 @@ The client makes a sequence of RESTful invocations and displays the results.
 
 You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/main/resources/org/fusesource/examples/cxf/jaxrs/client`, so we will use those for testing our services.
 
-1. Open a command prompt and change directory to `<esb_home>/examples/cxf-jaxrs`.
+1. Open a command prompt and change directory to `<esb_home>/examples/rest`.
 2. Run the following curl commands:
     
     * Create a customer
