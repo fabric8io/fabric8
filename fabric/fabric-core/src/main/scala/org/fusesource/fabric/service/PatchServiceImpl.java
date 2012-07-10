@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PatchService;
@@ -49,6 +49,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class PatchServiceImpl implements PatchService {
+
+    public static final String PATCH_REPOSITORIES = "patch.repositories";
+    public static final String PATCH_INCLUDE_NON_FUSE_VERSION = "patch.include-non-fuse-versions";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatchServiceImpl.class);
 
@@ -93,44 +96,46 @@ public class PatchServiceImpl implements PatchService {
         for (Version version : fabric.getVersions()) {
             doCollectArtifacts(version, artifacts);
         }
-        return doGetPossibleUpgrades(getRepositories(), artifacts);
+        return doGetPossibleUpgrades(artifacts);
     }
 
     @Override
     public Map<String, Set<String>> getPossibleUpgrades(Version version) {
         Set<String> artifacts = new TreeSet<String>();
         doCollectArtifacts(version, artifacts);
-        return doGetPossibleUpgrades(getRepositories(), artifacts);
+        return doGetPossibleUpgrades(artifacts);
     }
 
     @Override
     public Map<String, Set<String>> getPossibleUpgrades(Profile profile) {
         Set<String> artifacts = new TreeSet<String>();
         doCollectArtifacts(profile, artifacts);
-        return doGetPossibleUpgrades(getRepositories(), artifacts);
+        return doGetPossibleUpgrades(artifacts);
     }
 
-    protected List<String> getRepositories() {
+    protected Dictionary getConfig() {
         try {
             Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + "org.fusesource.fabric.agent" + ")");
-            if (configuration != null && configuration.length > 0) {
-                Dictionary dictionary = configuration[0].getProperties();
-                Object repos = dictionary.get("patch.repositories");
-                if (repos == null) {
-                    repos = dictionary.get("org.ops4j.pax.url.mvn.repositories");
-                }
-                if (repos != null) {
-                    List<String> repositories = new ArrayList<String>();
-                    for (String repo : repos.toString().split(",")) {
-                        repositories.add(repo.trim());
-                    }
-                    return repositories;
-                }
-            }
-            return Arrays.asList("http://repo.fusesource.com/nexus/content/repositories/releases");
+            Dictionary dictionary = (configuration != null && configuration.length > 0) ? configuration[0].getProperties() : null;
+            return dictionary != null ? dictionary : new Hashtable();
         } catch (Exception e) {
             throw new IllegalStateException("Unable to retrieve repositories", e);
         }
+    }
+
+    protected List<String> getRepositories(Dictionary dictionary) {
+        Object repos = dictionary.get(PATCH_REPOSITORIES);
+        if (repos == null) {
+            repos = dictionary.get("org.ops4j.pax.url.mvn.repositories");
+        }
+        if (repos != null) {
+            List<String> repositories = new ArrayList<String>();
+            for (String repo : repos.toString().split(",")) {
+                repositories.add(repo.trim());
+            }
+            return repositories;
+        }
+        return Arrays.asList("http://repo.fusesource.com/nexus/content/repositories/releases");
     }
 
     @Override
@@ -178,7 +183,10 @@ public class PatchServiceImpl implements PatchService {
         artifacts.addAll(profile.getRepositories());
     }
 
-    private Map<String, Set<String>> doGetPossibleUpgrades(final List<String> repositories, Set<String> artifacts) {
+    private Map<String, Set<String>> doGetPossibleUpgrades(Set<String> artifacts) {
+        Dictionary config = getConfig();
+        final List<String> repositories = getRepositories(config);
+        final boolean includeNonFuseVersions = Boolean.parseBoolean((String) config.get(PATCH_INCLUDE_NON_FUSE_VERSION));
         Set<String> mavenArtifacts = new TreeSet<String>();
         for (String artifact : artifacts) {
             String mvn = getMavenArtifact(artifact);
@@ -192,7 +200,7 @@ public class PatchServiceImpl implements PatchService {
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Set<String> versions = doGetPossibleUpgrades(repositories, mvn);
+                    Set<String> versions = doGetPossibleUpgrades(repositories, mvn, includeNonFuseVersions);
                     if (versions != null && !versions.isEmpty()) {
                         synchronized (artifactsVersions) {
                             artifactsVersions.put(mvn, versions);
@@ -210,49 +218,44 @@ public class PatchServiceImpl implements PatchService {
         return artifactsVersions;
     }
 
-    private Set<String> doGetPossibleUpgrades(List<String> repositories, String mvn) {
-            Set<String> allVersions = new TreeSet<String>(new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    org.osgi.framework.Version v1 = VersionTable.getVersion(o1);
-                    org.osgi.framework.Version v2 = VersionTable.getVersion(o2);
-                    return v1.compareTo(v2);
+    private Set<String> doGetPossibleUpgrades(List<String> repositories, String mvn, boolean includeNonFuseVersions) {
+        Set<String> allVersions = new TreeSet<String>(new FuseVersionComparator());
+        String[] mvnParts = mvn.split(":");
+        org.osgi.framework.Version artifactVersion = VersionTable.getVersion(mvnParts[2]);
+        org.osgi.framework.Version nextMajorVersion = VersionTable.getVersion(artifactVersion.getMajor() + 1, 0, 0);
+        for (String repo : repositories) {
+            try {
+                URL base = new URL(repo + "/" + mvnParts[0].replace('.', '/') + "/" + mvnParts[1] + "/");
+                URL metadata = new URL(base, "maven-metadata.xml");
+                URLConnection con = metadata.openConnection();
+                if (metadata.getUserInfo() != null) {
+                    con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(metadata.getUserInfo()));
                 }
-            });
-            String[] mvnParts = mvn.split(":");
-            org.osgi.framework.Version artifactVersion = VersionTable.getVersion(mvnParts[2]);
-            VersionRange upgradeRange = new VersionRange(false, artifactVersion, VersionTable.getVersion(artifactVersion.getMajor() + 1, 0, 0), true);
-            for (String repo : repositories) {
+                InputStream is = con.getInputStream();
                 try {
-                    URL base = new URL(repo + "/" + mvnParts[0].replace('.', '/') + "/" + mvnParts[1] + "/");
-                    URL metadata = new URL(base, "maven-metadata.xml");
-                    URLConnection con = metadata.openConnection();
-                    if (metadata.getUserInfo() != null) {
-                        con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(metadata.getUserInfo()));
-                    }
-                    InputStream is = con.getInputStream();
-                    try {
-                        Document doc = dbf.newDocumentBuilder().parse(is);
-                        NodeList versions = doc.getDocumentElement().getElementsByTagName("version");
-                        for (int i = 0; i < versions.getLength(); i++) {
-                            Node version = versions.item(i);
-                            String v = version.getTextContent();
-                            org.osgi.framework.Version ver = VersionTable.getVersion(v);
-                            if (upgradeRange.contains(ver)) {
+                    Document doc = dbf.newDocumentBuilder().parse(is);
+                    NodeList versions = doc.getDocumentElement().getElementsByTagName("version");
+                    for (int i = 0; i < versions.getLength(); i++) {
+                        Node version = versions.item(i);
+                        String v = version.getTextContent();
+                        org.osgi.framework.Version ver = VersionTable.getVersion(v);
+                        if (compareFuseVersions(artifactVersion, ver) < 0 && compareFuseVersions(ver, nextMajorVersion) < 0) {
+                            if (includeNonFuseVersions || v.contains("fuse")) {
                                 allVersions.add(v.trim());
                             }
                         }
-                    } finally {
-                        is.close();
                     }
-                } catch (Exception e) {
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Unable to retrieve versions for artifact: " + mvn, e);
-                    } else if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Unable to retrieve versions for artifact: " + mvn + ": " + e.getMessage());
-                    }
+                } finally {
+                    is.close();
+                }
+            } catch (Exception e) {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Unable to retrieve versions for artifact: " + mvn, e);
+                } else if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Unable to retrieve versions for artifact: " + mvn + ": " + e.getMessage());
                 }
             }
+        }
         return allVersions;
     }
 
@@ -273,6 +276,43 @@ public class PatchServiceImpl implements PatchService {
             artifact = artifact.replaceAll(oldUrl, newUrl);
         }
         return artifact;
+    }
+
+    static int compareFuseVersions(org.osgi.framework.Version v1, org.osgi.framework.Version v2) {
+        int c = v1.getMajor() - v2.getMajor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMinor() - v2.getMinor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMicro() - v2.getMicro();
+        if (c != 0) {
+            return c;
+        }
+        String q1 = v1.getQualifier();
+        String q2 = v2.getQualifier();
+        if (q1.startsWith("fuse-") && q2.startsWith("fuse-")) {
+            q1 = cleanQualifierForComparison(q1);
+            q2 = cleanQualifierForComparison(q2);
+        }
+        return q1.compareTo(q2);
+    }
+
+    private static String cleanQualifierForComparison(String q) {
+        return q.replace("-alpha-", "-").replace("-beta-", "-")
+                .replace("-7-0-", "-70-")
+                .replace("-7-", "-70-");
+    }
+
+    private static class FuseVersionComparator implements Comparator<String> {
+        @Override
+        public int compare(String o1, String o2) {
+            org.osgi.framework.Version v1 = VersionTable.getVersion(o1);
+            org.osgi.framework.Version v2 = VersionTable.getVersion(o2);
+            return compareFuseVersions(v1, v2);
+        }
     }
 
 }
