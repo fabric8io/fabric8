@@ -1,0 +1,11 @@
+{
+    "launchScript": "bin/jetty.sh",
+    "pidFile": "work/jetty.pid",
+    "restartCommand": "",
+    "statusCommand": "bin/jetty.sh check",
+    "killCommand": "",
+
+    "environment": {
+        "JETTY_RUN": "work"
+    }
+}
