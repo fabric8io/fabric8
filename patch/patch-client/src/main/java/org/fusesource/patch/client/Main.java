@@ -72,7 +72,7 @@ public class Main {
                                                       "http://repo.fusesource.com/nexus/content/groups/ea/";
     
     public static final String DEFAULT_ARTIFACTS = 
-            "org.apache.felix:org.apache.felix.framework," +
+            //"org.apache.felix:org.apache.felix.framework," +
             "org.apache.felix:org.apache.felix.configadmin," +
             "org.apache.felix:org.apache.felix.eventadmin," +
             "org.apache.felix:org.apache.felix.fileinstall," +
@@ -85,7 +85,7 @@ public class Main {
             "org.apache.karaf:karaf," +
             "org.apache.cxf:cxf," +
             "org.apache.camel:camel," +
-            "org.apache.activemq:activemq," +
+            "org.apache.activemq:activemq-parent," +
             "org.apache.servicemix:servicemix-utils," +
             "org.apache.servicemix:components," +
             "org.apache.servicemix.nmr:nmr-parent," +
@@ -198,10 +198,24 @@ public class Main {
         }
 
         System.out.println("Connecting to the local instance:");
-        String host = readLine("Host", "localhost");
+        String host = "localhost"; //readLine("Host", "localhost");
         String port = readLine("Port", "8101");
         String user = readLine("User", "admin");
         String pass = readLine("Password", "admin", true);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Installing patches on local instance (port ").append(port).append("): ");
+        boolean first = true;
+        for (Patch p : patches) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(", ");
+            }
+            sb.append(p.metadata.getProperty("id"));
+        }
+        audit(sb.toString());
+
 
         String version = getVersion();
         String osgiVersion = VersionCleaner.clean(version);
