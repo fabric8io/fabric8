@@ -1,6 +1,6 @@
 ## Process Management
 
-This module provides libraries and tools for running managed processes as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
+The **process-manager** bundle provides support for running managed processes as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
 
 In addition it provides tools for turning any Java code (a collection of jars and an executable class name) into a stand alone process which can be managed on Unix like other processes.
 
