@@ -39,6 +39,9 @@ sort_info: 2
       li
         h2
           a(href="fabric-maven-proxy.html") Maven Proxy
+      li
+        h2
+          a(href="process-manager.html") Process Manager
 .row-fluid
   .span4
     :markdown
