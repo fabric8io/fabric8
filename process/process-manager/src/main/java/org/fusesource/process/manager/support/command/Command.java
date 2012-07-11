@@ -29,10 +29,7 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -250,15 +247,15 @@ public class Command {
                 outputProcessor = new OutputProcessor(process, executor);
                 outputProcessor.start();
 
+
                 // wait for command to exit
                 int exitCode = process.waitFor();
 
-                String out = outputProcessor.getOutput();
                 // validate exit code
                 if (!command.getSuccessfulExitCodes().contains(exitCode)) {
+                    String out = outputProcessor.getOutput();
                     throw new CommandFailedException(command, exitCode, out);
                 }
-                command.logOutput(out);
                 return exitCode;
             } finally {
                 try {
@@ -292,16 +289,26 @@ public class Command {
         public void start() {
             outputFuture = submit(executor, new Callable<String>() {
                 @Override
-                public String call()
-                        throws IOException {
-                    String out = CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
-                    return out;
+                public String call() throws IOException {
+                    StringBuffer buffer = new StringBuffer();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charsets.UTF_8));
+                    try {
+                        while (true) {
+                            String line = reader.readLine();
+                            if (line == null) break;
+                            buffer.append(line).append("\n");
+                            System.out.println(line);
+                        }
+                        return buffer.toString();
+                    } finally {
+                        Closeables.closeQuietly(reader);
+                    }
                 }
             });
         }
 
         private String getOutput() {
-            if (outputFuture != null && !outputFuture.isCancelled()) {
+            while (outputFuture != null && !outputFuture.isCancelled()) {
                 try {
                     return outputFuture.get();
                 } catch (Exception ignored) {
