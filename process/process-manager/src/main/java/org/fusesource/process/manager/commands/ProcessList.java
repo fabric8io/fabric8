@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
-@Command(name = "list", scope = "process", description = "Lists the currently installed managed processes.")
+@Command(name = "ps", scope = "process", description = "Lists the currently installed managed processes.")
 public class ProcessList extends ProcessCommandSupport {
     static final String[] HEADERS = {"[id]", "[pid]", "[url]"};
     static final String FORMAT = "%7s %9s %s";

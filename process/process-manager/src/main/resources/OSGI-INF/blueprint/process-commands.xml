@@ -26,7 +26,7 @@
                 <property name="processManager" ref="processManager"/>
             </action>
         </command>
-        <command name="process/list">
+        <command name="process/ps">
             <action class="org.fusesource.process.manager.commands.ProcessList">
                 <property name="processManager" ref="processManager"/>
             </action>
