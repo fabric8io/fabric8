@@ -16,12 +16,15 @@
  */
 package org.fusesource.process.manager;
 
+import org.fusesource.process.manager.support.command.CommandFailedException;
+
 import java.io.IOException;
 
 /**
  * Controls a process
  */
 public interface ProcessController {
+    int install() throws InterruptedException, IOException, CommandFailedException;
     int uninstall();
 
     int start() throws Exception;

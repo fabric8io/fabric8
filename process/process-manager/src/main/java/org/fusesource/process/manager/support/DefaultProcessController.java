@@ -59,6 +59,20 @@ public class DefaultProcessController implements ProcessController
     }
 
     @Override
+    public int install() throws InterruptedException, IOException, CommandFailedException {
+        int answer = 0;
+        List<String> installCommands = config.getInstallCommands();
+        if (installCommands != null) {
+            for (String installCommand : installCommands) {
+                if (!Strings.isNullOrEmpty(installCommand)) {
+                    runCommandLine(installCommand);
+                }
+            }
+        }
+        return answer;
+    }
+
+    @Override
     public int uninstall() {
         throw new UnsupportedOperationException();
     }
@@ -195,11 +209,19 @@ public class DefaultProcessController implements ProcessController
     
     protected int runConfigCommandValueOrLaunchScriptWith(String command, String launchArgument) throws InterruptedException, IOException, CommandFailedException {
         if (command != null) {
-            String[] commandArgs = command.split("\\s+");
-            return runCommand(commandArgs);
+            return runCommandLine(command);
         } else {
             return runCommand(getLaunchScript(), launchArgument);
         }
     }
-    
+
+    /**
+     * Converts a space separated command line into a Command and executes it
+     */
+    protected int runCommandLine(String command) throws IOException, InterruptedException, CommandFailedException {
+        // TODO warning this doesn't handle quoted strings as a single argument
+        String[] commandArgs = command.split("\\s+");
+        return runCommand(commandArgs);
+    }
+
 }

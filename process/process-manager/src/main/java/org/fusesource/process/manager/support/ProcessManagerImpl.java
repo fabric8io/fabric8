@@ -104,7 +104,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     @Override
-    public Installation install(final String url, URL controllerJson) throws IOException, CommandFailedException {
+    public Installation install(final String url, URL controllerJson) throws IOException, CommandFailedException, InterruptedException {
         int id = createNextId();
         File installDir = createInstallDir(id);
         installDir.mkdirs();
@@ -124,7 +124,10 @@ public class ProcessManagerImpl implements ProcessManager {
 
         FileUtils.extractTar(tarball, installDir, untarTimeout, executor);
         JsonHelper.saveProcessConfig(config, installDir);
-        return createInstallation(url, id, installDir, config);
+
+        Installation installation = createInstallation(url, id, installDir, config);
+        installation.getController().install();
+        return installation;
     }
 
     private ProcessConfig loadControllerJson(URL controllerJson) throws IOException {

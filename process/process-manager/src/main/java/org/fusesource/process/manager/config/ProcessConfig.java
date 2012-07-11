@@ -16,6 +16,7 @@
  */
 package org.fusesource.process.manager.config;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +32,7 @@ public class ProcessConfig {
     private String killCommand;
     private String pidFile;
     private Map<String,String> environment;
+    private List<String> installCommands;
 
     public String getUrl() {
         return url;
@@ -102,5 +104,13 @@ public class ProcessConfig {
 
     public void setEnvironment(Map<String, String> environment) {
         this.environment = environment;
+    }
+
+    public List<String> getInstallCommands() {
+        return installCommands;
+    }
+
+    public void setInstallCommands(List<String> installCommands) {
+        this.installCommands = installCommands;
     }
 }
