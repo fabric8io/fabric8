@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -33,7 +34,7 @@
 
     <properties>
         <fuse.osgi.export>
-          org.fusesource.process.manager*;version=${project.version};-noimport:=true,
+            org.fusesource.process.manager*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.apache.karaf.features*;resolution:=optional,
@@ -42,9 +43,9 @@
         <fuse.osgi.private.pkg>
             org.fusesource.process.manager.utils,
         </fuse.osgi.private.pkg>
-<!--
-        <fuse.osgi.activator>org.fusesource.process.manager.Activator</fuse.osgi.activator>
--->
+        <!--
+                <fuse.osgi.activator>org.fusesource.process.manager.Activator</fuse.osgi.activator>
+        -->
     </properties>
 
     <dependencies>
@@ -54,18 +55,18 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.enterprise</artifactId>
-            <scope>provided</scope>
-        </dependency>
--->
+        <!--
+                <dependency>
+                    <groupId>org.osgi</groupId>
+                    <artifactId>org.osgi.compendium</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.osgi</groupId>
+                    <artifactId>org.osgi.enterprise</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+        -->
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-mvn</artifactId>
@@ -87,16 +88,16 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.apache.karaf.features</groupId>
-            <artifactId>org.apache.karaf.features.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.karaf.features</groupId>
-            <artifactId>org.apache.karaf.features.command</artifactId>
-        </dependency>
--->
+        <!--
+                <dependency>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.core</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.command</artifactId>
+                </dependency>
+        -->
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
@@ -105,19 +106,19 @@
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.config</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.1.42</version>
-            <scope>provided</scope>
-        </dependency>
--->
+        <!--
+                <dependency>
+                    <groupId>com.jcraft</groupId>
+                    <artifactId>jsch</artifactId>
+                    <version>0.1.42</version>
+                    <scope>provided</scope>
+                </dependency>
+        -->
 
         <dependency>
-          <groupId>org.apache.servicemix.bundles</groupId>
-          <artifactId>org.apache.servicemix.bundles.guava</artifactId>
-          <version>${guava-version}</version>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.guava</artifactId>
+            <version>${guava-version}</version>
         </dependency>
 
         <!-- testing -->
@@ -132,45 +133,64 @@
     <build>
         <plugins>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-surefire-plugin</artifactId>
-              <configuration>
-                <workingDirectory>target</workingDirectory>
-                <excludes>
-                  <!-- TODO - exclude for now until we've an install task -->
-                  <exclude>**/ProcessControllerTest.*</exclude>
-                </excludes>
-              </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <workingDirectory>target</workingDirectory>
+                    <excludes>
+                        <!-- TODO - exclude for now until we've an install task -->
+                        <exclude>**/ProcessControllerTest.*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <plugin>
-             <groupId>org.codehaus.mojo</groupId>
-             <artifactId>build-helper-maven-plugin</artifactId>
-             <executions>
-                 <execution>
-                     <id>attach-artifacts</id>
-                     <phase>package</phase>
-                     <goals>
-                         <goal>attach-artifact</goal>
-                     </goals>
-                     <configuration>
-                         <artifacts>
-                             <artifact>
-                                 <file>target/classes/fusehq-agent.json</file>
-                                 <type>json</type>
-                                 <classifier>tomcat</classifier>
-                               </artifact>
-                             <artifact>
-                                 <file>target/classes/tomcat.json</file>
-                                 <type>json</type>
-                                 <classifier>fusehq-agent</classifier>
-                               </artifact>
-                         </artifacts>
-                     </configuration>
-                 </execution>
-             </executions>
-         </plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/fusehq-agent.json</file>
+                                    <type>json</type>
+                                    <classifier>tomcat</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/tomcat.json</file>
+                                    <type>json</type>
+                                    <classifier>fusehq-agent</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin-version}</version>
+                <configuration>
+                    <mainClass>org.fusesource.process.manager.GenerateControllerKinds</mainClass>
+                    <classpathScope>test</classpathScope>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
     </build>
 
 </project>

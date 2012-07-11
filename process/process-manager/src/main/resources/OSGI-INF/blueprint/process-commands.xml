@@ -25,6 +25,9 @@
             <action class="org.fusesource.process.manager.commands.Install">
                 <property name="processManager" ref="processManager"/>
             </action>
+            <optional-completers>
+                <entry key="--kind" value-ref="kindCompleter"/>
+            </optional-completers>
         </command>
         <command name="process/ps">
             <action class="org.fusesource.process.manager.commands.ProcessList">
@@ -89,5 +92,7 @@
     <bean id="processNumberCompleter" class="org.fusesource.process.manager.commands.ProcessNumberCompleter">
         <property name="processManager" ref="processManager"/>
     </bean>
+
+    <bean id="kindCompleter" class="org.fusesource.process.manager.commands.KindCompleter" init-method="init"/>
 
 </blueprint>
