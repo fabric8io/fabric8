@@ -75,4 +75,13 @@ public class FabricStatus {
             requirements.addOrUpdateProfileRequirements(profileRequirement);
         }
         return new ProfileStatus(profileId, profileRequirement);
-    }}
+    }
+
+    @Override
+    public String toString() {
+        return "FabricStatus[" +
+                "requirements=" + requirements.getProfileRequirements() +
+                ", profileStatusMap=" + profileStatusMap +
+                ']';
+    }
+}

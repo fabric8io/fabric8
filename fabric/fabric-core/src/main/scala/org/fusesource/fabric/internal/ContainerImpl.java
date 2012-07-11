@@ -16,6 +16,15 @@
  */
 package org.fusesource.fabric.internal;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -34,15 +43,6 @@ import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class ContainerImpl implements Container {
 
@@ -584,6 +584,14 @@ public class ContainerImpl implements Container {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Container[" +
+                "id=" + id +
+                (parent != null ? ", parent=" + parent.getId() : "") +
+                ']';
     }
 
     public  boolean isAliveAndOK() {
