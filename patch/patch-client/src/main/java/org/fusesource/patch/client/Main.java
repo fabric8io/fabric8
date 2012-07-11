@@ -119,7 +119,6 @@ public class Main {
         System.out.println("Downloading missing patches in the background ...");
         downloadPatches(patches, cache);
 
-
         while (true) {
             System.out.println();
             System.out.println("Available patches:");
@@ -369,10 +368,28 @@ public class Main {
     }
 
     public void downloadPatchMetadata(final List<Patch> locations, final File directory) throws InterruptedException {
+        final Properties ids = new Properties();
+        File idsFile = new File(directory, "ids.txt");
+        if (idsFile.isFile()) {
+            try {
+                FileInputStream fis = new FileInputStream(idsFile);
+                try {
+                    ids.load(fis);
+                } finally {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
         final CountDownLatch latch = new CountDownLatch(locations.size());
         for (final Patch patch : locations) {
+            final String id;
+            synchronized (ids) {
+                id = ids.getProperty(patch.artifact + ":" + patch.version, patch.location.getPath());
+            }
             final URL location = patch.location;
-            final File file = new File(directory, new File(location.getPath()).getName());
+            final File file = new File(directory, new File(id + ".patch").getName());
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -387,6 +404,13 @@ public class Main {
                             fis.close();
                         }
                         patch.metadata = props;
+                        String patchId = patch.metadata.getProperty("id");
+                        if (patchId != null && !file.getName().equals(patchId + ".patch")) {
+                            file.renameTo(new File(directory, patchId + ".patch"));
+                            synchronized (ids) {
+                                ids.setProperty(patch.artifact + ":" + patch.version, patchId);
+                            }
+                        }
                     } catch (FileNotFoundException e) {
                         // Ignore
                     } catch (Exception e) {
@@ -398,6 +422,16 @@ public class Main {
             });
         }
         latch.await();
+        try {
+            FileOutputStream fos = new FileOutputStream(idsFile);
+            try {
+                ids.store(fos, "");
+            } finally {
+                fos.close();
+            }
+        } catch (IOException e) {
+            // Ignore
+        }
     }
 
     private void download(File file, URL location) throws IOException {
@@ -441,9 +475,12 @@ public class Main {
 
     public void downloadPatches(final List<Patch> locations, final File directory) throws InterruptedException, MalformedURLException {
         for (final Patch patch : locations) {
+            if (patch.metadata == null) {
+                continue;
+            }
             final URL location = patch.location;
             final URL patchurl = new URL(location.toExternalForm().replaceAll("-patch.patch", "-patch.zip"));
-            final File file = new File(directory, new File(patchurl.getPath()).getName());
+            final File file = new File(directory, patch.metadata.getProperty("id") + ".zip");
             if (!file.isFile()) {
                 patch.patchFile = executor.submit(new Callable<File>() {
                     @Override
@@ -553,6 +590,13 @@ public class Main {
     public static void main(String[] args) throws Exception {
         System.setProperty(TerminalSupport.JLINE_SHUTDOWNHOOK, "true");
         AnsiConsole.systemInstall();
+
+        for (String arg : args) {
+            int idx = arg.indexOf('=');
+            if (idx > 0) {
+                System.setProperty(arg.substring(0, idx), arg.substring(idx + 1));
+            }
+        }
 
         List<String> repos = new ArrayList<String>();
         String repoStr = System.getProperty(REPOSITORIES, DEFAULT_REPOSITORIES);

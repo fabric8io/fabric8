@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -163,8 +164,8 @@ public class ServiceImplTest {
         reset(sysBundleContext, sysBundle, bundleContext, bundle);
         
         expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle });
-        expect(bundle.getSymbolicName()).andReturn("my-bsn");
-        expect(bundle.getVersion()).andReturn(new Version("1.3.1"));
+        expect(bundle.getSymbolicName()).andReturn("my-bsn").anyTimes();
+        expect(bundle.getVersion()).andReturn(new Version("1.3.1")).anyTimes();
         expect(bundle.getLocation()).andReturn("location");
         expect(bundle.getBundleId()).andReturn(123L);
         replay(sysBundleContext, sysBundle, bundleContext, bundle);
@@ -209,22 +210,19 @@ public class ServiceImplTest {
         reset(sysBundleContext, sysBundle, bundleContext, bundle);
 
         expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle });
-        expect(bundle.getSymbolicName()).andReturn("my-bsn");
-        expect(bundle.getVersion()).andReturn(new Version("1.3.1"));
+        expect(bundle.getSymbolicName()).andReturn("my-bsn").anyTimes();
+        expect(bundle.getVersion()).andReturn(new Version("1.3.1")).anyTimes();
         expect(bundle.getLocation()).andReturn("location");
         expect(bundle.getHeaders()).andReturn(new Hashtable()).anyTimes();
         expect(bundle.getBundleId()).andReturn(123L);
-        bundle.uninstall();
-        expect(sysBundleContext.installBundle(bundlev132.toURI().toURL().toString())).andReturn(bundle2);
-        expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle2 });
-        expect(bundle2.getState()).andReturn(Bundle.INSTALLED);
-        expect(bundle2.getHeaders()).andReturn(new Hashtable()).anyTimes();
-        expect(bundle.getState()).andReturn(Bundle.UNINSTALLED).anyTimes();
+        bundle.update(EasyMock.<InputStream>anyObject());
+        expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle });
+        expect(bundle.getState()).andReturn(Bundle.INSTALLED).anyTimes();
         expect(bundle.getRegisteredServices()).andReturn(null);
         expect(sysBundleContext.getBundle(0)).andReturn(sysBundle);
         expect(sysBundle.adapt(FrameworkWiring.class)).andReturn(wiring);
-        bundle2.start();
-        wiring.refreshBundles(eq(asSet(bundle2, bundle)), anyObject(FrameworkListener[].class));
+        bundle.start();
+        wiring.refreshBundles(eq(asSet(bundle)), anyObject(FrameworkListener[].class));
         expectLastCall().andAnswer(new IAnswer<Object>() {
             @Override
             public Object answer() throws Throwable {

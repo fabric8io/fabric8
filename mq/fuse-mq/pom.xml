@@ -146,6 +146,7 @@
                                    <feature>war</feature>
                                    <feature>activemq-web-console</feature>
                                    <feature>patch</feature>
+                                   <feature>patch-client</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>
