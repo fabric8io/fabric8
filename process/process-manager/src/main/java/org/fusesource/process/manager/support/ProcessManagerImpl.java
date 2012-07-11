@@ -16,31 +16,44 @@
  */
 package org.fusesource.process.manager.support;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.fabric.fab.DependencyFilters;
+import org.fusesource.fabric.fab.DependencyTreeResult;
+import org.fusesource.fabric.fab.MavenResolverImpl;
+import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.process.manager.Installation;
+import org.fusesource.process.manager.JarInstallParameters;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.ProcessManager;
-import org.fusesource.process.manager.config.ProcessConfig;
 import org.fusesource.process.manager.config.JsonHelper;
+import org.fusesource.process.manager.config.ProcessConfig;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 import org.fusesource.process.manager.support.command.Duration;
+import org.sonatype.aether.RepositoryException;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.graph.Dependency;
+import org.sonatype.aether.graph.DependencyNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import static org.fusesource.fabric.fab.util.Strings.join;
 
 public class ProcessManagerImpl implements ProcessManager {
     private Executor executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-manager-%s").build());
@@ -75,7 +88,7 @@ public class ProcessManagerImpl implements ProcessManager {
 
                                 String url = "TODO";
                                 ProcessConfig config = JsonHelper.loadProcessConfig(file);
-                                createInstallation(url, id, findInstallDir(file), config);
+                                createInstallation(id, findInstallDir(file), config);
                             }
                         } catch (NumberFormatException e) {
                             // should never happen :)
@@ -104,38 +117,53 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     @Override
-    public Installation install(final String url, URL controllerJson) throws IOException, CommandFailedException, InterruptedException {
-        int id = createNextId();
-        File installDir = createInstallDir(id);
-        installDir.mkdirs();
-
-        ProcessConfig config = loadControllerJson(controllerJson);
-        config.setUrl(url);
-
-        // copy the URL to the install dir
-        // TODO should we use a temp file?
-        File tarball = new File(installDir, "install.tar.gz");
-        Files.copy(new InputSupplier<InputStream>() {
+    public Installation install(final String url, URL controllerJson) throws Exception {
+        InstallScript installScript = new InstallScript() {
             @Override
-            public InputStream getInput() throws IOException {
-                return new URL(url).openStream();
+            public void doInstall(ProcessConfig config, int id, File installDir) throws Exception {
+                config.setName(url);
+                untarTarball(url, installDir);
             }
-        }, tarball);
-
-        FileUtils.extractTar(tarball, installDir, untarTimeout, executor);
-        JsonHelper.saveProcessConfig(config, installDir);
-
-        Installation installation = createInstallation(url, id, installDir, config);
-        installation.getController().install();
-        return installation;
+        };
+        return installViaScript(controllerJson, installScript);
     }
 
-    private ProcessConfig loadControllerJson(URL controllerJson) throws IOException {
-        if (controllerJson == null) {
-            return new ProcessConfig();
-        } else {
-            return JsonHelper.loadProcessConfig(controllerJson);
-        }
+    @Override
+    public Installation installJar(final JarInstallParameters parameters) throws Exception {
+        InstallScript installScript = new InstallScript() {
+            @Override
+            public void doInstall(ProcessConfig config, int id, File installDir) throws Exception {
+                String name = parameters.getGroupId() + ":" + parameters.getArtifactId();
+                String version = parameters.getVersion();
+                if (!Strings.isNullOrEmpty(version)) {
+                    name += ":" + version;
+                }
+                config.setName(name);
+
+                // lets untar the process launcher
+                String resourceName = "process-launcher.tar.gz";
+                final InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName);
+                Preconditions.checkNotNull(in, "Could not find " + resourceName + " on the file system");
+                File tmpFile = File.createTempFile("process-launcher", ".tar.gz");
+                Files.copy(new InputSupplier<InputStream>() {
+                    @Override
+                    public InputStream getInput() throws IOException {
+                        return in;
+                    }
+                }, tmpFile);
+                FileUtils.extractTar(tmpFile, installDir, untarTimeout, executor);
+
+                // lets generate the etc configs
+                File etc = new File(installDir, "etc");
+                etc.mkdirs();
+                Files.write("", new File(etc, "config.properties"), Charsets.UTF_8);
+                Files.write("", new File(etc, "jvm.config"), Charsets.UTF_8);
+
+                JarInstaller installer = new JarInstaller();
+                installer.unpackJarProcess(config, id, installDir, parameters);
+            }
+        };
+        return installViaScript(parameters.getControllerJson(), installScript);
     }
 
     // Properties
@@ -159,6 +187,43 @@ public class ProcessManagerImpl implements ProcessManager {
     // Implementation
     //-------------------------------------------------------------------------
 
+    protected Installation installViaScript(URL controllerJson, InstallScript installScript) throws Exception {
+        int id = createNextId();
+        File installDir = createInstallDir(id);
+        installDir.mkdirs();
+
+        ProcessConfig config = loadControllerJson(controllerJson);
+        JsonHelper.saveProcessConfig(config, installDir);
+
+        installScript.doInstall(config, id, installDir);
+
+        Installation installation = createInstallation(id, installDir, config);
+        installation.getController().install();
+        return installation;
+    }
+
+    protected void untarTarball(final String url, File installDir) throws IOException, CommandFailedException {
+        // copy the URL to the install dir
+        // TODO should we use a temp file?
+        File tarball = new File(installDir, "install.tar.gz");
+        Files.copy(new InputSupplier<InputStream>() {
+            @Override
+            public InputStream getInput() throws IOException {
+                return new URL(url).openStream();
+            }
+        }, tarball);
+
+        FileUtils.extractTar(tarball, installDir, untarTimeout, executor);
+    }
+
+    protected ProcessConfig loadControllerJson(URL controllerJson) throws IOException {
+        if (controllerJson == null) {
+            return new ProcessConfig();
+        } else {
+            return JsonHelper.loadProcessConfig(controllerJson);
+        }
+    }
+
 
     /**
      * Returns the next process ID
@@ -179,7 +244,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
 
-    protected Installation createInstallation(String url, int id, File rootDir, ProcessConfig config) {
+    protected Installation createInstallation(int id, File rootDir, ProcessConfig config) {
         // TODO we should support different kinds of controller based on the kind of installation
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?

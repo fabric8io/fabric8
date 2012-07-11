@@ -179,12 +179,12 @@
            <defaultGoal>install</defaultGoal>
            <resources>
              <resource>
-                 <directory>../../etc</directory>
+                 <directory>${basedir}/../../etc</directory>
                  <filtering>true</filtering>
                  <targetPath>distro/etc</targetPath>
              </resource>
                <resource>
-                   <directory>src/main/resources</directory>
+                   <directory>${basedir}/src/main/resources</directory>
                    <filtering>true</filtering>
                </resource>
            </resources>

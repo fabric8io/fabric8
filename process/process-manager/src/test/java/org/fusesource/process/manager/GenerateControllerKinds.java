@@ -18,11 +18,18 @@ package org.fusesource.process.manager;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
+import com.google.common.io.Files;
+import org.fusesource.fabric.fab.MavenResolverImpl;
+import org.sonatype.aether.RepositorySystem;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  */
@@ -40,10 +47,11 @@ public class GenerateControllerKinds {
     public void run() throws Exception {
         File baseDir = new File(System.getProperty("basedir", "."));
         File srcDir = new File(baseDir, "src/main/resources");
-        assert srcDir.exists() : "source dir doesn't exist! " + srcDir;
-        assert srcDir.isDirectory() : "source folder is not a directory " + srcDir;
+        assertTrue("source dir doesn't exist! " + srcDir, srcDir.exists());
+        assertTrue("source folder is not a directory " + srcDir, srcDir.isDirectory());
 
-        File outFile = new File(baseDir, "target/classes/org/fusesource/process/manager/controllerKinds");
+        File classesDir = new File(baseDir, "target/classes");
+        File outFile = new File(classesDir, "org/fusesource/process/manager/controllerKinds");
         outFile.getParentFile().mkdirs();
 
         System.out.println("Generating controller kinds file: " + outFile);
@@ -54,7 +62,7 @@ public class GenerateControllerKinds {
             File[] list = srcDir.listFiles();
             String postfix = ".json";
             List<String> kinds = Lists.newArrayList();
-            assert list != null : "No JSON files found in source dir: " + srcDir;
+            assertNotNull("No JSON files found in source dir: " + srcDir, list);
             for (File file : list) {
                 if (!file.isFile()) continue;
                 String name = file.getName();
@@ -64,9 +72,27 @@ public class GenerateControllerKinds {
                     writer.write(kind + "\n");
                 }
             }
+
             System.out.println("Found controller kinds: " + kinds);
         } finally {
             Closeables.closeQuietly(writer);
         }
+
+        // lets try find the process tarball
+        String groupId = System.getProperty("groupId", "org.fusesource.process");
+        String artifactId = "process-launcher";
+        String version = System.getProperty("version", "99-master-SNAPSHOT");
+        String classifier = "bin";
+        String extension = "tar.gz";
+
+        String name = groupId + "/" + artifactId + "/" + version;
+        System.out.println("Loading bundle: " + name);
+
+        File file = new File(baseDir + "/../process-launcher/target/" + artifactId + "-" + version + "-bin.tar.gz");
+
+        assertNotNull("Cannot find the file for " + name + " using " + file.getPath(), file);
+        File newFile = new File(classesDir, "process-launcher.tar.gz");
+        Files.move(file, newFile);
+        System.out.println("Moved process launch tarball to " + newFile);
     }
 }

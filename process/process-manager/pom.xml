@@ -33,11 +33,16 @@
     <description>Fuse Process :: Manager</description>
 
     <properties>
+<!--
+        <fabric.embed.dependency>*;groupId=org.fusesource.process;path-</fabric.embed.dependency>
+-->
+        <fuse.osgi.resource>${basedir}/target/classes/process-launcher.tar.gz,{maven-resources}</fuse.osgi.resource>
         <fuse.osgi.export>
             org.fusesource.process.manager*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.apache.karaf.features*;resolution:=optional,
+            !junit.*,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
@@ -49,24 +54,24 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.fusesource.fabric.fab</groupId>
+            <artifactId>fab-osgi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.process</groupId>
+            <artifactId>process-launcher</artifactId>
+            <version>${project.version}</version>
+            <classifier>bin</classifier>
+            <type>tar.gz</type>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--
-                <dependency>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.compendium</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.enterprise</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-        -->
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-mvn</artifactId>
@@ -88,16 +93,6 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
-        <!--
-                <dependency>
-                    <groupId>org.apache.karaf.features</groupId>
-                    <artifactId>org.apache.karaf.features.core</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.karaf.features</groupId>
-                    <artifactId>org.apache.karaf.features.command</artifactId>
-                </dependency>
-        -->
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
@@ -106,14 +101,6 @@
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.config</artifactId>
         </dependency>
-        <!--
-                <dependency>
-                    <groupId>com.jcraft</groupId>
-                    <artifactId>jsch</artifactId>
-                    <version>0.1.42</version>
-                    <scope>provided</scope>
-                </dependency>
-        -->
 
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
@@ -179,13 +166,27 @@
                 <configuration>
                     <mainClass>org.fusesource.process.manager.GenerateControllerKinds</mainClass>
                     <classpathScope>test</classpathScope>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>basedir</key>
+                            <value>${basedir}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>groupId</key>
+                            <value>${project.groupId}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>version</key>
+                            <value>${project.version}</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
                             <goal>java</goal>
                         </goals>
-                        <phase>prepare-package</phase>
+                        <phase>process-test-classes</phase>
                     </execution>
                 </executions>
             </plugin>

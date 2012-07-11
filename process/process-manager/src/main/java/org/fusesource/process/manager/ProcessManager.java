@@ -37,7 +37,12 @@ public interface ProcessManager {
     /**
      * Installs a process with an optional URL of the controller JSON
      */
-    Installation install(String url, URL controllerJson) throws IOException, CommandFailedException, InterruptedException;
+    Installation install(String url, URL controllerJson) throws Exception;
+
+    /**
+     * Installs an executable jar as a new managed process
+     */
+    Installation installJar(JarInstallParameters parameters) throws Exception;
 
     ImmutableMap<Integer, Installation> listInstallationMap();
 }

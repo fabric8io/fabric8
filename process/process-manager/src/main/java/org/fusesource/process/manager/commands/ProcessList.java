@@ -27,7 +27,7 @@ import java.util.List;
 
 @Command(name = "ps", scope = "process", description = "Lists the currently installed managed processes.")
 public class ProcessList extends ProcessCommandSupport {
-    static final String[] HEADERS = {"[id]", "[pid]", "[url]"};
+    static final String[] HEADERS = {"[id]", "[pid]", "[name]"};
     static final String FORMAT = "%7s %9s %s";
 
     @Override
@@ -49,7 +49,7 @@ public class ProcessList extends ProcessCommandSupport {
             } catch (IOException e) {
                 System.err.println("Failed to find pid for id: " + id + ". " + e);
             }
-            out.println(String.format(FORMAT, "" + id, (pid != null) ? pid.toString() : "", installation.getUrl()));
+            out.println(String.format(FORMAT, "" + id, (pid != null) ? pid.toString() : "", installation.getName()));
         }
     }
 

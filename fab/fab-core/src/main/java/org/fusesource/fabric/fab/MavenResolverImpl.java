@@ -204,15 +204,8 @@ public class MavenResolverImpl implements MavenResolver {
 
 
     public List<ArtifactResult> resolveResult(File rootPom, boolean offline) throws ArtifactDescriptorException, DependencyCollectionException, ArtifactResolutionException {
-        MavenRepositorySystemSession session = new MavenRepositorySystemSession();
-        LocalRepository localRepository = new LocalRepository(getLocalRepo());
         RepositorySystem repo = getRepositorySystem();
-        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
-
-        session.setDependencySelector(
-                new AndDependencySelector(new ScopeDependencySelector("test"),
-                        new OptionalDependencySelector(), new ExclusionDependencySelector()));
-        session.setOffline(offline);
+        MavenRepositorySystemSession session = createSession(offline, repo);
 
         List<RemoteRepository> repos = getRemoteRepositories();
 
@@ -224,6 +217,32 @@ public class MavenResolverImpl implements MavenResolver {
         CollectRequest request = new CollectRequest( artifactDescriptorResult.getDependencies(), null, repos );
         DependencyFilter filter = new AndDependencyFilter();
         return repo.resolveDependencies(session, request, filter);
+    }
+
+    private MavenRepositorySystemSession createSession(boolean offline, RepositorySystem repo) {
+        MavenRepositorySystemSession session = new MavenRepositorySystemSession();
+        LocalRepository localRepository = new LocalRepository(getLocalRepo());
+        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
+
+        session.setDependencySelector(
+                new AndDependencySelector(new ScopeDependencySelector("test"),
+                        new OptionalDependencySelector(), new ExclusionDependencySelector()));
+        session.setOffline(offline);
+        return session;
+    }
+
+
+    public Artifact resolveArtifact(boolean offline, String groupId, String artifactId, String version, String classifier, String extension) throws ArtifactResolutionException {
+        RepositorySystem repo = getRepositorySystem();
+        MavenRepositorySystemSession session = createSession(offline, repo);
+
+
+        Artifact artifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
+        List<RemoteRepository> repos = getRemoteRepositories();
+
+        ArtifactRequest request = new ArtifactRequest(artifact,  repos,  null);
+        ArtifactResult result = repo.resolveArtifact(session, request);
+        return result.getArtifact();
     }
 
 

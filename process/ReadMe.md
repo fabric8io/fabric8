@@ -6,21 +6,38 @@ In addition it provides tools for turning any Java code (a collection of jars an
 
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
-### Ruby 1.9 Requirements
+### Running processes like Tomcat, Jetty, HQ Agent
 
-The current [launcher script](https://github.com/fusesource/fuse/blob/master/process/process-launcher/src/main/distro/bin/launcher.rb#L18) used in the [example project](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/) depends on Ruby 1.9 to be installed.
+The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
-The launcher is currently designed to run on unixes (Linux / OS X etc).
+The default is to use a launch script called **bin/launcher** and then specify a parameter for each command
 
-If you are on OS X and don't have Ruby 1.9 installed then [try install it via RVM](https://rvm.io/rvm/install/)
+* bin/launcher start
+* bin/launcher stop
+* bin/launcher restart
+* bin/launcher status
+* bin/launcher kill
 
-    curl -L https://get.rvm.io | bash -s stable --ruby
+You can also specify a configuration in JSON for the controller to use:
 
-Then in a shell if you type:
+    process:install -c urlOfJson urlOfTarBall
 
-    ruby --version
+For example to install Apache Tomcat:
 
-You should get 1.9.0 or later
+    process-install -c https://raw.github.com/fusesource/fuse/master/process/process-manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+
+then once installed you can start/stop/restart/status it like any other process.
+
+Process Manager ships with some default kinds of controller which lets you use a more concise command.
+
+For example to install an Apache Tomcat:
+
+    process:install -k tomcat http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+
+Or to install a Fuse HQ Agent
+
+    process:install -k fusehq-agent someURL
+
 
 ### Working with processes from the Shell
 
@@ -57,35 +74,31 @@ Generally its a case of
 * adding the [assembly plugin XML](https://github.com/fusesource/fuse/blob/master/process/samples/pom.xml#L72) to create the tar.gz file using the [process-packaging](https://github.com/fusesource/fuse/tree/master/process/process-packaging)
 * adding the new tar.gz to the maven build via the [build-helper-maven-plugin](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/pom.xml#L89)
 
-### Running other processes like Tomcat, HQ Agent
+## Installing a jar as a managed process
 
-The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
+You can use the **process:install-jar** command to install a jar as a managed process as follows:
 
-The default is to use a launch script called **bin/launcher** and then specify a parameter for each command
+    process:install groupId artifactId version
 
-* bin/launcher start
-* bin/launcher stop
-* bin/launcher restart
-* bin/launcher status
-* bin/launcher kill
+e.g.
 
-You can also specify a configuration in JSON for the controller to use:
+     process:install-jar org.fusesource.process.samples process-sample-camel-spring 99-master-SNAPSHOT
 
-    process:install -c urlOfJson urlOfTarBall
+This will then download the jar using the maven coordinates (groupID / artifactId / version) and create a binary installation with the launcher to start/stop/restart the process etc
 
-For example to install Apache Tomcat:
+### Ruby 1.9 Requirements
 
-    process-install -c https://raw.github.com/fusesource/fuse/master/process/process-manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+The current [launcher script](https://github.com/fusesource/fuse/blob/master/process/process-launcher/src/main/distro/bin/launcher.rb#L18) used in the [example project](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/) depends on Ruby 1.9 to be installed.
 
-then once installed you can start/stop/restart/status it like any other process.
+The launcher is currently designed to run on unixes (Linux / OS X etc).
 
-Process Manager ships with some default kinds of controller which lets you use a more concise command.
+If you are on OS X and don't have Ruby 1.9 installed then [try install it via RVM](https://rvm.io/rvm/install/)
 
-For example to install an Apache Tomcat:
+    curl -L https://get.rvm.io | bash -s stable --ruby
 
-    process:install -k tomcat http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+Then in a shell if you type:
 
-Or to install a Fuse HQ Agent
+    ruby --version
 
-    process:install -k fusehq-agent someURL
+You should get 1.9.0 or later
 

@@ -29,6 +29,14 @@
                 <entry key="--kind" value-ref="kindCompleter"/>
             </optional-completers>
         </command>
+        <command name="process/install-jar">
+            <action class="org.fusesource.process.manager.commands.InstallJar">
+                <property name="processManager" ref="processManager"/>
+            </action>
+            <optional-completers>
+                <entry key="--kind" value-ref="kindCompleter"/>
+            </optional-completers>
+        </command>
         <command name="process/ps">
             <action class="org.fusesource.process.manager.commands.ProcessList">
                 <property name="processManager" ref="processManager"/>

@@ -20,19 +20,17 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.process.manager.Installation;
+import org.fusesource.process.manager.commands.support.InstallSupport;
 import org.fusesource.process.manager.commands.support.ProcessCommandSupport;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
  * Installs a new process
  */
 @Command(name = "install", scope = "process", description = "Installs a managed process into this container.")
-public class Install extends ProcessCommandSupport {
-    @Option(name="-c", aliases={"--controllerUrl"}, required = false, description = "The optional JSON document URL containing the controller configuration")
-    protected String controllerJson;
-    @Option(name="-k", aliases={"--kind"}, required = false, description = "The kind of controller to create")
-    protected String controllerKind;
+public class Install extends InstallSupport {
 
     @Argument(index = 0, required = true, name = "url", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
     protected String url;
@@ -40,19 +38,11 @@ public class Install extends ProcessCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         checkRequirements();
-        URL controllerUrl = null;
-        if (controllerJson != null) {
-            controllerUrl = new URL(controllerJson);
-        } else if (controllerKind != null) {
-            String name = controllerKind + ".json";
-            controllerUrl = getBundleContext().getBundle().getResource(name);
-            if (controllerUrl == null) {
-                throw new IllegalStateException("Cannot find controller kind: " + name + " on the classpath");
-            }
-        }
+        URL controllerUrl = getControllerURL();
         Installation install = getProcessManager().install(url, controllerUrl);
 
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
         return null;
     }
+
 }

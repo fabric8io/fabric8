@@ -38,7 +38,7 @@ public class Installation {
 
     @Override
     public String toString() {
-        return "Installation[" + getUrl() + " at " + installDir + "]";
+        return "Installation[" + getName() + " at " + installDir + "]";
     }
 
     public ProcessController getController() {
@@ -53,7 +53,7 @@ public class Installation {
         return installDir;
     }
 
-    public String getUrl() {
-        return config.getUrl();
+    public String getName() {
+        return config.getName();
     }
 }

@@ -23,7 +23,7 @@ import java.util.Map;
  * The configuration DTO stored as JSON so that the system can be restarted and remember how to run & controll a managed process
  */
 public class ProcessConfig {
-    private String url = "<unknown>";
+    private String name = "<unknown>";
     private String launchScript;
     private String startCommand;
     private String stopCommand;
@@ -34,12 +34,12 @@ public class ProcessConfig {
     private Map<String,String> environment;
     private List<String> installCommands;
 
-    public String getUrl() {
-        return url;
+    public String getName() {
+        return name;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getKillCommand() {
