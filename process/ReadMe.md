@@ -34,7 +34,7 @@ Each process is given a number (1, 2, 3 etc) which refers to the ID used within 
 
 To view the current installations and their IDs and PIDs use
 
-    process:list
+    ps
 
 You'll then see the simple IDs, the real OS PIDs and the URLs of the installed processes.
 
