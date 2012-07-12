@@ -61,6 +61,12 @@
 
         <!-- Jclouds Dependencies -->
         <dependency>
+            <groupId>org.jclouds</groupId>
+            <artifactId>jclouds-compute</artifactId>
+            <version>${jclouds-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jclouds.provider</groupId>
             <artifactId>aws-ec2</artifactId>
             <version>${jclouds-version}</version>
@@ -146,6 +152,8 @@
                     </includes>
                     <excludes>
                         <exclude>**/*LongTest.*</exclude>
+                        <exclude>**/FabricAwsAgentTest.*</exclude>
+                        <exclude>**/FabricRackspaceAgentTest.*</exclude>
                     </excludes>
                     <systemPropertyVariables>
                         <feature>${feature}</feature>
