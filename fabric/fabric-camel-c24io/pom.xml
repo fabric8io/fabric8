@@ -32,7 +32,7 @@
 
   <properties>
     <c24.test.version>4.0.1</c24.test.version>
-    <c24.version>4.0.1</c24.version>
+    <c24.version>4.1.1</c24.version>
   </properties>
 
   <dependencies>
