@@ -53,6 +53,7 @@
     </dependency>
 
     <!-- testing -->
+<!--
     <dependency>
       <groupId>biz.c24.io.test</groupId>
       <artifactId>test-statements</artifactId>
@@ -71,6 +72,7 @@
       <version>${c24.test.version}</version>
       <scope>test</scope>
     </dependency>
+-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>

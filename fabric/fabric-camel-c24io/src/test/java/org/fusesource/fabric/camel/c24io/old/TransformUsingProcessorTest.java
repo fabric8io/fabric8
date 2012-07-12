@@ -18,9 +18,9 @@ package org.fusesource.fabric.camel.c24io.old;
 
 import java.util.List;
 
-import biz.c24.testtransactions.Transactions;
+import biz.c24.io.gettingstarted.transaction.Transactions;
 
-import biz.c24.testtransform.StatGenTransform;
+import biz.c24.io.gettingstarted.transaction.transactions.StatGenTransform;
 import org.apache.camel.test.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;

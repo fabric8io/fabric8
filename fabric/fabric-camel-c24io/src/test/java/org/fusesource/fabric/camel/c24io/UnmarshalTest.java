@@ -19,7 +19,7 @@ package org.fusesource.fabric.camel.c24io;
 import java.util.List;
 
 import biz.c24.io.api.data.ComplexDataObject;
-import biz.c24.testtransactions.Transactions;
+import biz.c24.io.gettingstarted.transaction.Transactions;
 
 import org.apache.camel.test.CamelTestSupport;
 import org.apache.camel.Exchange;

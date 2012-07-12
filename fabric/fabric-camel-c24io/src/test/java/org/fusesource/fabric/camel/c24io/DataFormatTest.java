@@ -19,7 +19,7 @@ package org.fusesource.fabric.camel.c24io;
 import biz.c24.io.api.presentation.Sink;
 import biz.c24.io.api.presentation.Source;
 import biz.c24.io.api.presentation.XMLSink;
-import biz.c24.testtransactions.Transactions;
+import biz.c24.io.gettingstarted.transaction.Transactions;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;

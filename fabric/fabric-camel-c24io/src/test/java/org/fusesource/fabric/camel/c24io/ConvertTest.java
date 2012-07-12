@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.xml.transform.Source;
 
-import biz.c24.testtransactions.Transactions;
+import biz.c24.io.gettingstarted.transaction.Transactions;
 import org.apache.camel.test.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;

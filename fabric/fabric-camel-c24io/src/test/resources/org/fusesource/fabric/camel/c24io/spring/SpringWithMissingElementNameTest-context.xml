@@ -29,7 +29,7 @@
     <route>
       <from uri="file:src/test/data?noop=true"/>
       <unmarshal>
-        <c24io elementType="biz.c24.testtransactions.Transactions"/>
+        <c24io elementType="biz.c24.io.gettingstarted.transaction.Transactions"/>
       </unmarshal>
       <to uri="mock:result"/>
     </route>
