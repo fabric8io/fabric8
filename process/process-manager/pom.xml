@@ -65,6 +65,7 @@
             <version>${project.version}</version>
             <classifier>bin</classifier>
             <type>tar.gz</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
