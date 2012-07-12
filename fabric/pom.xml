@@ -58,7 +58,11 @@
 
         <module>fabric-cxf</module>
         <module>fabric-camel</module>
+<!--
+        TODO disable for now until we can use a license thats not expired...
+
         <module>fabric-camel-c24io</module>
+-->
         <module>fabric-camel-dslio</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
