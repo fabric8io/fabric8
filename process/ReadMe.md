@@ -2,7 +2,9 @@
 
 The **process-manager** bundle provides support for running managed processes as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
 
-In addition it provides tools for turning any Java code (a collection of jars and an executable class name) into a stand alone process which can be managed on Unix like other processes.
+A managed process is similar conceptually to child karaf instances in a root karaf; each managed process is installed as a sub directory of **${karaf-home}/processes** and is managed by the Karaf container to install/start/stop/uninstall
+
+The process-manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed on Unix like other processes.
 
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
