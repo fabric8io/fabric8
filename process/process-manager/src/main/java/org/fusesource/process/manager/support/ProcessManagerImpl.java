@@ -193,9 +193,8 @@ public class ProcessManagerImpl implements ProcessManager {
         installDir.mkdirs();
 
         ProcessConfig config = loadControllerJson(controllerJson);
-        JsonHelper.saveProcessConfig(config, installDir);
-
         installScript.doInstall(config, id, installDir);
+        JsonHelper.saveProcessConfig(config, installDir);
 
         Installation installation = createInstallation(id, installDir, config);
         installation.getController().install();
