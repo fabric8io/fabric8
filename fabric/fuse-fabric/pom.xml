@@ -158,6 +158,17 @@
             <version>${xalan.version}</version>
         </dependency>
 
+           <!-- fix transient dependency version issue when building ESB... -->
+           <dependency>
+               <groupId>org.apache.aries.proxy</groupId>
+               <artifactId>org.apache.aries.proxy</artifactId>
+               <version>${aries.proxy.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.apache.aries.proxy</groupId>
+               <artifactId>org.apache.aries.proxy.impl</artifactId>
+               <version>${aries.proxy.version}</version>
+           </dependency>
        </dependencies>
 
     <repositories>
