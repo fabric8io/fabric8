@@ -1,4 +1,4 @@
-## Process Management
+# Process Management
 
 The **process-manager** bundle provides support for running managed processes as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
 

@@ -2,6 +2,8 @@
 title: Process Manager
 --- pipeline:ssp,markdown
 
+{:toc}
+
 <%
   import java.net._
   import org.fusesource.scalate.util.IOUtil._
