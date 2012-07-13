@@ -119,9 +119,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 try {
-                    if (container.isAlive()) {
-                        adminService.stopInstance(container.getId());
-                    }
+                    adminService.stopInstance(container.getId());
                 } catch (Exception e) {
                     // Ignore if the container is stopped
                     if (container.isAlive()) {
