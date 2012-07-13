@@ -53,7 +53,6 @@ public class SelfUpdateTest extends FabricTestSupport {
         destroyChildContainer("child1");
     }
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testDefaultProfileUpgrade() throws Exception {
         String perfecutsBuild = System.getProperty("perfectus-build");
