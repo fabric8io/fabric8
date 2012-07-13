@@ -91,33 +91,34 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>068</perfectus-build>
+        <perfectus-build>072</perfectus-build>
 
-        <activemq-version>5.5.1.fuse-7-0-${perfectus-build}</activemq-version>
+        <activemq-version>5.5.1.fuse-70-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
-        <aries-blueprint-version>0.3.1.fuse-7-0-${perfectus-build}</aries-blueprint-version>
-        <aries-jmx-version>0.3.1.fuse-7-0-${perfectus-build}</aries-jmx-version>
-        <aries-transaction-version>0.3.1.fuse-7-0-${perfectus-build}</aries-transaction-version>
-        <aries-util-version>0.3.1.fuse-7-0-${perfectus-build}</aries-util-version>
+        <aries-blueprint-version>0.3.1.fuse-70-${perfectus-build}</aries-blueprint-version>
+        <aries-jmx-version>0.3.1.fuse-70-${perfectus-build}</aries-jmx-version>
+        <aries-transaction-version>0.3.1.fuse-70-${perfectus-build}</aries-transaction-version>
+        <aries-util-version>0.3.1.fuse-70-${perfectus-build}</aries-util-version>
         <aries.version>0.3</aries.version>
         <aries.proxy.version>0.3</aries.proxy.version>
         <asm.bundle.version>3.3_2</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
-        <camel-version>2.9.0.fuse-7-0-${perfectus-build}</camel-version>
+        <camel-version>2.9.0.fuse-70-${perfectus-build}</camel-version>
         <commons-codec-version>1.6</commons-codec-version>
         <commons-io-version>1.4_2</commons-io-version>
         <commons-lang-version>2.4_5</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
-        <cxf-version>2.5.0.fuse-7-0-${perfectus-build}</cxf-version>
+        <cxf-version>2.5.0.fuse-70-${perfectus-build}</cxf-version>
         <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <fabric-version>${project.version}</fabric-version>
-        <felix-framework-version>4.0.3.fuse-7-0-${perfectus-build}</felix-framework-version>
-        <felix-configadmin-version>1.3.0.fuse-7-0-${perfectus-build}</felix-configadmin-version>
-        <felix-eventadmin-version>1.2.15.fuse-7-0-${perfectus-build}</felix-eventadmin-version>
-        <felix-fileinstall-version>3.3.11.fuse-7-0-${perfectus-build}</felix-fileinstall-version>
-        <hadoop-version>1.0.0</hadoop-version>
+        <felix-framework-version>4.0.3.fuse-70-${perfectus-build}</felix-framework-version>
+        <felix-configadmin-version>1.3.0.fuse-70-${perfectus-build}</felix-configadmin-version>
+        <felix-eventadmin-version>1.2.15.fuse-70-${perfectus-build}</felix-eventadmin-version>
+        <felix-fileinstall-version>3.3.11.fuse-70-${perfectus-build}</felix-fileinstall-version>
+        <guava-version>11_1</guava-version>
+        <hadoop-version>1.0.3</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.9</hawtdispatch-version>
         <jackson-version>1.9.5</jackson-version>
@@ -127,14 +128,15 @@
         <jclouds-version>1.3.2</jclouds-version>
         <jclouds-karaf-version>1.3.2_3</jclouds-karaf-version>
         <jersey-version>1.10</jersey-version>
+        <jetty6-version>6.1.26_4</jetty6-version>
         <jetty-plugin-version>7.5.4.v20111024</jetty-plugin-version>
         <jetty-version>7.5.4.v20111024</jetty-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jna-version>3.3.0</jna-version>
         <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
-        <junit-version>4.8.1</junit-version>
-        <karaf-version>2.2.5.fuse-7-0-${perfectus-build}</karaf-version>
+        <junit-version>4.10</junit-version>
+        <karaf-version>2.2.5.fuse-70-${perfectus-build}</karaf-version>
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
@@ -154,7 +156,7 @@
         <ops4j-pax-web-version>1.0.10</ops4j-pax-web-version>
         <osgi-version>4.2.0</osgi-version>
         <pax-exam-version>2.3.1</pax-exam-version>
-        <pax.logging.version>1.6.7</pax.logging.version>
+        <pax.logging.version>1.6.9</pax.logging.version>
         <pax-runner-version>1.7.6</pax-runner-version>
         <pax.url.version>1.2.8</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
@@ -167,11 +169,11 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
-        <servicemix-components-version>2012.01.0.fuse-7-0-${perfectus-build}</servicemix-components-version>
-        <servicemix-features-version>4.5.0.fuse-7-0-${perfectus-build}</servicemix-features-version>
-        <servicemix-nmr-version>1.6.0.fuse-7-0-${perfectus-build}</servicemix-nmr-version>
-        <servicemix-specs-version>2.0.0.fuse-7-0-${perfectus-build}</servicemix-specs-version>
-        <servicemix-utils-version>1.5.1.fuse-7-0-${perfectus-build}</servicemix-utils-version>
+        <servicemix-components-version>2012.01.0.fuse-70-${perfectus-build}</servicemix-components-version>
+        <servicemix-features-version>4.5.0.fuse-70-${perfectus-build}</servicemix-features-version>
+        <servicemix-nmr-version>1.6.0.fuse-70-${perfectus-build}</servicemix-nmr-version>
+        <servicemix-specs-version>2.0.0.fuse-70-${perfectus-build}</servicemix-specs-version>
+        <servicemix-utils-version>1.5.1.fuse-70-${perfectus-build}</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.1</slf4j-api-version>
@@ -180,6 +182,7 @@
         <spring-version>3.0.7.RELEASE</spring-version>
         <sshd-version>0.5.0</sshd-version>
         <surefire-version>2.12</surefire-version>
+        <tinybundles-version>1.0.0</tinybundles-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
         <xalan.version>2.7.1</xalan.version>
@@ -268,6 +271,11 @@
 
         <pluginManagement>
             <plugins>
+               <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
@@ -1054,34 +1062,18 @@
               <groupId>org.apache.hadoop</groupId>
               <artifactId>hadoop-core</artifactId>
               <version>${hadoop-version}</version>
-              <exclusions>
-                  <exclusion>
-                      <groupId>org.mortbay.jetty</groupId>
-                      <artifactId>jetty</artifactId>
-                  </exclusion>
-                  <exclusion>
-                      <groupId>org.mortbay.jetty</groupId>
-                      <artifactId>jetty-util</artifactId>
-                  </exclusion>
-                  <exclusion>
-                      <groupId>org.mortbay.jetty</groupId>
-                      <artifactId>jsp-2.1</artifactId>
-                  </exclusion>
-                  <exclusion>
-                      <groupId>org.mortbay.jetty</groupId>
-                      <artifactId>jsp-api-2.1</artifactId>
-                  </exclusion>
-                  <exclusion>
-                      <groupId>org.mortbay.jetty</groupId>
-                      <artifactId>servlet-api-2.5</artifactId>
-                  </exclusion>
-              </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-tools</artifactId>
                 <version>${hadoop-version}</version>
-           </dependency>
+            </dependency>
+            <!-- Jetty 6 -->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jetty</artifactId>
+                <version>${jetty6-version}</version>
+            </dependency>
             <!-- Jetty -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -1172,6 +1164,40 @@
                 <artifactId>org.apache.servicemix.bundles.asm</artifactId>
                 <version>${asm.bundle.version}</version>
             </dependency>
+            <dependency>
+	            <groupId>org.apache.servicemix.bundles</groupId>
+	            <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+	            <version>${commons-lang-version}</version>
+            </dependency>
+
+            <!-- Jersey -->
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-servlet</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+
+	      <dependency>
+	          <groupId>commons-configuration</groupId>
+	          <artifactId>commons-configuration</artifactId>
+	          <version>1.8</version>
+	      </dependency>
+	      <dependency>
+	          <groupId>org.apache.servicemix.bundles</groupId>
+	          <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+	          <version>2.4_5</version>
+	      </dependency>
+	      <dependency>
+	          <groupId>org.mortbay.jetty</groupId>
+	          <artifactId>jetty</artifactId>
+	          <version>6.1.26</version>
+	      </dependency>
+	      <dependency>
+	          <groupId>org.mortbay.jetty</groupId>
+	          <artifactId>jetty-util</artifactId>
+	          <version>6.1.26</version>
+	      </dependency>
+
         </dependencies>
     </dependencyManagement>
 
