@@ -16,19 +16,32 @@
  */
 package org.fusesource.fabric.service;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,15 +49,21 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.felix.utils.version.VersionTable;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Issue;
+import org.fusesource.fabric.api.Patch;
 import org.fusesource.fabric.api.PatchService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.utils.Base64Encoder;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -53,13 +72,83 @@ public class PatchServiceImpl implements PatchService {
     public static final String PATCH_REPOSITORIES = "patch.repositories";
     public static final String PATCH_INCLUDE_NON_FUSE_VERSION = "patch.include-non-fuse-versions";
 
+    private static final String PATCH_ID = "id";
+    private static final String PATCH_DESCRIPTION = "description";
+    private static final String PATCH_BUNDLES = "bundle";
+    private static final String PATCH_COUNT = "count";
+
+    public static final String ISSUE = "issue";
+    public static final String ISSUE_KEY = "key";
+    public static final String ISSUE_MODULE = "module";
+    public static final String ISSUE_DESCRIPTION = "description";
+
+    public static final String CACHE_FILE = "patch-cache.properties";
+    public static final String CACHE_LAST_DATE = "lastDate";
+    public static final String CACHE_LOCATION = "location";
+    public static final String CACHE_COUNT = "count";
+
+    public static final String DEFAULT_GROUPS =
+            "org.apache.felix:org.apache.felix.framework," +
+            "org.apache.felix:org.apache.felix.configadmin," +
+            "org.apache.felix:org.apache.felix.eventadmin," +
+            "org.apache.felix:org.apache.felix.fileinstall," +
+            "org.apache.felix:org.apache.felix.webconsole," +
+            "org.apache.aries.blueprint:blueprint," +
+            "org.apache.aries.jmx:jmx," +
+            "org.apache.aries:org.apache.aries.util," +
+            "org.apache.aries.transaction:transaction," +
+            "org.apache.servicemix.specs:specs," +
+            "org.apache.karaf:karaf," +
+            "org.apache.cxf:cxf," +
+            "org.apache.camel:camel," +
+            "org.apache.activemq:activemq-parent," +
+            "org.apache.servicemix:servicemix-utils," +
+            "org.apache.servicemix:components," +
+            "org.apache.servicemix.nmr:nmr-parent," +
+            "org.apache.servicemix:features," +
+            "org.apache.servicemix:archetypes," +
+            "org.fusesource:fuse-project";
+
+    public static final String MISSING_FEATURES_DESCRIPTOR =
+            "org.apache.activemq:activemq-parent|" +
+                    "org.apache.activemq:activemq-karaf," +
+            "org.apache.camel:camel|" +
+                    "org.apache.camel.karaf:apache-camel," +
+            "org.apache.cxf:cxf|" +
+                    "org.apache.cxf.karaf:apache-cxf," +
+            "org.apache.karaf:karaf|" +
+                    "org.apache.karaf.assemblies.features:enterprise|" +
+                    "org.apache.karaf.assemblies.features:standard," +
+            "org.apache.servicemix.nmr:nmr-parent|" +
+                    "org.apache.servicemix.nmr:apache-servicemix-nmr," +
+            "org.fusesource:fuse-project|" +
+                    "org.fusesource.esb:fuse-esb|" +
+                    "org.fusesource.fabric.fabric-examples:fabric-activemq-demo|" +
+                    "org.fusesource.fabric.fabric-examples:fabric-camel-cluster|" +
+                    "org.fusesource.fabric.fabric-examples:fabric-camel-demo|" +
+                    "org.fusesource.fabric.fabric-examples:fabric-camel-dosgi|" +
+                    "org.fusesource.fabric.fabric-examples:fabric-cxf-demo-features|" +
+                    "org.fusesource.fabric:fuse-fabric";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PatchServiceImpl.class);
 
+    private final File patchDir;
     private final FabricService fabric;
     private final ConfigurationAdmin configAdmin;
     private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    private final ExecutorService executor = Executors.newFixedThreadPool(50);
 
     public PatchServiceImpl(FabricService fabric, ConfigurationAdmin configAdmin) {
+        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        BundleContext bundleContext = bundle != null ? bundle.getBundleContext() : null;
+        String dir = bundleContext != null ? bundleContext.getProperty("fuse.patch.location") : System.getProperty("fuse.patch.location");
+        this.patchDir = dir != null ? new File(dir) : bundleContext.getDataFile("patches");
+        if (!this.patchDir.isDirectory()) {
+            this.patchDir.mkdirs();
+            if (!this.patchDir.isDirectory()) {
+                throw new IllegalStateException("Unable to create patch folder: " + this.patchDir);
+            }
+        }
         this.fabric = fabric;
         this.configAdmin = configAdmin;
     }
@@ -312,6 +401,545 @@ public class PatchServiceImpl implements PatchService {
             org.osgi.framework.Version v1 = VersionTable.getVersion(o1);
             org.osgi.framework.Version v2 = VersionTable.getVersion(o2);
             return compareFuseVersions(v1, v2);
+        }
+    }
+
+    public static class PatchImpl implements Patch, Comparable<PatchImpl> {
+        private final String id;
+        private final String groupId;
+        private final String artifactId;
+        private final String version;
+        private final Set<String> artifacts;
+        private final List<Issue> issues;
+
+        public PatchImpl(String id, String location, Set<String> artifacts, List<Issue> issues) {
+            this.id = id;
+            String[] mvn = location.split("\\|");
+            this.groupId = mvn[1];
+            this.artifactId = mvn[2];
+            this.version = mvn[3];
+            this.artifacts = artifacts;
+            this.issues = issues;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public Set<String> getArtifacts() {
+            return artifacts;
+        }
+
+        public List<Issue> getIssues() {
+            return issues;
+        }
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        @Override
+        public int compareTo(PatchImpl o) {
+            int c = this.groupId.compareTo(o.groupId);
+            if (c != 0) return c;
+            c = this.artifactId.compareTo(o.artifactId);
+            if (c != 0) return c;
+            org.osgi.framework.Version v1 = VersionTable.getVersion(this.version);
+            org.osgi.framework.Version v2 = VersionTable.getVersion(o.version);
+            return compareFuseVersions(v1, v2);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PatchImpl patch = (PatchImpl) o;
+            return this.compareTo(patch) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = groupId != null ? groupId.hashCode() : 0;
+            result = 31 * result + (artifactId != null ? artifactId.hashCode() : 0);
+            result = 31 * result + (version != null ? version.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Patch[" +
+                    "id='" + id + '\'' +
+                    ", groupId='" + groupId + '\'' +
+                    ", artifactId='" + artifactId + '\'' +
+                    ", version='" + version + '\'' +
+                    //", artifacts=" + artifacts +
+                    //", issues=" + issues +
+                    ']';
+        }
+    }
+
+    public static class IssueImpl implements Issue {
+        private final String description;
+        private final List<String> keys;
+        private final List<String> artifacts;
+
+        public IssueImpl(String description, List<String> keys, List<String> artifacts) {
+            this.description = description;
+            this.keys = keys;
+            this.artifacts = artifacts;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public List<String> getKeys() {
+            return keys;
+        }
+
+        public List<String> getArtifacts() {
+            return artifacts;
+        }
+
+        @Override
+        public String toString() {
+            return "Issue[" +
+                    "description='" + description + '\'' +
+                    ", keys=" + keys +
+                    ", artifacts=" + artifacts +
+                    ']';
+        }
+    }
+
+    public Set<Patch> getPossiblePatches() {
+        Set<String> artifacts = new TreeSet<String>();
+        for (Version version : fabric.getVersions()) {
+            doCollectArtifacts(version, artifacts);
+        }
+        return doGetPossiblePatches(artifacts);
+    }
+
+    @Override
+    public Set<Patch> getPossiblePatches(Version version) {
+        Set<String> artifacts = new TreeSet<String>();
+        doCollectArtifacts(version, artifacts);
+        return doGetPossiblePatches(artifacts);
+    }
+
+    @Override
+    public Set<Patch> getPossiblePatches(Profile profile) {
+        Set<String> artifacts = new TreeSet<String>();
+        doCollectArtifacts(profile, artifacts);
+        return doGetPossiblePatches(artifacts);
+    }
+
+    @Override
+    public void applyPatches(Set<Patch> patches) {
+        for (Version version : fabric.getVersions()) {
+            applyPatches(version, patches);
+        }
+    }
+
+    @Override
+    public void applyPatches(Version version, Set<Patch> patches) {
+        for (Profile profile : version.getProfiles()) {
+            applyPatches(profile, patches);
+        }
+    }
+
+    @Override
+    public void applyPatches(Profile profile, Set<Patch> patches) {
+        List<String> bundles = profile.getBundles();
+        List<String> newBundles = doApplyPatches(bundles, patches);
+        if (!newBundles.equals(bundles)) {
+            profile.setBundles(newBundles);
+        }
+        List<String> fabs = profile.getFabs();
+        List<String> newFabs = doApplyPatches(fabs, patches);
+        if (!newFabs.equals(fabs)) {
+            profile.setFabs(newFabs);
+        }
+        List<String> repositories = profile.getRepositories();
+        List<String> newRepositories = doApplyPatches(repositories, patches);
+        if (!newRepositories.equals(repositories)) {
+            profile.setRepositories(newRepositories);
+        }
+        List<String> features = profile.getFeatures();
+        List<String> newFeatures = new ArrayList<String>();
+        for (String feature : features) {
+            int idx = feature.lastIndexOf('/');
+            if (idx > 0) {
+                feature = feature.substring(0, idx);
+            }
+            newFeatures.add(feature);
+        }
+        if (!newFeatures.equals(features)) {
+            profile.setFeatures(newFeatures);
+        }
+    }
+
+    protected Set<Patch> doGetPossiblePatches(Set<String> artifacts) {
+        Set<Patch> perfectusPatches = loadPerfectusPatches(false);
+        Set<Patch> possiblePatches = new TreeSet<Patch>();
+        Set<String> otherArtifacts = new TreeSet<String>();
+        for (String artifact : artifacts) {
+            String mvn = getMavenArtifact(artifact);
+            if (mvn == null) {
+                continue;
+            }
+            String[] parts = mvn.split(":");
+            String ga = parts[0] + ":" + parts[1];
+            org.osgi.framework.Version artifactVersion = VersionTable.getVersion(parts[2]);
+            org.osgi.framework.Version nextMajorVersion = VersionTable.getVersion(artifactVersion.getMajor() + 1, 0, 0);
+
+            boolean found = false;
+            for (Patch patch : perfectusPatches) {
+                if (patch.getArtifacts().contains(ga)) {
+                    org.osgi.framework.Version ver = VersionTable.getVersion(patch.getVersion());
+                    if (compareFuseVersions(artifactVersion, ver) < 0 && compareFuseVersions(ver, nextMajorVersion) < 0) {
+                        possiblePatches.add(patch);
+                    }
+                    found = true;
+                }
+            }
+            if (!found) {
+                otherArtifacts.add(artifact);
+            }
+        }
+        if (!otherArtifacts.isEmpty()) {
+            Map<String, Set<String>> upgrades = doGetPossibleUpgrades(otherArtifacts);
+            for (String artifact : upgrades.keySet()) {
+                for (String version : upgrades.get(artifact)) {
+                    Patch patch = new PatchImpl(artifact + ":" + version, "|" + artifact.replace(':', '|') + "|" + version,
+                                                Collections.singleton(artifact), Collections.<Issue>emptyList());
+                    possiblePatches.add(patch);
+                }
+            }
+        }
+        return possiblePatches;
+    }
+
+    protected List<String> doApplyPatches(List<String> artifacts, Set<Patch> patches) {
+        List<String> newArtifacts = new ArrayList<String>();
+        for (String artifact : artifacts) {
+            newArtifacts.add(doApplyPatches(artifact, patches));
+        }
+        return newArtifacts;
+    }
+
+    private String doApplyPatches(String artifact, Set<Patch> patches) {
+        String mvn = getMavenArtifact(artifact);
+        if (mvn != null) {
+            String[] mvnParts = mvn.split(":");
+            String art = mvnParts[0] + ":" + mvnParts[1];
+            org.osgi.framework.Version v1 = VersionTable.getVersion(mvnParts[2]);
+            for (Patch patch : patches) {
+                if (patch.getArtifacts().contains(art)) {
+                    org.osgi.framework.Version v2 = VersionTable.getVersion(patch.getVersion());
+                    if (compareFuseVersions(v1, v2) < 0) {
+                        artifact = artifact.replace(mvnParts[2], patch.getVersion());
+                        mvnParts[2] = patch.getVersion();
+                        v1 = v2;
+                    }
+                }
+            }
+        }
+        return artifact;
+    }
+
+    public Set<Patch> loadPerfectusPatches(boolean reload) {
+        try {
+            Dictionary config = getConfig();
+            List<String> repositories = getRepositories(config);
+            boolean includeNonFuseVersions = Boolean.parseBoolean((String) config.get(PATCH_INCLUDE_NON_FUSE_VERSION));
+            Set<Patch> patches = loadPerfectusPatches(repositories, reload);
+            if (!includeNonFuseVersions) {
+                Set<Patch> newPatches = new TreeSet<Patch>();
+                for (Patch patch : patches) {
+                    if (patch.getVersion().contains("fuse")) {
+                        newPatches.add(patch);
+                    }
+                }
+                patches = newPatches;
+            }
+            return patches;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Set<Patch> loadPerfectusPatches(List<String> repositories, boolean reload) throws IOException, InterruptedException {
+        File cache = new File(patchDir, CACHE_FILE);
+        List<String> locations = null;
+        Properties props = new Properties();
+        if (!reload && cache.isFile()) {
+            try {
+                FileInputStream fis = new FileInputStream(cache);
+                try {
+                    props.load(fis);
+                } finally {
+                    close(fis);
+                }
+                String lastDateStr = props.getProperty(CACHE_LAST_DATE);
+                if (lastDateStr != null) {
+                    long date = Long.parseLong(lastDateStr);
+                    if (System.currentTimeMillis() - date < TimeUnit.DAYS.toMillis(1)) {
+                        locations = new ArrayList<String>();
+                        int count = Integer.parseInt(props.getProperty(CACHE_LOCATION + "." + CACHE_COUNT, "0"));
+                        for (int i = 0; i < count; i++) {
+                            locations.add(props.getProperty(CACHE_LOCATION + "." + Integer.toString(i)));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.info("Error loading patch cache.  Cache will be reset.", e);
+            }
+        }
+        if (locations == null) {
+            // Load patch locations
+            List<String> groups = Arrays.asList(DEFAULT_GROUPS.split(","));
+            locations = findPerfectusPatchLocations(repositories, groups);
+            reload = true;
+        }
+        // Load patches
+        Set<Patch> patches = loadPerfectusPatches(locations);
+        // Save patch locations
+        if (reload) {
+            try {
+                props.clear();
+                props.setProperty(CACHE_LAST_DATE, Long.toString(System.currentTimeMillis()));
+                props.setProperty(CACHE_LOCATION + "." + CACHE_COUNT, Integer.toString(locations.size()));
+                for (int i = 0; i < locations.size(); i++) {
+                    props.setProperty(CACHE_LOCATION + "." + Integer.toString(i), locations.get(i));
+                }
+                cache.getParentFile().mkdirs();
+                FileOutputStream fos = new FileOutputStream(cache);
+                try {
+                    props.store(fos, "Patch cache");
+                } finally {
+                    close(fos);
+                }
+            } catch (Exception e) {
+                LOGGER.info("Error storing patch cache", e);
+            }
+        }
+        return patches;
+    }
+
+    public List<String> findPerfectusPatchLocations(List<String> repos, List<String> artifacts) throws InterruptedException {
+        final List<String> locations = new ArrayList<String>();
+        final CountDownLatch latch = new CountDownLatch(repos.size() * artifacts.size());
+        for (final String repo : repos) {
+            for (final String artifact : artifacts) {
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String[] mvn = artifact.split(":");
+                            URL base = new URL(repo + (repo.endsWith("/") ? "" : "/") + mvn[0].replace('.', '/') + "/" + mvn[1] + "/");
+                            URL metadata = new URL(base, "maven-metadata.xml");
+                            URLConnection con = metadata.openConnection();
+                            if (metadata.getUserInfo() != null) {
+                                con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(metadata.getUserInfo().getBytes()));
+                            }
+                            InputStream is = con.getInputStream();
+                            try {
+                                Document doc = dbf.newDocumentBuilder().parse(is);
+                                NodeList versions = doc.getDocumentElement().getElementsByTagName("version");
+                                for (int i = 0; i < versions.getLength(); i++) {
+                                    Node version = versions.item(i);
+                                    String v = version.getTextContent();
+                                    synchronized (locations) {
+                                        locations.add(repo + "|" + mvn[0] + "|" + mvn[1] + "|" + v);
+                                    }
+                                }
+                            } finally {
+                                close(is);
+                            }
+                        } catch (FileNotFoundException e) {
+                            // Ignore
+                        } catch (Exception e) {
+                            LOGGER.info("Error in " + repo + " - " + artifact + ": " + e.getMessage(), e);
+                        } finally {
+                            latch.countDown();
+                        }
+                    }
+                });
+            }
+        }
+        latch.await();
+        return locations;
+    }
+
+    private Map<String, Set<String>> getMissingArtifacts() {
+        Map<String, Set<String>> missingArtifacts = new HashMap<String, Set<String>>();
+        String[] patches = MISSING_FEATURES_DESCRIPTOR.split(",");
+        for (String patch : patches) {
+            String[] artifacts = patch.split("\\|");
+            Set<String> set = new HashSet<String>();
+            for (int i = 1; i < artifacts.length; i++) {
+                set.add(artifacts[i]);
+            }
+            missingArtifacts.put(artifacts[0], set);
+        }
+        return missingArtifacts;
+    }
+
+    public Set<Patch> loadPerfectusPatches(final List<String> locations) throws InterruptedException {
+        final Map<String, Set<String>> missingArtifacts = getMissingArtifacts();
+        final Set<Patch> patches = new TreeSet<Patch>();
+        final CountDownLatch latch = new CountDownLatch(locations.size());
+        for (final String location : new ArrayList<String>(locations)) {
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Load metadata
+                        File metadata = download(location, "patch", "patch");
+                        Properties props = new Properties();
+                        FileInputStream fis = new FileInputStream(metadata);
+                        try {
+                            props.load(fis);
+                        } finally {
+                            close(fis);
+                        }
+                        // Load issues
+                        File issues = download(location, "xml", "issues");
+                        List<Issue> issueList = new ArrayList<Issue>();
+                        fis = new FileInputStream(issues);
+                        try {
+                            Element root = dbf.newDocumentBuilder().parse(fis).getDocumentElement();
+                            for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+                                if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(ISSUE)) {
+                                    Element el = (Element) child;
+                                    String desc = el.getAttribute(ISSUE_DESCRIPTION);
+                                    List<String> keys = new ArrayList<String>();
+                                    List<String> arts = new ArrayList<String>();
+                                    for (Node child2 = el.getFirstChild(); child2 != null; child2 = child2.getNextSibling()) {
+                                        if (child2.getNodeType() == Node.ELEMENT_NODE) {
+                                            if (child2.getNodeName().equals(ISSUE_KEY)) {
+                                                keys.add(child2.getTextContent());
+                                            } else if (child2.getNodeName().equals(ISSUE_MODULE)) {
+                                                arts.add(child2.getTextContent());
+                                            }
+                                        }
+                                    }
+                                    issueList.add(new IssueImpl(desc, keys, arts));
+                                }
+                            }
+                        } finally {
+                            close(fis);
+                        }
+                        // Build patch
+                        String id = props.getProperty(PATCH_ID);
+                        Set<String> bundles = new TreeSet<String>();
+                        int count = Integer.parseInt(props.getProperty(PATCH_BUNDLES + "." + PATCH_COUNT, "0"));
+                        for (int i = 0; i < count; i++) {
+                            String url = props.getProperty(PATCH_BUNDLES + "." + Integer.toString(i));
+                            String mvn = getMavenArtifact(url);
+                            String[] p = mvn.split(":");
+                            bundles.add(p[0] + ":" + p[1]);
+                        }
+                        String[] mvn = location.split("\\|");
+                        Set<String> artifacts = missingArtifacts.get(mvn[1] + ":" + mvn[2]);
+                        if (artifacts != null) {
+                            bundles.addAll(artifacts);
+                        }
+                        Patch patch = new PatchImpl(id, location, bundles, issueList);
+                        synchronized (patches) {
+                            patches.add(patch);
+                        }
+                    } catch (FileNotFoundException e) {
+                        synchronized (locations) {
+                            locations.remove(location);
+                        }
+                    } catch (Exception e) {
+                        LOGGER.info("Error downloading patch " + location, e);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+        }
+        latch.await();
+        return patches;
+    }
+
+    private File download(String location, String type, String qualifier) throws IOException {
+        String[] mvn = location.split("\\|");
+        String repo = mvn[0];
+        String groupId = mvn[1];
+        String artifactId = mvn[2];
+        String version = mvn[3];
+        URL url = new URL(repo + "/" + groupId.replace('.', '/') + "/" + artifactId + "/"
+                + version + "/" + artifactId + "-" + version + (qualifier != null ? "-" + qualifier : "") + "." + type);
+        File file = new File(System.getProperty("karaf.home") + "/" + System.getProperty("karaf.default.repository") + "/"
+                + groupId.replace('.', '/') + "/" + artifactId + "/"
+                + version + "/" + artifactId + "-" + version + (qualifier != null ? "-" + qualifier : "") + "." + type);
+        download(file, url);
+        return file;
+    }
+
+    private void download(File file, URL location) throws IOException {
+        if (!file.isFile()) {
+            File temp = new File(file.toString() + ".tmp");
+            URLConnection con = location.openConnection();
+            if (location.getUserInfo() != null) {
+                con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(location.getUserInfo().getBytes()));
+            }
+            if (temp.isFile()) {
+                con.setRequestProperty("Range", "Bytes=" + (temp.length()) + "-");
+            }
+            InputStream is = new BufferedInputStream(con.getInputStream());
+            try {
+                boolean resume = "bytes".equals(con.getHeaderField("Accept-Ranges"));
+                temp.getParentFile().mkdirs();
+                OutputStream os = new BufferedOutputStream(new FileOutputStream(temp, resume));
+                try {
+                    copy(is, os);
+                } finally {
+                    close(os);
+                }
+                temp.renameTo(file);
+            } finally {
+                close(is);
+            }
+        }
+    }
+
+    private void copy(InputStream is, OutputStream os) throws IOException {
+        try {
+            byte[] b = new byte[4096];
+            int l = is.read(b);
+            while (l >= 0) {
+                os.write(b, 0, l);
+                l = is.read(b);
+            }
+        } finally {
+            close(os);
+        }
+    }
+
+    static void close(Closeable c) {
+        try {
+            if (c != null) {
+                c.close();
+            }
+        } catch (IOException e) {
+        }
+    }
+
+    static void close(Closeable... closeables) {
+        for (Closeable c : closeables) {
+            close(c);
         }
     }
 

@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,4 +74,29 @@ public interface PatchService {
      * @param upgrades
      */
     void applyUpgrades(Profile profile, Map<String, String> upgrades);
+
+    /**
+     * Load perfectus patches.
+     *
+     * @param reload force checking remote repositories (by default, results are cached 24 hours).
+     * @return a list of available patches
+     */
+    Set<Patch> loadPerfectusPatches(boolean reload);
+
+    /**
+     * Get the set of applicable patches
+     * @return
+     */
+    Set<Patch> getPossiblePatches();
+
+    Set<Patch> getPossiblePatches(Version version);
+
+    Set<Patch> getPossiblePatches(Profile profile);
+
+    void applyPatches(Set<Patch> patches);
+
+    void applyPatches(Version version, Set<Patch> patches);
+
+    void applyPatches(Profile profile, Set<Patch> patches);
+
 }
