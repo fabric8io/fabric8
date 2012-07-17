@@ -4,6 +4,7 @@
     "restartCommand": "",
     "statusCommand": "bin/jetty.sh check",
     "killCommand": "",
+    "configureCommand": ""
 
     "environment": {
         "JETTY_RUN": "work"

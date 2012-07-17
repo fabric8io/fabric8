@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The configuration DTO stored as JSON so that the system can be restarted and remember how to run & controll a managed process
+ * The configuration DTO stored as JSON so that the system can be restarted and remember how to run & control a managed process
  */
 public class ProcessConfig {
     private String name = "<unknown>";
@@ -30,6 +30,7 @@ public class ProcessConfig {
     private String restartCommand;
     private String statusCommand;
     private String killCommand;
+    private String configureCommand;
     private String pidFile;
     private Map<String,String> environment;
     private List<String> installCommands;
@@ -112,5 +113,13 @@ public class ProcessConfig {
 
     public void setInstallCommands(List<String> installCommands) {
         this.installCommands = installCommands;
+    }
+
+    public String getConfigureCommand() {
+        return configureCommand;
+    }
+
+    public void setConfigureCommand(String configureCommand) {
+        this.configureCommand = configureCommand;
     }
 }

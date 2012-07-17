@@ -103,4 +103,16 @@
 
     <bean id="kindCompleter" class="org.fusesource.process.manager.commands.KindCompleter" init-method="init"/>
 
+    <service id="processService" ref="processServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+      <service-properties>
+        <entry key="service.pid" value="org.fusesource.process"/>
+      </service-properties>
+    </service>
+
+    <bean id="processServiceFactory" class="org.fusesource.process.manager.service.ProcessServiceFactory"
+          init-method="init"
+          destroy-method="destroy">
+      <property name="processManager" ref="processManager"/>
+    </bean>
+
 </blueprint>

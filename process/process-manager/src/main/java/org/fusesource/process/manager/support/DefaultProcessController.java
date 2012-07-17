@@ -92,7 +92,7 @@ public class DefaultProcessController implements ProcessController
         String customCommand = config.getKillCommand();
         if (customCommand != null && customCommand.trim().isEmpty()) {
             // lets stop it
-            LOG.info("No kill cCommand configured so lets just try stopping " + this);
+            LOG.info("No kill command configured so lets just try stopping " + this);
             return stop();
         }
         return runConfigCommandValueOrLaunchScriptWith(customCommand, "kill");
@@ -116,6 +116,17 @@ public class DefaultProcessController implements ProcessController
     @Override
     public int status() throws Exception {
         return runConfigCommandValueOrLaunchScriptWith(config.getStatusCommand(), "status");
+    }
+
+    @Override
+    public int configure() throws Exception {
+        String customCommand = config.getConfigureCommand();
+        if (customCommand != null && customCommand.trim().isEmpty()) {
+            // TODO is it ok to simply ignore this?
+            LOG.info("No configure command configured " + this);
+            return 0;
+        }
+        return runCommandLine(customCommand);
     }
 
     // Properties
