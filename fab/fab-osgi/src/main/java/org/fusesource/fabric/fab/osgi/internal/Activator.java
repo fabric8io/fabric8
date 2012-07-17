@@ -17,13 +17,13 @@
 
 package org.fusesource.fabric.fab.osgi.internal;
 
+import java.io.File;
+
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.ops4j.pax.url.commons.handler.HandlerActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.io.File;
 
 /**
  * Activator for the fab protocol
@@ -56,7 +56,7 @@ public class Activator extends HandlerActivator<Configuration> {
         this.bundleContext = bundleContext;
 
         ServiceReference serviceReference = bundleContext.getServiceReference("org.osgi.service.cm.ConfigurationAdmin");
-        ConfigurationAdmin configurationAdmin = (ConfigurationAdmin)bundleContext.getService(serviceReference);
+        ConfigurationAdmin configurationAdmin = (ConfigurationAdmin) bundleContext.getService(serviceReference);
 
         File data = new File(System.getProperty("karaf.data", "."));
         registry.setDirectory(new File(data, "fab-module-registry"));

@@ -18,11 +18,18 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.ZkClientFacade" availability="optional"/>
+    <cm:property-placeholder persistent-id="org.fusesource.fabric.service">
+        <cm:default-properties>
+            <cm:property name="defaultRepo" value="http://repo.fusesource.com/nexus/content/groups/public"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient" />
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
     <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl">
+        <cm:managed-properties persistent-id="org.fusesource.fabric.service" update-strategy="container-managed"/>
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
@@ -31,7 +38,7 @@
         <reference-listener ref="fabricService" bind-method="registerProvider" unbind-method="unregisterProvider"/>
     </reference-list>
 
-    <service ref="fabricService" auto-export="interfaces" />
+    <service ref="fabricService" interface="org.fusesource.fabric.api.FabricService" />
 
     <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl" init-method="init">
         <property name="bundleContext" ref="blueprintBundleContext"/>
@@ -39,6 +46,6 @@
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
-    <service ref="zooKeeperClusterService" auto-export="interfaces" />
+    <service ref="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" />
 
 </blueprint>

@@ -18,9 +18,10 @@
   <modelVersion>4.0.0</modelVersion>
 
     <parent>
-  	    <groupId>org.fusesource.insight</groupId>
-  	    <artifactId>insight-project</artifactId>
+        <groupId>org.fusesource.insight</groupId>
+        <artifactId>insight-project</artifactId>
         <version>99-master-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
 
   <artifactId>insight-log-elasticsearch</artifactId>
@@ -36,32 +37,27 @@
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.core</artifactId>
-          <version>4.2.0</version>
       </dependency>
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.compendium</artifactId>
-          <version>4.2.0</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
           <artifactId>pax-logging-api</artifactId>
-          <version>1.5.3</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
           <artifactId>pax-logging-service</artifactId>
-          <version>1.5.3</version>
       </dependency>
       <dependency>
-  	      <groupId>org.fusesource.insight</groupId>
+          <groupId>org.fusesource.insight</groupId>
           <artifactId>insight-elasticsearch</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.felix</groupId>
           <artifactId>org.apache.felix.eventadmin</artifactId>
-          <version>1.2.6</version>
       </dependency>
 
   </dependencies>

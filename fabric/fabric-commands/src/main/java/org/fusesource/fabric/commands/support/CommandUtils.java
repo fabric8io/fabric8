@@ -16,15 +16,15 @@
  */
 package org.fusesource.fabric.commands.support;
 
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
 
 /**
  * Various utility methods for the commands.
@@ -85,18 +85,23 @@ public final class CommandUtils {
                     return -1;
                 }
 
-                // root should be first
-                if (c1.isRoot() && !c2.isRoot()) {
+                // root should include its children
+                if (c1.isRoot() && c2.getParent() != null && c2.getParent().equals(c1)) {
                     return -1;
-                } else if (!c1.isRoot() && c2.isRoot()) {
+                } else if (c2.isRoot() && c1.getParent() != null && c1.getParent().equals(c2)) {
                     return 1;
                 }
-                
-                // root should include its children
-                if (c1.isRoot() && c2.getParent() == c1) {
-                    return -1;
-                } else if (c2.isRoot() && c1.getParent() == c2) {
-                    return 1;
+
+                // root should be first
+                if (c1.isRoot() && !c2.isRoot()) {
+                    return c1.getId().compareTo(c2.getParent().getId());
+                } else if (!c1.isRoot() && c2.isRoot()) {
+                    return c1.getParent().getId().compareTo(c2.getId());
+                }
+
+                //if both are childs the compare their parents
+                if (!c1.isRoot() && !c2.isRoot()) {
+                   return c1.getParent().getId().compareTo(c2.getParent().getId());
                 }
 
                 // compare names
@@ -168,7 +173,7 @@ public final class CommandUtils {
      * @return the provisional status
      */
     public static String status(Container container) {
-        String status = container.getProvisionStatus();
+        String status = container.isManaged() ? container.getProvisionStatus() : "";
         if (status == null) {
             return "";
         }

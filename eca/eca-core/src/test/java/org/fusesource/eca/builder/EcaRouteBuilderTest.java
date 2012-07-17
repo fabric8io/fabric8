@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.eca.builder;
 
 import org.apache.camel.Endpoint;
@@ -31,7 +30,6 @@ import org.fusesource.eca.TestStat;
 public class EcaRouteBuilderTest extends CamelTestSupport {
 
     final int COUNT = 1000;
-    final int WAIT_TIME = 5000;
 
     @Override
     public boolean isUseRouteBuilder() {
@@ -50,27 +48,19 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
         final DirectEndpoint de = new DirectEndpoint();
         de.setCamelContext(context);
         de.setEndpointUriIfNotSpecified("direct:foo");
-        /*
-           final DirectEndpoint de2 = new DirectEndpoint();
-           de2.setCamelContext(context);
-           de2.setEndpointUriIfNotSpecified("direct:foo2");
-        */
         final Endpoint de2 = context.getEndpoint(testEndPointUri);
 
         context.addRoutes(new EcaRouteBuilder() {
             @Override
             public void configure() throws Exception {
-
                 RouteDefinition route = from(de).to("mock:boo");
                 eca("test").win("30 s").evaluate(testEndPointUri + " And route1").to("mock:result");
-
             }
         });
         context.start();
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(COUNT);
-        mock.setResultWaitTime(WAIT_TIME);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
@@ -106,7 +96,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(COUNT);
-        mock.setResultWaitTime(WAIT_TIME);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
@@ -143,7 +132,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(COUNT);
-        mock.setResultWaitTime(WAIT_TIME);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
@@ -178,9 +166,7 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
         context.start();
 
         MockEndpoint mock = getMockEndpoint("mock:result");
-        mock.setResultWaitTime(WAIT_TIME);
         mock.expectedMessageCount(COUNT * 2);
-
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
@@ -217,7 +203,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(COUNT);
-        mock.setResultWaitTime(WAIT_TIME);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
@@ -253,7 +238,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(COUNT);
-        mock.setResultWaitTime(WAIT_TIME);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
@@ -282,8 +266,8 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
         context.addRoutes(new EcaRouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(de2).filter(simple("${body.correlationID} == ID:2")).to(testEndPointUri);
-                from(de).filter(simple("${in.body.id} == ID:2")).to(testEndPointUri2);
+                from(de2).filter(simple("${body.correlationID} == 'ID:2'")).to(testEndPointUri);
+                from(de).filter(simple("${in.body.id} == 'ID:2'")).to(testEndPointUri2);
                 eca("test").win("30 s").evaluate(testEndPointUri + " and " + testEndPointUri2).to("mock:result");
 
             }
@@ -292,7 +276,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
-        mock.setResultWaitTime(WAIT_TIME);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createTestStatExchange(i);
@@ -328,8 +311,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(COUNT);
-        mock.setResultWaitTime(WAIT_TIME);
-
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);
@@ -337,7 +318,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
         }
         assertMockEndpointsSatisfied();
     }
-
 
     public void testCompoundCep() throws Exception {
         final DirectEndpoint de = new DirectEndpoint();
@@ -366,7 +346,6 @@ public class EcaRouteBuilderTest extends CamelTestSupport {
 
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(COUNT);
-        mock.setResultWaitTime(WAIT_TIME);
 
         for (int i = 0; i < COUNT; i++) {
             Exchange exchange = createExchange(i, i);

@@ -22,25 +22,23 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "profile-delete", scope = "fabric", description = "Delete an existing profile")
+@Command(name = "profile-delete", scope = "fabric", description = "Delete the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDelete extends FabricCommand {
 
-    @Option(name = "--version")
-    private String version = ZkDefs.DEFAULT_VERSION;
-
-    @Argument(index = 0, required = true, name = "profile")
+    @Option(name = "--version", description = "The profile version to delete. Defaults to the current default version.")
+    private String version;
+    @Argument(index = 0, required = true, name = "profile", description = "Name of the profile to delete.")
     @CompleterValues(index = 0)
     private String name;
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
-        Version version = fabricService.getVersion(this.version);
+        checkFabricAvailable();
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        for (Profile profile : version.getProfiles()) {
+        for (Profile profile : ver.getProfiles()) {
             if (name.equals(profile.getId())) {
                 profile.delete();
             }

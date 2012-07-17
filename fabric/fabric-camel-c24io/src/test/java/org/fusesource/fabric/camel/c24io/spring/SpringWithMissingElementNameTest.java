@@ -18,7 +18,7 @@ package org.fusesource.fabric.camel.c24io.spring;
 
 import java.util.List;
 
-import biz.c24.testtransactions.Transactions;
+import biz.c24.io.gettingstarted.transaction.Transactions;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;

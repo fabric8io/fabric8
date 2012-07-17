@@ -1,0 +1,31 @@
+Using this command, you can create the following different types of znode:
+
+* Persistent - The new znode is permanently stored in the ZooKeeper registry. This is the default.
+
+* Persistent sequential - The new znode is permanently stored in the ZooKeeper registry and a 10-digit sequence number is appended to the specified znode name. Selected by the --sequential option.
+
+* Ephemeral - The new znode exists only for the duration of the current client session. When the session is over, the znode is removed. Selected by the --ephemeral option.
+
+* Ephemeral sequential - The new znode exists only for the duration of the current client session and a 10-digit sequence number is appended to the specified znode name. When the session is over, the znode is removed. Selected by combining the --ephemeral option with the --sequential option.
+
+You can optionally specify a list of ACLs to apply to the newly created znode. The ACL is specified as a comma-separated list, where each entry in the list has the following format:
+
+<Scheme>:<ID>:<Permissions>
+
+ZooKeeper supports the following built-in schemes:
+
+world:anyone - The permissions apply to all users.
+
+auth: - The permissions apply to all authenticated users, irrespective of their identity (the ID field is left empty).
+
+digest:<MD5Hash> - The permissions apply to the user whose username and password generate the specified MD5 hash value, <MD5Hash>.
+
+ip:<IPAddress> - The permissions apply to the ZooKeeper client with the specified IP address.
+
+The <Permissions> string consists of one or more of the following characters: r (read), w (write), c (create), d (delete), and a (admin). For example, to create a new znode that explicitly grants all permissions to all users (which is, in fact, the default), you could use a command like the following:
+
+zk:create --acl world:anyone:rwcda /path/to/the/new/znode
+
+IMPORTANT: To avoid corruption of the fabric registry, you should not create any znodes under the /fabric/ path using the zk:create command. Use the appropriate fabric console commands instead.
+
+Note: fabric does not use the ACL security features of ZooKeeper. Currently, all znodes in the fabric registry are created without any ACL restrictions (equivalent to the world:anyone:rwcda setting).

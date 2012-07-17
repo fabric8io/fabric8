@@ -4,23 +4,23 @@ in_menu: true
 sort_info: 10
 --- pipeline:jade
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Install
-  .span12
+      ## Install
+  .span8
     :&markdown
       To install Fuse Fabric 
   
       * [download](../download.html) the Fuse Fabric distro 
-      * [checkout](../source.html) and [build](../building.html) the Fabric distro locally and untar the fabric/fuse-fabric tarball
+      * [checkout](../../source.html) and [build](../../building.html) the Fabric distro locally and untar the fabric/fuse-fabric tarball
   
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Start Fuse Fabric
-  .span12
+      ## Start Fuse Fabric
+  .span8
     :&markdown
       To start Fuse Fabric use the following commands from a shell 
 
@@ -31,14 +31,14 @@ sort_info: 10
     :&markdown
       Fuse Fabric will present itself on the console as shown below
     pre
-      | fuse-fabric-1.1$ bin/fusefabric 
+      | fuse-fabric-#{project_version}$ bin/fusefabric 
       | ______                  ______      _            _       
       | |  ___|                 |  ___|    | |          (_)      
       | | |_  _   _  ___   ___  | |_  __ _ | |__   _ __  _   ___ 
       | |  _|| | | |/ __| / _ \ |  _|/ _` || '_ \ | '__|| | / __|
       | | |  | |_| |\__ \|  __/ | | | (_| || |_) || |   | || (__ 
       | \_|   \__,_||___/ \___| \_|  \__,_||_.__/ |_|   |_| \___|
-      |   Fuse Fabric Container (1.2)
+      |   Fuse Fabric Container (#{project_version})
       |   http://fuse.fusesource.org/fabric/
       |
       | Hit '<tab>' for a list of available commands
@@ -50,11 +50,11 @@ sort_info: 10
       |
       | FuseFabric:admin@root> 
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Create a Fabric
-  .span12
+      ## Create a Fabric
+  .span8
     :&markdown
       Create a new fabric on your machine via the **fabric:create** command.
 
@@ -78,27 +78,27 @@ sort_info: 10
       | esb                            mq, nmr, camel
       | hadoop-datanode                
       | hadoop                         
-      | example-mq                    examples
+      | example-mq                     examples
       | camel                          karaf
       | default                        
       | nmr                            karaf
       | karaf                          default
-      | zk-server-0000-1               zk-server-0000
-      | zk-server-0000
+      | fabric-ensembler-0000-1        fabric-ensemble-0000
+      | fabric-ensemble-0000
 
     :&markdown
       Or list the available containers via **container-list**
 
     pre
       | FuseFabric:admin@root> container-list
-      | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
-      | root                           true       default, zk-server-0000-1      success                                                                                             
+      | [id]                           [alive]    [profiles]                       [provision status]
+      | root                           true       default, fabric-ensemble-0000-1  success
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Create a Broker process 
-  .span12
+      ## Create a Broker process 
+  .span8
     :&markdown
       Lets start by creating a message broker using the default **mq** profile as a child container on the **root** process, and naming the container **broker1**.
       Child containers are separate JVMs which can be connected to via the shell or JMX and started/stopped independently.
@@ -113,7 +113,7 @@ sort_info: 10
     pre
       | FuseFabric:admin@root> fabric:container-list
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
-      | root                           true       default, zk-server-0000-1
+      | root                           true       default, fabric-ensemble-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
 
     :&markdown
@@ -131,11 +131,11 @@ sort_info: 10
       | admin@broker1> activemq:list
       | BrokerName = broker1
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Exit an Container 
-  .span12
+      ## Exit an Container 
+  .span8
     :&markdown
       After creating the message broker, we want to disconnect the container, to return to Fuse Fabric.
       You can do this by pressing `ctrl + d` in the console, or run the **logout** command:
@@ -145,11 +145,11 @@ sort_info: 10
       | ...
   
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Create a Camel process 
-  .span12
+      ## Create a Camel process 
+  .span8
     :&markdown
       Now lets create a separate container running a Camel route using the default **example-camel** profile as a child container on the **root** process.
 
@@ -163,9 +163,9 @@ sort_info: 10
     pre
       | FuseFabric:admin@root> container-list
       | [id]                           [alive]    [profiles]                     [provision status]                                                                                  
-      | root                           true       default, zk-server-0000-1
+      | root                           true       default, fabric-ensemble-0000-1
       | &nbsp;&nbsp;broker1                      true       mq                             success                                                                                             
-      | &nbsp;&nbsp;camel1                       true       example-camel           success
+      | &nbsp;&nbsp;camel1                       true       example-camel                  success
   
     :&markdown
       Now we should be able to connect to it and list the Camel routes
@@ -177,11 +177,11 @@ sort_info: 10
       | [route1              ]
       | [route2              ]
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Running Camel Example 
-  .span12
+      ## Running Camel Example 
+  .span8
     :&markdown
       The **example-camel** example which we just installed, will every 5th second send a message to the message broker. And the consume
       the message and print it to the log. This is implemented using the two Camel routes, which you can view in more details using **camel:info-route route1**
@@ -208,11 +208,11 @@ sort_info: 10
       | admin@broker1> activemq:query -QQueue=camel-test
       | ...
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Stopping Containers and Fuse Fabric
-  .span12
+      ## Stopping Containers and Fuse Fabric
+  .span8
     :&markdown
       You can manage containers from the Fuse Fabric shell. For example to stop the **camel1** container, you can do as shown below.
       Remember you have to in the Fuse Fabric shell, which you can notice in the prompt. If you are connected to another container, you
@@ -235,27 +235,27 @@ sort_info: 10
       Congratulations, you are now started with Fuse Fabric, and have successfully managed to install two child containers. Install an example, which
       exchanges messages between the containers using the message broker.
 
-.row
+.row-fluid
   .span4
     :markdown
-      # Install Fuse Fabric in a vanilla container
-  .span12
+      ## Install Fuse Fabric in a vanilla container
+  .span8
     :&markdown
       Fuse Fabric can be installed in a vanilla container such as Apache Karaf or ServiceMix.
-      Run the following in an Apache Karaf (2.2.x) or ServiecMix (4.x) console:
+      Run the following sequence of commands in an Apache Karaf (2.2.x) or ServiceMix (4.x) console:
 
       Notice: You cannot use Karaf 2.2.5 as it has an issue, that is being fixed in 2.2.6  
 
     pre
-      | karaf@root> shell:source mvn:org.fusesource.fabric/fuse-fabric/#{project_version}/karaf/installer
+      | karaf@root> features:addUrl mvn:org.fusesource.fabric/fuse-fabric/#{project_version}/xml/features
+      | karaf@root> features:install fabric-boot-commands
 
     :&markdown
-      The above command will install the necessary features if they are not already present (they come by default in the Fabric distro) and then
-      create the initial ZooKeeper server and profiles.
+      The above command will install the necessary commands to create a fabric or join an existing fabric
 
-       If you are using a SNAPSHOT version of Fabric, and have not build Fabric locally, then you must add the Maven repositories list,
-       the location of where the Fabric SNAPSHOT artifacts is installed.
-       In the "etc/org.ops4j.pax.url.mvn.cfg" file add the following entries to the "org.ops4j.pax.url.mvn.repositories" key:
+      If you are using a SNAPSHOT version of Fabric, and have not built Fabric locally, then you must add the Maven repositories list,
+      the location of where the Fabric SNAPSHOT artifacts is installed.
+      In the "etc/org.ops4j.pax.url.mvn.cfg" file add the following entries to the "org.ops4j.pax.url.mvn.repositories" key:
 
     pre
       | http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots, \

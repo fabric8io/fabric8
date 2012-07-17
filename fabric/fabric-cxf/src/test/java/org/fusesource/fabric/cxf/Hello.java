@@ -16,9 +16,13 @@
  */
 package org.fusesource.fabric.cxf;
 
+import javax.jws.WebService;
+import java.io.IOException;
+
+@WebService
 public interface Hello {
 
-    String sayHello();
+    String sayHello() throws IOException;
 
     void ping();
 }

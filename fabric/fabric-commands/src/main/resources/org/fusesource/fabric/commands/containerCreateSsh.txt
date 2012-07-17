@@ -1,0 +1,10 @@
+This command provisions the container as follows:
+
+1. Logs into the specified SSH host, using either the provided username and password or using the provided username and private key.
+
+2. Runs a script on the remote host that that downloads the container runtime to the remote host. The runtime files are downloaded through a Maven proxy server. By default, the script uses the oldest Maven proxy server in the current ensemble (every ensemble container has a Maven proxy server deployed in it). You can optionally override the default Maven proxy by specifying the --proxy-uri option. The script would then use the specified Maven proxy server to download the container runtime.
+Note: The ability to override the Maven proxy is important in certain cases (for example, in a cloud deployment) where the remote host might not be able to access the default Maven proxy server.
+
+3. Starts up the newly installed container (or containers) and installs the specified fabric profile (or profiles).
+
+By default, the newly created containers belong to the current fabric (that is, the same fabric as the container from which you invoked the command). It is possible, however, to create a container on the remote host that acts as the seed for a completely new fabric, separate from the current one. To create a new fabric on the remote host, invoke the fabric:container-create-ssh command with the --ensemble-server flag, which makes the newly created container (or containers) an ensemble server, with its own fabric registry agent. The newly created ensemble server on the remote host does not join the current ensemble: it belongs to an independent ensemble (a new fabric).

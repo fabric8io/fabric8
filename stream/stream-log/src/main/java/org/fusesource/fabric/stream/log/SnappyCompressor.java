@@ -19,7 +19,7 @@ package org.fusesource.fabric.stream.log;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.iq80.snappy.Snappy;
+import static org.fusesource.fabric.stream.log.Support.*;
 
 /**
  * <p>
@@ -46,12 +46,5 @@ public class SnappyCompressor implements Processor {
         }
     }
 
-    private byte[] compress(byte[] data) {
-        byte[] compressed = new byte[Snappy.maxCompressedLength(data.length)];
-        int len = Snappy.compress(data, 0, data.length, compressed, 0);
-        byte[] result = new byte[len];
-        System.arraycopy(compressed, 0, result, 0, len);
-        return result;
-    }
 
 }

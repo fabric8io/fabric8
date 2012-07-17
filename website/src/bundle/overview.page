@@ -27,7 +27,7 @@ ${include("/bundle/_what-is-fab.md")}
 
 ## Installing a FAB
 
-In your OSGi container such as [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/) or [Apache Karaf](http://karaf.apache.org/) with the Fuse bundle feature installed - you can then install any FAB as if it were a WAR or Karaf feature.
+In your OSGi container such as [Fuse ESB](http://fusesource.com/products/fuse-esb-enterprise/) or [Apache Karaf](http://karaf.apache.org/) with the Fuse bundle feature installed - you can then install any FAB as if it were a WAR or Karaf feature.
 
 ${include("/bundle/_install-command.md")}
 

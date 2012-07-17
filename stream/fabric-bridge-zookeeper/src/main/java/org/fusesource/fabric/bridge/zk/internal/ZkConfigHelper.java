@@ -16,14 +16,18 @@
  */
 package org.fusesource.fabric.bridge.zk.internal;
 
-import org.apache.zookeeper.CreateMode;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Map;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.slf4j.Logger;
@@ -31,12 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.util.StringUtils;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.Map;
 
 /**
  * @author Dhiraj Bokde
@@ -72,12 +70,7 @@ public abstract class ZkConfigHelper {
         byte[] data = getZkData(remoteBridge);
         final String bridgeConfigPath = getBridgeConfigPath(container);
         try {
-            Stat stat = client.exists(bridgeConfigPath);
-            if (stat == null) {
-                client.createBytesNode(bridgeConfigPath, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            } else {
-                client.setByteData(bridgeConfigPath, data);
-            }
+            ZooKeeperUtils.set(client, bridgeConfigPath, data);
         } catch (InterruptedException e) {
             String msg = "Error registering bridge config at " + bridgeConfigPath + " : " + e.getMessage();
             LOG.error(msg, e);

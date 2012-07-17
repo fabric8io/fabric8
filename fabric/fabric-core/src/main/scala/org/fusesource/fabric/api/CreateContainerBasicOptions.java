@@ -18,6 +18,12 @@ package org.fusesource.fabric.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
 
@@ -26,19 +32,60 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected String providerType;
     protected URI providerURI;
     protected boolean ensembleServer;
-    protected boolean debugContainer;
+    protected String preferredAddress;
+    protected String resolver= ZkDefs.DEFAULT_RESOLVER;
+    protected Integer minimumPort = PortUtils.MIN_PORT_NUMBER;
+    protected Integer maximumPort = PortUtils.MAX_PORT_NUMBER;
+    protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
     protected Integer number = 1;
     protected URI proxyUri;
     protected String zookeeperUrl;
+    protected String jvmOpts;
+    protected boolean adminAccess = false;
+    protected Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
+    private transient CreationStateListener creationStateListener = new NullCreationStateListener();
+
+    /**
+     * Converts provider URI Query to a Map.
+     *
+     * @return
+     */
+    protected Map<String, String> getParameters() {
+        Map<String, String> map = new HashMap<String, String>();
+        if (providerURI != null && providerURI.getQuery() != null) {
+            String[] params = providerURI.getQuery().split("&");
+            for (String param : params) {
+                String name = param.split("=")[0];
+                String value = param.split("=")[1];
+                map.put(name, value);
+            }
+        }
+        return map;
+    }
+
+    public T preferredAddress(final String preferredAddress) {
+        this.setPreferredAddress(preferredAddress);
+        return (T) this;
+    }
+
+    public T resolver(final String resolver) {
+        this.setResolver(resolver);
+        return (T) this;
+    }
+
+    public T minimumPort(final int minimumPort) {
+        this.setMinimumPort(minimumPort);
+        return (T) this;
+    }
+
+    public T maximumPort(final int maximumPort) {
+        this.setMaximumPort(maximumPort);
+        return (T) this;
+    }
 
 
     public T ensembleServer(final boolean ensembleServer) {
         this.ensembleServer = ensembleServer;
-        return (T) this;
-    }
-
-    public T debugContainer(final boolean debugContainer) {
-        this.debugContainer = debugContainer;
         return (T) this;
     }
 
@@ -88,8 +135,24 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return (T) this;
     }
 
+    public T jvmOpts(final String jvmOpts) {
+        this.jvmOpts = jvmOpts;
+        return (T) this;
+    }
+
+    public T adminAccess(final boolean adminAccess) {
+        this.adminAccess = adminAccess;
+        return (T) this;
+    }
+
+
+    public T creationStateListener(final CreationStateListener creationStateListener) {
+        this.creationStateListener = creationStateListener;
+        return (T) this;
+    }
+
     public String getProviderType() {
-        return providerURI != null ? providerURI.getScheme() : providerType;
+        return providerType != null ? providerType : (providerURI != null ? providerURI.getScheme() : null);
     }
 
     public void setProviderType(String providerType) {
@@ -128,12 +191,49 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.ensembleServer = ensembleServer;
     }
 
-    public boolean isDebugContainer() {
-        return debugContainer;
+    public String getPreferredAddress() {
+        return preferredAddress;
     }
 
-    public void setDebugContainer(boolean debugContainer) {
-        this.debugContainer = debugContainer;
+    public void setPreferredAddress(String preferredAddress) {
+        this.preferredAddress = preferredAddress;
+    }
+
+    public String getResolver() {
+        return getParameters().get("resolver") != null ? getParameters().get("resolver") : resolver;
+    }
+
+    public void setResolver(String resolver) {
+        if (Arrays.asList(ZkDefs.VALID_RESOLVERS).contains(resolver)) {
+            this.resolver = resolver;
+        } else {
+            this.resolver = ZkDefs.DEFAULT_RESOLVER;
+        }
+    }
+
+    @Override
+    public int getMinimumPort() {
+        return minimumPort;
+    }
+
+    @Override
+    public void setMinimumPort(int port) {
+        this.minimumPort = port;
+    }
+
+    @Override
+    public int getMaximumPort() {
+        return maximumPort;
+    }
+
+    @Override
+    public void setMaximumPort(int port) {
+        this.maximumPort = port;
+    }
+
+    @Override
+    public Map<String,Properties> getSystemProperties() {
+        return systemProperties;
     }
 
     public Integer getNumber() {
@@ -158,5 +258,34 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public void setZookeeperUrl(String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
+    }
+
+    public String getJvmOpts() {
+        return jvmOpts;
+    }
+
+    public void setJvmOpts(String jvmOpts) {
+        this.jvmOpts = jvmOpts;
+    }
+
+    public boolean isAdminAccess() {
+        return adminAccess;
+    }
+
+    public CreationStateListener getCreationStateListener() {
+        return creationStateListener;
+    }
+
+    public void setCreationStateListener(CreationStateListener creationStateListener) {
+        this.creationStateListener = creationStateListener;
+    }
+
+
+    public void setAdminAccess(boolean adminAccess) {
+        this.adminAccess = adminAccess;
+    }
+
+    public Map<String, CreateContainerMetadata<T>> getMetadataMap() {
+        return metadataMap;
     }
 }

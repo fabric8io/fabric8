@@ -16,12 +16,30 @@
  */
 package org.fusesource.fabric.maven.impl;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
 import org.fusesource.fabric.maven.MavenProxy;
+import org.fusesource.fabric.maven.MavenProxyUtils;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
@@ -29,26 +47,22 @@ import org.sonatype.aether.connector.wagon.WagonProvider;
 import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+@Deprecated
 public class MavenProxyImpl implements MavenProxy {
 
     private static final Logger LOGGER = Logger.getLogger(MavenProxyImpl.class.getName());
 
     private int port = 8040;
     private String localRepository;
-    private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/public-snapshots";
+    private String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/public-snapshots,repo.fusesource.com/nexus/content/groups/ea";
+    private String updatePolicy;
+    private String checksumPolicy;
 
     private List<RemoteRepository> repositories;
     private ServerSocket serverSocket;
@@ -79,9 +93,25 @@ public class MavenProxyImpl implements MavenProxy {
         this.remoteRepositories = remoteRepositories;
     }
 
+    public String getUpdatePolicy() {
+        return updatePolicy;
+    }
+
+    public void setUpdatePolicy(String updatePolicy) {
+        this.updatePolicy = updatePolicy;
+    }
+
+    public String getChecksumPolicy() {
+        return checksumPolicy;
+    }
+
+    public void setChecksumPolicy(String checksumPolicy) {
+        this.checksumPolicy = checksumPolicy;
+    }
+
     public synchronized URI getAddress() {
         if (serverSocket != null) {
-            return URI.create("http://" + getLocalHostName() + ":" + serverSocket.getLocalPort() + "/");
+            return URI.create(MavenProxyUtils.getMavenProxyUrl(port));
         } else {
             return null;
         }
@@ -95,7 +125,8 @@ public class MavenProxyImpl implements MavenProxy {
     public synchronized void start() throws IOException {
         if (port >= 0) {
             if (localRepository.equals("")) {
-                localRepository = "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+                //It doesn't work when using the file:// protocol prefix.
+                localRepository =  System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
             }
             if (system == null) {
                 system = newRepositorySystem();
@@ -104,10 +135,12 @@ public class MavenProxyImpl implements MavenProxy {
                 session = newSession( system, localRepository );
             }
             repositories = new ArrayList<RemoteRepository>();
-            repositories.add(new RemoteRepository("local", "default", localRepository));
+            repositories.add(new RemoteRepository("local", "default", "file://" + localRepository));
             int i = 0;
             for (String rep : remoteRepositories.split(",")) {
-                repositories.add(new RemoteRepository( "repo-" + i++, "default", rep ));
+                RemoteRepository remoteRepository = new RemoteRepository( "repo-" + i++, "default", rep );
+                remoteRepository.setPolicy(true, new RepositoryPolicy(true,updatePolicy,checksumPolicy));
+                repositories.add(remoteRepository);
             }
 
             String repos = "local:" + localRepository + " ";
@@ -117,7 +150,9 @@ public class MavenProxyImpl implements MavenProxy {
             repos = repos.trim();
 
             serverSocket = new ServerSocket(port);
-            new Acceptor(serverSocket).start();
+            Acceptor acceptor = new Acceptor(serverSocket);
+            acceptor.setName("MavenProxyAcceptor");
+            acceptor.start();
             LOGGER.log(Level.INFO, String.format("Maven proxy started at address : %s with configured repositories : %s", getAddress(), repos));
         }
     }
@@ -135,6 +170,16 @@ public class MavenProxyImpl implements MavenProxy {
         }
     }
 
+    @Override
+    public File download(String path) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean upload(InputStream is, String path) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     protected class Acceptor extends Thread {
 
         private final ServerSocket serverSocket;
@@ -147,10 +192,14 @@ public class MavenProxyImpl implements MavenProxy {
             try {
                 while (!serverSocket.isClosed()) {
                     Socket sock = serverSocket.accept();
-                    new Worker(sock).start();
+                    Worker worker = new Worker(sock);
+                    worker.setName("MavenProxyWorker");
+                    worker.start();
                 }
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Exception caught in maven proxy", e);
+                if (!serverSocket.isClosed()) {
+                    LOGGER.log(Level.SEVERE, "Exception caught in maven proxy", e);
+                }
             }
         }
 
@@ -183,7 +232,13 @@ public class MavenProxyImpl implements MavenProxy {
                     path = path.substring(1);
                 }
                 String mvn = convertToMavenUrl(path);
-                LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
+                if (mvn == null) {
+                    LOGGER.log(Level.WARNING, String.format("Received non maven request : %s", path));
+                    output.write("HTTP/1.0 404 File not found.\r\n\r\n".getBytes());
+                    return;
+                } else {
+                    LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
+                }
 
                 try {
                     Artifact artifact = new DefaultArtifact( mvn, null );
@@ -340,13 +395,4 @@ public class MavenProxyImpl implements MavenProxy {
             return null;
         }
     }
-
-    private static String getLocalHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Unable to get address", e);
-        }
-    }
-
 }

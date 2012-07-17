@@ -146,7 +146,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     public DependencyTree(DependencyId dependencyId, Dependency dependency, List<DependencyTree> children) {
-        this(dependencyId, dependency.getArtifact().getVersion(), children);
+        this(dependencyId, dependency.getArtifact().getBaseVersion(), children);
         this.scope = dependency.getScope();
         this.optional = dependency.isOptional();
         init(children);
@@ -163,7 +163,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
         this.version = version;
         ArrayList<DependencyTree> sortedChildren = new ArrayList<DependencyTree>(children);
         Collections.sort(sortedChildren);
-        this.children = Collections.unmodifiableList(sortedChildren);
+        this.children = sortedChildren;
         this.hashCode = Objects.hashCode(dependencyId, version, this.children);
         init(children);
     }

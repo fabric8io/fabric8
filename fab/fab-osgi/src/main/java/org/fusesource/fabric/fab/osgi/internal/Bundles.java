@@ -18,6 +18,7 @@
 package org.fusesource.fabric.fab.osgi.internal;
 
 import aQute.lib.osgi.Analyzer;
+import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.util.Objects;
 import org.fusesource.fabric.fab.util.Strings;
@@ -79,6 +80,40 @@ public class Bundles {
             }
         }
         return null;
+    }
+
+    /**
+     * Find installed bundles by symbolic name
+     *
+     * @param context the bundle context to search
+     * @param name the bundle symbolic name
+     * @return the set of bundles found
+     */
+    public static Set<Bundle> findBundles(BundleContext context, String name) {
+        Set<Bundle> result = new HashSet<Bundle>();
+        Bundle[] bundles = context.getBundles();
+        for (Bundle bundle : bundles) {
+            if (Objects.equal(bundle.getSymbolicName(), name)) {
+                result.add(bundle);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Find a single installed bundle by symbolic name.
+     *
+     * @param context the bundle context to search
+     * @param name the bundle symbolic name
+     * @return the bundle
+     * @throws IllegalStateException if there are no matching bundles or more than one matching bundle
+     */
+    public static Bundle findOneBundle(BundleContext context, String name) {
+        Set<Bundle> result = findBundles(context, name);
+        if (result.size() != 1) {
+            throw new IllegalStateException(String.format("Expected exactly one bundle with symbolic name %s but we found %s bundles", name, result.size()));
+        }
+        return result.iterator().next();
     }
 
     /**

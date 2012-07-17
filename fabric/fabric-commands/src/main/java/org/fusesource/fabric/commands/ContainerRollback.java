@@ -24,27 +24,38 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
 
-@Command(name = "container-rollback", scope = "fabric", description = "Rollback containers to an older version")
+@Command(name = "container-rollback", scope = "fabric", description = "Roll back the specified containers to an older version", detailedDescription = "classpath:containerUpgrade.txt")
 public class ContainerRollback extends ContainerUpgradeSupport {
 
-    @Option(name = "--version", description = "The version to rollback", required = true)
+    @Option(name = "--all", description = "Roll back all containers")
+    private boolean all;
+    @Argument(index = 0, name = "version", description = "The version to roll back to.", required = true)
     private String version;
-
-    @Argument(index = 0, name = "container", description = "The list of containers to rollback. Empty list assumes current container only.", required = false, multiValued = true)
+    @Argument(index = 1, name = "container", description = "The list of containers to roll back. An empty list implies the current container.", required = false, multiValued = true)
     private List<String> containerIds;
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
+        checkFabricAvailable();
         // check and validate version
         Version version = fabricService.getVersion(this.version);
 
         if (containerIds == null || containerIds.isEmpty()) {
-            containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
+            if (all) {
+                containerIds = new ArrayList<String>();
+                for (Container container : fabricService.getContainers()) {
+                    containerIds.add(container.getId());
+                }
+            } else {
+                containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
+            }
+        } else {
+            if (all) {
+                throw new IllegalArgumentException("Can not use --all with a list of containers simultaneously");
+            }
         }
 
         List<Container> toRollback = new ArrayList<Container>();
@@ -74,17 +85,8 @@ public class ContainerRollback extends ContainerUpgradeSupport {
         // report and do rollbacks
         for (Container container : toRollback) {
             Version oldVersion = container.getVersion();
-            Profile[] oldProfiles = container.getProfiles();
-
-            // create list of new profiles
-            Profile[] newProfiles = getProfilesForUpgradeOrRollback(oldProfiles, version);
-
             // rollback version first
             container.setVersion(version);
-            // then set new profiles, which triggers container to update bundles and whatnot
-            container.setProfiles(newProfiles);
-
-            // get the profile for version 1.1
             log.debug("Rolled back container {} from {} to {}", new Object[]{container, oldVersion, version});
             System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion + " to " + version);
         }

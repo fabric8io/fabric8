@@ -1,0 +1,1 @@
+This listing includes only the ensemble servers (containers with a fabric registry agent deployed in them). For a complete listing of all the containers in the fabric, use fabric:container-list instead.

@@ -32,7 +32,7 @@
                 <exclude>bin/**</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
-                <exclude>etc/config.properties</exclude>
+                <exclude>etc/custom.properties</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
@@ -50,7 +50,6 @@
             </includes>
             <excludes>
                 <exclude>bin/create</exclude>
-                <exclude>bin/karaf</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -81,14 +80,44 @@
             <outputDirectory>system</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>fabric_license.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/licenses</directory>
+            <outputDirectory>/licenses/</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
     </fileSets>
     
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/karaf</source>
+            <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fusefabric</destName>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/META-INF/NOTICE</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>fabric_notices.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>fabric_dependencies.txt</destName>
+            <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
     </files>

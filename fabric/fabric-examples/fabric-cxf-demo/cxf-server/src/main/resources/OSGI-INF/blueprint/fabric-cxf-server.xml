@@ -1,0 +1,68 @@
+<!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cxf="http://cxf.apache.org/blueprint/core"
+           xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+           xsi:schemaLocation="
+           http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+           http://cxf.apache.org/schemas/blueprint/core
+           http://cxf.apache.org/schemas/blueprint/core.xsd
+           http://cxf.apache.org/blueprint/jaxws
+           http://cxf.apache.org/blueprint/jaxws.xsd
+           ">
+
+    <reference id="org.linkedin.zookeeper.client.IZKClient" interface="org.linkedin.zookeeper.client.IZKClient" />
+
+    <!-- The FabricFailOverFeature will try to access other service endpoint with round rad -->
+    <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
+        <property name="zkClient" ref="org.linkedin.zookeeper.client.IZKClient" />
+        <property name="fabricPath" value="cxf/demo" />
+    </bean>
+
+    <!-- setup the feature on the bus to help publish the services to the fabric-->
+    <cxf:bus bus="cxf">
+        <cxf:features>
+            <ref component-id="fabicLoadBalancerFeature"/>
+        </cxf:features>
+    </cxf:bus>
+
+    <bean id="hello1" class="org.fusesource.fabric.demo.cxf.server.HelloImpl">
+        <property name="hello" value="Hi"/>
+    </bean>
+
+    <bean id="hello2" class="org.fusesource.fabric.demo.cxf.server.HelloImpl">
+        <property name="hello" value="Hello"/>
+    </bean>
+
+
+    <!-- publish the service with the address of fail, cxf client will get the simulated IOException -->
+    <jaxws:server id="service1" serviceClass="org.fusesource.fabric.demo.cxf.Hello" address="http://localhost:9000/server/server1">
+        <jaxws:serviceBean>
+             <ref component-id="hello1" />
+        </jaxws:serviceBean>
+    </jaxws:server>
+
+    <jaxws:server id="service2" serviceClass="org.fusesource.fabric.demo.cxf.Hello" address="http://localhost:9000/server/server2">
+        <jaxws:serviceBean>
+            <ref component-id="hello2" />
+        </jaxws:serviceBean>
+    </jaxws:server>
+
+</blueprint>

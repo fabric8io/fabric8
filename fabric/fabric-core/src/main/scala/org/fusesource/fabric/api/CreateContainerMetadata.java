@@ -17,13 +17,22 @@
 
 package org.fusesource.fabric.api;
 
-public interface CreateContainerMetadata {
+import java.io.Serializable;
+import java.util.Map;
+
+public interface CreateContainerMetadata<O extends CreateContainerOptions> extends Serializable {
 
     boolean isSuccess();
 
     Throwable getFailure();
 
-    String getContainerName();
-    
     Container getContainer();
+    void setContainer(Container container);
+
+    String getContainerName();
+
+    Map<String, String> getContainerConfguration();
+
+    O getCreateOptions();
+
 }

@@ -21,6 +21,7 @@ html(lang="en")
     meta(content="fuse,fabric,cluster,cloud,provision,configure" name="keywords")
     meta(content="Fabric" name="author")
     link(type="text/css" rel="stylesheet" href={uri("/css/bootstrap.css")})
+    link(type="text/css" rel="stylesheet" href={uri("/css/bootstrap-responsive.css")})
     link(type="text/css" rel="stylesheet" href={uri("/css/site.css")})
     link(type="text/css" rel="stylesheet" href={uri("/styles/impact/css/pygmentize.css")})
     -#
@@ -37,28 +38,30 @@ html(lang="en")
         link(href={uri("/styles/scalate/console.css")} rel="stylesheet" type="text/css")
     
     title= title
-    script(type="text/javascript"src={uri("/js/jquery.js")})
-    script(type="text/javascript"src={uri("/js/bootstrap-dropdown.js")})
   body
-    .topbar-wrapper(style="z-index: 5;")
-      .topbar(data-dropdown="dropdown")
-        .topbar-inner
-          .container
-            - 
-              if (requestUri.startsWith("/bundle"))
-                include("/bundle/_navigation.jade")
-              else if (requestUri.startsWith("/eca"))
-                include("/eca/_navigation.jade")
-              else if (requestUri.startsWith("/eip"))
-                include("/eip/_navigation.jade")
-              else if (requestUri.startsWith("/esb"))
-                include("/esb/_navigation.jade")
-              else if (requestUri.startsWith("/fabric"))
-                include("/fabric/_navigation.jade")
-              else if (requestUri.startsWith("/mq"))
-                include("/mq/_navigation.jade")
-              else
-                include("/_navigation.jade")
+    .navbar.navbar-fixed-top
+      .navbar-inner
+        .container-fluid
+          a(class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          - 
+            if (requestUri.startsWith("/bundle"))
+              include("/bundle/_navigation.jade")
+            else if (requestUri.startsWith("/eca"))
+              include("/eca/_navigation.jade")
+            else if (requestUri.startsWith("/eip"))
+              include("/eip/_navigation.jade")
+            else if (requestUri.startsWith("/esb"))
+              include("/esb/_navigation.jade")
+            else if (requestUri.startsWith("/fabric"))
+              include("/fabric/_navigation.jade")
+            else if (requestUri.startsWith("/mq"))
+              include("/mq/_navigation.jade")
+            else
+              include("/_navigation.jade")
+              
     - if (blog!=null)
       div#blog
         div.wrapper
@@ -67,19 +70,31 @@ html(lang="en")
       !~~ content
     - if (body!=null && content == null)
       .container
-        .content
-          .page-header
-            h1= title
-          .row
-            !~~ body
+        !~~ body
     -#      
       - if (include_console)
         - include("/org/fusesource/scalate/console/console.scaml")
+    
+    script(type="text/javascript"src={uri("/js/jquery.js")})
+    -# 
+      script(type="text/javascript"src={uri("/js/bootstrap.js")})
+    script(type="text/javascript"src={uri("/js/bootstrap-transition.js")})    
+    -# 
+      script(type="text/javascript"src={uri("/js/bootstrap-alert.js")})    
+      script(type="text/javascript"src={uri("/js/bootstrap-modal.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-dropdown.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-scrollspy.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-tab.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-tooltip.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-popover.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-button.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-collapse.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-carousel.js")})    
+    script(type="text/javascript"src={uri("/js/bootstrap-typeahead.js")})    
+
     :javascript
       var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
       document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-      </script> 
-      <script type="text/javascript"> 
       try {
       var pageTracker = _gat._getTracker("UA-1347593-12");
       pageTracker._trackPageview();

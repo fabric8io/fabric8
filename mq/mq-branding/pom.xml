@@ -21,6 +21,7 @@
         <groupId>org.fusesource.mq</groupId>
         <artifactId>mq-project</artifactId>
         <version>99-master-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

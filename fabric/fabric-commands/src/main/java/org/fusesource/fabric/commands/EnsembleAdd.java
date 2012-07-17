@@ -18,11 +18,11 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
 
-@Command(name = "ensemble-add", scope = "fabric", description = "Adds new containers to a ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+@Command(name = "ensemble-add", scope = "fabric", description = "Extend the current fabric ensemble by converting the specified containers into ensemble servers", detailedDescription = "classpath:ensembleAdd.txt")
 public class EnsembleAdd extends EnsembleCommandSupport {
 
     @Argument(required = true, multiValued = true, description = "List of containers to be added")
@@ -30,7 +30,17 @@ public class EnsembleAdd extends EnsembleCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        service.addToCluster(containers);
+        checkFabricAvailable();
+        if (containers != null && !containers.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Adding containers:");
+            for (String container : containers) {
+                builder.append(" ").append(container);
+            }
+            builder.append(" to the ensemble. This may take a while.");
+            System.out.println(builder.toString());
+            service.addToCluster(containers);
+        }
         return null;
     }
 

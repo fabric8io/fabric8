@@ -14,7 +14,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 <component>
     <fileSets>
         <!-- Cherry-pick files from the expanded Karaf distribution -->
@@ -23,6 +23,7 @@
             <outputDirectory>/</outputDirectory>
             <excludes>
               <exclude>**/demos/**</exclude>
+              <exclude>lib/fabric-version.jar</exclude>
               <exclude>bin/**</exclude>
               <exclude>etc/system.properties</exclude>
               <exclude>etc/org.apache.karaf.features.cfg</exclude>
@@ -30,8 +31,11 @@
               <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
               <exclude>etc/users.properties</exclude>
               <exclude>etc/custom.properties</exclude>
-              <exclude>etc/jre.properties</exclude>
               <exclude>system/**</exclude>
+              <exclude>fabric_license.txt</exclude>
+              <exclude>fabric_notices.txt</exclude>
+              <exclude>fabric_dependencies.txt</exclude>
+              <exclude>readme.txt</exclude>
               <exclude>LICENSE</exclude>
               <exclude>NOTICE</exclude>
               <exclude>README</exclude>
@@ -47,6 +51,10 @@
             <includes>
               <include>bin/*</include>
             </includes>
+            <excludes>
+              <exclude>bin/fusefabric</exclude>
+              <exclude>bin/shell</exclude>
+            </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
 
@@ -55,12 +63,31 @@
             <directory>${basedir}/../..</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>README</include>
                 <include>RELEASE*</include>
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>target/shared</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>esb_license.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/shared</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>readme.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
 
         <!-- Copy over everything that needs to get unix line endings -->
         <fileSet>
@@ -93,10 +120,32 @@
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>servicemix</destName>
+            <destName>fuseesb</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/fabric_license.txt</source>
+            <outputDirectory>/licenses/</outputDirectory>
+            <destName>fabric_license.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/META-INF/NOTICE</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>esb_notices.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>esb_dependencies.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+<!--
         <file>
             <source>${basedir}/target/maven-shared-archive-resources/META-INF/LICENSE</source>
             <outputDirectory>/</outputDirectory>
@@ -111,6 +160,7 @@
             <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
+-->
     </files>
 
 </component>

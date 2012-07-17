@@ -27,8 +27,7 @@
   <artifactId>fab-sample-camel-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Bundles :: Sample :: Camel NoShare</description>
+  <name>Fuse Application Bundles :: Tests :: Camel NoShare</name>
 
   <dependencies>
     <dependency>
@@ -60,7 +59,9 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <FAB-Provided-Dependency />
+
+              <!-- disable provided dependency handling for Apache Camel -->
+              <FAB-Provided-Dependency>org.apache.activemq:* org.apache.cxf:*</FAB-Provided-Dependency>
             </manifestEntries>
           </archive>
         </configuration>

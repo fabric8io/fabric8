@@ -19,12 +19,12 @@ package org.fusesource.mq.fabric;
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class OsgiDiscoveryAgent implements DiscoveryAgent {
     
-    private static final Log LOG = LogFactory.getLog(OsgiDiscoveryAgent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OsgiDiscoveryAgent.class);
     
     private AtomicBoolean running=new AtomicBoolean();
     private final AtomicReference<DiscoveryListener> discoveryListener = new AtomicReference<DiscoveryListener>();

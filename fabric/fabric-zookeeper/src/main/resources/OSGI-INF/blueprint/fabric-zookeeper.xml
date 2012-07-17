@@ -18,73 +18,49 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <ext:property-placeholder placeholder-prefix="\$[" placeholder-suffix="]">
-        <ext:default-properties>
-            <ext:property name="zookeeper.url" value=""/>
-        </ext:default-properties>
-    </ext:property-placeholder>
+    <reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <cm:property-placeholder persistent-id="org.fusesource.fabric.zookeeper">
-        <cm:default-properties>
-            <cm:property name="zookeeper.url" value="\$[zookeeper.url]"/>
-            <cm:property name="zookeeper.timeout" value="10s"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-
-    <bean id="zkClientFactory" class="org.fusesource.fabric.zookeeper.internal.ZKClientFactoryBean" destroy-method="destroy" depends-on="zkServerFactory">
-        <cm:managed-properties persistent-id="org.fusesource.fabric.zookeeper" update-method="update" update-strategy="component-managed"/>
-        <property name="connectString" value="${zookeeper.url}"/>
-        <property name="timeoutText" value="${zookeeper.timeout}"/>
-        <property name="listeners">
-            <list>
-                <ref component-id="karafContainerRegistration"/>
-                <ref component-id="serviceRegistrationListener"/>
-                <ref component-id="facade"/>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="karafContainerRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafContainerRegistration" destroy-method="destroy" depends-on="zkServerFactory">
-        <property name="configurationAdmin">
-            <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
-        </property>
+    <!-- Zookeeper client -->
+    <bean id="zkClient" class="org.fusesource.fabric.zookeeper.internal.OsgiZkClient" init-method="init" destroy-method="destroy">
         <property name="bundleContext" ref="blueprintBundleContext" />
+        <property name="configurationAdmin" ref="configAdmin" />
     </bean>
+
+    <!-- ZooKeeper url handler -->
+    <bean id="urlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">
+        <argument ref="zkClient" />
+    </bean>
+    <service ref="urlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
+        <service-properties>
+            <entry key="url.handler.protocol" value="zk" />
+        </service-properties>
+    </service>
+    
+    <!-- The karaf container registration -->
+    <bean id="karafContainerRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafContainerRegistration" destroy-method="destroy" depends-on="zkServerFactory">
+        <property name="configurationAdmin" ref="configAdmin" />
+        <property name="bundleContext" ref="blueprintBundleContext" />
+        <property name="zooKeeper" ref="zkClient" />
+    </bean>
+    <service ref="karafContainerRegistration">
+        <interfaces>
+            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+            <value>org.osgi.service.cm.ConfigurationListener</value>
+        </interfaces>
+    </service>
 
     <reference interface="javax.management.MBeanServer">
         <reference-listener ref="karafContainerRegistration" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
     </reference>
 
-    <bean id="serviceRegistrationListener" class="org.fusesource.fabric.zookeeper.internal.ServiceRegistrationListener" destroy-method="onDisconnected">
-        <property name="zooKeeperUrl" value="${zookeeper.url}"/>
-        <property name="bundleContext" ref="blueprintBundleContext"/>
-    </bean>
-
-    <bean id="zkClient" factory-ref="zkClientFactory" factory-method="getObject"/>
-
+    <!-- ZooKeeper server -->
     <bean id="zkServerFactory" class="org.fusesource.fabric.zookeeper.internal.ZKServerFactoryBean" destroy-method="destroy">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <argument ref="blueprintBundleContext"/>
     </bean>
-
-    <bean id="facade" class="org.fusesource.fabric.zookeeper.internal.ZkClientFacadeImpl">
-        <cm:managed-properties persistent-id="org.fusesource.fabric.zookeeper" update-method="update" update-strategy="component-managed" />
-    </bean>
-
     <service ref="zkServerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
             <entry key="service.pid" value="org.fusesource.fabric.zookeeper.server"/>
         </service-properties>
     </service>
-
-    <service ref="facade" ranking="10">
-        <interfaces>
-            <value>org.linkedin.zookeeper.client.IZKClient</value>
-            <value>org.fusesource.fabric.zookeeper.ZkClientFacade</value>
-        </interfaces>
-    </service>
-
-    <reference-list interface="org.linkedin.zookeeper.client.LifecycleListener" availability="optional">
-        <reference-listener ref="zkClientFactory" bind-method="registerListener" unbind-method="unregisterListener"/>
-    </reference-list>
 
 </blueprint>

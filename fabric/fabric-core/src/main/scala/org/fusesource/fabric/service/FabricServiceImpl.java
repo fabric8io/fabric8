@@ -16,37 +16,27 @@
  */
 package org.fusesource.fabric.service;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerBasicMetadata;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ContainerImpl;
-import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.internal.ProfileImpl;
+import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.internal.VersionImpl;
-import org.fusesource.fabric.internal.ZooKeeperUtils;
+import org.fusesource.fabric.utils.Base64Encoder;
+import org.fusesource.fabric.utils.ObjectUtils;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -58,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 public class FabricServiceImpl implements FabricService {
+    public static String requirementsJsonPath = "/fabric/configs/org.fusesource.fabric.requirements.json";
 
     private static final Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
@@ -68,6 +59,7 @@ public class FabricServiceImpl implements FabricService {
     private ObjectName mbeanName;
     private String userName = "admin";
     private String password = "admin";
+    private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
 
     public FabricServiceImpl() {
         providers = new ConcurrentHashMap<String, ContainerProvider>();
@@ -96,6 +88,14 @@ public class FabricServiceImpl implements FabricService {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getDefaultRepo() {
+        return defaultRepo;
+    }
+
+    public void setDefaultRepo(String defaultRepo) {
+        this.defaultRepo = defaultRepo;
     }
 
     @Override
@@ -189,27 +189,48 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void startContainer(final Container container) {
-        if (container.isRoot()) {
-            throw new IllegalArgumentException("Cannot start root containers");
+        logger.info("Starting container {}", container.getId());
+        ContainerProvider provider = getProvider(container);
+        if (!container.isAlive()) {
+            provider.start(container);
         }
-        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.startInstance(container.getId(), null);
-                return null;
-            }
-        });
     }
 
     public void stopContainer(final Container container) {
-        if (container.isRoot()) {
-            throw new IllegalArgumentException("Cannot stop root containers");
+        logger.info("Stopping container {}", container.getId());
+        ContainerProvider provider = getProvider(container);
+        if (container.isAlive()) {
+            provider.stop(container);
         }
-        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.stopInstance(container.getId());
-                return null;
-            }
-        });
+    }
+
+    public void destroyContainer(Container container) {
+        logger.info("Destroying container {}", container.getId());
+        ContainerProvider provider = getProvider(container);
+        try {
+            provider.destroy(container);
+        } catch (Exception e) {
+        }
+        try {
+            zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(container.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER.getPath(container.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_DOMAINS.getPath(container.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_PROVISION.getPath(container.getId()));
+        } catch (Exception e) {
+        }
+    }
+    
+    protected ContainerProvider getProvider(Container container) {
+        CreateContainerMetadata metadata = container.getMetadata();
+        String type = metadata != null ? metadata.getCreateOptions().getProviderType() : null;
+        if (type == null) {
+            throw new UnsupportedOperationException("Container " + container.getId() + " has not been created using Fabric");
+        }
+        ContainerProvider provider = getProvider(type);
+        if (provider == null) {
+            throw new UnsupportedOperationException("Container provider " + type + " not supported");
+        }
+        return provider;
     }
 
     public static String getParentFromURI(URI uri) {
@@ -221,7 +242,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
-        if (options.getZookeeperUrl() == null && !options.isDebugContainer()) {
+        if (options.getZookeeperUrl() == null && !options.isEnsembleServer()) {
             options.setZookeeperUrl(getZookeeperUrl());
         }
         if (options.getProxyUri() == null) {
@@ -240,10 +261,24 @@ public class FabricServiceImpl implements FabricService {
                 if (metadata.isSuccess()) {
                     //An ensemble server can be created without an existing ensemble.
                     //In this case container config will be created by the newly created container.
+                    //TODO: We need to make sure that this entries are somehow added even to ensemble servers.
                     if (!options.isEnsembleServer()) {
                         createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
+                        // Store metadata
+                        //We encode the metadata so that they are more friendly to import/export.
+                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
+
+                        Map<String,String> configuration = metadata.getContainerConfguration();
+                        for (Map.Entry<String, String> entry : configuration.entrySet()) {
+                            String key = entry.getKey();
+                            String value = entry.getValue();
+                            ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(),key),value);
+                        }
+
+                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName()), options.getResolver());
                     }
-                    ((CreateContainerBasicMetadata) metadata).setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
+                    metadata.setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
+                    ((ContainerImpl) metadata.getContainer()).setMetadata(metadata);
                     logger.info("The container " + metadata.getContainerName() + " has been successfully created");
                 } else {
                     logger.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
@@ -267,10 +302,37 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public URI getMavenRepoURI() {
-        URI uri = URI.create(DEFAULT_REPO_URI);
+        URI uri = URI.create(defaultRepo);
         try {
-            if (zooKeeper.exists(ZkPath.CONFIGS_MAVEN_REPO.getPath()) != null) {
-                String mavenRepo = zooKeeper.getStringData(ZkPath.CONFIGS_MAVEN_REPO.getPath());
+            if (zooKeeper != null && zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
+                if (children != null && !children.isEmpty()) {
+                    Collections.sort(children);
+                }
+
+                String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
+                if(mavenRepo != null && !mavenRepo.endsWith("/")) {
+                    mavenRepo+="/";
+                }
+                uri = new URI(mavenRepo);
+            }
+        } catch (Exception e) {
+            //On exception just return uri.
+        }
+        return uri;
+    }
+
+    @Override
+    public URI getMavenRepoUploadURI() {
+        URI uri = URI.create(defaultRepo);
+        try {
+            if (zooKeeper != null && zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("upload"));
+                if (children != null && !children.isEmpty()) {
+                    Collections.sort(children);
+                }
+
+                String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
                 if(mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo+="/";
                 }
@@ -322,32 +384,37 @@ public class FabricServiceImpl implements FabricService {
     }
 
 
-    public void destroy(Container container) {
-        if (container.getParent() != null) {
-            destroyChild(container.getParent(), container.getId());
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private void destroyChild(final Container parent, final String name) {
-        getContainerTemplate(parent).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.stopInstance(name);
-                adminService.destroyInstance(name);
-                zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(name));
-                return null;
-            }
-        });
-    }
-
     public String getZookeeperUrl() {
         String zooKeeperUrl = null;
+        //We are looking directly for at the zookeeper for the url, since container might not even be mananaged.
+        //Also this is required for the integration with the IDE.
         try {
-            Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
-            zooKeeperUrl = (String) config.getProperties().get("zookeeper.url");
+            if (zooKeeper != null && zooKeeper.isConnected()) {
+                Version defaultVersion = getDefaultVersion();
+                if (defaultVersion != null) {
+                    Profile profile = getProfile(defaultVersion.getName(), "default");
+                    if (profile != null) {
+                        Map<String, Map<String, String>> configurations = profile.getConfigurations();
+                        if (configurations != null) {
+                            Map<String, String> zookeeperConfig = configurations.get("org.fusesource.fabric.zookeeper");
+                            if (zookeeperConfig != null) {
+                                zooKeeperUrl = ZooKeeperUtils.getSubstitutedData(zooKeeper, zookeeperConfig.get("zookeeper.url"));
+                            }
+                        }
+                    }
+                }
+            }
         } catch (Exception e) {
             //Ignore it.
+        }
+
+        if (zooKeeperUrl == null) {
+            try {
+                Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
+                zooKeeperUrl = (String) config.getProperties().get("zookeeper.url");
+            } catch (Exception e) {
+                //Ignore it.
+            }
         }
         return zooKeeperUrl;
     }
@@ -355,8 +422,8 @@ public class FabricServiceImpl implements FabricService {
     private void createContainerConfig(String parent, String name) {
         try {
             String configVersion = getDefaultVersion().getName();
-            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(name), configVersion);
-            ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(configVersion, name), profile);
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(name), configVersion);
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(configVersion, name), profile);
             zooKeeper.createOrSetWithParents(CONTAINER_PARENT.getPath(name), parent, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (FabricException e) {
             throw e;
@@ -374,8 +441,8 @@ public class FabricServiceImpl implements FabricService {
             }
             if (version == null || version.isEmpty()) {
                 version = ZkDefs.DEFAULT_VERSION;
-                ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
-                ZooKeeperUtils.createDefault(zooKeeper, ZkPath.CONFIG_VERSION.getPath(version), null);
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSION.getPath(version), (String) null);
             }
             return new VersionImpl(version, this);
         } catch (Exception e) {
@@ -501,4 +568,35 @@ public class FabricServiceImpl implements FabricService {
         return new ContainerTemplate(container, cacheJmx, userName, password);
     }
 
+    @Override
+    public void setRequirements(FabricRequirements requirements) throws IOException {
+        try {
+            String json = RequirementsJson.toJSON(requirements);
+            zooKeeper.createOrSetWithParents(requirementsJsonPath, json, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public FabricRequirements getRequirements() {
+        try {
+            FabricRequirements answer = null;
+            if (zooKeeper.exists(requirementsJsonPath) != null) {
+                String json = zooKeeper.getStringData(requirementsJsonPath);
+                answer = RequirementsJson.fromJSON(json);
+            }
+            if (answer == null) {
+                answer = new FabricRequirements();
+            }
+            return answer;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public FabricStatus getFabricStatus() {
+        return new FabricStatus(this);
+    }
 }

@@ -1,4 +1,4 @@
-To install a FAB with some value of _groupId_, _artfactId_, _version_ type the following command into the console of either [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/) or [Apache Karaf](http://karaf.apache.org/) (if it has the [Fuse bundle feature installed](faq.html#How_do_I_enable_FAB_support_in_my_OSGi_container_))
+To install a FAB with some value of _groupId_, _artfactId_, _version_ type the following command into the console of either [Fuse ESB](http://fusesource.com/products/fuse-esb-enterprise/) or [Apache Karaf](http://karaf.apache.org/) (if it has the [Fuse bundle feature installed](faq.html#How_do_I_enable_FAB_support_in_my_OSGi_container_))
 
 
 {pygmentize:: text}

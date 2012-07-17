@@ -18,7 +18,7 @@ package org.fusesource.fabric.camel.c24io.validation;
 
 import biz.c24.io.api.presentation.Source;
 import biz.c24.io.api.presentation.TextualSource;
-import biz.c24.testtransactions.Transactions;
+import biz.c24.io.gettingstarted.transaction.Transactions;
 
 import org.apache.camel.ValidationException;
 import org.apache.camel.builder.Builder;

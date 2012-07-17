@@ -15,16 +15,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.fusesource.esb</groupId>
-        <artifactId>esb-project</artifactId>
+        <artifactId>fuse-esb</artifactId>
         <version>99-master-SNAPSHOT</version>
-        <relativePath>..</relativePath>
+        <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 
     <artifactId>fuse-esb-full</artifactId>
@@ -52,13 +50,39 @@
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.servicemix/apache-servicemix/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.fusesource.esb/fuse-esb/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-unix</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.fusesource.fabric</groupId>
+                                    <artifactId>fuse-fabric</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>target/features-repo/org/fusesource/fabric/fuse-fabric/${project.version}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>

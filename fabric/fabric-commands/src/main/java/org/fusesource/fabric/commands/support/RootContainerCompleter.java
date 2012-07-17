@@ -17,6 +17,7 @@
 package org.fusesource.fabric.commands.support;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.boot.commands.support.ContainerCompleter;
 
 public class RootContainerCompleter extends ContainerCompleter {
 

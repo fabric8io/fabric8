@@ -35,6 +35,8 @@ import java.util.logging.Logger;
 public class LoadBalanceTargetSelector extends AbstractConduitSelector {
     protected volatile Conduit selectedConduit;
     protected LoadBalanceStrategy loadBalanceStrategy;
+    
+    public static final String OVERRIDE_ADDRESS = LoadBalanceTargetSelector.class.getName() + ".OVERRIDE_ADDRESS";
 
     private static final Logger LOG =
             LogUtils.getL7dLogger(FailOverTargetSelector.class);
@@ -73,13 +75,26 @@ public class LoadBalanceTargetSelector extends AbstractConduitSelector {
         }
         return selectedConduit;
     }
+    
+    protected boolean overrideAddress(Message message) {
+        String value = (String) message.get(OVERRIDE_ADDRESS);
+        if (value == null) {
+            // The default value should be true
+            return true;
+        } else {
+            return value.equalsIgnoreCase("true");
+        }
+    }
 
     protected Conduit getNextConduit(Message message) {
         Conduit answer = null;
         Exchange exchange = message.getExchange();
         EndpointInfo ei = endpoint.getEndpointInfo();
-        //TODO check the address from  Message.ENDPOINT_ADDRESS
         String address = loadBalanceStrategy.getNextAlternateAddress();
+        if (overrideAddress(message)) {
+            // We need to override the Endpoint Address here
+            message.put(Message.ENDPOINT_ADDRESS, address);
+        }
         try {
             ConduitInitiatorManager conduitInitiatorMgr = exchange.getBus()
                     .getExtension(ConduitInitiatorManager.class);

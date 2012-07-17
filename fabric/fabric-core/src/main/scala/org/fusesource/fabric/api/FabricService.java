@@ -17,11 +17,12 @@
 
 package org.fusesource.fabric.api;
 
+import java.io.IOException;
 import java.net.URI;
 
 public interface FabricService {
 
-    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public-snapshots/";
+    static final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public/";
 
     /**
      * Gets the existing {@link Container}s.
@@ -53,7 +54,7 @@ public interface FabricService {
      * Sets the default {@link Version}.
      * @param version
      */
-    void setDefaultVersion( Version version );
+    void setDefaultVersion(Version version);
 
     /**
      * Returns all {@link Version}s.
@@ -64,7 +65,7 @@ public interface FabricService {
     /**
      * Finds the {@link Version} with the specified name.
      * @param name  The name of the {@link Version}.
-     * @return      The {@link Version} that mathces the name.
+     * @return      The {@link Version} that matches the name.
      */
     Version getVersion(String name);
 
@@ -87,6 +88,11 @@ public interface FabricService {
      * Returns the current maven proxy repository to use to create new container
      */
     URI getMavenRepoURI();
+
+    /**
+     * Returns the current maven proxy repository to use to deploy new builds to the fabric
+     */
+    URI getMavenRepoUploadURI();
 
     /**
      * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
@@ -121,7 +127,9 @@ public interface FabricService {
     /**
      * Deletes the specified {@link Profile}.
      * @param profile
+     * @deprecated Use Profile#delete() instead
      */
+    @Deprecated
     void deleteProfile(Profile profile);
 
     /**
@@ -135,4 +143,20 @@ public interface FabricService {
      * @return
      */
     String getCurrentContainerName();
+
+    /**
+     * Returns the fabric provisioning requirements if there are any defined
+     * or empty requirements if none are defined.
+     */
+    FabricRequirements getRequirements();
+
+    /**
+     * Stores the fabric provisioning requirements
+     */
+    void setRequirements(FabricRequirements requirements) throws IOException;
+
+    /**
+     * Get the profile statuses of the fabric in terms of the current number of instances and their max/min requirements
+     */
+    FabricStatus getFabricStatus();
 }

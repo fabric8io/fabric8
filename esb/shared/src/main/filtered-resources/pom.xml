@@ -14,92 +14,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.servicemix.features</groupId>
-        <artifactId>features</artifactId>
-        <version>${project.version}</version>
-    </parent>
-
-    <groupId>org.apache.servicemix.examples</groupId>
-    <artifactId>examples</artifactId>
-    <packaging>pom</packaging>
+    <groupId>org.fusesource.examples</groupId>
+    <artifactId>project</artifactId>
     <version>${project.version}</version>
-    <name>Apache ServiceMix Examples</name>
+    <packaging>pom</packaging>
+    <name>Fuse ESB :: Examples</name>
 
     <modules>
-        <module>bridge</module>
-        <module>bridge-camel</module>
-        <module>camel</module>
-        <module>cxf-wsdl-first</module>
-        <module>camel-nmr</module>
-        <module>camel-osgi</module>
-        <module>cxf-camel-nmr</module>
-        <module>cxf-nmr</module>
-        <module>cxf-osgi</module>
-        <module>cxf-ws-addressing</module>
-        <module>cxf-jaxrs</module>
-        <module>cxf-wsdl-first-osgi-package</module>
-        <module>cxf-ws-security-osgi</module>
-        <module>cxf-ws-rm</module> 
-        <module>jpa-osgi</module>
+        <module>cbr</module>
+        <module>eip</module>
+        <module>errors</module>
+        <module>soap</module>
+        <module>rest</module>
+        <module>secure-soap</module>
+        <module>secure-rest</module>
     </modules>
-
-    <repositories>
-        <!-- FuseSource maven repositories -->
-        <repository>
-            <id>fusesource.releases</id>
-            <name>FuseSoure releases repository</name>
-            <url>http://repo.fusesource.com/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>fusesource.snapshots</id>
-            <name>FuseSource Snapshot Repository</name>
-            <url>http://repo.fusesource.com/maven2-snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <!-- FuseSource maven repositories -->
-        <pluginRepository>
-            <id>fusesource.releases</id>
-            <name>FuseSoure releases repository</name>
-            <url>http://repo.fusesource.com/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>fusesource.snapshots</id>
-            <name>FuseSource Snapshot Repository</name>
-            <url>http://repo.fusesource.com/maven2-snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>

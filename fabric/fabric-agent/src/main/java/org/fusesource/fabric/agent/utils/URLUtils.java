@@ -26,6 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import org.fusesource.fabric.utils.Base64Encoder;
 
 /**
  * Url related utility methods.

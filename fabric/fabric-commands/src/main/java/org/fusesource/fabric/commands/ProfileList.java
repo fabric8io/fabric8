@@ -22,19 +22,26 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "profile-list", scope = "fabric", description = "List existing profiles")
+import static org.fusesource.fabric.commands.support.CommandUtils.sortProfiles;
+
+@Command(name = "profile-list", scope = "fabric", description = "Lists all profiles that belong to the specified version (where the version defaults to the current default version)")
 public class ProfileList extends FabricCommand {
 
-    @Option(name = "--version")
+    @Option(name = "--version", description = "Specifies the version of the profiles to list. Defaults to the current default version.")
     private String version;
+
+    @Option(name = "--hidden", description = "Display hidden profiles")
+    private boolean hidden;
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
+        checkFabricAvailable();
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
         Profile[] profiles = ver.getProfiles();
+        // we want the list to be sorted
+        profiles = sortProfiles(profiles);
         printProfiles(profiles, System.out);
         return null;
     }
@@ -42,8 +49,10 @@ public class ProfileList extends FabricCommand {
     protected void printProfiles(Profile[] profiles, PrintStream out) {
         out.println(String.format("%-40s %-14s %s", "[id]", "[# containers]", "[parents]"));
         for (Profile profile : profiles) {
-            int active = profile.getAssociatedContainers().length;
-            out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
+            if (hidden || !profile.isHidden()) {
+                int active = profile.getAssociatedContainers().length;
+                out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
+            }
         }
     }
 

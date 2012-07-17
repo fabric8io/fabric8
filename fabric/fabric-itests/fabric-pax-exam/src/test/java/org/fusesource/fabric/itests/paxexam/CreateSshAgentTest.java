@@ -17,31 +17,30 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class CreateSshAgentTest extends FabricCommandsTestSupport {
+public class CreateSshAgentTest extends FabricTestSupport {
 
     private String host;
     private String port;
@@ -70,7 +69,10 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
     @After
     public void tearDown() {
         if (isReady()) {
-            executeCommand("fabric:container-connect ssh1 osgi:stop --force 0");
+            executeCommand("fabric:container-stop ssh2");
+            executeCommand("fabric:container-delete ssh2");
+            executeCommand("fabric:container-stop ssh1");
+            executeCommand("fabric:container-delete ssh1");
         }
     }
 
@@ -79,11 +81,8 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
         if (isReady()) {
             FabricService fabricService = getOsgiService(FabricService.class);
             assertNotNull(fabricService);
-            System.err.println(executeCommand("fabric:create"));
+            System.err.println(executeCommand("fabric:create -n"));
 
-            //Wait for zookeeper service to become available.
-            ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
-            zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
             CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
                     .host(host)
                     .port(Integer.parseInt(port))
@@ -98,23 +97,41 @@ public class CreateSshAgentTest extends FabricCommandsTestSupport {
             }
             assertTrue("Expected succesful creation of remote ssh container",metadata[0].isSuccess());
             assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
-            waitForProvisionSuccess(metadata[0].getContainer(), PROVISION_TIMEOUT);
-            System.err.println(executeCommand("fabric:container-list"));
-            Container container = fabricService.getContainer("ssh1");
-            assertTrue(container.isAlive());
-            createAndAssetChildContainer("ssh2","ssh1");
+            waitForProvisionSuccess(metadata[0].getContainer(), 3 * PROVISION_TIMEOUT);
+            System.out.println(executeCommand("fabric:container-list -v"));
+            System.out.println(executeCommand("fabric:container-resolver-list"));
+            Container ssh1 = fabricService.getContainer("ssh1");
+            assertTrue(ssh1.isAlive());
+            createAndAssertChildContainer("ssh2", "ssh1", "default");
+
+            //Stop & Start Remote Child
+            Container ssh2 = fabricService.getContainer("ssh2");
+            ssh2.stop();
+            assertFalse(ssh2.isAlive());
+            ssh2.start();
+            waitForProvisionSuccess(ssh2,PROVISION_TIMEOUT);
+            assertTrue(ssh2.isAlive());
+            ssh2.stop();
+
+            //Try stopping and starting the remote container.
+            ssh1.stop();
+            assertFalse(ssh1.isAlive());
+            System.out.println(executeCommand("fabric:container-list -v"));
+            ssh1.start();
+            waitForProvisionSuccess(ssh1,PROVISION_TIMEOUT);
+            System.out.println(executeCommand("fabric:container-list -v"));
+            assertTrue(ssh1.isAlive());
         }
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(),
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
                 copySystemProperty("fabricitest.ssh.username"),
                 copySystemProperty("fabricitest.ssh.password"),
                 copySystemProperty("fabricitest.ssh.host"),
                 copySystemProperty("fabricitest.ssh.port"),
-                debugConfiguration("5005",true),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+        };
     }
 }

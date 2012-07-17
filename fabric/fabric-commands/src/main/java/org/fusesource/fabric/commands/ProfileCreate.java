@@ -22,26 +22,27 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "profile-create", scope = "fabric", description = "Create a new profile")
+@Command(name = "profile-create", scope = "fabric", description = "Create a new profile with the specified name and version", detailedDescription = "classpath:profileCreate.txt")
 public class ProfileCreate extends FabricCommand {
 
-    @Option(name = "--version")
-    private String version = ZkDefs.DEFAULT_VERSION;
-
-    @Option(name = "--parents", multiValued = true, required = false)
+    @Option(name = "--version", description = "The profile version. Defaults to the current default version.")
+    private String version;
+    @Option(name = "--parents", multiValued = true, required = false, description = "Optionally specifies one or multiple parent profiles. To specify multiple parent profiles, specify this flag multiple times on the command line. For example, --parents foo --parents bar.")
     private List<String> parents;
-
     @Argument(index = 0)
     private String name;
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
-        Profile[] parents = getProfiles(version, this.parents);
-        Profile profile = fabricService.getVersion(version).createProfile(name);
+        checkFabricAvailable();
+
+        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        
+        Profile[] parents = getProfiles(ver, this.parents);
+        Profile profile = fabricService.getVersion(ver.getName()).createProfile(name);
         profile.setParents(parents);
         return null;
     }

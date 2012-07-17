@@ -1,5 +1,5 @@
 ---
-title: Building
+title: How the site works
 --- name:overview
 
 # ${project_name} Site 
@@ -12,7 +12,7 @@ How the website works
     # How it works
 .right
   :&markdown
-    The *#{project_name}* documentation and site is created using Fabric and is stored in git in the same [source control system as the code](source.html)
+    The documentation and site is created using Fabric and is stored in git in the same [source control system as the code](source.html)
 
     **Note:** For code highlighting you will need to [install](http://pygments.org/download/) [http://pygments.org/](http://pygments.org).
     
@@ -21,11 +21,10 @@ How the website works
     # Editing the source code
 .right
   :markdown
-    If you [grab the source code](source.html) you can get the site source in the *fabric-website* directory.
-    If you [have Fabric installed](docs/installing.html) then you can build the website from [the code](source.html) as follows
+    If you [grab the source code](source.html) you can get the site source in the *website* directory and generate the documentation via:
 
     {pygmentize:: text}
-    cd fabric-website
+    cd website
     mvn install
     {pygmentize}
 
@@ -50,7 +49,7 @@ How the website works
     You can manually deploy the site using Maven:
     
     {pygmentize:: text}
-    mvn fabric:deploy
+    mvn scalate:sitegen scalate:deploy
     {pygmentize}
 
     Though website deployment also occurs by default using the **deploy** goal in maven

@@ -39,6 +39,7 @@ public class Activator implements BundleActivator {
     private ServiceTracker packageAdmin;
     private ServiceTracker startLevel;
     private ServiceTracker zkClient;
+    private ServiceTracker fabricService;
     private ServiceRegistration registration;
 
     public void start(BundleContext context) throws Exception {
@@ -54,15 +55,10 @@ public class Activator implements BundleActivator {
         registration = context.registerService(ManagedService.class.getName(), agent, props);
     }
 
-    private Callable<IZKClient> getZkClient(BundleContext context) {
+    private ServiceTracker getZkClient(BundleContext context) {
         zkClient = new ServiceTracker(context, IZKClient.class.getName(), null);
         zkClient.open();
-        return new Callable<IZKClient>() {
-            @Override
-            public IZKClient call() throws Exception {
-                return (IZKClient) zkClient.getService();
-            }
-        };
+        return zkClient;
     }
 
     private StartLevel getStartLevel(BundleContext context) {

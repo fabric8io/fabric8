@@ -16,34 +16,34 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import java.net.URL;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.linkedin.zookeeper.client.IZKClient;
 
-import java.net.URL;
-
-@Command(name = "set", scope = "zk", description = "Set a node's data")
+@Command(name = "set", scope = "zk", description = "Set a znode's data", detailedDescription = "classpath:set.txt")
 public class Set extends ZooKeeperCommandSupport {
 
-    @Option(name = "-i", aliases = {"--import"}, description = "Import data from an url")
+    @Option(name = "-i", aliases = {"--import"}, description = "Import data from a URL")
     boolean importUrl;
 
-    @Argument(description = "Path of the node to set", index = 0)
+    @Argument(description = "Path of the znode to set", index = 0)
     String path;
 
-    @Argument(description = "The new data, or url if 'import' option is used", index = 1)
+    @Argument(description = "The new data or URL, if the '--import' option is specified", index = 1)
     String data;
 
     @Override
-    protected Object doExecute() throws Exception {
-       checkZooKeeperConnected();
+    protected void doExecute(IZKClient zk) throws Exception {
+
         String nodeData = data;
 
         if (importUrl) {
             nodeData = loadUrl(new URL(data));
         }
-
-        getZooKeeper().setData(path, nodeData);
-        return null;
+        
+        zk.setData(path, nodeData);
     }
 }

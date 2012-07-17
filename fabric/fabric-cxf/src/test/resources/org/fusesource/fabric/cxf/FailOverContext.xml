@@ -21,22 +21,21 @@
          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
          http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
    <import resource="classpath:META-INF/cxf/cxf.xml"/>
-   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
-   <import resource="classpath:META-INF/cxf/cxf-extension-local.xml" />
-   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
+
 
   <!-- Since this is a test case lets run a local ZK server -->
   <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">
     <property name="purge" value="true"/>
   </bean>
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean" depends-on="zkServer">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
   <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricFailOverFeature">
-      <property name="fabricPath" value="simple" />
+      <property name="zkClient" ref="zkClient" />
+      <property name="fabricPath" value="simple/test" />
   </bean>
   <!-- configure the feature on the bus -->
   <cxfcore:bus>

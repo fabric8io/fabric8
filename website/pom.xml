@@ -183,6 +183,27 @@
               </exclusion>
             </exclusions>
           </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-boot-commands</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.karaf.shell</groupId>
+                        <artifactId>org.apache.karaf.shell.obr</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-zookeeper-commands</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-core-agent-jclouds</artifactId>
+                <version>${project.version}</version>
+            </dependency>
           <dependency>
             <groupId>org.fusesource.fabric.fab</groupId>
             <artifactId>fab-osgi</artifactId>

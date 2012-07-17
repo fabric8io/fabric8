@@ -1,0 +1,19 @@
+Child containers have the following characteristics:
+
+* Each child container has a parent, so that the child containers form a hierarchy, with the root container as the ultimate ancestor.
+
+* The child starts in a new JVM instance (JVM options can be passed to the new JVM through the --jvm-opts command option).
+
+* A complete set of data directories are created for the child instance, under the <InstallDir>/instances/<ChildName> directory. The <InstallDir>/system directory is shared with the root container.
+
+For example, if you have already created a new fabric (for example, by invoking fabric:create), you could add some child containers to the root container by entering the following command:
+
+karaf@root> fabric:container-create-child root child 3
+
+By default, the new child containers are associated with the profile, default. If you want  to specify the profile explicitly, use the --profile option. For example, to specify the esb profile:
+
+fabric:container-create-child --profile esb root childESB
+
+To associate multiple profiles with a new child container, specify the --profile option multiple times. For example:
+
+fabric:container-create-child --profile esb --profile myApp root childMyApp

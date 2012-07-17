@@ -17,6 +17,6 @@
 
 package org.fusesource.fabric.api;
 
-public class CreateSshContainerMetadata extends CreateContainerBasicMetadata {
+public class CreateSshContainerMetadata extends CreateContainerBasicMetadata<CreateSshContainerOptions> {
 
 }

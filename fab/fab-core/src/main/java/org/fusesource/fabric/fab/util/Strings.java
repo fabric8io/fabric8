@@ -47,6 +47,10 @@ public class Strings {
         }
     }
 
+    public static String defaultIfEmpty(String value, String defaultValue) {
+        return notEmpty(value) ? value : defaultValue;
+    }
+
     /**
      * splits a string into a list of strings, ignoring the empty string
      */
@@ -99,6 +103,14 @@ public class Strings {
             return Arrays.asList((Object[]) object).toString();
         } else {
             return object.toString();
+        }
+    }
+    
+    public static String unquote(String text) {
+        if (text != null && text.startsWith("\"") && text.endsWith("\"")) {
+            return text.substring(1, text.length() - 1);
+        } else {
+            return text;
         }
     }
 

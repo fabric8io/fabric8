@@ -14,7 +14,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 <component>
     <fileSets>
         <fileSet>
@@ -29,7 +29,7 @@
             <outputFileNameMapping>esb-version.jar</outputFileNameMapping>
             <fileMode>0644</fileMode>
             <includes>
-                <include>org.fusesource.esb:esb-branding</include>
+                <include>org.fusesource.esb:org.fusesource.esb.karaf.branding</include>
             </includes>
             <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
@@ -38,7 +38,6 @@
             <fileMode>0644</fileMode>
             <includes>
                 <include>org.apache.xerces:xercesImpl</include>
-                <include>org.apache.xerces:xml-apis</include>
                 <include>xalan:xalan</include>
                 <include>xalan:serializer</include>
             </includes>

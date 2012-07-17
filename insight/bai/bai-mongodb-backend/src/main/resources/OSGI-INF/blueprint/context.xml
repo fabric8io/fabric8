@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) FuseSource, Inc.
+  ~ http://fusesource.com
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+           
+	<bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
+		<property name="mongo">
+			<bean class="com.mongodb.Mongo" />
+		</property>
+		<property name="dbname" value="bai" />
+		<property name="context" ref="mongoDbAuditContext" />
+	</bean>
+	
+	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+	   <property name="brokerURL" value="vm://default" />
+	</bean>
+
+	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+	   <property name="connectionFactory" ref="amqConnectionFactory"/>
+	   <property name="transacted" value="false"/>
+	   <property name="concurrentConsumers" value="1"/>
+	</bean>
+	
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+	    <property name="configuration" ref="jmsConfig"/>
+	</bean>
+
+	<camelContext id="mongoDbAuditContext"
+				  useBreadcrumb="true"
+				  xmlns="http://camel.apache.org/schema/blueprint"
+				  xsi:schemaLocation="http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.8.0.xsd">	  
+		<route>
+			<from uri="vm:audit?concurrentConsumers=1" />
+			<bean ref="mongoBackend" method="audit" />
+		</route>		  
+				  
+	</camelContext>
+		
+   	
+</blueprint>

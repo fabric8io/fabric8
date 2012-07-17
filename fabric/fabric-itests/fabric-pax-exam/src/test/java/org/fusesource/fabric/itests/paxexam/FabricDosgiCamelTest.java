@@ -22,24 +22,21 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
+public class FabricDosgiCamelTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
@@ -52,16 +49,25 @@ public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        System.err.println(executeCommand("echo $APPLICATION"));
-        System.err.println(executeCommand("fabric:ensemble-create root"));
-        Thread.sleep(DEFAULT_WAIT);
+        System.err.println(executeCommand("fabric:create -n root"));
+
+        addStagingRepoToDefaultProfile();
 
         //Wait for zookeeper service to become available.
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
-        System.err.println(executeCommand("shell:source mvn:org.fusesource.fabric/fuse-fabric/"+System.getProperty("fabric.version")+"/karaf/dosgi"));
-        waitForProvisionSuccess(fabricService.getContainer("dosgi-camel"), PROVISION_TIMEOUT);
-        waitForProvisionSuccess(fabricService.getContainer("dosgi-provider"), PROVISION_TIMEOUT);
+        executeCommand("fabric:profile-create --parents dosgi dosgi-provider");
+        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-provider");
+        executeCommand("fabric:profile-edit --features fabric-example-dosgi dosgi-provider");
+
+
+        executeCommand("fabric:profile-create --parents dosgi dosgi-camel");
+        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-camel");
+        executeCommand("fabric:profile-edit --features fabric-example-camel-dosgi dosgi-camel");
+
+        createAndAssertChildContainer("dosgi-provider", "root", "dosgi-provider");
+        createAndAssertChildContainer("dosgi-camel", "root", "dosgi-camel");
+
         String response = executeCommand("fabric:container-connect dosgi-camel log:display | grep \"Message from distributed service to\"");
         System.err.println(executeCommand("fabric:container-connect dosgi-camel camel:route-info fabric-client"));
         assertNotNull(response);
@@ -73,8 +79,9 @@ public class FabricDosgiCamelTest extends FabricCommandsTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(),
-                editConfigurationFileExtend("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID,ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                //debugConfiguration("5005",true),
+                editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID,ARTIFACT_ID))
+        };
     }
 }

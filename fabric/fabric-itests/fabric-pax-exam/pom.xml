@@ -29,16 +29,11 @@
     <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-mvn</artifactId>
-            <version>1.3.5</version>
-        </dependency>
 
         <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-aether</artifactId>
-            <version>1.3.5</version>
+            <groupId>org.fusesource.tooling.testing</groupId>
+            <artifactId>pax-exam-karaf</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -54,6 +49,15 @@
             <version>${project.version}</version>
             <type>tar.gz</type>
         </dependency>
+
+        <!-- Internal Dependencies -->
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-monitor</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <!-- Jclouds Dependencies -->
         <dependency>
@@ -72,44 +76,34 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-zookeeper</artifactId>
+          <!-- Excluding this as it can cause issues with multiple versions of commons-logging -->
+          <exclusions>
+              <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging-api</artifactId>
+              </exclusion>
+          </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-          <artifactId>fabric-linkedin-zookeeper</artifactId>
+            <artifactId>fabric-linkedin-zookeeper</artifactId>
         </dependency>
 
-      <!--
         <dependency>
-            <groupId>org.linkedin</groupId>
-            <artifactId>org.linkedin.zookeeper-impl</artifactId>
-            <version>1.2.1</version>
+            <groupId>org.fusesource.fabric.fabric-examples</groupId>
+            <artifactId>fabric-cxf-demo-client</artifactId>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>javax.jms</groupId>
-                    <artifactId>jms</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jdmk</groupId>
-                    <artifactId>jmxtools</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jmx</groupId>
-                    <artifactId>jmxri</artifactId>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-bundle</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        -->
-
-        <dependency>
-            <groupId>org.openengsb.labs.paxexam.karaf</groupId>
-            <artifactId>paxexam-karaf-container</artifactId>
-            <version>0.4.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-junit4</artifactId>
-            <version>2.3.0.M1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -151,8 +145,11 @@
                         <include>**/*Test.*</include>
                     </includes>
                     <excludes>
+                        <exclude>**/*LongTest.*</exclude>
                     </excludes>
                     <systemPropertyVariables>
+                        <feature>${feature}</feature>
+                        <perfectus-build>${perfectus-build}</perfectus-build>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
                         <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
                         <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
@@ -169,12 +166,41 @@
                         <fabricitest.ssh.password>${fabricitest.ssh.password}</fabricitest.ssh.password>
                         <fabricitest.ssh.host>${fabricitest.ssh.host}</fabricitest.ssh.host>
                         <fabricitest.ssh.port>${fabricitest.ssh.port}</fabricitest.ssh.port>
+                        <fabricitest.version>${project.version}</fabricitest.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
+
+    <profiles>
+        <!-- modifies the plugin config inherited from oss-parent -->
+        <profile>
+            <id>long</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-version}</version>
+                        <configuration>
+                            <forkMode>pertest</forkMode>
+                            <useSystemClassLoader>true</useSystemClassLoader>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
+                            <failIfNoTests>false</failIfNoTests>
+                            <includes>
+                                <include>**/*LongTest.*</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <feature>${feature}</feature>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
   <!--
     <repositories>
         <repository>

@@ -1,0 +1,50 @@
+---
+title: Getting Started with Fuse MQ
+in_menu: true
+sort_info: 10
+--- pipeline:jade
+
+.row-fluid
+  .span4
+    :markdown
+      ## Install
+  .span8
+    :&markdown
+      To install [Fuse MQ](../index.html) 
+  
+      * [download](../download.html) the Fuse MQ distro 
+      * [checkout](../../source.html) and [build](../../building.html) the Fabric distro locally and untar the mq/fuse-mq tarball
+  
+      The default broker is defined in **./etc/org.fusesource.mq.fabric.server-default.cfg**
+      
+      The xml configuration is **./etc/activemq.xml**
+
+.row-fluid
+  .span4
+    :markdown
+      ## Start Fuse MQ
+  .span8
+    :&markdown
+    
+      To start Fuse MQ in the background, type:
+
+          ./bin/start
+
+      To display the log using the remote console, type:
+
+          ./bin/client log:display
+
+      To display the current broker statistics using the remote console, type:
+
+          ./bin/client activemq:bstat
+
+      To validate the installation with a simple JMS producer and consumer, type:
+
+          java -jar lib/mq-client.jar producer
+          java -jar lib/mq-client.jar consumer
+
+      View the webc onsole at <a href="http://localhost:8181/activemqweb">http://localhost:8181/activemqweb</a>
+
+
+
+

@@ -1,0 +1,36 @@
+shell:echo Install Fabric-camel example on Fuse ESB 7
+shell:echo Create Fabric ensemble - Zookeeper registry
+fabric:create --clean root
+
+shell:echo Create fabric-camel-cluster profile
+fabric:profile-create --parents camel fabric-camel-cluster
+
+shell:echo add repositories, features, ... to the fabric-camel-cluster profile
+fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features fabric-camel-cluster
+fabric:profile-edit --features camel-jetty  fabric-camel-cluster
+fabric:profile-edit --features camel-server fabric-camel-cluster
+
+shell:echo Create camel-cluster-port-9090 profile extending fabric-camel-cluster to specify the property of the port number used by the server
+fabric:profile-create --parents fabric-camel-cluster camel-cluster-port-9090
+fabric:profile-edit --pid foo.fabricCamel/portNumber=9090 camel-cluster-port-9090
+
+shell:echo Create camel-cluster-port-9191 profile extending fabric-camel-cluster
+fabric:profile-create --parents fabric-camel-cluster camel-cluster-port-9191
+fabric:profile-edit --pid foo.fabricCamel/portNumber=9191 camel-cluster-port-9191
+
+shell:echo Create fabric container camel-9090
+fabric:container-create --profile camel-cluster-port-9090 --parent root camel-9090
+shell:sleep 2000
+
+shell:echo Create fabric container camel-9191
+fabric:container-create --profile camel-cluster-port-9191 --parent root camel-9191
+shell:sleep 2000
+
+shell:echo Create fabric-camel-consumer profile
+fabric:profile-create --parents camel fabric-camel-consumer
+fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/features/${project.version}/xml/features fabric-camel-consumer
+fabric:profile-edit --features camel-jetty fabric-camel-consumer
+fabric:profile-edit --features camel-client fabric-camel-consumer
+
+shell:echo Create fabric container camel-client
+fabric:container-create --profile fabric-camel-consumer --parent root camel-client

@@ -28,17 +28,29 @@
             <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
+                <exclude>system/**</exclude>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/**</exclude>
+                <exclude>etc/custom.properties</exclude>
+                <exclude>etc/system.properties</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
-                <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
                 <exclude>lib/*-version.jar</exclude>
+                <exclude>fabric_license.txt</exclude>
+                <exclude>fabric_notices.txt</exclude>
+                <exclude>fabric_dependencies.txt</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
+                <exclude>readme.txt</exclude>
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>karaf-manual*</exclude>
             </excludes>
+        </fileSet>
+
+        <!-- System repo -->
+        <fileSet>
+            <directory>target/features-repo</directory>
+            <outputDirectory>/system/</outputDirectory>
         </fileSet>
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->
@@ -50,8 +62,9 @@
             </includes>
             <excludes>
                 <exclude>bin/create</exclude>
-                <exclude>bin/karaf</exclude>
                 <exclude>bin/fusefabric</exclude>
+                <exclude>bin/shell</exclude>
+                <exclude>bin/setenv</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -60,6 +73,9 @@
             <directory>target/classes/bin</directory>
             <outputDirectory>/bin/</outputDirectory>
             <lineEnding>unix</lineEnding>
+            <excludes>
+                <exclude>*.bat</exclude>
+            </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
 
@@ -75,6 +91,32 @@
             <outputDirectory>system</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>mq_license.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>readme.txt</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/licenses</directory>
+            <outputDirectory>/licenses/</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
     </fileSets>
     
     <files>
@@ -83,6 +125,20 @@
             <outputDirectory>/bin/</outputDirectory>
             <destName>fusemq</destName>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/META-INF/NOTICE</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>mq_notices.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>mq_dependencies.txt</destName>
+            <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
         <!--

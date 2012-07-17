@@ -22,6 +22,7 @@
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
     <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <groupId>org.fusesource.mq</groupId>
@@ -36,12 +37,10 @@
 
   <modules>
     <module>mq-fabric</module>
-    <!-- no longer required? 
-    <module>mq-bundle</module>
-    -->
+    <module>mq-client</module>
     <module>mq-branding</module>
+    <module>mq-web-console</module>
     <module>fuse-mq</module>
-    <!-- <module>mq-leveldb</module> -->
   </modules>
 
 </project>

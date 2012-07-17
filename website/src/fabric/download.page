@@ -4,42 +4,43 @@ in_menu: true
 sort_info: 5
 --- pipeline:jade
 
-.row
-  .span4
-    :markdown
-      # Download
-  .span12
+.row-fluid
+  .span2
+    h2 Download
+  .span10
     :&markdown
-    
-      You can download **Fabric** from the [Maven Repository](http://repo.fusesource.com/nexus/content/repositories/public/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/public/org/fusesource/fabric/).
+  
+      You can download **Fuse Fabric** from the [Fuse Fabric area of the central maven repo](http://repo2.maven.org/maven2/org/fusesource/fabric/).
 
       Fabric is composed of several components and does not provide any binary distribution to run at the moment.  
 
-      The following version are available:
+      The following distributions are available:
 
     - for( version <- project_versions )
       :&markdown
+        * [#{version}](http://repo2.maven.org/maven2/org/fusesource/fabric/fuse-fabric/#{version}/) : windows [zip](http://repo2.maven.org/maven2/org/fusesource/fabric/fuse-fabric/#{version}/fuse-fabric-#{version}.zip) or unix [tar.gz](http://repo2.maven.org/maven2/org/fusesource/fabric/fuse-fabric/#{version}/fuse-fabric-#{version}.tar.gz)
+    -#
         * #{version} - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
 
+
     :&markdown
-  
-      ## Snapshots
+
+      ### Snapshots
 
       You can download a recent snapshot from the [Snapshot Maven Repository](http://repo.fusesource.com/nexus/content/repositories/snapshots/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/snapshots/org/fusesource/fabric/).
 
 
-.row
-  .span4
-    :markdown
-      # Maven
-  .span12
+.row-fluid
+  .span2
+    h2 Maven
+  .span10
     :&markdown
-  
+
       If you build your project using [Maven](http://maven.apache.org/) then just add the following to your *pom.xml*
       {pygmentize:: xml}
       <dependency>
-        <groupId>org.fusesource.#{project_id}</groupId>
-        <artifactId>#{project_maven_artifactId}</artifactId>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-core</artifactId>
         <version>#{project_version}</version>  
       </dependency>
       {pygmentize}
@@ -64,7 +65,7 @@ sort_info: 5
        </repositories>
       {pygmentize}
 
-      ## Snapshots
+      ### Snapshots
 
       If you want to use a **snapshot version** you should ensure you have the Fabric Snapshot Maven repository defined in your *pom.xml*
       {pygmentize:: xml}  
@@ -83,11 +84,10 @@ sort_info: 5
        </repositories>
       {pygmentize}
 
-.row
-  .span4
+.row-fluid
+  .span2
+    h2 Building
+  .span10
     :markdown
-      # Building
-  .span12
-    :markdown
-      If you prefer you can try building from [the source code](source.html) and [building it](building.html)
+      If you prefer you can try building from [the source code](../source.html) and [building it](../building.html)
 

@@ -16,17 +16,18 @@
  */
 package org.fusesource.fabric.commands;
 
-import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.commands.support.EnsembleCommandSupport;
-
 import java.io.PrintStream;
 import java.util.List;
 
-@Command(name = "ensemble-list", scope = "fabric", description = "Lists the containers in the ZooKeeper ensemble", detailedDescription = "classpath:ensemble.txt")
+import org.apache.felix.gogo.commands.Command;
+import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
+
+@Command(name = "ensemble-list", scope = "fabric", description = "List the containers in the current fabric ensemble (ZooKeeper ensemble)", detailedDescription = "classpath:ensembleList.txt")
 public class EnsembleList extends EnsembleCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        checkFabricAvailable();
         PrintStream out = System.out;
         List<String> containers = service.getClusterContainers();
         if (containers != null) {

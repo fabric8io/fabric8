@@ -70,6 +70,12 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_PROVIDED_DEPENDENCY = "FAB-Provided-Dependency";
 
     /**
+     * Default value for the {@link #INSTR_FAB_PROVIDED_DEPENDENCY} header will consider Apache ActiveMQ, Camel and CXF
+     * dependencies to be 'provided'
+     */
+    static final String DEFAULT_FAB_PROIVDED_DEPENDENCY = "org.apache.activemq:* org.apache.camel:* org.apache.cxf:*";
+
+    /**
      * The space separated list of dependencies to be excluded.
      *
      * You can use wildcards such as "group:artifact group:* *:*"
@@ -83,6 +89,23 @@ public interface ServiceConstants extends Constants {
      * You can use wildcards such as "javax.xml* com.acme.foo"
      */
     static final String INSTR_FAB_EXCLUDE_IMPORTS_PACKAGE = "FAB-Exclude-Import-Package";
+
+    /**
+     * By default, FAB will not try to install dependencies for a provided bundle if that bundle is already installed. Setting this
+     * flag to <code>true</code> will force the installation of transitive dependencies anyway.
+     *
+     * Example: <code>FAB-Install-Provided-Bundle-Dependencies: true</code>
+     */
+    static final String INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES = "FAB-Install-Provided-Bundle-Dependencies";
+
+    /**
+     * By default, if FAB encounters a well-known dependency that has its own feature definition in the container (e.g. a Camel component),
+     * it will install the feature instead.  Using a space-separated list, you can disable this behavior for one or more of the
+     * features it supports.
+     *
+     * Example: <code>FAB-Skip-Matching-Feature-Detection: org.apache.camel</code> to skip feature detection for Camel
+     */
+    static final String INSTR_FAB_SKIP_MATCHING_FEATURE_DETECTION = "FAB-Skip-Matching-Feature-Detection";
 
     /**
      * The space separated list of optional dependencies to be included. By default no optional dependencies are included.
@@ -121,6 +144,20 @@ public interface ServiceConstants extends Constants {
      */
     static final String INSTR_FAB_VERSION_RANGE_DIGITS = "FAB-Version-Range-Digits";
 
+    /**
+     * The space separated list of additional Karaf features that are required. Features can be specified using only
+     * their name or both their name and version (separated by /)
+     *
+     * Example: <code>FAB-Require-Feature: activemq camel-blueprint/2.9.0</code>
+     */
+    static final String INSTR_FAB_REQUIRE_FEATURE = "FAB-Require-Feature";
+
+    /**
+     * The space separated list of additional Karaf features URLs that are required.
+     *
+     * Example: <code>FAB-Require-Feature-URL: mvn:com.mycompany/features/1.0/xml/features</code>
+     */
+    static final String INSTR_FAB_REQUIRE_FEATURE_URL = "FAB-Require-Feature-URL";
 
     /**
      * The Id of the Fabric Module.  This is in the groupId:artifactId:version:type[:classsifer]
@@ -178,6 +215,11 @@ public interface ServiceConstants extends Constants {
      * The list of maven repositories to use for resolving jars
      */
     static final String PROPERTY_MAVEN_REPOSITORIES = "org.ops4j.pax.url.mvn.repositories";
+
+    /**
+     * The property for configuring an alternative local repository location
+     */
+    static final String PROPERTY_LOCAL_MAVEN_REPOSITORY = "org.ops4j.pax.url.mvn.localRepository";
 
     /**
      * List of paths looked for in shared dependencies which should be copied onto the Bundle-ClassPath

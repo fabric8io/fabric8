@@ -20,8 +20,10 @@
   <parent>
     <groupId>org.fusesource.mq</groupId>
     <artifactId>mq-project</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
+
   <artifactId>mq-monitor</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>

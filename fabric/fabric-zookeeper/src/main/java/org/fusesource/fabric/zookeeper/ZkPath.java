@@ -29,6 +29,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.IZKClient;
 
 /**
@@ -46,8 +47,8 @@ public enum ZkPath {
     CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
     CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profiles/{profile}"),
     CONFIG_VERSIONS_CONTAINER("/fabric/configs/versions/{version}/containers/{container}"),
-    CONFIGS_MAVEN_REPO      ("/fabric/configs/maven/repository"),
 
+    MAVEN_PROXY("/fabric/registry/maven/proxy/{type}"),
     // Agent nodes
     CONTAINERS                     ("/fabric/registry/containers/config"),
     CONTAINER                      ("/fabric/registry/containers/config/{container}"),
@@ -55,13 +56,35 @@ public enum ZkPath {
     CONTAINER_DOMAIN               ("/fabric/registry/containers/domains/{container}/{domain}"),
     CONTAINER_ALIVE                ("/fabric/registry/containers/alive/{container}"),
     CONTAINER_PROVISION            ("/fabric/registry/containers/provision/{container}"),
+    CONTAINER_PROVISION_LIST       ("/fabric/registry/containers/provision/{container}/list"),
     CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),
     CONTAINER_PROVISION_EXCEPTION  ("/fabric/registry/containers/provision/{container}/exception"),
+    CONTAINER_ENTRY                ("/fabric/registry/containers/config/{container}/{entry}"),
+    CONTAINER_PORT_MIN             ("/fabric/registry/containers/config/{container}/minimumport"),
+    CONTAINER_PORT_MAX             ("/fabric/registry/containers/config/{container}/maximumport"),
     CONTAINER_IP                   ("/fabric/registry/containers/config/{container}/ip"),
+    CONTAINER_RESOLVER             ("/fabric/registry/containers/config/{container}/resolver"),
+    CONTAINER_ADDRESS              ("/fabric/registry/containers/config/{container}/{type}"),
+    CONTAINER_LOCAL_IP             ("/fabric/registry/containers/config/{container}/localip"),
+    CONTAINER_LOCAL_HOSTNAME       ("/fabric/registry/containers/config/{container}/localhostname"),
+    CONTAINER_PUBLIC_IP            ("/fabric/registry/containers/config/{container}/publicip"),
+    CONTAINER_PUBLIC_HOSTNAME      ("/fabric/registry/containers/config/{container}/publichostname"),
+    CONTAINER_MANUAL_IP            ("/fabric/registry/containers/config/{container}/maunalip"),
     CONTAINER_PARENT               ("/fabric/registry/containers/config/{container}/parent"),
     CONTAINER_JMX                  ("/fabric/registry/containers/config/{container}/jmx"),
     CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
-    CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc");
+    CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc"),
+    CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata"),
+    CLOUD_CONFIG                   ("/fabric/registry/cloud/config"),
+    CLOUD_PROVIDER                 ("/fabric/registry/cloud/config/{provider}"),
+    CLOUD_PROVIDER_PROPERTY        ("/fabric/registry/cloud/config/{provider}/{property}"),
+    CLOUD_PROVIDER_IDENTIY         ("/fabric/registry/cloud/config/{provider}/identity"),
+    CLOUD_PROVIDER_CREDENTIAL      ("/fabric/registry/cloud/config/{provider}/credential"),
+    CLOUD_NODES                    ("/fabric/registry/cloud/nodes"),
+    CLOUD_NODE                     ("/fabric/registry/cloud/nodes/{id}"),
+    CLOUD_NODE_IDENTITY            ("/fabric/registry/cloud/nodes/{id}/identity"),
+    CLOUD_NODE_CREDENTIAL          ("/fabric/registry/cloud/nodes/{id}/credential"),
+    POLICIES                       ("/fabric/registry/policies/{policy}");
 
     /**
      * Path template.
@@ -96,7 +119,7 @@ public enum ZkPath {
     /**
      * Loads a zoo keeper URL content using the provided ZooKeeper client.
      */
-    static public byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+    public static byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
         URI uri = new URI(url);
         String ref = uri.getFragment();
         String path = uri.getSchemeSpecificPart();
@@ -104,6 +127,7 @@ public enum ZkPath {
         if( !path.startsWith("/") ) {
             path = ZkPath.CONTAINER.getPath(path);
         }
+
         byte rc [] = zooKeeper.getData(path);
         if( ref!=null ) {
             if( path.endsWith(".properties") ) {
@@ -146,4 +170,20 @@ public enum ZkPath {
         return rc;
     }
 
+    public static void createContainerPaths(IZKClient zooKeeper, String container, String version, String profile) throws InterruptedException, KeeperException {
+        boolean versionProvided = version != null;
+        if (version == null) {
+            version = ZooKeeperUtils.get(zooKeeper, CONFIG_DEFAULT_VERSION.getPath());
+        }
+
+        if (version != null) {
+            if (zooKeeper.exists(ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container), version);
+            }
+
+            if (zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container)) == null || versionProvided) {
+                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container), profile);
+            }
+        }
+    }
 }

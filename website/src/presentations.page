@@ -1,0 +1,75 @@
+---
+title: Presentations
+--- pipeline:jade
+
+.row-fluid
+  .span4
+    :markdown
+      # Presentations
+  .span8
+    :markdown
+      ## Fuse Overview
+      
+      * [Fuse Enterprise 7.0 Demo](http://fusesource.com/videos/enterprise-demo/) walks you through creating an application, deploying, managing and monitoring it.
+      
+      ## Fuse IDE 
+
+      * [Fuse IDE and deploying to Fuse ESB or Fuse Fabric](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#james)
+      * [Fuse IDE tutorial](http://fusesource.com/require_registration_for?url=http://streaming.progress.com/fusesource/fuse_ide_21.wmv)
+      * [Browsing and tracing messages](http://fusesource.com/products/fuse-ide/fuse-ide-browsing-and-tracing)
+      * [Throttler Pattern](http://fusesource.com/products/enterprise-camel/throttler-enterprise-integration-pattern)
+      * [Splitter Pattern](http://fusesource.com/products/enterprise-camel/splitter-enterprise-integration-pattern/)
+      * [Composing Enterprise Integration Patterns](http://fusesource.com/products/enterprise-camel/composed-enterprise-integration-pattern/)
+
+      ## Fuse Fabric & Operations
+      
+      * [Deploying services in Fuse Fabric using Fuse Management Console, then operational monitoring & alerting using Fuse HQ](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#strachanlewis)
+      * [Overview of Fuse Fabric and the cloud](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#icanellos)
+      * [Fuse Fabric and Fuse MQ clustering/discovery](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/#dbosanac)
+
+      ## Fuse Integration covering Fabric Camel, CXF, DOSGI
+
+      * [Cloud Integration with Fabric Camel (Part I)](http://cmoulliard.blogspot.be/2012/06/cloud-integration-with-fabric-camel.html)
+
+.row-fluid
+  .span4
+    :markdown
+      # [Webinars](http://fusesource.com/resources/video-archived-webinars/)
+  .span8
+    :markdown
+      * there are [many webinars available](http://fusesource.com/resources/video-archived-webinars/) to [help you get started](http://fusesource.com/enterprise-support/getting-started/).
+      * check out [great talks from CamelOne 2012](http://fusesource.com/apache-camel-conference-2012/camelone_speakers_2012/) covering Fuse and its related open source projects. Here are some highlights:
+      * [conference presentations](http://fusesource.com/community/events/) on Fuse open source techologies.
+
+.row-fluid
+  .span4
+    :markdown
+      # Blogs
+  .span8
+    :markdown
+      * [Fuse By Example](http://fusebyexample.blogspot.co.uk/)
+      * [Fuse Blog](http://fusesource.com/resources/combined-blogs/)
+      * [Fuse Team](http://fusesource.com/community/apache-committers-and-fuse/)
+      * [@fusenews](http://twitter.com/fusenews)
+
+.row-fluid
+  .span4
+    :markdown
+      # [Reference Docs](http://fusesource.com/documentation/)
+  .span4
+    :markdown
+      ## Runtimes & libraries
+
+      * [Fuse ESB Enterprise](http://fusesource.com/documentation/fuse-esb-enterprise-documentation)
+      * [Fuse MQ Enterprise](http://fusesource.com/documentation/fuse-mq-enterprise-documentation)
+      * [Fuse EIP](http://fusesource.com/documentation/fuse-mediation-router-documentation/)
+      * [Fuse WS](http://fusesource.com/documentation/fuse-service-framework-documentation/)
+  
+  .span4
+    :markdown
+      ## Tools
+
+      * [Fuse IDE](http://fusesource.com/documentation/fuse-ide-documentation)
+      * [Fuse Management Console](http://fusesource.com/documentation/fuse-management-console-documentation)
+      * [Fuse HQ](http://fusesource.com/documentation/fuse-hq-documentation)
+

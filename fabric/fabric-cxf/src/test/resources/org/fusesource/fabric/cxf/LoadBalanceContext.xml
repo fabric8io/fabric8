@@ -17,26 +17,35 @@
   -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:cxfcore="http://cxf.apache.org/core"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
        xsi:schemaLocation="
          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-         http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+         http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+         http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
    <import resource="classpath:META-INF/cxf/cxf.xml"/>
-   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
-   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
 
   <!-- Since this is a test case lets run a local ZK server -->
   <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">
     <property name="purge" value="true"/>
   </bean>
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean" depends-on="zkServer">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
   <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
-      <property name="fabricPath" value="simple" />
+      <property name="zkClient" ref="zkClient" />
+      <property name="fabricPath" value="simple/test" />
   </bean>
+
+  <jaxws:client id="helloProxy" address="http://dummyAddress"
+                 serviceClass="org.fusesource.fabric.cxf.Hello">
+          <jaxws:features>
+              <ref bean="fabicLoadBalancerFeature" />
+          </jaxws:features>
+  </jaxws:client>
+
   <!-- configure the feature on the bus -->
   <cxfcore:bus>
     <cxfcore:features>

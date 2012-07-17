@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<supplementalDataModels>
+    <supplement>
+        <project>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>jsr311-api</artifactId>
+            <name>JSR 311 API</name>
+            <url>https://jsr311.dev.java.net/</url>
+            <organization>
+                <name>Sun Microsystems</name>
+                <url>http://www.sun.com/</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+                    <url>http://www.sun.com/cddl/cddl.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <name>Sun JAXB Reference Implementation Runtime</name>
+            <organization>
+                <name>Sun Microsystems</name>
+                <url>http://www.sun.com/</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+                    <url>http://www.sun.com/cddl/cddl.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <name>Sun JAXB Reference Implementation Tools</name>
+            <organization>
+                <name>Sun Microsystems</name>
+                <url>http://www.sun.com/</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+                    <url>http://www.sun.com/cddl/cddl.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>com.sun.xml.fastinfoset</groupId>
+            <artifactId>FastInfoset</artifactId>
+            <name>Sun FastInfoset Implementation</name>
+            <organization>
+                <name>Sun Microsystems</name>
+                <url>http://www.sun.com/</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <name>Sun SAAJ Reference Implementation</name>
+            <organization>
+                <name>Sun Microsystems</name>
+                <url>http://www.sun.com/</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+                    <url>http://www.sun.com/cddl/cddl.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>javax.xml.soap</groupId>
+            <artifactId>saaj-api</artifactId>
+            <name>Sun SAAJ API</name>
+            <organization>
+                <name>Sun Microsystems</name>
+                <url>http://www.sun.com/</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+                    <url>http://www.sun.com/cddl/cddl.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <name>Java Architecture for XML Binding (JAXB API)</name>
+            <organization>
+                <name>Sun Microsystems</name>
+                <url>http://www.sun.com/</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+                    <url>http://www.sun.com/cddl/cddl.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <name>Apache Xalan-Java</name>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <name>Simple Logging Facade for Java - API</name>
+            <licenses>
+                <license>
+                    <name>MIT License</name>
+                    <url>http://www.slf4j.org/license.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <name>Simple Logging Facade for Java - JDK Logging</name>
+            <licenses>
+                <license>
+                    <name>MIT License</name>
+                    <url>http://www.slf4j.org/license.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+
+    <supplement>
+        <project>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <name>Jaxen</name>
+            <licenses>
+                <license>
+                    <name>BSD</name>
+                    <url>http://jaxen.codehaus.org/license.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <name>ASM</name>
+            <licenses>
+                <license>
+                    <name>BSD</name>
+                    <url>http://asm.ow2.org/license.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+
+
+    <supplement>
+        <project>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <name>Apache Commons - collections</name>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>net.java.dev.stax-utils</groupId>
+            <artifactId>stax-utils</artifactId>
+            <name>StAX Utilities</name>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <name>JDOM</name>
+            <organization>
+                <name>jdom.org</name>
+                <url>http://www.jdom.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>Modified Apache Software License</name>
+                    <url>licenses/jdom.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.apache.santuario</groupId>
+            <artifactId>xmlsec</artifactId>
+            <name>XML Security</name>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-launcher</artifactId>
+            <name>Ant Launcher</name>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <name>Ant</name>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <name>Jakarta-ORO</name>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>opensaml</groupId>
+            <artifactId>opensaml</artifactId>
+            <name>OpenSAML</name>
+            <organization>
+                <name>Internet2</name>
+                <url>http://www.opensaml.org</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+            <name>Jettison</name>
+            <organization>
+                <name>Envoi Solutions LLC</name>
+                <url>http://www.envoisolutions.com</url>
+            </organization>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://jettison.codehaus.org/License</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <name>Spring Core</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <name>Spring AOP</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-asm</artifactId>
+            <name>Spring ASM</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <name>Spring Context</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <name>Spring Beans</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <name>Spring Expression</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <name>Spring JMS</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <name>Spring Transactions</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <name>Spring Web</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <name>Spring Aspects</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-instrument</artifactId>
+            <name>Spring Instrument</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+            <name>Spring OXM</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-struts</artifactId>
+            <name>Spring Struts</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <name>Spring Test</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc-portlet</artifactId>
+            <name>Spring webmvc portlet</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-core</artifactId>
+            <name>Spring WS Core</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-support</artifactId>
+            <name>Spring WS Support</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-xml</artifactId>
+            <name>Spring XML</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+            <organization>
+                <name>Spring Framework</name>
+                <url>http://www.springframework.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>isorelax</groupId>
+            <artifactId>isorelax</artifactId>
+            <name>ISO Relax</name>
+            <url>http://iso-relax.sourceforge.net/</url>
+            <licenses>
+                <license>
+                    <name>MIT</name>
+                    <url>http://www.opensource.org/licenses/mit-license.html</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>relaxngDatatype</groupId>
+            <artifactId>relaxngDatatype</artifactId>
+            <name>RELAX NG Datatype</name>
+            <url>http://sourceforge.net/projects/relaxng/</url>
+            <licenses>
+                <license>
+                    <name>BSD</name>
+                    <url>http://www.opensource.org/licenses/bsd-license.php</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.jboss.javassist</groupId>
+            <artifactId>com.springsource.javassist</artifactId>
+            <name>JavaAssist</name>
+            <url>http://www.jboss.org/javassist</url>
+            <licenses>
+                <license>
+                    <name>MPL</name>
+                    <url>http://www.mozilla.org/MPL/MPL-1.1.html</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.eclipse</groupId>
+            <artifactId>osgi</artifactId>
+            <name>Equinox</name>
+            <url>http://eclipse.org/equinox/</url>
+            <licenses>
+                <license>
+                    <name>EPL</name>
+                    <url>http://www.eclipse.org/org/documents/epl-v10.php</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.antlr</groupId>
+            <artifactId>com.springsource.antlr</artifactId>
+            <name>ANTLR</name>
+            <licenses>
+                <license>
+                    <name>BSD</name>
+                    <url>http://www.opensource.org/licenses/bsd-license.php</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <name>Apache Xerces</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement> 
+    <supplement>
+        <project>
+            <groupId>org.apache.xerces</groupId>
+            <artifactId>xml-apis</artifactId>
+            <name>Xerces XML APIs</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement> 
+    <supplement>
+        <project>
+            <groupId>org.hibernate</groupId>
+            <artifactId>com.springsource.org.hibernate.annotations</artifactId>
+            <name>JBoss Hibernate Annotations</name>
+            <licenses>
+                <license>
+                    <name>GNU Lesser General Public License, version 2.1</name>
+                    <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.hibernate</groupId>
+            <artifactId>com.springsource.org.hibernate.annotations.common</artifactId>
+            <name>JBoss Hibernate Common Annotations</name>
+            <licenses>
+                <license>
+                    <name>GNU Lesser General Public License, version 2.1</name>
+                    <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement>  
+    <supplement>
+        <project>
+            <groupId>org.hibernate</groupId>
+            <artifactId>com.springsource.org.hibernate.ejb</artifactId>
+            <name>JBoss Hibernate Entity Manager</name>
+            <licenses>
+                <license>
+                    <name>GNU Lesser General Public License, version 2.1</name>
+                    <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement> 
+    <supplement>
+        <project>
+            <groupId>org.objectweb.asm</groupId>
+            <artifactId>com.springsource.org.objectweb.asm</artifactId>
+            <name>ObjectWeb ASM</name>
+            <licenses>
+                <license>
+                    <name>ObjectWeb ASM Project License</name>
+                    <url>http://asm.ow2.org/license.html</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement> 
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <name>Spring Context Support</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement> 
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <name>Spring JDBC</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement> 
+    <supplement>
+        <project>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <name>Spring ORM</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                </license>
+            </licenses>
+        </project>
+    </supplement> 
+    <supplement>
+        <project>
+            <groupId>net.sourceforge.cglib</groupId>
+            <artifactId>com.springsource.net.sf.cglib</artifactId>
+            <name>CGLIB</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
+            <artifactId>scala-library</artifactId>
+            <name>Scala</name>
+            <licenses>
+                <license>
+                    <name>The Scala License</name>
+                    <url>http://www.scala-lang.org/node/146</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>net.sf.dozer</groupId>
+            <artifactId>dozer-osgi</artifactId>
+            <name>Dozer</name>
+            <licenses>
+                <license>
+                    <name>The Apache Software License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>com.springsource.org.hsqldb</artifactId>
+            <name>HSQLDB</name>
+            <licenses>
+                <license>
+                    <name>HSQLDB License</name>
+                    <url>http://hsqldb.org/web/hsqlLicense.html</url>
+                    <distribution>repo</distribution>
+                </license>
+            </licenses>
+        </project>
+    </supplement>
+
+</supplementalDataModels>

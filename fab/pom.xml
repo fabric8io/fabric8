@@ -28,9 +28,8 @@
   <groupId>org.fusesource.fabric.fab</groupId>
   <artifactId>fab-project</artifactId>
   <packaging>pom</packaging>
-  <name>Fuse Fabric :: Archive Bundles</name>
-  <description>Fuse Bundles :: Project</description>
-
+  <name>Fuse Application Bundles</name>
+  <description>${project.name}</description>
   <!--
   <properties>
     <fuse.osgi.export>org.fusesource.fab.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>

@@ -41,7 +41,7 @@
             !org.codehaus.classworlds*,
             !org.apache.xbean*,
             !org.apache.commons.logging,
-            !org.slf4j,
+            org.slf4j*,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
@@ -50,6 +50,7 @@
             org.fusesource.fabric.maven.impl,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
+            org.apache.felix.webconsole,
             org.apache.maven.*,
             org.sonatype.aether*,
             org.codehaus.plexus*,
@@ -57,6 +58,38 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-linkedin-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet-api-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-runtime</artifactId>
+            <version>${ops4j-pax-web-version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
@@ -128,7 +161,7 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
-                    <argLine>-DproxyPort=${proxyPort} -DkarafVersion=${karaf-version}</argLine>
+                    <argLine>-DproxyPort=${proxyPort} -DkarafVersion=2.2.5</argLine>
                 </configuration>
             </plugin>
             <plugin>

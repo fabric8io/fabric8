@@ -18,13 +18,20 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
+    <bean id="activeMQProducerFactory" class="org.fusesource.fabric.demo.activemq.ActiveMQProducerFactory" destroy-method="destroy"/>
 
-    <bean id="demo" class="org.fusesource.fabric.demo.activemq.Demo">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
-    </bean>
+    <service ref="activeMQProducerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.example.mq.producer"/>
+        </service-properties>
+    </service>
 
-    <reference id="jmsService" interface="org.fusesource.mq.fabric.JMSService" availability="optional">
-        <reference-listener ref="demo" bind-method="registerJmsService" unbind-method="unregisterJmsService"/>
-    </reference>
+    <bean id="activeMQConsumerFactory" class="org.fusesource.fabric.demo.activemq.ActiveMQConsumerFactory" destroy-method="destroy"/>
+
+    <service ref="activeMQConsumerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.fabric.example.mq.consumer"/>
+        </service-properties>
+    </service>
 
 </blueprint>

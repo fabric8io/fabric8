@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
@@ -34,164 +32,175 @@ import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.server.quorum.QuorumStats;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedServiceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ZKServerFactoryBean implements ManagedServiceFactory {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ZKServerFactoryBean.class);
+public class ZKServerFactoryBean extends BaseManagedServiceFactory<Object> {
 
-    private BundleContext bundleContext;
-    private Map<String, Object> servers = new HashMap<String, Object>();
-    private Map<String, ServiceRegistration> services = new HashMap<String, ServiceRegistration>();
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
+    public ZKServerFactoryBean(BundleContext context) {
+        super(context, "ZooKeeper Server Factory");
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
-
-    public String getName() {
-        return "ZooKeeper Server";
-    }
-
-    // TODO - replace this eventually...
-    public void debug(String str, Object ... args) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format(str, args));
+    @Override
+    protected Object doCreate(Dictionary properties) throws Exception {
+        Properties props = new Properties();
+        for (Enumeration ek = properties.keys(); ek.hasMoreElements();) {
+            Object key = ek.nextElement();
+            Object val = properties.get(key);
+            props.put(key.toString(), val != null ? val.toString() : "");
         }
-    }
 
-    public synchronized void updated(String pid, Dictionary properties) throws ConfigurationException {
-        try {
-            deleted(pid);
-            Properties props = new Properties();
-            for (Enumeration ek = properties.keys(); ek.hasMoreElements();) {
-                Object key = ek.nextElement();
-                Object val = properties.get(key);
-                props.put(key.toString(), val != null ? val.toString() : "");
+        // Create myid file
+        String serverId = props.getProperty("server.id");
+        if (serverId != null) {
+            props.remove("server.id");
+            File myId = new File(props.getProperty("dataDir"), "myid");
+            if (myId.exists()) {
+                myId.delete();
             }
-
-            // Create myid file
-            String serverId = props.getProperty("server.id");
-            if (serverId != null) {
-                props.remove("server.id");
-                File myId = new File(props.getProperty("dataDir"), "myid");
-                if (myId.exists()) {
-                    myId.delete();
-                }
+            if (myId.getParentFile() != null)  {
                 myId.getParentFile().mkdirs();
-                FileOutputStream fos = new FileOutputStream(myId);
-                try {
-                    fos.write((serverId + "\n").getBytes());
-                } finally {
-                    fos.close();
-                }
             }
-
-            // Load properties
-            QuorumPeerConfig config = new QuorumPeerConfig();
-            config.parseProperties(props);
-            if (!config.getServers().isEmpty()) {
-                NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
-                cnxnFactory.configure(config.getClientPortAddress(), config.getMaxClientCnxns());
-
-                QuorumPeer quorumPeer = new QuorumPeer();
-                quorumPeer.setClientPortAddress(config.getClientPortAddress());
-                quorumPeer.setTxnFactory(new FileTxnSnapLog(
-                        new File(config.getDataLogDir()),
-                        new File(config.getDataDir())));
-                quorumPeer.setQuorumPeers(config.getServers());
-                quorumPeer.setElectionType(config.getElectionAlg());
-                quorumPeer.setMyid(config.getServerId());
-                quorumPeer.setTickTime(config.getTickTime());
-                quorumPeer.setMinSessionTimeout(config.getMinSessionTimeout());
-                quorumPeer.setMaxSessionTimeout(config.getMaxSessionTimeout());
-                quorumPeer.setInitLimit(config.getInitLimit());
-                quorumPeer.setSyncLimit(config.getSyncLimit());
-                quorumPeer.setQuorumVerifier(config.getQuorumVerifier());
-                quorumPeer.setCnxnFactory(cnxnFactory);
-                quorumPeer.setZKDatabase(new ZKDatabase(quorumPeer.getTxnFactory()));
-                quorumPeer.setLearnerType(config.getPeerType());
-
-                try {
-                    debug("Starting quorum peer \"%s\" on address %s", quorumPeer.getMyid(), config.getClientPortAddress());
-                    quorumPeer.start();
-                    debug("Started quorum peer \"%s\"", quorumPeer.getMyid());
-                } catch (Exception e) {
-                    LOG.warn(String.format("Failed to start quorum peer \"%s\", reason : ", quorumPeer.getMyid(), e));
-                    quorumPeer.shutdown();
-                    throw e;
-                }
-
-                servers.put(pid, quorumPeer);
-                services.put(pid, bundleContext.registerService(QuorumStats.Provider.class.getName(), quorumPeer, properties));
-            } else {
-                ServerConfig cfg = new ServerConfig();
-                cfg.readFrom(config);
-
-                ZooKeeperServer zkServer = new ZooKeeperServer();
-                FileTxnSnapLog ftxn = new FileTxnSnapLog(new
-                        File(cfg.getDataLogDir()), new File(cfg.getDataDir()));
-                zkServer.setTxnLogFactory(ftxn);
-                zkServer.setTickTime(cfg.getTickTime());
-                zkServer.setMinSessionTimeout(cfg.getMinSessionTimeout());
-                zkServer.setMaxSessionTimeout(cfg.getMaxSessionTimeout());
-                NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
-                cnxnFactory.configure(cfg.getClientPortAddress(), cfg.getMaxClientCnxns());
-
-                try {
-                    debug("Starting ZooKeeper server on address %s", config.getClientPortAddress());
-                    cnxnFactory.startup(zkServer);
-                    LOG.debug("Started ZooKeeper server");
-                } catch (Exception e) {
-                    LOG.warn(String.format("Failed to start ZooKeeper server, reason : %s", e));
-                    cnxnFactory.shutdown();
-                    throw e;
-                }
-
-                servers.put(pid, cnxnFactory);
-                services.put(pid, bundleContext.registerService(ServerStats.Provider.class.getName(), zkServer, properties));
-            }
-        } catch (Exception e) {
-            throw (ConfigurationException) new ConfigurationException(null, "Unable to parse ZooKeeper configuration: " + e.getMessage()).initCause(e);
-        }
-    }
-
-    public synchronized void deleted(String pid) {
-        debug("Shutting down ZK server %s", pid);
-        Object obj = servers.remove(pid);
-        ServiceRegistration reg = services.remove(pid);
-        try {
-            if (obj instanceof QuorumPeer) {
-                ((QuorumPeer) obj).shutdown();
-                ((QuorumPeer) obj).join();
-            } else if (obj instanceof NIOServerCnxnFactory) {
-                ((NIOServerCnxnFactory) obj).shutdown();
-                ((NIOServerCnxnFactory) obj).join();
-            }
-        } catch (Throwable t) {
-            debug("Caught and am ignoring exception %s while shutting down ZK server %s", t, obj);
-            // ignore
-        }
-        if (reg != null) {
+            FileOutputStream fos = new FileOutputStream(myId);
             try {
-                reg.unregister();
-            } catch (Throwable t) {
-                debug("Caught and am ignoring exception %s while unregistering %s", t, pid);
-                // ignore
+                fos.write((serverId + "\n").getBytes());
+            } finally {
+                fos.close();
             }
+        }
+
+        // Load properties
+        QuorumPeerConfig config = new QuorumPeerConfig();
+        config.parseProperties(props);
+        if (!config.getServers().isEmpty()) {
+            NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
+            cnxnFactory.configure(config.getClientPortAddress(), config.getMaxClientCnxns());
+
+            QuorumPeer quorumPeer = new QuorumPeer();
+            quorumPeer.setClientPortAddress(config.getClientPortAddress());
+            quorumPeer.setTxnFactory(new FileTxnSnapLog(
+                    new File(config.getDataLogDir()),
+                    new File(config.getDataDir())));
+            quorumPeer.setQuorumPeers(config.getServers());
+            quorumPeer.setElectionType(config.getElectionAlg());
+            quorumPeer.setMyid(config.getServerId());
+            quorumPeer.setTickTime(config.getTickTime());
+            quorumPeer.setMinSessionTimeout(config.getMinSessionTimeout());
+            quorumPeer.setMaxSessionTimeout(config.getMaxSessionTimeout());
+            quorumPeer.setInitLimit(config.getInitLimit());
+            quorumPeer.setSyncLimit(config.getSyncLimit());
+            quorumPeer.setQuorumVerifier(config.getQuorumVerifier());
+            quorumPeer.setCnxnFactory(cnxnFactory);
+            quorumPeer.setZKDatabase(new ZKDatabase(quorumPeer.getTxnFactory()));
+            quorumPeer.setLearnerType(config.getPeerType());
+
+            try {
+                LOGGER.debug("Starting quorum peer \"%s\" on address %s", quorumPeer.getMyid(), config.getClientPortAddress());
+                quorumPeer.start();
+                LOGGER.debug("Started quorum peer \"%s\"", quorumPeer.getMyid());
+            } catch (Exception e) {
+                LOGGER.warn(String.format("Failed to start quorum peer \"%s\", reason : ", quorumPeer.getMyid(), e));
+                quorumPeer.shutdown();
+                throw e;
+            }
+            return new ClusteredServer(quorumPeer);
+        } else {
+            ServerConfig cfg = new ServerConfig();
+            cfg.readFrom(config);
+
+            ZooKeeperServer zkServer = new ZooKeeperServer();
+            FileTxnSnapLog ftxn = new FileTxnSnapLog(new
+                    File(cfg.getDataLogDir()), new File(cfg.getDataDir()));
+            zkServer.setTxnLogFactory(ftxn);
+            zkServer.setTickTime(cfg.getTickTime());
+            zkServer.setMinSessionTimeout(cfg.getMinSessionTimeout());
+            zkServer.setMaxSessionTimeout(cfg.getMaxSessionTimeout());
+            NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
+            cnxnFactory.configure(cfg.getClientPortAddress(), cfg.getMaxClientCnxns());
+
+            try {
+                LOGGER.debug("Starting ZooKeeper server on address %s", config.getClientPortAddress());
+                cnxnFactory.startup(zkServer);
+                LOGGER.debug("Started ZooKeeper server");
+            } catch (Exception e) {
+                LOGGER.warn(String.format("Failed to start ZooKeeper server, reason : %s", e));
+                cnxnFactory.shutdown();
+                throw e;
+            }
+            return new SimpleServer(zkServer, cnxnFactory);
         }
     }
 
-    public void destroy() throws Exception {
-        while (!servers.isEmpty()) {
-            String pid = servers.keySet().iterator().next();
-            deleted(pid);
+    @Override
+    protected void doDestroy(Object obj) throws Exception {
+        ((Destroyable) obj).destroy();
+    }
+
+    @Override
+    protected String[] getExposedClasses(Object obj) {
+        if (obj instanceof  ServerStats.Provider) {
+            return new String[] { ServerStats.Provider.class.getName() };
+        } else if (obj instanceof QuorumStats.Provider) {
+            return new String[] { QuorumStats.Provider.class.getName() };
+        } else {
+            throw new IllegalStateException("Unsupported service type: " + obj.getClass().toString());
+        }
+    }
+
+    static interface Destroyable {
+        public void destroy() throws Exception;
+    }
+
+    static class SimpleServer implements Destroyable, ServerStats.Provider {
+        private final ZooKeeperServer server;
+        private final NIOServerCnxnFactory cnxnFactory;
+
+        SimpleServer(ZooKeeperServer server, NIOServerCnxnFactory cnxnFactory) {
+            this.server = server;
+            this.cnxnFactory = cnxnFactory;
+        }
+
+        @Override
+        public void destroy() throws Exception {
+            cnxnFactory.shutdown();
+            cnxnFactory.join();
+        }
+
+        @Override
+        public long getOutstandingRequests() {
+            return server.getOutstandingRequests();
+        }
+
+        @Override
+        public long getLastProcessedZxid() {
+            return server.getLastProcessedZxid();
+        }
+
+        @Override
+        public String getState() {
+            return server.getState();
+        }
+    }
+
+    static class ClusteredServer implements Destroyable, QuorumStats.Provider {
+        private final QuorumPeer peer;
+
+        ClusteredServer(QuorumPeer peer) {
+            this.peer = peer;
+        }
+
+        @Override
+        public void destroy() throws Exception {
+            peer.shutdown();
+            peer.join();
+        }
+
+        @Override
+        public String[] getQuorumPeers() {
+            return peer.getQuorumPeers();
+        }
+
+        @Override
+        public String getServerState() {
+            return peer.getServerState();
         }
     }
 

@@ -17,41 +17,35 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.maven.profiles.ProfilesConversionUtils;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricCreateTest extends FabricCommandsTestSupport {
-
+public class FabricCreateTest extends FabricTestSupport {
 
     @Test
     public void testImportedProfiles() throws Exception {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
 
-        System.err.println(executeCommand("fabric:create"));
-         //Wait for zookeeper service to become available.
-        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
-        zooKeeper.getZookeeper(DEFAULT_TIMEOUT);
+        System.err.println(executeCommand("fabric:create -n"));
 
         Profile karafProfile = fabricService.getProfile(ZkDefs.DEFAULT_VERSION,"karaf");
         assertNotNull(karafProfile);
@@ -63,10 +57,26 @@ public class FabricCreateTest extends FabricCommandsTestSupport {
         assertNotNull(activeMq);
     }
 
+
+    @Test
+    public void testCreateWithProfileSelextion() throws Exception {
+        FabricService fabricService = getOsgiService(FabricService.class);
+        assertNotNull(fabricService);
+
+        System.err.println(executeCommand("fabric:create -n --profile camel"));
+
+        Profile[] profiles = fabricService.getCurrentContainer().getProfiles();
+        List<String> profileNames = new LinkedList<String>();
+        for (Profile profile:profiles) {
+            profileNames.add(profile.getId());
+        }
+
+        assertTrue(profileNames.contains("fabric"));
+        assertTrue(profileNames.contains("camel"));
+    }
+
     @Configuration
     public Option[] config() {
-        return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+        return fabricDistributionConfiguration();
     }
 }

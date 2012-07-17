@@ -60,10 +60,10 @@ public class FallbackTypeConverter implements TypeConverter, TypeConverterAware 
     }
 
     public <T> T convertTo(Class<T> type, Object value) {
-        return convertTo(type, value, null);
+        return convertTo(type, null, value);
     }
 
-    public <T> T convertTo(Class<T> type, Object value, Exchange exchange) {
+    public <T> T convertTo(Class<T> type, Exchange exchange, Object value) {
         try {
             if (isComplexDataObject(type)) {
                 return unmarshall(type, value, exchange);
@@ -179,12 +179,8 @@ public class FallbackTypeConverter implements TypeConverter, TypeConverterAware 
         return answer;
     }
 
-    public <T> T convertTo(Class<T> type, Exchange exchange, Object value) {
-        return convertTo(type, value, exchange);
-    }
-
     public <T> T mandatoryConvertTo(Class<T> type, Exchange exchange, Object value) throws NoTypeConversionAvailableException {
-        T answer = convertTo(type, value, exchange);
+        T answer = convertTo(type, exchange, value);
         if (answer == null) {
             throw new NoTypeConversionAvailableException(value, type);
         }
@@ -197,5 +193,23 @@ public class FallbackTypeConverter implements TypeConverter, TypeConverterAware 
             throw new NoTypeConversionAvailableException(value, type);
         }
         return answer;
+    }
+
+    // TODO @Override
+    public <T> T tryConvertTo(Class<T> type, Exchange exchange, Object value) {
+        try {
+            return convertTo(type, value);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // TODO @Override
+    public <T> T tryConvertTo(Class<T> type, Object value) {
+        try {
+            return convertTo(type, value);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 public abstract class ContainerUpgradeSupport extends FabricCommand {
 

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.fusesource.fabric.agent.mvn.DownloadableArtifact;
@@ -41,6 +40,8 @@ import org.fusesource.fabric.agent.mvn.Version;
 import org.fusesource.fabric.agent.mvn.VersionRange;
 import org.fusesource.fabric.agent.utils.URLUtils;
 import org.fusesource.fabric.agent.utils.XmlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -50,20 +51,20 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
     /**
      * Logger.
      */
-    private static final Log LOG = new Log();
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDownloadTask.class);
     /**
-     * 2 spacess indent;
+     * 2 spaces indent;
      */
     private static final String Ix2 = "  ";
     /**
-     * 4 spacess indent;
+     * 4 spaces indent;
      */
     private static final String Ix4 = "    ";
 
     private final MavenRepositoryURL system;
     private final MavenConfiguration configuration;
 
-    public MavenDownloadTask(String url, MavenRepositoryURL system, MavenConfiguration configuration, ScheduledExecutorService executor) {
+    public MavenDownloadTask(String url, MavenRepositoryURL system, MavenConfiguration configuration, ExecutorService executor) {
         super(url, executor);
         this.system = system;
         this.configuration = configuration;
@@ -77,7 +78,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             if (!downloadables.isEmpty()) {
                 DownloadableArtifact artifact = downloadables.iterator().next();
                 URL url = artifact.getArtifactURL();
-                File file = new File(URI.create(url.toString()));
+                File file = new File(url.getFile());
                 if (file.exists()) {
                     return file;
                 }
@@ -94,19 +95,27 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             LOG.trace("Downloading [" + artifact + "]");
             try {
                 configuration.enableProxy(artifact.getArtifactURL());
-
-                String repository = new File(URI.create(system.getURL().toString())).getPath();
+                String repository = system.getFile().getAbsolutePath();
                 if (!repository.endsWith(Parser.FILE_SEPARATOR)) {
                     repository = repository + Parser.FILE_SEPARATOR;
                 }
                 InputStream is = artifact.getInputStream();
                 File file = new File(repository + parser.getArtifactPath());
-                File tmp = new File(file.toString() + ".tmp");
-                tmp.getParentFile().mkdirs();
+                file.getParentFile().mkdirs();
+                if (!file.getParentFile().isDirectory()) {
+                    throw new IOException("Unable to create directory " + file.getParentFile().toString());
+                }
+                File tmp = File.createTempFile("fabric-agent-", null, file.getParentFile());
                 OutputStream os = new FileOutputStream(tmp);
                 copy(is, os);
-                file.delete();
-                tmp.renameTo(file);
+                is.close();
+                os.close();
+                if (file.exists() && !file.delete()) {
+                    throw new IOException("Unable to delete file: " + file.toString());
+                }
+                if (!tmp.renameTo(file)) {
+                    throw new IOException("Unable to rename file " + tmp.toString() + " to " + file.toString());
+                }
                 return file;
             } catch (IOException ignore) {
                 // go on with next repository
@@ -115,9 +124,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             }
         }
         // no artifact found
-        throw new IOException(
-                "URL [" + url + "] could not be resolved."
-        );
+        throw new IOException("URL [" + url + "] could not be resolved.");
     }
 
     /**
@@ -133,7 +140,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
         final List<MavenRepositoryURL> repositories = new ArrayList<MavenRepositoryURL>();
         repositories.addAll(configuration.getRepositories());
         repositories.add(system);
-        repositories.add(configuration.getLocalRepository());
+        repositories.add(configuration.getLocalRepository());        
         // if the url contains a prefered repository add that repository as the first repository to be searched
         if (parser.getRepositoryURL() != null) {
             repositories.add(
@@ -475,18 +482,5 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             return result;
         }
 
-    }
-
-    public static class Log {
-
-        public void debug(String msg) {
-        }
-
-        public void trace(String msg) {
-        }
-
-        public boolean isTraceEnabled() {
-            return false;
-        }
     }
 }

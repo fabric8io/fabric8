@@ -20,24 +20,21 @@
 
     <ext:property-placeholder />
     
-	<bean id="nodeFactory" class="org.elasticsearch.pojo.NodeFactory" destroy-method="destroy" depends-on="zookeeper">
-        <property name="bundleContext" ref="blueprintBundleContext" />
-    <property name="zookeeper" ref="zookeeper" />
-		<property name="settings">
+	<bean id="nodeFactory" class="org.elasticsearch.pojo.NodeFactory" destroy-method="destroy">
+        <argument ref="blueprintBundleContext" />
+		<argument>
 			<map>
 				<entry key="name" value="${karaf.name}" />
 				<entry key="path.home" value="${karaf.data}/elastic" />
 				<entry key="node.data" value="true" />
 				<entry key="cluster.name" value="elasticsearch" />
 			</map>
-		</property>
+		</argument>
 	</bean>
     <service ref="nodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
             <entry key="service.pid" value="org.fusesource.insight.elasticsearch" />
         </service-properties>
     </service>
-
-    <reference id="zookeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
 
 </blueprint>

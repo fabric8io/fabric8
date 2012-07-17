@@ -338,6 +338,17 @@
               </releases>
           </repository>
           <repository>
+              <id>ea.fusesource.org</id>
+              <name>FuseSource Early Access Repository</name>
+              <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+              <snapshots>
+                  <enabled>false</enabled>
+              </snapshots>
+              <releases>
+                  <enabled>true</enabled>
+              </releases>
+          </repository>
+          <repository>
               <id>fusesource.m2-snapshot</id>
               <name>FuseSource Community Snapshot Repository</name>
               <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>

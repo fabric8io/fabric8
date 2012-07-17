@@ -67,6 +67,11 @@
             <artifactId>mq-fabric</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.fusesource.mq</groupId>
+            <artifactId>mq-client</artifactId>
+        </dependency>
+
     <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>

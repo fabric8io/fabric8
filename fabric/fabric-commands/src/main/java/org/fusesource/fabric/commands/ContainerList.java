@@ -17,25 +17,20 @@
 package org.fusesource.fabric.commands;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 import static org.fusesource.fabric.commands.support.CommandUtils.filterContainers;
 import static org.fusesource.fabric.commands.support.CommandUtils.matchVersion;
 import static org.fusesource.fabric.commands.support.CommandUtils.sortContainers;
 import static org.fusesource.fabric.commands.support.CommandUtils.status;
 
-@Command(name = "container-list", scope = "fabric", description = "List existing containers")
+@Command(name = "container-list", scope = "fabric", description = "List the containers in the current fabric")
 public class ContainerList extends FabricCommand {
 
     static final String FORMAT = "%-30s %-9s %-7s %-30s %s";
@@ -46,16 +41,14 @@ public class ContainerList extends FabricCommand {
 
     @Option(name = "--version", description = "Optional version to use as filter")
     private String version;
-
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
-
-    @Argument(index = 0, name = "filter", description = "Filter by id or profiles", required = false, multiValued = false)
+    @Argument(index = 0, name = "filter", description = "Filter by container ID or by profile name. When a profile name is specified, only the containers with that profile are listed.", required = false, multiValued = false)
     private String filter = null;
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
+        checkFabricAvailable();
         Container[] containers = fabricService.getContainers();
 
         // filter unwanted containers, and split list into parent/child,
@@ -83,27 +76,17 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
             if (matchVersion(container, version)) {
-                String indent = container.isRoot() ? "" : "  ";
-                out.println(String.format(FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
+                String indent = "";
+                for (Container c = container; !c.isRoot(); c = c.getParent()) {
+                    indent+="  ";
+                }
+                //Mark local container with a star symobl
+                String marker = "";
+                if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
+                    marker = "*";
+                }
+                out.println(String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
             }
-        }
-    }
-
-    /**
-     * Lets trim the status to a maximum size
-     * @param container
-     * @return
-     */
-    protected String status(Container container) {
-        String status = container.getProvisionStatus();
-        if (status == null) {
-            return "";
-        }
-        status = status.trim();
-        if (status.length() > 100) {
-            return status.substring(0, 100);
-        } else {
-            return status;
         }
     }
 
@@ -111,36 +94,18 @@ public class ContainerList extends FabricCommand {
         out.println(String.format(VERBOSE_FORMAT, VERBOSE_HEADERS));
         for (Container container : containers) {
             if (matchVersion(container, version)) {
-                String indent = container.isRoot() ? "" : "  ";
-                out.println(String.format(VERBOSE_FORMAT, indent + container.getId(), container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
+                String indent = "";
+                for (Container c = container; !c.isRoot(); c = c.getParent()) {
+                    indent += "  ";
+                }
+                //Mark local container with a star symobl
+                String marker = "";
+                if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
+                    marker = "*";
+                }
+                out.println(String.format(VERBOSE_FORMAT, indent + container.getId() + marker,  container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
             }
         }
-    }
-    
-    private boolean matchVersion(Container container, Version version) {
-        if (version == null) {
-            // always match if no version in filter
-            return true;
-        }
-
-        return version.equals(container.getVersion());
-    }
-    
-    private static Container[] sortContainers(Container[] containers) {
-        if (containers == null || containers.length <= 1) {
-            return containers;
-        }
-        List<Container> list = new ArrayList<Container>(containers.length);
-        list.addAll(Arrays.asList(containers));
-        
-        Collections.sort(list, new Comparator<Container>() {
-            @Override
-            public int compare(Container c1, Container c2) {
-                return c1.getId().compareTo(c2.getId());
-            }
-        });
-        
-        return list.toArray(new Container[0]);
     }
 
 }

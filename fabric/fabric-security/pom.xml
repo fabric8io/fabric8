@@ -27,7 +27,6 @@
 
   <groupId>org.fusesource.fabric.security</groupId>
   <artifactId>fabric-security-project</artifactId>
-  <version>99-master-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>

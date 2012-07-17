@@ -19,12 +19,12 @@ package org.fusesource.fabric.itests.paxexam;
 
 import java.io.IOException;
 import java.util.Dictionary;
+
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -32,16 +32,13 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class JaasRealmTest extends FabricCommandsTestSupport {
+public class JaasRealmTest extends FabricTestSupport {
 
     //TODO: This test needs rewrite as significant changes has been done.
     @Test
@@ -61,7 +58,7 @@ public class JaasRealmTest extends FabricCommandsTestSupport {
         Thread.sleep(DEFAULT_WAIT);
 
         System.err.println(executeCommand("osgi:list"));
-        System.err.println(executeCommand("fabric:ensemble-create root"));
+        System.err.println(executeCommand("fabric:ensemble-create -n root"));
 
         sshRealm = readProperty(configAdmin,"org.apache.karaf.shell","sshRealm");
         jmxRealm = readProperty(configAdmin,"org.apache.karaf.management","jmxRealm");
@@ -98,8 +95,6 @@ public class JaasRealmTest extends FabricCommandsTestSupport {
 
     @Configuration
     public Option[] config() {
-        return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(),
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+        return fabricDistributionConfiguration();
     }
 }

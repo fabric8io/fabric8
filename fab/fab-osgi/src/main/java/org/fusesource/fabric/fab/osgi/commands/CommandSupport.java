@@ -19,33 +19,27 @@ package org.fusesource.fabric.fab.osgi.commands;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.osgi.FabURLHandler;
-import org.fusesource.fabric.fab.osgi.internal.BundleFabFacade;
-import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;
-import org.fusesource.fabric.fab.osgi.internal.FabConnection;
-import org.fusesource.fabric.fab.osgi.internal.FabFacade;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
+import org.fusesource.fabric.fab.osgi.FabResolver;
+import org.fusesource.fabric.fab.osgi.FabResolverFactory;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.internal.*;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.sonatype.aether.RepositoryException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public abstract class CommandSupport extends OsgiCommandSupport {
     private PackageAdmin admin;
+    private FabResolverFactory factory;
 
     protected PackageAdmin getPackageAdmin() {
         if (admin == null) {
@@ -58,6 +52,41 @@ public abstract class CommandSupport extends OsgiCommandSupport {
             admin = getService(PackageAdmin.class, ref);
         }
         return admin;
+    }
+
+    protected FabResolverFactory getFabResolverFactory() {
+        if (factory == null) {
+            ServiceReference ref = getBundleContext().getServiceReference(FabResolverFactory.class.getName());
+            if (ref == null) {
+                System.out.println("FabResolverFactory service is unavailable.");
+                return null;
+            }
+            // using the getService call ensures that the reference will be released at the end
+            factory = getService(FabResolverFactory.class, ref);
+        }
+        return factory;
+    }
+
+    protected FabResolverFactoryImpl.FabResolverImpl getFabResolverImpl(String arg) throws MalformedURLException {
+        return (FabResolverFactoryImpl.FabResolverImpl) getFabResolver(arg);
+    }
+
+    protected FabResolver getFabResolver(String arg) throws MalformedURLException {
+        String url = arg;
+
+        // if the argument is numeric, extract the URL from the bundle with that ID instead
+        if (arg.matches("\\d+")) {
+            Bundle bundle = getBundle(arg);
+            if (bundle != null) {
+                url = bundle.getHeaders().get(ServiceConstants.INSTR_FAB_URL);
+                if (url == null) {
+                    println("Bundle %s is not a FAB - no %s bundle header found", arg, ServiceConstants.INSTR_FAB_URL);
+                    return null;
+                }
+            }
+        }
+
+        return getFabResolverFactory().getResolver(new URL(url));
     }
 
     protected void println() {
@@ -87,50 +116,38 @@ public abstract class CommandSupport extends OsgiCommandSupport {
         return resolver;
     }
 
-    protected FabURLHandler findURLHandler() throws InvalidSyntaxException {
-        ServiceReference[] references = bundleContext.getServiceReferences("org.osgi.service.url.URLStreamHandlerService", null);
-        for (ServiceReference reference : references) {
-            Object service = bundleContext.getService(reference);
-            if (service instanceof FabURLHandler) {
-                return (FabURLHandler) service;
-            }
+    /**
+     * Get the bundle by id, printing a nice error message if the bundle id is invalid
+     */
+    protected Bundle getBundle(String id) {
+        try {
+            return getBundle(Long.parseLong(id));
+        } catch (NumberFormatException e) {
+            System.err.println("Failed to parse bundle ID: " + id + ". Reason: " + e);
+            return null;
         }
-        return null;
     }
 
-    protected FabClassPathResolver createResolver(String arg) throws RepositoryException, IOException, XmlPullParserException, BundleException, InvalidSyntaxException {
-        FabClassPathResolver resolver = null;
-        if (arg.matches("\\d+")) {
-            Long id = null;
-            try {
-                id = Long.parseLong(arg);
-            } catch (NumberFormatException e) {
-                System.err.println("Failed to parse bundle ID: " + arg + ". Reason: " + e);
-            }
-            Bundle bundle = bundleContext.getBundle(id);
-            if (bundle != null) {
-                resolver = createFabResolver(bundle);
-            } else {
-                System.err.println("Bundle ID " + id + " is invalid");
-            }
-        } else {
-            FabURLHandler handler = findURLHandler();
-            if (handler != null) {
-                File file = new File(arg);
-                String u = arg;
-                if (file.exists()) {
-                    u = file.toURI().toURL().toString();
-                }
-                if (!arg.startsWith("fab:")) {
-                    u = "fab:" + u;
-                }
-                FabConnection urlConnection = handler.openConnection(new URL(u));
-                resolver = urlConnection.resolve();
-            } else {
-                println("ERROR: could not resolve FabURLHandler service in OSGi");
-            }
+    /**
+     * Get the bundle by id, printing a nice error message if the bundle id is invalid
+     */
+    protected Bundle getBundle(long id) {
+        Bundle bundle = bundleContext.getBundle(id);
+        if (bundle == null) {
+            System.err.println("Bundle ID " + id + " is invalid");
         }
-        return resolver;
+        return bundle;
+    }
+
+    protected FabBundleInfo getFabBundleInfo(String url) {
+        try {
+            FabBundleInfo info = getFabResolverFactory().getResolver(new URL(url)).getInfo();
+            info.getInputStream();
+            return info;
+        } catch (Exception e) {
+            System.err.println("Unable to retrieve FAB info for " + url + ". Reason: " + e);
+        }
+        return null;
     }
 
     public static class Table {

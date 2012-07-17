@@ -16,15 +16,15 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-import java.util.List;
-
-@Command(name = "container-connect", scope = "fabric", description = "Connect to a remote fabric container")
+@Command(name = "container-connect", scope = "fabric", description = "Connect to a remote container")
 public class ContainerConnect extends FabricCommand {
 
     @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: admin)", required = false, multiValued = false)
@@ -40,7 +40,8 @@ public class ContainerConnect extends FabricCommand {
     private List<String> command;
 
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
+        checkFabricAvailable();
+
         String cmdStr = "";
         if (command != null) {
             StringBuilder sb = new StringBuilder();
@@ -54,9 +55,6 @@ public class ContainerConnect extends FabricCommand {
         }
 
         Container found = getContainer(container);
-        if (found == null) {
-            throw new IllegalArgumentException("Container " + container + " does not exist.");
-        }
         String sshUrl = found.getSshUrl();
         if (sshUrl == null) {
             throw new IllegalArgumentException("Container " + container + " has no SSH URL.");

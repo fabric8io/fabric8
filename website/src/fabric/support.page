@@ -4,11 +4,11 @@ in_menu: true
 sort_info: 55
 --- 
 
-Fuse Fabric will be included in a future version of [Fuse ESB](http://fusesource.com/products/enterprise-servicemix/) if you want production support. 
+Fuse Fabric is included in [Fuse ESB Enterprise](http://fusesource.com/products/fuse-esb-enterprise/) if you want production support. 
 
 You can get [Enterprise Support, Mentoring, Training and Tools](http://fusesource.com/enterprise-support/support-offerings/) from [FuseSource](http://fusesource.com/). Please do [get in touch](http://fusesource.com/contact) we'd love to help!
 
-Otherwise you may find the [Frequently Asked Questions (FAQ)](faq.html) useful or join the [Community](community.html).
+Otherwise you may find the [Frequently Asked Questions (FAQ)](faq.html) useful or join the [Community](../community.html).
 
 We love feedback of all kinds; whether it's thoughts, ideas, suggestions or bug reports! 
 

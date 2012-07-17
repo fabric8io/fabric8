@@ -69,7 +69,6 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
                         logger.info("Interpreting the non-bundle jar as a FAB: " + artifact);
                     }
                 }
-                System.out.println("Fab deploy of a jar answer: " + answer + " bundle: " + bundle + " isDeployNonBundles: " + isDeployNonBundles() + " manifest: " + manifest);
                 // TODO filter out if we can find the pom.xml / properties files
                 // so that we can get PomDetails.isValid()?
                 return answer;

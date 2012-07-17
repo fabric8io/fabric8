@@ -32,7 +32,7 @@
                 <exclude>bin/**</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
-                <exclude>etc/config.properties</exclude>
+                <exclude>etc/custom.properties</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
@@ -50,7 +50,6 @@
             </includes>
             <excludes>
                 <exclude>bin/create.bat</exclude>
-                <exclude>bin/karaf.bat</exclude>
             </excludes>
             <lineEnding>dos</lineEnding>
             <fileMode>0644</fileMode>
@@ -82,15 +81,44 @@
             <outputDirectory>system</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>fabric_license.txt</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/licenses</directory>
+            <outputDirectory>/licenses/</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/karaf.bat</source>
+            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fusefabric.bat</destName>
             <lineEnding>dos</lineEnding>
             <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${basedir}/target/META-INF/NOTICE</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>fabric_notices.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>fabric_dependencies.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>dos</lineEnding>
         </file>
     </files>
 

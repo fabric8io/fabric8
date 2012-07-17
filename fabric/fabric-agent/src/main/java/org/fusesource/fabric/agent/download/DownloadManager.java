@@ -16,9 +16,10 @@
  */
 package org.fusesource.fabric.agent.download;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 import org.fusesource.fabric.agent.mvn.MavenConfiguration;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
@@ -28,7 +29,7 @@ public class DownloadManager {
     /**
      * Thread pool for downloads
      */
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    private ExecutorService executor;
 
     /**
      * Service configuration.
@@ -38,35 +39,64 @@ public class DownloadManager {
     private final MavenRepositoryURL system;
 
     public DownloadManager(MavenConfiguration configuration) throws MalformedURLException {
+        this(configuration, null);
+    }
+
+    public DownloadManager(MavenConfiguration configuration, ExecutorService executor) throws MalformedURLException {
         this.configuration = configuration;
-        String systemRepo = "file:" + System.getProperty("karaf.home") + "/" + System.getProperty("karaf.default.repository") + "@snapshots";
+        this.executor = executor;
+        String systemRepo = "file://" + System.getProperty("karaf.home") + "/" + System.getProperty("karaf.default.repository") + "@snapshots";
         system = new MavenRepositoryURL(systemRepo);
     }
 
     public void shutdown() {
-        executor.shutdown();
+        // noop
     }
 
-    public DownloadFuture download(String url) throws MalformedURLException {
+    public DownloadFuture download(final String url) throws MalformedURLException {
         String mvnUrl = url;
         if (mvnUrl.startsWith("wrap:")) {
             mvnUrl = mvnUrl.substring("wrap:".length());
             if (mvnUrl.contains("$")) {
-                mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('$') - 1);
+                mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('$'));
+            }
+        }
+        if (mvnUrl.startsWith("war:")) {
+            mvnUrl = mvnUrl.substring("war:".length());
+            if (mvnUrl.contains("?")) {
+                mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('?'));
             }
         }
         if (mvnUrl.startsWith("blueprint:") || mvnUrl.startsWith("spring:")) {
             mvnUrl = mvnUrl.substring(mvnUrl.indexOf(':') + 1);
         }
         if (mvnUrl.startsWith("mvn:")) {
-            MavenDownloadTask task = new MavenDownloadTask(url, system, configuration, executor);
+            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, system, configuration, executor);
             executor.submit(task);
             if (!mvnUrl.equals(url)) {
-                final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
+                final DummyDownloadTask download = new DummyDownloadTask(url, executor);
                 task.addListener(new FutureListener<DownloadFuture>() {
                     @Override
                     public void operationComplete(DownloadFuture future) {
-                        executor.submit(download);
+                        try {
+                            final String mvn = future.getUrl();
+                            String file = future.getFile().toURI().toURL().toString();
+                            String real = url.replace(mvn, file);
+                            SimpleDownloadTask task = new SimpleDownloadTask(real, executor);
+                            executor.submit(task);
+                            task.addListener(new FutureListener<DownloadFuture>() {
+                                @Override
+                                public void operationComplete(DownloadFuture future) {
+                                    try {
+                                        download.setFile(future.getFile());
+                                    } catch (IOException e) {
+                                        download.setException(e);
+                                    }
+                                }
+                            });
+                        } catch (IOException e) {
+                            download.setException(e);
+                        }
                     }
                 });
                 return download;
@@ -77,6 +107,17 @@ public class DownloadManager {
             final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
             executor.submit(download);
             return download;
+        }
+    }
+
+    static class DummyDownloadTask extends AbstractDownloadTask {
+        DummyDownloadTask(String url, ExecutorService executor) {
+            super(url, executor);
+        }
+
+        @Override
+        protected File download() throws Exception {
+            return getFile();
         }
     }
 

@@ -16,28 +16,48 @@
  */
 package org.fusesource.fabric.configadmin;
 
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.LifecycleListener;
-import org.linkedin.zookeeper.tracker.*;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
-import java.net.URL;
-import java.util.*;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.LifecycleListener;
+import org.linkedin.zookeeper.tracker.NodeEvent;
+import org.linkedin.zookeeper.tracker.NodeEventsListener;
+import org.linkedin.zookeeper.tracker.TrackedNode;
+import org.linkedin.zookeeper.tracker.ZKStringDataReader;
+import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, LifecycleListener {
+
+    public static final String PARENTS = "parents"; // = Profile.PARENTS;
 
     public static final String DELETED = "#deleted#";
 
@@ -45,15 +65,18 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
 
     public static final String FILEINSTALL = "felix.fileinstall.filename";
 
-    private static final Logger LOGGER = Logger.getLogger(ZooKeeperConfigAdminBridge.class.getName());
+    public static final String PROFILE_PROP_REGEX = "profile:[\\w\\.\\-]*/[\\w\\.\\-]*";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperConfigAdminBridge.class);
 
     private IZKClient zooKeeper;
     private ConfigurationAdmin configAdmin;
     private String name;
     private String version;
     private String node;
+    private String resolutionPolicy;
     private Map<String, ZooKeeperTreeTracker<String>> trees = new ConcurrentHashMap<String, ZooKeeperTreeTracker<String>>();
-    private boolean tracking = false;
+    private volatile boolean tracking = false;
 
 
     public void init() throws Exception {
@@ -68,45 +91,48 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
 
     public void onConnected() {
         try {
-            // Find our root node
-            version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
-            if (version == null) {
-                throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
-            }
-            node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
-            if (zooKeeper.exists(node) == null) {
-                zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            }
             trees = new ConcurrentHashMap<String, ZooKeeperTreeTracker<String>>();
             tracking = true;
             try {
+                // Find our root node
+                String versionNode = ZkPath.CONFIG_CONTAINER.getPath(name);
+                if (zooKeeper.exists(versionNode) == null) {
+                    ZkPath.createContainerPaths(zooKeeper, name, null, "fabric");
+                }
+                version = zooKeeper.getStringData(versionNode);
+                if (version == null) {
+                    throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
+                }
+                track(versionNode);
+                node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
+                if (zooKeeper.exists(node) == null) {
+                    zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
                 track(node);
+                resolutionPolicy = ZkPath.CONTAINER_RESOLVER.getPath(name);
+                track(resolutionPolicy);
             } finally {
                 tracking = false;
             }
             onEvents(null);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Exception when tracking configurations", e);
+            LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
         }
     }
 
     public void onDisconnected() {
     }
 
-    protected ZooKeeperTreeTracker<String> track(String path) throws InterruptedException, KeeperException {
+    protected ZooKeeperTreeTracker<String> track(String path) throws InterruptedException, KeeperException, IOException {
         ZooKeeperTreeTracker<String> tree = trees.get(path);
         if (tree == null) {
             if (zooKeeper.exists(path) != null) {
                 tree = new ZooKeeperTreeTracker<String>(zooKeeper, new ZKStringDataReader(), path);
                 trees.put(path, tree);
                 tree.track(this);
-                String data = tree.getTree().get(path).getData();
-                if (data != null) {
-                    data = data.trim();
-                    String[] parents = data.split(" ");
-                    for (String parent : parents) {
-                        track(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));
-                    }
+                String[] parents = getParents(tree.getTree().get(path));
+                for (String parent : parents) {
+                    track(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent));
                 }
             } else {
                 // If the node does not exist yet, we track the parent to make
@@ -131,59 +157,96 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     }
 
     static public String stripSuffix(String value, String suffix) {
-        if(value.endsWith(suffix)) {
-            return value.substring(0, value.length() -suffix.length());
+        if (value.endsWith(suffix)) {
+            return value.substring(0, value.length() - suffix.length());
         } else {
             return value;
         }
     }
 
-    public Dictionary load(String pid) throws IOException {
-        try {
-            Hashtable props = new Hashtable();
-            load(pid, node, props);
+    public Map<String, Hashtable> load(Set<String> pids) throws IOException {
+        final Map<String, Hashtable> configs = new HashMap<String, Hashtable>();
+        for (String pid : pids) {
+            try {
+                Hashtable props = new Hashtable();
+                load(pid, node, props);
+                configs.put(pid, props);
+            } catch (InterruptedException e) {
+                throw (IOException) new InterruptedIOException("Error loading pid " + pid).initCause(e);
+            } catch (KeeperException e) {
+                throw (IOException) new IOException("Error loading pid " + pid).initCause(e);
+            }
+        }
+
+        for (Map.Entry<String, Hashtable> entry : configs.entrySet()) {
+            Hashtable props = entry.getValue();
             InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
                 public String getValue(String key) {
                     if (key.startsWith("zk:")) {
                         try {
                             return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
+                        } catch (KeeperException.ConnectionLossException e) {
+                            throw new RuntimeException(e);
                         } catch (Exception e) {
-                            LOGGER.log(Level.WARNING, "Could not load zk value: "+key, e);
+                            LOGGER.warn("Could not load zk value: {}. This exception will be ignored.", key, e);
                         }
+                    } else if (key.matches(PROFILE_PROP_REGEX)) {
+                        String pid = key.substring("profile:".length(), key.indexOf("/"));
+                        String propertyKey = key.substring(key.indexOf("/") + 1);
+                        Hashtable targetProps = configs.get(pid);
+                        if (targetProps != null && targetProps.containsKey(propertyKey)) {
+                            return (String) targetProps.get(propertyKey);
+                        } else {
+                            return key;
+                        }
+                    } else {
+                        String value = key;
+                        BundleContext context = getBundleContext();
+                        if (context != null) {
+                            value = context.getProperty(key);
+                        }
+                        if (value == null) {
+                            value = System.getProperty(key, "");
+                        }
+                        return value;
                     }
-                    return null;
+                    return key;
                 }
             });
-            return props;
-        } catch (InterruptedException e) {
-            throw (IOException) new InterruptedIOException("Error loading pid " + pid).initCause(e);
-        } catch (KeeperException e) {
-            throw (IOException) new IOException("Error loading pid " + pid).initCause(e);
+        }
+        return configs;
+    }
+
+    private static BundleContext getBundleContext() {
+        try {
+            return FrameworkUtil.getBundle(ZooKeeperConfigAdminBridge.class).getBundleContext();
+        } catch (Throwable t) {
+            return null;
         }
     }
 
     private void load(String pid, String node, Dictionary dict) throws KeeperException, InterruptedException, IOException {
         ZooKeeperTreeTracker<String> tree = track(node);
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
-        String[] parents = root != null && root.getData() != null ? root.getData().split(" ") : new String[0];
+        String[] parents = getParents(root);
         for (String parent : parents) {
             load(pid, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), dict);
         }
-        TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid+".properties") : null;
+        TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid + ".properties") : null;
         if (cfg != null) {
-        //if (cfg != null && !DELETED.equals(cfg.getData())) {
+            //if (cfg != null && !DELETED.equals(cfg.getData())) {
             Properties properties = toProperties(cfg.getData());
 
             // clear out the dict if it had a deleted key.
-            if( properties.remove(DELETED)!=null ) {
+            if (properties.remove(DELETED) != null) {
                 Enumeration keys = dict.keys();
                 while (keys.hasMoreElements()) {
                     dict.remove(keys.nextElement());
                 }
             }
 
-            for (Map.Entry<Object, Object> entry: properties.entrySet()){
-                if( DELETED.equals(entry.getValue()) ) {
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                if (DELETED.equals(entry.getValue())) {
                     dict.remove(entry.getKey());
                 } else {
                     dict.put(entry.getKey(), entry.getValue());
@@ -192,21 +255,41 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         }
     }
 
-    private Set<String> getPids() throws KeeperException, InterruptedException {
+    private String[] getParents(TrackedNode<String> root) throws IOException {
+        String[] parents;
+        if (root != null && root.getData() != null) {
+            Properties props = toProperties(root.getData());
+            // For compatibility, check if we have instead the list of parents
+            if (props.size() == 1) {
+                String key = props.stringPropertyNames().iterator().next();
+                if (!key.equals(PARENTS)) {
+                    String val = props.getProperty(key);
+                    props.remove(key);
+                    props.setProperty(PARENTS, val.isEmpty() ? key : key + " " + val);
+                }
+            }
+            parents = props.getProperty(PARENTS, "").split(" ");
+        } else {
+            parents = new String[0];
+        }
+        return parents;
+    }
+
+    private Set<String> getPids() throws KeeperException, InterruptedException, IOException {
         Set<String> pids = new HashSet<String>();
         getPids(node, pids);
         return pids;
     }
 
-    private void getPids(String node, Set<String> pids) throws KeeperException, InterruptedException {
+    private void getPids(String node, Set<String> pids) throws KeeperException, InterruptedException, IOException {
         ZooKeeperTreeTracker<String> tree = track(node);
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
-        String[] parents = root != null && root.getData() != null ? root.getData().split(" ") : new String[0];
+        String[] parents = getParents(root);
         for (String parent : parents) {
             getPids(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), pids);
         }
         for (String pid : getChildren(tree, node)) {
-            if(pid.endsWith(".properties")) {
+            if (pid.endsWith(".properties")) {
                 pid = stripSuffix(pid, ".properties");
                 pids.add(pid);
             }
@@ -227,76 +310,65 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     }
 
     public void onEvents(Collection<NodeEvent<String>> nodeEvents) {
-        LOGGER.entering(getClass().getName(), "onEvents", nodeEvents);
+        LOGGER.trace("onEvents", nodeEvents);
         try {
             if (!tracking) {
+                String version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
+
+                if (zooKeeper.exists(ZkPath.CONTAINER_IP.getPath(name)) != null) {
+                    String resolutionPointer = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name));
+                    resolutionPolicy = zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(name));
+                    if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
+                        zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name), "${zk:" + name + "/" + resolutionPolicy + "}");
+                    }
+                }
+
+                if (!this.version.equals(version)) {
+                    this.version = version;
+                    node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
+                    track(node);
+                }
                 final Set<String> pids = getPids();
+                Map<String, Hashtable> pidProperties = load(pids);
                 List<Configuration> configs = asList(getConfigAdmin().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
                 for (String pid : pids) {
-                    Dictionary c = load(pid);
+                    Hashtable c = pidProperties.get(pid);
                     String p[] = parsePid(pid);
-                    Configuration[] configurations = getConfiguration(pid, p[0], p[1]);
-                    for (Configuration config:configurations) {
+                    //Get the configuration by fabric zookeeper pid, pid and factory pid.
+                    Configuration config = getConfiguration(pid, p[0], p[1]);
                     configs.remove(config);
                     Dictionary props = config.getProperties();
-                    boolean changed = false;
-                    if (props != null) {
-                        for (Enumeration e = c.keys(); e.hasMoreElements();) {
+                    Hashtable old = props != null ? new Hashtable() : null;
+                    if (old != null) {
+                        for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
                             Object key = e.nextElement();
-                            Object val = c.get(key);
-                            Object oldVal = props.get(key);
-                            if (oldVal == null || !oldVal.equals(val)) {
-                                props.put(key, val);
-                                LOGGER.info(config.getPid() + " - property '" + key + "' changed: " + oldVal + " -> " + val);
-                                changed = true;
-                            }
+                            Object val = props.get(key);
+                            old.put(key, val);
                         }
-                        props.remove(FABRIC_ZOOKEEPER_PID);
-                        props.remove(org.osgi.framework.Constants.SERVICE_PID);
-                        props.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
-
-                        if (changed) {
-                            LOGGER.info(config.getPid() + " - updating configuration");
-                            config.update(props);
-                            saveProperties(props);
-                        } else {
-                            LOGGER.fine(config.getPid() + " - ignoring configuration (no changes)");
-                        }
-                    } else {
-                        LOGGER.info(config.getPid() + " - initializing configuration");
-                        config.update(c);
+                        old.remove(FABRIC_ZOOKEEPER_PID);
+                        old.remove(org.osgi.framework.Constants.SERVICE_PID);
+                        old.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
                     }
+                    if (!c.equals(old)) {
+                        LOGGER.info("Updating configuration {}", config.getPid());
+                        c.put(FABRIC_ZOOKEEPER_PID, pid);
+                        if (config.getBundleLocation() != null) {
+                            config.setBundleLocation(null);
+                        }
+                        config.update(c);
+                    } else {
+                        LOGGER.info("Ignoring configuration {} (no changes)", config.getPid());
                     }
                 }
                 for (Configuration config : configs) {
-                    LOGGER.info(config.getPid() + " - deleting configuration");
+                    LOGGER.info("Deleting configuration {}", config.getPid());
                     config.delete();
                 }
             }
-            LOGGER.exiting(getClass().getName(), "onEvents");
+            LOGGER.trace("onEvents done");
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Exception when tracking configurations", e);
+            LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
         }
-    }
-
-    private void saveProperties(Dictionary props) throws IOException {
-        String fileInstall = (String) props.get(FILEINSTALL);
-        if (fileInstall != null) {
-            URL configUrl = new URL(fileInstall);
-            props.remove(FILEINSTALL);
-            Properties fileProperties = createProperties(props);
-            fileProperties.store(new FileOutputStream(configUrl.getFile()), "Saved by " + name + " at  " + new Date());
-        }
-    }
-
-    private Properties createProperties(Dictionary dict) {
-        Properties p = new Properties();
-        Enumeration<String> keys = dict.keys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            p.setProperty(key, (String)dict.get(key));
-        }
-        return p;
     }
 
     public static <T> List<T> asList(T... a) {
@@ -307,28 +379,28 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         return l;
     }
 
+    /**
+     * Splits a pid into service and factory pid.
+     *
+     * @param pid The pid to parse.
+     * @return An arrays which contains the pid[0] the pid and pid[1] the factory pid if applicable.
+     */
     String[] parsePid(String pid) {
         int n = pid.indexOf('-');
         if (n > 0) {
             String factoryPid = pid.substring(n + 1);
             pid = pid.substring(0, n);
-            return new String[]
-                    {
-                            pid, factoryPid
-                    };
+            return new String[]{pid, factoryPid};
         } else {
-            return new String[]
-                    {
-                            pid, null
-                    };
+            return new String[]{pid, null};
         }
     }
 
-    Configuration[] getConfiguration(String zooKeeperPid, String pid, String factoryPid)
-            throws Exception {
-        Configuration[] oldConfiguration = findExistingConfiguration(zooKeeperPid);
-        if (oldConfiguration != null) {
-            return oldConfiguration;
+    Configuration getConfiguration(String zooKeeperPid, String pid, String factoryPid) throws Exception {
+        String filter = "(" + FABRIC_ZOOKEEPER_PID + "=" + zooKeeperPid + ")";
+        Configuration[] oldConfiguration = getConfigAdmin().listConfigurations(filter);
+        if (oldConfiguration != null && oldConfiguration.length > 0) {
+            return oldConfiguration[0];
         } else {
             Configuration newConfiguration;
             if (factoryPid != null) {
@@ -336,17 +408,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             } else {
                 newConfiguration = getConfigAdmin().getConfiguration(pid, null);
             }
-            return new Configuration[] {newConfiguration};
-        }
-    }
-
-    Configuration[] findExistingConfiguration(String zooKeeperPid) throws Exception {
-        String filter = "(" + FABRIC_ZOOKEEPER_PID + "=" + zooKeeperPid + ")";
-        Configuration[] configurations = getConfigAdmin().listConfigurations(filter);
-        if (configurations != null && configurations.length > 0) {
-            return configurations;
-        } else {
-            return null;
+            return newConfiguration;
         }
     }
 

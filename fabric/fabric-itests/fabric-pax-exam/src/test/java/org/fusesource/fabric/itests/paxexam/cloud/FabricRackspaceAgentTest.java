@@ -21,39 +21,34 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.annotation.Nullable;
+
 import com.google.common.base.Predicate;
 import org.apache.commons.io.IOUtils;
-import org.fusesource.fabric.itests.paxexam.FabricCommandsTestSupport;
+import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeState;
-import org.jclouds.ec2.EC2Client;
-import org.jclouds.ec2.domain.IpProtocol;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
+public class FabricRackspaceAgentTest extends FabricTestSupport {
 
     private String identity;
     private String credential;
@@ -99,7 +94,7 @@ public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
     public void testRackspaceAgentCreation() throws InterruptedException, IOException {
         if (!isReady()) {
             System.err.println("Rackspace is not setup correctly. This test will not run.");
-            System.err.println("To prpoerly run this test, you need to setup with maven the following properties:");
+            System.err.println("To properly run this test, you need to setup with maven the following properties:");
             System.err.println("fabricitest.rackspace.identity \t The rackspace access id");
             System.err.println("fabricitest.rackspace.credential \t The rackspace access key");
             System.err.println("fabricitest.rackspace.image  \t The rackspace (java ready) image");
@@ -110,20 +105,15 @@ public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
         System.err.println(executeCommand("features:install jclouds-cloudserver-us fabric-jclouds jclouds-commands"));
 
         //Filtering out regions because there is a temporary connectivity issue with us-west-2.
-        executeCommands("config:edit org.jclouds.compute-rackspace",
-                "config:propset provider cloudservers-us ",
-                "config:propset identity " + identity,
-                "config:propset credential " + credential,
-                "config:update");
+        executeCommand("fabric:cloud-provider-add cloudservers-us "+identity+" "+credential);
 
         ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
 
         //The compute service needs some time to properly initialize.
-        Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:container-create --ensemble-server --url jclouds://cloudservers-us?imageId=%s&locationId=%s&group=%s&user=%s --profile default ensemble1", image, location, group, user), 10 * 60000L, false));
+        System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider cloudservers-us --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
-        System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
+        System.err.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
         Thread.sleep(DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
         String agentList = executeCommand("fabric:container-list");
@@ -167,7 +157,7 @@ public class FabricRackspaceAgentTest extends FabricCommandsTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.ERROR),
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
                 copySystemProperty("fabricitest.rackspace.identity"),
                 copySystemProperty("fabricitest.rackspace.credential"),
                 copySystemProperty("fabricitest.rackspace.image"),

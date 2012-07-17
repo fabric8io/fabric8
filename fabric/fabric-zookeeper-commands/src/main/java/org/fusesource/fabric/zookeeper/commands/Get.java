@@ -18,17 +18,16 @@ package org.fusesource.fabric.zookeeper.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "get", scope = "zk", description = "Get a node's data")
+@Command(name = "get", scope = "zk", description = "Get a znode's data", detailedDescription = "classpath:get.txt")
 public class Get extends ZooKeeperCommandSupport {
 
-    @Argument(description = "Path of the node to get")
+    @Argument(description = "Path of the znode to get")
     String path;
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkZooKeeperConnected();
-        System.out.println(getZooKeeper().getStringData(path));
-        return null;
+    protected void doExecute(IZKClient zk) throws Exception {
+        System.out.println(zk.getStringData(path));
     }
 }

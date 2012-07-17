@@ -22,6 +22,7 @@
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
     <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <groupId>org.fusesource.insight</groupId>
@@ -34,11 +35,27 @@
     <fuse.osgi.export>org.fusesource.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
 
+  <dependencyManagement>
+      <dependencies>
+          <dependency>
+              <groupId>org.codehaus.jackson</groupId>
+              <artifactId>jackson-core-asl</artifactId>
+              <version>1.9.5</version>
+          </dependency>
+          <dependency>
+              <groupId>org.codehaus.jackson</groupId>
+              <artifactId>jackson-mapper-asl</artifactId>
+              <version>1.9.5</version>
+          </dependency>
+      </dependencies>
+  </dependencyManagement>
+
   <modules>
     <module>insight-graph</module>
     <module>insight-log</module>
     <module>insight-log-elasticsearch</module>
     <module>insight-elasticsearch</module>
+    <module>bai</module>
   </modules>
 
 </project>

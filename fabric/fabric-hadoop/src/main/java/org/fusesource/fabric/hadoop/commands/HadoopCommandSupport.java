@@ -16,8 +16,10 @@
  */
 package org.fusesource.fabric.hadoop.commands;
 
+import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import javax.security.auth.Subject;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.hadoop.HadoopFactory;
@@ -30,22 +32,28 @@ public abstract class HadoopCommandSupport extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        ServiceReference ref = getBundleContext().getServiceReference(ConfigurationAdmin.class.getName());
-        ConfigurationAdmin admin = ref != null ? getService(ConfigurationAdmin.class, ref) : null;
-        org.osgi.service.cm.Configuration config = admin != null ? admin.getConfiguration(HadoopFactory.CONFIG_PID) : null;
-        Dictionary dictionary = config != null ? config.getProperties() : null;
-        if (dictionary == null) {
-            throw new IllegalStateException("No configuration found for pid " + HadoopFactory.CONFIG_PID);
-        }
+        Subject.doAs(null, new PrivilegedExceptionAction<Object>() {
+            @Override
+            public Object run() throws Exception {
+                ServiceReference ref = getBundleContext().getServiceReference(ConfigurationAdmin.class.getName());
+                ConfigurationAdmin admin = ref != null ? getService(ConfigurationAdmin.class, ref) : null;
+                org.osgi.service.cm.Configuration config = admin != null ? admin.getConfiguration(HadoopFactory.CONFIG_PID) : null;
+                Dictionary dictionary = config != null ? config.getProperties() : null;
+                if (dictionary == null) {
+                    throw new IllegalStateException("No configuration found for pid " + HadoopFactory.CONFIG_PID);
+                }
 
-        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-        for (Enumeration e = dictionary.keys(); e.hasMoreElements();) {
-            Object key = e.nextElement();
-            Object val = dictionary.get(key);
-            conf.set( key.toString(), val.toString() );
-        }
+                org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
+                for (Enumeration e = dictionary.keys(); e.hasMoreElements();) {
+                    Object key = e.nextElement();
+                    Object val = dictionary.get(key);
+                    conf.set( key.toString(), val.toString() );
+                }
 
-        doExecute(conf);
+                doExecute(conf);
+                return null;
+            }
+        });
         return null;
     }
 }

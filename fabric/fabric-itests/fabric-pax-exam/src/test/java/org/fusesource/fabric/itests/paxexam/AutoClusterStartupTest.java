@@ -20,35 +20,28 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.ZkClientFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.zookeeper.client.IZKClient;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
 
-
     @Test
     public void testLocalFabricCluster() throws Exception {
         //Wait for zookeeper service to become available.
-        ZkClientFacade zooKeeper = getOsgiService(ZkClientFacade.class);
-        assertNotNull(zooKeeper.getZookeeper(DEFAULT_TIMEOUT));
+        IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
@@ -64,8 +57,9 @@ public class AutoClusterStartupTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                fabricDistributionConfiguration(), keepRuntimeFolder(),
-                new VMOption("-D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true") ,
-                logLevel(LogLevelOption.LogLevel.ERROR)};
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                new VMOption("-D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"),
+                new VMOption("-D"+ZooKeeperClusterService.AGENT_AUTOSTART +"=false"),
+        };
     }
 }

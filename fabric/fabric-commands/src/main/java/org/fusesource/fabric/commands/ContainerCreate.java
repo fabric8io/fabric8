@@ -24,18 +24,17 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
-import org.fusesource.fabric.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 
-@Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers")
+@Command(name = "container-create", scope = "fabric", description = "Creates one or more new containers", detailedDescription = "classpath:containerCreate.txt")
 public class ContainerCreate extends ContainerCreateSupport {
 
     @Option(name = "--parent", multiValued = false, required = false, description = "Parent container ID")
-    private String parent;
-
-    @Option(name = "--url", multiValued = false, required = false, description = "The URL")
-    private String url;
+    protected String parent;
+    @Option(name = "--url", multiValued = false, required = false, description = "The URL of the new container. To specify the resolver policy of the new container, add the URL option ?resolver=<policy>.")
+    protected String url;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
-    private URI proxyUri;
+    protected URI proxyUri;
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
@@ -50,7 +49,7 @@ public class ContainerCreate extends ContainerCreateSupport {
         if (url == null && parent != null) {
             url = "child://" + parent;
             type = "child";
-        } else if (parent == null && url != null) {
+        } else if (url != null) {
             URI uri = new URI(url);
             type = uri.getScheme();
             if ("child".equals(type)) {
@@ -61,12 +60,13 @@ public class ContainerCreate extends ContainerCreateSupport {
         CreateContainerOptions args = CreateContainerOptionsBuilder.type(type)
                 .name(name)
                 .parent(parent)
+                .resolver(resolver)
                 .number(number)
-                .debugContainer(debugContainer)
                 .ensembleServer(isEnsembleServer)
                 .providerUri(url)
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-                .zookeeperUrl(fabricService.getZookeeperUrl());
+                .zookeeperUrl(fabricService.getZookeeperUrl())
+                .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
         // display containers

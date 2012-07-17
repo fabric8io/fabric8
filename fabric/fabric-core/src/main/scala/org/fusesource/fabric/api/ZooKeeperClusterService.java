@@ -22,8 +22,10 @@ import java.util.List;
 
 public interface ZooKeeperClusterService {
 
+    static final String AGENT_AUTOSTART ="agent.auto.start";
     static final String ENSEMBLE_AUTOSTART ="ensemble.auto.start";
     static final String PROFILES_AUTOIMPORT_PATH ="profiles.auto.import.path";
+    static final String PROFILE ="profile";
 
     List<String> getClusterContainers();
 

@@ -26,8 +26,7 @@
   <artifactId>fab-sample-camel-velocity-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Bundles :: Sample :: Camel Velocity NoShare</description>
+  <name>Fuse Application Bundles :: Tests :: Camel Velocity NoShare</name>
 
   <dependencies>
     <dependency>
@@ -59,7 +58,12 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
-              <FAB-Provided-Dependency />
+
+              <!-- disable provided dependency handling for Apache Camel -->
+              <FAB-Provided-Dependency>org.apache.activemq:* org.apache.cxf.*</FAB-Provided-Dependency>
+
+              <!-- Disable feature matching for Apache Camel -->
+              <FAB-Skip-Matching-Feature-Detection>org.apache.camel:*</FAB-Skip-Matching-Feature-Detection>
 
               <!-- exclude some velocity / spring dependencies -->
               <FAB-Exclude-Dependency>ant javax.el javax.inject javax.servlet jdom log4j logkit werken-xpath</FAB-Exclude-Dependency>

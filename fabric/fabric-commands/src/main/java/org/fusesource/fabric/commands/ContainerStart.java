@@ -19,21 +19,22 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "container-start", scope = "fabric", description = "Start an existing container")
+@Command(name = "container-start", scope = "fabric", description = "Start the specified container")
 public class ContainerStart extends FabricCommand {
 
-    @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
+    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container = null;
 
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
+        checkFabricAvailable();
         Container found = getContainer(container);
-        if (found == null) {
-            throw new IllegalArgumentException("Container " + container + " does not exist.");
+        if (!found.isAlive()) {
+            found.start();
+        } else {
+            System.err.println("Container " + container + " is already started");
         }
-        found.start();
         return null;
     }
 

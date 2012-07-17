@@ -20,6 +20,8 @@ package org.fusesource.fabric.fab.osgi.internal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -33,11 +35,8 @@ import org.apache.felix.utils.version.VersionCleaner;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.IOHelpers;
-import org.fusesource.fabric.fab.util.Manifests;
-import org.fusesource.fabric.fab.util.Maps;
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
+import org.fusesource.fabric.fab.util.*;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
@@ -49,13 +48,15 @@ import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_ID;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_NAME;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
+import static org.fusesource.fabric.fab.util.Strings.defaultIfEmpty;
 import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
 import static org.fusesource.fabric.fab.util.Strings.join;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism
  */
-public class FabClassPathResolver {
+public class FabClassPathResolver implements FabConfiguration {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(FabClassPathResolver.class);
 
     private FabFacade connection;
@@ -68,6 +69,9 @@ public class FabClassPathResolver {
     private Map<String, Map<String, String>> importPackages = new HashMap<String, Map<String, String>>();
     private boolean offline = false;
 
+    // filters used for pruning unnecessary nodes from the dependency tree
+    protected final List<Filter<DependencyTree>> pruningFilters = new LinkedList<Filter<DependencyTree>>();
+
     HashSet<String> sharedFilterPatterns = new HashSet<String>();
     HashSet<String> requireBundleFilterPatterns = new HashSet<String>();
     HashSet<String> excludeDependencyFilterPatterns = new HashSet<String>();
@@ -79,6 +83,10 @@ public class FabClassPathResolver {
     private Filter<DependencyTree> excludeDependencyFilter;
     private Filter<DependencyTree> optionalDependencyFilter;
     private Filter<DependencyTree> importExportFilter;
+
+    // collectors keeping track of features to be installed
+    private Collectors<String> installFeatures = new Collectors<String>();
+    private List<URI> installFeatureURLs = new LinkedList<URI>();
 
     private List<DependencyTree> nonSharedDependencies = new ArrayList<DependencyTree>();
     private List<DependencyTree> sharedDependencies = new ArrayList<DependencyTree>();
@@ -107,11 +115,8 @@ public class FabClassPathResolver {
         if (moduleId == null) {
             return;
         }
-        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
-        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
-        excludeDependencyFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
-        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
-        importExportFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS)), "\\s+"));
+
+        processFabInstructions();
 
         sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
         requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
@@ -129,6 +134,11 @@ public class FabClassPathResolver {
         Filter<Dependency> excludeFilter = DependencyFilters.parseExcludeFilter(join(excludeDependencyFilterPatterns, " "), optionalFilter);
 
         this.rootTree = connection.collectDependencyTree(offline, excludeFilter);
+
+        // let's prune unnecessary items from the tree before continuing
+        for (Filter<DependencyTree> filter : pruningFilters) {
+            DependencyTreeFilters.prune(rootTree, filter);
+        }
 
         String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
         if (name.length() <= 0) {
@@ -201,6 +211,11 @@ public class FabClassPathResolver {
         installDependencies = filterOutDuplicates(installDependencies);
         optionalDependencies = filterOutDuplicates(optionalDependencies);
 
+        LOG.debug("Required features:");
+        for (String feature : getInstallFeatures()) {
+            LOG.debug("- " + feature);
+        }
+
         LOG.debug("nonSharedDependencies:");
         for( DependencyTree d : nonSharedDependencies) {
             LOG.debug("  "+d.getDependencyId());
@@ -237,6 +252,32 @@ public class FabClassPathResolver {
         }
 
     }
+
+    protected void processFabInstructions() {
+        sharedFilterPatterns.addAll(
+                getListManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY, ServiceConstants.DEFAULT_FAB_PROIVDED_DEPENDENCY));
+        requireBundleFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
+        excludeDependencyFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY));
+        optionalDependencyPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
+        importExportFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS));
+        installFeatures.addCollection(getListManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE));
+        for (String url : getListManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL)) {
+            try {
+                installFeatureURLs.add(new URI(url));
+            } catch (URISyntaxException e) {
+                LOG.warn("Invalid URI {} listed in {} will be ignored", new Object[] { url, ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL });
+            }
+        }
+    }
+
+    private List<String> getListManifestProperty(String name) {
+        return Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(name)), "\\s+");
+    }
+
+    private List<String> getListManifestProperty(String name, String defaultValue) {
+        return Strings.splitAndTrimAsList(defaultIfEmpty(getManifestProperty(name), defaultValue), "\\s+");
+    }
+
 
     public List<DependencyTree> getInstallDependencies() {
         return installDependencies;
@@ -536,6 +577,10 @@ public class FabClassPathResolver {
     }
 
     protected void addSharedDependency(DependencyTree tree) throws IOException {
+        if (!isInstallProvidedBundleDependencies() && connection.isInstalled(tree)) {
+            LOG.debug("Skipping {} since it is already installed", tree.getDependencyId());
+            return;
+        }
         LOG.debug("Added shared dependency: " + tree.getDependencyId());
         sharedDependencies.add(tree);
         boolean importExports = false;
@@ -649,6 +694,20 @@ public class FabClassPathResolver {
         installDependencies.add(node);
     }
 
+    /*
+     * Get the list of features to be installed
+     */
+    public Collection<String> getInstallFeatures() {
+        return installFeatures.getCollection();
+    }
+
+    /*
+     * Get the list of feature URLs to be added
+     */
+    public Collection<URI> getInstallFeatureURLs() {
+        return installFeatureURLs;
+    }
+
     public Map<String, Map<String, String>> getExtraImportPackages() {
         return importPackages;
     }
@@ -659,5 +718,33 @@ public class FabClassPathResolver {
 
     public List<DependencyTree> getOptionalDependencies() {
         return optionalDependencies;
+    }
+
+    /*
+     * Add a pruning filter to this classpath resolver.  These filters will be used after the initial resolution
+     * of the dependencies to prune unnecessary items from the dependency tree.
+     *
+     * If the filter also implements the {@link FeatureCollector} interface, it will also be added to the collectors
+     * used for tracking {@link #getInstallFeatures}
+     */
+    public void addPruningFilter(Filter<DependencyTree> filter) {
+        pruningFilters.add(filter);
+        if (filter instanceof FeatureCollector) {
+            installFeatures.addCollector((FeatureCollector) filter);
+        }
+    }
+
+    /**
+     * Get the value of the {@link ServiceConstants#INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES}
+     *
+     * @return <code>true</code> if the MANIFEST.MF header has been set to true
+     */
+    protected boolean isInstallProvidedBundleDependencies() {
+        return Boolean.valueOf(getManifestProperty(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES));
+    }
+
+    @Override
+    public String getStringProperty(String name) {
+        return getManifestProperty(name);
     }
 }

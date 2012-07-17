@@ -1,0 +1,7 @@
+The new profile is created only for the version you specify (or the current default version). If you want to create a profile for every version, you must invoke fabric:profile-create separately for each version (use fabric:version-list to list all versions).
+
+The newly created profile is initially empty, apart from the settings inherited from the parent profiles. To add settings to the new profile, use the fabric:profile-edit command.
+
+For example, to add the new profile, test, which has the current default version and inherits from the parent profiles, mq and camel, enter the following console command:
+
+fabric:profile-create --parents mq --parents camel test

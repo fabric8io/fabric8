@@ -18,11 +18,10 @@
 package org.fusesource.fabric.cxf;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.AbstractFeature;
-import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,25 +45,25 @@ public class FailOverClientServerTest extends AbstractJUnit4SpringContextTests {
     public void testClientServer() throws Exception {
         assertNotNull(bus);
         // The bus is load the feature
-        ServerFactoryBean factory = new ServerFactoryBean();
-        factory.setServiceBean(new HelloImplFail());
+        JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
+        factory.setServiceBean(new HelloImpl());
         factory.setAddress("http://localhost:9000/fail/server");
         factory.setBus(bus);
         factory.create();
 
 
-        factory = new ServerFactoryBean();
+        factory = new JaxWsServerFactoryBean();
         factory.setServiceBean(new HelloImpl());
         factory.setAddress("http://localhost:9000/simple/server");
         factory.setBus(bus);
         factory.create();
 
         // sleep a while to let the service be published
-        ClientProxyFactoryBean clientFactory = new ClientProxyFactoryBean();
+        JaxWsProxyFactoryBean clientFactory = new JaxWsProxyFactoryBean();
         clientFactory.setServiceClass(Hello.class);
         // The address is not the actual address that the client will access
         clientFactory.setAddress("http://someotherplace");
-        clientFactory.setBus(bus);
+
         List<AbstractFeature> features = new ArrayList<AbstractFeature>();
         features.add(feature);
         // we need to setup the feature on the clientfactory
@@ -76,9 +75,11 @@ public class FailOverClientServerTest extends AbstractJUnit4SpringContextTests {
 
         Hello hello = clientFactory.create(Hello.class);
         String response = hello.sayHello();
-        System.out.println("Get the response here " + response);
+
         assertEquals("Get a wrong response", "Hello", response);
 
+        response = hello.sayHello();
+        assertEquals("Get a wrong response", "Hello", response);
 
     }
 

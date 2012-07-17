@@ -19,30 +19,29 @@ package org.fusesource.fabric.zookeeper.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.linkedin.zookeeper.client.IZKClient;
 
-@Command(name = "delete", scope = "zk", description = "Delete a node")
+@Command(name = "delete", scope = "zk", description = "Delete the specified znode", detailedDescription = "classpath:delete.txt")
 public class Delete extends ZooKeeperCommandSupport {
 
-    @Option(name = "-v", aliases = {"--version "}, description = "Version to delete")
+    @Option(name = "-v", aliases = {"--version "}, description = "The ZooKeeper version to delete. By default, delete all versions.")
     int version = -1;
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "Automatically delete parents")
+    @Option(name = "-r", aliases = {"--recursive"}, description = "Recursively delete children.")
     boolean recursive;
 
-    @Argument(description = "Path of the node to delete")
+    @Argument(description = "Path of the znode to delete")
     String path;
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkZooKeeperConnected();
+    protected void doExecute(IZKClient zk) throws Exception {
         if (recursive) {
             if (version >= 0) {
                 throw new UnsupportedOperationException("Unable to delete a version recursively");
             }
-            getZooKeeper().deleteWithChildren(path);
+            zk.deleteWithChildren(path);
         } else {
-            getZooKeeper().delete(path, version);
+            zk.delete(path, version);
         }
-        return null;
     }
 }

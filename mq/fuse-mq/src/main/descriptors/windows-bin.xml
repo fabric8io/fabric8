@@ -23,23 +23,47 @@
     </formats>
 
     <fileSets>
-        <!-- Expanded ServiceMix Runtime -->
+        <!-- Expanded fabric Runtime -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/win/fuse-fabric-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
+                <exclude>system/**</exclude>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/create</exclude>
                 <exclude>bin/fabric</exclude>
+                <exclude>bin/fusefabric.bat</exclude>
+                <exclude>bin/setenv.bat</exclude>
+                <exclude>etc/custom.properties</exclude>
+                <exclude>etc/system.properties</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
-                <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
                 <exclude>lib/*-version.jar</exclude>
+                <exclude>fabric_license.txt</exclude>
+                <exclude>fabric_notices.txt</exclude>
+                <exclude>fabric_dependencies.txt</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README</exclude>
+                <exclude>readme.txt</exclude>
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>karaf-manual*</exclude>
             </excludes>
+        </fileSet>
+
+        <!-- System repo -->
+        <fileSet>
+            <directory>target/features-repo</directory>
+            <outputDirectory>/system/</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes/bin</directory>
+            <outputDirectory>/bin/</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <includes>
+                <include>*.bat</include>
+            </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
 
         <fileSet>
@@ -54,7 +78,57 @@
             <outputDirectory>system</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>mq_license.txt</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>readme.txt</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes/licenses</directory>
+            <outputDirectory>/licenses/</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
+
+    <files>
+        <file>
+            <source>${basedir}/target/dependencies/win/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fusemq.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/META-INF/NOTICE</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>mq_notices.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>mq_dependencies.txt</destName>
+            <fileMode>0644</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+    </files>
 
   <componentDescriptors>
     <componentDescriptor>${basedir}/src/main/descriptors/common-bin.xml</componentDescriptor>

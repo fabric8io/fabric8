@@ -20,11 +20,16 @@ package org.fusesource.fabric.api;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata {
+
+public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata<CreateJCloudsContainerOptions> {
 
     private String nodeId;
     private String hostname;
     private Set<String> publicAddresses = new LinkedHashSet<String>();
+    private Set<String> privateAddresses = new LinkedHashSet<String>();
+    //Note: The identity/credential properties below refer to the user account and not to the provider account.
+    private String identity;
+    private String credential;
 
     public String getNodeId() {
         return nodeId;
@@ -40,6 +45,8 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
+        getContainerConfguration().put("localhostname", hostname);
+
     }
 
     public Set<String> getPublicAddresses() {
@@ -48,5 +55,48 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
 
     public void setPublicAddresses(Set<String> publicAddresses) {
         this.publicAddresses = publicAddresses;
+        if (publicAddresses != null && publicAddresses.size() > 0) {
+            getContainerConfguration().put("publicip", publicAddresses.toArray(new String[0])[0]);
+        }
+    }
+
+    public Set<String> getPrivateAddresses() {
+        return privateAddresses;
+    }
+
+    public void setPrivateAddresses(Set<String> privateAddresses) {
+        this.privateAddresses = privateAddresses;
+        if (privateAddresses != null && privateAddresses.size() > 0) {
+            getContainerConfguration().put("localip", privateAddresses.toArray(new String[0])[0]);
+        }
+    }
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public String getCredential() {
+        return credential;
+    }
+
+    public void setCredential(String credential) {
+        this.credential = credential;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getContainerName()).append("[")
+                .append("public ip=[ ");
+        for (String ip : publicAddresses) {
+            builder.append(ip).append(" ");
+        }
+        builder.append("]]");
+
+        return builder.toString();
     }
 }

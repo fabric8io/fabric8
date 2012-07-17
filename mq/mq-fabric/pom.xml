@@ -22,6 +22,7 @@
     <groupId>org.fusesource.mq</groupId>
     <artifactId>mq-project</artifactId>
     <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <groupId>org.fusesource.mq</groupId>
@@ -71,6 +72,11 @@
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-groups</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
     </dependency>
 
   </dependencies>

@@ -1,0 +1,1 @@
+Many of the fabric console commands work with a default version. For example, when you create a new profile with fabric:profile-create, the new profile is created in the default version by default. The fabric:version-set-default changes the default version that is used by these commands.

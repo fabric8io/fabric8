@@ -20,20 +20,22 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.commands.support.FabricCommand;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-@Command(name = "version-create", scope = "fabric", description = "Create a new version")
+@Command(name = "version-create", scope = "fabric", description = "Create a new version, copying all of the profiles from the current latest version into the new version")
 public class VersionCreate extends FabricCommand {
 
-    @Option(name = "--parent", description = "The parent version (will default use latest version as parent)")
+    @Option(name = "--parent", description = "The parent version. By default, use the latest version as the parent.")
     private String parentVersion;
-
-    @Argument(index = 0, description = "Version number. If left blank Fabric will use next minor version.",  required = false)
+    @Option(name = "--default", description = "Set the created version to be the new default version.")
+    private Boolean defaultVersion;
+    @Argument(index = 0, description = "The new version to create. If not specified, defaults to the next minor version.",  required = false)
     private String name;
 
     @Override
     protected Object doExecute() throws Exception {
-        getZooKeeper().checkConnected(0L);
+        checkFabricAvailable();
+
         Version latestVersion = null;
 
         Version[] versions = fabricService.getVersions();
@@ -59,13 +61,20 @@ public class VersionCreate extends FabricCommand {
                 throw new IllegalArgumentException("Cannot find parent version: " + parentVersion);
             }
         }
+        
+        Version created;
         if (parent != null) {
-            fabricService.createVersion(parent, name);
+            created = fabricService.createVersion(parent, name);
             System.out.println("Created version: " + name + " as copy of: " + parent.getName());
         } else {
-            fabricService.createVersion(name);
+            created = fabricService.createVersion(name);
             System.out.println("Created version: " + name);
         }
+        
+        if (defaultVersion != null && defaultVersion == true) {
+            fabricService.setDefaultVersion(created);
+        }
+        
         return null;
     }
 }
