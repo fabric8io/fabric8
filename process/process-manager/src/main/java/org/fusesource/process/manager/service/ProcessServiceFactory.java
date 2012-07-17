@@ -76,21 +76,21 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
     @Override
     public void updated(String pid, Dictionary incoming) throws ConfigurationException {
 
+        // get process install parameters,
+        // note that service.pid and service.factoryPid are added too
+        Map<String, String> env = new HashMap<String, String>();
+        InstallParameters parameters = getInstallParameters(incoming, env);
+
         final Installation installation = installationMap.get(pid);
         if (null != installation) {
 
-            // TODO only config updates are supported, process installation parameters cannot be updated,
+            // TODO only environment updates are supported, process installation parameters cannot be updated,
             // for that a process should be deleted and created again
-            // reconfigure and refresh environment variables
+            // refresh environment variables and reconfigure
             LOG.info("Refreshing Process " + pid);
-            updateConfig(pid, installation, incoming);
+            updateConfig(pid, installation, env);
 
         } else {
-
-            // get process install parameters,
-            // note that service.pid and service.factoryPid are added too
-            Map<String, String> env = new HashMap<String, String>();
-            InstallParameters parameters = getInstallParameters(incoming, env);
 
             // create and add bridge connector
             installationMap.put(pid, installProcess(pid, parameters, env));
@@ -100,7 +100,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
 
     }
 
-    private InstallParameters getInstallParameters(Dictionary incoming, Map<String, String> properties) throws ConfigurationException {
+    private InstallParameters getInstallParameters(Dictionary incoming, Map<String, String> env) throws ConfigurationException {
 
         InstallParameters parameters = new InstallParameters();
         for (Enumeration keys = incoming.keys(); keys.hasMoreElements(); ) {
@@ -111,11 +111,11 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
             // TODO add jar install parameters support
             if ("url".equals(key)) {
                 parameters.url = value;
-            } else if ("configUrl".equals(key)) {
-                parameters.configUrl = value;
+            } else if ("controllerUrl".equals(key)) {
+                parameters.controllerUrl = value;
             } else {
-                // the remaining properties become config properties
-                properties.put(key, (String) incoming.get(key));
+                // the remaining properties become environment properties
+                env.put(key, (String) incoming.get(key));
             }
         }
 
@@ -127,23 +127,20 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
         return parameters;
     }
 
-    private void updateConfig(String pid, Installation installation, Dictionary incoming) throws ConfigurationException {
+    private void updateConfig(String pid, Installation installation, Map<String, String> env) throws ConfigurationException {
 
         try {
 
             final ProcessController controller = installation.getController();
             final boolean running = (controller.status() == 0);
 
-            // stop if running, since config may not be changed when process is running
+            // stop if running, since config may not be changed while process is running
             if (running) {
                 controller.stop();
             }
 
             // refresh environment variables in process config
-            for (Enumeration keys = incoming.keys(); keys.hasMoreElements(); ) {
-                String key = (String) keys.nextElement();
-                installation.getEnvironment().put(key, (String) incoming.get(key));
-            }
+            installation.getEnvironment().putAll(env);
 
             // re-configure the install using new environment variables
             controller.configure();
@@ -165,7 +162,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
         try {
 
             // TODO add support for jar install parameters
-            Installation installation = processManager.install(parameters.url, new URL(parameters.configUrl));
+            Installation installation = processManager.install(parameters.url, new URL(parameters.controllerUrl));
 
             // add environment variables from properties
             installation.getEnvironment().putAll(env);
@@ -210,7 +207,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
 
     private class InstallParameters {
         String url;
-        String configUrl;
+        String controllerUrl;
     }
 
 }
