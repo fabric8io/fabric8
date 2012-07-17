@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.ProcessManager;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
     private ProcessManager processManager;
     private Map<String, Installation> installationMap = new Hashtable<String, Installation>();
     private static final String PROCESS_SERVICE_FACTORY_PID = "org.fusesource.process";
+    private BundleContext bundleContext;
 
     @Override
     public String getName() {
@@ -109,19 +111,37 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
             String value = (String) incoming.get(key);
 
             // TODO add jar install parameters support
-            if ("url".equals(key)) {
-                parameters.url = value;
-            } else if ("controllerUrl".equals(key)) {
-                parameters.controllerUrl = value;
-            } else {
-                // the remaining properties become environment properties
-                env.put(key, (String) incoming.get(key));
-            }
-        }
+            try {
 
-        // check installation parameters
-        if (null == parameters.url) {
-            throw new ConfigurationException("url", "url property is REQUIRED");
+                if ("url".equals(key)) {
+                    Preconditions.checkNotNull(value, "Null url property");
+                    Preconditions.checkArgument(!value.trim().isEmpty(), "Empty url property");
+                    parameters.url = value.trim();
+                } else if ("controllerUrl".equals(key)) {
+                    Preconditions.checkNotNull(value, "Null controllerUrl property");
+                    Preconditions.checkArgument(!value.trim().isEmpty(), "Empty controllerUrl property");
+                    parameters.controllerUrl = new URL(value.trim());
+                } else if ("kind".equals(key)) {
+                    Preconditions.checkNotNull(value, "Null kind property");
+                    Preconditions.checkArgument(!value.trim().isEmpty(), "Empty kind property");
+
+                    String name = value.trim() + ".json";
+                    parameters.controllerUrl = bundleContext.getBundle().getResource(name);
+                    if (parameters.controllerUrl == null) {
+                        String msg = "Cannot find controller kind " + name + " on the classpath";
+                        throw new IllegalArgumentException(msg);
+                    }
+
+                } else {
+                    // the remaining properties become environment properties
+                    env.put(key, (String) incoming.get(key));
+                }
+
+            } catch (Exception e) {
+                String msg = "Error getting install parameters: " + e.getMessage();
+                LOG.error(msg, e);
+                throw new ConfigurationException(key, msg);
+            }
         }
 
         return parameters;
@@ -162,7 +182,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
         try {
 
             // TODO add support for jar install parameters
-            Installation installation = processManager.install(parameters.url, new URL(parameters.controllerUrl));
+            Installation installation = processManager.install(parameters.url, parameters.controllerUrl);
 
             // add environment variables from properties
             installation.getEnvironment().putAll(env);
@@ -184,6 +204,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
 
     public final void init() throws Exception {
         Preconditions.checkNotNull(processManager, "processManager property");
+        Preconditions.checkNotNull(bundleContext, "bundleContext property");
 
         // load existing config admin based installations in map
         List<Installation> installations = processManager.listInstallations();
@@ -205,9 +226,25 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
         LOG.info("Destroyed");
     }
 
+    public ProcessManager getProcessManager() {
+        return processManager;
+    }
+
+    public void setProcessManager(ProcessManager processManager) {
+        this.processManager = processManager;
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
     private class InstallParameters {
         String url;
-        String controllerUrl;
+        URL controllerUrl;
     }
 
 }

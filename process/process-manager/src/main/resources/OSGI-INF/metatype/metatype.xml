@@ -25,6 +25,8 @@
         name="%url.name" description="%url.description"/>
     <AD id="controllerUrl" type="String" required="false"
         name="%controllerUrl.name" description="%controllerUrl.description"/>
+    <AD id="kind" type="String" required="false"
+        name="%kind.name" description="%kind.description"/>
 
   </OCD>
 

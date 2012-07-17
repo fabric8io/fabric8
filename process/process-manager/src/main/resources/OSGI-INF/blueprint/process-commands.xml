@@ -113,6 +113,7 @@
           init-method="init"
           destroy-method="destroy">
       <property name="processManager" ref="processManager"/>
+      <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
 </blueprint>
