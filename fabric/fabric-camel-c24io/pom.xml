@@ -31,7 +31,6 @@
   <description>Fuse Fabric :: Camel C24IO support</description>
 
   <properties>
-    <c24.test.version>4.0.1</c24.test.version>
     <c24.version>4.1.1</c24.version>
   </properties>
 
@@ -53,26 +52,6 @@
     </dependency>
 
     <!-- testing -->
-<!--
-    <dependency>
-      <groupId>biz.c24.io.test</groupId>
-      <artifactId>test-statements</artifactId>
-      <version>${c24.test.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>biz.c24.io.test</groupId>
-      <artifactId>test-transform</artifactId>
-      <version>${c24.test.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>biz.c24.io.test</groupId>
-      <artifactId>test-transactions</artifactId>
-      <version>${c24.test.version}</version>
-      <scope>test</scope>
-    </dependency>
--->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
@@ -91,26 +70,6 @@
       <version>${camel-version}</version>
       <scope>test</scope>
     </dependency>
-    <!--
-    <dependency>
-        <groupId>biz.c24.artix-ds</groupId>
-        <artifactId>biz.c24.io.swift2007</artifactId>
-        <version>1</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>biz.c24.artix-ds</groupId>
-        <artifactId>iso.std.iso.x20022.tech.xsd.pacs.x008.x001.x01</artifactId>
-        <version>1</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>biz.c24.artix-ds</groupId>
-        <artifactId>mx2mt</artifactId>
-        <version>1</version>
-        <scope>test</scope>
-    </dependency>
-    -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
