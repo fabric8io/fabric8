@@ -41,6 +41,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
 
     private ProcessManager processManager;
     private Map<String, Installation> installationMap = new Hashtable<String, Installation>();
+    private static final String PROCESS_SERVICE_FACTORY_PID = "org.fusesource.process";
 
     @Override
     public String getName() {
@@ -48,10 +49,35 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
     }
 
     @Override
+    public final void deleted(String pid) {
+
+        Installation installation = installationMap.remove(pid);
+        if (installation != null) {
+
+            try {
+                if (installation.getController().status() == 0) {
+                    installation.getController().stop();
+                }
+                // TODO uninstall is not supported right now
+//                installation.getController().uninstall();
+//                processManager.uninstall(installation);
+                LOG.info("Destroyed Process " + pid);
+            } catch (Exception e) {
+                LOG.error("Error destroying Process " + pid + " : " + e.getMessage(), e);
+            }
+
+        } else {
+            LOG.error("Process " + pid + " not found");
+        }
+
+        LOG.info("Deleted " + pid);
+    }
+
+    @Override
     public void updated(String pid, Dictionary incoming) throws ConfigurationException {
 
-        Installation installation = installationMap.get(pid);
-        if (null == installation) {
+        final Installation installation = installationMap.get(pid);
+        if (null != installation) {
 
             // TODO only config updates are supported, process installation parameters cannot be updated,
             // for that a process should be deleted and created again
@@ -61,7 +87,8 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
 
         } else {
 
-            // get process install parameters
+            // get process install parameters,
+            // note that service.pid and service.factoryPid are added too
             Map<String, String> env = new HashMap<String, String>();
             InstallParameters parameters = getInstallParameters(incoming, env);
 
@@ -161,6 +188,15 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
     public final void init() throws Exception {
         Preconditions.checkNotNull(processManager, "processManager property");
 
+        // load existing config admin based installations in map
+        List<Installation> installations = processManager.listInstallations();
+        for (Installation installation : installations) {
+            Map<String, String> env = installation.getEnvironment();
+            if (PROCESS_SERVICE_FACTORY_PID.equals(env.get("service.factoryPid"))) {
+                installationMap.put(env.get("service.pid"), installation);
+            }
+        }
+
         LOG.info("Started");
     }
 
@@ -170,31 +206,6 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
         installationMap.clear();
 
         LOG.info("Destroyed");
-    }
-
-    @Override
-    public final void deleted(String pid) {
-
-        Installation installation = installationMap.remove(pid);
-        if (installation != null) {
-
-            try {
-                if (installation.getController().status() == 0) {
-                    installation.getController().stop();
-                }
-                // TODO uninstall is not supported right now
-//                installation.getController().uninstall();
-//                processManager.uninstall(installation);
-                LOG.info("Destroyed Process " + pid);
-            } catch (Exception e) {
-                LOG.error("Error destroying Process " + pid + " : " + e.getMessage(), e);
-            }
-
-        } else {
-            LOG.error("Process " + pid + " not found");
-        }
-
-        LOG.info("Deleted " + pid);
     }
 
     private class InstallParameters {
