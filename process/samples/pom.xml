@@ -34,6 +34,7 @@
 
     <modules>
         <module>process-sample-camel-spring</module>
+        <module>process-sample-just-camel-spring-xml</module>
     </modules>
 
     <!-- add launcher -->

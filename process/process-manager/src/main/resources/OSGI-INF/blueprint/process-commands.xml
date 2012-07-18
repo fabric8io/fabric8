@@ -35,6 +35,7 @@
             </action>
             <optional-completers>
                 <entry key="--kind" value-ref="kindCompleter"/>
+                <entry key="--main" value-ref="mainClassCompleter"/>
             </optional-completers>
         </command>
         <command name="process/ps">
@@ -103,6 +104,8 @@
 
     <bean id="kindCompleter" class="org.fusesource.process.manager.commands.KindCompleter" init-method="init"/>
 
+    <bean id="mainClassCompleter" class="org.fusesource.process.manager.commands.MainClassCompleter"/>
+    
     <!--<service id="processManagerService" ref="processManager" interface="org.fusesource.process.manager.ProcessManager" />-->
 
 </blueprint>

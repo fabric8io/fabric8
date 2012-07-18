@@ -43,6 +43,8 @@ public class InstallJar extends InstallSupport {
     protected String[] optionalDependencyPatterns;
     @Option(name="-exc", aliases={"--exclude"}, required = false, multiValued = true, description = "List of patterns of dependencies to exclude. Of the form group[:artifact] with * allowed as wildard")
     protected String[] excludeDependencyPatterns;
+    @Option(name="-m", aliases={"--main"}, required = false, description = "The Java executable main() class")
+    protected String mainClass;
 
     @Argument(index = 0, required = true, name = "groupId", description = "The maven group Id of the jar")
     protected String groupId;
@@ -70,6 +72,9 @@ public class InstallJar extends InstallSupport {
         }
         if (excludeDependencyPatterns != null) {
             parameters.setExcludeDependencyFilterPatterns(excludeDependencyPatterns);
+        }
+        if (mainClass != null) {
+            parameters.setMainClass(mainClass);
         }
 
         Installation install = getProcessManager().installJar(parameters);

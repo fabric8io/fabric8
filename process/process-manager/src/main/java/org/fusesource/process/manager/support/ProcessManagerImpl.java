@@ -159,7 +159,7 @@ public class ProcessManagerImpl implements ProcessManager {
                 Files.write("", new File(etc, "config.properties"), Charsets.UTF_8);
                 Files.write("", new File(etc, "jvm.config"), Charsets.UTF_8);
 
-                JarInstaller installer = new JarInstaller();
+                JarInstaller installer = new JarInstaller(executor);
                 installer.unpackJarProcess(config, id, installDir, parameters);
             }
         };

@@ -32,6 +32,7 @@ public class JarInstallParameters {
     private boolean offline;
     private String[] optionalDependencyPatterns = {};
     private String[] excludeDependencyFilterPatterns = {};
+    private String mainClass;
 
     public URL getControllerJson() {
         return controllerJson;
@@ -103,5 +104,13 @@ public class JarInstallParameters {
 
     public void setOptionalDependencyPatterns(String[] optionalDependencyPatterns) {
         this.optionalDependencyPatterns = optionalDependencyPatterns;
+    }
+
+    public String getMainClass() {
+        return mainClass;
+    }
+
+    public void setMainClass(String mainClass) {
+        this.mainClass = mainClass;
     }
 }

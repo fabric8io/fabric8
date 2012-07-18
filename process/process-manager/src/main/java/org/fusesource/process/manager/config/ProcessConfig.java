@@ -16,8 +16,14 @@
  */
 package org.fusesource.process.manager.config;
 
+import org.fusesource.process.manager.support.command.Command;
+import org.fusesource.process.manager.support.command.CommandFailedException;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * The configuration DTO stored as JSON so that the system can be restarted and remember how to run & control a managed process
@@ -121,5 +127,14 @@ public class ProcessConfig {
 
     public void setConfigureCommand(String configureCommand) {
         this.configureCommand = configureCommand;
+    }
+
+    public int runCommand(Executor executor, File baseDir, String... arguments) throws IOException, InterruptedException, CommandFailedException {
+        Command command = new Command(arguments).setDirectory(baseDir);
+        Map<String,String> environment = getEnvironment();
+        if (environment != null && environment.size() > 0) {
+            command = command.addEnvironment(environment);
+        }
+        return command.execute(executor);
     }
 }

@@ -20,7 +20,6 @@ import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.config.ProcessConfig;
-import org.fusesource.process.manager.support.command.Command;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -148,6 +146,11 @@ public class DefaultProcessController implements ProcessController
                 return extractPidFromFile(file);
             }
         }
+        File pidFile = new File(baseDir, "var/process.pid");
+        if (pidFile.exists()) {
+            return extractPidFromFile(pidFile);
+        }
+
         File pidDir = new File(baseDir, "var/run");
         if (pidDir.exists() && pidDir.isDirectory()) {
             String launchScript = getLaunchScript();
@@ -160,10 +163,9 @@ public class DefaultProcessController implements ProcessController
                 script = script.substring(idx + 1);
             }
             // lets try find the file /var/run/launcher.pid by default
-            File pidFile = new File(pidDir, script + ".pid");
-
+            pidFile = new File(pidDir, script + ".pid");
             if (pidFile.exists()) {
-                answer = extractPidFromFile(pidFile);
+                return extractPidFromFile(pidFile);
             }
 
             // otherwise lets just find a /var/run/*.pid file
@@ -209,20 +211,11 @@ public class DefaultProcessController implements ProcessController
     // Implementation methods
     //-------------------------------------------------------------------------
 
-    protected int runCommand(String... arguments) throws IOException, InterruptedException, CommandFailedException {
-        Command command = new Command(arguments).setDirectory(baseDir);
-        Map<String,String> environment = config.getEnvironment();
-        if (environment != null && environment.size() > 0) {
-            command = command.addEnvironment(environment);
-        }
-        return command.execute(getExecutor());
-    }
-    
     protected int runConfigCommandValueOrLaunchScriptWith(String command, String launchArgument) throws InterruptedException, IOException, CommandFailedException {
         if (command != null) {
             return runCommandLine(command);
         } else {
-            return runCommand(getLaunchScript(), launchArgument);
+            return config.runCommand(executor, baseDir, getLaunchScript(), launchArgument);
         }
     }
 
@@ -232,7 +225,7 @@ public class DefaultProcessController implements ProcessController
     protected int runCommandLine(String command) throws IOException, InterruptedException, CommandFailedException {
         // TODO warning this doesn't handle quoted strings as a single argument
         String[] commandArgs = command.split("\\s+");
-        return runCommand(commandArgs);
+        return config.runCommand(executor, baseDir, commandArgs);
     }
 
 }
