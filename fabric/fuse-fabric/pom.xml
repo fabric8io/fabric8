@@ -242,6 +242,7 @@
                                    <feature>fabric-agent</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
+                                   <feature>fabric-maven-proxy</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-bundle</feature>
