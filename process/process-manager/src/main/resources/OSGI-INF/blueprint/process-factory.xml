@@ -18,7 +18,7 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
     >
 
-    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
+    <!--<ext:property-placeholder placeholder-prefix="${" placeholder-suffix="}"/>-->
 
     <service id="processService" ref="processServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
       <service-properties>
@@ -29,9 +29,12 @@
     <bean id="processServiceFactory" class="org.fusesource.process.manager.service.ProcessServiceFactory"
           init-method="init"
           destroy-method="destroy">
+<!--
       <property name="processManager">
           <reference interface="org.fusesource.process.manager.ProcessManager" />
       </property>
+-->
+      <property name="processManager" ref="processManager" />
       <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 

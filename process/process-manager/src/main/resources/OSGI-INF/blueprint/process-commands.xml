@@ -103,6 +103,6 @@
 
     <bean id="kindCompleter" class="org.fusesource.process.manager.commands.KindCompleter" init-method="init"/>
 
-    <service id="processManagerService" ref="processManager" interface="org.fusesource.process.manager.ProcessManager" />
+    <!--<service id="processManagerService" ref="processManager" interface="org.fusesource.process.manager.ProcessManager" />-->
 
 </blueprint>
