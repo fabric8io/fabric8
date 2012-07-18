@@ -100,14 +100,14 @@ public class ObrResolver {
                     infos.put(req, bundleInfo);
                 }
             }
-            for (final String bundle : bundles) {
-                Resource res = createResource(bundle, downloads, fabs);
-                if (res == null) {
-                    throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundle);
-                }
-                ress.add(res);
-                infos.put(res, new SimpleBundleInfo(bundle, false));
+        }
+        for (String bundle : bundles) {
+            Resource res = createResource(bundle, downloads, fabs);
+            if (res == null) {
+                throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundle);
             }
+            ress.add(res);
+            infos.put(res, new SimpleBundleInfo(bundle, false));
         }
         for (FabBundleInfo fab : fabs.values()) {
             Resource res = repositoryAdmin.getHelper().createResource(fab.getManifest());
