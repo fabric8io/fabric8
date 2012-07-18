@@ -1,4 +1,4 @@
-function maven-download {
+function maven_download {
   echo "Downloading Maven Artifact with groupId: $2 artifactId: $3 and version: $4 from repository: $1";
   export REPO=$1
   export GROUP_ID=$2

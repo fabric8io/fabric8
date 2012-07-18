@@ -1,4 +1,4 @@
-function karaf-check() {
+function karaf_check() {
    KARAF_HOME=$1
    INSTANCES_FILE=$KARAF_HOME/instances/instance.properties
    for i in `seq 1 30`;
