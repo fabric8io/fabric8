@@ -390,6 +390,18 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
             }
         }
+        Set<String> overrides = new HashSet<String>();
+        for (String key : properties.keySet()) {
+            if (key.startsWith("override.")) {
+                String url = properties.get(key);
+                if (url == null || url.length() == 0) {
+                    url = key.substring("override.".length());
+                }
+                if (url != null && url.length() > 0) {
+                    overrides.add(url);
+                }
+            }
+        }
         // Update bundles
         FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
         fabResolverFactory.setConfiguration(new FabricFabConfiguration(config, propertyResolver));
@@ -400,7 +412,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 return repositories.values().toArray(new Repository[repositories.size()]);
             }
         });
-        updateDeployment(fabResolverFactory, repositories, features, bundles, fabs);
+        updateDeployment(fabResolverFactory, repositories, features, bundles, fabs, overrides);
         return true;
     }
 
@@ -518,7 +530,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return set;
     }
 
-    private void updateDeployment(FabResolverFactory fabResolverFactory, Map<URI, Repository> repositories, Set<Feature> features, Set<String> bundles, Set<String> fabs) throws Exception {
+    private void updateDeployment(FabResolverFactory fabResolverFactory,
+                                  Map<URI, Repository> repositories,
+                                  Set<Feature> features,
+                                  Set<String> bundles,
+                                  Set<String> fabs,
+                                  Set<String> overrides) throws Exception {
         Map<String, FabBundleInfo> infos = new HashMap<String, FabBundleInfo>();
         for (String fab : fabs) {
             FabResolver resolver = fabResolverFactory.getResolver(new URL(fab));
@@ -551,15 +568,15 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         //Check if we need to resolve more fabs.
         if (!featureFabs.isEmpty()) {
             fabs.addAll(featureFabs);
-            updateDeployment(fabResolverFactory, repositories, features, bundles, fabs);
+            updateDeployment(fabResolverFactory, repositories, features, bundles, fabs, overrides);
             return;
         }
 
 
         updateStatus("downloading", null);
-        Map<String, File> downloads = downloadBundles(allFeatures, bundles);
+        Map<String, File> downloads = downloadBundles(allFeatures, bundles, overrides);
         updateStatus("resolving", null);
-        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos, downloads);
+        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos, overrides, downloads);
 
         updateStatus("installing", null, allResources, true);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
@@ -991,7 +1008,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return false;
     }
 
-    protected Map<String, File> downloadBundles(Set<Feature> features, Set<String> bundles) throws Exception {
+    protected Map<String, File> downloadBundles(Set<Feature> features, Set<String> bundles, Set<String> overrides) throws Exception {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             for (BundleInfo bundle : feature.getBundles()) {
@@ -1000,6 +1017,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
         for (String bundle : bundles) {
             locations.add(bundle);
+        }
+        for (String override : overrides) {
+            locations.add(override);
         }
         final CountDownLatch latch = new CountDownLatch(locations.size());
         final Map<String, File> downloads = new ConcurrentHashMap<String, File>();

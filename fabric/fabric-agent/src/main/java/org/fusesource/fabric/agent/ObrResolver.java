@@ -51,6 +51,7 @@ import org.apache.karaf.features.Feature;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +76,10 @@ public class ObrResolver {
         this.repositoryAdmin = repositoryAdmin;
     }
 
-    public List<Resource> resolve(Set<Feature> features, Set<String> bundles,
+    public List<Resource> resolve(Set<Feature> features,
+                                  Set<String> bundles,
                                   Map<String, FabBundleInfo> fabs,
+                                  Set<String> overrides,
                                   Map<String, File> downloads) throws Exception {
         List<Requirement> reqs = new ArrayList<Requirement>();
         List<Resource> ress = new ArrayList<Resource>();
@@ -129,6 +132,29 @@ public class ObrResolver {
                 }
             }
         }
+        for (String override : overrides) {
+            Resource over = createResource(override, downloads, fabs);
+            if (over == null) {
+                throw new IllegalArgumentException("Unable to build OBR representation for bundle " + override);
+            }
+            boolean add = false;
+            boolean dependency = true;
+            for (Resource res : new ArrayList<Resource>(ress)) {
+                if (res.getSymbolicName().equals(over.getSymbolicName())) {
+                    Version v1 = res.getVersion();
+                    Version v2 = new Version(v1.getMajor(), v1.getMinor() + 1, 0);
+                    if (compareFuseVersions(v1, over.getVersion()) < 0 && compareFuseVersions(over.getVersion(), v2) < 0) {
+                        ress.remove(res);
+                        dependency &= infos.remove(res).isDependency();
+                        add = true;
+                    }
+                }
+            }
+            if (add) {
+                ress.add(over);
+                infos.put(over, new SimpleBundleInfo(override, dependency));
+            }
+        }
 
         Repository repository = repositoryAdmin.getHelper().repository(ress.toArray(new Resource[ress.size()]));
         List<Repository> repos = new ArrayList<Repository>();
@@ -167,6 +193,34 @@ public class ObrResolver {
         Collections.addAll(deploy, resolver.getAddedResources());
         Collections.addAll(deploy, resolver.getRequiredResources());
         return deploy;
+    }
+
+    private int compareFuseVersions(org.osgi.framework.Version v1, org.osgi.framework.Version v2) {
+        int c = v1.getMajor() - v2.getMajor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMinor() - v2.getMinor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMicro() - v2.getMicro();
+        if (c != 0) {
+            return c;
+        }
+        String q1 = v1.getQualifier();
+        String q2 = v2.getQualifier();
+        if (q1.startsWith("fuse-") && q2.startsWith("fuse-")) {
+            q1 = cleanQualifierForComparison(q1);
+            q2 = cleanQualifierForComparison(q2);
+        }
+        return q1.compareTo(q2);
+    }
+
+    private String cleanQualifierForComparison(String q) {
+        return q.replace("-alpha-", "-").replace("-beta-", "-")
+                .replace("-7-0-", "-70-")
+                .replace("-7-", "-70-");
     }
 
     protected Resource createResource(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {
