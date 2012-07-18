@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -45,6 +48,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.felix.utils.version.VersionTable;
@@ -586,6 +591,91 @@ public class PatchServiceImpl implements PatchService {
         }
     }
 
+    @Override
+    public void applyFinePatch(Version version, File patch, String login, String password) {
+        try {
+            // Load patch
+            URI uploadUri = fabric.getMavenRepoUploadURI();
+            URI downloadUri = fabric.getMavenRepoURI();
+            Properties patchMetadata = new Properties();
+            ZipFile zipFile = new ZipFile(patch);
+            try {
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
+                    if (!entry.isDirectory()) {
+                        String entryName = entry.getName();
+                        if (entryName.startsWith("repository/")) {
+                            String fileName = entryName.substring("repository/".length());
+                            while (fileName.startsWith("/")) {
+                                fileName = fileName.substring(1);
+                            }
+                            URL uploadUrl = uploadUri.resolve(fileName).toURL();
+                            URLConnection con = uploadUrl.openConnection();
+                            if (con instanceof HttpURLConnection) {
+                                ((HttpURLConnection) con).setRequestMethod("PUT");
+                            }
+                            if (login != null && password != null) {
+                                con.setRequestProperty("Authorization", "Basic " + new String(Base64Encoder.encode((login + ":" + password).getBytes())));
+                            }
+                            con.setDoInput(true);
+                            con.setDoOutput(true);
+                            con.connect();
+                            OutputStream os = con.getOutputStream();
+                            try {
+                                InputStream is = zipFile.getInputStream(entry);
+                                try {
+                                    copy(is, os);
+                                    if (con instanceof HttpURLConnection) {
+                                        int code = ((HttpURLConnection) con).getResponseCode();
+                                        if (code < 200 || code >= 300) {
+                                            throw new IOException("Error uploading patched jars: " + ((HttpURLConnection) con).getResponseMessage());
+                                        }
+                                    }
+                                } finally {
+                                    close(is);
+                                }
+                            } finally {
+                                close(os);
+                            }
+                        } else if (entryName.endsWith(".patch") && !entryName.contains("/")) {
+                            InputStream is = zipFile.getInputStream(entry);
+                            try {
+                                patchMetadata.load(is);
+                            } finally {
+                                close(is);
+                            }
+                        }
+                    }
+                }
+            } finally {
+                close(zipFile);
+            }
+            // Get patched jars
+            String patchId = patchMetadata.getProperty(PATCH_ID);
+            List<String> newArtifactUrls = new ArrayList<String>();
+            int count = Integer.parseInt(patchMetadata.getProperty(PATCH_BUNDLES + "." + PATCH_COUNT, "0"));
+            for (int i = 0; i < count; i++) {
+                String url = patchMetadata.getProperty(PATCH_BUNDLES + "." + Integer.toString(i));
+                newArtifactUrls.add(url);
+            }
+            // Create patch profile
+            Profile profile = version.getProfile("patch-" + patchId);
+            if (profile == null) {
+                profile = version.createProfile("patch-" + patchId);
+                profile.setOverrides(newArtifactUrls);
+                Profile defaultProfile = version.getProfile("default");
+                List<Profile> parents = new ArrayList<Profile>(Arrays.asList(defaultProfile.getParents()));
+                if (!parents.contains(profile)) {
+                    parents.add(profile);
+                    defaultProfile.setParents(parents.toArray(new Profile[parents.size()]));
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to apply patch", e);
+        }
+    }
+
     protected Set<Patch> doGetPossiblePatches(Set<String> artifacts) {
         Set<Patch> perfectusPatches = loadPerfectusPatches(false);
         Set<Patch> possiblePatches = new TreeSet<Patch>();
@@ -929,6 +1019,15 @@ public class PatchServiceImpl implements PatchService {
     }
 
     static void close(Closeable c) {
+        try {
+            if (c != null) {
+                c.close();
+            }
+        } catch (IOException e) {
+        }
+    }
+
+    static void close(ZipFile c) {
         try {
             if (c != null) {
                 c.close();

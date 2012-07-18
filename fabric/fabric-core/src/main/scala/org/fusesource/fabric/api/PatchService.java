@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.List;
+import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
@@ -98,5 +98,7 @@ public interface PatchService {
     void applyPatches(Version version, Set<Patch> patches);
 
     void applyPatches(Profile profile, Set<Patch> patches);
+
+    void applyFinePatch(Version version, File patch, String login, String password);
 
 }
